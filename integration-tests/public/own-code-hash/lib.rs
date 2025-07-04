@@ -62,7 +62,7 @@ mod own_code_hash {
                         )
                     })
                     .unwrap_or_else(|error| {
-                        panic!("Received a `LangError` while instatiating: {:?}", error)
+                        panic!("Received a `LangError` while instantiating: {:?}", error)
                     });
                 ink::ToAddr::to_addr(&cr)
             };
