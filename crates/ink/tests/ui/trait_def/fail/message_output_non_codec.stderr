@@ -36,13 +36,13 @@ error[E0277]: the trait bound `Result<NonCodec, LangError>: ink::parity_scale_co
 note: required by a bound in `Execution::<Args, Output, Abi>::new`
  --> $WORKSPACE/crates/env/src/call/execution.rs
   |
-  |     Output: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
-  |                                  ^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `Execution::<Args, Output, Abi>::new`
+  |     Output: DecodeMessageResult<Abi>,
+  |             ^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `Execution::<Args, Output, Abi>::new`
 ...
   |     pub fn new(input: ExecutionInput<Args, Abi>) -> Self {
   |            --- required by a bound in this associated function
 
-error[E0277]: the trait bound `NonCodec: AbiDecodeWith<ink::abi::Ink>` is not satisfied
+error[E0277]: the trait bound `NonCodec: DecodeMessageResult<ink::abi::Ink>` is not satisfied
  --> tests/ui/trait_def/fail/message_output_non_codec.rs:5:5
   |
 5 | /     #[ink(message)]
@@ -55,12 +55,12 @@ error[E0277]: the trait bound `NonCodec: AbiDecodeWith<ink::abi::Ink>` is not sa
             Rc<T>
             sp_core::Bytes
   = note: required for `NonCodec` to implement `ink::parity_scale_codec::Decode`
-  = note: required for `NonCodec` to implement `AbiDecodeWith<ink::abi::Ink>`
+  = note: required for `NonCodec` to implement `DecodeMessageResult<ink::abi::Ink>`
 note: required by a bound in `Execution::<Args, Output, Abi>::new`
  --> $WORKSPACE/crates/env/src/call/execution.rs
   |
-  |     Output: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
-  |             ^^^^^^^^^^^^^^^^^^ required by this bound in `Execution::<Args, Output, Abi>::new`
+  |     Output: DecodeMessageResult<Abi>,
+  |             ^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `Execution::<Args, Output, Abi>::new`
 ...
   |     pub fn new(input: ExecutionInput<Args, Abi>) -> Self {
   |            --- required by a bound in this associated function
@@ -69,7 +69,7 @@ error[E0599]: the method `try_invoke` exists for struct `CallBuilder<E, Set<Call
  --> tests/ui/trait_def/fail/message_output_non_codec.rs:5:5
   |
 1 |   pub struct NonCodec;
-  |   ------------------- doesn't satisfy `NonCodec: AbiDecodeWith<ink::abi::Ink>`, `NonCodec: DecodeMessageResult<ink::abi::Ink>` or `NonCodec: WrapperTypeDecode`
+  |   ------------------- doesn't satisfy `NonCodec: DecodeMessageResult<ink::abi::Ink>` or `NonCodec: WrapperTypeDecode`
 ...
 5 |       #[ink(message)]
   |  _____^
@@ -85,7 +85,7 @@ error[E0599]: the method `try_invoke` exists for struct `CallBuilder<E, Set<Call
           `Result<NonCodec, LangError>: ink::parity_scale_codec::Decode`
           which is required by `NonCodec: DecodeMessageResult<ink::abi::Ink>`
           `NonCodec: WrapperTypeDecode`
-          which is required by `NonCodec: AbiDecodeWith<ink::abi::Ink>`
+          which is required by `NonCodec: DecodeMessageResult<ink::abi::Ink>`
 note: the trait `WrapperTypeDecode` must be implemented
  --> $CARGO/parity-scale-codec-3.7.4/src/codec.rs
   |

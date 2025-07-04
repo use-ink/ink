@@ -45,7 +45,7 @@ error[E0599]: the method `try_invoke` exists for struct `CallBuilder<DefaultEnvi
   --> tests/ui/contract/fail/message/message-returns-non-codec.rs:18:9
    |
 6  |       pub struct NonCodecType;
-   |       ----------------------- doesn't satisfy `NonCodecType: AbiDecodeWith<ink::abi::Ink>`, `NonCodecType: DecodeMessageResult<ink::abi::Ink>` or `NonCodecType: WrapperTypeDecode`
+   |       ----------------------- doesn't satisfy `NonCodecType: DecodeMessageResult<ink::abi::Ink>` or `NonCodecType: WrapperTypeDecode`
 ...
 18 | /         pub fn message(&self) -> NonCodecType {
 19 | |             NonCodecType
@@ -61,7 +61,7 @@ error[E0599]: the method `try_invoke` exists for struct `CallBuilder<DefaultEnvi
            `Result<NonCodecType, LangError>: ink::parity_scale_codec::Decode`
            which is required by `NonCodecType: DecodeMessageResult<ink::abi::Ink>`
            `NonCodecType: WrapperTypeDecode`
-           which is required by `NonCodecType: AbiDecodeWith<ink::abi::Ink>`
+           which is required by `NonCodecType: DecodeMessageResult<ink::abi::Ink>`
 note: the trait `WrapperTypeDecode` must be implemented
   --> $CARGO/parity-scale-codec-3.7.4/src/codec.rs
    |
