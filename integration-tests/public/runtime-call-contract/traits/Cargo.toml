@@ -16,3 +16,6 @@ default = ["std"]
 std = [
     "ink/std",
 ]
+
+[package.metadata.ink-lang]
+abi = "ink"

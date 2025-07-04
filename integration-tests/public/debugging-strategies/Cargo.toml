@@ -23,3 +23,6 @@ std = [
 ink-as-dependency = []
 e2e-tests = []
 debug = []
+
+[package.metadata.ink-lang]
+abi = "ink"

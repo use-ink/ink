@@ -8,7 +8,8 @@
 #     <github_url_to_workflow>
 #     <cargo_contract_version>
 #     <head_in_branch>
-#     < <diffs-csv-file>
+#     <contract-sizes-diffs-csv-file>
+#     <abi-contract-sizes-diffs-csv-file>
 
 set -eu
 set -o pipefail
@@ -17,7 +18,8 @@ pr_comments_url=$1
 workflow_url=$2
 cc_version=$3
 head_in_branch=$3
-diffs_markdown_table=$(</dev/stdin)
+diffs_markdown_table=$(cat $4)
+abi_diffs_markdown_table=$(cat $5)
 
 # If there is already a comment by the user `github-actions[bot]` in the ink! PR which triggered
 # this run, then we can just edit this comment (using `PATCH` instead of `POST`).
@@ -53,6 +55,15 @@ These are the results when building the \`integration-tests/*\` contracts from t
 ${diffs_markdown_table}
 
 </details>
+
+These are the results when building the \`integration-tests/*\` contracts from this branch with \`${cc_version}\` and comparing them to the same contract build with the same toolchain, but with enforced Solidity ABI:
+
+<details><summary>Show contract size for ABI ink! vs Solidity</summary>
+
+${abi_diffs_markdown_table}
+
+</details>
+
 
 [Link to the run](${workflow_url}) | Last update: ${updated}
 EOF

@@ -757,9 +757,6 @@ jobs:
               --ignore solidity-abi/solidity-calls-flipper --ignore solidity-abi/events \
               --ignore solidity-abi/trait-flipper --ignore solidity-abi/trait-dyn-cross-contract-calls -- \
               scripts/build_and_determine_contract_size.sh {}
-  
-          #bash -c "scripts/build_and_determine_contract_size.sh {} >> ${CONTRACT_SIZE_FILE} && \
-          #sed -ie 's/^integration-tests\/\(public\/\|internal\/\)\?//' ${CONTRACT_SIZE_FILE}"
 
       # NOTE: Sharing build artifacts (i.e. via a shared cargo target directory) with other contracts
       # that don't have the same ABI set makes the builds fail.
@@ -808,6 +805,117 @@ jobs:
             name: measurements-${{ env.MEASUREMENTS_ID }}
             path: ./measurements-${{ env.MEASUREMENTS_ID }}
             retention-days: 31
+
+  examples-contract-build-riscv-force-solidity-abi:
+      runs-on: ubuntu-latest
+      needs: [build]
+      steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+            with:
+                fetch-depth: 1
+
+          - name: Initialize runner
+            uses: ./.github/init
+            with:
+                cache: true
+                cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
+                cache-on-failure: true
+
+          - name: Extract branch name
+            shell: bash
+            run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+            id: extract_branch
+
+          - name: Build Contract Examples for RISC-V
+            uses: ./.github/run-container-command
+            env:
+                MANIFEST_PATH: ""
+                CONTRACT_SIZE_FILE: "measurements-abi-${{ env.MEASUREMENTS_ID }}/contract_size_"
+                CARGO_INCREMENTAL: 0
+            with:
+                command: |
+                    find integration-tests/public -type f -name "Cargo.toml" | xargs -n1 sed -i 's/abi = \"ink\"/abi = \"sol\"/g'
+                    find integration-tests/internal -type f -name "Cargo.toml" | xargs -n1 sed -i 's/abi = \"ink\"/abi = \"sol\"/g'
+
+                    mkdir -p measurements-abi-${{ env.MEASUREMENTS_ID }}/
+                    scripts/for_all_contracts_exec3.sh --path integration-tests \
+                      --ignore internal/call-builder-return-value \
+                      --ignore internal/lang-err/integration-flipper \
+                      --ignore internal/lang-err/call-builder-delegate \
+                      --ignore internal/lang-err/call-builder \
+                      --ignore internal/lang-err/contract-ref \
+                      --ignore internal/mapping \
+                      --ignore internal/mother \
+                      --ignore internal/storage-types \
+                      --ignore internal/static-buffer \
+                      --ignore public/call-runtime \
+                      --ignore public/rand-extension \
+                      --ignore public/psp22-extension \
+                      --ignore public/combined-extension \
+                      --ignore public/contract-invocation \
+                      --ignore public/contract-storage \
+                      --ignore public/contract-transfer \
+                      --ignore public/contract-xcm \
+                      --ignore public/dns \
+                      --ignore public/debugging-strategies \
+                      --ignore public/erc1155 \
+                      --ignore public/trait-erc20 \
+                      --ignore public/payment-channel \
+                      --ignore public/multi-contract-caller/subber \
+                      --ignore public/multi-contract-caller/adder \
+                      --ignore solidity-abi/sol-cross-contract --ignore solidity-abi/sol-encoding \
+                      --ignore solidity-abi/solidity-calls-flipper --ignore solidity-abi/events \
+                      --ignore solidity-abi/trait-flipper --ignore solidity-abi/trait-dyn-cross-contract-calls -- \
+                      scripts/build_and_determine_contract_size2.sh {}
+
+          # NOTE: Sharing build artifacts (i.e. via a shared cargo target directory) with other contracts
+          # that don't have the same ABI set makes the builds fail.
+          - name: Build Contract Examples for RISC-V (Solidity ABI)
+            uses: ./.github/run-container-command
+            env:
+                MANIFEST_PATH: ""
+                CONTRACT_SIZE_FILE: "measurements-abi-${{ env.MEASUREMENTS_ID }}/contract_size_"
+                CARGO_INCREMENTAL: 0
+                CARGO_TARGET_DIR: ${{ env.CARGO_TARGET_DIR }}/sol-abi
+            with:
+                command: |
+                    mkdir -p measurements-abi-${{ env.MEASUREMENTS_ID }}/
+                    scripts/for_all_contracts_exec2.sh --path integration-tests/solidity-abi -- \
+                    scripts/build_and_determine_contract_size.sh {}
+
+          - uses: actions/upload-artifact@v4
+            with:
+                path: ./measurements-abi-${{ env.MEASUREMENTS_ID }}/*
+                name: ${{ github.run_id }}_abi_artifact
+                retention-days: 1
+
+  process-abi-contract-sizes:
+      needs: [examples-contract-build-riscv-force-solidity-abi]
+      runs-on: ubuntu-latest
+      steps:
+          - name: Download reports' artifacts
+            uses: actions/download-artifact@v4
+            with:
+                path: downloaded_artifacts
+
+          - name: Extract branch name
+            shell: bash
+            run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+            id: extract_branch
+
+          - name: Combine contract sizes from individual examples
+            run: |
+                cat downloaded_artifacts/${{github.run_id}}_abi_artifact/* | \
+                sed -e 's/^integration-tests\/\(public\/\|internal\/\)\?//' | \
+                sort | uniq > measurements-abi-${{ env.MEASUREMENTS_ID }}
+                cat measurements-abi-${{ env.MEASUREMENTS_ID }}
+
+          - uses: actions/upload-artifact@v4
+            with:
+                name: measurements-abi-${{ env.MEASUREMENTS_ID }}
+                path: ./measurements-abi-${{ env.MEASUREMENTS_ID }}
+                retention-days: 31
 
   examples-docs:
     runs-on: ubuntu-latest
@@ -931,7 +1039,7 @@ jobs:
 
   submit-contract-sizes:
     runs-on: ubuntu-latest
-    needs: [ci-image, process-contract-sizes]
+    needs: [ci-image, process-contract-sizes, process-abi-contract-sizes]
     permissions:
         pull-requests: write
     if: github.ref != 'refs/heads/master'
@@ -966,6 +1074,12 @@ jobs:
               name: measurements-${{ env.MEASUREMENTS_ID }}
               run_id: ${{ github.run_id }}
 
+        - name: Download artifact from this branch
+          uses: dawidd6/action-download-artifact@v9
+          with:
+              name: measurements-abi-${{ env.MEASUREMENTS_ID }}
+              run_id: ${{ github.run_id }}
+
         - name: Download master artifact
           uses: dawidd6/action-download-artifact@v9
           with:
@@ -976,7 +1090,7 @@ jobs:
               workflow_conclusion: ""
               search_artifacts: true
 
-        - name: Collect Contract Sizes
+        - name: Collect Contract Sizes (with the ABI set in the contract)
           run: |
               # Build the comparison table
               echo "master:"
@@ -986,6 +1100,18 @@ jobs:
               echo "---"
               ./scripts/contract_sizes_diff.sh measurements-master measurements-${{ env.MEASUREMENTS_ID }} > contract_sizes_diff.md
               cat contract_sizes_diff.md
+
+        - name: Collect Contract Sizes (with enforced Solidity ABI)
+          run: |
+              # Build the comparison table
+              echo "branch:"
+              cat measurements-${{ env.MEASUREMENTS_ID }}
+              echo "branch with solidity abi:"
+              cat measurements-abi-${{ env.MEASUREMENTS_ID }}
+              echo "---"
+              echo "---"
+              ./scripts/contract_sizes_diff.sh measurements-${{ env.MEASUREMENTS_ID }} measurements-abi-${{ env.MEASUREMENTS_ID }} > abi_contract_sizes_diff.md
+              cat abi_contract_sizes_diff.md
 
         - name: Submit Comment
           env:
@@ -999,4 +1125,4 @@ jobs:
 
               # Submit the comparison table as a comment to the PR
               echo "Submitting contract sizes diff to ${PR_COMMENTS_URL}"
-              GITHUB_PR_TOKEN=${GITHUB_PR_TOKEN} .github/scripts/contract_sizes_submit.sh ${PR_COMMENTS_URL} ${WORKFLOW_URL} ${CARGO_CONTRACT_VERSION} ${{ steps.extract_github.outputs.head_in_branch }}${head_in_branch} < ./contract_sizes_diff.md
+              GITHUB_PR_TOKEN=${GITHUB_PR_TOKEN} .github/scripts/contract_sizes_submit.sh ${PR_COMMENTS_URL} ${WORKFLOW_URL} ${CARGO_CONTRACT_VERSION} ${{ steps.extract_github.outputs.head_in_branch }}${head_in_branch} ./contract_sizes_diff.md ./abi_contract_sizes_diff.md
