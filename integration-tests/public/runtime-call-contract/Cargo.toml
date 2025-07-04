@@ -14,7 +14,7 @@ publish = false
 frame-support = { version = "40.1.0", default-features = false }
 frame-system = { version = "40.1.0", default-features = false }
 pallet-balances = { version = "41.1.0", default-features = false }
-pallet-revive = { version = "0.5.0", default-features = false }
+pallet-revive = { version = "0.6.1", default-features = false }
 sp-runtime = { version = "41.1.0", default-features = false }
 # todo
 codec = { package = "parity-scale-codec", version =  "3.7.4", default-features = false }
