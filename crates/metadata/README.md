@@ -34,7 +34,7 @@ Next, we'll build our contract's metadata:
 
 ```bash
 # At the top level of the ink! repo
-cargo contract build --manifest-path ./integration-tests/flipper/Cargo.toml
+cargo-contract-nightly build --manifest-path ./integration-tests/flipper/Cargo.toml
 ```
 
 The generated metadata will be in: `$PATH_TO_INK_REPO/integration-tests/flipper/target/ink/flipper.json`.
