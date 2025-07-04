@@ -43,7 +43,7 @@ shopt -s globstar
 
 command=( "${@:2}" )
 
-options=$(getopt -o p:i:q: --long path:,ignore:,quiet:,partition: -- "$@")
+options=$(getopt -o p:i:q --long path:,ignore:,quiet,partition: -- "$@")
 [ $? -eq 0 ] || {
     >&2 echo "Incorrect option provided"
     usage
