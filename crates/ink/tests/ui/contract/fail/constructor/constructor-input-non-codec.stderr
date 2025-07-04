@@ -1,3 +1,18 @@
+error[E0277]: the trait bound `NonCodecType: ink::parity_scale_codec::Decode` is not satisfied
+  --> tests/ui/contract/fail/constructor/constructor-input-non-codec.rs:13:9
+   |
+13 | /         pub fn constructor(_input: NonCodecType) -> Self {
+14 | |             Self {}
+15 | |         }
+   | |_________^ the trait `WrapperTypeDecode` is not implemented for `NonCodecType`
+   |
+   = help: the following other types implement trait `WrapperTypeDecode`:
+             Arc<T>
+             Box<T>
+             Rc<T>
+             sp_core::Bytes
+   = note: required for `NonCodecType` to implement `ink::parity_scale_codec::Decode`
+
 error[E0277]: the trait bound `NonCodecType: WrapperTypeDecode` is not satisfied
   --> tests/ui/contract/fail/constructor/constructor-input-non-codec.rs:13:28
    |
@@ -18,21 +33,6 @@ note: required by a bound in `DispatchInput`
    | where
    |     T: scale::Decode + 'static;
    |        ^^^^^^^^^^^^^ required by this bound in `DispatchInput`
-
-error[E0277]: the trait bound `NonCodecType: ink::parity_scale_codec::Decode` is not satisfied
-  --> tests/ui/contract/fail/constructor/constructor-input-non-codec.rs:13:9
-   |
-13 | /         pub fn constructor(_input: NonCodecType) -> Self {
-14 | |             Self {}
-15 | |         }
-   | |_________^ the trait `WrapperTypeDecode` is not implemented for `NonCodecType`
-   |
-   = help: the following other types implement trait `WrapperTypeDecode`:
-             Arc<T>
-             Box<T>
-             Rc<T>
-             sp_core::Bytes
-   = note: required for `NonCodecType` to implement `ink::parity_scale_codec::Decode`
 
 error[E0277]: the trait bound `NonCodecType: AbiEncodeWith<_>` is not satisfied
   --> tests/ui/contract/fail/constructor/constructor-input-non-codec.rs:3:1

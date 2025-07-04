@@ -73,9 +73,9 @@ jobs:
             rustup +nightly show
             cargo +nightly --version
             bash --version
-            ink-node-nightly --version; cargo-contract-nightly --version; git --version
+            ink-node-nightly --version; cargo-contract-nightly contract --version; git --version
             echo -e '[registry]\nprotocol = \"sparse\"' > /usr/local/cargo/config.toml
-            echo \"cargo-contract-version=$(cargo-contract-nightly --version)\" >> $GITHUB_OUTPUT
+            echo \"cargo-contract-version=$(cargo-contract-nightly contract --version)\" >> $GITHUB_OUTPUT
 
   spellcheck:
     runs-on: ubuntu-latest
@@ -567,7 +567,7 @@ jobs:
             --ignore solidity-abi/trait-flipper --ignore solidity-abi/trait-dyn-cross-contract-calls \
             --ignore solidity-abi/fallible-setter \
             --partition ${{ matrix.partition }}/4 -- \
-            cargo-contract-nightly test --all-features --manifest-path {}
+            cargo-contract-nightly contract test --all-features --manifest-path {}
 
   examples-test-mapping:
     runs-on: ubuntu-latest
@@ -594,7 +594,7 @@ jobs:
               INK_STATIC_BUFFER_SIZE: 256
           with:
             command: |
-                cargo-contract-nightly test --all-features --manifest-path integration-tests/internal/mapping/Cargo.toml
+                cargo-contract-nightly contract test --all-features --manifest-path integration-tests/internal/mapping/Cargo.toml
 
   # TODO: (@davidsemakula) Add back to `examples-test` job when flakiness is fixed.
   examples-test-debugging-strategies:
@@ -617,7 +617,7 @@ jobs:
         uses: ./.github/run-container-command
         with:
           command: |
-            cargo-contract-nightly test --all-features --manifest-path integration-tests/public/debugging-strategies/Cargo.toml
+            cargo-contract-nightly contract test --all-features --manifest-path integration-tests/public/debugging-strategies/Cargo.toml
 
 
   # TODO: (@davidsemakula) Add back to `examples-test` job when flakiness is fixed.
@@ -641,7 +641,7 @@ jobs:
         uses: ./.github/run-container-command
         with:
           command: |
-            cargo-contract-nightly test --all-features --manifest-path integration-tests/public/wildcard-selector/Cargo.toml
+            cargo-contract-nightly contract test --all-features --manifest-path integration-tests/public/wildcard-selector/Cargo.toml
 
   examples-custom-test:
     runs-on: ubuntu-latest
@@ -669,13 +669,13 @@ jobs:
         with:
           command: |
             # run flipper E2E test with on-chain contract
-            ink-node -lruntime::revive=debug 2>&1 &
-            cargo-contract-nightly build --release --manifest-path integration-tests/public/flipper/Cargo.toml
-            export CONTRACT_ADDR_HEX=$(cargo-contract-nightly instantiate \
+            ink-node-nightly -lruntime::revive=debug 2>&1 &
+            cargo-contract-nightly contract build --release --manifest-path integration-tests/public/flipper/Cargo.toml
+            export CONTRACT_ADDR_HEX=$(cargo-contract-nightly contract instantiate \
               --manifest-path integration-tests/public/flipper/Cargo.toml \
               --suri //Alice --args true -x -y --output-json | \
               jq -r .contract | xargs subkey inspect | grep -o "0x.*" | head -n1)
-            CONTRACTS_NODE_URL=ws://127.0.0.1:9944 cargo-contract-nightly test \
+            CONTRACTS_NODE_URL=ws://127.0.0.1:9944 cargo-contract-nightly contract test \
               --features e2e-tests \
               --manifest-path integration-tests/public/flipper/Cargo.toml \
               e2e_test_deployed_contract \
@@ -693,7 +693,7 @@ jobs:
             # the readme + test comments explain why `32`, in short because the tests write
             # content into the buffer and want to provoke an exhaustion of the buffer.
             cargo clean --manifest-path integration-tests/internal/static-buffer/Cargo.toml
-            INK_STATIC_BUFFER_SIZE=32 cargo-contract-nightly test --manifest-path integration-tests/internal/static-buffer/Cargo.toml --all-features
+            INK_STATIC_BUFFER_SIZE=32 cargo-contract-nightly contract test --manifest-path integration-tests/internal/static-buffer/Cargo.toml --all-features
 
   # NOTE: Sharing build artifacts (i.e. via a shared cargo target directory) with other tests
   # that don't have the `ink_abi="sol"` `cfg` option set makes the Solidity ABI tests fail.
@@ -718,7 +718,7 @@ jobs:
         with:
           command: |
             scripts/for_all_contracts_exec.sh --path integration-tests/solidity-abi -- \
-            cargo-contract-nightly test --all-features --manifest-path {}
+            cargo-contract-nightly contract test --all-features --manifest-path {}
 
   examples-contract-build-riscv:
     runs-on: ubuntu-latest
