@@ -14,10 +14,7 @@ use ink::{
         Environment,
     },
     primitives::U256,
-    abi::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-    },
+    abi::AbiEncodeWith,
     Address,
     MessageResult,
 };
@@ -57,7 +54,7 @@ where
     ) -> Result<MessageResult<Output>, Self::Error>
     where
         Args: AbiEncodeWith<Abi>,
-        Output: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+        Output: DecodeMessageResult<Abi>,
     {
         let data = input.encode();
         let result = pallet_revive::Pallet::<R>::bare_call(
@@ -72,8 +69,8 @@ where
             data,
         );
 
-        let output = result.result?.data;
-        let result = DecodeMessageResult::decode_output(&output[..]).map_err(|_| {
+        let output = result.result?;
+        let result = DecodeMessageResult::decode_output(&output.data[..], output.did_revert()).map_err(|_| {
             sp_runtime::DispatchError::Other("Failed to decode contract output")
         })?;
 
