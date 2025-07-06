@@ -15,8 +15,11 @@
 //! Abstractions for implementing Solidity ABI encoding/decoding for arbitrary Rust types.
 
 mod bytes;
+mod error;
 mod params;
+mod result;
 mod types;
+mod utils;
 
 #[cfg(test)]
 mod tests;
@@ -42,14 +45,21 @@ use sp_weights::Weight;
 
 pub use self::{
     bytes::SolBytes,
+    error::{
+        SolCustomError,
+        SolErrorDecode,
+        SolErrorEncode,
+    },
     params::{
         SolParamsDecode,
         SolParamsEncode,
     },
+    result::SolResultDecode,
     types::{
         SolTypeDecode,
         SolTypeEncode,
     },
+    utils::selector_bytes,
 };
 pub use alloy_sol_types::Error;
 

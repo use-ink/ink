@@ -31,7 +31,10 @@ use super::{
 /// # Note
 ///
 /// This trait is sealed and cannot be implemented for types outside `ink_primitives`.
-pub trait SolParamsDecode: Sized + private::Sealed {
+pub trait SolParamsDecode: SolDecode + Sized + private::Sealed {
+    /// Name of equivalent Solidity ABI type.
+    const SOL_NAME: &'static str = <Self as SolDecode>::SOL_NAME;
+
     /// Solidity ABI decode function parameters into this type.
     fn decode(data: &[u8]) -> Result<Self, alloy_sol_types::Error>;
 }

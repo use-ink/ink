@@ -38,6 +38,9 @@ sp-weights.workspace = true
 impl-trait-for-tuples = { workspace = true }
 itertools = { workspace = true }
 
+const_format = { workspace = true }
+keccak-const = { workspace = true }
+
 [dev-dependencies]
 ink = { workspace = true, default-features = false }
 ink_env = { workspace = true, default-features = false }
