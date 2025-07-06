@@ -12,14 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use alloy_sol_types::Error;
-use ink_prelude::{
-    borrow::Cow,
-    string::String,
-    vec::Vec,
-};
+use ink_prelude::vec::Vec;
 
 use crate::sol::{
+    Error,
     SolDecode,
     SolEncode,
     SolErrorDecode,
@@ -62,10 +58,7 @@ where
         Self: Sized,
     {
         if is_revert {
-            Err(Error::TypeCheckFail {
-                expected_type: Cow::Borrowed(<T as SolDecode>::SOL_NAME),
-                data: String::new(),
-            })
+            Err(Error)
         } else {
             T::decode(data)
         }

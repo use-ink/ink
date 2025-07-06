@@ -24,12 +24,11 @@ mod utils;
 #[cfg(test)]
 mod tests;
 
-use core::ops::Deref;
-
 use alloy_sol_types::{
     sol_data,
     SolType as AlloySolType,
 };
+use core::ops::Deref;
 use impl_trait_for_tuples::impl_for_tuples;
 use ink_prelude::{
     borrow::Cow,
@@ -61,7 +60,6 @@ pub use self::{
     },
     utils::selector_bytes,
 };
-pub use alloy_sol_types::Error;
 
 use crate::types::{
     AccountId,
@@ -113,7 +111,7 @@ pub trait SolDecode {
         <<Self::SolType as SolTypeDecode>::AlloyType as AlloySolType>::SOL_NAME;
 
     /// Solidity ABI decode into this type.
-    fn decode(data: &[u8]) -> Result<Self, alloy_sol_types::Error>
+    fn decode(data: &[u8]) -> Result<Self, Error>
     where
         Self: Sized,
     {
@@ -178,6 +176,22 @@ pub trait SolEncode<'a> {
     /// Converts from `Self` to `Self::SolType` via either a borrow (if possible), or
     /// a possibly expensive conversion otherwise.
     fn to_sol_type(&'a self) -> Self::SolType;
+}
+
+/// Solidity ABI encoding/decoding error.
+#[derive(Debug, PartialEq)]
+pub struct Error;
+
+impl From<alloy_sol_types::Error> for Error {
+    fn from(_: alloy_sol_types::Error) -> Self {
+        Self
+    }
+}
+
+impl core::fmt::Display for Error {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.write_str("Solidity ABI encode/decode error")
+    }
 }
 
 macro_rules! impl_primitive_decode {

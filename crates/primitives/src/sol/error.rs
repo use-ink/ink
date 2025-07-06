@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use alloy_sol_types::Error;
 use ink_prelude::vec::Vec;
 
 use crate::sol::{
+    Error,
     SolParamsDecode,
     SolParamsEncode,
 };
@@ -128,10 +128,7 @@ macro_rules! impl_sol_error_codec {
                     )
                     .map(<Self as $crate::sol::SolCustomError>::from_params)
                 } else {
-                    Err($crate::sol::Error::UnknownSelector {
-                        name: <Self as $crate::sol::SolCustomError>::NAME,
-                        selector: SELECTOR.into(),
-                    })
+                    Err($crate::sol::Error)
                 }
             }
         }

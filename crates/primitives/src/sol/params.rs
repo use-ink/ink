@@ -20,6 +20,7 @@ use impl_trait_for_tuples::impl_for_tuples;
 use ink_prelude::vec::Vec;
 
 use super::{
+    Error,
     SolDecode,
     SolEncode,
     SolTypeDecode,
@@ -36,7 +37,7 @@ pub trait SolParamsDecode: SolDecode + Sized + private::Sealed {
     const SOL_NAME: &'static str = <Self as SolDecode>::SOL_NAME;
 
     /// Solidity ABI decode function parameters into this type.
-    fn decode(data: &[u8]) -> Result<Self, alloy_sol_types::Error>;
+    fn decode(data: &[u8]) -> Result<Self, Error>;
 }
 
 /// Solidity ABI encode function parameters.
@@ -55,10 +56,11 @@ pub trait SolParamsEncode: private::Sealed {
 #[impl_for_tuples(12)]
 #[tuple_types_custom_trait_bound(SolDecode)]
 impl SolParamsDecode for Tuple {
-    fn decode(data: &[u8]) -> Result<Self, alloy_sol_types::Error> {
+    fn decode(data: &[u8]) -> Result<Self, Error> {
         abi::decode_params::<
             <<<Self as SolDecode>::SolType as SolTypeDecode>::AlloyType as AlloySolType>::Token<'_>,
         >(data)
+            .map_err(Error::from)
             .and_then(<<Self as SolDecode>::SolType as SolTypeDecode>::detokenize)
             .map(<Self as SolDecode>::from_sol_type)
     }
