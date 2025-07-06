@@ -32,10 +32,10 @@ use ink_primitives::{
         Ink,
         Sol,
     },
+    sol::SolResultDecode,
     Address,
     ConstructorResult,
     MessageResult,
-    SolDecode,
     H256,
 };
 use pallet_revive::{
@@ -363,7 +363,7 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V, Ink> {
     }
 }
 
-impl<E: Environment, V: SolDecode> CallDryRunResult<E, V, Sol> {
+impl<E: Environment, V: SolResultDecode> CallDryRunResult<E, V, Sol> {
     /// Returns the [`MessageResult`] from the execution of the dry-run message call.
     ///
     /// # Panics
@@ -381,12 +381,7 @@ impl<E: Environment, V: SolDecode> CallDryRunResult<E, V, Sol> {
         // Solidity ABI encoded message calls return data without wrapping it in
         // `MessageResult`.
         let data = &self.exec_return_value().data;
-        if self.is_err() {
-            // For Solidity ABI encoded message calls,
-            // the return value is only meaningful if the message call was successful.
-            panic!("Could not decode the dry run result because the message call failed to execute")
-        }
-        SolDecode::decode(data.as_ref()).unwrap_or_else(|err| {
+        SolResultDecode::decode(data.as_ref(), self.did_revert()).unwrap_or_else(|err| {
             panic!(
                 "Encountered an error while decoding dry run result to ink! message: {err:?}"
             )
