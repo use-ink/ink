@@ -136,7 +136,8 @@ where
 
     env.engine.set_callee(old_callee);
 
-    R::decode_output(&result)
+    // TODO: (@davidsemakula) Track return flag and set `is_revert` as appropriate.
+    R::decode_output(&result, false)
 }
 
 fn invoke_contract_impl_delegate<R, Abi>(
@@ -163,7 +164,8 @@ where
         .get_contract_message_handler(&callee_code_hash);
     let result = handler(input);
 
-    R::decode_output(&result)
+    // TODO: (@davidsemakula) Track return flag and set `is_revert` as appropriate.
+    R::decode_output(&result, false)
 }
 
 #[cfg(feature = "unstable-hostfn")]

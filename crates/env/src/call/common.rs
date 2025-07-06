@@ -21,8 +21,8 @@ use ink_primitives::{
         Ink,
         Sol,
     },
+    sol::SolResultDecode,
     MessageResult,
-    SolDecode,
 };
 use scale::{
     Decode,
@@ -127,7 +127,10 @@ impl<T> Unwrap for Set<T> {
 pub trait DecodeMessageResult<Abi>: Sized {
     /// Decodes the output of a message call, requiring the output
     /// to be wrapped with `MessageResult` (if not included in the output).
-    fn decode_output(buffer: &[u8]) -> crate::Result<MessageResult<Self>>;
+    fn decode_output(
+        buffer: &[u8],
+        did_revert: bool,
+    ) -> crate::Result<MessageResult<Self>>;
 }
 
 impl<R> DecodeMessageResult<Ink> for R
@@ -135,7 +138,7 @@ where
     R: Decode,
     MessageResult<R>: Decode,
 {
-    fn decode_output(mut buffer: &[u8]) -> crate::Result<MessageResult<Self>> {
+    fn decode_output(mut buffer: &[u8], _: bool) -> crate::Result<MessageResult<Self>> {
         let decoded = MessageResult::<R>::decode_all(&mut buffer)?;
         Ok(decoded)
     }
@@ -143,12 +146,15 @@ where
 
 impl<R> DecodeMessageResult<Sol> for R
 where
-    R: SolDecode,
+    R: SolResultDecode,
 {
-    fn decode_output(buffer: &[u8]) -> crate::Result<MessageResult<Self>> {
+    fn decode_output(
+        buffer: &[u8],
+        did_revert: bool,
+    ) -> crate::Result<MessageResult<Self>> {
         // Solidity ABI Encoded contracts return the data without
         // `MessageResult`.
-        let decoded = R::decode(buffer)?;
+        let decoded = R::decode(buffer, did_revert)?;
         Ok(Ok(decoded))
     }
 }
