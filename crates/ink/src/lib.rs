@@ -41,7 +41,10 @@ pub use ink_env as env;
 pub use ink_metadata as metadata;
 pub use ink_prelude as prelude;
 pub use ink_primitives as primitives;
-pub use ink_primitives::abi;
+pub use ink_primitives::{
+    abi,
+    sol,
+};
 pub use scale;
 #[cfg(feature = "std")]
 pub use scale_info;
