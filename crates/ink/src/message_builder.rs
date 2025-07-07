@@ -111,7 +111,7 @@
 ///     ) -> Result<MessageResult<Output>, Self::Error>
 ///     where
 ///         Args: ink::abi::AbiEncodeWith<Abi>,
-///         Output: ink::abi::AbiDecodeWith<Abi>,
+///         Output: ink::env::call::utils::DecodeMessageResult<Abi>,
 ///     {
 ///         println!("Executing contract with input: {:?}", input.encode());
 ///         unimplemented!("Decode contract execution output")
