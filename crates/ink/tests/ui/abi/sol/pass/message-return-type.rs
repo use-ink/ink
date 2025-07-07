@@ -1,19 +1,7 @@
 #![allow(unexpected_cfgs)]
 
+#[derive(ink::SolErrorDecode, ink::SolErrorEncode)]
 pub struct Error;
-
-impl ink::primitives::sol::SolCustomError for Error {
-    const NAME: &'static str = "Error";
-    type Params = ();
-
-    fn from_params(_: Self::Params) -> Self {
-        Self
-    }
-
-    fn to_params(&self) -> Self::Params {}
-}
-
-ink::primitives::impl_sol_error_codec!(Error);
 
 #[ink::contract]
 mod contract {
