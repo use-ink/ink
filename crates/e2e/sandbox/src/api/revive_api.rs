@@ -20,6 +20,11 @@ use ink_primitives::{
     DepositLimit,
 };
 use pallet_revive::{
+    evm::{
+        Tracer,
+        TracerType,
+    },
+    BumpNonce,
     Code,
     CodeUploadResult,
 };
@@ -133,6 +138,8 @@ pub trait ContractAPI {
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
     ) -> ContractExecResultFor<Self::T>;
+
+    fn evm_tracer(&mut self, tracer_type: TracerType) -> Tracer<Self::T>;
 }
 
 impl<T> ContractAPI for T
@@ -142,6 +149,7 @@ where
 
     BalanceOf<T::Runtime>: Into<U256> + TryFrom<U256> + Bounded,
     MomentOf<T::Runtime>: Into<U256>,
+    <<T as Sandbox>::Runtime as frame_system::Config>::Nonce: Into<u32>,
 
     // todo
     <<T as Sandbox>::Runtime as frame_system::Config>::Hash:
@@ -176,6 +184,7 @@ where
                 Code::Upload(contract_bytes),
                 data,
                 salt,
+                BumpNonce::Yes,
             )
         })
     }
@@ -200,6 +209,7 @@ where
                 Code::Existing(code_hash),
                 data,
                 salt,
+                BumpNonce::Yes,
             )
         })
     }
@@ -240,6 +250,10 @@ where
             )
         })
     }
+
+    fn evm_tracer(&mut self, tracer_type: TracerType) -> Tracer<Self::T> {
+        self.execute_with(|| pallet_revive::Pallet::<Self::T>::evm_tracer(tracer_type))
+    }
 }
 
 /// todo
@@ -247,7 +261,9 @@ fn storage_deposit_limit_fn<Balance>(
     limit: DepositLimit<Balance>,
 ) -> pallet_revive::DepositLimit<Balance> {
     match limit {
-        DepositLimit::Unchecked => pallet_revive::DepositLimit::Unchecked,
+        DepositLimit::UnsafeOnlyForDryRun => {
+            pallet_revive::DepositLimit::UnsafeOnlyForDryRun
+        }
         DepositLimit::Balance(v) => pallet_revive::DepositLimit::Balance(v),
     }
 }
@@ -271,7 +287,7 @@ mod tests {
         RuntimeEventOf,
     };
 
-    const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::Unchecked;
+    const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::UnsafeOnlyForDryRun;
 
     fn compile_module(contract_name: &str) -> Vec<u8> {
         // todo compile the contract, instead of reading the binary

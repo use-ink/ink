@@ -32,7 +32,9 @@ use ink_primitives::{
 use pallet_revive::{
     evm::{
         CallTrace,
-        TracerConfig,
+        CallTracerConfig,
+        Trace,
+        TracerType,
     },
     CodeUploadResult,
 };
@@ -279,7 +281,7 @@ where
         let code = Code::Upload(code);
         let storage_deposit_limit = match storage_deposit_limit {
             DepositLimit::Balance(v) => Some(v),
-            DepositLimit::Unchecked => None,
+            DepositLimit::UnsafeOnlyForDryRun => None,
         };
         let call_request = RpcInstantiateRequest::<C, E> {
             origin: Signer::<C>::account_id(signer),
@@ -457,11 +459,11 @@ where
             _ => panic!("pattern error"),
         };
 
-        let tracer_config = TracerConfig::CallTracer { with_logs: true };
+        let tracer_type = TracerType::CallTracer(Some(CallTracerConfig::default()));
         let func = "ReviveApi_trace_tx";
 
         let params =
-            scale::Encode::encode(&((header, exts), tx_index.as_u32(), tracer_config));
+            scale::Encode::encode(&((header, exts), tx_index.as_u32(), tracer_type));
 
         let bytes = self
             .rpc
@@ -473,8 +475,14 @@ where
                     format!("{}", err).trim_start_matches("RPC error: ")
                 );
             });
-        scale::Decode::decode(&mut bytes.as_ref())
-            .unwrap_or_else(|err| panic!("decoding `trace_tx` result failed: {err}"))
+
+        let trace: Option<Trace> = scale::Decode::decode(&mut bytes.as_ref())
+            .unwrap_or_else(|err| panic!("decoding `trace_tx` result failed: {err}"));
+        let call_trace = match trace {
+            Some(Trace::Call(trace)) => Some(trace),
+            _ => None,
+        };
+        call_trace
     }
 
     /// Return the hash of the *best* block

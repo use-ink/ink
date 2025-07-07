@@ -77,11 +77,17 @@ note: required because it appears within the type `Contract`
    |
 10 | struct Contract {
    |        ^^^^^^^^
-note: required by a bound in `Storable`
+note: required by a bound in `StorableHint`
   --> $WORKSPACE/crates/storage/traits/src/storage.rs
    |
-   | pub trait Storable: Sized {
-   |                     ^^^^^ required by this bound in `Storable`
+   | / pub trait StorableHint<Key: StorageKey> {
+   | |     /// Storable type with storage key inside.
+   | |     type Type: Storable;
+   | |     /// The storage key that the type prefers. It can be overwritten by an auto-generated
+   | |     /// storage key.
+   | |     type PreferredKey: StorageKey;
+   | | }
+   | |_^ required by this bound in `StorableHint`
 
 error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Encode` is not satisfied
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
@@ -98,11 +104,67 @@ note: required because it appears within the type `Contract`
    |
 10 | struct Contract {
    |        ^^^^^^^^
-note: required by a bound in `Storable`
+note: required by a bound in `StorableHint`
   --> $WORKSPACE/crates/storage/traits/src/storage.rs
    |
-   | pub trait Storable: Sized {
-   |                     ^^^^^ required by this bound in `Storable`
+   | / pub trait StorableHint<Key: StorageKey> {
+   | |     /// Storable type with storage key inside.
+   | |     type Type: Storable;
+   | |     /// The storage key that the type prefers. It can be overwritten by an auto-generated
+   | |     /// storage key.
+   | |     type PreferredKey: StorageKey;
+   | | }
+   | |_^ required by this bound in `StorableHint`
+
+error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: ink::parity_scale_codec::Decode` is not satisfied
+  --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
+   |
+10 | struct Contract {
+   |        ^^^^^^^^ the trait `ink::parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`
+   |
+   = help: the trait `ink::parity_scale_codec::Decode` is implemented for `BTreeMap<K, V>`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `StorableHint<()>`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `AutoStorableHint<ManualKey<453539032>>`
+note: required because it appears within the type `Contract`
+  --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
+   |
+10 | struct Contract {
+   |        ^^^^^^^^
+note: required by a bound in `StorageKey`
+  --> $WORKSPACE/crates/storage/traits/src/storage.rs
+   |
+   | / pub trait StorageKey {
+   | |     /// Storage key of the type.
+   | |     const KEY: Key;
+...  |
+   | | }
+   | |_^ required by this bound in `StorageKey`
+
+error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Encode` is not satisfied
+  --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
+   |
+10 | struct Contract {
+   |        ^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`
+   |
+   = help: the trait `Encode` is implemented for `BTreeMap<K, V>`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `StorableHint<()>`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `AutoStorableHint<ManualKey<453539032>>`
+note: required because it appears within the type `Contract`
+  --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
+   |
+10 | struct Contract {
+   |        ^^^^^^^^
+note: required by a bound in `StorageKey`
+  --> $WORKSPACE/crates/storage/traits/src/storage.rs
+   |
+   | / pub trait StorageKey {
+   | |     /// Storage key of the type.
+   | |     const KEY: Key;
+...  |
+   | | }
+   | |_^ required by this bound in `StorageKey`
 
 error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: ink::parity_scale_codec::Decode` is not satisfied
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:9:1
@@ -148,6 +210,200 @@ note: required by an implicit `Sized` bound in `Result`
    |                 ^ required by the implicit `Sized` requirement on this type parameter in `Result`
    = note: this error originates in the derive macro `::ink::storage::traits::Storable` (in Nightly builds, run with -Z macro-backtrace for more info)
 
+error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: ink::parity_scale_codec::Decode` is not satisfied
+  --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
+   |
+10 | struct Contract {
+   |        ^^^^^^^^ the trait `ink::parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`
+   |
+   = help: the trait `ink::parity_scale_codec::Decode` is implemented for `BTreeMap<K, V>`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `StorableHint<()>`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `AutoStorableHint<ManualKey<453539032>>`
+note: required because it appears within the type `Contract`
+  --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
+   |
+10 | struct Contract {
+   |        ^^^^^^^^
+note: required by a bound in `Storable`
+  --> $WORKSPACE/crates/storage/traits/src/storage.rs
+   |
+   | pub trait Storable: Sized {
+   |                     ^^^^^ required by this bound in `Storable`
+
+error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Encode` is not satisfied
+  --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
+   |
+10 | struct Contract {
+   |        ^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`
+   |
+   = help: the trait `Encode` is implemented for `BTreeMap<K, V>`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `StorableHint<()>`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `AutoStorableHint<ManualKey<453539032>>`
+note: required because it appears within the type `Contract`
+  --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
+   |
+10 | struct Contract {
+   |        ^^^^^^^^
+note: required by a bound in `Storable`
+  --> $WORKSPACE/crates/storage/traits/src/storage.rs
+   |
+   | pub trait Storable: Sized {
+   |                     ^^^^^ required by this bound in `Storable`
+
+error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: ink::parity_scale_codec::Decode` is not satisfied
+  --> tests/ui/storage_item/fail/collections_only_packed_2.rs:9:1
+   |
+9  | #[ink::storage_item]
+   | ^^^^^^^^^^^^^^^^^^^^ the trait `ink::parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`
+   |
+   = help: the trait `ink::parity_scale_codec::Decode` is implemented for `BTreeMap<K, V>`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `StorableHint<()>`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `AutoStorableHint<ManualKey<453539032>>`
+note: required because it appears within the type `Contract`
+  --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
+   |
+10 | struct Contract {
+   |        ^^^^^^^^
+note: required by a bound in `ink::ink_metadata::TypeInfo::Identity`
+  --> $CARGO/scale-info-2.11.6/src/lib.rs
+   |
+   |     type Identity: ?Sized + 'static;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `TypeInfo::Identity`
+   = note: this error originates in the derive macro `::ink::scale_info::TypeInfo` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Encode` is not satisfied
+  --> tests/ui/storage_item/fail/collections_only_packed_2.rs:9:1
+   |
+9  | #[ink::storage_item]
+   | ^^^^^^^^^^^^^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`
+   |
+   = help: the trait `Encode` is implemented for `BTreeMap<K, V>`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `StorableHint<()>`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `AutoStorableHint<ManualKey<453539032>>`
+note: required because it appears within the type `Contract`
+  --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
+   |
+10 | struct Contract {
+   |        ^^^^^^^^
+note: required by a bound in `ink::ink_metadata::TypeInfo::Identity`
+  --> $CARGO/scale-info-2.11.6/src/lib.rs
+   |
+   |     type Identity: ?Sized + 'static;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `TypeInfo::Identity`
+   = note: this error originates in the derive macro `::ink::scale_info::TypeInfo` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: ink::parity_scale_codec::Decode` is not satisfied
+  --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
+   |
+10 | struct Contract {
+   |        ^^^^^^^^ the trait `ink::parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`
+   |
+   = help: the trait `ink::parity_scale_codec::Decode` is implemented for `BTreeMap<K, V>`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `StorableHint<()>`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `AutoStorableHint<ManualKey<453539032>>`
+note: required because it appears within the type `Contract`
+  --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
+   |
+10 | struct Contract {
+   |        ^^^^^^^^
+note: required by a bound in `TypeInfo`
+  --> $CARGO/scale-info-2.11.6/src/lib.rs
+   |
+   | / pub trait TypeInfo {
+   | |     /// The type identifying for which type info is provided.
+   | |     ///
+   | |     /// # Note
+...  |
+   | |     fn type_info() -> Type;
+   | | }
+   | |_^ required by this bound in `TypeInfo`
+
+error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Encode` is not satisfied
+  --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
+   |
+10 | struct Contract {
+   |        ^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`
+   |
+   = help: the trait `Encode` is implemented for `BTreeMap<K, V>`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `StorableHint<()>`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `AutoStorableHint<ManualKey<453539032>>`
+note: required because it appears within the type `Contract`
+  --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
+   |
+10 | struct Contract {
+   |        ^^^^^^^^
+note: required by a bound in `TypeInfo`
+  --> $CARGO/scale-info-2.11.6/src/lib.rs
+   |
+   | / pub trait TypeInfo {
+   | |     /// The type identifying for which type info is provided.
+   | |     ///
+   | |     /// # Note
+...  |
+   | |     fn type_info() -> Type;
+   | | }
+   | |_^ required by this bound in `TypeInfo`
+
+error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: ink::parity_scale_codec::Decode` is not satisfied
+  --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
+   |
+10 | struct Contract {
+   |        ^^^^^^^^ the trait `ink::parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`
+   |
+   = help: the trait `ink::parity_scale_codec::Decode` is implemented for `BTreeMap<K, V>`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `StorableHint<()>`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `AutoStorableHint<ManualKey<453539032>>`
+note: required because it appears within the type `Contract`
+  --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
+   |
+10 | struct Contract {
+   |        ^^^^^^^^
+note: required by a bound in `StorageLayout`
+  --> $WORKSPACE/crates/storage/traits/src/layout/mod.rs
+   |
+   | / pub trait StorageLayout {
+   | |     /// Returns the static storage layout of `Self`.
+   | |     ///
+   | |     /// The given storage key is guiding the allocation of static fields onto
+   | |     /// the contract storage regions.
+   | |     fn layout(key: &Key) -> Layout;
+   | | }
+   | |_^ required by this bound in `StorageLayout`
+
+error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Encode` is not satisfied
+  --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
+   |
+10 | struct Contract {
+   |        ^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`
+   |
+   = help: the trait `Encode` is implemented for `BTreeMap<K, V>`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `StorableHint<()>`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `AutoStorableHint<ManualKey<453539032>>`
+note: required because it appears within the type `Contract`
+  --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
+   |
+10 | struct Contract {
+   |        ^^^^^^^^
+note: required by a bound in `StorageLayout`
+  --> $WORKSPACE/crates/storage/traits/src/layout/mod.rs
+   |
+   | / pub trait StorageLayout {
+   | |     /// Returns the static storage layout of `Self`.
+   | |     ///
+   | |     /// The given storage key is guiding the allocation of static fields onto
+   | |     /// the contract storage regions.
+   | |     fn layout(key: &Key) -> Layout;
+   | | }
+   | |_^ required by this bound in `StorageLayout`
+
 error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Packed` is not satisfied
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:11:5
    |
@@ -171,28 +427,34 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Packed` is not satisfi
    = note: required for `BTreeMap<u128, NonPacked>` to implement `AutoStorableHint<ManualKey<453539032>>`
 
 error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Packed` is not satisfied
- --> tests/ui/storage_item/fail/collections_only_packed_2.rs:9:1
-  |
-9 | #[ink::storage_item]
-  | ^^^^^^^^^^^^^^^^^^^^ the trait `ink::parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`
-  |
-  = help: the trait `ink::parity_scale_codec::Decode` is implemented for `BTreeMap<K, V>`
-  = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
-  = note: required for `BTreeMap<u128, NonPacked>` to implement `StorableHint<()>`
-  = note: required for `BTreeMap<u128, NonPacked>` to implement `AutoStorableHint<ManualKey<453539032>>`
-  = note: this error originates in the derive macro `::ink::storage::traits::Storable` (in Nightly builds, run with -Z macro-backtrace for more info)
+  --> tests/ui/storage_item/fail/collections_only_packed_2.rs:11:5
+   |
+9  | #[ink::storage_item]
+   | -------------------- in this procedural macro expansion
+10 | struct Contract {
+11 |     a: BTreeMap<u128, NonPacked>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ink::parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`
+   |
+   = help: the trait `ink::parity_scale_codec::Decode` is implemented for `BTreeMap<K, V>`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `StorableHint<()>`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `AutoStorableHint<ManualKey<453539032>>`
+   = note: this error originates in the derive macro `::ink::storage::traits::Storable` which comes from the expansion of the attribute macro `ink::storage_item` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Packed` is not satisfied
- --> tests/ui/storage_item/fail/collections_only_packed_2.rs:9:1
-  |
-9 | #[ink::storage_item]
-  | ^^^^^^^^^^^^^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`
-  |
-  = help: the trait `Encode` is implemented for `BTreeMap<K, V>`
-  = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
-  = note: required for `BTreeMap<u128, NonPacked>` to implement `StorableHint<()>`
-  = note: required for `BTreeMap<u128, NonPacked>` to implement `AutoStorableHint<ManualKey<453539032>>`
-  = note: this error originates in the derive macro `::ink::storage::traits::Storable` (in Nightly builds, run with -Z macro-backtrace for more info)
+  --> tests/ui/storage_item/fail/collections_only_packed_2.rs:11:5
+   |
+9  | #[ink::storage_item]
+   | -------------------- in this procedural macro expansion
+10 | struct Contract {
+11 |     a: BTreeMap<u128, NonPacked>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`
+   |
+   = help: the trait `Encode` is implemented for `BTreeMap<K, V>`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `StorableHint<()>`
+   = note: required for `BTreeMap<u128, NonPacked>` to implement `AutoStorableHint<ManualKey<453539032>>`
+   = note: this error originates in the derive macro `::ink::storage::traits::Storable` which comes from the expansion of the attribute macro `ink::storage_item` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `NonPacked: WrapperTypeDecode` is not satisfied
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:11:8
