@@ -19,7 +19,6 @@ mod error;
 mod params;
 mod result;
 mod types;
-mod utils;
 
 #[cfg(test)]
 mod tests;
@@ -45,7 +44,6 @@ use sp_weights::Weight;
 pub use self::{
     bytes::SolBytes,
     error::{
-        SolCustomError,
         SolErrorDecode,
         SolErrorEncode,
     },
@@ -58,7 +56,6 @@ pub use self::{
         SolTypeDecode,
         SolTypeEncode,
     },
-    utils::selector_bytes,
 };
 
 use crate::types::{
@@ -157,6 +154,10 @@ pub trait SolDecode {
 /// ```
 pub trait SolEncode<'a> {
     /// Equivalent Solidity ABI type representation.
+    ///
+    /// # Note
+    ///
+    /// Prefer reference based representation for better performance.
     type SolType: SolTypeEncode;
 
     /// Name of equivalent Solidity ABI type.

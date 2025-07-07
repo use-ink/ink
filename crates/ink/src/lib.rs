@@ -35,16 +35,14 @@ mod chain_extension;
 mod contract_ref;
 mod env_access;
 mod message_builder;
+pub mod sol;
 
 pub use ink_env as env;
 #[cfg(feature = "std")]
 pub use ink_metadata as metadata;
 pub use ink_prelude as prelude;
 pub use ink_primitives as primitives;
-pub use ink_primitives::{
-    abi,
-    sol,
-};
+pub use ink_primitives::abi;
 pub use scale;
 #[cfg(feature = "std")]
 pub use scale_info;

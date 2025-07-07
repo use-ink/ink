@@ -45,9 +45,12 @@ pub trait SolParamsDecode: SolDecode + Sized + private::Sealed {
 /// # Note
 ///
 /// This trait is sealed and cannot be implemented for types outside `ink_primitives`.
-pub trait SolParamsEncode: private::Sealed {
+pub trait SolParamsEncode<'a>: SolEncode<'a> + private::Sealed {
+    /// Name of equivalent Solidity ABI type.
+    const SOL_NAME: &'static str = <Self as SolEncode<'a>>::SOL_NAME;
+
     /// Solidity ABI encode the value as function parameters.
-    fn encode(&self) -> Vec<u8>;
+    fn encode(&'a self) -> Vec<u8>;
 }
 
 // We follow the Rust standard library's convention of implementing traits for tuples up
@@ -67,9 +70,9 @@ impl SolParamsDecode for Tuple {
 }
 
 #[impl_for_tuples(12)]
-#[tuple_types_custom_trait_bound(for<'a> SolEncode<'a>)]
-impl SolParamsEncode for Tuple {
-    fn encode(&self) -> Vec<u8> {
+#[tuple_types_custom_trait_bound(SolEncode<'a>)]
+impl<'a> SolParamsEncode<'a> for Tuple {
+    fn encode(&'a self) -> Vec<u8> {
         abi::encode_params(&<<Self as SolEncode>::SolType as SolTypeEncode>::tokenize(
             &self.to_sol_type(),
         ))
