@@ -94,6 +94,8 @@ pub use ink_macro::{
     trait_definition,
     Event,
     EventMetadata,
+    SolErrorDecode,
+    SolErrorEncode,
 };
 pub use ink_primitives::{
     Address,
