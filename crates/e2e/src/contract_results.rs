@@ -225,7 +225,7 @@ where
 }
 
 /// Result of a contract call.
-pub struct CallResult<E: Environment, V, EventLog, Abi = Ink> {
+pub struct CallResult<E: Environment, V, EventLog, Abi> {
     /// The result of the dry run, contains debug messages if there were any.
     pub dry_run: CallDryRunResult<E, V, Abi>,
     /// Events that happened with the contract instantiation.
@@ -234,7 +234,7 @@ pub struct CallResult<E: Environment, V, EventLog, Abi = Ink> {
     pub trace: Option<CallTrace>,
 }
 
-impl<E: Environment, V: scale::Decode, EventLog> CallResult<E, V, EventLog> {
+impl<E: Environment, V: scale::Decode, EventLog> CallResult<E, V, EventLog, Ink> {
     /// Returns the [`MessageResult`] from the execution of the dry-run message
     /// call.
     ///
@@ -252,7 +252,29 @@ impl<E: Environment, V: scale::Decode, EventLog> CallResult<E, V, EventLog> {
     pub fn return_value(self) -> V {
         self.dry_run.return_value()
     }
+}
 
+impl<E: Environment, V: SolResultDecode, EventLog> CallResult<E, V, EventLog, Sol> {
+    /// Returns the [`MessageResult`] from the execution of the dry-run message
+    /// call.
+    ///
+    /// # Panics
+    /// - if the dry-run message call failed to execute.
+    /// - if message result cannot be decoded into the expected return value type.
+    pub fn message_result(&self) -> MessageResult<V> {
+        self.dry_run.message_result()
+    }
+
+    /// Returns the decoded return value of the message from the dry-run.
+    ///
+    /// Panics if the value could not be decoded. The raw bytes can be accessed
+    /// via [`CallResult::return_data`].
+    pub fn return_value(self) -> V {
+        self.dry_run.return_value()
+    }
+}
+
+impl<E: Environment, V, EventLog, Abi> CallResult<E, V, EventLog, Abi> {
     /// Returns the return value of the message dry-run as raw bytes.
     ///
     /// Panics if the dry-run message call failed to execute.
@@ -262,7 +284,7 @@ impl<E: Environment, V: scale::Decode, EventLog> CallResult<E, V, EventLog> {
 }
 
 // TODO(#xxx) Improve the `Debug` implementation.
-impl<E: Environment, V, EventLog> Debug for CallResult<E, V, EventLog>
+impl<E: Environment, V, EventLog, Abi> Debug for CallResult<E, V, EventLog, Abi>
 where
     E: Debug,
     E::Balance: Debug,

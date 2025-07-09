@@ -873,7 +873,7 @@ fn is_extrinsic_failed_event<C: subxt::Config>(event: &EventDetails<C>) -> bool 
     event.pallet_name() == "System" && event.variant_name() == "ExtrinsicFailed"
 }
 
-impl<E: Environment, V, C: subxt::Config> CallResult<E, V, ExtrinsicEvents<C>> {
+impl<E: Environment, V, C: subxt::Config, Abi> CallResult<E, V, ExtrinsicEvents<C>, Abi> {
     /// Returns true if the specified event was triggered by the call.
     pub fn contains_event(&self, pallet_name: &str, variant_name: &str) -> bool {
         self.events.iter().any(|event| {
