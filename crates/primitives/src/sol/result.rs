@@ -58,6 +58,7 @@ pub trait SolResultDecode {
 }
 
 /// Error representing reason for failing to decode Solidity ABI encoded result data.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum SolResultDecodeError {
     /// Tried to decode revert/error data into a non-Result type.
     NonResultFromRevert,
