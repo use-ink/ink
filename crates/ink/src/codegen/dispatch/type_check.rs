@@ -77,7 +77,7 @@ where
 ///
 /// # Note
 ///
-/// An ink! input parameter type must implement [`ink::SolDecode`]
+/// An ink! input parameter type must implement [`ink::SolDecode`][crate::SolDecode]
 /// and must have a `'static` lifetime.
 ///
 /// # Example
@@ -105,7 +105,7 @@ where
 ///
 /// # Note
 ///
-/// An ink! input parameter type must implement [`ink::SolEncode`]
+/// An ink! input parameter type must implement [`ink::SolEncode`][crate::SolEncode]
 /// and must have a `'static` lifetime.
 ///
 /// # Example

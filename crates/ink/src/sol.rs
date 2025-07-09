@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Abstractions for implementing Solidity ABI encoding/decoding for arbitrary Rust types.
+
 pub use ink_primitives::sol::*;
 
 /// Returns the selector of the equivalent [Solidity custom error][sol-error]
