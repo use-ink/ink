@@ -759,7 +759,7 @@ jobs:
               --ignore solidity-abi/sol-cross-contract --ignore solidity-abi/sol-encoding \
               --ignore solidity-abi/solidity-calls-flipper --ignore solidity-abi/events \
               --ignore solidity-abi/trait-flipper --ignore solidity-abi/trait-dyn-cross-contract-calls \
-              --ignore solidity-abi/fallible-setter -- \
+              --ignore solidity-abi/fallible-setter \
               --ignore solidity-abi/sol-cross-contract/other-contract-sol \
               --ignore solidity-abi/trait-dyn-cross-contract-calls/contracts/incrementer -- \
               scripts/build_and_determine_contract_size.sh {}
@@ -837,7 +837,7 @@ jobs:
             run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
             id: extract_branch
 
-          - name: Build Contract Examples for RISC-V
+          - name: Build Contract Examples
             uses: ./.github/run-container-command
             env:
                 MANIFEST_PATH: ""
@@ -852,13 +852,13 @@ jobs:
                     find integration-tests/solidity-abi -type f -name "Cargo.toml" | xargs -n1 sed -i 's/abi = \".*\"/abi = \"'$ABI'\"/g'
 
                     mkdir -p measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}/
-                    scripts/for_all_contracts_exec3.sh --path integration-tests \
+                    IGNORE_ERR=true scripts/for_all_contracts_exec.sh --path integration-tests \
                       --ignore solidity-abi/sol-cross-contract --ignore solidity-abi/sol-encoding \
                       --ignore solidity-abi/solidity-calls-flipper --ignore solidity-abi/events \
                       --ignore solidity-abi/trait-flipper --ignore solidity-abi/trait-dyn-cross-contract-calls \
                       --ignore solidity-abi/sol-cross-contract/other-contract-sol \
                       --ignore solidity-abi/trait-dyn-cross-contract-calls/contracts/incrementer -- \
-                      scripts/build_and_determine_contract_size2.sh {}
+                      .github/scripts/output-contract-sizes.sh {}
 
           - uses: actions/upload-artifact@v4
             with:
@@ -1072,9 +1072,9 @@ jobs:
         - name: Collect Contract Sizes (with the ABI set in the contract)
           run: |
               # Build the comparison table
-              echo "master:"
+              echo "---master:"
               cat measurements-master
-              echo "branch:"
+              echo "---branch:"
               cat measurements-${{ env.MEASUREMENTS_ID }}
               echo "---"
               ./scripts/contract_sizes_diff.sh measurements-master measurements-${{ env.MEASUREMENTS_ID }} > contract_sizes_diff.md
@@ -1083,9 +1083,9 @@ jobs:
         - name: Collect Contract Sizes (with enforced Solidity ABI)
           run: |
               # Build the comparison table
-              echo "branch with abi specified in contract:"
+              echo "---branch with abi specified in contract:"
               cat measurements-${{ env.MEASUREMENTS_ID }}
-              echo "branch with solidity abi:"
+              echo "---branch with solidity abi:"
               cat measurements-sol-abi-${{ env.MEASUREMENTS_ID }}
               echo "---"
               ./scripts/contract_sizes_diff.sh measurements-${{ env.MEASUREMENTS_ID }} measurements-sol-abi-${{ env.MEASUREMENTS_ID }} > abi_sol_contract_sizes_diff.md
@@ -1094,9 +1094,9 @@ jobs:
         - name: Collect Contract Sizes (with enforced "all" ABI)
           run: |
               # Build the comparison table
-              echo "branch with abi specified in contract:"
+              echo "---branch with abi specified in contract:"
               cat measurements-${{ env.MEASUREMENTS_ID }}
-              echo "branch with all abi:"
+              echo "---branch with all abi:"
               cat measurements-all-abi-${{ env.MEASUREMENTS_ID }}
               echo "---"
               ./scripts/contract_sizes_diff.sh measurements-${{ env.MEASUREMENTS_ID }} measurements-all-abi-${{ env.MEASUREMENTS_ID }} > abi_all_contract_sizes_diff.md

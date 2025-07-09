@@ -43,7 +43,7 @@ shopt -s globstar
 
 command=( "${@:2}" )
 
-options=$(getopt -o p:i:q: --long path:,ignore:,quiet:,partition: -- "$@")
+options=$(getopt -o p:i:q: --long path:,ignore:,quiet:,partition:,ignore-errors: -- "$@")
 [ $? -eq 0 ] || {
     >&2 echo "Incorrect option provided"
     usage
@@ -167,6 +167,10 @@ if [ "$quiet" = false ]; then
   for failure in "${failures[@]}"; do
     printf "  ${RED}\u2717${NC} %s \n" "$failure"
   done
+fi
+
+if [[ -n "${IGNORE_ERR}" ]]; then
+    exit 0
 fi
 
 if [ ${#failures[@]} -gt 0 ]; then

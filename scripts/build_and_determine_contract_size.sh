@@ -41,5 +41,8 @@ if [ $? -eq 0 ]; then
   exit 0
 else
   echo "Failed to build contract at $manifest_path"
+  if [[ -n "${IGNORE_ERR}" ]]; then
+    exit 0
+  fi
   exit 1
 fi
