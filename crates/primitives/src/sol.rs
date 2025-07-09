@@ -392,6 +392,36 @@ macro_rules! impl_slice_ref_encode {
 
 impl_slice_ref_encode!(&'a [T], &'a mut [T]);
 
+// Rust `PhantomData` <-> Solidity zero-tuple `()`.
+impl<T> SolDecode for core::marker::PhantomData<T> {
+    type SolType = ();
+
+    fn decode(data: &[u8]) -> Result<Self, Error>
+    where
+        Self: Sized,
+    {
+        if data.is_empty() {
+            Ok(core::marker::PhantomData)
+        } else {
+            Err(Error)
+        }
+    }
+
+    fn from_sol_type(_: Self::SolType) -> Self {
+        core::marker::PhantomData
+    }
+}
+
+impl<T> SolEncode<'_> for core::marker::PhantomData<T> {
+    type SolType = ();
+
+    fn encode(&self) -> Vec<u8> {
+        Vec::new()
+    }
+
+    fn to_sol_type(&self) {}
+}
+
 // AccountId <-> bytes32
 impl SolDecode for AccountId {
     type SolType = SolBytes<[u8; 32]>;
