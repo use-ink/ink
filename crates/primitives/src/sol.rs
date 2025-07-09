@@ -51,7 +51,10 @@ pub use self::{
         SolParamsDecode,
         SolParamsEncode,
     },
-    result::SolResultDecode,
+    result::{
+        SolResultDecode,
+        SolResultDecodeError,
+    },
     types::{
         SolTypeDecode,
         SolTypeEncode,

@@ -21,9 +21,13 @@ use ink_primitives::{
         Ink,
         Sol,
     },
-    sol::SolResultDecode,
+    sol::{
+        SolResultDecode,
+        SolResultDecodeError,
+    },
     MessageResult,
 };
+use pallet_revive_uapi::ReturnErrorCode;
 use scale::{
     Decode,
     DecodeAll,
@@ -156,5 +160,16 @@ where
         // `MessageResult`.
         let decoded = R::decode(buffer, did_revert)?;
         Ok(Ok(decoded))
+    }
+}
+
+impl From<SolResultDecodeError> for crate::Error {
+    fn from(value: SolResultDecodeError) -> Self {
+        match value {
+            SolResultDecodeError::NonResultFromRevert => {
+                Self::ReturnError(ReturnErrorCode::CalleeReverted)
+            }
+            SolResultDecodeError::Decode => Self::DecodeSol(ink_primitives::sol::Error),
+        }
     }
 }
