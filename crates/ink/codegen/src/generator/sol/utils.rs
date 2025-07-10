@@ -36,6 +36,19 @@ pub fn sol_type(ty: &Type) -> TokenStream2 {
     }
 }
 
+/// Returns the equivalent Solidity ABI type for the given Rust/ink! return type.
+///
+/// # Note
+///
+/// Use this function (instead of [`sol_type`]) when return type may be `Result<T, E>`,
+/// because `Result<T, E>` implements `ink::SolEncode` but doesn't implement
+/// `ink::SolDecode`.
+pub fn sol_return_type(ty: &Type) -> TokenStream2 {
+    quote! {
+        <#ty as ::ink::SolEncode>::SOL_NAME
+    }
+}
+
 /// Returns Solidity ABI compatible selector of an ink! message.
 pub fn selector(message: &Message) -> TokenStream2 {
     let signature = call_signature(message.ident().to_string(), message.inputs());

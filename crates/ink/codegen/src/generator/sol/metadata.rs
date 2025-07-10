@@ -23,6 +23,7 @@ use syn::Pat;
 
 use super::utils::{
     extract_docs,
+    sol_return_type,
     sol_type,
 };
 use crate::GenerateCode;
@@ -103,7 +104,7 @@ impl SolidityMetadata<'_> {
                 let output = msg
                     .output()
                     .map(|ty| {
-                        let sol_ty = sol_type(ty);
+                        let sol_ty = sol_return_type(ty);
                         quote! { ::core::option::Option::Some(#sol_ty.into()) }
                     })
                     .unwrap_or_else(|| {
