@@ -38,7 +38,10 @@ use itertools::Itertools;
 use paste::paste;
 use primitive_types::U256;
 
-use crate::types::Address;
+use crate::{
+    sol::Error,
+    types::Address,
+};
 
 /// A Rust/ink! equivalent of a Solidity ABI type that implements logic for Solidity ABI
 /// decoding.
@@ -74,15 +77,16 @@ pub trait SolTypeDecode: Sized + private::Sealed {
     type AlloyType: AlloySolType;
 
     /// Solidity ABI decode into this type.
-    fn decode(data: &[u8]) -> Result<Self, alloy_sol_types::Error> {
+    fn decode(data: &[u8]) -> Result<Self, Error> {
         abi::decode::<<Self::AlloyType as AlloySolType>::Token<'_>>(data)
+            .map_err(Error::from)
             .and_then(Self::detokenize)
     }
 
     /// Detokenizes this type's value from the given token.
     fn detokenize(
         token: <Self::AlloyType as AlloySolType>::Token<'_>,
-    ) -> Result<Self, alloy_sol_types::Error>;
+    ) -> Result<Self, Error>;
 }
 
 /// A Rust/ink! equivalent of a Solidity ABI type that implements logic for Solidity ABI
@@ -136,7 +140,7 @@ macro_rules! impl_primitive_decode {
             impl SolTypeDecode for $ty {
                 type AlloyType = $sol_ty;
 
-                fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Result<Self, alloy_sol_types::Error> {
+                fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Result<Self, Error> {
                     Ok(<Self::AlloyType as AlloySolType>::detokenize(token))
                 }
             }
@@ -198,10 +202,8 @@ impl SolTypeDecode for Box<str> {
 
     fn detokenize(
         token: <Self::AlloyType as AlloySolType>::Token<'_>,
-    ) -> Result<Self, alloy_sol_types::Error> {
-        Ok(Box::from(core::str::from_utf8(token.0).map_err(|_| {
-            alloy_sol_types::Error::type_check_fail(token.0, "string")
-        })?))
+    ) -> Result<Self, Error> {
+        Ok(Box::from(core::str::from_utf8(token.0).map_err(|_| Error)?))
     }
 }
 
@@ -221,7 +223,7 @@ impl SolTypeDecode for Address {
 
     fn detokenize(
         token: <Self::AlloyType as AlloySolType>::Token<'_>,
-    ) -> Result<Self, alloy_sol_types::Error> {
+    ) -> Result<Self, Error> {
         // We skip the conversion to `alloy_sol_types::private::Address` which will end up
         // just taking the last 20 bytes of `alloy_sol_types::abi::token::WordToken` as
         // well anyway.
@@ -251,7 +253,7 @@ impl SolTypeDecode for U256 {
 
     fn detokenize(
         token: <Self::AlloyType as AlloySolType>::Token<'_>,
-    ) -> Result<Self, alloy_sol_types::Error> {
+    ) -> Result<Self, Error> {
         Ok(U256::from_big_endian(token.0 .0.as_slice()))
     }
 }
@@ -276,7 +278,7 @@ impl<T: SolTypeDecode, const N: usize> SolTypeDecode for [T; N] {
 
     fn detokenize(
         token: <Self::AlloyType as AlloySolType>::Token<'_>,
-    ) -> Result<Self, alloy_sol_types::Error> {
+    ) -> Result<Self, Error> {
         // Takes advantage of optimized `SolTypeDecode::detokenize` implementations and
         // skips unnecessary conversions to `T::AlloyType::RustType`.
         // FIXME: (@davidsemakula) replace with `array::try_map` if it's ever stabilized.
@@ -287,12 +289,7 @@ impl<T: SolTypeDecode, const N: usize> SolTypeDecode for [T; N] {
             .into_iter()
             .map(<T as SolTypeDecode>::detokenize)
             .process_results(|iter| iter.collect_array())?
-            .ok_or_else(|| {
-                alloy_sol_types::Error::custom(ink_prelude::format!(
-                    "ABI decoding failed: {}",
-                    Self::AlloyType::SOL_NAME
-                ))
-            })
+            .ok_or(Error)
     }
 }
 
@@ -316,7 +313,7 @@ impl<T: SolTypeDecode> SolTypeDecode for Vec<T> {
 
     fn detokenize(
         token: <Self::AlloyType as AlloySolType>::Token<'_>,
-    ) -> Result<Self, alloy_sol_types::Error> {
+    ) -> Result<Self, Error> {
         // Takes advantage of optimized `SolTypeDecode::detokenize` implementations and
         // skips unnecessary conversions to `T::AlloyType::RustType`.
         token
@@ -345,7 +342,7 @@ impl<T: SolTypeDecode> SolTypeDecode for Box<[T]> {
 
     fn detokenize(
         token: <Self::AlloyType as AlloySolType>::Token<'_>,
-    ) -> Result<Self, alloy_sol_types::Error> {
+    ) -> Result<Self, Error> {
         // Takes advantage of optimized `SolTypeDecode::detokenize` implementations and
         // skips unnecessary conversions to `T::AlloyType::RustType`.
         token
@@ -378,7 +375,7 @@ impl SolTypeDecode for Tuple {
     #[allow(clippy::unused_unit)]
     fn detokenize(
         token: <Self::AlloyType as AlloySolType>::Token<'_>,
-    ) -> Result<Self, alloy_sol_types::Error> {
+    ) -> Result<Self, Error> {
         // Takes advantage of optimized `SolTypeDecode::detokenize` implementations and
         // skips unnecessary conversions to `T::AlloyType::RustType`.
         Ok(for_tuples! { ( #( <Tuple as SolTypeDecode>::detokenize(token.Tuple)? ),* ) })

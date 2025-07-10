@@ -108,7 +108,7 @@ where
 }
 
 impl<T: SolDecode> AbiDecodeWith<Sol> for T {
-    type Error = alloy_sol_types::Error;
+    type Error = crate::sol::Error;
     fn decode_with(buffer: &[u8]) -> Result<Self, Self::Error> {
         T::decode(buffer)
     }

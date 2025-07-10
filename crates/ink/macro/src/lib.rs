@@ -26,6 +26,7 @@ mod event;
 mod ink_test;
 mod scale;
 mod selector;
+mod sol;
 mod storage;
 mod storage_item;
 mod trait_def;
@@ -1599,6 +1600,88 @@ synstructure::decl_derive!(
     /// }
     /// ```
     storage::storage_layout_derive
+);
+
+synstructure::decl_derive!(
+    [SolErrorDecode] =>
+    /// Derives an implementation of `ink::sol::SolErrorDecode`
+    /// for the given `struct` or `enum`.
+    ///
+    /// # Note
+    ///
+    /// All field types (if any) must implement [`ink::SolDecode`].
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use ink_macro::SolErrorDecode;
+    ///
+    /// #[derive(SolErrorDecode)]
+    /// struct UnitError;
+    ///
+    /// #[derive(SolErrorDecode)]
+    /// struct ErrorWithParams(bool, u8, String);
+    ///
+    /// #[derive(SolErrorDecode)]
+    /// struct ErrorWithNamedParams {
+    ///     status: bool,
+    ///     count: u8,
+    ///     reason: String,
+    /// }
+    ///
+    /// #[derive(SolErrorDecode)]
+    /// enum MultipleErrors {
+    ///     UnitError,
+    ///     ErrorWithParams(bool, u8, String),
+    ///     ErrorWithNamedParams {
+    ///         status: bool,
+    ///         count: u8,
+    ///         reason: String,
+    ///     }
+    /// }
+    /// ```
+    sol::sol_error_decode_derive
+);
+
+synstructure::decl_derive!(
+    [SolErrorEncode] =>
+    /// Derives an implementation of `ink::sol::SolErrorEncode`
+    /// for the given `struct` or `enum`.
+    ///
+    /// # Note
+    ///
+    /// All field types (if any) must implement [`ink::SolEncode`].
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use ink_macro::SolErrorEncode;
+    ///
+    /// #[derive(SolErrorEncode)]
+    /// struct UnitError;
+    ///
+    /// #[derive(SolErrorEncode)]
+    /// struct ErrorWithParams(bool, u8, String);
+    ///
+    /// #[derive(SolErrorEncode)]
+    /// struct ErrorWithNamedParams {
+    ///     status: bool,
+    ///     count: u8,
+    ///     reason: String,
+    /// }
+    ///
+    /// #[derive(SolErrorEncode)]
+    /// enum MultipleErrors {
+    ///     UnitError,
+    ///     ErrorWithParams(bool, u8, String),
+    ///     ErrorWithNamedParams {
+    ///         status: bool,
+    ///         count: u8,
+    ///         reason: String,
+    ///     }
+    /// }
+    /// ```
+    sol::sol_error_encode_derive
 );
 
 /// Derive the re-exported traits `ink::scale::Encode`, `ink::scale::Decode` and

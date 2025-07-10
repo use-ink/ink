@@ -13,10 +13,7 @@
 // limitations under the License.
 
 use ink_primitives::{
-    abi::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-    },
+    abi::AbiEncodeWith,
     types::Environment,
     Address,
     SolEncode,
@@ -340,9 +337,8 @@ pub trait TypedEnvBackend: EnvBackend {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-
         Args: AbiEncodeWith<Abi>,
-        R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>;
+        R: DecodeMessageResult<Abi>;
 
     /// Invokes a contract message via delegate call and returns its result.
     ///
@@ -356,9 +352,8 @@ pub trait TypedEnvBackend: EnvBackend {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-
         Args: AbiEncodeWith<Abi>,
-        R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>;
+        R: DecodeMessageResult<Abi>;
 
     /// Instantiates another contract.
     ///

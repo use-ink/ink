@@ -35,6 +35,7 @@ mod chain_extension;
 mod contract_ref;
 mod env_access;
 mod message_builder;
+pub mod sol;
 
 pub use ink_env as env;
 #[cfg(feature = "std")]
@@ -93,6 +94,8 @@ pub use ink_macro::{
     trait_definition,
     Event,
     EventMetadata,
+    SolErrorDecode,
+    SolErrorEncode,
 };
 pub use ink_primitives::{
     Address,

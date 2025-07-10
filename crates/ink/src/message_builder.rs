@@ -30,8 +30,8 @@
 /// The macro expects up to three arguments:
 /// - The first argument is the path to the trait, e.g. `Erc20` or `erc20::Erc20`.
 /// - The second argument is the type of the [`ink_env::Environment`].
-/// - The third argument is the marker type for the ABI (i.e. [`ink::abi::Ink`] or
-///   [`ink::abi::Sol`]).
+/// - The third argument is the marker type for the ABI (i.e.
+///   [`ink::abi::Ink`][crate::abi::Ink] or [`ink::abi::Sol`][crate::abi::Sol]).
 ///
 /// If the second argument is not specified, the macro uses the
 /// [`ink_env::DefaultEnvironment`].
@@ -111,7 +111,7 @@
 ///     ) -> Result<MessageResult<Output>, Self::Error>
 ///     where
 ///         Args: ink::abi::AbiEncodeWith<Abi>,
-///         Output: ink::abi::AbiDecodeWith<Abi>,
+///         Output: ink::env::call::utils::DecodeMessageResult<Abi>,
 ///     {
 ///         println!("Executing contract with input: {:?}", input.encode());
 ///         unimplemented!("Decode contract execution output")

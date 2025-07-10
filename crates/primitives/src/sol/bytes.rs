@@ -36,6 +36,7 @@ use scale::{
 use scale_info::TypeInfo;
 
 use crate::sol::{
+    Error,
     SolDecode,
     SolEncode,
     SolTypeDecode,
@@ -65,7 +66,7 @@ impl<T: SolBytesType> SolTypeDecode for SolBytes<T> {
 
     fn detokenize(
         token: <Self::AlloyType as AlloySolType>::Token<'_>,
-    ) -> Result<Self, alloy_sol_types::Error> {
+    ) -> Result<Self, Error> {
         // Takes advantage of optimized `SolBytesType::detokenize` implementations and
         // skips unnecessary conversions to `T::AlloyType::RustType`.
         Ok(Self(<T as SolBytesType>::detokenize(token)))

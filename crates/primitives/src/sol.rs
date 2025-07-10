@@ -15,18 +15,19 @@
 //! Abstractions for implementing Solidity ABI encoding/decoding for arbitrary Rust types.
 
 mod bytes;
+mod error;
 mod params;
+mod result;
 mod types;
 
 #[cfg(test)]
 mod tests;
 
-use core::ops::Deref;
-
 use alloy_sol_types::{
     sol_data,
     SolType as AlloySolType,
 };
+use core::ops::Deref;
 use impl_trait_for_tuples::impl_for_tuples;
 use ink_prelude::{
     borrow::Cow,
@@ -42,16 +43,23 @@ use sp_weights::Weight;
 
 pub use self::{
     bytes::SolBytes,
+    error::{
+        SolErrorDecode,
+        SolErrorEncode,
+    },
     params::{
         SolParamsDecode,
         SolParamsEncode,
+    },
+    result::{
+        SolResultDecode,
+        SolResultDecodeError,
     },
     types::{
         SolTypeDecode,
         SolTypeEncode,
     },
 };
-pub use alloy_sol_types::Error;
 
 use crate::types::{
     AccountId,
@@ -103,7 +111,7 @@ pub trait SolDecode {
         <<Self::SolType as SolTypeDecode>::AlloyType as AlloySolType>::SOL_NAME;
 
     /// Solidity ABI decode into this type.
-    fn decode(data: &[u8]) -> Result<Self, alloy_sol_types::Error>
+    fn decode(data: &[u8]) -> Result<Self, Error>
     where
         Self: Sized,
     {
@@ -149,6 +157,10 @@ pub trait SolDecode {
 /// ```
 pub trait SolEncode<'a> {
     /// Equivalent Solidity ABI type representation.
+    ///
+    /// # Note
+    ///
+    /// Prefer reference based representation for better performance.
     type SolType: SolTypeEncode;
 
     /// Name of equivalent Solidity ABI type.
@@ -168,6 +180,22 @@ pub trait SolEncode<'a> {
     /// Converts from `Self` to `Self::SolType` via either a borrow (if possible), or
     /// a possibly expensive conversion otherwise.
     fn to_sol_type(&'a self) -> Self::SolType;
+}
+
+/// Solidity ABI encoding/decoding error.
+#[derive(Debug, PartialEq)]
+pub struct Error;
+
+impl From<alloy_sol_types::Error> for Error {
+    fn from(_: alloy_sol_types::Error) -> Self {
+        Self
+    }
+}
+
+impl core::fmt::Display for Error {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.write_str("Solidity ABI encode/decode error")
+    }
 }
 
 macro_rules! impl_primitive_decode {
@@ -366,6 +394,36 @@ macro_rules! impl_slice_ref_encode {
 }
 
 impl_slice_ref_encode!(&'a [T], &'a mut [T]);
+
+// Rust `PhantomData` <-> Solidity zero-tuple `()`.
+impl<T> SolDecode for core::marker::PhantomData<T> {
+    type SolType = ();
+
+    fn decode(data: &[u8]) -> Result<Self, Error>
+    where
+        Self: Sized,
+    {
+        if data.is_empty() {
+            Ok(core::marker::PhantomData)
+        } else {
+            Err(Error)
+        }
+    }
+
+    fn from_sol_type(_: Self::SolType) -> Self {
+        core::marker::PhantomData
+    }
+}
+
+impl<T> SolEncode<'_> for core::marker::PhantomData<T> {
+    type SolType = ();
+
+    fn encode(&self) -> Vec<u8> {
+        Vec::new()
+    }
+
+    fn to_sol_type(&self) {}
+}
 
 // AccountId <-> bytes32
 impl SolDecode for AccountId {

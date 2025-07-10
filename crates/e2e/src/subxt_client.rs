@@ -20,6 +20,7 @@ use ink::H160;
 use ink_env::{
     call::{
         utils::{
+            DecodeMessageResult,
             ReturnType,
             Set,
         },
@@ -29,10 +30,7 @@ use ink_env::{
     Environment,
 };
 use ink_primitives::{
-    abi::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-    },
+    abi::AbiEncodeWith,
     types::AccountIdMapper,
     DepositLimit,
 };
@@ -647,7 +645,7 @@ where
 
     async fn bare_call<
         Args: Sync + AbiEncodeWith<Abi> + Clone,
-        RetType: Send + AbiDecodeWith<Abi>,
+        RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(
         &mut self,
@@ -697,7 +695,7 @@ where
     // todo is not really a `bare_call`
     async fn bare_call_dry_run<
         Args: Sync + AbiEncodeWith<Abi> + Clone,
-        RetType: Send + AbiDecodeWith<Abi>,
+        RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(
         &mut self,
@@ -873,7 +871,7 @@ fn is_extrinsic_failed_event<C: subxt::Config>(event: &EventDetails<C>) -> bool 
     event.pallet_name() == "System" && event.variant_name() == "ExtrinsicFailed"
 }
 
-impl<E: Environment, V, C: subxt::Config> CallResult<E, V, ExtrinsicEvents<C>> {
+impl<E: Environment, V, C: subxt::Config, Abi> CallResult<E, V, ExtrinsicEvents<C>, Abi> {
     /// Returns true if the specified event was triggered by the call.
     pub fn contains_event(&self, pallet_name: &str, variant_name: &str) -> bool {
         self.events.iter().any(|event| {

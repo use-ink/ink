@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support Solidity ABI encoded constructor dispatch - [#2525](https://github.com/use-ink/ink/pull/2525)
 - Export `Weight` with Solidity encoding - [#2540](https://github.com/use-ink/ink/pull/2540)
 - Implement `SolEncode` and `SolDecode` for generated contract refs, call and message builders - [#2539](https://github.com/use-ink/ink/pull/2539)
+- Abstractions for mapping Rust/ink! `Result` and error types to/from Solidity ABI error and result representations - [#2543](https://github.com/use-ink/ink/pull/2543)
 
 ### Changed
 - Use marker trait for finding ink! storage `struct` during code analysis - [2499](https://github.com/use-ink/ink/pull/2499)

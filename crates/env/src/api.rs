@@ -15,10 +15,7 @@
 //! The public raw interface towards the host engine.
 
 use ink_primitives::{
-    abi::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-    },
+    abi::AbiEncodeWith,
     Address,
     SolEncode,
     H256,
@@ -293,9 +290,8 @@ pub fn invoke_contract<E, Args, R, Abi>(
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
-
     Args: AbiEncodeWith<Abi>,
-    R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+    R: DecodeMessageResult<Abi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::invoke_contract::<E, Args, R, Abi>(instance, params)
@@ -319,9 +315,8 @@ pub fn invoke_contract_delegate<E, Args, R, Abi>(
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
-
     Args: AbiEncodeWith<Abi>,
-    R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+    R: DecodeMessageResult<Abi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::invoke_contract_delegate::<E, Args, R, Abi>(instance, params)

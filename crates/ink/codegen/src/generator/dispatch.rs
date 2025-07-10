@@ -319,7 +319,7 @@ impl Dispatch<'_> {
                 let decode_trait = if input_bindings.len() == 1 {
                     quote!(::ink::SolDecode)
                 } else {
-                    quote!(::ink::primitives::sol::SolParamsDecode)
+                    quote!(::ink::sol::SolParamsDecode)
                 };
                 (
                     quote!( #SOL_CTOR_ID ),
@@ -448,7 +448,7 @@ impl Dispatch<'_> {
                     let decode_trait = if input_bindings.len() == 1 {
                         quote!(::ink::SolDecode)
                     } else {
-                        quote!(::ink::primitives::sol::SolParamsDecode)
+                        quote!(::ink::sol::SolParamsDecode)
                     };
                     (
                         sol::utils::selector_id(message),
@@ -546,7 +546,7 @@ impl Dispatch<'_> {
                     let decode_trait = if input_bindings.len() == 1 {
                         quote!(::ink::SolDecode)
                     } else {
-                        quote!(::ink::primitives::sol::SolParamsDecode)
+                        quote!(::ink::sol::SolParamsDecode)
                     };
                     (
                         sol::utils::selector_id(message),

@@ -20,6 +20,7 @@ use impl_trait_for_tuples::impl_for_tuples;
 use ink_prelude::vec::Vec;
 
 use super::{
+    Error,
     SolDecode,
     SolEncode,
     SolTypeDecode,
@@ -31,9 +32,12 @@ use super::{
 /// # Note
 ///
 /// This trait is sealed and cannot be implemented for types outside `ink_primitives`.
-pub trait SolParamsDecode: Sized + private::Sealed {
+pub trait SolParamsDecode: SolDecode + Sized + private::Sealed {
+    /// Name of equivalent Solidity ABI type.
+    const SOL_NAME: &'static str = <Self as SolDecode>::SOL_NAME;
+
     /// Solidity ABI decode function parameters into this type.
-    fn decode(data: &[u8]) -> Result<Self, alloy_sol_types::Error>;
+    fn decode(data: &[u8]) -> Result<Self, Error>;
 }
 
 /// Solidity ABI encode function parameters.
@@ -41,9 +45,12 @@ pub trait SolParamsDecode: Sized + private::Sealed {
 /// # Note
 ///
 /// This trait is sealed and cannot be implemented for types outside `ink_primitives`.
-pub trait SolParamsEncode: private::Sealed {
+pub trait SolParamsEncode<'a>: SolEncode<'a> + private::Sealed {
+    /// Name of equivalent Solidity ABI type.
+    const SOL_NAME: &'static str = <Self as SolEncode<'a>>::SOL_NAME;
+
     /// Solidity ABI encode the value as function parameters.
-    fn encode(&self) -> Vec<u8>;
+    fn encode(&'a self) -> Vec<u8>;
 }
 
 // We follow the Rust standard library's convention of implementing traits for tuples up
@@ -52,19 +59,20 @@ pub trait SolParamsEncode: private::Sealed {
 #[impl_for_tuples(12)]
 #[tuple_types_custom_trait_bound(SolDecode)]
 impl SolParamsDecode for Tuple {
-    fn decode(data: &[u8]) -> Result<Self, alloy_sol_types::Error> {
+    fn decode(data: &[u8]) -> Result<Self, Error> {
         abi::decode_params::<
             <<<Self as SolDecode>::SolType as SolTypeDecode>::AlloyType as AlloySolType>::Token<'_>,
         >(data)
+            .map_err(Error::from)
             .and_then(<<Self as SolDecode>::SolType as SolTypeDecode>::detokenize)
             .map(<Self as SolDecode>::from_sol_type)
     }
 }
 
 #[impl_for_tuples(12)]
-#[tuple_types_custom_trait_bound(for<'a> SolEncode<'a>)]
-impl SolParamsEncode for Tuple {
-    fn encode(&self) -> Vec<u8> {
+#[tuple_types_custom_trait_bound(SolEncode<'a>)]
+impl<'a> SolParamsEncode<'a> for Tuple {
+    fn encode(&'a self) -> Vec<u8> {
         abi::encode_params(&<<Self as SolEncode>::SolType as SolTypeEncode>::tokenize(
             &self.to_sol_type(),
         ))

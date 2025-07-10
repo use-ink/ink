@@ -14,12 +14,12 @@
 
 use std::marker::PhantomData;
 
-use ink_env::Environment;
+use ink_env::{
+    call::utils::DecodeMessageResult,
+    Environment,
+};
 use ink_primitives::{
-    abi::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-    },
+    abi::AbiEncodeWith,
     DepositLimit,
 };
 use sp_weights::Weight;
@@ -46,7 +46,7 @@ pub struct CallBuilder<'a, E, Args, RetType, B, Abi>
 where
     E: Environment,
     Args: AbiEncodeWith<Abi> + Clone,
-    RetType: Send + AbiDecodeWith<Abi>,
+    RetType: Send + DecodeMessageResult<Abi>,
     B: BuilderClient<E>,
     Abi: Clone,
 {
@@ -63,7 +63,7 @@ impl<'a, E, Args, RetType, B, Abi> CallBuilder<'a, E, Args, RetType, B, Abi>
 where
     E: Environment,
     Args: Sync + AbiEncodeWith<Abi> + Clone,
-    RetType: Send + AbiDecodeWith<Abi>,
+    RetType: Send + DecodeMessageResult<Abi>,
     B: BuilderClient<E>,
     Abi: Sync + Clone,
 {

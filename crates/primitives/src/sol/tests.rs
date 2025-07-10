@@ -36,6 +36,7 @@ use primitive_types::{
 
 use crate::{
     sol::{
+        Error,
         SolBytes,
         SolDecode,
         SolEncode,
@@ -67,7 +68,7 @@ macro_rules! test_case_codec {
 
         // `SolDecode` test.
         let decoded = <$ty as SolDecode>::decode(&encoded);
-        let decoded_alloy = <$sol_ty as $sol_trait>::abi_decode(&encoded);
+        let decoded_alloy = <$sol_ty as $sol_trait>::abi_decode(&encoded).map_err(Error::from);
         assert_eq!(decoded$($ty_cvt)*, decoded_alloy$($sol_ty_cvt)*);
     };
 }
@@ -87,7 +88,7 @@ macro_rules! test_case {
 
         // `SolTypeDecode` test.
         let decoded = <$ty as SolTypeDecode>::decode(&encoded);
-        let decoded_alloy = <$sol_ty as $sol_trait>::abi_decode(&encoded);
+        let decoded_alloy = <$sol_ty as $sol_trait>::abi_decode(&encoded).map_err(Error::from);
         assert_eq!(decoded$($ty_cvt)*, decoded_alloy$($sol_ty_cvt)*);
 
         // `SolEncode` and `SolDecode` test.
@@ -567,7 +568,7 @@ macro_rules! test_case_params {
 
         // `SolParamsDecode` test.
         let decoded = <$ty as SolParamsDecode>::decode(&encoded);
-        let decoded_alloy = <$sol_ty as $sol_trait>::abi_decode_params(&encoded);
+        let decoded_alloy = <$sol_ty as $sol_trait>::abi_decode_params(&encoded).map_err(Error::from);
         assert_eq!(decoded$($ty_cvt)*, decoded_alloy$($sol_ty_cvt)*);
     };
 }

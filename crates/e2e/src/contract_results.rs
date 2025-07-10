@@ -24,18 +24,16 @@ use frame_support::pallet_prelude::{
 };
 use ink::codegen::ContractCallBuilder;
 use ink_env::{
-    call::FromAddr,
+    call::{
+        utils::DecodeMessageResult,
+        FromAddr,
+    },
     Environment,
 };
 use ink_primitives::{
-    abi::{
-        Ink,
-        Sol,
-    },
     Address,
     ConstructorResult,
     MessageResult,
-    SolDecode,
     H256,
 };
 use pallet_revive::{
@@ -225,7 +223,7 @@ where
 }
 
 /// Result of a contract call.
-pub struct CallResult<E: Environment, V, EventLog, Abi = Ink> {
+pub struct CallResult<E: Environment, V, EventLog, Abi> {
     /// The result of the dry run, contains debug messages if there were any.
     pub dry_run: CallDryRunResult<E, V, Abi>,
     /// Events that happened with the contract instantiation.
@@ -234,7 +232,9 @@ pub struct CallResult<E: Environment, V, EventLog, Abi = Ink> {
     pub trace: Option<CallTrace>,
 }
 
-impl<E: Environment, V: scale::Decode, EventLog> CallResult<E, V, EventLog> {
+impl<E: Environment, V: DecodeMessageResult<Abi>, EventLog, Abi>
+    CallResult<E, V, EventLog, Abi>
+{
     /// Returns the [`MessageResult`] from the execution of the dry-run message
     /// call.
     ///
@@ -252,7 +252,9 @@ impl<E: Environment, V: scale::Decode, EventLog> CallResult<E, V, EventLog> {
     pub fn return_value(self) -> V {
         self.dry_run.return_value()
     }
+}
 
+impl<E: Environment, V, EventLog, Abi> CallResult<E, V, EventLog, Abi> {
     /// Returns the return value of the message dry-run as raw bytes.
     ///
     /// Panics if the dry-run message call failed to execute.
@@ -262,7 +264,7 @@ impl<E: Environment, V: scale::Decode, EventLog> CallResult<E, V, EventLog> {
 }
 
 // TODO(#xxx) Improve the `Debug` implementation.
-impl<E: Environment, V, EventLog> Debug for CallResult<E, V, EventLog>
+impl<E: Environment, V, EventLog, Abi> Debug for CallResult<E, V, EventLog, Abi>
 where
     E: Debug,
     E::Balance: Debug,
@@ -333,7 +335,7 @@ impl<E: Environment, V, Abi> CallDryRunResult<E, V, Abi> {
     }
 }
 
-impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V, Ink> {
+impl<E: Environment, V: DecodeMessageResult<Abi>, Abi> CallDryRunResult<E, V, Abi> {
     /// Returns the [`MessageResult`] from the execution of the dry-run message call.
     ///
     /// # Panics
@@ -341,9 +343,9 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V, Ink> {
     /// - if message result cannot be decoded into the expected return value type.
     pub fn message_result(&self) -> MessageResult<V> {
         let data = &self.exec_return_value().data;
-        scale::Decode::decode(&mut data.as_ref()).unwrap_or_else(|env_err| {
+        DecodeMessageResult::decode_output(data.as_ref(), self.did_revert()).unwrap_or_else(|env_err| {
             panic!(
-                "Decoding dry run result to ink! message return type failed: {env_err} {:?}",
+                "Decoding dry run result to ink! message return type failed: {env_err:?} {:?}",
                 self.exec_return_value()
             )
         })
@@ -360,37 +362,6 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V, Ink> {
                     "Encountered a `LangError` while decoding dry run result to ink! message: {lang_err:?}"
                 )
             })
-    }
-}
-
-impl<E: Environment, V: SolDecode> CallDryRunResult<E, V, Sol> {
-    /// Returns the [`MessageResult`] from the execution of the dry-run message call.
-    ///
-    /// # Panics
-    /// - if the dry-run message call failed to execute.
-    /// - if message result cannot be decoded into the expected return value type.
-    pub fn message_result(&self) -> MessageResult<V> {
-        Ok(self.return_value())
-    }
-
-    /// Returns the decoded return value of the message from the dry-run.
-    ///
-    /// Panics if the value could not be decoded. The raw bytes can be accessed via
-    /// [`CallResult::return_data`].
-    pub fn return_value(&self) -> V {
-        // Solidity ABI encoded message calls return data without wrapping it in
-        // `MessageResult`.
-        let data = &self.exec_return_value().data;
-        if self.is_err() {
-            // For Solidity ABI encoded message calls,
-            // the return value is only meaningful if the message call was successful.
-            panic!("Could not decode the dry run result because the message call failed to execute")
-        }
-        SolDecode::decode(data.as_ref()).unwrap_or_else(|err| {
-            panic!(
-                "Encountered an error while decoding dry run result to ink! message: {err:?}"
-            )
-        })
     }
 }
 

@@ -16,7 +16,6 @@ use core::marker::PhantomData;
 use ink_prelude::vec::Vec;
 use ink_primitives::{
     abi::{
-        AbiDecodeWith,
         AbiEncodeWith,
         Ink,
         Sol,
@@ -44,7 +43,7 @@ pub struct Execution<Args, Output, Abi> {
 impl<Args, Output, Abi> Execution<Args, Output, Abi>
 where
     Args: AbiEncodeWith<Abi>,
-    Output: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+    Output: DecodeMessageResult<Abi>,
 {
     /// Construct a new contract execution with the given input data.
     pub fn new(input: ExecutionInput<Args, Abi>) -> Self {
@@ -78,7 +77,7 @@ pub trait Executor<E: Environment> {
     ) -> Result<ink_primitives::MessageResult<Output>, Self::Error>
     where
         Args: AbiEncodeWith<Abi>,
-        Output: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>;
+        Output: DecodeMessageResult<Abi>;
 }
 
 /// The input data for a smart contract execution.

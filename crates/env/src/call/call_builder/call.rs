@@ -13,10 +13,7 @@
 // limitations under the License.
 
 use ink_primitives::{
-    abi::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-    },
+    abi::AbiEncodeWith,
     Address,
     U256,
 };
@@ -206,7 +203,7 @@ impl<E, Abi>
 where
     E: Environment,
     EmptyArgumentList<Abi>: AbiEncodeWith<Abi>,
-    (): AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+    (): DecodeMessageResult<Abi>,
     Abi: Default,
 {
     /// Invokes the cross-chain function call.
@@ -237,7 +234,7 @@ impl<E, Args, R, Abi>
 where
     E: Environment,
     Args: AbiEncodeWith<Abi>,
-    R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+    R: DecodeMessageResult<Abi>,
     Abi: Default,
 {
     /// Invokes the cross-chain function call and returns the result.
@@ -309,7 +306,7 @@ impl<E, Args, R, Abi> CallParams<E, Call, Args, R, Abi>
 where
     E: Environment,
     Args: AbiEncodeWith<Abi>,
-    R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+    R: DecodeMessageResult<Abi>,
 {
     /// Invokes the contract with the given built-up call parameters.
     ///

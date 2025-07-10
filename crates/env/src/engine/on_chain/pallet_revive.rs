@@ -13,10 +13,7 @@
 // limitations under the License.
 
 use ink_primitives::{
-    abi::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-    },
+    abi::AbiEncodeWith,
     Address,
     SolEncode,
     H256,
@@ -506,7 +503,7 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
         Args: AbiEncodeWith<Abi>,
-        R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+        R: DecodeMessageResult<Abi>,
     {
         let mut scope = self.scoped_buffer();
         let ref_time_limit = params.ref_time_limit();
@@ -552,7 +549,8 @@ impl TypedEnvBackend for EnvInstance {
             Some(output),
         );
         match call_result {
-            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => R::decode_output(output),
+            Ok(()) => R::decode_output(output, false),
+            Err(ReturnErrorCode::CalleeReverted) => R::decode_output(output, true),
             Err(actual_error) => Err(actual_error.into()),
         }
     }
@@ -564,7 +562,7 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
         Args: AbiEncodeWith<Abi>,
-        R: AbiDecodeWith<Abi> + DecodeMessageResult<Abi>,
+        R: DecodeMessageResult<Abi>,
     {
         let mut scope = self.scoped_buffer();
         let call_flags = params.call_flags();
@@ -593,7 +591,8 @@ impl TypedEnvBackend for EnvInstance {
             Some(output),
         );
         match call_result {
-            Ok(()) | Err(ReturnErrorCode::CalleeReverted) => R::decode_output(output),
+            Ok(()) => R::decode_output(output, false),
+            Err(ReturnErrorCode::CalleeReverted) => R::decode_output(output, true),
             Err(actual_error) => Err(actual_error.into()),
         }
     }
