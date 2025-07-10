@@ -25,12 +25,12 @@ use frame_support::{
         IsType,
     },
 };
-use ink_env::Environment;
+use ink_env::{
+    call::utils::DecodeMessageResult,
+    Environment,
+};
 use ink_primitives::{
-    abi::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-    },
+    abi::AbiEncodeWith,
     DepositLimit,
 };
 use ink_sandbox::{
@@ -399,7 +399,7 @@ where
 
     async fn bare_call<
         Args: Sync + AbiEncodeWith<Abi> + Clone,
-        RetType: Send + AbiDecodeWith<Abi>,
+        RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(
         &mut self,
@@ -445,7 +445,7 @@ where
 
     async fn bare_call_dry_run<
         Args: Sync + AbiEncodeWith<Abi> + Clone,
-        RetType: Send + AbiDecodeWith<Abi>,
+        RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(
         &mut self,

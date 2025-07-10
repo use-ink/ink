@@ -13,14 +13,12 @@
 // limitations under the License.
 
 use ink_env::{
+    call::utils::DecodeMessageResult,
     DefaultEnvironment,
     Environment,
 };
 use ink_primitives::{
-    abi::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-    },
+    abi::AbiEncodeWith,
     DepositLimit,
 };
 use jsonrpsee::core::async_trait;
@@ -220,7 +218,7 @@ pub trait ContractsBackend<E: Environment> {
     fn call<
         'a,
         Args: Sync + AbiEncodeWith<Abi> + Clone,
-        RetType: Send + AbiDecodeWith<Abi>,
+        RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(
         &'a mut self,
@@ -245,7 +243,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     /// contains all events that are associated with this transaction.
     async fn bare_call<
         Args: Sync + AbiEncodeWith<Abi> + Clone,
-        RetType: Send + AbiDecodeWith<Abi>,
+        RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(
         &mut self,
@@ -264,7 +262,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     /// invoked message.
     async fn bare_call_dry_run<
         Args: Sync + AbiEncodeWith<Abi> + Clone,
-        RetType: Send + AbiDecodeWith<Abi>,
+        RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(
         &mut self,

@@ -20,6 +20,7 @@ use ink::H160;
 use ink_env::{
     call::{
         utils::{
+            DecodeMessageResult,
             ReturnType,
             Set,
         },
@@ -29,10 +30,7 @@ use ink_env::{
     Environment,
 };
 use ink_primitives::{
-    abi::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-    },
+    abi::AbiEncodeWith,
     types::AccountIdMapper,
     DepositLimit,
 };
@@ -647,7 +645,7 @@ where
 
     async fn bare_call<
         Args: Sync + AbiEncodeWith<Abi> + Clone,
-        RetType: Send + AbiDecodeWith<Abi>,
+        RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(
         &mut self,
@@ -697,7 +695,7 @@ where
     // todo is not really a `bare_call`
     async fn bare_call_dry_run<
         Args: Sync + AbiEncodeWith<Abi> + Clone,
-        RetType: Send + AbiDecodeWith<Abi>,
+        RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(
         &mut self,
