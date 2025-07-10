@@ -22,15 +22,16 @@ use crate::sol::{
     SolErrorEncode,
 };
 
-impl<T, E> SolEncode<'_> for Result<T, E>
+impl<'a, T, E> SolEncode<'a> for Result<T, E>
 where
-    T: for<'a> SolEncode<'a>,
+    T: SolEncode<'a>,
     E: SolErrorEncode,
 {
     // NOTE: Not actually used for encoding because of `encode` override below.
-    type SolType = ();
+    // However, it's used for metadata generation, so the unwrapped type is used.
+    type SolType = <T as SolEncode<'a>>::SolType;
 
-    fn encode(&self) -> Vec<u8> {
+    fn encode(&'a self) -> Vec<u8> {
         match self {
             Ok(val) => val.encode(),
             Err(err) => err.encode(),
@@ -38,7 +39,9 @@ where
     }
 
     // NOTE: Not actually used for encoding because of `encode` override above.
-    fn to_sol_type(&self) {}
+    fn to_sol_type(&self) -> Self::SolType {
+        unimplemented!("Use the `encode` function directly instead.")
+    }
 }
 
 /// Solidity ABI decode result data.
