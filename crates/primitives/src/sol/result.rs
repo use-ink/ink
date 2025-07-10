@@ -76,11 +76,11 @@ impl<T> SolResultDecode for T
 where
     T: SolDecode,
 {
-    fn decode(data: &[u8], is_revert: bool) -> Result<Self, SolResultDecodeError>
+    fn decode(data: &[u8], did_revert: bool) -> Result<Self, SolResultDecodeError>
     where
         Self: Sized,
     {
-        if is_revert {
+        if did_revert {
             Err(SolResultDecodeError::NonResultFromRevert)
         } else {
             Ok(T::decode(data)?)

@@ -136,7 +136,7 @@ where
 
     env.engine.set_callee(old_callee);
 
-    // TODO: (@davidsemakula) Track return flag and set `is_revert` as appropriate.
+    // TODO: (@davidsemakula) Track return flag and set `did_revert` as appropriate.
     R::decode_output(&result, false)
 }
 
@@ -164,7 +164,7 @@ where
         .get_contract_message_handler(&callee_code_hash);
     let result = handler(input);
 
-    // TODO: (@davidsemakula) Track return flag and set `is_revert` as appropriate.
+    // TODO: (@davidsemakula) Track return flag and set `did_revert` as appropriate.
     R::decode_output(&result, false)
 }
 
