@@ -1,6 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
+// NOTE: SCALE Codec traits are only implemented to make `cargo clippy` happy in CI,
+// otherwise, they're not necessary.
 #[derive(ink::SolErrorDecode, ink::SolErrorEncode)]
+#[ink::scale_derive(Decode, Encode, TypeInfo)]
 pub struct SetFailed;
 
 #[ink::contract]
