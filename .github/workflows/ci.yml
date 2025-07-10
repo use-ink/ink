@@ -565,6 +565,7 @@ jobs:
             --ignore solidity-abi/sol-cross-contract --ignore solidity-abi/sol-encoding \
             --ignore solidity-abi/solidity-calls-flipper --ignore solidity-abi/events \
             --ignore solidity-abi/trait-flipper --ignore solidity-abi/trait-dyn-cross-contract-calls \
+            --ignore solidity-abi/fallible-setter \
             --partition ${{ matrix.partition }}/4 -- \
             cargo contract test --all-features --manifest-path {}
 
@@ -755,7 +756,8 @@ jobs:
             scripts/for_all_contracts_exec2.sh --path integration-tests \
               --ignore solidity-abi/sol-cross-contract --ignore solidity-abi/sol-encoding \
               --ignore solidity-abi/solidity-calls-flipper --ignore solidity-abi/events \
-              --ignore solidity-abi/trait-flipper --ignore solidity-abi/trait-dyn-cross-contract-calls -- \
+              --ignore solidity-abi/trait-flipper --ignore solidity-abi/trait-dyn-cross-contract-calls \
+              --ignore solidity-abi/fallible-setter -- \
               scripts/build_and_determine_contract_size.sh {}
   
           #bash -c "scripts/build_and_determine_contract_size.sh {} >> ${CONTRACT_SIZE_FILE} && \
