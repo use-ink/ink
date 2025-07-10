@@ -82,22 +82,22 @@ fn sol_error_decode_derive_struct(
     let self_body = body_from_fields(fields);
 
     Ok(s.bound_impl(
-        quote!(ink::sol::SolErrorDecode),
+        quote!(::ink::sol::SolErrorDecode),
         quote! {
-            fn decode(data: &[u8]) -> Result<Self, ink::sol::Error>
+            fn decode(data: &[::core::primitive::u8]) -> ::core::result::Result<Self, ::ink::sol::Error>
             where
                 Self: Sized,
             {
-                const SELECTOR: [u8; 4] = ink::sol_error_selector!(#name, #params_tuple_ty);
+                const SELECTOR: [::core::primitive::u8; 4] = ::ink::sol_error_selector!(#name, #params_tuple_ty);
                 if data[..4] == SELECTOR {
-                    <#params_tuple_ty as ink::sol::SolParamsDecode>::decode(
+                    <#params_tuple_ty as ::ink::sol::SolParamsDecode>::decode(
                         &data[4..],
                     )
                     .map(|value| {
                         Self #self_body
                     })
                 } else {
-                    Err(ink::sol::Error)
+                    Err(::ink::sol::Error)
                 }
             }
         },
@@ -138,17 +138,17 @@ fn sol_error_encode_derive_struct(
     });
 
     Ok(s.bound_impl(
-        quote!(ink::sol::SolErrorEncode),
+        quote!(::ink::sol::SolErrorEncode),
         quote! {
-            fn encode(&self) -> Vec<u8> {
-                let mut results = Vec::from(
-                    ink::sol_error_selector!(
+            fn encode(&self) -> ::ink::prelude::vec::Vec<::core::primitive::u8> {
+                let mut results = ::ink::prelude::vec::Vec::from(
+                    ::ink::sol_error_selector!(
                         #name,
                         ( #( #selector_params_tys, )* )
                     )
                 );
                 results.extend(
-                    <( #( #encode_params_tys, )* ) as ink::sol::SolParamsEncode>::encode(
+                    <( #( #encode_params_tys, )* ) as ::ink::sol::SolParamsEncode>::encode(
                         &( #( #params_elems, )* ),
                     ),
                 );
@@ -170,7 +170,7 @@ fn sol_error_decode_derive_enum(s: synstructure::Structure) -> syn::Result<Token
         let fields = variant.ast().fields;
         let param_tys = fields.iter().map(|field| &field.ty);
         quote! {
-            const #selector_ident: [u8; 4] = ink::sol_error_selector!(
+            const #selector_ident: [::core::primitive::u8; 4] = ::ink::sol_error_selector!(
                 #variant_name, ( #( #param_tys, )* )
             );
         }
@@ -183,7 +183,7 @@ fn sol_error_decode_derive_enum(s: synstructure::Structure) -> syn::Result<Token
         let variant_body = body_from_fields(fields);
         quote! {
             #selector_ident => {
-                <( #( #param_tys, )* ) as ink::sol::SolParamsDecode>::decode(
+                <( #( #param_tys, )* ) as ::ink::sol::SolParamsDecode>::decode(
                     &data[4..],
                 )
                 .map(|value| {
@@ -194,19 +194,19 @@ fn sol_error_decode_derive_enum(s: synstructure::Structure) -> syn::Result<Token
     });
 
     Ok(s.bound_impl(
-        quote!(ink::sol::SolErrorDecode),
+        quote!(::ink::sol::SolErrorDecode),
         quote! {
-            fn decode(data: &[u8]) -> Result<Self, ink::sol::Error>
+            fn decode(data: &[::core::primitive::u8]) -> ::core::result::Result<Self, ::ink::sol::Error>
             where
                 Self: Sized,
             {
-                let selector: [u8; 4] = data[..4].try_into().map_err(|_| ink::sol::Error)?;
+                let selector: [::core::primitive::u8; 4] = data[..4].try_into().map_err(|_| ::ink::sol::Error)?;
 
                 #( #variant_selectors )*
 
                 match selector {
                     #( #variants_match )*
-                    _ => Err(ink::sol::Error),
+                    _ => Err(::ink::sol::Error),
                 }
             }
         },
@@ -278,14 +278,14 @@ fn sol_error_encode_derive_enum(s: synstructure::Structure) -> syn::Result<Token
 
         quote! {
             Self:: #variant_ident #variant_bindings => {
-                let mut results = Vec::from(
-                    ink::sol_error_selector!(
+                let mut results = ::ink::prelude::vec::Vec::from(
+                    ::ink::sol_error_selector!(
                         #variant_name,
                         ( #( #selector_params_tys, )* )
                     )
                 );
                 results.extend(
-                    <( #( #encode_params_tys, )* ) as ink::sol::SolParamsEncode>::encode(
+                    <( #( #encode_params_tys, )* ) as ::ink::sol::SolParamsEncode>::encode(
                         &( #params_elems ),
                     ),
                 );
@@ -295,9 +295,9 @@ fn sol_error_encode_derive_enum(s: synstructure::Structure) -> syn::Result<Token
     });
 
     Ok(s.bound_impl(
-        quote!(ink::sol::SolErrorEncode),
+        quote!(::ink::sol::SolErrorEncode),
         quote! {
-            fn encode(&self) -> Vec<u8> {
+            fn encode(&self) -> ::ink::prelude::vec::Vec<::core::primitive::u8> {
                 match self {
                     #( #variants_match )*
                 }
