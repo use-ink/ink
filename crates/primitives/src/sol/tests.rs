@@ -121,7 +121,7 @@ fn unsigned_int_works() {
     test_case!(i128, 1_000_000_000_000);
 
     // U256
-    use alloy_sol_types::private::U256 as AlloyU256;
+    use alloy_primitives::U256 as AlloyU256;
     let value = 1_000_000_000_000_000u128;
     let bytes = value.to_be_bytes();
     test_case!(
@@ -486,7 +486,7 @@ fn encode_refs_works() {
     test_case_encode!(&i8, &-100i8);
     test_case_encode!(&u128, &1_000_000_000_000u128);
     // U256
-    use alloy_sol_types::private::U256 as AlloyU256;
+    use alloy_primitives::U256 as AlloyU256;
     let value = 1_000_000_000_000_000u128;
     let bytes = value.to_be_bytes();
     test_case_encode!(
