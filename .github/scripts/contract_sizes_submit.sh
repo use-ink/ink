@@ -6,18 +6,20 @@
 #   ./contract_sizes_submit.sh \
 #     <github_url_to_comments_of_pr>
 #     <github_url_to_workflow>
-#     <cargo_contract_version>
 #     <head_in_branch>
-#     < <diffs-csv-file>
+#     <contract-sizes-diffs-csv-file>
+#     <abi-contract-sizes-diffs-csv-file>
 
 set -eu
 set -o pipefail
 
 pr_comments_url=$1
 workflow_url=$2
-cc_version=$3
 head_in_branch=$3
-diffs_markdown_table=$(</dev/stdin)
+diffs_markdown_table=$(cat $4)
+abi_sol_diffs_markdown_table=$(cat $5)
+abi_all_diffs_markdown_table=$(cat $6)
+mermaid_diagram=$(cat $7)
 
 # If there is already a comment by the user `github-actions[bot]` in the ink! PR which triggered
 # this run, then we can just edit this comment (using `PATCH` instead of `POST`).
@@ -46,11 +48,35 @@ updated=$(TZ='Europe/Berlin' date)
 body=$(cat << EOF
 ## 🦑 📈 ink! Example Contracts ‒ Changes Report 📉 🦑
 ${master_ahead}
-These are the results when building the \`integration-tests/*\` contracts from this branch with \`${cc_version}\` and comparing them to ink! \`master\`:
+These are the results when building the \`integration-tests/*\` contracts from this branch and comparing them to ink! \`master\`:
 
-<details><summary>Show Results</summary>
+<details><summary>Show overview</summary>
+
+Using the ABI denoted in the contract manifest.
 
 ${diffs_markdown_table}
+
+</details>
+
+<details><summary>Show diagram</summary>
+
+${mermaid_diagram}
+
+</details>
+
+<details><summary>Show contract sizes: ink! vs Solidity ABI</summary>
+
+The following table shows how the contract sizes _on this branch_ change when choosing the _Solidity ABI_ instead of the ink! ABI.
+
+${abi_sol_diffs_markdown_table}
+
+</details>
+
+<details><summary>Show contract sizes: ink! vs all ABI</summary>
+
+The following table shows how the contract sizes _on this branch_ change when choosing the _all ABI_ instead of the ink! ABI.
+
+${abi_all_diffs_markdown_table}
 
 </details>
 

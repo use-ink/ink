@@ -16,7 +16,7 @@ $1 in a {
   up_kb=a[$1]/1000
   pr_kb=$2/1000
   diff_kb=pr_kb - up_kb
-  diff_pc=(diff_kb / up_kb) * 100
+  diff_pc=int(((diff_kb / up_kb) * 100) + 0.5) "%"
 
   if (diff_kb > 0) {
     change=":chart_with_upwards_trend:"

@@ -21,3 +21,6 @@ default = ["std"]
 std = [
     "pallet-revive-caller/std",
 ]
+
+[package.metadata.ink-lang]
+abi = "ink"

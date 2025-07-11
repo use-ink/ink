@@ -24,3 +24,6 @@ ink-as-dependency = [
     "psp22_extension/ink-as-dependency",
     "rand_extension/ink-as-dependency",
 ]
+
+[package.metadata.ink-lang]
+abi = "ink"
