@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Abstractions for mapping Rust/ink! `Result` and error types to/from Solidity ABI error and result representations - [#2543](https://github.com/use-ink/ink/pull/2543)
 - `Derive` macros for implementing `SolEncode` and `SolDecode` for arbitrary types - [#2549](https://github.com/use-ink/ink/pull/2549)
 - Improve handling of Solidity constructor return and revert data - [#2552](https://github.com/use-ink/ink/pull/2552)
+- Implement `SolEncode` and `SolDecode` for `Option<T>` - [#2545](https://github.com/use-ink/ink/pull/2545)
 
 ### Changed
 - Use marker trait for finding ink! storage `struct` during code analysis - [2499](https://github.com/use-ink/ink/pull/2499)
