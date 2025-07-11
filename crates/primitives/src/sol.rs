@@ -395,6 +395,62 @@ macro_rules! impl_slice_ref_encode {
 
 impl_slice_ref_encode!(&'a [T], &'a mut [T]);
 
+// Option<T> <-> (bool, T)
+impl<T> SolDecode for Option<T>
+where
+    T: SolDecode,
+{
+    type SolType = (bool, T::SolType);
+
+    fn from_sol_type(value: Self::SolType) -> Self {
+        if value.0 {
+            Some(<T as SolDecode>::from_sol_type(value.1))
+        } else {
+            None
+        }
+    }
+}
+
+impl<'a, T> SolEncode<'a> for Option<T>
+where
+    T: SolEncode<'a>,
+{
+    type SolType = (bool, T::SolType);
+
+    fn encode(&'a self) -> Vec<u8> {
+        match self {
+            None => {
+                // Obtaining a default value generically for `T` is challenging because
+                // `T` can be a reference type, so we use `SolTypeEncode::DEFAULT` and
+                // encode with `alloy_sol_types::SolType::abi_encode`.
+                <<Self::SolType as SolTypeEncode>::AlloyType as alloy_sol_types::SolType>::abi_encode(&Self::SolType::DEFAULT)
+            }
+            Some(value) => {
+                let mut result = Vec::new();
+                if T::DYNAMIC {
+                    // Tuple offset.
+                    result.extend(SolEncode::encode(&32));
+                }
+                result.extend(SolEncode::encode(&true));
+                let data = value.encode();
+                if T::DYNAMIC {
+                    // Replace offset accounting for outer tuple offset and bool flag.
+                    result.extend(SolEncode::encode(&64));
+                    result.extend(&data[32..]);
+                } else {
+                    result.extend(data);
+                }
+                result
+            }
+        }
+    }
+
+    // NOTE: Not actually used for encoding because of `encode` override above.
+    fn to_sol_type(&'a self) -> Self::SolType {
+        unimplemented!("Use the `encode` function directly instead.")
+    }
+}
+
 // Rust `PhantomData` <-> Solidity zero-tuple `()`.
 impl<T> SolDecode for core::marker::PhantomData<T> {
     type SolType = ();
