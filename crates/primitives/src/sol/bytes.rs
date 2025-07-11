@@ -56,7 +56,7 @@ use crate::sol::{
 /// Ref: <https://docs.soliditylang.org/en/latest/types.html#fixed-size-byte-arrays>
 ///
 /// Ref: <https://docs.soliditylang.org/en/latest/types.html#bytes-and-string-as-arrays>
-#[derive(Debug, Clone, Encode, Decode)]
+#[derive(Debug, Clone, Encode, Decode, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(TypeInfo))]
 pub struct SolBytes<T: SolBytesType>(pub T);
 
@@ -75,6 +75,8 @@ impl<T: SolBytesType> SolTypeDecode for SolBytes<T> {
 
 impl<T: SolBytesType> SolTypeEncode for SolBytes<T> {
     type AlloyType = T::AlloyType;
+
+    const DEFAULT: <Self::AlloyType as AlloySolType>::RustType = T::DEFAULT;
 
     fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
         <T as SolBytesType>::tokenize(self)
@@ -141,6 +143,16 @@ pub trait SolBytesType: private::Sealed {
     /// Equivalent Solidity ABI bytes type from [`alloy_sol_types`].
     type AlloyType: AlloySolType;
 
+    /// The default value of associated `alloy_sol_types::SolType::RustType`.
+    ///
+    /// # Note
+    ///
+    /// This is useful for generating default encodings for cases where a Rust/ink! value
+    /// can't be mapped to any meaningful value for Solidity ABI encoding e.g.
+    /// encoding `Option::None<T>` where `T` could be a reference type.
+    #[doc(hidden)]
+    const DEFAULT: <Self::AlloyType as AlloySolType>::RustType;
+
     /// Tokenizes the given value into a [`Self::AlloyType`] token.
     fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_>;
 
@@ -154,6 +166,9 @@ where
     sol_data::ByteCount<1>: sol_data::SupportedFixedBytes,
 {
     type AlloyType = sol_data::FixedBytes<1>;
+
+    const DEFAULT: <Self::AlloyType as AlloySolType>::RustType =
+        alloy_primitives::FixedBytes([0; 1]);
 
     fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
         // `u8` is encoded as `[u8; 1]` (i.e. `bytes1`).
@@ -176,6 +191,9 @@ where
     sol_data::ByteCount<N>: sol_data::SupportedFixedBytes,
 {
     type AlloyType = sol_data::FixedBytes<N>;
+
+    const DEFAULT: <Self::AlloyType as AlloySolType>::RustType =
+        alloy_primitives::FixedBytes([0; N]);
 
     fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
         // Direct implementation simplifies generic implementations by removing
@@ -201,6 +219,9 @@ impl<const N: usize> private::Sealed for [u8; N] {}
 impl SolBytesType for Vec<u8> {
     type AlloyType = sol_data::Bytes;
 
+    const DEFAULT: <Self::AlloyType as AlloySolType>::RustType =
+        alloy_primitives::Bytes(alloy_primitives::bytes::Bytes::new());
+
     fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
         // Direct implementation simplifies generic implementations by removing
         // requirement for `SolValueType<Self::AlloyType>`.
@@ -219,6 +240,9 @@ impl private::Sealed for Vec<u8> {}
 
 impl SolBytesType for Box<[u8]> {
     type AlloyType = sol_data::Bytes;
+
+    const DEFAULT: <Self::AlloyType as AlloySolType>::RustType =
+        alloy_primitives::Bytes(alloy_primitives::bytes::Bytes::new());
 
     fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self {
         // Converts token directly into `Box<[u8]>`, skipping the conversion to
