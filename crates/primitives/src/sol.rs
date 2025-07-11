@@ -15,6 +15,7 @@
 //! Abstractions for implementing Solidity ABI encoding/decoding for arbitrary Rust types.
 
 mod bytes;
+mod default;
 mod error;
 mod params;
 mod result;
@@ -23,11 +24,12 @@ mod types;
 #[cfg(test)]
 mod tests;
 
+use core::ops::Deref;
+
 use alloy_sol_types::{
     sol_data,
     SolType as AlloySolType,
 };
-use core::ops::Deref;
 use impl_trait_for_tuples::impl_for_tuples;
 use ink_prelude::{
     borrow::Cow,
@@ -43,6 +45,7 @@ use sp_weights::Weight;
 
 pub use self::{
     bytes::SolBytes,
+    default::SolTypeDefault,
     error::{
         SolErrorDecode,
         SolErrorEncode,
@@ -430,6 +433,59 @@ macro_rules! impl_slice_ref_encode {
 }
 
 impl_slice_ref_encode!(&[T], &mut [T]);
+
+// Option<T> <-> (bool, T)
+//
+// `bool` is a "flag" indicating the variant i.e. `false` for `None` and `true` for `Some`
+// such that:
+//  - `Option::None` is mapped to `(false, <default_value>)` where `<default_value>` is
+//    the zero bytes only representation of `T` (e.g. `0u8` for `u8` or `Vec::<T>::new()`
+//    for `Vec<T>`)
+//  - `Option::Some(value)` is mapped to `(true, value)`
+//
+// # Note
+//
+// The resulting type in Solidity can be represented as struct with a field for the "flag"
+// and another for the data.
+//
+// Note that `enum` in Solidity is encoded as `uint8` in Solidity ABI encoding, while the
+// encoding for `bool` is equivalent to the encoding of `uint8` with `true` equivalent to
+// `1` and `false` equivalent to `0`. Therefore, the `bool` "flag" can be safely
+// interpreted as a `bool` or `enum` (or even `uint8`) in Solidity code.
+//
+// Ref: <https://docs.soliditylang.org/en/latest/abi-spec.html#mapping-solidity-to-abi-types>
+impl<T> SolDecode for Option<T>
+where
+    T: SolDecode,
+{
+    type SolType = (bool, T::SolType);
+
+    fn from_sol_type(value: Self::SolType) -> Self {
+        if value.0 {
+            Some(<T as SolDecode>::from_sol_type(value.1))
+        } else {
+            None
+        }
+    }
+}
+
+impl<'a, T> SolEncode<'a> for Option<T>
+where
+    T: SolEncode<'a>,
+    <T as SolEncode<'a>>::SolType: SolTypeDefault,
+{
+    type SolType = (
+        bool,
+        <<T as SolEncode<'a>>::SolType as SolTypeDefault>::DefaultType,
+    );
+
+    fn to_sol_type(&'a self) -> Self::SolType {
+        match self {
+            None => (false, T::SolType::default()),
+            Some(value) => (true, value.to_sol_type().to_default_type()),
+        }
+    }
+}
 
 // Rust `PhantomData` <-> Solidity zero-tuple `()`.
 impl<T> SolDecode for core::marker::PhantomData<T> {

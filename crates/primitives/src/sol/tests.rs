@@ -636,3 +636,58 @@ fn weight_works() {
     let decoded = <Weight as SolDecode>::decode(&encoded).unwrap();
     assert_eq!(decoded, weight);
 }
+
+#[test]
+fn option_works() {
+    macro_rules! test_case {
+        ($value: expr, $repr: expr) => {
+            let value = $value;
+
+            // SolEncode test.
+            let encoded = SolEncode::encode(&$repr);
+            assert_eq!(SolEncode::encode(&value), encoded);
+
+            // SolDecode test.
+            let decoded = <_ as SolDecode>::decode(&encoded).unwrap();
+            assert_eq!(value, decoded);
+        };
+    }
+
+    // Fixed size.
+    test_case!(None::<u8>, (false, 0u8));
+    test_case!(Some(100u8), (true, 100u8));
+    test_case!(None::<[u32; 4]>, (false, [0u32; 4]));
+    test_case!(
+        Some([100u32, 200, 300, 400]),
+        (true, [100u32, 200, 300, 400])
+    );
+    test_case!(None::<SolBytes<[u8; 32]>>, (false, SolBytes([0u8; 32])));
+    test_case!(Some(SolBytes([100u8; 32])), (true, SolBytes([100u8; 32])));
+
+    // Dynamic size.
+    test_case!(None::<String>, (false, String::new()));
+    test_case!(
+        Some(String::from("Hello, world!")),
+        (true, String::from("Hello, world!"))
+    );
+    test_case!(None::<Vec::<u8>>, (false, Vec::<u8>::new()));
+    test_case!(Some(Vec::from([100u8; 64])), (true, Vec::from([100u8; 64])));
+    test_case!(None::<SolBytes<Vec<u8>>>, (false, SolBytes(Vec::new())));
+    test_case!(
+        Some(SolBytes(Vec::from([100u8; 64]))),
+        (true, SolBytes(Vec::from([100u8; 64])))
+    );
+
+    // Tuples.
+    test_case!(
+        None::<(u8, String, SolBytes<[u8; 32]>)>,
+        (false, (0u8, String::new(), SolBytes([0u8; 32])))
+    );
+    test_case!(
+        Some((100u8, String::from("Hello, world!"), SolBytes([100u8; 32]))),
+        (
+            true,
+            (100u8, String::from("Hello, world!"), SolBytes([100u8; 32]))
+        )
+    );
+}
