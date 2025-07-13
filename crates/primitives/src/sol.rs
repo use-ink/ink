@@ -335,9 +335,12 @@ impl<'a> SolEncode<'a> for Tuple {
 
 // Implements `SolEncode` for reference types.
 macro_rules! impl_refs_encode {
-    ($([$($gen:tt)*] $ty: ty), +$(,)*) => {
+    ($($ty: ty), +$(,)*) => {
         $(
-            impl<$($gen)* T: SolEncode<'a>> SolEncode<'a> for $ty {
+            impl<'a, T> SolEncode<'a> for $ty
+            where
+                T: SolEncode<'a>,
+            {
                 type SolType = T::SolType;
 
                 fn to_sol_type(&'a self) -> Self::SolType {
@@ -349,12 +352,15 @@ macro_rules! impl_refs_encode {
 }
 
 impl_refs_encode! {
-    ['a,] &'a T,
-    ['a,] &'a mut T,
-    ['a,] Box<T>,
+    &T,
+    &mut T,
+    Box<T>,
 }
 
-impl<'a, T: SolEncode<'a> + Clone> SolEncode<'a> for Cow<'a, T> {
+impl<'a, T> SolEncode<'a> for Cow<'_, T>
+where
+    T: SolEncode<'a> + Clone,
+{
     type SolType = T::SolType;
 
     fn to_sol_type(&'a self) -> Self::SolType {
@@ -377,12 +383,15 @@ macro_rules! impl_str_ref_encode {
     };
 }
 
-impl_str_ref_encode!(&'a str, &'a mut str);
+impl_str_ref_encode!(&str, &mut str);
 
 macro_rules! impl_slice_ref_encode {
     ($($ty: ty),+ $(,)*) => {
         $(
-            impl<'a, T: SolEncode<'a>> SolEncode<'a> for $ty {
+            impl<'a, T> SolEncode<'a> for $ty
+            where
+                T: SolEncode<'a>,
+            {
                 type SolType = Vec<T::SolType>;
 
                 fn to_sol_type(&'a self) -> Self::SolType {
@@ -393,7 +402,7 @@ macro_rules! impl_slice_ref_encode {
     };
 }
 
-impl_slice_ref_encode!(&'a [T], &'a mut [T]);
+impl_slice_ref_encode!(&[T], &mut [T]);
 
 // Rust `PhantomData` <-> Solidity zero-tuple `()`.
 impl<T> SolDecode for core::marker::PhantomData<T> {
@@ -515,10 +524,10 @@ impl SolDecode for Weight {
     }
 }
 
-impl<'a> SolEncode<'a> for Weight {
+impl SolEncode<'_> for Weight {
     type SolType = (u64, u64);
 
-    fn to_sol_type(&'a self) -> Self::SolType {
+    fn to_sol_type(&self) -> Self::SolType {
         (self.ref_time(), self.proof_size())
     }
 }
