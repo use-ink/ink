@@ -31,10 +31,12 @@ use alloy_sol_types::{
     sol_data,
     SolType as AlloySolType,
 };
-
 use impl_trait_for_tuples::impl_for_tuples;
 use ink_prelude::{
-    borrow::Cow,
+    borrow::{
+        Cow,
+        ToOwned,
+    },
     boxed::Box,
     string::String,
     vec::Vec,
@@ -369,6 +371,44 @@ impl<T: SolTypeEncode> SolTypeEncode for Box<[T]> {
 }
 
 impl<T: private::Sealed> private::Sealed for Box<[T]> {}
+
+// Rust `Cow<'_, [T]>` (i.e. clone-on-write slice) <-> Solidity dynamic size array (i.e.
+// `T[]`).
+impl<T> SolTypeDecode for Cow<'_, [T]>
+where
+    T: SolTypeDecode + Clone,
+    [T]: ToOwned,
+{
+    type AlloyType = sol_data::Array<T::AlloyType>;
+
+    fn detokenize(
+        token: <Self::AlloyType as AlloySolType>::Token<'_>,
+    ) -> Result<Self, Error> {
+        // Takes advantage of optimized `SolTypeDecode::detokenize` implementations and
+        // skips unnecessary conversions to `T::AlloyType::RustType`.
+        token
+            .0
+            .into_iter()
+            .map(<T as SolTypeDecode>::detokenize)
+            .collect()
+    }
+}
+
+impl<T> SolTypeEncode for Cow<'_, [T]>
+where
+    T: SolTypeEncode + Clone,
+    [T]: ToOwned,
+{
+    type AlloyType = sol_data::Array<T::AlloyType>;
+
+    fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
+        // Does NOT require `SolValueType<Self::AlloyType>` and instead relies on
+        // `SolTypeEncode::tokenize`.
+        DynSeqToken(self.iter().map(<T as SolTypeEncode>::tokenize).collect())
+    }
+}
+
+impl<T: private::Sealed> private::Sealed for Cow<'_, [T]> where [T]: ToOwned {}
 
 // We follow the Rust standard library's convention of implementing traits for tuples up
 // to twelve items long.
