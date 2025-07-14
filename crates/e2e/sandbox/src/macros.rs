@@ -191,28 +191,26 @@ mod construct_runtime {
 
     impl $crate::pallet_revive::Config for $runtime {
         type AddressMapper = $crate::pallet_revive::AccountId32Mapper<Self>;
-        type ChainId = ConstU64<0>; // TODO
+        type ChainId = ConstU64<1>; // TODO
         type NativeToEthRatio = ConstU32<1_000_000>;
         type Time = Timestamp;
         type Currency = Balances;
         type RuntimeEvent = RuntimeEvent;
         type RuntimeCall = RuntimeCall;
-        type CallFilter = ();
         type DepositPerItem = ConstU128<1>;
         type DepositPerByte = ConstU128<1>;
         type WeightPrice = Self;
         type WeightInfo = ();
-        type ChainExtension = $chain_extension;
         type RuntimeMemory = ConstU32<{ 128 * 1024 * 1024 }>;
         type PVFMemory = ConstU32<{ 512 * 1024 * 1024 }>;
         type UnsafeUnstableInterface = ConstBool<true>;
         type CodeHashLockupDepositPercent = CodeHashLockupDepositPercent;
         type RuntimeHoldReason = RuntimeHoldReason;
-        type Xcm = ();
         type UploadOrigin = $crate::frame_system::EnsureSigned<Self::AccountId>;
         type InstantiateOrigin = $crate::frame_system::EnsureSigned<Self::AccountId>;
         type EthGasEncoder = ();
         type FindAuthor = ();
+        type Precompiles = ();
     }
 
     // Implement `crate::Sandbox` trait

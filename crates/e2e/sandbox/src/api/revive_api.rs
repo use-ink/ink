@@ -22,6 +22,7 @@ use ink_primitives::{
 use pallet_revive::{
     Code,
     CodeUploadResult,
+    BumpNonce,
 };
 use sp_core::U256;
 use std::ops::Not;
@@ -176,6 +177,7 @@ where
                 Code::Upload(contract_bytes),
                 data,
                 salt,
+                BumpNonce::Yes,
             )
         })
     }
@@ -200,6 +202,7 @@ where
                 Code::Existing(code_hash),
                 data,
                 salt,
+                BumpNonce::Yes,
             )
         })
     }
@@ -247,7 +250,7 @@ fn storage_deposit_limit_fn<Balance>(
     limit: DepositLimit<Balance>,
 ) -> pallet_revive::DepositLimit<Balance> {
     match limit {
-        DepositLimit::Unchecked => pallet_revive::DepositLimit::Unchecked,
+        DepositLimit::Unchecked => pallet_revive::DepositLimit::UnsafeOnlyForDryRun,
         DepositLimit::Balance(v) => pallet_revive::DepositLimit::Balance(v),
     }
 }

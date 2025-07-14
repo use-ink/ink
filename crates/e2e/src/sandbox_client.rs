@@ -48,6 +48,7 @@ use jsonrpsee::core::async_trait;
 use pallet_revive::{
     evm::{
         CallTrace,
+        CallTracerConfig,
         TracerConfig,
         U256,
     },
@@ -266,7 +267,10 @@ where
         // get the trace
         let _ = self.sandbox.build_block();
 
-        let tracer_config = TracerConfig::CallTracer { with_logs: true };
+        let tracer_config = TracerConfig {
+            config: CallTracerConfig { with_logs: true, only_top_call: false }.into(),
+            timeout: None,
+        };
 
         let mut tracer =
             tracer_config.build(pallet_revive::Pallet::<S::Runtime>::evm_gas_from_weight);
@@ -420,7 +424,10 @@ where
         let exec_input = message.clone().params().exec_input().encode();
 
         // todo
-        let tracer_config = TracerConfig::CallTracer { with_logs: true };
+        let tracer_config = TracerConfig {
+            config: CallTracerConfig { with_logs: true, only_top_call: false }.into(),
+            timeout: None,
+        };
         let mut tracer =
             tracer_config.build(pallet_revive::Pallet::<S::Runtime>::evm_gas_from_weight);
         let _result = pallet_revive::tracing::trace(&mut tracer, || {

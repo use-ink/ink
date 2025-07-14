@@ -55,7 +55,7 @@ proc-macro2 = { version = "1" }
 quickcheck = { version = "1" }
 quickcheck_macros = { version = "1" }
 quote = { version = "1" }
-scale = { package = "parity-scale-codec", version = "3.7.4", default-features = false, features = ["derive"] }
+scale = { package = "parity-scale-codec", version = "3.7.5", default-features = false, features = ["derive"] }
 scale-decode = { version = "0.16.0", default-features = false }
 scale-encode = { version = "0.10.0", default-features = false }
 scale-info = { version = "2.11", default-features = false }
@@ -81,22 +81,22 @@ xxhash-rust = { version = "0.8" }
 const_env = { version = "0.1" }
 
 # Substrate dependencies
-frame-metadata = { version = "20.0.0", default-features = false }
-frame-system = { version = "40.1.0", default-features = false }
-frame-support = { version = "40.1.0", default-features = false }
-pallet-balances = { version = "41.1.0", default-features = false }
-pallet-timestamp = { version = "39.0.0", default-features = false }
-pallet-revive = { version = "0.5.0", default-features = false }
-pallet-revive-mock-network = { version = "0.4.0", default-features = false }
-pallet-revive-uapi = { version = "0.4.0", default-features = false, features = ["unstable-hostfn"] }
-sp-externalities = { version = "0.30.0", default-features = false }
-sp-io = { version = "40.0.0", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
-sp-runtime-interface = { version = "29.0.1", default-features = false, features = ["disable_target_static_assertions"] }
-sp-core = { version = "36.1.0", default-features = false }
-sp-keyring = { version = "41.0.0", default-features = false }
-sp-runtime = "41.1.0"
-sp-weights = { version = "31.1.0", default-features = false }
-xcm = { package = "staging-xcm", version = "16.1.0", default-features = false }
+frame-metadata = { version = "23.0.0", default-features = false }
+frame-system = { git = "https://github.com/paritytech/polkadot-sdk", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+frame-support = { git = "https://github.com/paritytech/polkadot-sdk", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+pallet-timestamp = { git = "https://github.com/paritytech/polkadot-sdk", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+pallet-revive = { git = "https://github.com/paritytech/polkadot-sdk", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+# pallet-revive-mock-network = { version = "0.5.0", default-features = false } # Not available at this commit
+pallet-revive-uapi = { git = "https://github.com/paritytech/polkadot-sdk", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false, features = ["unstable-hostfn"] }
+sp-externalities = { git = "https://github.com/paritytech/polkadot-sdk", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false, features = ["disable_target_static_assertions"] }
+sp-core = { git = "https://github.com/paritytech/polkadot-sdk", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+sp-keyring = { git = "https://github.com/paritytech/polkadot-sdk", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+sp-weights = { git = "https://github.com/paritytech/polkadot-sdk", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+xcm = { package = "staging-xcm", git = "https://github.com/paritytech/polkadot-sdk", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
 
 # PolkaVM dependencies
 polkavm-derive = { version = "0.22.0", default-features = false }

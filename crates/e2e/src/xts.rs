@@ -32,7 +32,7 @@ use ink_primitives::{
 use pallet_revive::{
     evm::{
         CallTrace,
-        TracerConfig,
+        TracerType,
     },
     CodeUploadResult,
 };
@@ -457,7 +457,7 @@ where
             _ => panic!("pattern error"),
         };
 
-        let tracer_config = TracerConfig::CallTracer { with_logs: true };
+        let tracer_config = TracerType::default();
         let func = "ReviveApi_trace_tx";
 
         let params =
