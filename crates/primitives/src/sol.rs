@@ -215,11 +215,11 @@ macro_rules! impl_primitive_decode {
 macro_rules! impl_primitive_encode {
     ($($ty: ty),+ $(,)*) => {
         $(
-            impl<'a> SolEncode<'a> for $ty {
-                type SolType = &'a $ty;
+            impl SolEncode<'_> for $ty {
+                type SolType = $ty;
 
-                fn to_sol_type(&'a self) -> Self::SolType {
-                    self
+                fn to_sol_type(&self) -> Self::SolType {
+                    *self
                 }
             }
         )*
@@ -236,6 +236,30 @@ macro_rules! impl_primitive {
     };
 }
 
+macro_rules! impl_primitive_encode_by_ref {
+    ($($ty: ty),+ $(,)*) => {
+        $(
+            impl<'a> SolEncode<'a> for $ty {
+                type SolType = &'a $ty;
+
+                fn to_sol_type(&'a self) -> Self::SolType {
+                    self
+                }
+            }
+        )*
+    };
+}
+
+macro_rules! impl_primitive_by_ref {
+    ($($ty: ty),+ $(,)*) => {
+        $(
+            impl_primitive_decode!($ty);
+
+            impl_primitive_encode_by_ref!($ty);
+        )*
+    };
+}
+
 impl_primitive! {
     // bool
     bool,
@@ -243,11 +267,14 @@ impl_primitive! {
     i8, i16, i32, i64, i128,
     // unsigned integers
     u8, u16, u32, u64, u128, U256,
+    // address
+    Address,
+}
+
+impl_primitive_by_ref! {
     // string
     String,
     Box<str>,
-    // address
-    Address,
 }
 
 // Rust array <-> Solidity fixed-sized array (i.e. `T[N]`).
