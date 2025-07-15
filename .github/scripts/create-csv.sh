@@ -1,5 +1,12 @@
 #!/bin/bash
 
+set -eu
+
+# This file creates a CSV file containing the result
+# of building a contract with different ABIs.
+# Additionally, a comparison to the contract's size in
+# ink! v5 is included.
+
 master=$1
 default_abi=$2
 sol_abi=$3

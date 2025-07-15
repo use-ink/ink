@@ -1,5 +1,15 @@
 #!/bin/bash
 
+set -eu
+
+# This script creates a Mermaid diagram based on a csv file that
+# contains information about a contract's size if compiled with
+# a different ABI.
+#
+# We chose Mermaid, as it's displayed natively in the GitHub web
+# frontend. The usage of `gantt` is a hack, as this is closest
+# to a bar chart.
+
 csv=$1
 
 echo '```mermaid'
