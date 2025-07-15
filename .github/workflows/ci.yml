@@ -73,7 +73,7 @@ jobs:
             rustup +nightly show
             cargo +nightly --version
             bash --version
-            ink-node-nightly --version; cargo-contract-nightly contract --version; git --version
+            ink-node --version; cargo-contract-nightly contract --version; git --version
             echo -e '[registry]\nprotocol = \"sparse\"' > /usr/local/cargo/config.toml
             echo \"cargo-contract-version=$(cargo-contract-nightly contract --version)\" >> $GITHUB_OUTPUT
 
@@ -669,7 +669,7 @@ jobs:
         with:
           command: |
             # run flipper E2E test with on-chain contract
-            ink-node-nightly -lruntime::revive=debug 2>&1 &
+            ink-node -lruntime::revive=debug 2>&1 &
             cargo-contract-nightly contract build --release --manifest-path integration-tests/public/flipper/Cargo.toml
             export CONTRACT_ADDR_HEX=$(cargo-contract-nightly contract instantiate \
               --manifest-path integration-tests/public/flipper/Cargo.toml \

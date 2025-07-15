@@ -9,7 +9,7 @@ runs:
         rustup +nightly show
         cargo +nightly --version
         bash --version
-        ink-node-nightly --version
+        ink-node --version
         cargo-contract-nightly contract --version
         git --version
         echo -e '[registry]\nprotocol = "sparse"' > /usr/local/cargo/config.toml

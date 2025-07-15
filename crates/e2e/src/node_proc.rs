@@ -63,7 +63,7 @@ where
     /// Construct a builder for spawning a test node process, using the environment
     /// variable `CONTRACTS_NODE`, otherwise using the default contracts node.
     pub fn build_with_env_or_default() -> TestNodeProcessBuilder<R> {
-        const DEFAULT_CONTRACTS_NODE: &str = "ink-node-nightly";
+        const DEFAULT_CONTRACTS_NODE: &str = "ink-node";
 
         // Use the user supplied `CONTRACTS_NODE` or default to `DEFAULT_CONTRACTS_NODE`.
         let contracts_node =
@@ -259,13 +259,13 @@ mod tests {
         let mut client2: Option<LegacyRpcMethods<SubxtConfig>> = None;
 
         {
-            let node_proc1 = TestNodeProcess::<SubxtConfig>::build("ink-node-nightly")
+            let node_proc1 = TestNodeProcess::<SubxtConfig>::build("ink-node")
                 .spawn()
                 .await
                 .unwrap();
             client1 = Some(LegacyRpcMethods::new(node_proc1.rpc()));
 
-            let node_proc2 = TestNodeProcess::<SubxtConfig>::build("ink-node-nightly")
+            let node_proc2 = TestNodeProcess::<SubxtConfig>::build("ink-node")
                 .spawn()
                 .await
                 .unwrap();
