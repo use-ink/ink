@@ -23,11 +23,12 @@ mermaid_diagram=$(cat $7)
 
 # If there is already a comment by the user `github-actions[bot]` in the ink! PR which triggered
 # this run, then we can just edit this comment (using `PATCH` instead of `POST`).
+echo "pr_comments_url: " $pr_comments_url
 possibly_comment_url=$(curl --silent $pr_comments_url | \
   jq -r ".[] | select(.user.login == \"github-actions[bot]\") | .url" | \
   head -n1
 )
-echo $possibly_comment_url
+echo "possibly_comment_url: " $possibly_comment_url
 
 verb="POST"
 if [ ! -z "$possibly_comment_url" ]; then
@@ -83,6 +84,7 @@ ${abi_all_diffs_markdown_table}
 [Link to the run](${workflow_url}) | Last update: ${updated}
 EOF
 )
+echo "body: " $body
 json_body=$(jq -n --arg body "${body}" '{ "body": $body}')
 
 curl -X ${verb} ${pr_comments_url} \
