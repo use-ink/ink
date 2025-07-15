@@ -38,7 +38,7 @@ jobs:
           ${SCRIPTS_DIR}/for_all_contracts_exec.sh --path integration-tests --ignore public/complex-storage-structures --quiet -- ${SCRIPTS_DIR}/contract_size.sh {} > ${CONTRACT_SIZES}
           sed -ie 's/^integration-tests\/\(public\/\|internal\/\)\?//' ${CONTRACT_SIZES}
 
-          CARGO_CONTRACT_VERSION=$(cargo-contract-nightly contract --version | egrep --only-matching "cargo-contract.* .*-x86" | sed -s 's/-x86//')
+          CARGO_CONTRACT_VERSION=$(cargo-contract contract --version | egrep --only-matching "cargo-contract.* .*-x86" | sed -s 's/-x86//')
           echo "CARGO_CONTRACT_VERSION=\"${CARGO_CONTRACT_VERSION}\"" > ${MEASUREMENTS_DIR}/context.out
           echo "PR_NUMBER=\"${PR_NUMBER}\"" >> ${MEASUREMENTS_DIR}/context.out
 
