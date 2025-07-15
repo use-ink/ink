@@ -737,10 +737,13 @@ impl TypedEnvBackend for EnvInstance {
 
     #[cfg(feature = "unstable-hostfn")]
     fn is_contract(&mut self, addr: &Address) -> bool {
+        panic!("todo call code() precompile, see https://github.com/paritytech/polkadot-sdk/pull/9001");
+        /*
         let mut scope = self.scoped_buffer();
         let enc_addr: &mut [u8; 20] =
             scope.take_encoded(addr)[..20].as_mut().try_into().unwrap();
         ext::is_contract(enc_addr)
+        */
     }
 
     #[cfg(feature = "unstable-hostfn")]
