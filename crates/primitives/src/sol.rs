@@ -237,10 +237,10 @@ macro_rules! impl_primitive {
 }
 
 macro_rules! impl_primitive_encode_by_ref {
-    ($($ty: ty),+ $(,)*) => {
+    ($($ty: ty, $ref_ty: ty),+ $(,)*) => {
         $(
             impl<'a> SolEncode<'a> for $ty {
-                type SolType = &'a $ty;
+                type SolType = &'a $ref_ty;
 
                 fn to_sol_type(&'a self) -> Self::SolType {
                     self
@@ -251,11 +251,11 @@ macro_rules! impl_primitive_encode_by_ref {
 }
 
 macro_rules! impl_primitive_by_ref {
-    ($($ty: ty),+ $(,)*) => {
+    ($($ty: ty, $ref_ty: ty),+ $(,)*) => {
         $(
             impl_primitive_decode!($ty);
 
-            impl_primitive_encode_by_ref!($ty);
+            impl_primitive_encode_by_ref!($ty, $ref_ty);
         )*
     };
 }
@@ -273,8 +273,8 @@ impl_primitive! {
 
 impl_primitive_by_ref! {
     // string
-    String,
-    Box<str>,
+    String, str,
+    Box<str>, str,
 }
 
 // Rust array <-> Solidity fixed-sized array (i.e. `T[N]`).
