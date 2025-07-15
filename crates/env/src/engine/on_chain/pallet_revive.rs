@@ -800,12 +800,15 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
         Call: scale::Encode,
     {
+        panic!("Native ink! XCM functions are not supported yet, you have to call the pre-compile contracts for XCM directly until then.");
+        /*
         let mut scope = self.scoped_buffer();
 
         let enc_msg = scope.take_encoded(msg);
 
         #[allow(deprecated)]
         ext::xcm_execute(enc_msg).map_err(Into::into)
+        */
     }
 
     #[cfg(feature = "unstable-hostfn")]
@@ -818,6 +821,8 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
         Call: scale::Encode,
     {
+        panic!("Native ink! XCM functions are not supported yet, you have to call the pre-compile contracts for XCM directly until then.");
+        /*
         let mut scope = self.scoped_buffer();
         let output = scope.take(32);
         scope.append_encoded(dest);
@@ -829,6 +834,7 @@ impl TypedEnvBackend for EnvInstance {
         ext::xcm_send(enc_dest, enc_msg, output.try_into().unwrap())?;
         let hash: xcm::v4::XcmHash = scale::Decode::decode(&mut &output[..])?;
         Ok(hash)
+        */
     }
 }
 
