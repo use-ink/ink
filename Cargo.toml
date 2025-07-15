@@ -101,7 +101,7 @@ sp-weights = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb
 xcm = { package = "staging-xcm", git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
 
 # PolkaVM dependencies
-polkavm-derive = { git = "https://github.com/paritytech/polkavm.git", default-features = false }
+polkavm-derive = { version = "0.26.0", default-features = false }
 
 # Solidity dependencies
 alloy-sol-types = { version = "1.2.1", default-features = false }
