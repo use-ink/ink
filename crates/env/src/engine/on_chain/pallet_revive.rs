@@ -736,7 +736,7 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     #[cfg(feature = "unstable-hostfn")]
-    fn is_contract(&mut self, addr: &Address) -> bool {
+    fn is_contract(&mut self, _addr: &Address) -> bool {
         panic!("todo call code() precompile, see https://github.com/paritytech/polkadot-sdk/pull/9001");
         /*
         let mut scope = self.scoped_buffer();
@@ -787,23 +787,26 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     #[cfg(feature = "unstable-hostfn")]
-    fn call_runtime<E, Call>(&mut self, call: &Call) -> Result<()>
+    fn call_runtime<E, Call>(&mut self, _call: &Call) -> Result<()>
     where
         E: Environment,
         Call: scale::Encode,
     {
+        panic!("todo call_runtiem() not supported yet, see removeal in https://github.com/paritytech/polkadot-sdk/pull/8584");
+        /*
         let mut scope = self.scoped_buffer();
         let enc_call = scope.take_encoded(call);
         ext::call_runtime(enc_call).map_err(Into::into)
+        */
     }
 
     #[cfg(feature = "unstable-hostfn")]
-    fn xcm_execute<E, Call>(&mut self, msg: &VersionedXcm<Call>) -> Result<()>
+    fn xcm_execute<E, Call>(&mut self, _msg: &VersionedXcm<Call>) -> Result<()>
     where
         E: Environment,
         Call: scale::Encode,
     {
-        panic!("Native ink! XCM functions are not supported yet, you have to call the pre-compile contracts for XCM directly until then.");
+        panic!("todo Native ink! XCM functions are not supported yet, you have to call the pre-compile contracts for XCM directly until then.");
         /*
         let mut scope = self.scoped_buffer();
 
@@ -817,14 +820,14 @@ impl TypedEnvBackend for EnvInstance {
     #[cfg(feature = "unstable-hostfn")]
     fn xcm_send<E, Call>(
         &mut self,
-        dest: &xcm::VersionedLocation,
-        msg: &VersionedXcm<Call>,
+        _dest: &xcm::VersionedLocation,
+        _msg: &VersionedXcm<Call>,
     ) -> Result<xcm::v4::XcmHash>
     where
         E: Environment,
         Call: scale::Encode,
     {
-        panic!("Native ink! XCM functions are not supported yet, you have to call the pre-compile contracts for XCM directly until then.");
+        panic!("todo Native ink! XCM functions are not supported yet, you have to call the pre-compile contracts for XCM directly until then.");
         /*
         let mut scope = self.scoped_buffer();
         let output = scope.take(32);
