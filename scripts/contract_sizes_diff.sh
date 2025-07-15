@@ -6,6 +6,8 @@ scripts_path=$( cd "$(dirname "$script_name")" || exit; pwd -P )
 upstream=$1
 pr_branch=$2
 
+# The `diff_pc` is rounded upwards and we don't display
+# decimals, hence the `+ 0.5` and `int` cast.
 csv=$(awk '
 NR==FNR {
   a[$1]=$2; next
