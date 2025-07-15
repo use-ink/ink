@@ -1409,6 +1409,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "cargo-util-schemas"
+version = "0.8.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7dc1a6f7b5651af85774ae5a34b4e8be397d9cf4bc063b7e6dbd99a841837830"
+dependencies = [
+ "semver 1.0.26",
+ "serde",
+ "serde-untagged",
+ "serde-value",
+ "thiserror 2.0.12",
+ "toml 0.8.23",
+ "unicode-xid",
+ "url",
+]
+
+[[package]]
 name = "cargo_metadata"
 version = "0.15.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1430,7 +1446,22 @@ checksum = "4f7835cfc6135093070e95eb2b53e5d9b5c403dc3a6be6040ee026270aa82502"
 dependencies = [
  "camino",
  "cargo-platform 0.2.0",
- "cargo-util-schemas",
+ "cargo-util-schemas 0.2.0",
+ "semver 1.0.26",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.12",
+]
+
+[[package]]
+name = "cargo_metadata"
+version = "0.21.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5cfca2aaa699835ba88faf58a06342a314a950d2b9686165e038286c30316868"
+dependencies = [
+ "camino",
+ "cargo-platform 0.2.0",
+ "cargo-util-schemas 0.8.2",
  "semver 1.0.26",
  "serde",
  "serde_json",
@@ -1677,13 +1708,13 @@ checksum = "7c74b8349d32d297c9134b8c88677813a227df8f779daa29bfc29c183fe3dca6"
 [[package]]
 name = "contract-build"
 version = "6.0.0-alpha.1"
-source = "git+https://github.com/use-ink/cargo-contract?branch=nightly#3617c2e215f2465fdf4b9c779c68c30a5214c01e"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#7e1e182117c8255e75efac52f0e5b75a8e54f7d6"
 dependencies = [
  "alloy-json-abi 1.2.1",
  "anyhow",
  "blake2",
  "bollard",
- "cargo_metadata 0.20.0",
+ "cargo_metadata 0.21.0",
  "clap",
  "colored",
  "contract-metadata",
@@ -1719,7 +1750,7 @@ dependencies = [
 [[package]]
 name = "contract-metadata"
 version = "6.0.0-alpha"
-source = "git+https://github.com/use-ink/cargo-contract?branch=nightly#3617c2e215f2465fdf4b9c779c68c30a5214c01e"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#7e1e182117c8255e75efac52f0e5b75a8e54f7d6"
 dependencies = [
  "anyhow",
  "impl-serde",
