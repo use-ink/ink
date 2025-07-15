@@ -82,23 +82,23 @@ const_env = { version = "0.1" }
 
 # Substrate dependencies
 frame-metadata = { version = "23.0.0", default-features = false }
-frame-system = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false }
-frame-support = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false }
-pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false }
-pallet-timestamp = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false }
+frame-system = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+frame-support = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+pallet-timestamp = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
 
-pallet-revive = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false }
+pallet-revive = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
 pallet-revive-mock-network = { version = "0.5.0", default-features = false }
-pallet-revive-uapi = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false, features = ["unstable-hostfn"] }
+pallet-revive-uapi = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false, features = ["unstable-hostfn"] }
 
-sp-externalities = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false }
-sp-io = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
-sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false, features = ["disable_target_static_assertions"] }
-sp-core = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false }
-sp-keyring = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false }
-sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git" }
-sp-weights = { git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false }
-xcm = { package = "staging-xcm", git = "https://github.com/paritytech/polkadot-sdk.git", default-features = false }
+sp-externalities = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+sp-io = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false, features = ["disable_target_static_assertions"] }
+sp-core = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+sp-keyring = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4" }
+sp-weights = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+xcm = { package = "staging-xcm", git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
 
 # PolkaVM dependencies
 polkavm-derive = { git = "https://github.com/paritytech/polkavm.git", default-features = false }
