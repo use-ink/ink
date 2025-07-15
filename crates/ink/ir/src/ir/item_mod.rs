@@ -647,12 +647,12 @@ impl ItemMod {
     /// # }
     /// # }}).unwrap();
     /// ```
-    pub fn impls(&self) -> IterItemImpls {
+    pub fn impls(&self) -> IterItemImpls<'_> {
         IterItemImpls::new(self)
     }
 
     /// Returns an iterator yielding all event definitions in this ink! module.
-    pub fn events(&self) -> IterEvents {
+    pub fn events(&self) -> IterEvents<'_> {
         IterEvents::new(self)
     }
 

@@ -143,7 +143,7 @@ impl<'a> InkTraitMessage<'a> {
     }
 
     /// Returns an iterator over the inputs of the ink! trait message.
-    pub fn inputs(&self) -> InputsIter {
+    pub fn inputs(&self) -> InputsIter<'_> {
         InputsIter::from(self)
     }
 

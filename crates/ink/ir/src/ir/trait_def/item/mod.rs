@@ -101,7 +101,7 @@ impl InkItemTrait {
     }
 
     /// Returns an iterator yielding the ink! specific items of the ink! trait definition.
-    pub fn iter_items(&self) -> IterInkTraitItems {
+    pub fn iter_items(&self) -> IterInkTraitItems<'_> {
         IterInkTraitItems::new(self)
     }
 

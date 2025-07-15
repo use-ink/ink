@@ -259,7 +259,7 @@ impl InkAttribute {
     /// # Note
     ///
     /// This yields at least one ink! attribute flag.
-    pub fn args(&self) -> ::core::slice::Iter<AttributeFrag> {
+    pub fn args(&self) -> ::core::slice::Iter<'_, AttributeFrag> {
         self.args.iter()
     }
 

@@ -118,7 +118,7 @@ impl Storage {
     }
 
     /// Returns an iterator yielding all fields of the storage struct.
-    pub fn fields(&self) -> syn::punctuated::Iter<syn::Field> {
+    pub fn fields(&self) -> syn::punctuated::Iter<'_, syn::Field> {
         self.ast.fields.iter()
     }
 }
