@@ -190,6 +190,6 @@ fn deposit_limit_to_balance<E: Environment>(
     match l {
         DepositLimit::Balance(l) => l,
         // todo
-        DepositLimit::Unchecked => panic!("`Unchecked` is not supported"),
+        DepositLimit::UnsafeOnlyForDryRun => panic!("`Unchecked` is not supported"),
     }
 }

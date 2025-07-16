@@ -81,8 +81,8 @@ impl ContractProject {
                 .iter()
                 .any(|(feat, _)| {
                     feat == "ink-as-dependency"
-                        && !package.name.eq("ink")
-                        && !package.name.eq("ink_env")
+                        && !package.name.as_str().eq("ink")
+                        && !package.name.as_str().eq("ink_env")
                 })
                 .then(|| package.manifest_path.clone().into_std_path_buf())
         }

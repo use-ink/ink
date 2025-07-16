@@ -243,7 +243,7 @@ where
             value: 0u32.into(),
             extra_gas_portion: None,
             gas_limit: None,
-            storage_deposit_limit: DepositLimit::Unchecked,
+            storage_deposit_limit: DepositLimit::UnsafeOnlyForDryRun,
         }
     }
 

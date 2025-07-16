@@ -79,11 +79,7 @@ pub mod wildcard_selector {
             message: String,
         ) -> ink_e2e::CallBuilderFinal<
             Environment,
-            ArgumentList<
-                Argument<String>,
-                EmptyArgumentList<Ink>,
-                Ink,
-            >,
+            ArgumentList<Argument<String>, EmptyArgumentList<Ink>, Ink>,
             (),
             Ink,
         > {
