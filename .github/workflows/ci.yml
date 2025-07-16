@@ -613,7 +613,7 @@ jobs:
           cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
           cache-on-failure: true
 
-      - name: Test Wildcard Selector Example
+      - name: Test Debugging Strategies Example
         uses: ./.github/run-container-command
         with:
           command: |
