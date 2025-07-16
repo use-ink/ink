@@ -121,7 +121,7 @@ pub mod flipper {
         ///   * Make sure you have a node running in the background,
         ///   * Supply the environment variable `CONTRACT_HEX` that points to a deployed
         ///     flipper contract. You can take the SS58 address which
-        ///     `cargo-contract contract instantiate` gives you and convert it to hex using
+        ///     `cargo contract instantiate` gives you and convert it to hex using
         ///     `subkey inspect <SS58>`.
         ///
         /// The test is then run like this:
