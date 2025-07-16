@@ -201,8 +201,12 @@ jobs:
       - name: Run Clippy for RISC-V Examples
         uses: ./.github/run-container-command
         if: ${{ matrix.type == 'RISCV' }}
+        env:
+          RUSTFLAGS: "--cfg substrate_runtime"
         with:
           command: |
+            # move the installation to Docker
+            apt-get install gcc-riscv64-unknown-elf
             scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --no-default-features \
               --target ${CLIPPY_TARGET} \
               --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED $ALLOWED_LINTS
