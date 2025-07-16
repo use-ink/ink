@@ -7,7 +7,7 @@ publish = false
 
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
-sp-core = { version = "36.1.0", default-features = false }
+sp-core = { version = "37.0.0", default-features = false }
 
 [dev-dependencies]
 hex-literal = "1"
