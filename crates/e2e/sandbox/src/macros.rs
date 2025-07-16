@@ -191,7 +191,7 @@ mod construct_runtime {
 
     impl $crate::pallet_revive::Config for $runtime {
         type AddressMapper = $crate::pallet_revive::AccountId32Mapper<Self>;
-        type ChainId = ConstU64<0>; // TODO
+        type ChainId = ConstU64<1>; // TODO
         type NativeToEthRatio = ConstU32<1_000_000>;
         type Time = Timestamp;
         type Currency = Balances;
@@ -213,6 +213,7 @@ mod construct_runtime {
         type EthGasEncoder = ();
         type FindAuthor = ();
         type Precompiles = (
+            // todo
             //ERC20<Self, InlineIdConfig<0x120>, TrustBackedAssetsInstance>,
             //ERC20<Self, InlineIdConfig<0x320>, PoolAssetsInstance>,
             //XcmPrecompile<Self>,

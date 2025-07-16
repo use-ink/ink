@@ -88,7 +88,6 @@ pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk.git", rev 
 pallet-timestamp = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
 
 pallet-revive = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
-pallet-revive-mock-network = { version = "0.5.0", default-features = false }
 pallet-revive-uapi = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false, features = ["unstable-hostfn"] }
 
 sp-externalities = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }

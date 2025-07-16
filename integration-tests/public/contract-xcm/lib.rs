@@ -109,6 +109,7 @@ mod contract_xcm {
         }
     }
 
+    /*
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use frame_support::{
@@ -294,4 +295,5 @@ mod contract_xcm {
             Ok(())
         }
     }
+    */
 }

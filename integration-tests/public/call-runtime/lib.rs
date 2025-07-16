@@ -64,7 +64,10 @@ mod runtime_call {
         fn from(e: EnvError) -> Self {
             use ink::env::ReturnErrorCode;
             match e {
-                EnvError::ReturnError(ReturnErrorCode::CallRuntimeFailed) => {
+                EnvError::ReturnError(ReturnErrorCode::CalleeReverted) => {
+                    RuntimeError::CallRuntimeFailed
+                },
+                EnvError::ReturnError(ReturnErrorCode::CalleeTrapped) => {
                     RuntimeError::CallRuntimeFailed
                 }
                 _ => panic!("Unexpected error from `pallet-revive`."),

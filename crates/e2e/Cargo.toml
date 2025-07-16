@@ -24,7 +24,6 @@ ink_sandbox = { version = "=6.0.0-alpha.1", path = "./sandbox", optional = true 
 cargo_metadata = { workspace = true }
 contract-build = { workspace = true }
 pallet-revive = { workspace = true }
-pallet-revive-mock-network = { workspace = true, optional = true }
 funty = { workspace = true }
 impl-serde = { workspace = true }
 jsonrpsee = { workspace = true, features = ["ws-client"] }
@@ -79,12 +78,10 @@ std = [
 	"ink_e2e_macro/std",
 	"ink_sandbox/std",
 	"frame-support/std",
-    "pallet-revive-mock-network?/std"
 ]
 
 sandbox = [
     "dep:ink_sandbox",
     "subxt-metadata",
-    "pallet-revive-mock-network",
     "ink_e2e_macro/sandbox",
 ]
