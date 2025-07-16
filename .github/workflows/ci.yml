@@ -68,7 +68,6 @@ jobs:
         uses: ./.github/run-container-command
         with:
           command: |
-            chmod +x /usr/local/cargo/bin/*
             rustup show
             cargo --version
             rustup +nightly show
