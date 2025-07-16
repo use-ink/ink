@@ -192,7 +192,7 @@ mod construct_runtime {
     impl $crate::pallet_revive::Config for $runtime {
         type AddressMapper = $crate::pallet_revive::AccountId32Mapper<Self>;
         type ChainId = ConstU64<1>; // TODO
-        type NativeToEthRatio = ConstU32<1_000_000>;
+        type NativeToEthRatio = ConstU32<100_000_000>;
         type Time = Timestamp;
         type Currency = Balances;
         type RuntimeEvent = RuntimeEvent;

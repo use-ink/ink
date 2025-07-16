@@ -162,7 +162,7 @@ pub mod flipper {
 
             // todo make `NativeToEthRatio` part of  the `Environment`
             #[allow(non_upper_case_globals)]
-            const NativeToEthRatio: u128 = 1_000_000;
+            const NativeToEthRatio: u128 = 100_000_000;
             assert_eq!(old_balance + (ENDOWMENT * NativeToEthRatio), new_balance);
             Ok(())
         }
