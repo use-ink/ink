@@ -5,6 +5,10 @@ use frame_support::{
 };
 use frame_system::pallet_prelude::OriginFor;
 use ink::{
+    abi::{
+        AbiDecodeWith,
+        AbiEncodeWith,
+    },
     env::{
         call::{
             utils::DecodeMessageResult,
@@ -14,7 +18,6 @@ use ink::{
         Environment,
     },
     primitives::U256,
-    abi::AbiEncodeWith,
     Address,
     MessageResult,
 };
@@ -65,7 +68,7 @@ where
             self.value,
             self.gas_limit,
             // self.storage_deposit_limit,
-            DepositLimit::Unchecked, // todo
+            DepositLimit::UnsafeOnlyForDryRun, // todo
             data,
         );
 

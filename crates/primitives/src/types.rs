@@ -215,7 +215,7 @@ impl Clear for Hash {
 )]
 pub enum DepositLimit<Balance> {
     /// Allows bypassing all balance transfer checks.
-    Unchecked,
+    UnsafeOnlyForDryRun,
 
     /// Specifies a maximum allowable balance for a deposit.
     Balance(Balance),
@@ -490,7 +490,7 @@ impl AccountIdMapper {
     /// This is a stateless check that just compares the last 12 bytes. Please note that
     /// it is theoretically possible to create an ed25519 keypair that passed this
     /// filter. However, this can't be used for an attack. It also won't happen by
-    /// accident since everbody is using sr25519 where this is not a valid public key.
+    /// accident since everybody is using sr25519 where this is not a valid public key.
     //fn is_eth_derived(account_id: &[u8]) -> bool {
     fn is_eth_derived(account_bytes: &[u8]) -> bool {
         account_bytes[20..] == [0xEE; 12]

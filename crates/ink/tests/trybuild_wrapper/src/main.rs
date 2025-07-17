@@ -16,19 +16,22 @@
 //!
 //! # Motivation
 //!
-//! `trybuild` sets compiler flags using CLI config overrides (i.e. `--config=build.rustflags=[...]`
-//! and similar) which take precedence over `RUSTFLAGS` (and similar) env vars.
+//! `trybuild` sets compiler flags using CLI config overrides (i.e.
+//! `--config=build.rustflags=[...]` and similar) which take precedence over `RUSTFLAGS`
+//! (and similar) env vars.
 //!
-//! `trybuild` also doesn't provide an interface for passing extra `rustc` flags to ui tests,
-//! and there's some reason to believe that its maintainer considers such an interface to be
-//! out of scope (see https://github.com/dtolnay/trybuild/issues/183 and
+//! `trybuild` also doesn't provide an interface for passing extra `rustc` flags to ui
+//! tests, and there's some reason to believe that its maintainer considers such an
+//! interface to be out of scope (see https://github.com/dtolnay/trybuild/issues/183 and
 //! https://github.com/dtolnay/trybuild/issues/108).
 //!
 //! # Usage
 //!
 //! - Extra `rustc` flags are specified via the `TRYBUILD_WRAPPER_ENCODED_FLAGS` env var.
-//! - `CARGO` env var should be set to this binary (allows us to pass extra `rustc` flags to cargo).
-//! - Original `CARGO` env var (if any), should be specified via the `TRYBUILD_WRAPPER_CARGO`
+//! - `CARGO` env var should be set to this binary (allows us to pass extra `rustc` flags
+//!   to cargo).
+//! - Original `CARGO` env var (if any), should be specified via the
+//!   `TRYBUILD_WRAPPER_CARGO`
 //!
 //! ```shell
 //! $ TRYBUILD_WRAPPER_ENCODED_FLAGS="..." TRYBUILD_WRAPPER_CARGO="..." CARGO="trybuild_wrapper" \
@@ -37,7 +40,8 @@
 //!
 //! # Note
 //!
-//! Preferably, the env vars should be defined inline because `std::env::set_var` is not thread safe.
+//! Preferably, the env vars should be defined inline because `std::env::set_var` is not
+//! thread safe.
 //!
 //! # References
 //!
@@ -46,8 +50,13 @@
 //! - https://doc.rust-lang.org/cargo/reference/config.html#command-line-overrides
 //! - https://doc.rust-lang.org/std/env/fn.set_var.html
 
-use std::env;
-use std::process::{exit, Command};
+use std::{
+    env,
+    process::{
+        exit,
+        Command,
+    },
+};
 
 use clap::Parser;
 use trybuild::TestCases;
@@ -128,9 +137,9 @@ where
 ///
 /// # Note
 ///
-/// `trybuild` sets compiler flags using CLI overrides as they take precedence over env vars,
-/// So we parse the provided `--config=build.rustflags` arg, and add the extra `rustc` flags
-/// specified by the `TRYBUILD_WRAPPER_ENCODED_FLAGS` env var (if any).
+/// `trybuild` sets compiler flags using CLI overrides as they take precedence over env
+/// vars, So we parse the provided `--config=build.rustflags` arg, and add the extra
+/// `rustc` flags specified by the `TRYBUILD_WRAPPER_ENCODED_FLAGS` env var (if any).
 ///
 /// Ref: <https://doc.rust-lang.org/cargo/reference/config.html#command-line-overrides>
 ///
@@ -139,7 +148,8 @@ fn with_abi_flags<T>(cmd: &mut Command, args: T)
 where
     T: Iterator<Item = String>,
 {
-    // Leaves args unchanged if extra flags are specified via `TRYBUILD_WRAPPER_ENCODED_FLAGS`.
+    // Leaves args unchanged if extra flags are specified via
+    // `TRYBUILD_WRAPPER_ENCODED_FLAGS`.
     let Ok(extra_rustflags) = env::var("TRYBUILD_WRAPPER_ENCODED_FLAGS") else {
         cmd.args(args);
         return;
@@ -168,9 +178,13 @@ where
             continue;
         }
 
-        // `trybuild` uses `--config=build.rustflags=[..]` syntax when overriding `cargo` config.
-        // NOTE: Below also updates the `--config=build.<target_triple>.rustflags=[..]` arg (if specified).
-        if arg.starts_with("--config=") && arg.contains(".rustflags=") && arg.ends_with("]") {
+        // `trybuild` uses `--config=build.rustflags=[..]` syntax when overriding `cargo`
+        // config. NOTE: Below also updates the
+        // `--config=build.<target_triple>.rustflags=[..]` arg (if specified).
+        if arg.starts_with("--config=")
+            && arg.contains(".rustflags=")
+            && arg.ends_with("]")
+        {
             let mut new_arg = arg
                 .strip_suffix(']')
                 .expect("Expected TOML array")
@@ -182,8 +196,8 @@ where
         } else if arg == "--target" {
             // Removes the `--target` arg if included.
             // Ideally, `trybuild` should be compiled with `--cfg trybuild_no_target`,
-            // so that it doesn't include the `--target` arg, but it doesn't hurt to be extra safe.
-            // Ref: <https://github.com/dtolnay/trybuild/blob/a2eb852409a69841ccca1acbf61813e8e8abb792/src/cargo.rs#L191-L204>
+            // so that it doesn't include the `--target` arg, but it doesn't hurt to be
+            // extra safe. Ref: <https://github.com/dtolnay/trybuild/blob/a2eb852409a69841ccca1acbf61813e8e8abb792/src/cargo.rs#L191-L204>
             ignore_next = true;
         } else {
             new_args.push(arg);

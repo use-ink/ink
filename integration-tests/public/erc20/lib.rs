@@ -247,7 +247,7 @@ mod erc20 {
             let Transfer { from, to, value } = decoded_event;
             assert_eq!(from, expected_from, "encountered invalid Transfer.from");
             assert_eq!(to, expected_to, "encountered invalid Transfer.to");
-            assert_eq!(value, expected_value, "encountered invalid Trasfer.value");
+            assert_eq!(value, expected_value, "encountered invalid Transfer.value");
 
             let mut expected_topics = Vec::new();
             expected_topics.push(
@@ -363,7 +363,7 @@ mod erc20 {
                 Some(accounts.alice),
                 100.into(),
             );
-            // Check the second transfer event relating to the actual trasfer.
+            // Check the second transfer event relating to the actual transfer.
             assert_transfer_event(
                 &emitted_events[1],
                 Some(accounts.alice),

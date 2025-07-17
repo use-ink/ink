@@ -367,12 +367,12 @@ impl ItemImpl {
     }
 
     /// Returns an iterator yielding the ink! messages of the implementation block.
-    pub fn iter_messages(&self) -> IterMessages {
+    pub fn iter_messages(&self) -> IterMessages<'_> {
         IterMessages::new(self)
     }
 
     /// Returns an iterator yielding the ink! messages of the implementation block.
-    pub fn iter_constructors(&self) -> IterConstructors {
+    pub fn iter_constructors(&self) -> IterConstructors<'_> {
         IterConstructors::new(self)
     }
 

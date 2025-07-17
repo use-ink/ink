@@ -17,10 +17,10 @@
 # - The latest matching rule, if multiple, takes precedence.
 
 # All of the core team members are global code owners.
-* @cmichi @ascjones
+* @cmichi @davidsemakula @AlexD10S
 
 # CI
-/.github/workflows/ @cmichi @ascjones
-/.github/scripts/ @cmichi @ascjones
-/.github/download-artifact/ @cmichi @ascjones
-/.github/rust-info/ @cmichi @ascjones
+/.github/workflows/ @cmichi @davidsemakula @AlexD10S
+/.github/scripts/ @cmichi @davidsemakula @AlexD10S
+/.github/download-artifact/ @cmichi @davidsemakula @AlexD10S
+/.github/rust-info/ @cmichi @davidsemakula @AlexD10S

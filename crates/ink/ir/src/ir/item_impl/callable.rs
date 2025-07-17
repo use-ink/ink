@@ -128,7 +128,7 @@ where
         <C as Callable>::visibility(self.callable)
     }
 
-    fn inputs(&self) -> InputsIter {
+    fn inputs(&self) -> InputsIter<'_> {
         <C as Callable>::inputs(self.callable)
     }
 
@@ -187,7 +187,7 @@ pub trait Callable {
     fn visibility(&self) -> Visibility;
 
     /// Returns an iterator yielding all input parameters of the ink! callable.
-    fn inputs(&self) -> InputsIter;
+    fn inputs(&self) -> InputsIter<'_>;
 
     /// Returns the span of the inputs of the ink! callable.
     fn inputs_span(&self) -> Span;
