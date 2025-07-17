@@ -5,10 +5,7 @@ use frame_support::{
 };
 use frame_system::pallet_prelude::OriginFor;
 use ink::{
-    abi::{
-        AbiDecodeWith,
-        AbiEncodeWith,
-    },
+    abi::AbiEncodeWith,
     env::{
         call::{
             utils::DecodeMessageResult,
@@ -73,9 +70,11 @@ where
         );
 
         let output = result.result?;
-        let result = DecodeMessageResult::decode_output(&output.data[..], output.did_revert()).map_err(|_| {
-            sp_runtime::DispatchError::Other("Failed to decode contract output")
-        })?;
+        let result =
+            DecodeMessageResult::decode_output(&output.data[..], output.did_revert())
+                .map_err(|_| {
+                    sp_runtime::DispatchError::Other("Failed to decode contract output")
+                })?;
 
         Ok(result)
     }

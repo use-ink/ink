@@ -59,7 +59,7 @@ note: required by a bound in `Execution::<Args, Output, Abi>::new`
   |     pub fn new(input: ExecutionInput<Args, Abi>) -> Self {
   |            --- required by a bound in this associated function
 
-error[E0599]: the method `try_invoke` exists for struct `CallBuilder<E, Set<Call>, Set<ExecutionInput<ArgumentList<Argument<NonCodec>, ArgumentList<ArgumentListEnd, ArgumentListEnd, ink::abi::Ink>, ink::abi::Ink>, ink::abi::Ink>>, Set<ReturnType<()>>>`, but its trait bounds were not satisfied
+error[E0599]: the method `try_invoke` exists for struct `CallBuilder<E, Set<Call>, Set<ExecutionInput<ArgumentList<Argument<NonCodec>, ArgumentList<ArgumentListEnd, ArgumentListEnd, Ink>, Ink>, Ink>>, Set<ReturnType<()>>>`, but its trait bounds were not satisfied
  --> tests/ui/trait_def/fail/message_input_non_codec.rs:5:5
   |
 5 |       #[ink(message)]

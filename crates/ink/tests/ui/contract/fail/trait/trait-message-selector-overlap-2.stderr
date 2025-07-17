@@ -21,3 +21,59 @@ error[E0119]: conflicting implementations of trait `TraitCallForwarderFor<151820
 43 | |         fn message(&self) {}
 44 | |     }
    | |_____^ conflicting implementation for `contract::_::CallBuilder<ink::abi::Ink>`
+
+error[E0283]: type annotations needed
+  --> tests/ui/contract/fail/trait/trait-message-selector-overlap-2.rs:19:1
+   |
+19 | #[ink::contract]
+   | ^^^^^^^^^^^^^^^^
+   | |
+   | cannot infer type
+   | help: use the fully qualified path to an implementation: `<Type as ImpliesReturn>::messageOutput`
+   |
+   = note: multiple `impl`s satisfying `_: ImpliesReturn<()>` found in the `ink` crate:
+           - impl<Args, RetType, Abi> ImpliesReturn<RetType> for Execution<Args, RetType, Abi>;
+           - impl<E, CallType, Args, Abi> ImpliesReturn<()> for ink::ink_env::call::CallBuilder<E, Set<CallType>, Set<ExecutionInput<Args, Abi>>, Set<()>>
+             where E: ink::ink_env::Environment;
+           - impl<T, E, CallType, Args, Abi> ImpliesReturn<T> for ink::ink_env::call::CallBuilder<E, Set<CallType>, Set<ExecutionInput<Args, Abi>>, Set<ReturnType<T>>>
+             where E: ink::ink_env::Environment;
+           - impl<T> ImpliesReturn<T> for T;
+   = note: associated types cannot be accessed directly on a `trait`, they can only be accessed through a specific `impl`
+note: required by a bound in `foo1::TraitDefinition::messageOutput`
+  --> tests/ui/contract/fail/trait/trait-message-selector-overlap-2.rs:6:9
+   |
+4  |       #[ink::trait_definition(namespace = "same")]
+   |       -------------------------------------------- required by a bound in this associated type
+5  |       pub trait TraitDefinition {
+6  | /         #[ink(message)]
+7  | |         fn message(&self);
+   | |__________________________^ required by this bound in `TraitDefinition::messageOutput`
+   = note: this error originates in the attribute macro `ink::contract` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0283]: type annotations needed
+  --> tests/ui/contract/fail/trait/trait-message-selector-overlap-2.rs:19:1
+   |
+19 | #[ink::contract]
+   | ^^^^^^^^^^^^^^^^
+   | |
+   | cannot infer type
+   | help: use the fully qualified path to an implementation: `<Type as ImpliesReturn>::messageOutput`
+   |
+   = note: multiple `impl`s satisfying `_: ImpliesReturn<()>` found in the `ink` crate:
+           - impl<Args, RetType, Abi> ImpliesReturn<RetType> for Execution<Args, RetType, Abi>;
+           - impl<E, CallType, Args, Abi> ImpliesReturn<()> for ink::ink_env::call::CallBuilder<E, Set<CallType>, Set<ExecutionInput<Args, Abi>>, Set<()>>
+             where E: ink::ink_env::Environment;
+           - impl<T, E, CallType, Args, Abi> ImpliesReturn<T> for ink::ink_env::call::CallBuilder<E, Set<CallType>, Set<ExecutionInput<Args, Abi>>, Set<ReturnType<T>>>
+             where E: ink::ink_env::Environment;
+           - impl<T> ImpliesReturn<T> for T;
+   = note: associated types cannot be accessed directly on a `trait`, they can only be accessed through a specific `impl`
+note: required by a bound in `foo2::TraitDefinition::messageOutput`
+  --> tests/ui/contract/fail/trait/trait-message-selector-overlap-2.rs:14:9
+   |
+12 |       #[ink::trait_definition(namespace = "same")]
+   |       -------------------------------------------- required by a bound in this associated type
+13 |       pub trait TraitDefinition {
+14 | /         #[ink(message)]
+15 | |         fn message(&self);
+   | |__________________________^ required by this bound in `TraitDefinition::messageOutput`
+   = note: this error originates in the attribute macro `ink::contract` (in Nightly builds, run with -Z macro-backtrace for more info)

@@ -158,6 +158,8 @@ jobs:
         if: ${{ matrix.type == 'RISCV' }}
         with:
           command: |
+            # todo move to `use-ink/docker-images`
+            apt-get update && apt-get install gcc-riscv64-unknown-elf
             for crate in ${ALSO_RISCV_CRATES}; do
               echo $crate;
               cargo +nightly clippy --no-default-features --manifest-path ./crates/${crate}/Cargo.toml \
@@ -200,8 +202,12 @@ jobs:
       - name: Run Clippy for RISC-V Examples
         uses: ./.github/run-container-command
         if: ${{ matrix.type == 'RISCV' }}
+        env:
+          RUSTFLAGS: "--cfg substrate_runtime"
         with:
           command: |
+            # todo move to `use-ink/docker-images`
+            apt-get install gcc-riscv64-unknown-elf
             scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --no-default-features \
               --target ${CLIPPY_TARGET} \
               --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED $ALLOWED_LINTS
@@ -615,7 +621,7 @@ jobs:
           cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
           cache-on-failure: true
 
-      - name: Test Wildcard Selector Example
+      - name: Test Debugging Strategies Example
         uses: ./.github/run-container-command
         with:
           command: |
@@ -1042,7 +1048,7 @@ jobs:
               echo "${{ steps.extract_github.outputs.head_in_branch }}"
 
         - name: Download artifact from this branch
-          uses: dawidd6/action-download-artifact@v9
+          uses: dawidd6/action-download-artifact@v11
           with:
               name: measurements-${{ env.MEASUREMENTS_ID }}
               run_id: ${{ github.run_id }}

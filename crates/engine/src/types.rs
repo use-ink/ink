@@ -56,27 +56,3 @@ pub enum AccountError {
     NoAccountForId(AccountId),
     NoContractForId(Address),
 }
-
-/// The type of origins supported by `pallet-revive`.
-#[derive(Debug, Eq, Default, Clone, scale::Encode, scale::Decode, PartialEq)]
-//#[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
-pub enum Origin {
-    #[default]
-    Root,
-    Signed(Vec<u8>),
-}
-
-// impl Origin {
-// Returns the AccountId of a Signed Origin or an error if the origin is Root.
-// pub fn account_id(&self) -> Result<AccountId, ()> {
-// match self {
-// Origin::Signed(id) => {
-// let mut arr = [0u8; 32];
-// arr.copy_from_slice(id.as_slice());
-// Ok(AccountId::from(arr))
-// },
-// Origin::Root => Err(()),
-// }
-// }
-// }
-//

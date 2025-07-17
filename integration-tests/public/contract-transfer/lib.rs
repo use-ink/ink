@@ -253,7 +253,7 @@ pub mod give_me {
 
             // todo make `NativeToEthRatio` part of  the `Environment`
             #[allow(non_upper_case_globals)]
-            const NativeToEthRatio: u128 = 1_000_000;
+            const NativeToEthRatio: u128 = 100_000_000;
             assert_eq!(
                 contract.trace.clone().unwrap().value,
                 Some(U256::from(1_337_000_000 * NativeToEthRatio))
@@ -275,7 +275,7 @@ pub mod give_me {
                 .expect("getting balance failed");
 
             // when
-            let transfer = call_builder.give_me(120_000_000.into());
+            let transfer = call_builder.give_me(U256::from(120_000_000_0).into());
 
             let call_res = client
                 .call(&ink_e2e::eve(), &transfer)
@@ -284,25 +284,18 @@ pub mod give_me {
                 .expect("call failed");
 
             // then
-            /*
-            // todo
-            assert!(call_res
-                .debug_message()
-                .contains("requested value: 120000000\n"));
-             */
             let outgoing_trace = &call_res.trace.unwrap().calls[0];
-            //assert_eq!(outgoing_trace.value, Some(U256::from(120_000_000 *
-            // NativeToEthRatio)));
-            assert_eq!(outgoing_trace.value, Some(U256::from(120_000_000)));
+            assert_eq!(outgoing_trace.value, Some(U256::from(120_000_000_0)));
             assert_eq!(outgoing_trace.from, contract_addr);
-            //let eve = AccountId32Mapper::to_address(&ink_e2e::eve().account_id().
+            // todo
+            // let eve = AccountId32Mapper::to_address(&ink_e2e::eve().account_id().
             // encode()[..20]); assert_eq!(trace.to, eve);
 
             let balance_after: Balance = client
                 .free_balance(account_id)
                 .await
                 .expect("getting balance failed");
-            assert_eq!(balance_before - balance_after, 120);
+            assert_eq!(balance_before - balance_after, 12);
 
             Ok(())
         }
