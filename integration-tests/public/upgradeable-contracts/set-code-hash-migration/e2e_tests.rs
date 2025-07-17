@@ -81,7 +81,8 @@ async fn migration_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()
         .expect("`inc` failed");
 
     let get = contract
-        .call_builder::<updated_incrementer::incrementer::Incrementer>().get();
+        .call_builder::<updated_incrementer::incrementer::Incrementer>()
+        .get();
     let get_res = client.call(&ink_e2e::alice(), &get).dry_run().await?;
 
     // Remember, we updated our incrementer contract to increment by `4`.

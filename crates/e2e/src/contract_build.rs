@@ -28,6 +28,7 @@ use std::{
     },
 };
 
+use crate::log_info;
 use contract_build::{
     BuildArtifacts,
     BuildMode,
@@ -42,16 +43,18 @@ use contract_build::{
 };
 use itertools::Itertools;
 
-use crate::log_info;
-
 /// Builds the "root" contract (the contract in which the E2E tests are defined) together
 /// with any contracts which are a dependency of the root contract.
 ///
-/// todo explain features
+/// Builds the root contract with `features`.
 pub fn build_root_and_contract_dependencies(features: Vec<String>) -> Vec<PathBuf> {
     let contract_project = ContractProject::new();
-    let contract_manifests = contract_project.root_with_contract_dependencies();
-    build_contracts(&contract_manifests, features, contract_project.target_dir)
+    let contract_manifests_and_features =
+        contract_project.root_with_contract_dependencies(features);
+    build_contracts(
+        &contract_manifests_and_features,
+        contract_project.target_dir,
+    )
 }
 
 /// Access manifest paths of contracts which are part of the project in which the E2E
@@ -124,21 +127,31 @@ impl ContractProject {
     fn root_with_additional_contracts<P>(
         &self,
         additional_contracts: impl IntoIterator<Item = P>,
-    ) -> Vec<PathBuf>
+        features: Vec<String>,
+    ) -> Vec<(PathBuf, Vec<String>)>
     where
         PathBuf: From<P>,
     {
-        let mut all_manifests: Vec<_> = self.root_package.iter().cloned().collect();
+        let mut all_manifests: Vec<_> = self
+            .root_package
+            .iter()
+            .cloned()
+            .map(|path| (path, features.clone()))
+            .collect();
         let mut additional_contracts: Vec<_> = additional_contracts
             .into_iter()
             .map(PathBuf::from)
+            .map(|path| (path, vec![]))
             .collect();
         all_manifests.append(&mut additional_contracts);
         all_manifests.into_iter().unique().collect()
     }
 
-    fn root_with_contract_dependencies(&self) -> Vec<PathBuf> {
-        self.root_with_additional_contracts(&self.contract_dependencies)
+    fn root_with_contract_dependencies(
+        &self,
+        features: Vec<String>,
+    ) -> Vec<(PathBuf, Vec<String>)> {
+        self.root_with_additional_contracts(&self.contract_dependencies, features)
     }
 }
 
@@ -147,31 +160,65 @@ impl ContractProject {
 /// Only attempts to build a contract at the given path once only per test run, to avoid
 /// the attempt for different tests to build the same contract concurrently.
 fn build_contracts(
-    contract_manifests: &[PathBuf],
-    features: Vec<String>,
+    contract_manifests: &[(PathBuf, Vec<String>)],
     target_dir: PathBuf,
 ) -> Vec<PathBuf> {
-    static CONTRACT_BUILD_JOBS: OnceLock<Mutex<HashMap<PathBuf, PathBuf>>> =
-        OnceLock::new();
+    static CONTRACT_BUILD_JOBS: OnceLock<
+        Mutex<HashMap<(PathBuf, Vec<String>), PathBuf>>,
+    > = OnceLock::new();
     let mut contract_build_jobs = CONTRACT_BUILD_JOBS
         .get_or_init(|| Mutex::new(HashMap::new()))
         .lock()
         .unwrap();
 
     let mut blob_paths = Vec::new();
-    for manifest in contract_manifests {
-        let contract_binary_path = match contract_build_jobs.entry(manifest.clone()) {
+    for (manifest, features) in contract_manifests {
+        let key = (manifest.clone(), features.clone());
+        let contract_binary_path = match contract_build_jobs.entry(key) {
             Entry::Occupied(entry) => entry.get().clone(),
             Entry::Vacant(entry) => {
                 let contract_binary_path =
                     build_contract(manifest, features.clone(), target_dir.clone());
-                entry.insert(contract_binary_path.clone());
-                contract_binary_path
+                let path_with_features =
+                    add_features_to_filename(contract_binary_path, &features);
+                entry.insert(path_with_features.clone());
+                path_with_features
             }
         };
         blob_paths.push(contract_binary_path);
     }
     blob_paths
+}
+
+fn add_features_to_filename(
+    contract_binary_path: PathBuf,
+    features: &Vec<String>,
+) -> PathBuf {
+    // add features to file name
+    let mut path_with_features = contract_binary_path.clone();
+    let filename = path_with_features
+        .file_stem()
+        .expect("no file name")
+        .to_string_lossy()
+        .into_owned();
+    let extension = path_with_features
+        .extension()
+        .expect("no file name")
+        .to_string_lossy()
+        .into_owned();
+    path_with_features.pop();
+
+    let features_str = features.join("-");
+    let mut new_filename =
+        format!("{}-features-{}", filename, features_str.replace("/", "-"));
+    if features.is_empty() {
+        new_filename.push_str("no");
+    }
+    new_filename.push_str(&format!(".{}", extension));
+    path_with_features.push(new_filename);
+    std::fs::copy(contract_binary_path, path_with_features.as_path())
+        .expect("failed copying binary");
+    path_with_features
 }
 
 /// Builds the contract at `manifest_path`, returns the path to the contract

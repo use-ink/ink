@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use crate::log_info;
+use regex::Regex;
 use std::{
     collections::BTreeMap,
     path::PathBuf,
@@ -68,7 +69,14 @@ impl ContractsRegistry {
     pub fn load_code(&self, contract: &str) -> Vec<u8> {
         let contract_binary_path = self
             .contracts
-            .get(&contract.replace('-', "_"))
+            .iter().find_map(|(name, path)| {
+                let re = Regex::new(r"-features-.+$").expect("failed creating regex");
+                let key = re.replace_all(name, "");
+                if key == contract || key.replace('_', "-") == contract {
+                    return Some(path);
+                }
+                None
+            })
             .unwrap_or_else(||
                 panic!(
                     "Unknown contract {contract}. Available contracts: {:?}.\n\
