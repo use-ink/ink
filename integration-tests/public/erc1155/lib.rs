@@ -199,7 +199,7 @@ mod erc1155 {
     type Owner = Address;
     type Operator = Address;
 
-    /// Indicate that a token transfer has occured.
+    /// Indicate that a token transfer has occurred.
     ///
     /// This must be emitted even if a zero value transfer occurs.
     #[ink(event)]
