@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -eu
 
 script_name="${BASH_SOURCE[0]}"
 scripts_path=$( cd "$(dirname "$script_name")" || exit; pwd -P )
@@ -41,7 +41,7 @@ if [ $? -eq 0 ]; then
   exit 0
 else
   echo "Failed to build contract at $manifest_path"
-  if [[ -n "${IGNORE_ERR}" ]]; then
+  if [ "${IGNORE_ERR:-}" = "true" ]; then
     exit 0
   fi
   exit 1

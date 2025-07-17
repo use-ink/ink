@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -eu
 
 script_name="${BASH_SOURCE[0]}"
 scripts_path=$( cd "$(dirname "$script_name")" || exit; pwd -P )
@@ -176,7 +176,7 @@ if [ "$quiet" = false ]; then
   done
 fi
 
-if [[ -n "${IGNORE_ERR}" ]]; then
+if [ "${IGNORE_ERR:-}" = "true" ]; then
     exit 0
 fi
 
