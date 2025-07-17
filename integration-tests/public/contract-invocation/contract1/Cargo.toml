@@ -24,3 +24,6 @@ overflow-checks = false
 
 [profile.release]
 overflow-checks = false
+
+[package.metadata.ink-lang]
+abi = "ink"

@@ -20,6 +20,7 @@ OPTIONS
   -i, --ignore
       Path to ignore when recursively finding contract projects.
       To ignore 'integration-tests/erc20' then supply 'erc20' as the argument.
+
   -p, --path
       Path to recursively find contract projects for which to execute the supplied command
 
@@ -28,6 +29,12 @@ OPTIONS
 
   -q, --quiet
       Suppress output from this script, only output from the supplied command will be printed
+
+ENVIRONMENT VARIABLES
+
+IGNORE_ERR=true
+      Makes this script always exit with `0`, no matter what the execution of
+      the supplied command resulted in.
 
 EXAMPLES
    ${script_name} --path integration-tests -- cargo check --manifest-path
@@ -167,6 +174,10 @@ if [ "$quiet" = false ]; then
   for failure in "${failures[@]}"; do
     printf "  ${RED}\u2717${NC} %s \n" "$failure"
   done
+fi
+
+if [ "${IGNORE_ERR:-}" = "true" ]; then
+    exit 0
 fi
 
 if [ ${#failures[@]} -gt 0 ]; then
