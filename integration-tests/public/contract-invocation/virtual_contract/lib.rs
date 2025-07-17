@@ -2,7 +2,7 @@
 
 pub use self::virtual_contract::VirtualContractRef;
 
-#[ink::contract()]
+#[ink::contract]
 pub mod virtual_contract {
     use ink::env::call::{
         build_call,

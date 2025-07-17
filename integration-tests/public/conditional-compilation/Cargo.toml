@@ -23,3 +23,6 @@ e2e-tests = []
 # user-defined features
 foo = []
 bar = []
+
+[package.metadata.ink-lang]
+abi = "ink"

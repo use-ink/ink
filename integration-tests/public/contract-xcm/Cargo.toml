@@ -1,5 +1,5 @@
 [package]
-name = "e2e-runtime-only-backend"
+name = "contract-xcm"
 version = "6.0.0-alpha.1"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
@@ -7,6 +7,8 @@ publish = false
 
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
+frame-support = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
@@ -18,6 +20,8 @@ path = "lib.rs"
 default = ["std"]
 std = [
     "ink/std",
+    "pallet-balances/std",
+    "frame-support/std",
 ]
 ink-as-dependency = []
 e2e-tests = []

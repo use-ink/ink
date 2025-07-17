@@ -571,6 +571,8 @@ jobs:
             --ignore solidity-abi/solidity-calls-flipper --ignore solidity-abi/events \
             --ignore solidity-abi/trait-flipper --ignore solidity-abi/trait-dyn-cross-contract-calls \
             --ignore solidity-abi/fallible-setter \
+            --ignore solidity-abi/sol-cross-contract/other-contract-sol \
+            --ignore solidity-abi/trait-dyn-cross-contract-calls/contracts/incrementer \
             --partition ${{ matrix.partition }}/4 -- \
             cargo contract test --all-features --manifest-path {}
 
@@ -725,7 +727,7 @@ jobs:
             scripts/for_all_contracts_exec.sh --path integration-tests/solidity-abi -- \
             cargo contract test --all-features --manifest-path {}
 
-  examples-contract-build-riscv:
+  examples-contract-build:
     runs-on: ubuntu-latest
     needs: [build]
     steps:
@@ -762,11 +764,10 @@ jobs:
               --ignore solidity-abi/sol-cross-contract --ignore solidity-abi/sol-encoding \
               --ignore solidity-abi/solidity-calls-flipper --ignore solidity-abi/events \
               --ignore solidity-abi/trait-flipper --ignore solidity-abi/trait-dyn-cross-contract-calls \
-              --ignore solidity-abi/fallible-setter -- \
+              --ignore solidity-abi/fallible-setter \
+              --ignore solidity-abi/sol-cross-contract/other-contract-sol \
+              --ignore solidity-abi/trait-dyn-cross-contract-calls/contracts/incrementer -- \
               scripts/build_and_determine_contract_size.sh {}
-
-          #bash -c "scripts/build_and_determine_contract_size.sh {} >> ${CONTRACT_SIZE_FILE} && \
-          #sed -ie 's/^integration-tests\/\(public\/\|internal\/\)\?//' ${CONTRACT_SIZE_FILE}"
 
       # NOTE: Sharing build artifacts (i.e. via a shared cargo target directory) with other contracts
       # that don't have the same ABI set makes the builds fail.
@@ -790,7 +791,7 @@ jobs:
             retention-days: 1
 
   process-contract-sizes:
-    needs: [examples-contract-build-riscv]
+    needs: [examples-contract-build]
     runs-on: ubuntu-latest
     steps:
       - name: Download reports' artifacts
@@ -815,6 +816,91 @@ jobs:
             name: measurements-${{ env.MEASUREMENTS_ID }}
             path: ./measurements-${{ env.MEASUREMENTS_ID }}
             retention-days: 31
+
+  examples-contract-build-force-specific-abi:
+      runs-on: ubuntu-latest
+      needs: [build]
+      strategy:
+          fail-fast: false
+          matrix:
+              type: [ sol, all ]
+      steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+            with:
+                fetch-depth: 1
+
+          - name: Initialize runner
+            uses: ./.github/init
+            with:
+                cache: true
+                cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
+                cache-on-failure: true
+
+          - name: Extract branch name
+            shell: bash
+            run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+            id: extract_branch
+
+          - name: Build Contract Examples
+            uses: ./.github/run-container-command
+            env:
+                MANIFEST_PATH: ""
+                CONTRACT_SIZE_FILE: "measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}/contract_size_"
+                CARGO_INCREMENTAL: 0
+                ABI: ${{ matrix.type }}
+            with:
+                command: |
+                    echo $ABI
+                    find integration-tests/public -type f -name "Cargo.toml" | xargs -n1 sed -i 's/abi = \".*\"/abi = \"'$ABI'\"/g'
+                    find integration-tests/internal -type f -name "Cargo.toml" | xargs -n1 sed -i 's/abi = \".*\"/abi = \"'$ABI'\"/g'
+                    find integration-tests/solidity-abi -type f -name "Cargo.toml" | xargs -n1 sed -i 's/abi = \".*\"/abi = \"'$ABI'\"/g'
+
+                    mkdir -p measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}/
+                    IGNORE_ERR=true scripts/for_all_contracts_exec.sh --path integration-tests \
+                      --ignore solidity-abi/sol-cross-contract --ignore solidity-abi/sol-encoding \
+                      --ignore solidity-abi/solidity-calls-flipper --ignore solidity-abi/events \
+                      --ignore solidity-abi/trait-flipper --ignore solidity-abi/trait-dyn-cross-contract-calls \
+                      --ignore solidity-abi/sol-cross-contract/other-contract-sol \
+                      --ignore solidity-abi/trait-dyn-cross-contract-calls/contracts/incrementer -- \
+                      .github/scripts/output-contract-sizes.sh {}
+
+          - uses: actions/upload-artifact@v4
+            with:
+                path: ./measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}/*
+                name: ${{ github.run_id }}_${{ matrix.type }}_abi_artifact
+                retention-days: 1
+
+  process-forced-abi-contract-sizes:
+      needs: [examples-contract-build-force-specific-abi]
+      runs-on: ubuntu-latest
+      strategy:
+          fail-fast: false
+          matrix:
+              type: [ sol, all ]
+      steps:
+          - name: Download reports' artifacts
+            uses: actions/download-artifact@v4
+            with:
+                path: downloaded_artifacts
+
+          - name: Extract branch name
+            shell: bash
+            run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+            id: extract_branch
+
+          - name: Combine contract sizes from individual examples
+            run: |
+                cat downloaded_artifacts/${{ github.run_id }}_${{ matrix.type }}_abi_artifact/* | \
+                sed -e 's/^integration-tests\/\(public\/\|internal\/\)\?//' | \
+                sort | uniq > measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}
+                cat measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}
+
+          - uses: actions/upload-artifact@v4
+            with:
+                name: measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}
+                path: ./measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}
+                retention-days: 31
 
   examples-docs:
     runs-on: ubuntu-latest
@@ -845,17 +931,10 @@ jobs:
             scripts/for_all_contracts_exec.sh --path integration-tests -- cargo doc --manifest-path {} \
               --document-private-items --no-deps
 
-# measurements
-#  todo delete this stage and associated files
-#  measurements:
-#    needs: [examples-docs, examples-contract-build, examples-test, examples-custom-test, examples-test-mapping]
-#    uses: ./.github/workflows/measurements.yml
-#
-
 # fuzz
   fuzz:
     runs-on: ubuntu-latest
-    needs: [examples-docs, examples-contract-build-riscv, examples-test, examples-custom-test]
+    needs: [examples-docs, examples-contract-build, examples-test, examples-custom-test]
     if: >
       github.event_name == 'push' &&
         github.ref == 'refs/heads/master'
@@ -938,7 +1017,7 @@ jobs:
 
   submit-contract-sizes:
     runs-on: ubuntu-latest
-    needs: [ci-image, process-contract-sizes]
+    needs: [ci-image, process-contract-sizes, process-forced-abi-contract-sizes]
     permissions:
         pull-requests: write
     if: github.ref != 'refs/heads/master'
@@ -973,6 +1052,18 @@ jobs:
               name: measurements-${{ env.MEASUREMENTS_ID }}
               run_id: ${{ github.run_id }}
 
+        - name: Download Solidity ABI artifact from this branch
+          uses: dawidd6/action-download-artifact@v9
+          with:
+              name: measurements-sol-abi-${{ env.MEASUREMENTS_ID }}
+              run_id: ${{ github.run_id }}
+
+        - name: Download All ABI artifact from this branch
+          uses: dawidd6/action-download-artifact@v9
+          with:
+              name: measurements-all-abi-${{ env.MEASUREMENTS_ID }}
+              run_id: ${{ github.run_id }}
+
         - name: Download master artifact
           uses: dawidd6/action-download-artifact@v9
           with:
@@ -983,16 +1074,54 @@ jobs:
               workflow_conclusion: ""
               search_artifacts: true
 
-        - name: Collect Contract Sizes
+        - name: Collect Contract Sizes (with the ABI set in the contract)
           run: |
               # Build the comparison table
-              echo "master:"
+              echo "---master:"
               cat measurements-master
-              echo "branch:"
+              echo "---branch:"
               cat measurements-${{ env.MEASUREMENTS_ID }}
               echo "---"
               ./scripts/contract_sizes_diff.sh measurements-master measurements-${{ env.MEASUREMENTS_ID }} > contract_sizes_diff.md
               cat contract_sizes_diff.md
+
+        - name: Collect Contract Sizes (with enforced Solidity ABI)
+          run: |
+              # Build the comparison table
+              echo "---branch with abi specified in contract:"
+              cat measurements-${{ env.MEASUREMENTS_ID }}
+              echo "---branch with solidity abi:"
+              cat measurements-sol-abi-${{ env.MEASUREMENTS_ID }}
+              echo "---"
+              ./scripts/contract_sizes_diff.sh measurements-${{ env.MEASUREMENTS_ID }} measurements-sol-abi-${{ env.MEASUREMENTS_ID }} > abi_sol_contract_sizes_diff.md
+              cat abi_sol_contract_sizes_diff.md
+
+        - name: Collect Contract Sizes (with enforced "all" ABI)
+          run: |
+              # Build the comparison table
+              echo "---branch with abi specified in contract:"
+              cat measurements-${{ env.MEASUREMENTS_ID }}
+              echo "---branch with all abi:"
+              cat measurements-all-abi-${{ env.MEASUREMENTS_ID }}
+              echo "---"
+              ./scripts/contract_sizes_diff.sh measurements-${{ env.MEASUREMENTS_ID }} measurements-all-abi-${{ env.MEASUREMENTS_ID }} > abi_all_contract_sizes_diff.md
+              cat abi_all_contract_sizes_diff.md
+
+        - name: Create CSV
+          run: |
+              cat ./measurements-master | cut -f1 -d " " | xargs -n1 ./.github/scripts/create-csv.sh \
+                ./measurements-master \
+                ./measurements-${{ env.MEASUREMENTS_ID }} \
+                ./measurements-sol-abi-${{ env.MEASUREMENTS_ID }} \
+                ./measurements-all-abi-${{ env.MEASUREMENTS_ID }} \
+                ./.github/v5-contract-sizes.csv \
+                > measurements.csv
+              cat measurements.csv
+
+        - name: Create Mermaid Diagram
+          run: |
+              .github/scripts/create-mermaid-diagram.sh ./measurements.csv > mermaid_diagram.md
+              cat mermaid_diagram.md
 
         - name: Submit Comment
           env:
@@ -1006,4 +1135,4 @@ jobs:
 
               # Submit the comparison table as a comment to the PR
               echo "Submitting contract sizes diff to ${PR_COMMENTS_URL}"
-              GITHUB_PR_TOKEN=${GITHUB_PR_TOKEN} .github/scripts/contract_sizes_submit.sh ${PR_COMMENTS_URL} ${WORKFLOW_URL} ${CARGO_CONTRACT_VERSION} ${{ steps.extract_github.outputs.head_in_branch }}${head_in_branch} < ./contract_sizes_diff.md
+              GITHUB_PR_TOKEN=${GITHUB_PR_TOKEN} .github/scripts/contract_sizes_submit.sh ${PR_COMMENTS_URL} ${WORKFLOW_URL} ${{ steps.extract_github.outputs.head_in_branch }}${head_in_branch} ./contract_sizes_diff.md ./abi_sol_contract_sizes_diff.md ./abi_all_contract_sizes_diff.md ./mermaid_diagram.md

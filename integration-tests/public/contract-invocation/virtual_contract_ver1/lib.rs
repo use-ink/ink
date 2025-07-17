@@ -2,7 +2,7 @@
 
 pub use self::virtual_contract_ver1::VirtualContractVer1Ref;
 
-#[ink::contract()]
+#[ink::contract]
 mod virtual_contract_ver1 {
 
     #[ink(storage)]

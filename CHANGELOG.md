@@ -2064,7 +2064,7 @@ mod erc20 {
 }
 ```
 
-Calling the above `Erc20` explicitely through its trait implementation can be done just as if it was normal Rust code:
+Calling the above `Erc20` explicitly through its trait implementation can be done just as if it was normal Rust code:
 
 ```rust
 // --- Instantiating the ERC-20 contract:
@@ -2175,7 +2175,7 @@ mod erc20 {
 
 > Note: we now require a mandatory ink! version in the header. You're welcome.
 
-See the [ERC20 example](https://github.com/use-ink/ink/blob/master/examples/erc20/src/lib.rs).
+See the [ERC20 example](https://github.com/use-ink/ink/blob/master/integration-tests/public/upgradeable-contracts/delegator/lib.rs).
 
 ### ink! Contract Tag
 
@@ -2503,7 +2503,7 @@ let accumulator = Accumulator::new(init_value)
 </tr>
 </table>
 
-See the [delegator example](https://github.com/use-ink/ink/blob/master/examples/delegator/lib.rs).
+See the [delegator example](https://github.com/use-ink/ink/blob/master/integration-tests/public/upgradeable-contracts/delegator/lib.rs).
 
 ### Contract Tests
 

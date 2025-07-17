@@ -141,7 +141,7 @@ If you've already opened a pull request, avoid force-pushing any new changes.
 
 If your pull request is a work-in-progress, create it as a Draft pull request.
 
-For a nice list of hints visit this [link][GitHub Perfect Pull Reqest].
+For a nice list of hints visit this [link][GitHub Perfect Pull Request].
 
 ### Reviews
 
@@ -163,4 +163,4 @@ For technical questions about the ink! and all other Polkadot projects, please p
 
 [Riot-Smart-Contracts-ink]: https://riot.im/app/#/room/#ink:matrix.parity.io
 
-[GitHub Perfect Pull Reqest]: https://github.blog/2015-01-21-how-to-write-the-perfect-pull-request/
+[GitHub Perfect Pull Request]: https://github.blog/2015-01-21-how-to-write-the-perfect-pull-request/
