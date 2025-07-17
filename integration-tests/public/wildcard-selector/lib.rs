@@ -2,9 +2,11 @@
 
 #[ink::contract]
 pub mod wildcard_selector {
+    #[cfg(feature = "emit-event")]
     use ink::prelude::format;
     use ink::prelude::string::String;
 
+    #[cfg(feature = "emit-event")]
     #[ink::event]
     pub struct Event {
         msg: String,
@@ -38,6 +40,7 @@ pub mod wildcard_selector {
             let MessageInput(_selector, _message) =
                 ink::env::decode_input::<MessageInput>().unwrap();
 
+            #[cfg(feature = "emit-event")]
             self.env().emit_event(Event {
                 msg: format!("Wildcard selector: {:?}, message: {}", _selector, _message),
             })
@@ -46,6 +49,7 @@ pub mod wildcard_selector {
         /// Wildcard complement handles messages with a well-known reserved selector.
         #[ink(message, selector = @)]
         pub fn wildcard_complement(&mut self, _message: String) {
+            #[cfg(feature = "emit-event")]
             self.env().emit_event(Event {
                 msg: format!("Wildcard complement message: {}", _message),
             });
@@ -90,7 +94,7 @@ pub mod wildcard_selector {
                 .returns::<()>()
         }
 
-        #[ink_e2e::test]
+        #[ink_e2e::test(features = ["emit-event"])]
         async fn arbitrary_selectors_handled_by_wildcard<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
