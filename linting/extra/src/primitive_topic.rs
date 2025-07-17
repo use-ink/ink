@@ -179,7 +179,7 @@ impl<'tcx> LateLintPass<'tcx> for PrimitiveTopic {
             then {
                 topics_impl.items.iter().for_each(|impl_item| {
                     if_chain! {
-                        // We need to extract field patterns from the event sturct matched in the
+                        // We need to extract field patterns from the event struct matched in the
                         // `topics` function to access their inferred types.
                         // Here is the simplified example of the expanded code:
                         // ```
