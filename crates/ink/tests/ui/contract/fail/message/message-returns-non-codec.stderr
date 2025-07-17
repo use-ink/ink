@@ -52,6 +52,11 @@ error[E0599]: the method `try_invoke` exists for struct `CallBuilder<DefaultEnvi
 20 | |         }
    | |_________^
    |
+  ::: $RUST/core/src/result.rs
+   |
+   |   pub enum Result<T, E> {
+   |   --------------------- doesn't satisfy `_: Decode`
+   |
    = note: the following trait bounds were not satisfied:
            `Result<NonCodecType, LangError>: ink::parity_scale_codec::Decode`
            which is required by `NonCodecType: DecodeMessageResult<ink::abi::Ink>`
