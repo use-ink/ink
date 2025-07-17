@@ -121,9 +121,6 @@ note: required because it appears within the type `Contract`
    |        ^^^^^^^^
 note: required by an implicit `Sized` bound in `Result`
   --> $RUST/core/src/result.rs
-   |
-   | pub enum Result<T, E> {
-   |                 ^ required by the implicit `Sized` requirement on this type parameter in `Result`
    = note: this error originates in the derive macro `::ink::storage::traits::Storable` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Encode` is not satisfied
@@ -143,9 +140,6 @@ note: required because it appears within the type `Contract`
    |        ^^^^^^^^
 note: required by an implicit `Sized` bound in `Result`
   --> $RUST/core/src/result.rs
-   |
-   | pub enum Result<T, E> {
-   |                 ^ required by the implicit `Sized` requirement on this type parameter in `Result`
    = note: this error originates in the derive macro `::ink::storage::traits::Storable` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Packed` is not satisfied
