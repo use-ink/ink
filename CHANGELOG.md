@@ -2064,7 +2064,7 @@ mod erc20 {
 }
 ```
 
-Calling the above `Erc20` explicitely through its trait implementation can be done just as if it was normal Rust code:
+Calling the above `Erc20` explicitly through its trait implementation can be done just as if it was normal Rust code:
 
 ```rust
 // --- Instantiating the ERC-20 contract:
