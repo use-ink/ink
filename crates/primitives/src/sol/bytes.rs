@@ -12,6 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::{
+    borrow::Borrow,
+    default::Default,
+    ops::Deref,
+};
+
 use alloy_sol_types::{
     abi::token::{
         PackedSeqToken,
@@ -19,10 +25,6 @@ use alloy_sol_types::{
     },
     sol_data,
     SolType as AlloySolType,
-};
-use core::{
-    borrow::Borrow,
-    ops::Deref,
 };
 use ink_prelude::{
     boxed::Box,
@@ -56,7 +58,7 @@ use crate::sol::{
 /// Ref: <https://docs.soliditylang.org/en/latest/types.html#fixed-size-byte-arrays>
 ///
 /// Ref: <https://docs.soliditylang.org/en/latest/types.html#bytes-and-string-as-arrays>
-#[derive(Debug, Clone, Encode, Decode)]
+#[derive(Debug, Clone, Encode, Decode, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(TypeInfo))]
 pub struct SolBytes<T: SolBytesType>(pub T);
 
@@ -146,6 +148,9 @@ pub trait SolBytesType: private::Sealed {
 
     /// Detokenizes the byte type's value from the given token.
     fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self;
+
+    /// The default value.
+    fn default() -> Self;
 }
 
 // Implements `SolBytesType` for `u8`, `[u8; N]`, `Vec<u8>` and `Box<[u8]>`.
@@ -166,6 +171,10 @@ where
         // `u8` is decoded as the first byte since `bytes1` is padded with trailing zeros.
         // Ref: <https://docs.soliditylang.org/en/latest/abi-spec.html#formal-specification-of-the-encoding>
         token.0 .0[0]
+    }
+
+    fn default() -> Self {
+        0u8
     }
 }
 
@@ -194,6 +203,10 @@ where
             .try_into()
             .expect("Expected a slice of N bytes")
     }
+
+    fn default() -> Self {
+        [0u8; N]
+    }
 }
 
 impl<const N: usize> private::Sealed for [u8; N] {}
@@ -213,6 +226,10 @@ impl SolBytesType for Vec<u8> {
         // `Vec<u8>`.
         token.into_vec()
     }
+
+    fn default() -> Self {
+        Vec::new()
+    }
 }
 
 impl private::Sealed for Vec<u8> {}
@@ -231,6 +248,10 @@ impl SolBytesType for Box<[u8]> {
         // Direct implementation simplifies generic implementations by removing
         // requirement for `SolValueType<Self::AlloyType>`.
         PackedSeqToken(self.as_ref())
+    }
+
+    fn default() -> Self {
+        <Self as Default>::default()
     }
 }
 

@@ -15,6 +15,7 @@
 //! Abstractions for implementing Solidity ABI encoding/decoding for arbitrary Rust types.
 
 mod bytes;
+mod default;
 mod error;
 mod params;
 mod result;
@@ -23,11 +24,12 @@ mod types;
 #[cfg(test)]
 mod tests;
 
+use core::ops::Deref;
+
 use alloy_sol_types::{
     sol_data,
     SolType as AlloySolType,
 };
-use core::ops::Deref;
 use impl_trait_for_tuples::impl_for_tuples;
 use ink_prelude::{
     borrow::Cow,
@@ -43,6 +45,7 @@ use sp_weights::Weight;
 
 pub use self::{
     bytes::SolBytes,
+    default::SolTypeDefault,
     error::{
         SolErrorDecode,
         SolErrorEncode,
@@ -215,11 +218,11 @@ macro_rules! impl_primitive_decode {
 macro_rules! impl_primitive_encode {
     ($($ty: ty),+ $(,)*) => {
         $(
-            impl<'a> SolEncode<'a> for $ty {
-                type SolType = &'a $ty;
+            impl SolEncode<'_> for $ty {
+                type SolType = $ty;
 
-                fn to_sol_type(&'a self) -> Self::SolType {
-                    self
+                fn to_sol_type(&self) -> Self::SolType {
+                    *self
                 }
             }
         )*
@@ -236,6 +239,30 @@ macro_rules! impl_primitive {
     };
 }
 
+macro_rules! impl_primitive_encode_by_ref {
+    ($($ty: ty),+ $(,)*) => {
+        $(
+            impl<'a> SolEncode<'a> for $ty {
+                type SolType = &'a $ty;
+
+                fn to_sol_type(&'a self) -> Self::SolType {
+                    self
+                }
+            }
+        )*
+    };
+}
+
+macro_rules! impl_primitive_by_ref {
+    ($($ty: ty),+ $(,)*) => {
+        $(
+            impl_primitive_decode!($ty);
+
+            impl_primitive_encode_by_ref!($ty);
+        )*
+    };
+}
+
 impl_primitive! {
     // bool
     bool,
@@ -243,11 +270,14 @@ impl_primitive! {
     i8, i16, i32, i64, i128,
     // unsigned integers
     u8, u16, u32, u64, u128, U256,
+    // address
+    Address,
+}
+
+impl_primitive_by_ref! {
     // string
     String,
     Box<str>,
-    // address
-    Address,
 }
 
 // Rust array <-> Solidity fixed-sized array (i.e. `T[N]`).
@@ -335,9 +365,12 @@ impl<'a> SolEncode<'a> for Tuple {
 
 // Implements `SolEncode` for reference types.
 macro_rules! impl_refs_encode {
-    ($([$($gen:tt)*] $ty: ty), +$(,)*) => {
+    ($($ty: ty), +$(,)*) => {
         $(
-            impl<$($gen)* T: SolEncode<'a>> SolEncode<'a> for $ty {
+            impl<'a, T> SolEncode<'a> for $ty
+            where
+                T: SolEncode<'a>,
+            {
                 type SolType = T::SolType;
 
                 fn to_sol_type(&'a self) -> Self::SolType {
@@ -349,12 +382,15 @@ macro_rules! impl_refs_encode {
 }
 
 impl_refs_encode! {
-    ['a,] &'a T,
-    ['a,] &'a mut T,
-    ['a,] Box<T>,
+    &T,
+    &mut T,
+    Box<T>,
 }
 
-impl<'a, T: SolEncode<'a> + Clone> SolEncode<'a> for Cow<'a, T> {
+impl<'a, T> SolEncode<'a> for Cow<'_, T>
+where
+    T: SolEncode<'a> + Clone,
+{
     type SolType = T::SolType;
 
     fn to_sol_type(&'a self) -> Self::SolType {
@@ -377,12 +413,15 @@ macro_rules! impl_str_ref_encode {
     };
 }
 
-impl_str_ref_encode!(&'a str, &'a mut str);
+impl_str_ref_encode!(&str, &mut str);
 
 macro_rules! impl_slice_ref_encode {
     ($($ty: ty),+ $(,)*) => {
         $(
-            impl<'a, T: SolEncode<'a>> SolEncode<'a> for $ty {
+            impl<'a, T> SolEncode<'a> for $ty
+            where
+                T: SolEncode<'a>,
+            {
                 type SolType = Vec<T::SolType>;
 
                 fn to_sol_type(&'a self) -> Self::SolType {
@@ -393,7 +432,60 @@ macro_rules! impl_slice_ref_encode {
     };
 }
 
-impl_slice_ref_encode!(&'a [T], &'a mut [T]);
+impl_slice_ref_encode!(&[T], &mut [T]);
+
+// Option<T> <-> (bool, T)
+//
+// `bool` is a "flag" indicating the variant i.e. `false` for `None` and `true` for `Some`
+// such that:
+//  - `Option::None` is mapped to `(false, <default_value>)` where `<default_value>` is
+//    the zero bytes only representation of `T` (e.g. `0u8` for `u8` or `Vec::<T>::new()`
+//    for `Vec<T>`)
+//  - `Option::Some(value)` is mapped to `(true, value)`
+//
+// # Note
+//
+// The resulting type in Solidity can be represented as struct with a field for the "flag"
+// and another for the data.
+//
+// Note that `enum` in Solidity is encoded as `uint8` in Solidity ABI encoding, while the
+// encoding for `bool` is equivalent to the encoding of `uint8` with `true` equivalent to
+// `1` and `false` equivalent to `0`. Therefore, the `bool` "flag" can be safely
+// interpreted as a `bool` or `enum` (or even `uint8`) in Solidity code.
+//
+// Ref: <https://docs.soliditylang.org/en/latest/abi-spec.html#mapping-solidity-to-abi-types>
+impl<T> SolDecode for Option<T>
+where
+    T: SolDecode,
+{
+    type SolType = (bool, T::SolType);
+
+    fn from_sol_type(value: Self::SolType) -> Self {
+        if value.0 {
+            Some(<T as SolDecode>::from_sol_type(value.1))
+        } else {
+            None
+        }
+    }
+}
+
+impl<'a, T> SolEncode<'a> for Option<T>
+where
+    T: SolEncode<'a>,
+    <T as SolEncode<'a>>::SolType: SolTypeDefault,
+{
+    type SolType = (
+        bool,
+        <<T as SolEncode<'a>>::SolType as SolTypeDefault>::DefaultType,
+    );
+
+    fn to_sol_type(&'a self) -> Self::SolType {
+        match self {
+            None => (false, T::SolType::default()),
+            Some(value) => (true, value.to_sol_type().to_default_type()),
+        }
+    }
+}
 
 // Rust `PhantomData` <-> Solidity zero-tuple `()`.
 impl<T> SolDecode for core::marker::PhantomData<T> {
@@ -515,10 +607,10 @@ impl SolDecode for Weight {
     }
 }
 
-impl<'a> SolEncode<'a> for Weight {
+impl SolEncode<'_> for Weight {
     type SolType = (u64, u64);
 
-    fn to_sol_type(&'a self) -> Self::SolType {
+    fn to_sol_type(&self) -> Self::SolType {
         (self.ref_time(), self.proof_size())
     }
 }
