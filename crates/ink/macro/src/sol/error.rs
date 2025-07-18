@@ -22,6 +22,8 @@ use syn::{
     Fields,
 };
 
+use super::utils;
+
 /// Derives the `ink::sol::SolErrorDecode` trait for the given `struct` or `enum`.
 pub fn sol_error_decode_derive(s: synstructure::Structure) -> TokenStream2 {
     match s.ast().data {
@@ -79,7 +81,7 @@ fn sol_error_decode_derive_struct(
     let params_tuple_ty = quote! {
         ( #( #params_tys, )* )
     };
-    let self_body = body_from_fields(fields);
+    let self_body = utils::body_from_fields(fields, None);
 
     Ok(s.bound_impl(
         quote!(::ink::sol::SolErrorDecode),
@@ -124,18 +126,7 @@ fn sol_error_encode_derive_struct(
         let ty = &field.ty;
         quote!( &#ty )
     });
-    let params_elems = fields.iter().enumerate().map(|(idx, field)| {
-        // Accessor is either a field name or tuple index.
-        let accessor = field
-            .ident
-            .as_ref()
-            .map(|ident| quote!(#ident))
-            .unwrap_or_else(|| {
-                let idx = syn::Index::from(idx);
-                quote!(#idx)
-            });
-        quote!( &self.#accessor )
-    });
+    let params_elems = utils::tuple_elems_from_fields(fields, None);
 
     Ok(s.bound_impl(
         quote!(::ink::sol::SolErrorEncode),
@@ -149,7 +140,7 @@ fn sol_error_encode_derive_struct(
                 );
                 results.extend(
                     <( #( #encode_params_tys, )* ) as ::ink::sol::SolParamsEncode>::encode(
-                        &( #( #params_elems, )* ),
+                        &#params_elems,
                     ),
                 );
                 results
@@ -161,7 +152,7 @@ fn sol_error_encode_derive_struct(
 /// Derives the `ink::sol::SolErrorDecode` trait for the given `enum`.
 fn sol_error_decode_derive_enum(s: synstructure::Structure) -> syn::Result<TokenStream2> {
     ensure_no_generics(&s, "SolErrorDecode")?;
-    ensure_non_empty_enum(&s, "SolErrorDecode")?;
+    utils::ensure_non_empty_enum(&s, "SolErrorDecode")?;
 
     let variant_selector_ident = |idx: usize| format_ident!("VARIANT_{}", idx);
     let variant_selectors = s.variants().iter().enumerate().map(|(idx, variant)| {
@@ -180,7 +171,7 @@ fn sol_error_decode_derive_enum(s: synstructure::Structure) -> syn::Result<Token
         let selector_ident = variant_selector_ident(idx);
         let fields = variant.ast().fields;
         let param_tys = fields.iter().map(|field| &field.ty);
-        let variant_body = body_from_fields(fields);
+        let variant_body = utils::body_from_fields(fields, None);
         quote! {
             #selector_ident => {
                 <( #( #param_tys, )* ) as ::ink::sol::SolParamsDecode>::decode(
@@ -216,7 +207,7 @@ fn sol_error_decode_derive_enum(s: synstructure::Structure) -> syn::Result<Token
 /// Derives the `ink::sol::SolErrorEncode` trait for the given `enum`.
 fn sol_error_encode_derive_enum(s: synstructure::Structure) -> syn::Result<TokenStream2> {
     ensure_no_generics(&s, "SolErrorEncode")?;
-    ensure_non_empty_enum(&s, "SolErrorEncode")?;
+    utils::ensure_non_empty_enum(&s, "SolErrorEncode")?;
 
     let variants_match = s.variants().iter().map(|variant| {
         let variant_ident = variant.ast().ident;
@@ -313,61 +304,10 @@ fn ensure_no_generics(s: &synstructure::Structure, trait_name: &str) -> syn::Res
     } else {
         Err(syn::Error::new(
             s.ast().generics.params.span(),
-            format!("can only derive `{trait_name}` for Rust `struct` or `enum` items without generics"),
+            format!(
+                "can only derive `{trait_name}` for Rust `struct` or `enum` \
+                items without generics"
+            ),
         ))
-    }
-}
-
-/// Ensures that the given item has at least one variant.
-fn ensure_non_empty_enum(
-    s: &synstructure::Structure,
-    trait_name: &str,
-) -> syn::Result<()> {
-    if s.variants().is_empty() {
-        Err(syn::Error::new(
-            s.ast().span(),
-            format!("can only derive `{trait_name}` for Rust `enum` items with at least one variant"),
-        ))
-    } else {
-        Ok(())
-    }
-}
-
-/// Composes the body for the variant or struct given its fields.
-fn body_from_fields(fields: &Fields) -> TokenStream2 {
-    let from_params_elems = || {
-        fields.iter().enumerate().map(|(idx, field)| {
-            let idx = syn::Index::from(idx);
-            match &field.ident {
-                // Handles named fields.
-                None => quote!(value.#idx),
-                // Handles tuple elements.
-                Some(ident) => {
-                    quote! {
-                        #ident: value.#idx
-                    }
-                }
-            }
-        })
-    };
-    match fields {
-        // Handles named fields.
-        Fields::Named(_) => {
-            let self_fields = from_params_elems();
-            quote!(
-                {
-                    #( #self_fields, )*
-                }
-            )
-        }
-        // Handles tuple elements.
-        Fields::Unnamed(_) => {
-            let self_elems = from_params_elems();
-            quote! {
-                ( #( #self_elems, )* )
-            }
-        }
-        // Handles unit variants.
-        Fields::Unit => quote!(),
     }
 }

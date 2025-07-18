@@ -1639,6 +1639,144 @@ pub fn scale_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
 }
 
 synstructure::decl_derive!(
+    [SolDecode] =>
+    /// Derives an implementation of `ink::SolDecode`
+    /// for the given `struct` or `enum`.
+    ///
+    /// # Note
+    ///
+    /// All field types (if any) must implement [`ink::SolDecode`].
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use ink_macro::SolDecode;
+    ///
+    /// #[derive(SolDecode)]
+    /// struct UnitStruct;
+    ///
+    /// #[derive(SolDecode)]
+    /// struct TupleStruct(bool, u8, String);
+    ///
+    /// #[derive(SolDecode)]
+    /// struct FieldStruct {
+    ///     status: bool,
+    ///     count: u8,
+    ///     reason: String,
+    /// }
+    ///
+    /// #[derive(SolDecode)]
+    /// enum SimpleEnum {
+    ///     One,
+    ///     Two,
+    ///     Three,
+    /// }
+    ///
+    /// #[derive(SolDecode)]
+    /// struct NestedStruct {
+    ///     unit: UnitStruct,
+    ///     tuple: TupleStruct,
+    ///     fields: FieldStruct,
+    ///     enumerate: SimpleEnum,
+    /// }
+    ///
+    /// #[derive(SolDecode)]
+    /// struct GenericStruct<T> {
+    ///     concrete: u8,
+    ///     generic: T,
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// Solidity has no semantic equivalent for enums with fields
+    /// (i.e. [Solidity enums][sol-enum] can only express the equivalent of
+    /// Rust [unit-only][rust-enum-unit-only] or [field-less][rust-enum-field-less] enums).
+    /// So mapping complex Rust enums (i.e. enums with fields) to "equivalent" Solidity
+    /// representations typically yields complex structures based on
+    /// tuples (at [Solidity ABI encoding][sol-abi] level)
+    /// and structs (at Solidity language level).
+    ///
+    /// Because of this, this `Derive` macro doesn't generate [`ink::SolEncode`]
+    /// implementations for enums with fields.
+    ///
+    /// [sol-enum]: https://docs.soliditylang.org/en/latest/types.html#enums
+    /// [rust-enum-unit-only]: https://doc.rust-lang.org/reference/items/enumerations.html#r-items.enum.unit-only
+    /// [rust-enum-field-less]: https://doc.rust-lang.org/reference/items/enumerations.html#r-items.enum.fieldless
+    /// [sol-abi]: https://docs.soliditylang.org/en/latest/abi-spec.html#mapping-solidity-to-abi-types
+    sol::sol_decode_derive
+);
+
+synstructure::decl_derive!(
+    [SolEncode] =>
+    /// Derives an implementation of `ink::SolEncode`
+    /// for the given `struct` or `enum`.
+    ///
+    /// # Note
+    ///
+    /// All field types (if any) must implement [`ink::SolEncode`].
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use ink_macro::SolEncode;
+    ///
+    /// #[derive(SolEncode)]
+    /// struct UnitStruct;
+    ///
+    /// #[derive(SolEncode)]
+    /// struct TupleStruct(bool, u8, String);
+    ///
+    /// #[derive(SolEncode)]
+    /// struct FieldStruct {
+    ///     status: bool,
+    ///     count: u8,
+    ///     reason: String,
+    /// }
+    ///
+    /// #[derive(SolEncode)]
+    /// enum SimpleEnum {
+    ///     One,
+    ///     Two,
+    ///     Three,
+    /// }
+    ///
+    /// #[derive(SolEncode)]
+    /// struct NestedStruct {
+    ///     unit: UnitStruct,
+    ///     tuple: TupleStruct,
+    ///     fields: FieldStruct,
+    ///     enumerate: SimpleEnum,
+    /// }
+    ///
+    /// #[derive(SolEncode)]
+    /// struct GenericStruct<T> {
+    ///     concrete: u8,
+    ///     generic: T,
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// Solidity has no semantic equivalent for enums with fields
+    /// (i.e. [Solidity enums][sol-enum] can only express the equivalent of
+    /// Rust [unit-only][rust-enum-unit-only] or [field-less][rust-enum-field-less] enums).
+    /// So mapping complex Rust enums (i.e. enums with fields) to "equivalent" Solidity
+    /// representations typically yields complex structures based on
+    /// tuples (at [Solidity ABI encoding][sol-abi] level)
+    /// and structs (at Solidity language level).
+    ///
+    /// Because of this, this `Derive` macro doesn't generate [`ink::SolEncode`]
+    /// implementations for enums with fields.
+    ///
+    /// [sol-enum]: https://docs.soliditylang.org/en/latest/types.html#enums
+    /// [rust-enum-unit-only]: https://doc.rust-lang.org/reference/items/enumerations.html#r-items.enum.unit-only
+    /// [rust-enum-field-less]: https://doc.rust-lang.org/reference/items/enumerations.html#r-items.enum.fieldless
+    /// [sol-abi]: https://docs.soliditylang.org/en/latest/abi-spec.html#mapping-solidity-to-abi-types
+    sol::sol_encode_derive
+);
+
+synstructure::decl_derive!(
     [SolErrorDecode] =>
     /// Derives an implementation of `ink::sol::SolErrorDecode`
     /// for the given `struct` or `enum`.

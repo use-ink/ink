@@ -12,9 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod codec;
 mod error;
+mod utils;
 
-pub use self::error::{
-    sol_error_decode_derive,
-    sol_error_encode_derive,
+pub use self::{
+    codec::{
+        sol_decode_derive,
+        sol_encode_derive,
+    },
+    error::{
+        sol_error_decode_derive,
+        sol_error_encode_derive,
+    },
 };
