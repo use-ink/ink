@@ -87,8 +87,8 @@ impl<T: SolBytesType> crate::sol::types::private::Sealed for SolBytes<T> {}
 impl<T: SolBytesType> SolDecode for SolBytes<T> {
     type SolType = SolBytes<T>;
 
-    fn from_sol_type(value: Self::SolType) -> Self {
-        value
+    fn from_sol_type(value: Self::SolType) -> Result<Self, Error> {
+        Ok(value)
     }
 }
 

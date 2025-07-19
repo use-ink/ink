@@ -118,10 +118,10 @@ impl MessageBuilder<'_> {
                 {
                     type SolType = ();
 
-                    fn from_sol_type(_: Self::SolType) -> Self {
-                        Self {
+                    fn from_sol_type(_: Self::SolType) -> ::core::result::Result<Self, ::ink::sol::Error> {
+                        Ok(Self {
                             _marker: ::core::default::Default::default(),
-                        }
+                        })
                     }
                 }
 

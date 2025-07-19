@@ -35,6 +35,7 @@ use ink_prelude::{
     string::String,
     vec::Vec,
 };
+use itertools::Itertools;
 use primitive_types::{
     H256,
     U256,
@@ -82,7 +83,10 @@ use crate::types::{
 /// # Example
 ///
 /// ```
-/// use ink_primitives::SolDecode;
+/// use ink_primitives::{
+///     sol::Error,
+///     SolDecode,
+/// };
 ///
 /// // Example arbitrary type.
 /// struct MyType {
@@ -94,15 +98,15 @@ use crate::types::{
 /// impl SolDecode for MyType {
 ///     type SolType = (u8, bool);
 ///
-///     fn from_sol_type(value: Self::SolType) -> Self {
-///         Self {
+///     fn from_sol_type(value: Self::SolType) -> Result<Self, Error> {
+///         Ok(Self {
 ///             size: value.0,
 ///             status: value.1,
-///         }
+///         })
 ///     }
 /// }
 /// ```
-pub trait SolDecode {
+pub trait SolDecode: Sized {
     /// Equivalent Solidity ABI type representation.
     type SolType: SolTypeDecode;
 
@@ -111,15 +115,12 @@ pub trait SolDecode {
         <<Self::SolType as SolTypeDecode>::AlloyType as AlloySolType>::SOL_NAME;
 
     /// Solidity ABI decode into this type.
-    fn decode(data: &[u8]) -> Result<Self, Error>
-    where
-        Self: Sized,
-    {
-        <Self::SolType as SolTypeDecode>::decode(data).map(Self::from_sol_type)
+    fn decode(data: &[u8]) -> Result<Self, Error> {
+        <Self::SolType as SolTypeDecode>::decode(data).and_then(Self::from_sol_type)
     }
 
     /// Converts to `Self` from `Self::SolType`.
-    fn from_sol_type(value: Self::SolType) -> Self;
+    fn from_sol_type(value: Self::SolType) -> Result<Self, Error>;
 }
 
 /// Maps an arbitrary Rust/ink! type to a Solidity ABI type equivalent for Solidity
@@ -204,8 +205,8 @@ macro_rules! impl_primitive_decode {
             impl SolDecode for $ty {
                 type SolType = $ty;
 
-                fn from_sol_type(value: Self::SolType) -> Self {
-                    value
+                fn from_sol_type(value: Self::SolType) -> Result<Self, Error> {
+                    Ok(value)
                 }
             }
         )*
@@ -281,8 +282,15 @@ impl_primitive_by_ref! {
 impl<T: SolDecode, const N: usize> SolDecode for [T; N] {
     type SolType = [T::SolType; N];
 
-    fn from_sol_type(value: Self::SolType) -> Self {
-        value.map(<T as SolDecode>::from_sol_type)
+    fn from_sol_type(value: Self::SolType) -> Result<Self, Error> {
+        // FIXME: (@davidsemakula) replace with `array::try_map` if it's ever stabilized.
+        // Ref: <https://github.com/rust-lang/rust/issues/79711>
+        // Ref: <https://doc.rust-lang.org/nightly/std/primitive.array.html#method.try_map>
+        value
+            .into_iter()
+            .map(<T as SolDecode>::from_sol_type)
+            .process_results(|iter| iter.collect_array())?
+            .ok_or(Error)
     }
 }
 
@@ -298,7 +306,7 @@ impl<'a, T: SolEncode<'a>, const N: usize> SolEncode<'a> for [T; N] {
 impl<T: SolDecode> SolDecode for Vec<T> {
     type SolType = Vec<T::SolType>;
 
-    fn from_sol_type(value: Self::SolType) -> Self {
+    fn from_sol_type(value: Self::SolType) -> Result<Self, Error> {
         value
             .into_iter()
             .map(<T as SolDecode>::from_sol_type)
@@ -318,14 +326,13 @@ impl<'a, T: SolEncode<'a>> SolEncode<'a> for Vec<T> {
 impl<T: SolDecode> SolDecode for Box<[T]> {
     type SolType = Box<[T::SolType]>;
 
-    fn from_sol_type(value: Self::SolType) -> Self {
+    fn from_sol_type(value: Self::SolType) -> Result<Self, Error> {
         // TODO: (@davidsemakula) Switch to method call syntax when edition is 2024
         // (i.e. `value.into_iter()`).
         // See <https://doc.rust-lang.org/edition-guide/rust-2024/intoiterator-box-slice.html> for details.
-        Box::from_iter(
-            core::iter::IntoIterator::into_iter(value)
-                .map(<T as SolDecode>::from_sol_type),
-        )
+        core::iter::IntoIterator::into_iter(value)
+            .map(<T as SolDecode>::from_sol_type)
+            .process_results(|iter| iter.collect())
     }
 }
 
@@ -345,8 +352,8 @@ impl SolDecode for Tuple {
     for_tuples!( type SolType = ( #( Tuple::SolType ),* ); );
 
     #[allow(clippy::unused_unit)]
-    fn from_sol_type(value: Self::SolType) -> Self {
-        for_tuples!( ( #( Tuple::from_sol_type(value.Tuple) ),* ) );
+    fn from_sol_type(value: Self::SolType) -> Result<Self, Error> {
+        Ok(for_tuples! { ( #( Tuple::from_sol_type(value.Tuple)? ),* ) })
     }
 }
 
@@ -446,8 +453,8 @@ impl<T> SolDecode for core::marker::PhantomData<T> {
         }
     }
 
-    fn from_sol_type(_: Self::SolType) -> Self {
-        core::marker::PhantomData
+    fn from_sol_type(_: Self::SolType) -> Result<Self, Error> {
+        Ok(core::marker::PhantomData)
     }
 }
 
@@ -465,8 +472,8 @@ impl<T> SolEncode<'_> for core::marker::PhantomData<T> {
 impl SolDecode for AccountId {
     type SolType = SolBytes<[u8; 32]>;
 
-    fn from_sol_type(value: Self::SolType) -> Self {
-        AccountId(value.0)
+    fn from_sol_type(value: Self::SolType) -> Result<Self, Error> {
+        Ok(AccountId(value.0))
     }
 }
 
@@ -492,8 +499,8 @@ impl SolEncode<'_> for AccountId {
 impl SolDecode for Hash {
     type SolType = SolBytes<[u8; 32]>;
 
-    fn from_sol_type(value: Self::SolType) -> Self {
-        Hash::from(value.0)
+    fn from_sol_type(value: Self::SolType) -> Result<Self, Error> {
+        Ok(Hash::from(value.0))
     }
 }
 
@@ -519,8 +526,8 @@ impl SolEncode<'_> for Hash {
 impl SolDecode for H256 {
     type SolType = SolBytes<[u8; 32]>;
 
-    fn from_sol_type(value: Self::SolType) -> Self {
-        H256(value.0)
+    fn from_sol_type(value: Self::SolType) -> Result<Self, Error> {
+        Ok(H256(value.0))
     }
 }
 
@@ -546,8 +553,8 @@ impl SolEncode<'_> for H256 {
 impl SolDecode for Weight {
     type SolType = (u64, u64);
 
-    fn from_sol_type(value: Self::SolType) -> Self {
-        Weight::from_parts(value.0, value.1)
+    fn from_sol_type(value: Self::SolType) -> Result<Self, Error> {
+        Ok(Weight::from_parts(value.0, value.1))
     }
 }
 

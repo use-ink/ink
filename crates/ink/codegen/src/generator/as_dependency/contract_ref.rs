@@ -95,13 +95,13 @@ impl ContractRef<'_> {
                 impl<Abi> ::ink::SolDecode for #ref_ident<Abi> {
                     type SolType = ::ink::Address;
 
-                    fn from_sol_type(value: Self::SolType) -> Self {
-                        Self {
+                    fn from_sol_type(value: Self::SolType) -> ::core::result::Result<Self, ::ink::sol::Error> {
+                        Ok(Self {
                             inner: <<#storage_ident
                                 as ::ink::codegen::ContractCallBuilder>::Type<Abi>
                                 as ::ink::env::call::FromAddr>::from_addr(value),
                             _marker: ::core::default::Default::default(),
-                        }
+                        })
                     }
                 }
 

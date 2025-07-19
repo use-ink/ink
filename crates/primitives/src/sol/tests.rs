@@ -422,11 +422,11 @@ fn custom_type_works() {
     impl SolDecode for MyType {
         type SolType = (i8, bool);
 
-        fn from_sol_type(value: Self::SolType) -> Self {
-            Self {
+        fn from_sol_type(value: Self::SolType) -> Result<Self, Error> {
+            Ok(Self {
                 size: value.0,
                 status: value.1,
-            }
+            })
         }
     }
 

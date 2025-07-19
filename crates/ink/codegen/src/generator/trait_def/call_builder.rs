@@ -177,11 +177,11 @@ impl CallBuilder<'_> {
                 {
                     type SolType = ::ink::Address;
 
-                    fn from_sol_type(value: Self::SolType) -> Self {
-                        Self {
+                    fn from_sol_type(value: Self::SolType) -> ::core::result::Result<Self, ::ink::sol::Error> {
+                        Ok(Self {
                             addr: value,
                             _marker: ::core::default::Default::default(),
-                        }
+                        })
                     }
                 }
 

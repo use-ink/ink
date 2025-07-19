@@ -169,12 +169,12 @@ impl CallForwarder<'_> {
                 {
                     type SolType = ::ink::Address;
 
-                    fn from_sol_type(value: Self::SolType) -> Self {
-                        Self {
+                    fn from_sol_type(value: Self::SolType) -> ::core::result::Result<Self, ::ink::sol::Error> {
+                        Ok(Self {
                             builder: <<Self as ::ink::codegen::TraitCallBuilder>::Builder
                                 as ::ink::env::call::FromAddr>::from_addr(value),
                             _marker: ::core::default::Default::default(),
-                        }
+                        })
                     }
                 }
 
