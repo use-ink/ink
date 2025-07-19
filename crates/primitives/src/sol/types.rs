@@ -27,7 +27,6 @@ use alloy_sol_types::{
             WordToken,
         },
     },
-    private::SolTypeValue,
     sol_data,
     SolType as AlloySolType,
 };
@@ -158,7 +157,7 @@ macro_rules! impl_primitive_decode {
 macro_rules! impl_primitive_encode {
     ($($ty: ty => $sol_ty: ty),+ $(,)*) => {
         $(
-            impl SolTypeEncode for $ty where Self: SolTypeValue<$sol_ty> {
+            impl SolTypeEncode for $ty {
                 type AlloyType = $sol_ty;
 
                 fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
@@ -304,7 +303,7 @@ impl<T: SolTypeEncode, const N: usize> SolTypeEncode for [T; N] {
     type AlloyType = sol_data::FixedArray<T::AlloyType, N>;
 
     fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
-        // Does NOT require `SolValueType<Self::AlloyType>` and instead relies on
+        // Does NOT require `SolTypeValue<Self::AlloyType>` and instead relies on
         // `SolTypeEncode::tokenize`.
         FixedSeqToken(core::array::from_fn(|i| {
             <T as SolTypeEncode>::tokenize(&self[i])
@@ -335,7 +334,7 @@ impl<T: SolTypeEncode> SolTypeEncode for Vec<T> {
     type AlloyType = sol_data::Array<T::AlloyType>;
 
     fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
-        // Does NOT require `SolValueType<Self::AlloyType>` and instead relies on
+        // Does NOT require `SolTypeValue<Self::AlloyType>` and instead relies on
         // `SolTypeEncode::tokenize`.
         DynSeqToken(self.iter().map(<T as SolTypeEncode>::tokenize).collect())
     }
@@ -364,7 +363,7 @@ impl<T: SolTypeEncode> SolTypeEncode for Box<[T]> {
     type AlloyType = sol_data::Array<T::AlloyType>;
 
     fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
-        // Does NOT require `SolValueType<Self::AlloyType>` and instead relies on
+        // Does NOT require `SolTypeValue<Self::AlloyType>` and instead relies on
         // `SolTypeEncode::tokenize`.
         DynSeqToken(self.iter().map(<T as SolTypeEncode>::tokenize).collect())
     }
@@ -402,7 +401,7 @@ where
     type AlloyType = sol_data::Array<T::AlloyType>;
 
     fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
-        // Does NOT require `SolValueType<Self::AlloyType>` and instead relies on
+        // Does NOT require `SolTypeValue<Self::AlloyType>` and instead relies on
         // `SolTypeEncode::tokenize`.
         DynSeqToken(self.iter().map(<T as SolTypeEncode>::tokenize).collect())
     }
@@ -433,7 +432,7 @@ impl SolTypeEncode for Tuple {
 
     #[allow(clippy::unused_unit)]
     fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
-        // Does NOT require `SolValueType<Self::AlloyType>` and instead relies on
+        // Does NOT require `SolTypeValue<Self::AlloyType>` and instead relies on
         // `SolTypeEncode::tokenize`.
         for_tuples!( ( #( <Tuple as SolTypeEncode>::tokenize(&self.Tuple) ),* ) );
     }
@@ -503,7 +502,7 @@ macro_rules! impl_slice_ref_encode {
                 type AlloyType = sol_data::Array<T::AlloyType>;
 
                 fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
-                    // Does NOT require `SolValueType<Self::AlloyType>` and instead relies on
+                    // Does NOT require `SolTypeValue<Self::AlloyType>` and instead relies on
                     // `SolTypeEncode::tokenize`.
                     DynSeqToken(self.iter().map(<T as SolTypeEncode>::tokenize).collect())
                 }
