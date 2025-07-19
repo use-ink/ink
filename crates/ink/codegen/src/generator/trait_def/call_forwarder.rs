@@ -161,7 +161,8 @@ impl CallForwarder<'_> {
         let span = self.span();
         let call_forwarder_ident = self.ident();
         let sol_codec = if cfg!(any(ink_abi = "sol", ink_abi = "all")) {
-            // TODO: (@davidsemakula) Replace with derived implementations when available.
+            // These manual implementations are a bit more efficient than the derived
+            // equivalents.
             quote_spanned!(span=>
                 impl<E, Abi> ::ink::SolDecode for #call_forwarder_ident<E, Abi>
                 where
@@ -173,7 +174,7 @@ impl CallForwarder<'_> {
                         Ok(Self {
                             builder: <<Self as ::ink::codegen::TraitCallBuilder>::Builder
                                 as ::ink::env::call::FromAddr>::from_addr(value),
-                            _marker: ::core::default::Default::default(),
+                            _marker: ::core::marker::PhantomData,
                         })
                     }
                 }

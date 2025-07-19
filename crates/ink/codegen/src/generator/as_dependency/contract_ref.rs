@@ -90,7 +90,8 @@ impl ContractRef<'_> {
         let ref_ident = self.generate_contract_ref_ident();
         let abi = default_abi!();
         let sol_codec = if cfg!(any(ink_abi = "sol", ink_abi = "all")) {
-            // TODO: (@davidsemakula) Replace with derived implementations when available.
+            // These manual implementations are a bit more efficient than the derived
+            // equivalents.
             quote_spanned!(span=>
                 impl<Abi> ::ink::SolDecode for #ref_ident<Abi> {
                     type SolType = ::ink::Address;
@@ -100,7 +101,7 @@ impl ContractRef<'_> {
                             inner: <<#storage_ident
                                 as ::ink::codegen::ContractCallBuilder>::Type<Abi>
                                 as ::ink::env::call::FromAddr>::from_addr(value),
-                            _marker: ::core::default::Default::default(),
+                            _marker: ::core::marker::PhantomData,
                         })
                     }
                 }

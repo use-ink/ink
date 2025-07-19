@@ -80,7 +80,8 @@ impl CallBuilder<'_> {
         let storage_ident = self.contract.module().storage().ident();
         let cb_ident = Self::call_builder_ident();
         let sol_codec = if cfg!(any(ink_abi = "sol", ink_abi = "all")) {
-            // TODO: (@davidsemakula) Replace with derived implementations when available.
+            // These manual implementations are a bit more efficient than the derived
+            // equivalents.
             quote_spanned!(span=>
                 impl<Abi> ::ink::SolDecode for #cb_ident<Abi> {
                     type SolType = ::ink::Address;
@@ -88,7 +89,7 @@ impl CallBuilder<'_> {
                     fn from_sol_type(value: Self::SolType) -> ::core::result::Result<Self, ::ink::sol::Error> {
                         Ok(Self {
                             addr: value,
-                            _marker: ::core::default::Default::default(),
+                            _marker: ::core::marker::PhantomData,
                         })
                     }
                 }

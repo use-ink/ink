@@ -110,7 +110,8 @@ impl MessageBuilder<'_> {
         let span = self.span();
         let message_builder_ident = self.trait_def.message_builder_ident();
         let sol_codec = if cfg!(any(ink_abi = "sol", ink_abi = "all")) {
-            // TODO: (@davidsemakula) Replace with derived implementations when available.
+            // These manual implementations are a bit more efficient than the derived
+            // equivalents.
             quote_spanned!(span=>
                 impl<E, Abi> ::ink::SolDecode for #message_builder_ident<E, Abi>
                 where
@@ -120,7 +121,7 @@ impl MessageBuilder<'_> {
 
                     fn from_sol_type(_: Self::SolType) -> ::core::result::Result<Self, ::ink::sol::Error> {
                         Ok(Self {
-                            _marker: ::core::default::Default::default(),
+                            _marker: ::core::marker::PhantomData,
                         })
                     }
                 }
