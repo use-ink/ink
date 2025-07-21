@@ -227,6 +227,14 @@ pub trait DispatchableConstructorInfo<const ID: u32> {
         &mut &[::core::primitive::u8],
     ) -> Result<Self::Input, DispatchError>;
 
+    /// The closure for returning return data.
+    #[cfg(not(feature = "std"))]
+    const RETURN: fn(ReturnFlags, Result<(), &Self::Error>) -> !;
+
+    /// The closure for returning return data.
+    #[cfg(feature = "std")]
+    const RETURN: fn(ReturnFlags, Result<(), &Self::Error>) -> ();
+
     /// Yields `true` if the dispatchable ink! constructor is payable.
     const PAYABLE: bool;
 
