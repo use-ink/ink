@@ -17,10 +17,10 @@ use ink_linting_utils::{
     clippy::{
         diagnostics::span_lint_and_then,
         is_lint_allowed,
-        match_def_path,
     },
     expand_unnamed_consts,
     find_contract_impl_id,
+    match_def_path,
 };
 use rustc_errors::Applicability;
 use rustc_hir::{
@@ -230,14 +230,12 @@ impl<'a, 'tcx> APIUsageChecker<'a, 'tcx> {
                     NON_FALLIBLE_API,
                     method_path.ident.span,
                     format!(
-                        "using a non-fallible `{:?}::{}` with an argument that may not fit into the static buffer",
-                        receiver_ty,
-                        method_name,
+                        "using a non-fallible `{receiver_ty:?}::{method_name}` with an argument that may not fit into the static buffer",
                     ).as_str().to_owned(),
                     |diag| {
                         diag.span_suggestion(
                             method_path.ident.span,
-                            format!("consider using `{}`", fallible_method),
+                            format!("consider using `{fallible_method}`"),
                             "",
                             Applicability::Unspecified,
                         );

@@ -32,7 +32,6 @@ extern crate rustc_type_ir;
 
 pub use parity_clippy_utils as clippy;
 
-use clippy::match_def_path;
 use if_chain::if_chain;
 use rustc_hir::{
     def::DefKind,
@@ -54,6 +53,7 @@ use rustc_middle::ty::{
     fast_reject::SimplifiedType,
     TyCtxt,
 };
+use rustc_span::Symbol;
 
 /// Returns `DefId` of the `__ink_StorageMarker` marker trait (if any).
 ///
@@ -103,7 +103,7 @@ fn storage_marker_trait(tcx: TyCtxt) -> Option<&DefId> {
 fn has_storage_attr(cx: &LateContext, hir: HirId) -> bool {
     const INK_STORAGE_1: &str = "__ink_dylint_Storage";
     const INK_STORAGE_2: &str = "fortanix";
-    let attrs = format!("{:?}", cx.tcx.hir().attrs(hir));
+    let attrs = format!("{:?}", cx.tcx.hir_attrs(hir));
     attrs.contains(INK_STORAGE_1) || attrs.contains(INK_STORAGE_2)
 }
 
@@ -164,7 +164,7 @@ pub fn find_storage_struct(cx: &LateContext, item_ids: &[ItemId]) -> Option<Item
 /// implementations of a contract.
 fn items_in_unnamed_const(cx: &LateContext<'_>, id: &ItemId) -> Vec<ItemId> {
     if_chain! {
-        if let ItemKind::Const(ty, _, body_id) = cx.tcx.hir_item(*id).kind;
+        if let ItemKind::Const(_, ty, _, body_id) = cx.tcx.hir_item(*id).kind;
         if let TyKind::Tup([]) = ty.kind;
         let body = cx.tcx.hir_body(body_id);
         if let ExprKind::Block(block, _) = body.value.kind;
@@ -213,6 +213,65 @@ fn find_contract_ty_hir<'tcx>(
             }
         })
         .copied()
+}
+
+/// Copied from <https://github.com/trailofbits/dylint/blob/3fcec25488436faef3700d09e56dbb588ba8c8a5/internal/src/match_def_path.rs#L31-L42>.
+///
+/// Checks if the given `DefId` matches any of the paths. Returns the index of matching
+/// path, if any.
+pub fn match_any_def_paths(
+    cx: &LateContext<'_>,
+    did: DefId,
+    paths: &[&[&str]],
+) -> Option<usize> {
+    let search_path = cx.get_def_path(did);
+    paths.iter().position(|p| {
+        p.iter()
+            .map(|x| Symbol::intern(x))
+            .eq(search_path.iter().cloned())
+    })
+}
+
+/// Copied from <https://github.com/trailofbits/dylint/blob/3fcec25488436faef3700d09e56dbb588ba8c8a5/internal/src/match_def_path.rs#L44-L51>.
+///
+/// Checks if the given `DefId` matches the path.
+pub fn match_def_path(cx: &LateContext<'_>, did: DefId, syms: &[&str]) -> bool {
+    // We should probably move to Symbols in Clippy as well rather than interning every
+    // time.
+    let path = cx.get_def_path(did);
+    syms.iter()
+        .map(|x| Symbol::intern(x))
+        .eq(path.iter().copied())
+}
+
+/// Copied from <https://github.com/rust-lang/rust-clippy/blob/rust-1.86.0/clippy_utils/src/lib.rs#L507-L533>.
+///
+/// THIS METHOD IS DEPRECATED and will eventually be removed since it does not match
+/// against the entire path or resolved `DefId`. Prefer using `match_def_path`. Consider
+/// getting a `DefId` from `QPath::Resolved.1.res.opt_def_id()`.
+///
+/// Matches a `Path` against a slice of segment string literals.
+///
+/// There is also `match_qpath` if you are dealing with a `rustc_hir::QPath` instead of a
+/// `rustc_hir::Path`.
+///
+/// # Examples
+///
+/// ```rust,ignore
+/// if match_path(&trait_ref.path, &paths::HASH) {
+///     // This is the `std::hash::Hash` trait.
+/// }
+///
+/// if match_path(ty_path, &["rustc", "lint", "Lint"]) {
+///     // This is a `rustc_middle::lint::Lint`.
+/// }
+/// ```
+pub fn match_path(path: &rustc_hir::Path<'_>, segments: &[&str]) -> bool {
+    path.segments
+        .iter()
+        .rev()
+        .zip(segments.iter().rev())
+        .all(|(a, b)| a.ident.name.as_str() == *b)
 }
 
 /// Compares types of two user-defined structs
