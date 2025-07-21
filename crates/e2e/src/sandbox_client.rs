@@ -323,7 +323,7 @@ where
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<InstantiateDryRunResult<E>, Self::Error> {
+    ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error> {
         // todo has to be: let _ = <Client<AccountId, S> as
         // BuilderClient<E>>::map_account_dry_run(self, &caller).await;
         let _ =

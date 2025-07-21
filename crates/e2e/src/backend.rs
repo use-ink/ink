@@ -336,7 +336,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<InstantiateDryRunResult<E>, Self::Error>;
+    ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error>;
 
     /// todo
     async fn map_account(&mut self, caller: &Keypair) -> Result<(), Self::Error>;
