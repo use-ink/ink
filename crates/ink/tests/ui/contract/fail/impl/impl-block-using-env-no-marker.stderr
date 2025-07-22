@@ -1,4 +1,4 @@
-error[E0599]: no method named `env` found for reference `&Contract` in the current scope
+error[E0599]: no method named `env` found for reference `&contract::Contract` in the current scope
   --> tests/ui/contract/fail/impl/impl-block-using-env-no-marker.rs:24:26
    |
 24 |             let _ = self.env().caller();

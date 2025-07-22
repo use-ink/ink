@@ -1,11 +1,11 @@
-error[E0119]: conflicting implementations of trait `DispatchableMessageInfo<1083895717>` for type `Contract`
+error[E0119]: conflicting implementations of trait `DispatchableMessageInfo<1083895717>` for type `contract::Contract`
   --> tests/ui/contract/fail/trait/trait-message-selector-overlap-1.rs:43:9
    |
 38 |         fn message(&self) {}
    |         -------------------- first implementation here
 ...
 43 |         fn message(&self) {}
-   |         ^^^^^^^^^^^^^^^^^^^^ conflicting implementation for `Contract`
+   |         ^^^^^^^^^^^^^^^^^^^^ conflicting implementation for `contract::Contract`
 
 error[E0119]: conflicting implementations of trait `TraitCallForwarderFor<1083895717>` for type `contract::_::CallBuilder<ink::abi::Ink>`
   --> tests/ui/contract/fail/trait/trait-message-selector-overlap-1.rs:41:5
