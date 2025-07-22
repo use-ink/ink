@@ -141,7 +141,10 @@ impl ContractRef<'_> {
                     type Type = #storage_ident;
                 }
 
-                impl ::ink::env::call::ConstructorReturnType<#ref_ident> for #storage_ident {
+                impl<Abi> ::ink::env::call::ConstructorReturnType<#ref_ident, Abi> for #storage_ident
+                where
+                    (): ink::env::call::utils::DecodeConstructorError<Abi>
+                {
                     type Output = #ref_ident;
                     type Error = ();
 
@@ -150,10 +153,10 @@ impl ContractRef<'_> {
                     }
                 }
 
-                impl<E> ::ink::env::call::ConstructorReturnType<#ref_ident>
+                impl<E, Abi> ::ink::env::call::ConstructorReturnType<#ref_ident, Abi>
                     for ::core::result::Result<#storage_ident, E>
                 where
-                    E: ::ink::scale::Decode
+                    E: ink::env::call::utils::DecodeConstructorError<Abi>
                 {
                     const IS_RESULT: bool = true;
 
@@ -620,6 +623,7 @@ impl ContractRef<'_> {
                 ::ink::env::call::utils::Set<::ink::env::call::LimitParamsV2 >,
                 ::ink::env::call::utils::Set<::ink::env::call::ExecutionInput<#arg_list, #abi_ty>>,
                 ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#ret_type>>,
+                #abi_ty
             > {
                 ::ink::env::call::build_create_abi::<Self, #abi_ty>()
                     .exec_input(

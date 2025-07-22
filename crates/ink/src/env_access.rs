@@ -490,7 +490,7 @@ where
         params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
     ) -> Result<
         ink_primitives::ConstructorResult<
-            <R as ConstructorReturnType<ContractRef>>::Output,
+            <R as ConstructorReturnType<ContractRef, Abi>>::Output,
         >,
     >
     where
@@ -499,7 +499,7 @@ where
             ink_env::reflect::ContractConstructorDecoder,
 
         Args: AbiEncodeWith<Abi>,
-        R: ConstructorReturnType<ContractRef>,
+        R: ConstructorReturnType<ContractRef, Abi>,
     {
         ink_env::instantiate_contract::<E, ContractRef, Args, R, Abi>(params)
     }
