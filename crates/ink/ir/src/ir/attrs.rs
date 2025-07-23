@@ -525,7 +525,7 @@ impl core::fmt::Display for AttributeArg {
             Self::Payable => write!(f, "payable"),
             Self::Selector(selector) => core::fmt::Display::fmt(&selector, f),
             Self::SignatureTopic(hash) => {
-                write!(f, "signature_topic = {:?}", hash)
+                write!(f, "signature_topic = {hash:?}")
             }
             Self::Function(function) => {
                 write!(f, "function = {:?}", function.into_u16())
