@@ -24,6 +24,8 @@ regex = "1.5.4"
 ink_linting_utils = { workspace = true }
 ink_env = { version = "=6.0.0-alpha.1", path = "../../crates/env" }
 
+tokio = { version = "1.46.1", features = ["parking_lot", "net"], default-features = true }
+
 [dev-dependencies]
 dylint_testing = "4.0.1"
 
@@ -34,6 +36,7 @@ dylint_testing = "4.0.1"
 # the `[[workspace.dev-dependencies]]` directive.
 ink = { version = "=6.0.0-alpha.1", path = "../../crates/ink" }
 ink_primitives = { version = "=6.0.0-alpha.1", path = "../../crates/primitives" }
+
 
 # For the moment we have to include the tests as examples and
 # then use `dylint_testing::ui_test_examples`.

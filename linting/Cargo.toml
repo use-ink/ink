@@ -18,6 +18,8 @@ keywords = ["ink", "blockchain", "edsl", "dylint", "linting"]
 [workspace.dependencies]
 ink_linting_utils = { version = "=6.0.0-alpha.1", path = "utils" }
 
+tokio = { version = "1.46.1", features = ["parking_lot", "net"], default-features = true }
+
 [workspace.metadata.dylint]
 libraries = [
     { path = "mandatory" },

@@ -39,6 +39,8 @@ sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk.git",
 # todo pin until https://github.com/jhpratt/deranged/issues/18 is resolved
 deranged = { version = "=0.4.0", default-features = false }
 
+tokio = { version = "1.46.1", features = ["parking_lot", "net"], default-features = true }
+
 [dev-dependencies]
 ink_ir = { workspace = true, default-features = true }
 ink_metadata = { workspace = true } # todo why here too?
