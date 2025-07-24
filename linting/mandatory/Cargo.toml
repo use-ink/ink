@@ -22,6 +22,9 @@ if_chain = "1.0.2"
 log = "0.4.14"
 regex = "1.5.4"
 ink_linting_utils = { workspace = true }
+
+# todo Remove once the `polkadot-sdk` compilation error
+# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
 tokio = { workspace = true, features = ["net"] }
 
 [dev-dependencies]
@@ -34,6 +37,8 @@ dylint_testing = "4.0.1"
 # the `[[workspace.dev-dependencies]]` directive.
 ink = { version = "=6.0.0-alpha.1", path = "../../crates/ink" }
 
+# todo Remove once the `polkadot-sdk` compilation error
+# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
 [build-dependencies]
 tokio = { workspace = true, features = ["net"] }
 

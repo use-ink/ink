@@ -59,6 +59,8 @@ deranged = { version = "=0.4.0", default-features = false }
 # Required for the doctest of `MessageBuilder::call`
 scale-info = { workspace = true, features = ["derive"] }
 
+# todo Remove once the `polkadot-sdk` compilation error
+# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
 [build-dependencies]
 tokio = { workspace = true, features = ["net"] }
 
