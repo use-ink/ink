@@ -67,8 +67,7 @@ pub fn set_account_balance(addr: Address, new_balance: U256) {
     let min = ChainSpec::default().minimum_balance;
     if new_balance < min && new_balance != U256::zero() {
         panic!(
-            "Balance must be at least [{}]. Use 0 as balance to reap the account.",
-            min
+            "Balance must be at least [{min}]. Use 0 as balance to reap the account."
         );
     }
 

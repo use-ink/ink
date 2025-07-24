@@ -472,17 +472,17 @@ where
             .unwrap_or_else(|err| {
                 panic!(
                     "error on ws request `trace_tx`: {err:?}\n\n{:#}",
-                    format!("{}", err).trim_start_matches("RPC error: ")
+                    format!("{err}").trim_start_matches("RPC error: ")
                 );
             });
 
         let trace: Option<Trace> = scale::Decode::decode(&mut bytes.as_ref())
             .unwrap_or_else(|err| panic!("decoding `trace_tx` result failed: {err}"));
-        let call_trace = match trace {
+        
+        match trace {
             Some(Trace::Call(trace)) => Some(trace),
             _ => None,
-        };
-        call_trace
+        }
     }
 
     /// Return the hash of the *best* block

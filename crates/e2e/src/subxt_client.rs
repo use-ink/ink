@@ -352,11 +352,11 @@ where
         Ok(match raw_value {
             Some(value) => {
                 let raw_account_id = value.as_type::<[u8; 32]>().map_err(|err| {
-                    Error::Decoding(format!("unable to deserialize AccountId: {}", err))
+                    Error::Decoding(format!("unable to deserialize AccountId: {err}"))
                 })?;
                 let account: C::AccountId = Decode::decode(&mut &raw_account_id[..])
                     .map_err(|err| {
-                        Error::Decoding(format!("unable to decode AccountId: {}", err))
+                        Error::Decoding(format!("unable to decode AccountId: {err}"))
                     })?;
                 Some(account)
             }
@@ -417,14 +417,12 @@ where
             .await
             .unwrap_or_else(|err| {
                 panic!(
-                    "transfer from {} to {} failed with {:?}",
-                    origin_account_id, account_id, err
+                    "transfer from {origin_account_id} to {account_id} failed with {err:?}"
                 )
             });
 
         log_info(&format!(
-            "transfer from {} to {} succeeded",
-            origin_account_id, account_id,
+            "transfer from {origin_account_id} to {account_id} succeeded",
         ));
 
         keypair
@@ -660,7 +658,7 @@ where
     {
         let addr = *message.clone().params().callee();
         let exec_input = message.clone().params().exec_input().encode();
-        log_info(&format!("call: {:02X?}", exec_input));
+        log_info(&format!("call: {exec_input:02X?}"));
 
         let (tx_events, trace) = self
             .api

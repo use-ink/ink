@@ -76,7 +76,7 @@ impl ContractProject {
         }
         let metadata = cmd
             .exec()
-            .unwrap_or_else(|err| panic!("Error invoking `cargo metadata`: {}", err));
+            .unwrap_or_else(|err| panic!("Error invoking `cargo metadata`: {err}"));
 
         fn maybe_contract_package(package: &cargo_metadata::Package) -> Option<PathBuf> {
             package
@@ -101,7 +101,7 @@ impl ContractProject {
                     .find(|package| &package.id == root_package_id)
             })
             .and_then(maybe_contract_package);
-        log_info(&format!("found root package: {:?}", root_package));
+        log_info(&format!("found root package: {root_package:?}"));
 
         let contract_dependencies: Vec<PathBuf> = metadata
             .packages
@@ -109,13 +109,12 @@ impl ContractProject {
             .filter_map(maybe_contract_package)
             .collect();
         log_info(&format!(
-            "found those contract dependencies: {:?}",
-            contract_dependencies
+            "found those contract dependencies: {contract_dependencies:?}"
         ));
 
         let target_dir = env_target_dir
             .unwrap_or_else(|| metadata.target_directory.into_std_path_buf());
-        log_info(&format!("found target dir: {:?}", target_dir));
+        log_info(&format!("found target dir: {target_dir:?}"));
 
         Self {
             root_package,
@@ -180,7 +179,7 @@ fn build_contracts(
                 let contract_binary_path =
                     build_contract(manifest, features.clone(), target_dir.clone());
                 let path_with_features =
-                    add_features_to_filename(contract_binary_path, &features);
+                    add_features_to_filename(contract_binary_path, features);
                 entry.insert(path_with_features.clone());
                 path_with_features
             }
@@ -214,7 +213,7 @@ fn add_features_to_filename(
     if features.is_empty() {
         new_filename.push_str("no");
     }
-    new_filename.push_str(&format!(".{}", extension));
+    new_filename.push_str(&format!(".{extension}"));
     path_with_features.push(new_filename);
     std::fs::copy(contract_binary_path, path_with_features.as_path())
         .expect("failed copying binary");

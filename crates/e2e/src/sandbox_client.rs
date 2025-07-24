@@ -146,7 +146,7 @@ where
         for account in accounts.iter() {
             sandbox
                 .mint_into(account, TOKENS.into())
-                .unwrap_or_else(|_| panic!("Failed to mint {} tokens", TOKENS));
+                .unwrap_or_else(|_| panic!("Failed to mint {TOKENS} tokens"));
         }
     }
 }
@@ -512,7 +512,7 @@ where
         self.sandbox
             .dry_run(|sandbox| sandbox.map_account(origin))
             .map_err(|err| {
-                SandboxErr::new(format!("map_account_dry_run: execution error {:?}", err))
+                SandboxErr::new(format!("map_account_dry_run: execution error {err:?}"))
             })
     }
 
@@ -522,7 +522,7 @@ where
         let origin = OriginFor::<S::Runtime>::from(origin);
 
         self.sandbox.map_account(origin).map_err(|err| {
-            SandboxErr::new(format!("map_account: execution error {:?}", err))
+            SandboxErr::new(format!("map_account: execution error {err:?}"))
         })
     }
 }

@@ -197,7 +197,7 @@ fn ui_tests_abi() {
 
     // Retrieves or generates path to `trybuild` wrapper.
     let wrapper = env::var("TRYBUILD_WRAPPER").unwrap_or_else(|_| {
-        generate_trybuild_wrapper().unwrap_or_else(|err| panic!("Error: {}", err))
+        generate_trybuild_wrapper().unwrap_or_else(|err| panic!("Error: {err}"))
     });
 
     // Runs tests and tracks failures.
