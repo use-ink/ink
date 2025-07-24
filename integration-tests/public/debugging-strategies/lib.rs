@@ -86,7 +86,7 @@ mod debugging_strategies {
                     )
                 })
                 .unwrap_or_else(|error| {
-                    panic!("Received a `LangError` while instatiating: {:?}", error)
+                    panic!("Received a `LangError` while instantiating: {:?}", error)
                 });
 
             let call = build_call()
