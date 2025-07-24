@@ -740,4 +740,9 @@ fn option_works() {
         (false, [SolBytes([0u8; 32]), SolBytes([0u8; 32])])
     );
     test_case_encode!(Some(&SolBytes([100u8; 32])), (true, SolBytes([100u8; 32])));
+
+    // Nested.
+    test_case!(None::<Option<u8>>, (false, (false, 0u8)));
+    test_case!(Some(Some(100u8)), (true, (true, 100u8)));
+    test_case!(Some(None::<u8>), (true, (false, 0u8)));
 }
