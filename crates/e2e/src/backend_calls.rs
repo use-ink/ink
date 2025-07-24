@@ -300,7 +300,7 @@ where
     /// to add a margin to the gas limit.
     pub async fn submit(
         &mut self,
-    ) -> Result<InstantiationResult<E, B::EventLog>, B::Error> {
+    ) -> Result<InstantiationResult<E, B::EventLog, Abi>, B::Error> {
         // we have to make sure the account was mapped
         let _map = B::map_account(self.client, self.caller).await; // todo will fail if instantiation happened before
 
@@ -346,7 +346,7 @@ where
     }
 
     /// Dry run the instantiate call.
-    pub async fn dry_run(&mut self) -> Result<InstantiateDryRunResult<E>, B::Error> {
+    pub async fn dry_run(&mut self) -> Result<InstantiateDryRunResult<E, Abi>, B::Error> {
         B::bare_instantiate_dry_run(
             self.client,
             self.contract_name,

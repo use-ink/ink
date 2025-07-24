@@ -130,12 +130,12 @@ where
 }
 
 /// Result of a contract instantiation.
-pub struct InstantiationResult<E: Environment, EventLog> {
+pub struct InstantiationResult<E: Environment, EventLog, Abi> {
     /// The account id at which the contract was instantiated.
     pub addr: Address,
     /// The result of the dry run, contains debug messages
     /// if there were any.
-    pub dry_run: InstantiateDryRunResult<E>,
+    pub dry_run: InstantiateDryRunResult<E, Abi>,
     /// Events that happened with the contract instantiation.
     pub events: EventLog,
     /// todo
@@ -144,41 +144,42 @@ pub struct InstantiationResult<E: Environment, EventLog> {
     pub code_hash: H256,
 }
 
-impl<E: Environment, EventLog> InstantiationResult<E, EventLog> {
+impl<E: Environment, EventLog, Abi> InstantiationResult<E, EventLog, Abi> {
     /// Returns a call builder for the contract which was instantiated.
     ///
     /// # Note
     ///
-    /// This uses the "default" ABI for calls for the instantiated contract.
-    ///
-    /// The "default" ABI for calls is "ink", unless the ABI is set to "sol"
-    /// in the ink! project's manifest file (i.e. `Cargo.toml`).
-    pub fn call_builder<Contract>(
-        &self,
-    ) -> <Contract as ContractCallBuilder>::Type<ink::env::DefaultAbi>
-    where
-        Contract: ContractCallBuilder,
-        <Contract as ContractCallBuilder>::Type<ink::env::DefaultAbi>: FromAddr,
-    {
-        <<Contract as ContractCallBuilder>::Type<ink::env::DefaultAbi> as FromAddr>::from_addr(self.addr)
-    }
-
-    /// Returns a call builder for the specified ABI for the contract which was
-    /// instantiated.
-    pub fn call_builder_abi<Contract, Abi>(
-        &self,
-    ) -> <Contract as ContractCallBuilder>::Type<Abi>
+    /// This uses the ABI used for the contract instantiation call.
+    pub fn call_builder<Contract>(&self) -> <Contract as ContractCallBuilder>::Type<Abi>
     where
         Contract: ContractCallBuilder,
         <Contract as ContractCallBuilder>::Type<Abi>: FromAddr,
     {
         <<Contract as ContractCallBuilder>::Type<Abi> as FromAddr>::from_addr(self.addr)
     }
+
+    /// Returns a call builder for the specified ABI for the contract which was
+    /// instantiated.
+    ///
+    /// # Note
+    ///
+    /// This is useful for contracts that support multiple ABIs.
+    pub fn call_builder_abi<Contract, CallAbi>(
+        &self,
+    ) -> <Contract as ContractCallBuilder>::Type<CallAbi>
+    where
+        Contract: ContractCallBuilder,
+        <Contract as ContractCallBuilder>::Type<CallAbi>: FromAddr,
+    {
+        <<Contract as ContractCallBuilder>::Type<CallAbi> as FromAddr>::from_addr(
+            self.addr,
+        )
+    }
 }
 
 /// We implement a custom `Debug` here, as to avoid requiring the trait bound `Debug` for
 /// `E`.
-impl<E: Environment, EventLog> Debug for InstantiationResult<E, EventLog>
+impl<E: Environment, EventLog, Abi> Debug for InstantiationResult<E, EventLog, Abi>
 where
     E::AccountId: Debug,
     E::Balance: Debug,
@@ -366,20 +367,25 @@ impl<E: Environment, V: DecodeMessageResult<Abi>, Abi> CallDryRunResult<E, V, Ab
 }
 
 /// Result of the dry run of a contract call.
-pub struct InstantiateDryRunResult<E: Environment> {
+pub struct InstantiateDryRunResult<E: Environment, Abi> {
     /// The result of the dry run, contains debug messages if there were any.
     pub contract_result: ContractInstantiateResultFor<E>,
+    /// Phantom data for return type and its ABI encoding.
+    pub _marker: PhantomData<Abi>,
 }
 
-impl<E: Environment> From<ContractInstantiateResultFor<E>>
-    for InstantiateDryRunResult<E>
+impl<E: Environment, Abi> From<ContractInstantiateResultFor<E>>
+    for InstantiateDryRunResult<E, Abi>
 {
     fn from(contract_result: ContractInstantiateResultFor<E>) -> Self {
-        Self { contract_result }
+        Self {
+            contract_result,
+            _marker: PhantomData,
+        }
     }
 }
 
-impl<E: Environment> InstantiateDryRunResult<E> {
+impl<E: Environment, Abi> InstantiateDryRunResult<E, Abi> {
     /// Returns true if the dry-run execution resulted in an error.
     pub fn is_err(&self) -> bool {
         self.contract_result.result.is_err()
@@ -400,10 +406,12 @@ impl<E: Environment> InstantiateDryRunResult<E> {
     /// # Panics
     /// - if the dry-run message instantiate failed to execute.
     /// - if message result cannot be decoded into the expected return value type.
-    pub fn constructor_result<V: scale::Decode>(&self) -> ConstructorResult<V> {
+    pub fn constructor_result<V: DecodeMessageResult<Abi>>(
+        &self,
+    ) -> ConstructorResult<V> {
         let data = &self.instantiate_return_value().result.data;
-        scale::Decode::decode(&mut data.as_ref()).unwrap_or_else(|env_err| {
-            panic!("Decoding dry run result to constructor return type failed: {env_err}")
+        DecodeMessageResult::decode_output(data.as_ref(), self.did_revert()).unwrap_or_else(|env_err| {
+            panic!("Decoding dry run result to constructor return type failed: {env_err:?}")
         })
     }
 
@@ -414,14 +422,14 @@ impl<E: Environment> InstantiateDryRunResult<E> {
         &self.instantiate_return_value().result.data
     }
 
-    /// todo
+    /// Returns true if the instantiation dry-run reverted.
     pub fn did_revert(&self) -> bool {
         let res = self.instantiate_return_value().clone().result;
         res.did_revert()
     }
 }
 
-impl<E> Debug for InstantiateDryRunResult<E>
+impl<E, Abi> Debug for InstantiateDryRunResult<E, Abi>
 where
     E: Environment,
     E::AccountId: Debug,

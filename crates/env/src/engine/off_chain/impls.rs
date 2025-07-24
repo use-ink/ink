@@ -645,7 +645,7 @@ impl TypedEnvBackend for EnvInstance {
         params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
     ) -> Result<
         ink_primitives::ConstructorResult<
-            <R as ConstructorReturnType<ContractRef>>::Output,
+            <R as ConstructorReturnType<ContractRef, Abi>>::Output,
         >,
     >
     where
@@ -654,7 +654,7 @@ impl TypedEnvBackend for EnvInstance {
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
         Args: AbiEncodeWith<Abi>,
-        R: ConstructorReturnType<ContractRef>,
+        R: ConstructorReturnType<ContractRef, Abi>,
     {
         let endowment = params.endowment();
         let salt_bytes = params.salt_bytes();

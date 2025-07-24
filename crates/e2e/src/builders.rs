@@ -36,6 +36,7 @@ pub type CreateBuilderPartial<E, ContractRef, Args, R, Abi> = CreateBuilder<
     Set<LimitParamsV2>,
     Set<ExecutionInput<Args, Abi>>,
     Set<ReturnType<R>>,
+    Abi,
 >;
 
 /// Get the encoded constructor arguments from the partially initialized `CreateBuilder`

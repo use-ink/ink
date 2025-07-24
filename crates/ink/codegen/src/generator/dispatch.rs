@@ -295,40 +295,65 @@ impl Dispatch<'_> {
             <::ink::reflect::ConstructorOutputValue<#output_type>
                 as ::ink::reflect::ConstructorOutput<#storage_ident>>
         );
-        let (constructor_id, selector_bytes, abi_ty, decode_trait) = match abi {
-            Abi::Ink => {
-                let id = constructor
-                    .composed_selector()
-                    .into_be_u32()
-                    .hex_padded_suffixed();
-                let selector_bytes = constructor.composed_selector().hex_lits();
-                (
-                    quote!( #id ),
-                    quote! {
-                        ::core::option::Option::Some([ #( #selector_bytes ),* ])
-                    },
-                    quote!(::ink::abi::Abi::Ink),
-                    quote!(::ink::scale::Decode),
-                )
-            }
-            Abi::Sol => {
-                // Only one constructor is used for Solidity ABI encoding.
-                // We always use the same selector id for Solidity constructors.
-                // Attempting to generate constructor info for multiple constructors
-                // will thus lead to a compilation error.
-                let decode_trait = if input_bindings.len() == 1 {
-                    quote!(::ink::SolDecode)
-                } else {
-                    quote!(::ink::sol::SolParamsDecode)
-                };
-                (
-                    quote!( #SOL_CTOR_ID ),
-                    quote!(::core::option::Option::None),
-                    quote!(::ink::abi::Abi::Sol),
-                    decode_trait,
-                )
-            }
-        };
+
+        #[cfg(feature = "std")]
+        let return_type = quote! { () };
+        #[cfg(not(feature = "std"))]
+        let return_type = quote! { ! };
+
+        let (constructor_id, selector_bytes, abi_ty, decode_trait, return_expr) =
+            match abi {
+                Abi::Ink => {
+                    let id = constructor
+                        .composed_selector()
+                        .into_be_u32()
+                        .hex_padded_suffixed();
+                    let selector_bytes = constructor.composed_selector().hex_lits();
+                    (
+                        quote!( #id ),
+                        quote! {
+                            ::core::option::Option::Some([ #( #selector_bytes ),* ])
+                        },
+                        quote!(::ink::abi::Abi::Ink),
+                        quote!(::ink::scale::Decode),
+                        quote_spanned!(span =>
+                            ::ink::env::return_value::<
+                                ::ink::ConstructorResult<
+                                    ::core::result::Result<(), &Self::Error>
+                                >,
+                            >(
+                                flags,
+                                // Currently no `LangError`s are raised at this level of the
+                                // dispatch logic so `Ok` is always returned to the caller.
+                                &::ink::ConstructorResult::Ok(output),
+                            )
+                        ),
+                    )
+                }
+                Abi::Sol => {
+                    // Only one constructor is used for Solidity ABI encoding.
+                    // We always use the same selector id for Solidity constructors.
+                    // Attempting to generate constructor info for multiple constructors
+                    // will thus lead to a compilation error.
+                    let decode_trait = if input_bindings.len() == 1 {
+                        quote!(::ink::SolDecode)
+                    } else {
+                        quote!(::ink::sol::SolParamsDecode)
+                    };
+                    (
+                        quote!( #SOL_CTOR_ID ),
+                        quote!(::core::option::Option::None),
+                        quote!(::ink::abi::Abi::Sol),
+                        decode_trait,
+                        quote_spanned!(span =>
+                            ::ink::env::return_value_solidity::<::core::result::Result<(), &Self::Error>>(
+                                flags,
+                                &output,
+                            )
+                        ),
+                    )
+                }
+            };
         quote_spanned!(span =>
             #( #cfg_attrs )*
             impl ::ink::reflect::DispatchableConstructorInfo<#constructor_id> for #storage_ident {
@@ -346,6 +371,10 @@ impl Dispatch<'_> {
                         <Self::Input as #decode_trait>::decode(input)
                             .map_err(|_| ::ink::env::DispatchError::InvalidParameters)
                     };
+                const RETURN: fn(::ink::env::ReturnFlags, ::core::result::Result<(), &Self::Error>) -> #return_type =
+                        |flags, output| {
+                            #return_expr
+                        };
                 const PAYABLE: ::core::primitive::bool = #payable;
                 const SELECTOR: ::core::option::Option<[::core::primitive::u8; 4usize]> = #selector_bytes;
                 const LABEL: &'static ::core::primitive::str = ::core::stringify!(#constructor_ident);
@@ -908,6 +937,9 @@ impl Dispatch<'_> {
             let constructor_callable = quote_spanned!(constructor_span=>
                 <#storage_ident as ::ink::reflect::DispatchableConstructorInfo< #id >>::CALLABLE
             );
+            let constructor_return = quote_spanned!(constructor_span=>
+                    <#storage_ident as ::ink::reflect::DispatchableConstructorInfo< #id >>::RETURN
+                );
             let constructor_output = quote_spanned!(constructor_span=>
                 <#storage_ident as ::ink::reflect::DispatchableConstructorInfo< #id >>::Output
             );
@@ -948,16 +980,11 @@ impl Dispatch<'_> {
                         flag = ::ink::env::ReturnFlags::REVERT;
                     }
 
-                    ::ink::env::return_value::<
-                        ::ink::ConstructorResult<
-                            ::core::result::Result<(), &#constructor_value::Error>
-                        >,
-                    >(
-                        flag,
-                        // Currently no `LangError`s are raised at this level of the
-                        // dispatch logic so `Ok` is always returned to the caller.
-                        &::ink::ConstructorResult::Ok(output_result.map(|_| ())),
-                    );
+                    // Constructors don't return arbitrary data,
+                    // so the return type is represented as `Result<(), Error>`
+                    // where `Error = ()` for infallible constructors.
+                    // For Solidity ABI, `Error` is encoded as revert error data.
+                    #constructor_return(flag, output_result.map(|_| ()));
 
                     #[cfg(feature = "std")]
                     return ::core::result::Result::Ok(());

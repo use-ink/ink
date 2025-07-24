@@ -603,14 +603,14 @@ impl TypedEnvBackend for EnvInstance {
         params: &CreateParams<E, ContractRef, LimitParamsV2, Args, RetType, Abi>,
     ) -> Result<
         ink_primitives::ConstructorResult<
-            <RetType as ConstructorReturnType<ContractRef>>::Output,
+            <RetType as ConstructorReturnType<ContractRef, Abi>>::Output,
         >,
     >
     where
         E: Environment,
         ContractRef: FromAddr,
         Args: AbiEncodeWith<Abi>,
-        RetType: ConstructorReturnType<ContractRef>,
+        RetType: ConstructorReturnType<ContractRef, Abi>,
     {
         let mut scoped = self.scoped_buffer();
         /*
@@ -671,10 +671,10 @@ impl TypedEnvBackend for EnvInstance {
             salt,
         );
 
-        crate::engine::decode_instantiate_result::<_, ContractRef, RetType>(
+        crate::engine::decode_instantiate_result::<_, ContractRef, RetType, Abi>(
             instantiate_result.map_err(Into::into),
             &mut &out_address[..],
-            &mut &output_data[..],
+            &output_data[..],
         )
     }
 
