@@ -13,13 +13,20 @@
 // limitations under the License.
 
 use alloy_sol_types::{
-    abi,
+    abi::{
+        self,
+        Encoder,
+    },
     SolType as AlloySolType,
 };
 use impl_trait_for_tuples::impl_for_tuples;
 use ink_prelude::vec::Vec;
 
 use super::{
+    encodable::{
+        Encodable,
+        EncodableParams,
+    },
     Error,
     SolDecode,
     SolEncode,
@@ -69,13 +76,22 @@ impl SolParamsDecode for Tuple {
     }
 }
 
-#[impl_for_tuples(12)]
+#[impl_for_tuples(1, 12)]
 #[tuple_types_custom_trait_bound(SolEncode<'a>)]
 impl<'a> SolParamsEncode<'a> for Tuple {
     fn encode(&'a self) -> Vec<u8> {
-        abi::encode_params(&<<Self as SolEncode>::SolType as SolTypeEncode>::tokenize(
-            &self.to_sol_type(),
-        ))
+        let params = self.to_sol_type();
+        let token = <<Self as SolEncode>::SolType as SolTypeEncode>::tokenize(&params);
+        let mut encoder = Encoder::with_capacity(token.total_words());
+        EncodableParams::encode_params(&token, &mut encoder);
+        encoder.into_bytes()
+    }
+}
+
+// Optimized implementation for unit (i.e. `()`).
+impl SolParamsEncode<'_> for () {
+    fn encode(&self) -> Vec<u8> {
+        Vec::new()
     }
 }
 

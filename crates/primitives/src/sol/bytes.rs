@@ -12,6 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::{
+    borrow::Borrow,
+    default::Default,
+    ops::Deref,
+};
+
 use alloy_sol_types::{
     abi::token::{
         PackedSeqToken,
@@ -19,10 +25,6 @@ use alloy_sol_types::{
     },
     sol_data,
     SolType as AlloySolType,
-};
-use core::{
-    borrow::Borrow,
-    ops::Deref,
 };
 use ink_prelude::{
     boxed::Box,
@@ -36,6 +38,12 @@ use scale::{
 use scale_info::TypeInfo;
 
 use crate::sol::{
+    encodable::{
+        DynSizeDefault,
+        Encodable,
+        FixedSizeDefault,
+    },
+    types::SolTokenType,
     Error,
     SolDecode,
     SolEncode,
@@ -56,7 +64,7 @@ use crate::sol::{
 /// Ref: <https://docs.soliditylang.org/en/latest/types.html#fixed-size-byte-arrays>
 ///
 /// Ref: <https://docs.soliditylang.org/en/latest/types.html#bytes-and-string-as-arrays>
-#[derive(Debug, Clone, Encode, Decode)]
+#[derive(Debug, Clone, Encode, Decode, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(TypeInfo))]
 pub struct SolBytes<T: SolBytesType>(pub T);
 
@@ -76,9 +84,17 @@ impl<T: SolBytesType> SolTypeDecode for SolBytes<T> {
 impl<T: SolBytesType> SolTypeEncode for SolBytes<T> {
     type AlloyType = T::AlloyType;
 
-    fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
+    const DEFAULT_VALUE: Self::DefaultType = T::DEFAULT_VALUE;
+
+    fn tokenize(&self) -> Self::TokenType<'_> {
         <T as SolBytesType>::tokenize(self)
     }
+}
+
+impl<T: SolBytesType> SolTokenType for SolBytes<T> {
+    type TokenType<'enc> = T::TokenType<'enc>;
+
+    type DefaultType = T::DefaultType;
 }
 
 impl<T: SolBytesType> crate::sol::types::private::Sealed for SolBytes<T> {}
@@ -137,15 +153,30 @@ impl AsRef<[u8]> for SolBytes<Vec<u8>> {
 /// # Note
 ///
 /// This trait is sealed and cannot be implemented for types outside `ink_primitives`.
-pub trait SolBytesType: private::Sealed {
+pub trait SolBytesType: SolBytesTokenType + private::Sealed {
     /// Equivalent Solidity ABI bytes type from [`alloy_sol_types`].
     type AlloyType: AlloySolType;
 
+    /// An encodable representation of the default value for this type.
+    const DEFAULT_VALUE: Self::DefaultType;
+
     /// Tokenizes the given value into a [`Self::AlloyType`] token.
-    fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_>;
+    fn tokenize(&self) -> Self::TokenType<'_>;
 
     /// Detokenizes the byte type's value from the given token.
     fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self;
+
+    /// The default value.
+    fn default() -> Self;
+}
+
+/// Analog to [`SolTokenType`].
+pub trait SolBytesTokenType: private::Sealed {
+    /// The type of an encodable representation of this type.
+    type TokenType<'enc>: Encodable;
+
+    /// The type of an encodable "default" representation of this type.
+    type DefaultType: Encodable;
 }
 
 // Implements `SolBytesType` for `u8`, `[u8; N]`, `Vec<u8>` and `Box<[u8]>`.
@@ -154,6 +185,8 @@ where
     sol_data::ByteCount<1>: sol_data::SupportedFixedBytes,
 {
     type AlloyType = sol_data::FixedBytes<1>;
+
+    const DEFAULT_VALUE: Self::DefaultType = FixedSizeDefault::WORD;
 
     fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
         // `u8` is encoded as `[u8; 1]` (i.e. `bytes1`).
@@ -167,6 +200,19 @@ where
         // Ref: <https://docs.soliditylang.org/en/latest/abi-spec.html#formal-specification-of-the-encoding>
         token.0 .0[0]
     }
+
+    fn default() -> Self {
+        0u8
+    }
+}
+
+impl SolBytesTokenType for u8
+where
+    sol_data::ByteCount<1>: sol_data::SupportedFixedBytes,
+{
+    type TokenType<'enc> = WordToken;
+
+    type DefaultType = FixedSizeDefault;
 }
 
 impl private::Sealed for u8 {}
@@ -177,7 +223,9 @@ where
 {
     type AlloyType = sol_data::FixedBytes<N>;
 
-    fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
+    const DEFAULT_VALUE: Self::DefaultType = FixedSizeDefault::WORD;
+
+    fn tokenize(&self) -> Self::TokenType<'_> {
         // Direct implementation simplifies generic implementations by removing
         // requirement for `SolTypeValue<Self::AlloyType>`.
         let mut word = [0; 32];
@@ -194,6 +242,19 @@ where
             .try_into()
             .expect("Expected a slice of N bytes")
     }
+
+    fn default() -> Self {
+        [0u8; N]
+    }
+}
+
+impl<const N: usize> SolBytesTokenType for [u8; N]
+where
+    sol_data::ByteCount<N>: sol_data::SupportedFixedBytes,
+{
+    type TokenType<'enc> = WordToken;
+
+    type DefaultType = FixedSizeDefault;
 }
 
 impl<const N: usize> private::Sealed for [u8; N] {}
@@ -201,7 +262,9 @@ impl<const N: usize> private::Sealed for [u8; N] {}
 impl SolBytesType for Vec<u8> {
     type AlloyType = sol_data::Bytes;
 
-    fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
+    const DEFAULT_VALUE: Self::DefaultType = DynSizeDefault;
+
+    fn tokenize(&self) -> Self::TokenType<'_> {
         // Direct implementation simplifies generic implementations by removing
         // requirement for `SolTypeValue<Self::AlloyType>`.
         PackedSeqToken(self.as_slice())
@@ -213,12 +276,30 @@ impl SolBytesType for Vec<u8> {
         // `Vec<u8>`.
         token.into_vec()
     }
+
+    fn default() -> Self {
+        Vec::new()
+    }
+}
+
+impl SolBytesTokenType for Vec<u8> {
+    type TokenType<'enc> = PackedSeqToken<'enc>;
+
+    type DefaultType = DynSizeDefault;
 }
 
 impl private::Sealed for Vec<u8> {}
 
 impl SolBytesType for Box<[u8]> {
     type AlloyType = sol_data::Bytes;
+
+    const DEFAULT_VALUE: Self::DefaultType = DynSizeDefault;
+
+    fn tokenize(&self) -> Self::TokenType<'_> {
+        // Direct implementation simplifies generic implementations by removing
+        // requirement for `SolTypeValue<Self::AlloyType>`.
+        PackedSeqToken(self.as_ref())
+    }
 
     fn detokenize(token: <Self::AlloyType as AlloySolType>::Token<'_>) -> Self {
         // Converts token directly into `Box<[u8]>`, skipping the conversion to
@@ -227,11 +308,15 @@ impl SolBytesType for Box<[u8]> {
         Box::from(token.0)
     }
 
-    fn tokenize(&self) -> <Self::AlloyType as AlloySolType>::Token<'_> {
-        // Direct implementation simplifies generic implementations by removing
-        // requirement for `SolTypeValue<Self::AlloyType>`.
-        PackedSeqToken(self.as_ref())
+    fn default() -> Self {
+        <Self as Default>::default()
     }
+}
+
+impl SolBytesTokenType for Box<[u8]> {
+    type TokenType<'enc> = PackedSeqToken<'enc>;
+
+    type DefaultType = DynSizeDefault;
 }
 
 impl private::Sealed for Box<[u8]> {}

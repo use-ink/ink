@@ -636,3 +636,113 @@ fn weight_works() {
     let decoded = <Weight as SolDecode>::decode(&encoded).unwrap();
     assert_eq!(decoded, weight);
 }
+
+#[test]
+fn option_works() {
+    macro_rules! test_case {
+        ($value: expr, $repr: expr) => {
+            let value = $value;
+
+            // SolEncode test.
+            let encoded = SolEncode::encode(&$repr);
+            assert_eq!(SolEncode::encode(&value), encoded);
+
+            // SolDecode test.
+            let decoded = <_ as SolDecode>::decode(&encoded).unwrap();
+            assert_eq!(value, decoded);
+        };
+    }
+
+    // Fixed size.
+    test_case!(None::<u8>, (false, 0u8));
+    test_case!(Some(100u8), (true, 100u8));
+    test_case!(None::<[u32; 4]>, (false, [0u32; 4]));
+    test_case!(
+        Some([100u32, 200, 300, 400]),
+        (true, [100u32, 200, 300, 400])
+    );
+    test_case!(None::<SolBytes<[u8; 32]>>, (false, SolBytes([0u8; 32])));
+    test_case!(Some(SolBytes([100u8; 32])), (true, SolBytes([100u8; 32])));
+
+    // Dynamic size.
+    test_case!(None::<String>, (false, String::new()));
+    test_case!(
+        Some(String::from("Hello, world!")),
+        (true, String::from("Hello, world!"))
+    );
+    test_case!(None::<Vec::<u8>>, (false, Vec::<u8>::new()));
+    test_case!(Some(Vec::from([100u8; 64])), (true, Vec::from([100u8; 64])));
+    test_case!(None::<SolBytes<Vec<u8>>>, (false, SolBytes(Vec::new())));
+    test_case!(
+        Some(SolBytes(Vec::from([100u8; 64]))),
+        (true, SolBytes(Vec::from([100u8; 64])))
+    );
+
+    // Tuples.
+    test_case!(
+        None::<(u8, String, SolBytes<[u8; 32]>)>,
+        (false, (0u8, String::new(), SolBytes([0u8; 32])))
+    );
+    test_case!(
+        Some((100u8, String::from("Hello, world!"), SolBytes([100u8; 32]))),
+        (
+            true,
+            (100u8, String::from("Hello, world!"), SolBytes([100u8; 32]))
+        )
+    );
+
+    macro_rules! test_case_encode {
+        ($value: expr, $repr: expr) => {
+            let value = $value;
+
+            // SolEncode test.
+            let encoded = SolEncode::encode(&$repr);
+            assert_eq!(SolEncode::encode(&value), encoded);
+        };
+    }
+
+    // References.
+    // NOTE: Only `SolEncode` is implemented for reference types.
+    test_case_encode!(None::<&u8>, (false, 0u8));
+    test_case_encode!(Some(&100u8), (true, 100u8));
+    test_case_encode!(None::<&str>, (false, ""));
+    test_case_encode!(Some("Hello, world!"), (true, "Hello, world!"));
+    test_case_encode!(None::<&String>, (false, ""));
+    let hello = String::from("Hello, world!");
+    test_case_encode!(Some::<&String>(&hello), (true, "Hello, world!"));
+    test_case_encode!(None::<&U256>, (false, U256::default()));
+    let big_num = U256::from(1_000_000_000_000_000u128);
+    test_case_encode!(Some(&big_num), (true, &big_num));
+    test_case_encode!(None::<&Address>, (false, Address::default()));
+    let address = Address::from([1u8; 20]);
+    test_case_encode!(Some(&address), (true, &address));
+    test_case_encode!(None::<&SolBytes<[u8; 32]>>, (false, SolBytes([0u8; 32])));
+    test_case_encode!(Some(&SolBytes([100u8; 32])), (true, SolBytes([100u8; 32])));
+    // Collections of references.
+    test_case_encode!(None::<[&u8; 2]>, (false, [0u8, 0u8]));
+    test_case_encode!(Some([&100u8, &200u8]), (true, [100u8, 200u8]));
+    test_case_encode!(None::<[&str; 2]>, (false, ["", ""]));
+    test_case_encode!(Some(["Hi", "there!"]), (true, ["Hi", "there!"]));
+    test_case_encode!(None::<[&String; 2]>, (false, ["", ""]));
+    test_case_encode!(Some([&hello, &hello]), (true, [&hello, &hello]));
+    test_case_encode!(
+        None::<[&U256; 2]>,
+        (false, [U256::default(), U256::default()])
+    );
+    test_case_encode!(Some([&big_num, &big_num]), (true, [&big_num, &big_num]));
+    test_case_encode!(
+        None::<[&Address; 2]>,
+        (false, [Address::default(), Address::default()])
+    );
+    test_case_encode!(Some([&address, &address]), (true, [&address, &address]));
+    test_case_encode!(
+        None::<[&SolBytes<[u8; 32]>; 2]>,
+        (false, [SolBytes([0u8; 32]), SolBytes([0u8; 32])])
+    );
+    test_case_encode!(Some(&SolBytes([100u8; 32])), (true, SolBytes([100u8; 32])));
+
+    // Nested.
+    test_case!(None::<Option<u8>>, (false, (false, 0u8)));
+    test_case!(Some(Some(100u8)), (true, (true, 100u8)));
+    test_case!(Some(None::<u8>), (true, (false, 0u8)));
+}
