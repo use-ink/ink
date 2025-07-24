@@ -169,7 +169,8 @@ impl CallBuilder<'_> {
         let span = self.span();
         let call_builder_ident = self.ident();
         let sol_codec = if cfg!(any(ink_abi = "sol", ink_abi = "all")) {
-            // TODO: (@davidsemakula) Replace with derived implementations when available.
+            // These manual implementations are a bit more efficient than the derived
+            // equivalents.
             quote_spanned!(span=>
                 impl<E, Abi> ::ink::SolDecode for #call_builder_ident<E, Abi>
                 where
@@ -177,11 +178,11 @@ impl CallBuilder<'_> {
                 {
                     type SolType = ::ink::Address;
 
-                    fn from_sol_type(value: Self::SolType) -> Self {
-                        Self {
+                    fn from_sol_type(value: Self::SolType) -> ::core::result::Result<Self, ::ink::sol::Error> {
+                        Ok(Self {
                             addr: value,
-                            _marker: ::core::default::Default::default(),
-                        }
+                            _marker: ::core::marker::PhantomData,
+                        })
                     }
                 }
 

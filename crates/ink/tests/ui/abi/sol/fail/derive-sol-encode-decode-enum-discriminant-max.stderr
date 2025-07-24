@@ -1,0 +1,11 @@
+error: can only derive `SolDecode` for Rust `enum` items with discriminant values (if explicitly specified) not larger than `u8::MAX`
+  --> tests/ui/abi/sol/fail/derive-sol-encode-decode-enum-discriminant-max.rs:11:16
+   |
+11 |     TooLarge = 256,
+   |                ^^^
+
+error: can only derive `SolEncode` for Rust `enum` items with discriminant values (if explicitly specified) not larger than `u8::MAX`
+  --> tests/ui/abi/sol/fail/derive-sol-encode-decode-enum-discriminant-max.rs:11:16
+   |
+11 |     TooLarge = 256,
+   |                ^^^

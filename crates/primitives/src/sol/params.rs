@@ -65,7 +65,7 @@ impl SolParamsDecode for Tuple {
         >(data)
             .map_err(Error::from)
             .and_then(<<Self as SolDecode>::SolType as SolTypeDecode>::detokenize)
-            .map(<Self as SolDecode>::from_sol_type)
+            .and_then(<Self as SolDecode>::from_sol_type)
     }
 }
 
