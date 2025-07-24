@@ -158,8 +158,6 @@ jobs:
         if: ${{ matrix.type == 'RISCV' }}
         with:
           command: |
-            # todo move to `use-ink/docker-images`
-            apt-get update && apt-get install gcc-riscv64-unknown-elf
             for crate in ${ALSO_RISCV_CRATES}; do
               echo $crate;
               cargo +nightly clippy --no-default-features --manifest-path ./crates/${crate}/Cargo.toml \
@@ -206,8 +204,6 @@ jobs:
           RUSTFLAGS: "--cfg substrate_runtime"
         with:
           command: |
-            # todo move to `use-ink/docker-images`
-            apt-get install gcc-riscv64-unknown-elf
             scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --no-default-features \
               --target ${CLIPPY_TARGET} \
               --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED $ALLOWED_LINTS
