@@ -44,6 +44,9 @@ ink_ir = { workspace = true, default-features = true }
 ink_metadata = { workspace = true } # todo why here too?
 trybuild = { workspace = true, features = ["diff"] }
 
+[build-dependencies]
+tokio = { workspace = true, features = ["net"] }
+
 [features]
 default = ["std"]
 std = [
