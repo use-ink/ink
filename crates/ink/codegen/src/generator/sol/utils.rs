@@ -91,7 +91,7 @@ pub fn call_signature(name: String, inputs: InputsIter) -> TokenStream2 {
         .map(|_| "{}")
         .collect::<Vec<_>>()
         .join(",");
-    let sig_fmt_lit = format!("{{}}({})", sig_arg_fmt_params);
+    let sig_fmt_lit = format!("{{}}({sig_arg_fmt_params})");
     quote! {
         ::ink::codegen::utils::const_format!(#sig_fmt_lit, #name #(,#sig_param_tys)*)
     }

@@ -13,11 +13,13 @@
 // limitations under the License.
 
 use if_chain::if_chain;
-use ink_linting_utils::clippy::{
-    diagnostics::span_lint_and_then,
-    is_lint_allowed,
+use ink_linting_utils::{
+    clippy::{
+        diagnostics::span_lint_and_then,
+        is_lint_allowed,
+        source::snippet_opt,
+    },
     match_def_path,
-    source::snippet_opt,
 };
 use rustc_errors::Applicability;
 use rustc_hir::{
@@ -133,7 +135,7 @@ fn is_primitive_number_ty(ty: &Ty) -> bool {
 fn report_field(cx: &LateContext, event_def_id: DefId, field_name: &str) {
     if_chain! {
         if let Some(Node::Item(event_node)) = cx.tcx.hir_get_if_local(event_def_id);
-        if let ItemKind::Struct(ref struct_def, _) = event_node.kind;
+        if let ItemKind::Struct(_, ref struct_def, _) = event_node.kind;
         if let Some(field) = struct_def.fields().iter().find(|f|{ f.ident.as_str() == field_name });
         if !is_lint_allowed(cx, PRIMITIVE_TOPIC, field.hir_id);
         then {

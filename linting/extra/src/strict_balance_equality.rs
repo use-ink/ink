@@ -14,13 +14,11 @@
 
 use if_chain::if_chain;
 use ink_linting_utils::{
-    clippy::{
-        diagnostics::span_lint_hir_and_then,
-        match_any_def_paths,
-        match_def_path,
-    },
+    clippy::diagnostics::span_lint_hir_and_then,
     expand_unnamed_consts,
     find_contract_impl_id,
+    match_any_def_paths,
+    match_def_path,
 };
 use rustc_errors::Applicability;
 use rustc_hir::{
@@ -581,7 +579,7 @@ impl StrictBalanceEquality {
                 let node = fn_mir.source_scopes[scope]
                     .local_data
                     .as_ref()
-                    .assert_crate_local()
+                    .unwrap_crate_local()
                     .lint_root;
                 then {
                     let sugg_span = Span::new(

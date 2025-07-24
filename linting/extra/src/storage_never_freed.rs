@@ -17,12 +17,12 @@ use ink_linting_utils::{
     clippy::{
         diagnostics::span_lint_and_help,
         is_lint_allowed,
-        match_def_path,
-        match_path,
     },
     expand_unnamed_consts,
     find_contract_impl_id,
     find_storage_struct,
+    match_def_path,
+    match_path,
 };
 use rustc_hir::{
     self as hir,
@@ -187,7 +187,7 @@ fn find_collection_def_id(
 fn find_collection_fields(cx: &LateContext, storage_struct_id: ItemId) -> FieldsMap {
     let mut result = FieldsMap::new();
     let item = cx.tcx.hir_item(storage_struct_id);
-    if let ItemKind::Struct(var_data, _) = item.kind {
+    if let ItemKind::Struct(_, var_data, _) = item.kind {
         var_data.fields().iter().for_each(|field_def| {
             if_chain! {
                 // Collection fields of the storage are expanded like this:

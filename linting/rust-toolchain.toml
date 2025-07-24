@@ -2,5 +2,5 @@
 # https://github.com/trailofbits/dylint/blob/master/internal/template/rust-toolchain
 
 [toolchain]
-channel = "nightly-2025-02-20"
+channel = "nightly-2025-05-14"
 components = ["llvm-tools-preview", "rustc-dev"]
