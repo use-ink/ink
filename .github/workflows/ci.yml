@@ -1080,6 +1080,11 @@ jobs:
               # Build the comparison table
               echo "---master:"
               cat measurements-master
+              if [[ ! -s "measurements-master" ]]; then
+                echo "measurements-master is empty! It seems the CI job"
+                echo "to collect contract sizes was not run on master."
+                exit 1
+              fi
               echo "---branch:"
               cat measurements-${{ env.MEASUREMENTS_ID }}
               echo "---"
