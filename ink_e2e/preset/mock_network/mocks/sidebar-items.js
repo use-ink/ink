@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["msg_queue","relay_message_queue"]};

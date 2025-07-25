@@ -33,8 +33,8 @@
 [t2]: https://use-ink.github.io/ink/ink_e2e
 [o1]: https://img.shields.io/badge/click-white.svg?logo=Telegram&label=ink!%20Support%20on%20Telegram&labelColor=white&color=blue
 [o2]: https://t.me/inkathon
-[p1]: https://twitter.com/ink_lang
-[p2]: https://img.shields.io/twitter/follow/ink_lang?label=Follow%20us%20on%20X
+[p1]: https://img.shields.io/twitter/follow/ink_lang
+[p2]: https://x.com/ink_lang
 
 [ink! Website](https://use.ink)&nbsp;&nbsp;•&nbsp;&nbsp;
 [Developer Documentation](https://use.ink/docs)

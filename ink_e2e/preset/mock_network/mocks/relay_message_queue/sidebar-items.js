@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["MessageProcessor","MessageQueueHeapSize","MessageQueueMaxStale","MessageQueueServiceWeight"]};

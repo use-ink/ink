@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["mock_network"]};
+window.SIDEBAR_ITEMS = {};
