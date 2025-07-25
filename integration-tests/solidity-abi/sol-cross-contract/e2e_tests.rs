@@ -28,10 +28,7 @@ fn call_sol_encoded_message() {
         DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
 
     sandbox
-        .mint_into(
-            &caller.public_key().0.into(),
-            1_000_000_000_000_000u128.into(),
-        )
+        .mint_into(&caller.public_key().0.into(), 1_000_000_000_000_000u128)
         .unwrap_or_else(|_| panic!("Failed to mint tokens"));
 
     sandbox.map_account(origin.clone()).expect("unable to map");
@@ -91,7 +88,7 @@ fn call_sol_encoded_message() {
 
     // get value
     let value: bool = contracts.call_with_return_value(
-        other_contract_addr.clone(),
+        other_contract_addr,
         "get()",
         Vec::<u8>::new(),
         origin.clone(),
@@ -99,7 +96,7 @@ fn call_sol_encoded_message() {
 
     assert!(!value, "flip value should have been set to false");
 
-    let input = other_contract_addr.clone();
+    let input = other_contract_addr;
 
     // set value via cross contract call
     contracts.call(
@@ -155,7 +152,7 @@ impl ContractSandbox {
         data.append(&mut encoded);
 
         let result = self.call_raw(contract_addr, data, origin);
-        assert!(!result.did_revert(), "'{message}' failed {:?}", result);
+        assert!(!result.did_revert(), "'{message}' failed {result:?}");
         result.data
     }
 
@@ -167,7 +164,7 @@ impl ContractSandbox {
     ) -> ExecReturnValue {
         let result = <DefaultSandbox as ContractAPI>::call_contract(
             &mut self.sandbox,
-            contract_addr.clone(),
+            contract_addr,
             0,
             data,
             origin,

@@ -171,7 +171,7 @@ where
         // Connect to the node with a `subxt` client:
         let rpc = RpcClient::from_url(url.clone())
             .await
-            .map_err(|err| format!("Error initializing rpc client: {}", err))?;
+            .map_err(|err| format!("Error initializing rpc client: {err}"))?;
         let client = OnlineClient::from_url(url.clone()).await;
         match client {
             Ok(client) => {
@@ -203,7 +203,7 @@ fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
         .find_map(|line| {
             let line =
                 line.expect("failed to obtain next line from stdout for port discovery");
-            all_lines.push_str(&format!("{}\n", line));
+            all_lines.push_str(&format!("{line}\n"));
 
             // does the line contain our port (we expect this specific output from
             // substrate).
@@ -219,11 +219,10 @@ fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
             let re = regex::Regex::new(r"^\d+").expect("regex creation failed");
             let port_capture = re
                 .captures(line_end)
-                .unwrap_or_else(|| panic!("unable to extract port from '{}'", line_end));
+                .unwrap_or_else(|| panic!("unable to extract port from '{line_end}'"));
             assert!(
                 port_capture.len() == 1,
-                "captured more than one port from '{}'",
-                line_end
+                "captured more than one port from '{line_end}'"
             );
             let port_str = &port_capture[0];
 
@@ -238,8 +237,7 @@ fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
         .unwrap_or_else(|| {
             panic!(
                 "Unable to extract port from spawned node, the reader ended.\n\
-            These are the lines we saw up until here:\n{}",
-                all_lines
+            These are the lines we saw up until here:\n{all_lines}"
             );
         })
 }

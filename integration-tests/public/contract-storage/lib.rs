@@ -27,7 +27,7 @@ mod contract_storage {
             let value = [0x42; 32];
             ink::env::set_contract_storage(&key, &value);
             let loaded_value = ink::env::get_contract_storage(&key)
-                .map_err(|e| format!("get_contract_storage failed: {:?}", e))?;
+                .map_err(|e| format!("get_contract_storage failed: {e:?}"))?;
             assert_eq!(loaded_value, Some(value));
             Ok(())
         }
@@ -41,7 +41,7 @@ mod contract_storage {
             ink::env::set_contract_storage(&key, &value);
             // Only attempt to read the first byte (the `u8`) of the storage value data
             let _loaded_value: Option<u8> = ink::env::get_contract_storage(&key)
-                .map_err(|e| format!("get_contract_storage failed: {:?}", e))?;
+                .map_err(|e| format!("get_contract_storage failed: {e:?}"))?;
             Ok(())
         }
 
@@ -52,7 +52,7 @@ mod contract_storage {
             let value = [0x42; 32];
             ink::env::set_contract_storage(&key, &value);
             let loaded_value = ink::env::take_contract_storage(&key)
-                .map_err(|e| format!("get_contract_storage failed: {:?}", e))?;
+                .map_err(|e| format!("get_contract_storage failed: {e:?}"))?;
             assert_eq!(loaded_value, Some(value));
             Ok(())
         }
@@ -66,7 +66,7 @@ mod contract_storage {
             ink::env::set_contract_storage(&key, &value);
             // Only attempt to read the first byte (the `u8`) of the storage value data
             let _loaded_value: Option<u8> = ink::env::take_contract_storage(&key)
-                .map_err(|e| format!("get_contract_storage failed: {:?}", e))?;
+                .map_err(|e| format!("get_contract_storage failed: {e:?}"))?;
             Ok(())
         }
     }

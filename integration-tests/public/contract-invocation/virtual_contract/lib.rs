@@ -52,10 +52,10 @@ pub mod virtual_contract {
             self.env()
                 .invoke_contract_delegate(&call)
                 .unwrap_or_else(|env_err| {
-                    panic!("Received an error from the Environment: {:?}", env_err)
+                    panic!("Received an error from the Environment: {env_err:?}")
                 })
                 .unwrap_or_else(|lang_err| {
-                    panic!("Received a `LangError`: {:?}", lang_err)
+                    panic!("Received a `LangError`: {lang_err:?}")
                 });
         }
 
@@ -72,11 +72,9 @@ pub mod virtual_contract {
             self.env()
                 .invoke_contract_delegate(&call)
                 .unwrap_or_else(|env_err| {
-                    panic!("Received an error from the Environment: {:?}", env_err)
+                    panic!("Received an error from the Environment: {env_err:?}")
                 })
-                .unwrap_or_else(|lang_err| {
-                    panic!("Received a `LangError`: {:?}", lang_err)
-                })
+                .unwrap_or_else(|lang_err| panic!("Received a `LangError`: {lang_err:?}"))
         }
     }
 

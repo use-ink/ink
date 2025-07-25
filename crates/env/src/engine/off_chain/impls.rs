@@ -99,10 +99,10 @@ where
         >::Type
         as DecodeDispatch
     >::decode_dispatch(&mut &input[..])
-        .unwrap_or_else(|e| panic!("Failed to decode constructor call: {:?}", e));
+        .unwrap_or_else(|e| panic!("Failed to decode constructor call: {e:?}"));
 
     crate::reflect::ExecuteDispatchable::execute_dispatchable(dispatch)
-        .unwrap_or_else(|e| panic!("Message call failed: {:?}", e));
+        .unwrap_or_else(|e| panic!("Message call failed: {e:?}"));
 
     crate::test::get_return_value()
 }
@@ -119,10 +119,7 @@ where
     R: DecodeMessageResult<Abi>,
 {
     let callee_code_hash = env.code_hash(&callee_account).unwrap_or_else(|err| {
-        panic!(
-            "failed getting code hash for {:?}: {:?}",
-            callee_account, err
-        )
+        panic!("failed getting code hash for {callee_account:?}: {err:?}")
     });
 
     let handler = env
@@ -152,10 +149,7 @@ where
     R: DecodeMessageResult<Abi>,
 {
     let callee_code_hash = env.code_hash(&callee_account).unwrap_or_else(|err| {
-        panic!(
-            "failed getting code hash for {:?}: {:?}",
-            callee_account, err
-        )
+        panic!("failed getting code hash for {callee_account:?}: {err:?}")
     });
 
     let handler = env
@@ -695,9 +689,9 @@ impl TypedEnvBackend for EnvInstance {
             >::Type
             as DecodeDispatch
         >::decode_dispatch(&mut &input[..])
-            .unwrap_or_else(|e| panic!("Failed to decode constructor call: {:?}", e));
+            .unwrap_or_else(|e| panic!("Failed to decode constructor call: {e:?}"));
         crate::reflect::ExecuteDispatchable::execute_dispatchable(dispatch)
-            .unwrap_or_else(|e| panic!("Constructor call failed: {:?}", e));
+            .unwrap_or_else(|e| panic!("Constructor call failed: {e:?}"));
 
         self.set_code_hash(code_hash)?;
         self.engine.set_contract(callee());
