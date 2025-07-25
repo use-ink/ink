@@ -119,9 +119,7 @@ where
     R: DecodeMessageResult<Abi>,
 {
     let callee_code_hash = env.code_hash(&callee_account).unwrap_or_else(|err| {
-        panic!(
-            "failed getting code hash for {callee_account:?}: {err:?}"
-        )
+        panic!("failed getting code hash for {callee_account:?}: {err:?}")
     });
 
     let handler = env
@@ -151,9 +149,7 @@ where
     R: DecodeMessageResult<Abi>,
 {
     let callee_code_hash = env.code_hash(&callee_account).unwrap_or_else(|err| {
-        panic!(
-            "failed getting code hash for {callee_account:?}: {err:?}"
-        )
+        panic!("failed getting code hash for {callee_account:?}: {err:?}")
     });
 
     let handler = env

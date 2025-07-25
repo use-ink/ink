@@ -89,7 +89,7 @@ mod e2e_tests {
             .expect("instantiate failed");
         let incrementer_call = incrementer.call_builder::<Incrementer>();
 
-        let mut constructor = CallerRef::new(incrementer.addr.clone());
+        let mut constructor = CallerRef::new(incrementer.addr);
 
         let caller = client
             .instantiate(

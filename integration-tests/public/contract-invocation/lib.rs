@@ -42,12 +42,11 @@ mod instantiate_contract {
                 .instantiate_contract(&create_params)
                 .unwrap_or_else(|error| {
                     panic!(
-                        "Received an error from `pallet-revive` while instantiating: {:?}",
-                        error
+                        "Received an error from `pallet-revive` while instantiating: {error:?}"
                     )
                 })
                 .unwrap_or_else(|error| {
-                    panic!("Received a `LangError` while instantiating: {:?}", error)
+                    panic!("Received a `LangError` while instantiating: {error:?}")
                 })
         }
 
@@ -69,12 +68,11 @@ mod instantiate_contract {
                 .instantiate_contract(&create_params)
                 .unwrap_or_else(|error| {
                     panic!(
-                        "Received an error from `pallet-revive` while instantiating: {:?}",
-                        error
+                        "Received an error from `pallet-revive` while instantiating: {error:?}"
                     )
                 })
                 .unwrap_or_else(|error| {
-                    panic!("Received a `LangError` while instantiating: {:?}", error)
+                    panic!("Received a `LangError` while instantiating: {error:?}")
                 })
         }
 
@@ -92,11 +90,9 @@ mod instantiate_contract {
             self.env()
                 .invoke_contract(&call)
                 .unwrap_or_else(|env_err| {
-                    panic!("Received an error from the Environment: {:?}", env_err)
+                    panic!("Received an error from the Environment: {env_err:?}")
                 })
-                .unwrap_or_else(|lang_err| {
-                    panic!("Received a `LangError`: {:?}", lang_err)
-                })
+                .unwrap_or_else(|lang_err| panic!("Received a `LangError`: {lang_err:?}"))
         }
 
         #[ink(message)]
@@ -113,11 +109,9 @@ mod instantiate_contract {
             self.env()
                 .invoke_contract(&call)
                 .unwrap_or_else(|env_err| {
-                    panic!("Received an error from the Environment: {:?}", env_err)
+                    panic!("Received an error from the Environment: {env_err:?}")
                 })
-                .unwrap_or_else(|lang_err| {
-                    panic!("Received a `LangError`: {:?}", lang_err)
-                })
+                .unwrap_or_else(|lang_err| panic!("Received a `LangError`: {lang_err:?}"))
         }
 
         #[ink(message)]
@@ -135,11 +129,9 @@ mod instantiate_contract {
             self.env()
                 .invoke_contract(&call)
                 .unwrap_or_else(|env_err| {
-                    panic!("Received an error from the Environment: {:?}", env_err)
+                    panic!("Received an error from the Environment: {env_err:?}")
                 })
-                .unwrap_or_else(|lang_err| {
-                    panic!("Received a `LangError`: {:?}", lang_err)
-                })
+                .unwrap_or_else(|lang_err| panic!("Received a `LangError`: {lang_err:?}"))
         }
 
         #[ink(message)]
@@ -157,11 +149,9 @@ mod instantiate_contract {
             self.env()
                 .invoke_contract(&call)
                 .unwrap_or_else(|env_err| {
-                    panic!("Received an error from the Environment: {:?}", env_err)
+                    panic!("Received an error from the Environment: {env_err:?}")
                 })
-                .unwrap_or_else(|lang_err| {
-                    panic!("Received a `LangError`: {:?}", lang_err)
-                })
+                .unwrap_or_else(|lang_err| panic!("Received a `LangError`: {lang_err:?}"))
         }
     }
 

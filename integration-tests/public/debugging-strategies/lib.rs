@@ -81,12 +81,11 @@ mod debugging_strategies {
                 // .salt(self.env().addr().to_vec())
                 .unwrap_or_else(|error| {
                     panic!(
-                        "Received an error from `pallet-revive` while instantiating: {:?}",
-                        error
+                        "Received an error from `pallet-revive` while instantiating: {error:?}"
                     )
                 })
                 .unwrap_or_else(|error| {
-                    panic!("Received a `LangError` while instantiating: {:?}", error)
+                    panic!("Received a `LangError` while instantiating: {error:?}")
                 });
 
             let call = build_call()
@@ -101,11 +100,9 @@ mod debugging_strategies {
             self.env()
                 .invoke_contract(&call)
                 .unwrap_or_else(|env_err| {
-                    panic!("Received an error from the Environment: {:?}", env_err)
+                    panic!("Received an error from the Environment: {env_err:?}")
                 })
-                .unwrap_or_else(|lang_err| {
-                    panic!("Received a `LangError`: {:?}", lang_err)
-                })
+                .unwrap_or_else(|lang_err| panic!("Received a `LangError`: {lang_err:?}"))
         }
     }
 
@@ -178,7 +175,7 @@ mod debugging_strategies {
 
             let return_data = call_res.return_data();
             assert!(call_res.did_revert());
-            let revert_msg = String::from_utf8_lossy(&return_data[..]);
+            let revert_msg = String::from_utf8_lossy(return_data);
             assert!(revert_msg.contains("reverting with info: 0"));
 
             Ok(())
@@ -202,7 +199,7 @@ mod debugging_strategies {
             // when
             let return_data = contract.return_data();
             assert!(contract.did_revert());
-            let revert_msg = String::from_utf8_lossy(&return_data[..]);
+            let revert_msg = String::from_utf8_lossy(return_data);
             assert!(revert_msg.contains("paid an unpayable message"));
 
             // todo show same for call
@@ -223,7 +220,7 @@ mod debugging_strategies {
 
             let return_data = call_res.return_data();
             assert!(call_res.did_revert());
-            let revert_msg = String::from_utf8_lossy(&return_data[..]);
+            let revert_msg = String::from_utf8_lossy(return_data);
             assert!(revert_msg
                 .contains("dispatching ink! message failed: paid an unpayable message"));
 

@@ -478,7 +478,7 @@ where
 
         let trace: Option<Trace> = scale::Decode::decode(&mut bytes.as_ref())
             .unwrap_or_else(|err| panic!("decoding `trace_tx` result failed: {err}"));
-        
+
         match trace {
             Some(Trace::Call(trace)) => Some(trace),
             _ => None,

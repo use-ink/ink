@@ -257,9 +257,7 @@ impl SolidityHandler {
         let output = command.spawn()?.wait_with_output()?;
         assert!(
             output.status.success(),
-            "{} execution failed with env: {:?}",
-            script,
-            env_vars
+            "{script} execution failed with env: {env_vars:?}"
         );
 
         Ok(output.stdout)
@@ -268,7 +266,7 @@ impl SolidityHandler {
     fn deploy(&self, ink_addr: Address) -> Result<String, Box<dyn Error>> {
         let output = self.run_hardhat_script(
             "01-deploy.js",
-            &[("INK_ADDRESS", &format!("{:?}", ink_addr))],
+            &[("INK_ADDRESS", &format!("{ink_addr:?}"))],
             Stdio::piped(),
         )?;
         Ok(String::from_utf8(output)?

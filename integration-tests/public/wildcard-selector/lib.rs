@@ -42,7 +42,7 @@ pub mod wildcard_selector {
 
             #[cfg(feature = "emit-event")]
             self.env().emit_event(Event {
-                msg: format!("Wildcard selector: {:?}, message: {}", _selector, _message),
+                msg: format!("Wildcard selector: {_selector:?}, message: {_message}"),
             })
         }
 
@@ -51,7 +51,7 @@ pub mod wildcard_selector {
         pub fn wildcard_complement(&mut self, _message: String) {
             #[cfg(feature = "emit-event")]
             self.env().emit_event(Event {
-                msg: format!("Wildcard complement message: {}", _message),
+                msg: format!("Wildcard complement message: {_message}"),
             });
         }
     }
@@ -146,8 +146,7 @@ pub mod wildcard_selector {
             assert_eq!(
                 event.msg,
                 format!(
-                    "Wildcard selector: {:?}, message: {}",
-                    ARBITRARY_SELECTOR, wildcard_message
+                    "Wildcard selector: {ARBITRARY_SELECTOR:?}, message: {wildcard_message}"
                 )
             );
 

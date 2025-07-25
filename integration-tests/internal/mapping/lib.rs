@@ -356,8 +356,8 @@ mod mapping {
             // Makes testing the fallible storage methods more efficient
             const ERR: &str = "For this test the env variable `INK_STATIC_BUFFER_SIZE` needs to be set to `256`";
             let buffer_size = std::env::var("INK_STATIC_BUFFER_SIZE")
-                .unwrap_or_else(|err| panic!("{} {}", ERR, err));
-            assert_eq!(buffer_size, "256", "{}", ERR);
+                .unwrap_or_else(|err| panic!("{ERR} {err}"));
+            assert_eq!(buffer_size, "256", "{ERR}");
 
             // given
             let mut constructor = MappingsRef::new();

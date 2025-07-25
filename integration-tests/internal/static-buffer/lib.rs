@@ -62,8 +62,8 @@ pub mod static_buffer {
             // for the call we provoke an exhaustion of the static buffer.
             const ERR: &str = "For this test the env variable `INK_STATIC_BUFFER_SIZE` needs to be set to `32`";
             let buffer_size = std::env::var("INK_STATIC_BUFFER_SIZE")
-                .unwrap_or_else(|err| panic!("{} {}", ERR, err));
-            assert_eq!(buffer_size, "32", "{}", ERR);
+                .unwrap_or_else(|err| panic!("{ERR} {err}"));
+            assert_eq!(buffer_size, "32", "{ERR}");
         }
 
         #[ink_e2e::test]
@@ -89,7 +89,7 @@ pub mod static_buffer {
                 res.is_err(),
                 "Call should have failed, but succeeded. Likely because the \
                 used buffer size was too large: {} {:?}",
-                super::BUFFER_SIZE.to_string(),
+                super::BUFFER_SIZE,
                 std::env::var("INK_STATIC_BUFFER_SIZE")
             );
 

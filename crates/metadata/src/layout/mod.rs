@@ -105,9 +105,8 @@ impl<'de> serde::Deserialize<'de> for LayoutKey {
     {
         let mut arr = [0; 4];
         serde_hex::deserialize_check_len(d, serde_hex::ExpectedLen::Exact(&mut arr[..]))?;
-        let key = Key::decode(&mut &arr[..]).map_err(|err| {
-            Error::custom(format!("Error decoding layout key: {err}"))
-        })?;
+        let key = Key::decode(&mut &arr[..])
+            .map_err(|err| Error::custom(format!("Error decoding layout key: {err}")))?;
         Ok(key.into())
     }
 }

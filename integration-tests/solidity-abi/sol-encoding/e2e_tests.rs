@@ -27,10 +27,7 @@ fn call_solidity_encoded_message() {
         DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
 
     sandbox
-        .mint_into(
-            &caller.public_key().0.into(),
-            1_000_000_000_000_000u128.into(),
-        )
+        .mint_into(&caller.public_key().0.into(), 1_000_000_000_000_000u128)
         .unwrap_or_else(|_| panic!("Failed to mint tokens"));
 
     sandbox.map_account(origin.clone()).expect("unable to map");
@@ -108,7 +105,7 @@ impl ContractSandbox {
         data.append(&mut encoded);
 
         let result = self.call_raw(data, origin);
-        assert!(!result.did_revert(), "'{message}' failed {:?}", result);
+        assert!(!result.did_revert(), "'{message}' failed {result:?}");
         result.data
     }
 
@@ -117,9 +114,9 @@ impl ContractSandbox {
         data: Vec<u8>,
         origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
     ) -> ExecReturnValue {
-        let result = <DefaultSandbox as ContractAPI>::call_contract(
+        <DefaultSandbox as ContractAPI>::call_contract(
             &mut self.sandbox,
-            self.contract_addr.clone(),
+            self.contract_addr,
             0,
             data,
             origin,
@@ -127,8 +124,7 @@ impl ContractSandbox {
             STORAGE_DEPOSIT_LIMIT,
         )
         .result
-        .expect("sandbox call contract failed");
-        result
+        .expect("sandbox call contract failed")
     }
 }
 
