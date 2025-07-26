@@ -26,7 +26,7 @@ ink_env = { version = "=6.0.0-alpha.1", path = "../../crates/env" }
 
 # todo Remove once the `polkadot-sdk` compilation error
 # for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
-tokio = { workspace = true, features = ["net"] }
+tokio = { workspace = true, features = ["net"], default-features = false }
 
 [dev-dependencies]
 dylint_testing = "4.1.0"
@@ -42,7 +42,7 @@ ink_primitives = { version = "=6.0.0-alpha.1", path = "../../crates/primitives" 
 # todo Remove once the `polkadot-sdk` compilation error
 # for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
 [build-dependencies]
-tokio = { workspace = true, features = ["net"] }
+tokio = { workspace = true, features = ["net"], default-features = false }
 
 # For the moment we have to include the tests as examples and
 # then use `dylint_testing::ui_test_examples`.

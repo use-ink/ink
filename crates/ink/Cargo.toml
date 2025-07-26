@@ -49,7 +49,7 @@ trybuild = { workspace = true, features = ["diff"] }
 # todo Remove once the `polkadot-sdk` compilation error
 # for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
 [build-dependencies]
-tokio = { workspace = true, features = ["net"] }
+tokio = { workspace = true, features = ["net"], default-features = false }
 
 [features]
 default = ["std"]
