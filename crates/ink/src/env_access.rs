@@ -470,7 +470,7 @@ where
     ///             )
     ///         })
     ///         .unwrap_or_else(|error| {
-    ///             panic!("Received a `LangError` while instatiating: {:?}", error)
+    ///             panic!("Received a `LangError` while instantiating: {:?}", error)
     ///         })
     /// }
     /// #
