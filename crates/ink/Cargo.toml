@@ -39,10 +39,18 @@ sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk.git",
 # todo pin until https://github.com/jhpratt/deranged/issues/18 is resolved
 deranged = { version = "=0.4.0", default-features = false }
 
+# todo Remove once the `polkadot-sdk` compilation error
+# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
+tokio = { workspace = true, features = ["net"], default-features = false, optional = true }
+
 [dev-dependencies]
 ink_ir = { workspace = true, default-features = true }
 ink_metadata = { workspace = true } # todo why here too?
 trybuild = { workspace = true, features = ["diff"] }
+
+# todo Remove once the `polkadot-sdk` compilation error
+# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
+tokio = { workspace = true, features = ["net"] }
 
 # todo Remove once the `polkadot-sdk` compilation error
 # for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
@@ -52,6 +60,7 @@ tokio = { workspace = true, features = ["net"] }
 [features]
 default = ["std"]
 std = [
+    "tokio",
     "deranged/std",
     "ink_env/std",
     "ink_macro/std",

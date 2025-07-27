@@ -23,6 +23,15 @@ parity_clippy_utils = { package = "clippy_utils", git = "https://github.com/rust
 
 # todo Remove once the `polkadot-sdk` compilation error
 # for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
+tokio = { workspace = true, features = ["net"] }
+
+# todo Remove once the `polkadot-sdk` compilation error
+# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
+[dev-dependencies]
+tokio = { workspace = true, features = ["net"] }
+
+# todo Remove once the `polkadot-sdk` compilation error
+# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
 [build-dependencies]
 tokio = { workspace = true, features = ["net"] }
 
