@@ -261,6 +261,107 @@ impl<const N: usize> AsRef<[u8; N]> for FixedBytes<N> {
     }
 }
 
+/// Newtype wrapper for Solidity ABI encoding/decoding `Vec<u8>` as dynamic sized byte
+/// sequences.
+///
+/// Ref: <https://docs.soliditylang.org/en/latest/types.html#bytes-and-string-as-arrays>
+#[derive(Debug, Clone, PartialEq, Eq, Default, Encode, Decode)]
+#[cfg_attr(feature = "std", derive(TypeInfo))]
+#[repr(transparent)]
+pub struct DynBytes(pub Vec<u8>);
+
+impl DynBytes {
+    /// Constructs new empty `DynBytes` without allocating.
+    pub const fn new() -> Self {
+        Self(Vec::new())
+    }
+}
+
+// Implements `SolTypeDecode` and `SolTypeEncode` for `DynBytes`.
+impl SolTypeDecode for DynBytes {
+    type AlloyType = sol_data::Bytes;
+
+    fn detokenize(
+        token: <Self::AlloyType as AlloySolType>::Token<'_>,
+    ) -> Result<Self, Error> {
+        // Converts token directly into `Vec<u8>`, skipping the conversion to
+        // `alloy_sol_types::private::Bytes`, which then has to be converted back to
+        // `Vec<u8>`.
+        Ok(Self(token.into_vec()))
+    }
+}
+
+impl SolTypeEncode for DynBytes {
+    type AlloyType = sol_data::Bytes;
+
+    const DEFAULT_VALUE: Self::DefaultType = DynSizeDefault;
+
+    fn tokenize(&self) -> Self::TokenType<'_> {
+        // Direct implementation simplifies generic implementations by removing
+        // requirement for `SolTypeValue<Self::AlloyType>`.
+        PackedSeqToken(self.0.as_slice())
+    }
+}
+
+impl SolTokenType for DynBytes {
+    type TokenType<'enc> = PackedSeqToken<'enc>;
+
+    type DefaultType = DynSizeDefault;
+}
+
+impl crate::sol::types::private::Sealed for DynBytes {}
+
+// Implements `SolDecode` and `SolEncode` for `DynBytes`.
+impl SolDecode for DynBytes {
+    type SolType = DynBytes;
+
+    fn from_sol_type(value: Self::SolType) -> Result<Self, Error> {
+        Ok(value)
+    }
+}
+
+impl<'a> SolEncode<'a> for DynBytes {
+    type SolType = &'a DynBytes;
+
+    fn to_sol_type(&'a self) -> Self::SolType {
+        self
+    }
+}
+
+// Implements core/standard traits for cheap representations as the inner type.
+impl From<Vec<u8>> for DynBytes {
+    fn from(value: Vec<u8>) -> Self {
+        Self(value)
+    }
+}
+
+impl From<Box<[u8]>> for DynBytes {
+    fn from(value: Box<[u8]>) -> Self {
+        // Converts to `Vec<u8>` without clones or allocation.
+        Self(value.into_vec())
+    }
+}
+
+impl Deref for DynBytes {
+    type Target = [u8];
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl Borrow<[u8]> for DynBytes {
+    fn borrow(&self) -> &[u8] {
+        &self.0
+    }
+}
+
+impl AsRef<[u8]> for DynBytes {
+    fn as_ref(&self) -> &[u8] {
+        &self.0
+    }
+}
+
 /// A Rust/ink! equivalent of a Solidity ABI bytes type that implements logic for Solidity
 /// ABI encoding/decoding.
 ///

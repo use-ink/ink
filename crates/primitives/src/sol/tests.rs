@@ -36,9 +36,9 @@ use primitive_types::{
 
 use crate::{
     sol::{
+        DynBytes,
         Error,
         FixedBytes,
-        SolBytes,
         SolDecode,
         SolEncode,
         SolParamsDecode,
@@ -298,20 +298,20 @@ fn bytes_works() {
         ($($fixture_size: literal),+ $(,)*) => {
             $(
                 let data = Vec::from([100u8; $fixture_size]);
-                let vec_bytes = SolBytes(data.clone());
+                let vec_bytes = DynBytes(data.clone());
                 let sol_bytes = AlloyBytes::from(data);
 
                 test_case!(
-                    SolBytes<Vec<u8>>, vec_bytes,
+                    DynBytes, vec_bytes,
                     AlloyBytes, SolValue, sol_bytes,
-                    [.unwrap().as_slice()], [.unwrap().as_ref()]
+                    [.unwrap().0.as_slice()], [.unwrap().as_ref()]
                 );
 
-                let box_bytes = SolBytes(Box::from([100u8; $fixture_size]));
+                let box_bytes = DynBytes::from(Box::from([100u8; $fixture_size]));
                 test_case!(
-                    SolBytes<Box<[u8]>>, box_bytes,
+                    DynBytes, box_bytes,
                     AlloyBytes, SolValue, sol_bytes,
-                    [.unwrap().0.as_ref()], [.unwrap().as_ref()]
+                    [.unwrap().0.as_slice()], [.unwrap().as_ref()]
                 );
             )+
         };
@@ -362,8 +362,8 @@ fn tuple_works() {
 
     // dynamic size byte arrays.
     test_case!(
-        (SolBytes<Vec<u8>>,),
-        (SolBytes(Vec::from([100u8; 64])),),
+        (DynBytes,),
+        (DynBytes(Vec::from([100u8; 64])),),
         (AlloyBytes,),
         SolValue,
         (AlloyBytes::from([100u8; 64]),),
@@ -523,10 +523,10 @@ fn encode_refs_works() {
 
     // dynamic bytes refs
     let data = Vec::from([100u8; 64]);
-    let bytes = SolBytes(data.clone());
+    let bytes = DynBytes(data.clone());
     let sol_bytes = AlloyBytes::from(data);
     test_case_encode!(
-        &SolBytes<Vec<u8>>, &bytes,
+        &DynBytes, &bytes,
         AlloyBytes, SolValue, sol_bytes,
         [.unwrap().as_slice()], [.unwrap().as_ref()]
     );
@@ -615,8 +615,8 @@ fn params_works() {
 
     // dynamic size byte arrays.
     test_case_params!(
-        (SolBytes<Vec<u8>>,),
-        (SolBytes(Vec::from([100u8; 64])),),
+        (DynBytes,),
+        (DynBytes(Vec::from([100u8; 64])),),
         (AlloyBytes,),
         SolValue,
         (AlloyBytes::from([100u8; 64]),),
@@ -676,10 +676,10 @@ fn option_works() {
     );
     test_case!(None::<Vec::<u8>>, (false, Vec::<u8>::new()));
     test_case!(Some(Vec::from([100u8; 64])), (true, Vec::from([100u8; 64])));
-    test_case!(None::<SolBytes<Vec<u8>>>, (false, SolBytes(Vec::new())));
+    test_case!(None::<DynBytes>, (false, DynBytes::new()));
     test_case!(
-        Some(SolBytes(Vec::from([100u8; 64]))),
-        (true, SolBytes(Vec::from([100u8; 64])))
+        Some(DynBytes(Vec::from([100u8; 64]))),
+        (true, DynBytes(Vec::from([100u8; 64])))
     );
 
     // Tuples.
