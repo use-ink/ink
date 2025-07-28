@@ -48,7 +48,10 @@ use primitive_types::{
 use sp_weights::Weight;
 
 pub use self::{
-    bytes::SolBytes,
+    bytes::{
+        FixedBytes,
+        SolBytes,
+    },
     error::{
         SolErrorDecode,
         SolErrorEncode,

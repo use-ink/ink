@@ -143,6 +143,124 @@ impl AsRef<[u8]> for SolBytes<Vec<u8>> {
     }
 }
 
+/// Newtype wrapper for Solidity ABI encoding/decoding `[u8; N]` for `1 <= N <= 32` as
+/// fixed-size byte sequences.
+///
+/// Ref: <https://docs.soliditylang.org/en/latest/types.html#fixed-size-byte-arrays>
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Encode, Decode)]
+#[cfg_attr(feature = "std", derive(TypeInfo))]
+#[repr(transparent)]
+pub struct FixedBytes<const N: usize>(pub [u8; N]);
+
+// Implements `SolTypeDecode` and `SolTypeEncode` for `FixedBytes<N>`.
+impl<const N: usize> SolTypeDecode for FixedBytes<N>
+where
+    sol_data::ByteCount<N>: sol_data::SupportedFixedBytes,
+{
+    type AlloyType = sol_data::FixedBytes<N>;
+
+    fn detokenize(
+        token: <Self::AlloyType as AlloySolType>::Token<'_>,
+    ) -> Result<Self, Error> {
+        // Converts token directly into `[u8; N]`, skipping the conversion to
+        // `alloy_sol_types::private::FixedBytes`, which would then has to be
+        // unpacked to `[u8; N]`.
+        // Ref: <https://github.com/alloy-rs/core/blob/5ae4fe0b246239602c97cc5a2f2e4bc780e2024a/crates/sol-types/src/types/data_type.rs#L204-L206>
+        Ok(Self(
+            token.0 .0[..N]
+                .try_into()
+                .expect("Expected a slice of N bytes"),
+        ))
+    }
+}
+
+impl<const N: usize> SolTypeEncode for FixedBytes<N>
+where
+    sol_data::ByteCount<N>: sol_data::SupportedFixedBytes,
+{
+    type AlloyType = sol_data::FixedBytes<N>;
+
+    const DEFAULT_VALUE: Self::DefaultType = FixedSizeDefault::WORD;
+
+    fn tokenize(&self) -> Self::TokenType<'_> {
+        // Direct implementation simplifies generic implementations by removing
+        // requirement for `SolTypeValue<Self::AlloyType>`.
+        let mut word = [0; 32];
+        word[..N].copy_from_slice(self.0.as_slice());
+        WordToken::from(word)
+    }
+}
+
+impl<const N: usize> SolTokenType for FixedBytes<N>
+where
+    sol_data::ByteCount<N>: sol_data::SupportedFixedBytes,
+{
+    type TokenType<'enc> = WordToken;
+
+    type DefaultType = FixedSizeDefault;
+}
+
+impl<const N: usize> crate::sol::types::private::Sealed for FixedBytes<N> where
+    sol_data::ByteCount<N>: sol_data::SupportedFixedBytes
+{
+}
+
+// Implements `SolDecode` and `SolEncode` for `FixedBytes<N>`.
+impl<const N: usize> SolDecode for FixedBytes<N>
+where
+    sol_data::ByteCount<N>: sol_data::SupportedFixedBytes,
+{
+    type SolType = FixedBytes<N>;
+
+    fn from_sol_type(value: Self::SolType) -> Result<Self, Error> {
+        Ok(value)
+    }
+}
+
+impl<'a, const N: usize> SolEncode<'a> for FixedBytes<N>
+where
+    sol_data::ByteCount<N>: sol_data::SupportedFixedBytes,
+{
+    type SolType = &'a FixedBytes<N>;
+
+    fn to_sol_type(&'a self) -> Self::SolType {
+        self
+    }
+}
+
+// Implements core/standard traits for cheap representations as the inner type.
+impl<const N: usize> From<[u8; N]> for FixedBytes<N> {
+    fn from(value: [u8; N]) -> Self {
+        Self(value)
+    }
+}
+
+impl From<u8> for FixedBytes<1> {
+    fn from(value: u8) -> Self {
+        Self([value; 1])
+    }
+}
+
+impl<const N: usize> Deref for FixedBytes<N> {
+    type Target = [u8; N];
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl<const N: usize> Borrow<[u8; N]> for FixedBytes<N> {
+    fn borrow(&self) -> &[u8; N] {
+        &self.0
+    }
+}
+
+impl<const N: usize> AsRef<[u8; N]> for FixedBytes<N> {
+    fn as_ref(&self) -> &[u8; N] {
+        &self.0
+    }
+}
+
 /// A Rust/ink! equivalent of a Solidity ABI bytes type that implements logic for Solidity
 /// ABI encoding/decoding.
 ///
