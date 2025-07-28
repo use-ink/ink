@@ -751,11 +751,13 @@ jobs:
         uses: ./.github/run-container-command
         env:
           MANIFEST_PATH: ""
-          CONTRACT_SIZE_FILE: "measurements-${{ env.MEASUREMENTS_ID }}/contract_size_"
+          CONTRACT_SIZE_FILE: "/github/workspace/measurements-${{ env.MEASUREMENTS_ID }}/contract_size_"
           CARGO_INCREMENTAL: 0
         with:
           command: |
-            mkdir -p measurements-${{ env.MEASUREMENTS_ID }}/
+            pwd
+            ls
+            mkdir -p /github/workspace/measurements-${{ env.MEASUREMENTS_ID }}/
             scripts/for_all_contracts_exec2.sh --path integration-tests \
               --ignore solidity-abi/sol-cross-contract --ignore solidity-abi/sol-encoding \
               --ignore solidity-abi/solidity-calls-flipper --ignore solidity-abi/events \
@@ -764,6 +766,7 @@ jobs:
               --ignore solidity-abi/sol-cross-contract/other-contract-sol \
               --ignore solidity-abi/trait-dyn-cross-contract-calls/contracts/incrementer -- \
               scripts/build_and_determine_contract_size.sh {}
+            ls /github/workspace/measurements-${{ env.MEASUREMENTS_ID }}/
 
       # NOTE: Sharing build artifacts (i.e. via a shared cargo target directory) with other contracts
       # that don't have the same ABI set makes the builds fail.
@@ -771,18 +774,20 @@ jobs:
         uses: ./.github/run-container-command
         env:
           MANIFEST_PATH: ""
-          CONTRACT_SIZE_FILE: "measurements-${{ env.MEASUREMENTS_ID }}/contract_size_"
+          CONTRACT_SIZE_FILE: "/github/workspace/measurements-${{ env.MEASUREMENTS_ID }}/contract_size_"
           CARGO_INCREMENTAL: 0
           CARGO_TARGET_DIR: ${{ env.CARGO_TARGET_DIR }}/sol-abi
         with:
           command: |
-            mkdir -p measurements-${{ env.MEASUREMENTS_ID }}/
+            mkdir -p /github/workspace/measurements-${{ env.MEASUREMENTS_ID }}/
             scripts/for_all_contracts_exec2.sh --path integration-tests/solidity-abi -- \
               scripts/build_and_determine_contract_size.sh {}
+            ls /github/workspace/measurements-${{ env.MEASUREMENTS_ID }}/
+            pwd
 
       - uses: actions/upload-artifact@v4
         with:
-            path: ./measurements-${{ env.MEASUREMENTS_ID }}/*
+            path: /github/workspace/measurements-${{ env.MEASUREMENTS_ID }}/*
             name: ${{ github.run_id }}_artifact
             retention-days: 1
 
@@ -842,7 +847,7 @@ jobs:
             uses: ./.github/run-container-command
             env:
                 MANIFEST_PATH: ""
-                CONTRACT_SIZE_FILE: "measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}/contract_size_"
+                CONTRACT_SIZE_FILE: "/github/workspace/measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}/contract_size_"
                 CARGO_INCREMENTAL: 0
                 ABI: ${{ matrix.type }}
             with:
@@ -863,7 +868,7 @@ jobs:
 
           - uses: actions/upload-artifact@v4
             with:
-                path: ./measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}/*
+                path: /github/workspace/measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}/*
                 name: ${{ github.run_id }}_${{ matrix.type }}_abi_artifact
                 retention-days: 1
 
@@ -878,7 +883,7 @@ jobs:
           - name: Download reports' artifacts
             uses: actions/download-artifact@v4
             with:
-                path: downloaded_artifacts
+                path: ./downloaded_artifacts
 
           - name: Extract branch name
             shell: bash
@@ -895,7 +900,7 @@ jobs:
           - uses: actions/upload-artifact@v4
             with:
                 name: measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}
-                path: ./measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}
+                path: measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}
                 retention-days: 31
 
   examples-docs:
