@@ -104,7 +104,6 @@ pub use ink_primitives::{
     ConstructorResult,
     LangError,
     MessageResult,
-    SolBytes,
     SolDecode,
     SolEncode,
     H160,
