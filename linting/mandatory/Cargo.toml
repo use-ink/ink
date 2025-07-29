@@ -39,6 +39,10 @@ ink = { version = "=6.0.0-alpha.1", path = "../../crates/ink" }
 
 # todo Remove once the `polkadot-sdk` compilation error
 # for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
+tokio = { workspace = true, features = ["net"] }
+
+# todo Remove once the `polkadot-sdk` compilation error
+# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
 [build-dependencies]
 tokio = { workspace = true, features = ["net"] }
 

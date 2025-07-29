@@ -20,7 +20,7 @@ ink_linting_utils = { version = "=6.0.0-alpha.1", path = "utils" }
 
 # todo Remove once the `polkadot-sdk` compilation error
 # for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
-tokio = { version = "1.44.2" }
+tokio = { version = "1.44.2", features = ["net"], default-features = false }
 
 [workspace.metadata.dylint]
 libraries = [
