@@ -73,10 +73,8 @@ use crate::{
 /// | `[T; N]` for `const N: usize` | `T[N]` | e.g. `[i8; 64]` ↔ `int8[64]` |
 /// | `Vec<T>` | `T[]` | e.g. `Vec<i8>` ↔ `int8[]` |
 /// | `Box<[T]>` | `T[]` | e.g. `Box<[i8]>` ↔ `int8[]` |
-/// | `SolBytes<u8>` | `bytes1` ||
-/// | `SolBytes<[u8; N]>` for `1 <= N <= 32` | `bytesN` | e.g. `SolBytes<[u8; 32]>` ↔ `bytes32` |
-/// | `SolBytes<Vec<u8>>` | `bytes` ||
-/// | `SolBytes<Box<[u8]>>` | `bytes` ||
+/// | `FixedBytes<N>` for `1 <= N <= 32` | `bytesN` | e.g. `FixedBytes<32>` ↔ `bytes32`, `FixedBytes<N>` is just a newtype wrapper for `[u8; N]` that also implements `From<u8>` |
+/// | `DynBytes` | `bytes` | `DynBytes` is just a newtype wrapper for `Vec<u8>` that also implements `From<Box<[u8]>>` |
 /// | `(T1, T2, T3, ... T12)` | `(U1, U2, U3, ... U12)` | where `T1` ↔ `U1`, ... `T12` ↔ `U12` e.g. `(bool, u8, Address)` ↔ `(bool, uint8, address)` |
 /// | `Option<T>` | `(bool, T)` | e.g. `Option<u8>` ↔ `(bool, uint8)`|
 ///
@@ -145,10 +143,8 @@ pub trait SolTypeDecode: Sized + private::Sealed {
 /// | `[T; N]` for `const N: usize` | `T[N]` | e.g. `[i8; 64]` ↔ `int8[64]` |
 /// | `Vec<T>` | `T[]` | e.g. `Vec<i8>` ↔ `int8[]` |
 /// | `Box<[T]>` | `T[]` | e.g. `Box<[i8]>` ↔ `int8[]` |
-/// | `SolBytes<u8>` |  `bytes1` ||
-/// | `SolBytes<[u8; N]>` for `1 <= N <= 32` | `bytesN` | e.g. `SolBytes<[u8; 32]>` ↔ `bytes32` |
-/// | `SolBytes<Vec<u8>>` | `bytes` ||
-/// | `SolBytes<Box<[u8]>>` | `bytes` ||
+/// | `FixedBytes<N>` for `1 <= N <= 32` | `bytesN` | e.g. `FixedBytes<32>` ↔ `bytes32`, `FixedBytes<N>` is just a newtype wrapper for `[u8; N]` |
+/// | `DynBytes` | `bytes` | `DynBytes` is just a newtype wrapper for `Vec<u8>` that also implements `From<Box<[u8]>>` |
 /// | `(T1, T2, T3, ... T12)` | `(U1, U2, U3, ... U12)` | where `T1` ↔ `U1`, ... `T12` ↔ `U12` e.g. `(bool, u8, Address)` ↔ `(bool, uint8, address)` |
 /// | `&str`, `&mut str` | `string` ||
 /// | `&T`, `&mut T`, `Box<T>` | `T` | e.g. `&i8 ↔ int8` |
@@ -228,8 +224,8 @@ pub trait SolTypeEncode: SolTokenType + private::Sealed {
 // - `SolTypeEncode` implementing types are composable (i.e. arrays, `Vec`s and tuples of
 //   `T: SolTypeEncode` implement `SolTypeEncode` generically)
 // - Tokenizable default representations of some types are based on alloy types that use
-//   "interior mutability" (e.g. the tokenizable default for `SolBytes<Vec<u8>>` would be
-//   based on `alloy_primitives::bytes::Bytes`)
+//   "interior mutability" (e.g. the tokenizable default for `DynBytes` would be based on
+//   `alloy_primitives::bytes::Bytes`)
 // Ref: <https://doc.rust-lang.org/reference/interior-mutability.html>
 //
 // Lastly, this trait only exists separate from `SolTypeEncode` so that the

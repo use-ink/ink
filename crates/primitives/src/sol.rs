@@ -539,7 +539,7 @@ impl SolEncode<'_> for AccountId {
         // NOTE: Not actually used for encoding because of `encode` override above (for
         // better performance).
         // Arbitrary newtype wrappers can achieve similar performance (without overriding
-        // `encode`) by using `SolBytes<[u8; 32]>` as the inner type and returning
+        // `encode`) by using `FixedBytes<32>` as the inner type and returning
         // `&self.0`.
         FixedBytes(self.0)
     }
@@ -566,7 +566,7 @@ impl SolEncode<'_> for Hash {
         // NOTE: Not actually used for encoding because of `encode` override above (for
         // better performance).
         // Arbitrary newtype wrappers can achieve similar performance (without overriding
-        // `encode`) by using `SolBytes<[u8; 32]>` as the inner type and returning
+        // `encode`) by using `FixedBytes<32>` as the inner type and returning
         // `&self.0`.
         FixedBytes((*self).into())
     }
@@ -593,7 +593,7 @@ impl SolEncode<'_> for H256 {
         // NOTE: Not actually used for encoding because of `encode` override above (for
         // better performance).
         // Arbitrary newtype wrappers can achieve similar performance (without overriding
-        // `encode`) by using `SolBytes<[u8; 32]>` as the inner type and returning
+        // `encode`) by using `FixedBytes<32>` as the inner type and returning
         // `&self.0`.
         FixedBytes(self.0)
     }
