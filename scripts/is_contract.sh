@@ -30,10 +30,9 @@ fi
 
 ROOT_PACKAGE=$(cargo metadata --format-version=1 --manifest-path "$MANIFEST_PATH" |
   jq -r '.resolve.root')
-  
-METADATA=$(cargo metadata --format-version=1 --manifest-path "$MANIFEST_PATH")
-ROOT_PACKAGE=$(echo "$METADATA" | jq -r '.resolve.root')
-SOURCE_PATH=$(echo "$METADATA" | jq -r --arg ROOT_PACKAGE "$ROOT_PACKAGE" '
+SOURCE_PATH=$(cargo metadata --format-version=1 --manifest-path "$MANIFEST_PATH" |
+  jq -r --arg ROOT_PACKAGE "$ROOT_PACKAGE" '
+    .packages[]
     | select(.id == $ROOT_PACKAGE).targets[]
     | select(.kind[] | contains("lib")).src_path')
 
