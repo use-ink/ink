@@ -41,7 +41,7 @@ deranged = { version = "=0.4.0", default-features = false }
 
 # todo Remove once the `polkadot-sdk` compilation error
 # for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
-tokio = { workspace = true, features = ["net"], default-features = false, optional = true }
+tokio = { workspace = true, features = ["net"], optional = true }
 
 [dev-dependencies]
 ink_ir = { workspace = true, default-features = true }
