@@ -139,16 +139,24 @@ fi
 
 for (( i = start; i <= end; i++ )); do
   manifest_path="${filtered_manifests[$i]}"
+  echo "manifest_path" $manifest_path >&2
   example="$(dirname "$manifest_path" | cut -d'/' -f3)"
   echo "example" $example >&2
-  #export CONTRACT_SIZE_FILE="$CONTRACT_SIZE_FILE$manifest_parent"
-  #echo $CONTRACT_SIZE_FILE >&2
+  size_file="$CONTRACT_SIZE_FILE$example"
+  echo "size_file" $size_file >&2
   command[$arg_index]="$manifest_path"
   if [ "$quiet" = false ]; then
     >&2 echo Running: "${command[@]}"
   fi
-  eval "${command[@]}" >> ${CONTRACT_SIZE_FILE}$example
-  sed -ie 's/^integration-tests\/\(public\/\|internal\/\)\?//' ${CONTRACT_SIZE_FILE}$example
+  echo "writing to " $size_file >&2
+  echo "command: ${command[@]} >> $size_file"
+  eval "${command[@]}" >> $size_file >&2
+  ls -lh ${CONTRACT_SIZE_FILE}$example* >&2
+  sed -ie 's/^integration-tests\/\(public\/\|internal\/\)\?//' $size_file
+  ls -lh ${CONTRACT_SIZE_FILE}$example* >&2
+  echo "cat: "
+  cat ${CONTRACT_SIZE_FILE}$example >&2
+  echo "" >&2
 
   if [ $? -eq 0 ]; then
     successes+=("$manifest_path")
