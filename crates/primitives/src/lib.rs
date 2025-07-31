@@ -46,7 +46,6 @@ pub use self::{
         DispatchError,
     },
     sol::{
-        SolBytes,
         SolDecode,
         SolEncode,
     },

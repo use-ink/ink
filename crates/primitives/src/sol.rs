@@ -48,7 +48,10 @@ use primitive_types::{
 use sp_weights::Weight;
 
 pub use self::{
-    bytes::SolBytes,
+    bytes::{
+        DynBytes,
+        FixedBytes,
+    },
     error::{
         SolErrorDecode,
         SolErrorEncode,
@@ -517,7 +520,7 @@ impl<T> SolEncode<'_> for core::marker::PhantomData<T> {
 
 // AccountId <-> bytes32
 impl SolDecode for AccountId {
-    type SolType = SolBytes<[u8; 32]>;
+    type SolType = FixedBytes<32>;
 
     fn from_sol_type(value: Self::SolType) -> Result<Self, Error> {
         Ok(AccountId(value.0))
@@ -525,7 +528,7 @@ impl SolDecode for AccountId {
 }
 
 impl SolEncode<'_> for AccountId {
-    type SolType = SolBytes<[u8; 32]>;
+    type SolType = FixedBytes<32>;
 
     fn encode(&self) -> Vec<u8> {
         // Override for better performance.
@@ -536,15 +539,15 @@ impl SolEncode<'_> for AccountId {
         // NOTE: Not actually used for encoding because of `encode` override above (for
         // better performance).
         // Arbitrary newtype wrappers can achieve similar performance (without overriding
-        // `encode`) by using `SolBytes<[u8; 32]>` as the inner type and returning
+        // `encode`) by using `FixedBytes<32>` as the inner type and returning
         // `&self.0`.
-        SolBytes(self.0)
+        FixedBytes(self.0)
     }
 }
 
 // Hash <-> bytes32
 impl SolDecode for Hash {
-    type SolType = SolBytes<[u8; 32]>;
+    type SolType = FixedBytes<32>;
 
     fn from_sol_type(value: Self::SolType) -> Result<Self, Error> {
         Ok(Hash::from(value.0))
@@ -552,7 +555,7 @@ impl SolDecode for Hash {
 }
 
 impl SolEncode<'_> for Hash {
-    type SolType = SolBytes<[u8; 32]>;
+    type SolType = FixedBytes<32>;
 
     fn encode(&self) -> Vec<u8> {
         // Override for better performance.
@@ -563,15 +566,15 @@ impl SolEncode<'_> for Hash {
         // NOTE: Not actually used for encoding because of `encode` override above (for
         // better performance).
         // Arbitrary newtype wrappers can achieve similar performance (without overriding
-        // `encode`) by using `SolBytes<[u8; 32]>` as the inner type and returning
+        // `encode`) by using `FixedBytes<32>` as the inner type and returning
         // `&self.0`.
-        SolBytes::<[u8; 32]>((*self).into())
+        FixedBytes((*self).into())
     }
 }
 
 // H256 <-> bytes32
 impl SolDecode for H256 {
-    type SolType = SolBytes<[u8; 32]>;
+    type SolType = FixedBytes<32>;
 
     fn from_sol_type(value: Self::SolType) -> Result<Self, Error> {
         Ok(H256(value.0))
@@ -579,7 +582,7 @@ impl SolDecode for H256 {
 }
 
 impl SolEncode<'_> for H256 {
-    type SolType = SolBytes<[u8; 32]>;
+    type SolType = FixedBytes<32>;
 
     fn encode(&self) -> Vec<u8> {
         // Override for better performance.
@@ -590,9 +593,9 @@ impl SolEncode<'_> for H256 {
         // NOTE: Not actually used for encoding because of `encode` override above (for
         // better performance).
         // Arbitrary newtype wrappers can achieve similar performance (without overriding
-        // `encode`) by using `SolBytes<[u8; 32]>` as the inner type and returning
+        // `encode`) by using `FixedBytes<32>` as the inner type and returning
         // `&self.0`.
-        SolBytes(self.0)
+        FixedBytes(self.0)
     }
 }
 
