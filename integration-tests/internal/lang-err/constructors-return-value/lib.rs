@@ -133,7 +133,8 @@ pub mod constructors_return_value {
                 .dry_run()
                 .await?;
 
-            let decoded_result = infallible_constructor_result.constructor_result::<()>();
+            // Infallible constructors return `Result<(), ()>`.
+            let decoded_result = infallible_constructor_result.constructor_result::<Result<(), ()>>();
             assert!(
                 decoded_result.is_ok(),
                 "Constructor dispatch should have succeeded"
