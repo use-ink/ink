@@ -378,9 +378,9 @@ mod call_builder {
             let call_result = client.call(&origin, &call).dry_run().await?;
             assert!(call_result.did_revert());
             let err_msg = String::from_utf8_lossy(call_result.return_data());
-            assert!(err_msg.contains(
-                "The callee reverted, but did not encode an error in the output buffer."
-            ));
+            // The callee reverted, but did not encode an error in the output buffer.
+            // So the output buffer couldn't be decoded.
+            assert!(err_msg.contains("Decode(Error)"));
 
             Ok(())
         }
@@ -512,9 +512,9 @@ mod call_builder {
             let call_result = client.call(&origin, &call).dry_run().await?;
             assert!(call_result.did_revert());
             let err_msg = String::from_utf8_lossy(call_result.return_data());
-            assert!(err_msg.contains(
-                "The callee reverted, but did not encode an error in the output buffer."
-            ));
+            // The callee reverted, but did not encode an error in the output buffer.
+            // So the output buffer couldn't be decoded.
+            assert!(err_msg.contains("Decode(Error)"));
 
             Ok(())
         }
