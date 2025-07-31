@@ -4,15 +4,13 @@
     Write smart contracts in Rust for <a href="https://github.com/paritytech/polkadot-sdk">Polkadot SDK</a>.
 </h1>
 
-[![linux][a1]][a2] [![codecov][c1]][c2] [![coveralls][d1]][d2] [![loc][e1]][e2]<br/>
+[![linux][a1]][a2] [![codecov][c1]][c2] [![loc][e1]][e2]<br/>
 [![stack-exchange][s1]][s2] [![telegram][o1]][o2] [![X][p1]][p2]
 
 [a1]: https://github.com/use-ink/ink/workflows/continuous-integration/badge.svg
 [a2]: https://github.com/use-ink/ink/actions?query=workflow%3Acontinuous-integration+branch%3Amaster
 [c1]: https://codecov.io/gh/use-ink/ink/branch/master/graph/badge.svg
 [c2]: https://codecov.io/gh/use-ink/ink/branch/master
-[d1]: https://coveralls.io/repos/github/use-ink/ink/badge.svg?branch=master
-[d2]: https://coveralls.io/github/use-ink/ink?branch=master
 [e1]: https://tokei.rs/b1/github/use-ink/ink?category=code
 [e2]: https://github.com/Aaronepower/tokei#badges
 [f1]: https://img.shields.io/badge/click-blue.svg
