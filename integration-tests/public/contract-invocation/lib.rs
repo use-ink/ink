@@ -377,8 +377,8 @@ mod instantiate_contract {
             origin: &ink_e2e::Keypair,
             client: &mut Client,
 
-            ver1: &InstantiationResult<E, B>,
-            ver2: &InstantiationResult<E, B>,
+            ver1: &InstantiationResult<E, B, ink::env::DefaultAbi>,
+            ver2: &InstantiationResult<E, B, ink::env::DefaultAbi>,
 
             a: u32,
             b: u32,
