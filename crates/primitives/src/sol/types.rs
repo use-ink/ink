@@ -78,8 +78,35 @@ use crate::{
 /// | `SolBytes<Vec<u8>>` | `bytes` ||
 /// | `SolBytes<Box<[u8]>>` | `bytes` ||
 /// | `(T1, T2, T3, ... T12)` | `(U1, U2, U3, ... U12)` | where `T1` ↔ `U1`, ... `T12` ↔ `U12` e.g. `(bool, u8, Address)` ↔ `(bool, uint8, address)` |
+/// | `Option<T>` | `(bool, T)` | e.g. `Option<u8>` ↔ `(bool, uint8)`|
 ///
 /// Ref: <https://docs.soliditylang.org/en/latest/abi-spec.html#types>
+///
+/// ## `Option<T>` representation
+///
+/// Rust's `Option<T>` type doesn't have a **semantically** equivalent Solidity ABI type,
+/// because [Solidity enums][sol-enum] are field-less.
+///
+/// So `Option<T>` is mapped to a tuple representation instead (i.e. `(bool, T)`),
+/// because this representation allows preservation of semantic information in Solidity,
+/// by using the `bool` as a "flag" indicating the variant
+/// (i.e. `false` for `None` and `true` for `Some`) such that:
+/// - `Option::None` is mapped to `(false, <default_value>)`
+///   where `<default_value>` is the zero bytes only representation of `T`
+///   (e.g. `0u8` for `u8` or `Vec::new()` for `Vec<T>`)
+/// - `Option::Some(value)` is mapped to `(true, value)`
+///
+/// The resulting type in Solidity can be represented as a struct with a field for the "flag"
+/// and another for the data.
+///
+/// Note that `enum` in Solidity is encoded as `uint8` in [Solidity ABI encoding][sol-abi-types],
+/// while the encoding for `bool` is equivalent to the encoding of `uint8`,
+/// with `true` equivalent to `1` and `false` equivalent to `0`.
+/// Therefore, the `bool` "flag" can be safely interpreted as a `bool` or `enum` (or even `uint8`)
+/// in Solidity code.
+///
+/// [sol-enum]: https://docs.soliditylang.org/en/latest/types.html#enums
+/// [sol-abi-types]: https://docs.soliditylang.org/en/latest/abi-spec.html#mapping-solidity-to-abi-types
 ///
 /// # Note
 ///
@@ -126,8 +153,35 @@ pub trait SolTypeDecode: Sized + private::Sealed {
 /// | `&str`, `&mut str` | `string` ||
 /// | `&T`, `&mut T`, `Box<T>` | `T` | e.g. `&i8 ↔ int8` |
 /// | `&[T]`, `&mut [T]` | `T[]` | e.g. `&[i8]` ↔ `int8[]` |
+/// | `Option<T>` | `(bool, T)` | e.g. `Option<u8>` ↔ `(bool, uint8)`|
 ///
 /// Ref: <https://docs.soliditylang.org/en/latest/abi-spec.html#types>
+///
+/// ## `Option<T>` representation
+///
+/// Rust's `Option<T>` type doesn't have a **semantically** equivalent Solidity ABI type,
+/// because [Solidity enums][sol-enum] are field-less.
+///
+/// So `Option<T>` is mapped to a tuple representation instead (i.e. `(bool, T)`),
+/// because this representation allows preservation of semantic information in Solidity,
+/// by using the `bool` as a "flag" indicating the variant
+/// (i.e. `false` for `None` and `true` for `Some`) such that:
+/// - `Option::None` is mapped to `(false, <default_value>)`
+///   where `<default_value>` is the zero bytes only representation of `T`
+///   (e.g. `0u8` for `u8` or `Vec::new()` for `Vec<T>`)
+/// - `Option::Some(value)` is mapped to `(true, value)`
+///
+/// The resulting type in Solidity can be represented as a struct with a field for the "flag"
+/// and another for the data.
+///
+/// Note that `enum` in Solidity is encoded as `uint8` in [Solidity ABI encoding][sol-abi-types],
+/// while the encoding for `bool` is equivalent to the encoding of `uint8`,
+/// with `true` equivalent to `1` and `false` equivalent to `0`.
+/// Therefore, the `bool` "flag" can be safely interpreted as a `bool` or `enum` (or even `uint8`)
+/// in Solidity code.
+///
+/// [sol-enum]: https://docs.soliditylang.org/en/latest/types.html#enums
+/// [sol-abi-types]: https://docs.soliditylang.org/en/latest/abi-spec.html#mapping-solidity-to-abi-types
 ///
 /// # Note
 ///
