@@ -38,7 +38,6 @@ pub mod flipper {
             flipper.flip();
             assert!(flipper.get());
         }
-
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]

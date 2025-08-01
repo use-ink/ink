@@ -102,8 +102,7 @@ impl InkE2ETest {
                 log_info("setting up e2e test");
 
                 ::ink_e2e::INIT.call_once(|| {
-                    // A global subscriber might already be set up, e.g. when `quickcheck`
-                    // is used.
+                    // A global subscriber might already have been set up.
                     let _ = ::ink_e2e::tracing_subscriber::fmt::try_init();
                 });
 
