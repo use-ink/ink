@@ -537,7 +537,6 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn account_id<E: Environment>(&mut self) -> E::AccountId {
         // todo should not use `Engine::account_id`
         self.get_property::<E::AccountId>(Engine::address)

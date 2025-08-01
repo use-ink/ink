@@ -279,7 +279,6 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::account_id`]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn account_id(self) -> E::AccountId {
         ink_env::account_id::<E>()
     }

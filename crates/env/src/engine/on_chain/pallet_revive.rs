@@ -443,7 +443,6 @@ impl TypedEnvBackend for EnvInstance {
         self.get_property_little_endian::<E::Timestamp>(ext::now)
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn account_id<E: Environment>(&mut self) -> E::AccountId {
         let mut scope = self.scoped_buffer();
 
