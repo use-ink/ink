@@ -82,6 +82,7 @@ pub use subxt_signer::{
     },
 };
 pub use tokio;
+pub use tracing;
 pub use tracing_subscriber;
 
 #[cfg(feature = "sandbox")]
