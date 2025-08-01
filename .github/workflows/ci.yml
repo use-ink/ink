@@ -558,6 +558,9 @@ jobs:
         env:
             # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
             RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
+            # Run the quickcheck tests inside contracts, but not for the default amount
+            # of times (as that would take quite long).
+            QUICKCHECK_TESTS: 2
         with:
           # Run all tests with --all-features, which will run the `e2e-tests` feature if present.
           command: |
@@ -595,6 +598,9 @@ jobs:
               RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
               # needed for `mapping::e2e_tests::fallible_storage_methods_work`
               INK_STATIC_BUFFER_SIZE: 256
+              # Run the quickcheck tests inside contracts, but not for the default amount
+              # of times (as that would take quite long).
+              QUICKCHECK_TESTS: 2
           with:
             command: |
                 cargo contract test --all-features --manifest-path integration-tests/internal/mapping/Cargo.toml
