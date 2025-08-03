@@ -112,6 +112,17 @@ pub struct Message {
     /// This overrides the computed selector, even when using a manual namespace
     /// for the parent implementation block.
     selector: Option<SelectorOrWildcard>,
+    /// An optional function name override to use for computing the Solidity ABI
+    /// selector of the message.
+    ///
+    /// # Note
+    ///
+    /// - This configuration argument is only allowed in a Solidity compatible ABI mode
+    ///   (i.e. when the ABI mode is "sol" or "all").
+    /// - If provided, the name must be a valid Solidity identifier.
+    ///
+    /// Ref: <https://docs.soliditylang.org/en/latest/grammar.html#a4.SolidityLexer.Identifier>
+    sol_name: Option<String>,
 }
 
 impl quote::ToTokens for Message {
@@ -190,7 +201,8 @@ impl Message {
                     ir::AttributeArg::Message
                     | ir::AttributeArg::Payable
                     | ir::AttributeArg::Default
-                    | ir::AttributeArg::Selector(_) => Ok(()),
+                    | ir::AttributeArg::Selector(_)
+                    | ir::AttributeArg::SolName(_) => Ok(()),
                     _ => Err(None),
                 }
             },
@@ -211,6 +223,7 @@ impl TryFrom<syn::ImplItemFn> for Message {
         let is_payable = ink_attrs.is_payable();
         let is_default = ink_attrs.is_default();
         let selector = ink_attrs.selector();
+        let sol_name = ink_attrs.sol_name();
         // Ensures that immutable messages are NOT payable.
         if is_payable && self_ref_receiver.mutability.is_none() {
             return Err(format_err!(
@@ -226,6 +239,7 @@ impl TryFrom<syn::ImplItemFn> for Message {
                 attrs: other_attrs,
                 ..method_item
             },
+            sol_name,
         })
     }
 }
@@ -352,6 +366,12 @@ impl Message {
     /// Returns the identifier of the message with an additional `try_` prefix attached.
     pub fn try_ident(&self) -> Ident {
         quote::format_ident!("try_{}", self.ident())
+    }
+
+    /// Returns the function name override (if any) for computing the Solidity ABI
+    /// selector of the message.
+    pub fn sol_name(&self) -> Option<&str> {
+        self.sol_name.as_deref()
     }
 }
 

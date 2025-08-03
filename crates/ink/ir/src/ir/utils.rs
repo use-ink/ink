@@ -14,8 +14,11 @@
 
 use super::Selector;
 use crate::{
-    ast,
-    ast::MetaNameValue,
+    ast::{
+        self,
+        MetaNameValue,
+        MetaValue,
+    },
     error::ExtError as _,
     format_err,
 };
@@ -185,4 +188,62 @@ pub fn extract_cfg_syn_attributes(attrs: &[syn::Attribute]) -> Vec<syn::Attribut
         .filter(|a| a.path().is_ident(super::CFG_IDENT))
         .cloned()
         .collect()
+}
+
+/// Returns `syn::LitStr` value if it's a valid Solidity identifier.
+///
+/// # Note
+///
+/// Always returns an error if we're not in Solidity compatibility mode (i.e. when the ABI
+/// mode is neither "sol" nor "all").
+///
+/// Ref: <https://docs.soliditylang.org/en/latest/grammar.html#a4.SolidityLexer.Identifier>
+pub fn extract_sol_name(
+    // unused in ink! ABI mode.
+    #[cfg_attr(not(any(ink_abi = "sol", ink_abi = "all")), allow(unused_variables))]
+    value: Option<&MetaValue>,
+    span: Span,
+) -> syn::Result<syn::LitStr> {
+    #[cfg(not(any(ink_abi = "sol", ink_abi = "all")))]
+    return Err(syn::Error::new(
+        span,
+        "`sol_name` attribute argument is only allowed in \
+        Solidity ABI compatibility mode",
+    ));
+
+    #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
+    if let Some(lit_str) = value.and_then(MetaValue::as_lit_string) {
+        let name = lit_str.value();
+        if !name
+            .chars()
+            .next()
+            .map(|c| c.is_alphabetic() || c == '$' || c == '_')
+            .unwrap_or(false)
+        {
+            return Err(format_err_spanned!(
+                lit_str,
+                "Solidity identifiers must begin with an \
+                alphabetic character, dollar sign or underscore",
+            ));
+        }
+
+        if !name
+            .chars()
+            .all(|c| c.is_alphanumeric() || c == '$' || c == '_')
+        {
+            return Err(format_err_spanned!(
+                lit_str,
+                "Solidity identifiers can only contain \
+                alphanumeric characters, dollar signs and underscores",
+            ));
+        }
+
+        Ok(lit_str.clone())
+    } else {
+        Err(syn::Error::new(
+            span,
+            "expected a string literal value for `sol_name` \
+            attribute argument",
+        ))
+    }
 }

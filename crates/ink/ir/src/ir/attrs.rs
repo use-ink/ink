@@ -39,6 +39,7 @@ use crate::{
         chain_extension::FunctionId,
         Selector,
     },
+    utils::extract_sol_name,
 };
 
 /// An extension trait for [`syn::Attribute`] in order to query for documentation.
@@ -330,6 +331,16 @@ impl InkAttribute {
             .args()
             .any(|arg| matches!(arg.kind(), AttributeArg::HandleStatus(false)))
     }
+
+    /// Returns the Solidity identifier name of the ink! attribute if any.
+    pub fn sol_name(&self) -> Option<String> {
+        self.args().find_map(|arg| {
+            match arg.kind() {
+                AttributeArg::SolName(name) => Some(name.clone()),
+                _ => None,
+            }
+        })
+    }
 }
 
 /// An ink! specific attribute argument.
@@ -383,6 +394,8 @@ pub enum AttributeArgKind {
     Implementation,
     /// `#[ink(handle_status = flag: bool)]`
     HandleStatus,
+    /// `#[ink(sol_name = "myName")]`
+    SolName,
 }
 
 /// An ink! specific attribute flag.
@@ -463,6 +476,19 @@ pub enum AttributeArg {
     ///
     /// Default value: `true`
     HandleStatus(bool),
+    /// `#[ink(sol_name = "myName")]`
+    ///
+    /// Applied on ink! messages and events to provide the name for the item to use for
+    /// Solidity ABI encoding.
+    ///
+    /// # Note
+    ///
+    /// - Only allowed in Solidity ABI compatibility mode (i.e. when the ABI mode is
+    ///   "sol" or "all").
+    /// - The name must be a valid Solidity identifier.
+    ///
+    /// Ref: <https://docs.soliditylang.org/en/latest/grammar.html#a4.SolidityLexer.Identifier>
+    SolName(String),
 }
 
 impl core::fmt::Display for AttributeArgKind {
@@ -489,6 +515,7 @@ impl core::fmt::Display for AttributeArgKind {
             Self::Implementation => write!(f, "impl"),
             Self::HandleStatus => write!(f, "handle_status"),
             Self::Default => write!(f, "default"),
+            Self::SolName => write!(f, "sol_name = N:string"),
         }
     }
 }
@@ -510,6 +537,7 @@ impl AttributeArg {
             Self::Implementation => AttributeArgKind::Implementation,
             Self::HandleStatus(_) => AttributeArgKind::HandleStatus,
             Self::Default => AttributeArgKind::Default,
+            Self::SolName(_) => AttributeArgKind::SolName,
         }
     }
 }
@@ -536,6 +564,7 @@ impl core::fmt::Display for AttributeArg {
             Self::Implementation => write!(f, "impl"),
             Self::HandleStatus(value) => write!(f, "handle_status = {value:?}"),
             Self::Default => write!(f, "default"),
+            Self::SolName(name) => write!(f, "namespace = {name:?}"),
         }
     }
 }
@@ -983,6 +1012,11 @@ impl Parse for AttributeFrag {
                             ))
                         }
                     }
+                    "sol_name" => {
+                        let sol_name =
+                            extract_sol_name(Some(&name_value.value), name_value.span())?;
+                        Ok(AttributeArg::SolName(sol_name.value().to_string()))
+                    }
                     _ => {
                         Err(format_err_spanned!(
                             ident,
@@ -1029,6 +1063,10 @@ impl Parse for AttributeFrag {
                            "encountered #[ink(selector)] that is missing its u32 parameter. \
                             Did you mean #[ink(selector = value: u32)] ?"
                         )),
+                        "sol_name" => {
+                            Err(extract_sol_name(None, path.span())
+                                .expect_err("Validating `sol_name` with no value should always error"))
+                        },
                         _ => Err(format_err_spanned!(
                             path,
                             "encountered unknown ink! attribute argument: {}",

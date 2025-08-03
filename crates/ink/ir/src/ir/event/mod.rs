@@ -111,6 +111,12 @@ impl Event {
     pub fn get_cfg_attrs(&self, span: Span) -> Vec<TokenStream2> {
         extract_cfg_attributes(&self.item.attrs, span)
     }
+
+    /// Returns the event name override (if any) for computing the Solidity ABI selector
+    /// of the event.
+    pub fn sol_name(&self) -> Option<&str> {
+        self.config.sol_name()
+    }
 }
 
 impl ToTokens for Event {
@@ -134,7 +140,8 @@ impl TryFrom<syn::ItemStruct> for Event {
                 match arg.kind() {
                     ir::AttributeArg::Event
                     | ir::AttributeArg::SignatureTopic(_)
-                    | ir::AttributeArg::Anonymous => Ok(()),
+                    | ir::AttributeArg::Anonymous
+                    | ir::AttributeArg::SolName(_) => Ok(()),
                     _ => Err(None),
                 }
             },
@@ -153,6 +160,7 @@ impl TryFrom<syn::ItemStruct> for Event {
             config: EventConfig::new(
                 ink_attrs.is_anonymous(),
                 ink_attrs.signature_topic_hex(),
+                ink_attrs.sol_name(),
             ),
         })
     }
