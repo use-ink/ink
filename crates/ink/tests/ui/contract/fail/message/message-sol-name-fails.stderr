@@ -1,0 +1,5 @@
+error: `sol_name` attribute argument is only allowed in Solidity ABI compatibility mode
+  --> tests/ui/contract/fail/message/message-sol-name-fails.rs:14:24
+   |
+14 |         #[ink(message, sol_name = "myMessage")]
+   |                        ^^^^^^^^^^^^^^^^^^^^^^

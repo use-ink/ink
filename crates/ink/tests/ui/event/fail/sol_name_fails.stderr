@@ -1,0 +1,5 @@
+error: `sol_name` attribute argument is only allowed in Solidity ABI compatibility mode
+ --> tests/ui/event/fail/sol_name_fails.rs:2:14
+  |
+2 | #[ink::event(sol_name = "MyEvent")]
+  |              ^^^^^^^^^^^^^^^^^^^^
