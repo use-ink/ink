@@ -98,8 +98,10 @@ impl SolidityMetadata<'_> {
             .impls()
             .flat_map(|item_impl| item_impl.iter_messages())
             .map(|msg| {
-                let ident = msg.ident();
-                let name = ident.to_string();
+                let name = msg
+                    .sol_name()
+                    .map(ToString::to_string)
+                    .unwrap_or_else(|| msg.ident().to_string());
                 let inputs = params_info(msg.inputs());
                 let output = msg
                     .output()
