@@ -72,7 +72,11 @@ impl Event<'_> {
     fn solidity_event_metadata(&self) -> TokenStream2 {
         let item = self.item.item();
         let ident = &item.ident;
-        let name = ident.to_string();
+        let name = self
+            .item
+            .sol_name()
+            .map(ToString::to_string)
+            .unwrap_or_else(|| ident.to_string());
         let is_anonymous = self.item.anonymous();
 
         let fields = match &item.fields {
