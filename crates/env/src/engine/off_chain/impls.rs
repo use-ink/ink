@@ -537,9 +537,15 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
+    fn to_account_id<E: Environment>(&mut self, addr: Address) -> E::AccountId {
+        let mut full_scope: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
+        let full_scope = &mut &mut full_scope[..];
+        Engine::to_account_id(&self.engine, addr.as_bytes(), full_scope);
+        scale::Decode::decode(&mut &full_scope[..]).unwrap()
+    }
+
     fn account_id<E: Environment>(&mut self) -> E::AccountId {
-        // todo should not use `Engine::account_id`
-        self.get_property::<E::AccountId>(Engine::address)
+        self.get_property::<E::AccountId>(Engine::account_id)
             .unwrap_or_else(|error| {
                 panic!("could not read `account_id` property: {error:?}")
             })

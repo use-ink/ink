@@ -27,10 +27,19 @@ const STORAGE_OF: &[u8] = b"contract-storage:";
 const CONTRACT_PREFIX: &[u8] = b"contract:";
 const MSG_HANDLER_OF: &[u8] = b"message-handler:";
 const CODE_HASH_OF: &[u8] = b"code-hash:";
+const ACCOUNT_ID_OF: &[u8] = b"account-id:";
 
 /// Returns the database key under which to find the balance for contract `who`.
 pub fn balance_of_key(who: &Address) -> [u8; 32] {
     let keyed = who.0.to_vec().to_keyed_vec(BALANCE_OF);
+    let mut hashed_key: [u8; 32] = [0; 32];
+    super::hashing::blake2b_256(&keyed[..], &mut hashed_key);
+    hashed_key
+}
+
+/// Returns the database key under which to find the account id for the address `who`.
+pub fn account_id_of_key(who: &Address) -> [u8; 32] {
+    let keyed = who.0.to_vec().to_keyed_vec(ACCOUNT_ID_OF);
     let mut hashed_key: [u8; 32] = [0; 32];
     super::hashing::blake2b_256(&keyed[..], &mut hashed_key);
     hashed_key
@@ -152,13 +161,23 @@ impl Database {
     }
 
     /// Returns the balance of the contract at `addr`, if available.
-    pub fn get_acc_balance(&self, _addr: &AccountId) -> Option<Balance> {
+    pub fn get_acc_balance(&self, _account_id: &AccountId) -> Option<Balance> {
         todo!()
     }
 
     /// Sets the balance of `addr` to `new_balance`.
-    pub fn set_acc_balance(&mut self, _addr: &AccountId, _new_balance: Balance) {
+    pub fn set_acc_balance(&mut self, _account_id: &AccountId, _new_balance: Balance) {
         todo!()
+    }
+
+    /// Retrieves the account id for a specified contract address.
+    pub fn to_account_id(&self, addr: &Address) -> Vec<u8> {
+        let hashed_key = account_id_of_key(addr);
+        self.get(&hashed_key).cloned().unwrap_or_else(|| {
+            let mut bytes = [0xEE; 32];
+            bytes[..20].copy_from_slice(&addr.as_bytes()[..20]);
+            Vec::from(bytes)
+        })
     }
 
     pub fn get_balance(&self, addr: &Address) -> Option<U256> {

@@ -274,6 +274,24 @@ impl Engine {
         set_output(output, callee)
     }
 
+    pub fn account_id(&self, output: &mut &mut [u8]) {
+        let callee = self
+            .exec_context
+            .callee
+            .as_ref()
+            .expect("no callee has been set");
+        let account_id = self.database.to_account_id(callee);
+        set_output(output, account_id.as_slice())
+    }
+
+    /// Retrieves the account id for a specified contract address.
+    pub fn to_account_id(&self, input: &[u8], output: &mut &mut [u8]) {
+        let addr =
+            scale::Decode::decode(&mut &input[..]).expect("unable to decode Address");
+        let account_id = self.database.to_account_id(&addr);
+        set_output(output, account_id.as_slice())
+    }
+
     /// Conduct the BLAKE-2 256-bit hash and place the result into `output`.
     pub fn hash_blake2_256(input: &[u8], output: &mut [u8; 32]) {
         super::hashing::blake2b_256(input, output);

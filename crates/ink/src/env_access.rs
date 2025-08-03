@@ -238,6 +238,48 @@ where
         ink_env::block_timestamp::<E>()
     }
 
+    /// Retrieves the account id for a specified contract address.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// pub mod only_owner {
+    ///     #[ink(storage)]
+    ///     pub struct OnlyOwner {
+    ///         owner: AccountId,
+    ///         value: u32,
+    ///     }
+    ///
+    ///     impl OnlyOwner {
+    ///         #[ink(constructor)]
+    ///         pub fn new(owner: AccountId) -> Self {
+    ///             Self { owner, value: 0 }
+    ///         }
+    ///
+    ///         /// Allows incrementing the contract's `value` only
+    ///         /// for the owner (i.e. the account which instantiated
+    ///         /// this contract.
+    ///         ///
+    ///         /// The contract panics if the caller is not the owner.
+    ///         #[ink(message)]
+    ///         pub fn increment(&mut self) {
+    ///             let caller = self.env().address();
+    ///             let caller_acc = self.env().to_account_id(&caller);
+    ///             assert!(self.owner == caller_acc);
+    ///             self.value = self.value + 1;
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::account_id`]
+    pub fn to_account_id(self, addr: Address) -> E::AccountId {
+        ink_env::to_account_id::<E>(addr)
+    }
+
     /// Returns the account ID of the executed contract.
     ///
     /// # Example

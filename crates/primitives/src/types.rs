@@ -469,7 +469,6 @@ pub enum Origin<E: Environment> {
 
 pub struct AccountIdMapper {}
 impl AccountIdMapper {
-    //pub fn to_address(account_id: &E::AccountId) -> Address {
     pub fn to_address(account_id: &[u8]) -> Address {
         let mut account_bytes: [u8; 32] = [0u8; 32];
         account_bytes.copy_from_slice(&account_id[..32]);
