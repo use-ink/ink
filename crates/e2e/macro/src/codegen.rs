@@ -59,8 +59,8 @@ impl InkE2ETest {
             .test
             .config
             .replace_test_attr()
-            .unwrap_or("#[test]".to_string());
-        let possibly_fn_input = if chosen_test_attr == "#[test]".to_string() {
+            .unwrap_or_else(|| "#[test]".to_string());
+        let possibly_fn_input = if chosen_test_attr == "#[test]" {
             quote! {}
         } else {
             let inputs = &item_fn.sig.inputs;
