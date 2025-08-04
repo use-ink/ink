@@ -55,6 +55,18 @@ impl InkE2ETest {
             .environment()
             .unwrap_or_else(|| syn::parse_quote! { ::ink::env::DefaultEnvironment });
 
+        let chosen_test_attr = self
+            .test
+            .config
+            .replace_test_attr()
+            .unwrap_or_else(|| "#[test]".to_string());
+        let possibly_fn_input = if chosen_test_attr == "#[test]" {
+            quote! {}
+        } else {
+            let inputs = &item_fn.sig.inputs;
+            quote! { #inputs }
+        };
+
         let features = self.test.config.features();
         let exec_build_contracts = quote! {
             ::ink_e2e::build_root_and_contract_dependencies(
@@ -72,10 +84,16 @@ impl InkE2ETest {
             }
         };
 
+        let parser = syn::Attribute::parse_outer;
+        use syn::parse::Parser;
+        let chosen_test_attr = parser
+            .parse_str(&chosen_test_attr)
+            .expect("Failed to parse attribute");
+
         quote! {
             #( #attrs )*
-            #[test]
-            #vis fn #fn_name () #ret {
+            #( #chosen_test_attr )*
+            #vis fn #fn_name (#possibly_fn_input) #ret {
                 use ::ink_e2e::log_info;
                 ::ink_e2e::LOG_PREFIX.with(|log_prefix| {
                     let str = format!("test: {}", stringify!(#fn_name));
@@ -84,7 +102,8 @@ impl InkE2ETest {
                 log_info("setting up e2e test");
 
                 ::ink_e2e::INIT.call_once(|| {
-                    ::ink_e2e::tracing_subscriber::fmt::init();
+                    // A global subscriber might already have been set up.
+                    let _ = ::ink_e2e::tracing_subscriber::fmt::try_init();
                 });
 
                 log_info("creating new client");
@@ -127,7 +146,8 @@ fn build_full_client(
                 let mut client = ::ink_e2e::Client::<
                     ::ink_e2e::PolkadotConfig,
                     #environment
-                >::new(rpc, contracts, #url.to_string()).await?;
+                >::new(rpc, contracts, #url.to_string()).await
+                    .expect("Failed creating Client");
             }
         }
         None => {
@@ -143,7 +163,8 @@ fn build_full_client(
                 let mut client = ::ink_e2e::Client::<
                     ::ink_e2e::PolkadotConfig,
                     #environment
-                >::new(node_rpc.rpc(), contracts, node_rpc.url().to_string()).await?;
+                >::new(node_rpc.rpc(), contracts, node_rpc.url().to_string()).await
+                    .expect("Failed creating Client");
             }
         }
     }
