@@ -288,8 +288,8 @@ fn trybuild_wrapper_test(
     let abi_cfg = format!("--cfg\x1fink_abi=\"{abi}\"\x1f--check-cfg\x1fcfg(ink_abi,values(\"ink\",\"sol\",\"all\"))");
     cmd.env("TRYBUILD_WRAPPER_ENCODED_FLAGS", abi_cfg);
 
-    // Enable `unstable-hostfn` feature (needed by events compile tests).
-    cmd.env("TRYBUILD_WRAPPER_CARGO_ARGS", "--features unstable-hostfn");
+    // Enable `std` and `unstable-hostfn` features (needed by events and metadata tests).
+    cmd.env("TRYBUILD_WRAPPER_CARGO_ARGS", "--features std,unstable-hostfn");
 
     let exit_status = cmd.status().unwrap();
     if !exit_status.success() {
