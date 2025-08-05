@@ -151,7 +151,7 @@ for (( i = start; i <= end; i++ )); do
   echo "writing to " $size_file >&2
   echo "command: ${command[@]} >> $size_file"
   ls -lh measurements-* >&2
-  eval "${command[@]}" >> $size_file >&2
+  eval "${command[@]}" >> $size_file
   ls -lh ${CONTRACT_SIZE_FILE}$example* >&2
   sed -ie 's/^integration-tests\/\(public\/\|internal\/\)\?//' $size_file
   ls -lh ${CONTRACT_SIZE_FILE}$example* >&2
