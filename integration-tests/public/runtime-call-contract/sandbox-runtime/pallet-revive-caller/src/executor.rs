@@ -25,8 +25,6 @@ use pallet_revive::{
 use sp_runtime::traits::Bounded;
 
 pub struct PalletReviveExecutor<E: Environment, Runtime: pallet_revive::Config> {
-    // todo
-    //pub origin: AccountIdOf<Runtime>,
     pub origin: OriginFor<Runtime>,
     pub contract: Address,
     pub value: BalanceOf<Runtime>,
@@ -59,8 +57,6 @@ where
         let data = input.encode();
         let result = pallet_revive::Pallet::<R>::bare_call(
             self.origin.clone(),
-            // <R as pallet_revive::Config>::AddressMapper::to_account_id(&self.
-            // contract),
             self.contract,
             self.value,
             self.gas_limit,
