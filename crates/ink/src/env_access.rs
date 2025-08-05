@@ -258,8 +258,7 @@ where
     ///         }
     ///
     ///         /// Allows incrementing the contract's `value` only
-    ///         /// for the owner (i.e. the account which instantiated
-    ///         /// this contract.
+    ///         /// for the owner.
     ///         ///
     ///         /// The contract panics if the caller is not the owner.
     ///         #[ink(message)]
@@ -284,13 +283,12 @@ where
     ///
     /// # Example
     ///
-    /// todo this code example doesn't use `account_id()`.
     /// ```
     /// #[ink::contract]
     /// pub mod only_owner {
     ///     #[ink(storage)]
     ///     pub struct OnlyOwner {
-    ///         owner: ink::Address,
+    ///         owner: AccountId,
     ///         value: u32,
     ///     }
     ///
@@ -298,19 +296,18 @@ where
     ///         #[ink(constructor)]
     ///         pub fn new() -> Self {
     ///             Self {
-    ///                 owner: Self::env().caller(),
+    ///                 owner: Self::env().account_id(),
     ///                 value: 0,
     ///             }
     ///         }
     ///
     ///         /// Allows incrementing the contract's `value` only
-    ///         /// for the owner (i.e. the account which instantiated
-    ///         /// this contract.
+    ///         /// for the owner.
     ///         ///
     ///         /// The contract panics if the caller is not the owner.
     ///         #[ink(message)]
     ///         pub fn increment(&mut self) {
-    ///             let caller = self.env().caller();
+    ///             let caller = self.env().account_id();
     ///             assert!(self.owner == caller);
     ///             self.value = self.value + 1;
     ///         }
