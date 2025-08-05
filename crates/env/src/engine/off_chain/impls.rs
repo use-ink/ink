@@ -50,11 +50,13 @@ use crate::{
         TopicsBuilderBackend,
     },
     hash::{
+        Blake2x256,
         CryptoHash,
         HashOutput,
         Keccak256,
         Sha2x256,
     },
+    Clear,
     DecodeDispatch,
     DispatchError,
     EnvBackend,
@@ -71,10 +73,8 @@ use crate::{
     },
     hash::{
         Blake2x128,
-        Blake2x256,
     },
     test::callee,
-    Clear,
 };
 
 /// The capacity of the static buffer.
@@ -175,7 +175,6 @@ impl CryptoHash for Blake2x128 {
     }
 }
 
-#[cfg(feature = "unstable-hostfn")]
 impl CryptoHash for Blake2x256 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
         type OutputType = [u8; 32];
@@ -223,7 +222,6 @@ where
 {
     type Output = Vec<u8>;
 
-    #[cfg(feature = "unstable-hostfn")]
     fn push_topic<T>(&mut self, topic_value: &T)
     where
         T: scale::Encode,
