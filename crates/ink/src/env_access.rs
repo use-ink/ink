@@ -265,7 +265,7 @@ where
     ///         #[ink(message)]
     ///         pub fn increment(&mut self) {
     ///             let caller = self.env().address();
-    ///             let caller_acc = self.env().to_account_id(&caller);
+    ///             let caller_acc = self.env().to_account_id(caller);
     ///             assert!(self.owner == caller_acc);
     ///             self.value = self.value + 1;
     ///         }
