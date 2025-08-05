@@ -108,11 +108,12 @@ where
     })
 }
 
-/// Retrieves the account id for a specified contract address.
+/// Retrieves the account id for a specified address.
 ///
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
+#[cfg(feature = "unstable-hostfn")]
 pub fn to_account_id<E>(addr: Address) -> E::AccountId
 where
     E: Environment,

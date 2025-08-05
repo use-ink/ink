@@ -284,7 +284,7 @@ impl Engine {
         set_output(output, account_id.as_slice())
     }
 
-    /// Retrieves the account id for a specified contract address.
+    /// Retrieves the account id for a specified address.
     pub fn to_account_id(&self, input: &[u8], output: &mut &mut [u8]) {
         let addr =
             scale::Decode::decode(&mut &input[..]).expect("unable to decode Address");

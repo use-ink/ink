@@ -172,6 +172,7 @@ where
     /// #[ink(message)]
     /// pub fn foo(&self) {}
     ///
+    /// // todo
     /// // /// Returns a tuple of
     /// // ///   - the result of adding the `rhs` to the `lhs`
     /// // ///   - the gas costs of this addition operation
@@ -238,7 +239,7 @@ where
         ink_env::block_timestamp::<E>()
     }
 
-    /// Retrieves the account id for a specified contract address.
+    /// Retrieves the account id for a specified address.
     ///
     /// # Example
     ///
@@ -274,7 +275,8 @@ where
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::account_id`]
+    /// For more details visit: [`ink_env::to_account_id`]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn to_account_id(self, addr: Address) -> E::AccountId {
         ink_env::to_account_id::<E>(addr)
     }

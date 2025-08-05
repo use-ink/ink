@@ -170,7 +170,7 @@ impl Database {
         todo!()
     }
 
-    /// Retrieves the account id for a specified contract address.
+    /// Retrieves the account id for a specified address.
     pub fn to_account_id(&self, addr: &Address) -> Vec<u8> {
         let hashed_key = account_id_of_key(addr);
         self.get(&hashed_key).cloned().unwrap_or_else(|| {

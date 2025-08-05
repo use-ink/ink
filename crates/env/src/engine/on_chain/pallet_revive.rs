@@ -455,6 +455,7 @@ impl TypedEnvBackend for EnvInstance {
             .expect("A contract being executed must have a valid account id.")
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn to_account_id<E: Environment>(&mut self, addr: Address) -> E::AccountId {
         let mut scope = self.scoped_buffer();
         let account_id: &mut [u8; 32] = scope.take(32).try_into().unwrap();
