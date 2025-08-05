@@ -34,6 +34,13 @@ use pallet_revive_uapi::{
 #[cfg(feature = "unstable-hostfn")]
 use xcm::VersionedXcm;
 
+#[cfg(feature = "unstable-hostfn")]
+use crate::call::{
+    ConstructorReturnType,
+    CreateParams,
+    FromAddr,
+    LimitParamsV2,
+};
 use crate::{
     call::{
         utils::DecodeMessageResult,
@@ -51,12 +58,14 @@ use crate::{
         TopicsBuilderBackend,
     },
     hash::{
+        Blake2x256,
         CryptoHash,
         HashOutput,
         Keccak256,
         Sha2x256,
     },
     types::FromLittleEndian,
+    Clear,
     DecodeDispatch,
     DispatchError,
     EnvBackend,
@@ -64,21 +73,7 @@ use crate::{
     Result,
     TypedEnvBackend,
 };
-#[cfg(feature = "unstable-hostfn")]
-use crate::{
-    call::{
-        ConstructorReturnType,
-        CreateParams,
-        FromAddr,
-        LimitParamsV2,
-    },
-    hash::{
-        Blake2x256,
-    },
-    Clear,
-};
 
-#[cfg(feature = "unstable-hostfn")]
 impl CryptoHash for Blake2x256 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
         type OutputType = [u8; 32];
@@ -87,9 +82,8 @@ impl CryptoHash for Blake2x256 {
             OutputType
         );
         let output: &mut OutputType = array_mut_ref!(output, 0, 32);
-        //ext::hash_blake2_256(input, output);
         const ADDR: [u8; 20] =
-            hex_literal::hex!("0000000000000000000000000000000000000002");
+            hex_literal::hex!("0000000000000000000000000000000000000009");
         // todo return value?
         let _ = ext::call(
             CallFlags::empty(),
@@ -168,7 +162,6 @@ where
 {
     type Output = (ScopedBuffer<'a>, &'a mut [u8]);
 
-    #[cfg(feature = "unstable-hostfn")]
     fn push_topic<T>(&mut self, topic_value: &T)
     where
         T: scale::Encode,
