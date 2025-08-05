@@ -70,7 +70,6 @@ use crate::{
         LimitParamsV2,
     },
     hash::{
-        Blake2x128,
         Blake2x256,
     },
     test::callee,
@@ -160,19 +159,6 @@ where
 
     // TODO: (@davidsemakula) Track return flag and set `did_revert` as appropriate.
     R::decode_output(&result, false)
-}
-
-#[cfg(feature = "unstable-hostfn")]
-impl CryptoHash for Blake2x128 {
-    fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
-        type OutputType = [u8; 16];
-        static_assertions::assert_type_eq_all!(
-            <Blake2x128 as HashOutput>::Type,
-            OutputType
-        );
-        let output: &mut OutputType = array_mut_ref!(output, 0, 16);
-        Engine::hash_blake2_128(input, output);
-    }
 }
 
 #[cfg(feature = "unstable-hostfn")]
