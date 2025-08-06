@@ -123,7 +123,6 @@ pub use self::{
         Timestamp,
     },
 };
-#[cfg(feature = "unstable-hostfn")]
 use ink_primitives::Clear;
 pub use ink_primitives::{
     contract::{

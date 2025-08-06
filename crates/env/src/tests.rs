@@ -52,13 +52,3 @@ fn test_hash_blake2_256() {
         ]
     );
 }
-
-#[test]
-fn test_hash_blake2_128() {
-    let mut output = [0x00_u8; 16];
-    crate::hash_bytes::<crate::hash::Blake2x128>(TEST_INPUT, &mut output);
-    assert_eq!(
-        output,
-        [180, 158, 48, 21, 171, 163, 217, 175, 145, 160, 25, 159, 213, 142, 103, 242]
-    );
-}

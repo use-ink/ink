@@ -279,11 +279,6 @@ impl Engine {
         super::hashing::blake2b_256(input, output);
     }
 
-    /// Conduct the BLAKE-2 128-bit hash and place the result into `output`.
-    pub fn hash_blake2_128(input: &[u8], output: &mut [u8; 16]) {
-        super::hashing::blake2b_128(input, output);
-    }
-
     /// Conduct the SHA-2 256-bit hash and place the result into `output`.
     pub fn hash_sha2_256(input: &[u8], output: &mut [u8; 32]) {
         super::hashing::sha2_256(input, output);
