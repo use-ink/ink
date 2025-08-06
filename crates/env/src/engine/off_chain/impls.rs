@@ -47,6 +47,7 @@ use crate::{
     },
     event::{
         Event,
+        TopicHasher,
         TopicsBuilderBackend,
     },
     hash::{
@@ -74,7 +75,6 @@ use crate::{
         Blake2x256,
     },
     test::callee,
-    Clear,
 };
 
 /// The capacity of the static buffer.
@@ -214,47 +214,32 @@ impl CryptoHash for Keccak256 {
 
 #[derive(Default)]
 pub struct TopicsBuilder {
-    pub topics: Vec<Vec<u8>>,
+    pub topics: Vec<[u8; 32]>,
 }
 
-impl<E> TopicsBuilderBackend<E> for TopicsBuilder
+impl<E, Abi> TopicsBuilderBackend<E, Abi> for TopicsBuilder
 where
     E: Environment,
+    Abi: TopicHasher,
 {
-    type Output = Vec<u8>;
+    type Output = Vec<[u8; 32]>;
 
     #[cfg(feature = "unstable-hostfn")]
     fn push_topic<T>(&mut self, topic_value: &T)
     where
-        T: scale::Encode,
+        T: AbiEncodeWith<Abi>,
     {
-        // todo
-        let encoded = topic_value.encode();
-        let len_encoded = encoded.len();
-        let mut result = <E as Environment>::Hash::CLEAR_HASH;
-        let len_result = result.as_ref().len();
-        if len_encoded <= len_result {
-            result.as_mut()[..len_encoded].copy_from_slice(&encoded[..]);
-        } else {
-            let mut hash_output = <Blake2x256 as HashOutput>::Type::default();
-            <Blake2x256 as CryptoHash>::hash(&encoded[..], &mut hash_output);
-            let copy_len = core::cmp::min(hash_output.len(), len_result);
-            result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
-        }
-        let off_hash = result.as_ref();
-        let off_hash = off_hash.to_vec();
-        self.topics.push(off_hash);
+        let hasher = |input: &[u8]| {
+            let mut output = [0u8; 32];
+            <<Abi as TopicHasher>::Hasher as CryptoHash>::hash(input, &mut output);
+            output
+        };
+        let encoded = topic_value.encode_topic(hasher);
+        self.topics.push(encoded);
     }
 
     fn output(self) -> Self::Output {
-        let mut all: Vec<u8> = Vec::new();
-
-        let topics_len_compact = &scale::Compact(self.topics.len() as u32);
-        let topics_encoded = &scale::Encode::encode(&topics_len_compact)[..];
-        all.append(&mut topics_encoded.to_vec());
-
-        self.topics.into_iter().for_each(|mut v| all.append(&mut v));
-        all
+        self.topics
     }
 }
 
@@ -575,15 +560,17 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
-    fn emit_event<E, Evt>(&mut self, event: Evt)
+    fn emit_event<E, Evt, Abi>(&mut self, event: Evt)
     where
         E: Environment,
-        Evt: Event,
+        Evt: Event<Abi>,
+        Abi: TopicHasher,
     {
         let builder = TopicsBuilder::default();
         let enc_topics = event.topics::<E, _>(builder.into());
-        let enc_data = &scale::Encode::encode(&event)[..];
-        self.engine.deposit_event(&enc_topics[..], enc_data);
+        let enc_data = event.encode_data();
+        self.engine
+            .deposit_event(&enc_topics[..], enc_data.as_slice());
     }
 
     fn invoke_contract<E, Args, R, Abi>(

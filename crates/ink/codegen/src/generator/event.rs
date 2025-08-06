@@ -52,17 +52,38 @@ impl GenerateCode for Event<'_> {
             .map(|name| quote::quote! { #[ink(name = #name)] });
         let cfg_attrs = self.item.get_cfg_attrs(item.span());
 
-        #[cfg(all(feature = "std", any(ink_abi = "sol", ink_abi = "all")))]
-        let sol_event_metadata = self.solidity_event_metadata();
+        // SCALE Codec and ink! metadata derives.
+        #[cfg(not(ink_abi = "sol"))]
+        let (scale_derive, ink_event_metadata_derive) =
+            (quote! { #[::ink::scale_derive(Encode, Decode)] }, {
+                #[cfg(feature = "std")]
+                quote! { #[derive(::ink::EventMetadata)] }
+                #[cfg(not(feature = "std"))]
+                quote! {}
+            });
+        #[cfg(ink_abi = "sol")]
+        let (scale_derive, ink_event_metadata_derive) = (quote! {}, quote! {});
 
-        #[cfg(not(all(feature = "std", any(ink_abi = "sol", ink_abi = "all"))))]
-        let sol_event_metadata = quote! {};
+        // Solidity ABI encoding/decoding derives and metadata implementation.
+        #[cfg(not(any(ink_abi = "sol", ink_abi = "all")))]
+        let (sol_codec_derive, sol_event_metadata) = (quote! {}, quote! {});
+        #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
+        let (sol_codec_derive, sol_event_metadata) =
+            (quote! { #[derive(::ink::SolEncode, ::ink::SolDecode)] }, {
+                #[cfg(feature = "std")]
+                {
+                    self.solidity_event_metadata()
+                }
+                #[cfg(not(feature = "std"))]
+                quote! {}
+            });
 
         quote::quote! (
             #( #cfg_attrs )*
-            #[cfg_attr(feature = "std", derive(::ink::EventMetadata))]
+            #ink_event_metadata_derive
             #[derive(::ink::Event)]
-            #[::ink::scale_derive(Encode, Decode)]
+            #scale_derive
+            #sol_codec_derive
             #anonymous
             #signature_topic
             #name_override
