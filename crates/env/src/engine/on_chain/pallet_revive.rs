@@ -48,6 +48,7 @@ use crate::{
     },
     event::{
         Event,
+        TopicHasher,
         TopicsBuilderBackend,
     },
     hash::{
@@ -161,26 +162,33 @@ where
     }
 }
 
-impl<'a, E> TopicsBuilderBackend<E> for TopicsBuilder<'a, E>
+impl<'a, E, Abi> TopicsBuilderBackend<E, Abi> for TopicsBuilder<'a, E>
 where
     E: Environment,
+    Abi: TopicHasher,
 {
     type Output = (ScopedBuffer<'a>, &'a mut [u8]);
 
     #[cfg(feature = "unstable-hostfn")]
     fn push_topic<T>(&mut self, topic_value: &T)
     where
-        T: scale::Encode,
+        T: AbiEncodeWith<Abi>,
     {
-        fn inner<E: Environment>(encoded: &mut [u8]) -> <E as Environment>::Hash {
+        fn inner<E: Environment, Abi: TopicHasher>(
+            encoded: &mut [u8],
+        ) -> <E as Environment>::Hash {
             let len_encoded = encoded.len();
             let mut result = <E as Environment>::Hash::CLEAR_HASH;
             let len_result = result.as_ref().len();
             if len_encoded <= len_result {
                 result.as_mut()[..len_encoded].copy_from_slice(encoded);
             } else {
-                let mut hash_output = <Blake2x256 as HashOutput>::Type::default();
-                <Blake2x256 as CryptoHash>::hash(encoded, &mut hash_output);
+                let mut hash_output =
+                    <<Abi as TopicHasher>::Hasher as HashOutput>::Type::default();
+                <<Abi as TopicHasher>::Hasher as CryptoHash>::hash(
+                    encoded,
+                    &mut hash_output,
+                );
                 let copy_len = core::cmp::min(hash_output.len(), len_result);
                 result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
             }
@@ -188,8 +196,8 @@ where
         }
 
         let mut split = self.scoped_buffer.split();
-        let encoded = split.take_encoded(topic_value);
-        let result = inner::<E>(encoded);
+        let encoded = split.take_encoded_abi(topic_value);
+        let result = inner::<E, Abi>(encoded);
         self.scoped_buffer.append_encoded(&result);
     }
 
@@ -479,10 +487,11 @@ impl TypedEnvBackend for EnvInstance {
         self.get_property_little_endian::<E::Balance>(ext::minimum_balance)
     }
 
-    fn emit_event<E, Evt>(&mut self, event: Evt)
+    fn emit_event<E, Evt, Abi>(&mut self, event: Evt)
     where
         E: Environment,
-        Evt: Event,
+        Evt: Event<Abi>,
+        Abi: TopicHasher,
     {
         let (mut scope, enc_topics) =
             event.topics::<E, _>(TopicsBuilder::from(self.scoped_buffer()).into());
@@ -491,7 +500,7 @@ impl TypedEnvBackend for EnvInstance {
             .chunks_exact(32)
             .map(|c| c.try_into().unwrap())
             .collect::<ink_prelude::vec::Vec<[u8; 32]>>();
-        let enc_data = scope.take_encoded(&event);
+        let enc_data = scope.take_encoded_abi(&event);
 
         ext::deposit_event(&enc_topics[..], enc_data);
     }

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use ink_primitives::abi::AbiEncodeWith;
+
 /// A static buffer of variable capacity.
 pub struct StaticBuffer {
     /// A static buffer of variable capacity.
@@ -174,6 +176,20 @@ impl<'a> ScopedBuffer<'a> {
         scale::Encode::encode_to(value, &mut encode_scope);
         let encode_len = encode_scope.len();
         let _ = core::mem::replace(&mut self.buffer, encode_scope.into_buffer());
+        self.take(encode_len)
+    }
+
+    /// Encode the given value into the scoped buffer and return the sub slice
+    /// containing all the encoded bytes.
+    #[inline(always)]
+    pub fn take_encoded_abi<T, Abi>(&mut self, value: &T) -> &'a mut [u8]
+    where
+        T: AbiEncodeWith<Abi>,
+    {
+        debug_assert_eq!(self.offset, 0);
+        let buffer = core::mem::take(&mut self.buffer);
+        let encode_len = AbiEncodeWith::encode_to_slice(value, buffer);
+        let _ = core::mem::replace(&mut self.buffer, buffer);
         self.take(encode_len)
     }
 

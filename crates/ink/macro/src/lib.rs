@@ -18,6 +18,8 @@
 )]
 
 extern crate proc_macro;
+#[macro_use]
+extern crate ink_codegen;
 
 mod blake2b;
 mod chain_extension;
