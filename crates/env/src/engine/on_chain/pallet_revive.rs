@@ -535,14 +535,11 @@ impl TypedEnvBackend for EnvInstance {
         };
         let output = &mut scope.take_rest();
         let flags = params.call_flags();
-
-        #[allow(deprecated)] // todo
         let call_result = ext::call(
             *flags,
             enc_callee,
             ref_time_limit,
             proof_size_limit,
-            // TODO: cleanup comment?
             &enc_storage_limit,
             enc_transferred_value,
             enc_input,
