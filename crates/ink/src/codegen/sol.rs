@@ -22,3 +22,8 @@ pub const fn selector_bytes(sig: &str) -> [u8; 4] {
     let hash = Keccak256::new().update(sig.as_bytes()).finalize();
     [hash[0], hash[1], hash[2], hash[3]]
 }
+
+/// Compile-time Keccak-256 hash computation.
+pub const fn keccak_256(sig: &str) -> [u8; 32] {
+    Keccak256::new().update(sig.as_bytes()).finalize()
+}
