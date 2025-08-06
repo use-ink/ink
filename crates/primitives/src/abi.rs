@@ -49,6 +49,17 @@ pub trait AbiEncodeWith<Abi> {
 
     /// Encodes the data into a dynamically resizing vector.
     fn encode_to_vec(&self, buffer: &mut Vec<u8>);
+
+    /// Encodes the value as a topic (i.e. an indexed event parameter).
+    ///
+    /// # Note
+    ///
+    /// The provided hashing function depends on the ABI i.e.
+    /// - BLAKE2b for ink! ABI
+    /// - Keccak-256 for Solidity ABI
+    fn encode_topic<H>(&self, hasher: H) -> [u8; 32]
+    where
+        H: Fn(&[u8]) -> [u8; 32];
 }
 
 /// Trait for ABI-specific decoding.
@@ -76,6 +87,21 @@ impl<T: scale::Encode> AbiEncodeWith<Ink> for T {
     fn encode_to_vec(&self, buffer: &mut Vec<u8>) {
         scale::Encode::encode_to(self, buffer);
     }
+
+    fn encode_topic<H>(&self, hasher: H) -> [u8; 32]
+    where
+        H: Fn(&[u8]) -> [u8; 32],
+    {
+        let encoded = scale::Encode::encode(self);
+        let len = encoded.len();
+        if encoded.len() <= 32 {
+            let mut buffer = [0u8; 32];
+            buffer.as_mut()[0..len].copy_from_slice(&encoded);
+            buffer
+        } else {
+            hasher(&encoded)
+        }
+    }
 }
 
 impl<T: scale::Decode> AbiDecodeWith<Ink> for T {
@@ -90,7 +116,7 @@ where
     T: for<'a> SolEncode<'a>,
 {
     fn encode_to_slice(&self, buffer: &mut [u8]) -> usize {
-        let encoded = T::encode(self);
+        let encoded = SolEncode::encode(self);
         let len = encoded.len();
         debug_assert!(
             len <= buffer.len(),
@@ -104,6 +130,13 @@ where
 
     fn encode_to_vec(&self, buffer: &mut Vec<u8>) {
         buffer.extend_from_slice(&T::encode(self));
+    }
+
+    fn encode_topic<H>(&self, hasher: H) -> [u8; 32]
+    where
+        H: Fn(&[u8]) -> [u8; 32],
+    {
+        SolEncode::encode_topic(self, hasher)
     }
 }
 
