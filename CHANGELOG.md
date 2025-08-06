@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improve handling of Solidity constructor return and revert data - [#2552](https://github.com/use-ink/ink/pull/2552)
 - Implement `SolEncode` and `SolDecode` for `Option<T>` - [#2545](https://github.com/use-ink/ink/pull/2545)
 - Allow writing E2E fuzz tests for contracts - [#2570](https://github.com/use-ink/ink/pull/2570)
-- Solidity ABI: Support function and event overloading via `sol_name` attribute argument - [#2577](https://github.com/use-ink/ink/pull/2577)
+- ABI-agnostic item name/identifier overrides for overloading, selector computation and metadata - [#2577](https://github.com/use-ink/ink/pull/2577)
 
 ### Changed
 - Use marker trait for finding ink! storage `struct` during code analysis - [2499](https://github.com/use-ink/ink/pull/2499)
