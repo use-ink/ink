@@ -123,29 +123,9 @@ impl Engine {
     }
 
     /// Deposits an event identified by the supplied topics and data.
-    #[allow(clippy::arithmetic_side_effects)] // todo
-    pub fn deposit_event(&mut self, topics: &[u8], data: &[u8]) {
-        // The first byte contains the number of topics in the slice
-        let topics_count: scale::Compact<u32> = scale::Decode::decode(&mut &topics[0..1])
-            .unwrap_or_else(|err| panic!("decoding number of topics failed: {err}"));
-        let topics_count = topics_count.0 as usize;
-
-        let topics_vec = if topics_count > 0 {
-            // The rest of the slice contains the topics
-            let topics = &topics[1..];
-            let bytes_per_topic = topics.len() / topics_count;
-            let topics_vec: Vec<Vec<u8>> = topics
-                .chunks(bytes_per_topic)
-                .map(|chunk| chunk.to_vec())
-                .collect();
-            assert_eq!(topics_count, topics_vec.len());
-            topics_vec
-        } else {
-            Vec::new()
-        };
-
+    pub fn deposit_event(&mut self, topics: &[[u8; 32]], data: &[u8]) {
         self.debug_info.record_event(EmittedEvent {
-            topics: topics_vec,
+            topics: topics.to_vec(),
             data: data.to_vec(),
         });
     }

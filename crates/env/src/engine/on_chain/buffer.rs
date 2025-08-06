@@ -221,6 +221,20 @@ impl<'a> ScopedBuffer<'a> {
         let _ = core::mem::replace(&mut self.buffer, buffer);
     }
 
+    /// Appends the given bytes to the scoped buffer.
+    ///
+    /// Does not return the buffer immediately so that other values can be appended
+    /// afterwards. The [`take_appended`] method shall be used to return the buffer
+    /// that includes all appended encodings as a single buffer.
+    #[inline(always)]
+    pub fn append_bytes(&mut self, bytes: &[u8]) {
+        let offset = self.offset;
+        let len = bytes.len();
+        let end_offset = offset.checked_add(len).unwrap();
+        self.buffer[offset..end_offset].copy_from_slice(bytes);
+        self.offset = end_offset;
+    }
+
     /// Returns the buffer containing all encodings appended via [`append_encoded`]
     /// in a single byte buffer.
     pub fn take_appended(&mut self) -> &'a mut [u8] {

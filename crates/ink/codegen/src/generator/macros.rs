@@ -35,6 +35,7 @@ macro_rules! default_abi {
 /// The ABI is passed to the callback function as an argument.
 /// The argument value can be either as an `ink_primitives::abi::Abi` variant,
 /// or tokens for `::ink::abi::Ink` or `::ink::abi::Sol`.
+#[macro_export]
 macro_rules! for_each_abi {
     ($callback: expr, $ink_abi: expr, $sol_abi: expr) => {{
         #[cfg(not(ink_abi = "sol"))]
@@ -64,10 +65,11 @@ macro_rules! for_each_abi {
 /// The ABI is passed to the generator function as an argument.
 /// The argument value can be either as an `ink_primitives::abi::Abi` variant,
 /// or tokens for `::ink::abi::Ink` or `::ink::abi::Sol`.
+#[macro_export]
 macro_rules! generate_abi_impls {
     ($generator: expr, $ink_abi: expr, $sol_abi: expr) => {{
         let mut abi_impls = Vec::new();
-        for_each_abi!(@type |abi| {
+        $crate::for_each_abi!(@type |abi| {
             match abi {
                 ink_primitives::abi::Abi::Ink => {
                     abi_impls.push($generator($ink_abi));

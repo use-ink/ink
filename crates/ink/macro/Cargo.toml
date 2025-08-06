@@ -54,4 +54,5 @@ unstable-hostfn = ["ink_env/unstable-hostfn", "ink_storage/unstable-hostfn"]
 level = "warn"
 check-cfg = [
     'cfg(feature, values(any()))',
+    'cfg(ink_abi, values("ink", "sol", "all"))'
 ]

@@ -33,7 +33,7 @@ use std::collections::HashMap;
 #[derive(Debug, Clone)]
 pub struct EmittedEvent {
     /// Recorded topics of the emitted event.
-    pub topics: Vec<Vec<u8>>,
+    pub topics: Vec<[u8; 32]>,
     /// Recorded encoding of the emitted event.
     pub data: Vec<u8>,
 }

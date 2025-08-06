@@ -13,7 +13,11 @@
 // limitations under the License.
 
 use ink_primitives::{
-    abi::AbiEncodeWith,
+    abi::{
+        AbiEncodeWith,
+        Ink,
+        Sol,
+    },
     Address,
     SolEncode,
     H256,
@@ -48,6 +52,7 @@ use crate::{
     },
     event::{
         Event,
+        TopicEncoder,
         TopicsBuilderBackend,
     },
     hash::{
@@ -58,7 +63,6 @@ use crate::{
         Sha2x256,
     },
     types::FromLittleEndian,
-    Clear,
     DecodeDispatch,
     DispatchError,
     EnvBackend,
@@ -296,52 +300,98 @@ where
     }
 }
 
-impl<'a, E> TopicsBuilderBackend<E> for TopicsBuilder<'a, E>
+impl<'a, E, Abi> TopicsBuilderBackend<E, Abi> for TopicsBuilder<'a, E>
 where
     E: Environment,
+    Abi: TopicEncoder,
 {
     type Output = (ScopedBuffer<'a>, &'a mut [u8]);
 
     fn push_topic<T>(&mut self, topic_value: &T)
     where
-        T: scale::Encode,
+        T: AbiEncodeWith<Abi>,
     {
-        fn inner<E: Environment>(
-            encoded: &mut [u8],
-            buffer: &mut [u8],
-        ) -> <E as Environment>::Hash {
-            let len_encoded = encoded.len();
-            let mut result = <E as Environment>::Hash::CLEAR_HASH;
-            let len_result = result.as_ref().len();
-            if len_encoded <= len_result {
-                result.as_mut()[..len_encoded].copy_from_slice(encoded);
-            } else {
-                let mut hash_output = <Blake2x256 as HashOutput>::Type::default();
-                <Blake2x256 as CryptoHash>::hash_with_buffer(
-                    encoded,
-                    &mut buffer[..],
-                    &mut hash_output,
-                );
-                let copy_len = core::cmp::min(hash_output.len(), len_result);
-                result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
-            }
-            result
-        }
-
-        let mut split = self.scoped_buffer.split();
-        let encoded = split.take_encoded(topic_value);
-        let solidity_encoding_buffer = split.take(
-            SOLIDITY_SELECTOR_ENCODING_OVERHEAD
-                + SOLIDITY_BYTES_ENCODING_OVERHEAD
-                + solidity_padded_len(encoded.len()),
-        );
-        let result = inner::<E>(encoded, &mut solidity_encoding_buffer[..]);
-        self.scoped_buffer.append_encoded(&result);
+        let output = if <Abi as TopicEncoder>::REQUIRES_BUFFER {
+            let mut output = [0u8; 32];
+            let split = self.scoped_buffer.split();
+            let buffer = split.take_rest();
+            <Abi as TopicEncoder>::encode_topic_with_hash_buffer(
+                topic_value,
+                &mut output,
+                buffer,
+            );
+            output
+        } else {
+            <Abi as TopicEncoder>::encode_topic(topic_value)
+        };
+        self.scoped_buffer.append_bytes(output.as_slice());
     }
 
     fn output(mut self) -> Self::Output {
         let encoded_topics = self.scoped_buffer.take_appended();
         (self.scoped_buffer, encoded_topics)
+    }
+}
+
+impl TopicEncoder for Ink {
+    const REQUIRES_BUFFER: bool = true;
+
+    fn encode_topic<T>(_value: &T) -> [u8; 32]
+    where
+        T: AbiEncodeWith<Self>,
+    {
+        panic!("Blake2x256 hashing requires calling a pre-compile and a buffer");
+    }
+
+    fn encode_topic_with_hash_buffer<T>(
+        value: &T,
+        output: &mut [u8; 32],
+        buffer: &mut [u8],
+    ) where
+        T: AbiEncodeWith<Self>,
+    {
+        let mut scoped_buffer = ScopedBuffer::from(buffer);
+
+        let encoded = scoped_buffer.take_encoded_with(|buff| value.encode_to_slice(buff));
+        let len_encoded = encoded.len();
+        let solidity_encoding_buffer = scoped_buffer.take(
+            SOLIDITY_SELECTOR_ENCODING_OVERHEAD
+                + SOLIDITY_BYTES_ENCODING_OVERHEAD
+                + solidity_padded_len(len_encoded),
+        );
+
+        if len_encoded <= 32 {
+            output[..len_encoded].copy_from_slice(encoded);
+        } else {
+            <Blake2x256 as CryptoHash>::hash_with_buffer(
+                encoded,
+                &mut solidity_encoding_buffer[..],
+                output,
+            );
+        }
+    }
+}
+
+impl TopicEncoder for Sol {
+    const REQUIRES_BUFFER: bool = false;
+
+    fn encode_topic<T>(value: &T) -> [u8; 32]
+    where
+        T: AbiEncodeWith<Self>,
+    {
+        value.encode_topic(<Keccak256 as CryptoHash>::hash)
+    }
+
+    fn encode_topic_with_hash_buffer<T>(
+        _value: &T,
+        _output: &mut [u8; 32],
+        _buffer: &mut [u8],
+    ) where
+        T: AbiEncodeWith<Self>,
+    {
+        panic!(
+            "Keccak-256 hashing can be done without a buffer, by calling a host function"
+        );
     }
 }
 
@@ -625,10 +675,11 @@ impl TypedEnvBackend for EnvInstance {
         self.get_property_little_endian::<E::Balance>(ext::minimum_balance)
     }
 
-    fn emit_event<E, Evt>(&mut self, event: Evt)
+    fn emit_event<E, Evt, Abi>(&mut self, event: Evt)
     where
         E: Environment,
-        Evt: Event,
+        Evt: Event<Abi>,
+        Abi: TopicEncoder,
     {
         let (mut scope, enc_topics) =
             event.topics::<E, _>(TopicsBuilder::from(self.scoped_buffer()).into());
@@ -637,7 +688,14 @@ impl TypedEnvBackend for EnvInstance {
             .chunks_exact(32)
             .map(|c| c.try_into().unwrap())
             .collect::<ink_prelude::vec::Vec<[u8; 32]>>();
-        let enc_data = scope.take_encoded(&event);
+        let enc_data = scope.take_encoded_with(|buffer| {
+            let encoded = event.encode_data();
+            let len = encoded.len();
+            // NOTE: panics if buffer isn't large enough.
+            // This behavior is similar to `ScopedBuffer::take_encoded`.
+            buffer[..len].copy_from_slice(&encoded);
+            len
+        });
 
         ext::deposit_event(&enc_topics[..], enc_data);
     }

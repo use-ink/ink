@@ -34,6 +34,7 @@ use ink_env::{
     },
     Environment,
     Result,
+    TopicEncoder,
 };
 use ink_primitives::{
     abi::AbiEncodeWith,
@@ -396,12 +397,26 @@ where
         ink_env::minimum_balance::<E>()
     }
 
-    /// Emits an event.
+    /// Emits an event using the "default" ABI for interactions for the ink! project.
+    ///
+    /// # Note
+    ///
+    /// The "default" ABI for interactions is "ink", unless the ABI is set to "sol"
+    /// in the ink! project's manifest file (i.e. `Cargo.toml`).
     pub fn emit_event<Evt>(self, event: Evt)
     where
-        Evt: ink_env::Event,
+        Evt: ink_env::Event<crate::env::DefaultAbi>,
     {
-        ink_env::emit_event::<E, Evt>(event)
+        ink_env::emit_event::<E, Evt, crate::env::DefaultAbi>(event)
+    }
+
+    /// Emits an event using the specified ABI.
+    pub fn emit_event_abi<Evt, Abi>(self, event: Evt)
+    where
+        Evt: ink_env::Event<Abi>,
+        Abi: TopicEncoder,
+    {
+        ink_env::emit_event::<E, Evt, Abi>(event)
     }
 
     /// Instantiates another contract using the supplied code hash.

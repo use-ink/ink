@@ -19,6 +19,11 @@ use keccak_const::Keccak256;
 /// Takes function signature as a string and returns a 4 byte representation of the
 /// selector.
 pub const fn selector_bytes(sig: &str) -> [u8; 4] {
-    let hash = Keccak256::new().update(sig.as_bytes()).finalize();
+    let hash = keccak_256(sig.as_bytes());
     [hash[0], hash[1], hash[2], hash[3]]
+}
+
+/// Compile-time Keccak-256 hash computation.
+pub const fn keccak_256(bytes: &[u8]) -> [u8; 32] {
+    Keccak256::new().update(bytes).finalize()
 }
