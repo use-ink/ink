@@ -111,7 +111,7 @@ You can have a look at the [PR#1284](https://github.com/use-ink/ink/pull/1284/fi
 
 ## Issues and Pull Requests
 
-Please always respect our [code of conduct](CODE_OF_CONDUCT.md) when writing issues and pull requests or taking part in any kind of discussion.
+Please always respect our [code of conduct](CODE_OF_CONDUCT.adoc) when writing issues and pull requests or taking part in any kind of discussion.
 
 ### Issues
 
