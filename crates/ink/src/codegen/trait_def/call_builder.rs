@@ -15,7 +15,7 @@
 /// Access the trait message builder implementation.
 pub trait TraitMessageBuilder {
     /// The message builder type.
-    type MessageBuilder: Default;
+    type MessageBuilder<Abi>: Default;
 }
 
 /// The global call builder type for an ink! trait definition.
@@ -42,7 +42,7 @@ pub trait TraitCallBuilder {
 /// to this trait in `ink-as-dependency` configuration.
 pub trait TraitCallForwarder {
     /// The call forwarder type.
-    type Forwarder: TraitCallBuilder;
+    type Forwarder<Abi>: TraitCallBuilder;
 }
 
 /// Implemented by call builders of smart contracts.

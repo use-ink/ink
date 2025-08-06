@@ -14,13 +14,11 @@
 
 use if_chain::if_chain;
 use ink_linting_utils::{
-    clippy::{
-        diagnostics::span_lint_hir_and_then,
-        match_any_def_paths,
-        match_def_path,
-    },
+    clippy::diagnostics::span_lint_hir_and_then,
     expand_unnamed_consts,
     find_contract_impl_id,
+    match_any_def_paths,
+    match_def_path,
 };
 use rustc_errors::Applicability;
 use rustc_hir::{
@@ -29,7 +27,7 @@ use rustc_hir::{
     AssocItemKind,
     ItemKind,
 };
-use rustc_index::bit_set::BitSet;
+use rustc_index::bit_set::DenseBitSet;
 use rustc_lint::{
     LateContext,
     LateLintPass,
@@ -155,14 +153,14 @@ struct StrictBalanceEqualityAnalysis<'a, 'tcx> {
 type VisitedFunctionsCache = HashMap<(FunctionName, TaintedArgs), AnalysisResults>;
 type FunctionName = String;
 type TaintedArgs = Vec<bool>;
-type AnalysisResults = BitSet<Local>;
+type AnalysisResults = DenseBitSet<Local>;
 
 /// TransferFunction is a temporary object used by the implementation of a dataflow
 /// transfer function to iterate over MIR statements of a function.
 struct TransferFunction<'a, 'tcx> {
     cx: &'a LateContext<'tcx>,
     fun_cache: &'a mut VisitedFunctionsCache,
-    state: &'a mut BitSet<Local>,
+    state: &'a mut DenseBitSet<Local>,
     mutable_references: &'a mut MutableReferences,
 }
 
@@ -170,7 +168,7 @@ impl<'a, 'tcx> TransferFunction<'a, 'tcx> {
     pub fn new(
         cx: &'a LateContext<'tcx>,
         fun_cache: &'a mut VisitedFunctionsCache,
-        state: &'a mut BitSet<Local>,
+        state: &'a mut DenseBitSet<Local>,
         mutable_references: &'a mut MutableReferences,
     ) -> Self {
         Self {
@@ -218,16 +216,16 @@ impl<'a, 'tcx> StrictBalanceEqualityAnalysis<'a, 'tcx> {
 
 /// The implementation of the transfer function for the dataflow problem
 impl<'tcx> Analysis<'tcx> for StrictBalanceEqualityAnalysis<'_, 'tcx> {
-    /// A lattice that represents program's state. `BitSet` is a powerset over MIR Locals
-    /// defined in the analyzed function. Inclusion to the set means that the Local is
-    /// tainted with some operation with `self.env().balance()`.
-    type Domain = BitSet<Local>;
+    /// A lattice that represents program's state. `DenseBitSet` is a powerset over MIR
+    /// Locals defined in the analyzed function. Inclusion to the set means that the
+    /// Local is tainted with some operation with `self.env().balance()`.
+    type Domain = DenseBitSet<Local>;
 
     const NAME: &'static str = "strict_balance_equality";
 
     fn bottom_value(&self, body: &Body) -> Self::Domain {
         // bottom = no balance taints
-        BitSet::new_empty(body.local_decls().len())
+        DenseBitSet::new_empty(body.local_decls().len())
     }
 
     fn initialize_start_block(&self, fn_mir: &Body, state: &mut Self::Domain) {
@@ -242,7 +240,8 @@ impl<'tcx> Analysis<'tcx> for StrictBalanceEqualityAnalysis<'_, 'tcx> {
             )
         }
     }
-    fn apply_statement_effect(
+
+    fn apply_primary_statement_effect(
         &mut self,
         state: &mut Self::Domain,
         statement: &Statement,
@@ -257,7 +256,7 @@ impl<'tcx> Analysis<'tcx> for StrictBalanceEqualityAnalysis<'_, 'tcx> {
         .visit_statement(statement, location);
     }
 
-    fn apply_terminator_effect<'mir>(
+    fn apply_primary_terminator_effect<'mir>(
         &mut self,
         state: &mut Self::Domain,
         terminator: &'mir Terminator<'tcx>,
@@ -381,7 +380,7 @@ impl TransferFunction<'_, '_> {
 
     /// Returns true iff the return value of function is tainted with
     /// `self.env().balance()`
-    fn is_return_value_tainted(&self, fn_state: &BitSet<Local>) -> bool {
+    fn is_return_value_tainted(&self, fn_state: &DenseBitSet<Local>) -> bool {
         let return_local = Place::return_place().local;
         fn_state.contains(return_local)
     }
@@ -392,7 +391,7 @@ impl TransferFunction<'_, '_> {
         &self,
         input_args: &[Spanned<Operand<'_>>],
         fn_mir: &Body,
-        fn_state: &BitSet<Local>,
+        fn_state: &DenseBitSet<Local>,
     ) -> Vec<Local> {
         input_args.iter().zip(fn_mir.args_iter()).fold(
             Vec::new(),
@@ -472,7 +471,7 @@ impl TransferFunction<'_, '_> {
             // Insert an empty value to handle recursive calls
             let _ = self
                 .fun_cache
-                .insert(cache_key.clone(), BitSet::new_empty(0));
+                .insert(cache_key.clone(), DenseBitSet::new_empty(0));
             let mut taint_results = StrictBalanceEqualityAnalysis::new_with_arg_taints(
                 self.cx,
                 self.fun_cache,
@@ -514,7 +513,7 @@ impl TransferFunction<'_, '_> {
 }
 
 /// Returns Local if the given Operand is tainted with the balance in the `state` lattice
-fn tainted_with_balance(state: &BitSet<Local>, op: &Operand) -> Option<Local> {
+fn tainted_with_balance(state: &DenseBitSet<Local>, op: &Operand) -> Option<Local> {
     if_chain! {
         if let Some(place) = op.place();
         if state.contains(place.local);
@@ -532,7 +531,7 @@ impl<'tcx> LateLintPass<'tcx> for StrictBalanceEquality {
         if_chain! {
             let all_item_ids = expand_unnamed_consts(cx, m.item_ids);
             if let Some(contract_impl_id) = find_contract_impl_id(cx, all_item_ids);
-            let contract_impl = cx.tcx.hir().item(contract_impl_id);
+            let contract_impl = cx.tcx.hir_item(contract_impl_id);
             if let ItemKind::Impl(contract_impl) = contract_impl.kind;
             then {
                 let mut fun_cache = VisitedFunctionsCache::new();
@@ -580,7 +579,7 @@ impl StrictBalanceEquality {
                 let node = fn_mir.source_scopes[scope]
                     .local_data
                     .as_ref()
-                    .assert_crate_local()
+                    .unwrap_crate_local()
                     .lint_root;
                 then {
                     let sugg_span = Span::new(

@@ -2,32 +2,29 @@
 
 pub use self::virtual_contract::VirtualContractRef;
 
-#[ink::contract()]
+#[ink::contract]
 pub mod virtual_contract {
-    use ink::{
-        env::call::{
-            build_call,
-            ExecutionInput,
-            Selector,
-        },
-        H160,
+    use ink::env::call::{
+        build_call,
+        ExecutionInput,
+        Selector,
     };
 
     #[ink(storage)]
     pub struct VirtualContract {
-        version: ink::H160,
+        version: Address,
         x: u32,
     }
 
     impl VirtualContract {
         /// Creates a new Template contract.
         #[ink(constructor)]
-        pub fn new(version: H160, x: u32) -> Self {
+        pub fn new(version: Address, x: u32) -> Self {
             Self { version, x }
         }
 
         #[ink(message)]
-        pub fn set_version(&mut self, version: H160) {
+        pub fn set_version(&mut self, version: Address) {
             self.version = version;
         }
 
@@ -55,10 +52,10 @@ pub mod virtual_contract {
             self.env()
                 .invoke_contract_delegate(&call)
                 .unwrap_or_else(|env_err| {
-                    panic!("Received an error from the Environment: {:?}", env_err)
+                    panic!("Received an error from the Environment: {env_err:?}")
                 })
                 .unwrap_or_else(|lang_err| {
-                    panic!("Received a `LangError`: {:?}", lang_err)
+                    panic!("Received a `LangError`: {lang_err:?}")
                 });
         }
 
@@ -75,17 +72,15 @@ pub mod virtual_contract {
             self.env()
                 .invoke_contract_delegate(&call)
                 .unwrap_or_else(|env_err| {
-                    panic!("Received an error from the Environment: {:?}", env_err)
+                    panic!("Received an error from the Environment: {env_err:?}")
                 })
-                .unwrap_or_else(|lang_err| {
-                    panic!("Received a `LangError`: {:?}", lang_err)
-                })
+                .unwrap_or_else(|lang_err| panic!("Received a `LangError`: {lang_err:?}"))
         }
     }
 
     impl Default for VirtualContract {
         fn default() -> Self {
-            Self::new(H160::default(), 0)
+            Self::new(Address::default(), 0)
         }
     }
 }

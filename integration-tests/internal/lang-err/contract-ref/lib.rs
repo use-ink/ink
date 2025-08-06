@@ -170,26 +170,12 @@ mod contract_ref {
             let mut constructor = ContractRefRef::try_new(0, flipper_hash, succeed);
             let instantiate_result = client
                 .instantiate("contract_ref", &ink_e2e::charlie(), &mut constructor)
-                .submit()
-                .await;
+                .dry_run()
+                .await?;
 
-            assert!(
-                instantiate_result.is_err(),
-                "Call execution should've failed, but didn't."
-            );
-
-            let contains_err_msg = match instantiate_result.unwrap_err() {
-                ink_e2e::Error::InstantiateDryRun(dry_run) => {
-                    dry_run.debug_message.contains(
-                        "Received an error from the Flipper constructor while instantiating Flipper FlipperError"
-                    )
-                }
-                _ => false,
-            };
-            assert!(
-                contains_err_msg,
-                "Call execution failed for an unexpected reason."
-            );
+            let err_msg = String::from_utf8_lossy(instantiate_result.return_data());
+            assert!(instantiate_result.did_revert());
+            assert!(err_msg.contains("Received an error from the Flipper constructor while instantiating Flipper FlipperError"));
 
             Ok(())
         }

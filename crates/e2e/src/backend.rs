@@ -12,6 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use ink_env::{
+    call::utils::DecodeMessageResult,
+    DefaultEnvironment,
+    Environment,
+};
+use ink_primitives::{
+    abi::AbiEncodeWith,
+    DepositLimit,
+};
+use jsonrpsee::core::async_trait;
+use pallet_revive::evm::CallTrace;
+use sp_weights::Weight;
+use subxt::dynamic::Value;
+
 use super::{
     InstantiateDryRunResult,
     Keypair,
@@ -30,18 +44,6 @@ use crate::{
     CallDryRunResult,
     UploadResult,
 };
-use ink_env::{
-    DefaultEnvironment,
-    Environment,
-};
-use ink_primitives::DepositLimit;
-use jsonrpsee::core::async_trait;
-use scale::{
-    Decode,
-    Encode,
-};
-use sp_weights::Weight;
-use subxt::dynamic::Value;
 
 /// Full E2E testing backend: combines general chain API and contract-specific operations.
 #[async_trait]
@@ -106,6 +108,7 @@ pub trait ContractsBackend<E: Environment> {
     type Error;
     /// Event log type.
     type EventLog;
+
     /// Start building an instantiate call using a builder pattern.
     ///
     /// # Example
@@ -126,12 +129,18 @@ pub trait ContractsBackend<E: Environment> {
     ///     .await
     ///     .expect("instantiate failed");
     /// ```
-    fn instantiate<'a, Contract: Clone, Args: Send + Clone + Encode + Sync, R>(
+    fn instantiate<
+        'a,
+        Contract: Clone,
+        Args: Send + Clone + AbiEncodeWith<Abi> + Sync,
+        R,
+        Abi: Send + Sync + Clone,
+    >(
         &'a mut self,
         contract_name: &'a str,
         caller: &'a Keypair,
-        constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R>,
-    ) -> InstantiateBuilder<'a, E, Contract, Args, R, Self>
+        constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
+    ) -> InstantiateBuilder<'a, E, Contract, Args, R, Self, Abi>
     where
         Self: Sized + BuilderClient<E>,
     {
@@ -139,6 +148,7 @@ pub trait ContractsBackend<E: Environment> {
     }
 
     /// Start building an upload call.
+    ///
     /// # Example
     ///
     /// ```ignore
@@ -205,11 +215,16 @@ pub trait ContractsBackend<E: Environment> {
     ///     .await
     ///     .expect("instantiate failed");
     /// ```
-    fn call<'a, Args: Sync + Encode + Clone, RetType: Send + Decode>(
+    fn call<
+        'a,
+        Args: Sync + AbiEncodeWith<Abi> + Clone,
+        RetType: Send + DecodeMessageResult<Abi>,
+        Abi: Sync + Clone,
+    >(
         &'a mut self,
         caller: &'a Keypair,
-        message: &'a CallBuilderFinal<E, Args, RetType>,
-    ) -> CallBuilder<'a, E, Args, RetType, Self>
+        message: &'a CallBuilderFinal<E, Args, RetType, Abi>,
+    ) -> CallBuilder<'a, E, Args, RetType, Self, Abi>
     where
         Self: Sized + BuilderClient<E>,
     {
@@ -226,30 +241,38 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
-    async fn bare_call<Args: Sync + Encode + Clone, RetType: Send + Decode>(
+    async fn bare_call<
+        Args: Sync + AbiEncodeWith<Abi> + Clone,
+        RetType: Send + DecodeMessageResult<Abi>,
+        Abi: Sync + Clone,
+    >(
         &mut self,
         caller: &Keypair,
-        message: &CallBuilderFinal<E, Args, RetType>,
+        message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<Self::EventLog, Self::Error>
+    ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error>
     where
-        CallBuilderFinal<E, Args, RetType>: Clone;
+        CallBuilderFinal<E, Args, RetType, Abi>: Clone;
 
     /// Executes a dry-run `call`.
     ///
     /// Returns the result of the dry run, together with the decoded return value of the
     /// invoked message.
-    async fn bare_call_dry_run<Args: Sync + Encode + Clone, RetType: Send + Decode>(
+    async fn bare_call_dry_run<
+        Args: Sync + AbiEncodeWith<Abi> + Clone,
+        RetType: Send + DecodeMessageResult<Abi>,
+        Abi: Sync + Clone,
+    >(
         &mut self,
         caller: &Keypair,
-        message: &CallBuilderFinal<E, Args, RetType>,
+        message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<CallDryRunResult<E, RetType>, Self::Error>
+    ) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error>
     where
-        CallBuilderFinal<E, Args, RetType>: Clone;
+        CallBuilderFinal<E, Args, RetType, Abi>: Clone;
 
     /// Uploads the contract call.
     ///
@@ -285,11 +308,16 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     /// Calling this function multiple times should be idempotent, the contract is
     /// newly instantiated each time using a unique salt. No existing contract
     /// instance is reused!
-    async fn bare_instantiate<Contract: Clone, Args: Send + Sync + Encode + Clone, R>(
+    async fn bare_instantiate<
+        Contract: Clone,
+        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
+        R,
+        Abi: Send + Sync + Clone,
+    >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
@@ -298,16 +326,17 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     /// Dry run contract instantiation.
     async fn bare_instantiate_dry_run<
         Contract: Clone,
-        Args: Send + Sync + Encode + Clone,
+        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
         R,
+        Abi: Send + Sync + Clone,
     >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<InstantiateDryRunResult<E>, Self::Error>;
+    ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error>;
 
     /// todo
     async fn map_account(&mut self, caller: &Keypair) -> Result<(), Self::Error>;

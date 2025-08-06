@@ -17,10 +17,10 @@ use ink_linting_utils::{
     clippy::{
         diagnostics::span_lint_and_then,
         is_lint_allowed,
-        match_def_path,
     },
     expand_unnamed_consts,
     find_contract_impl_id,
+    match_def_path,
 };
 use rustc_errors::Applicability;
 use rustc_hir::{
@@ -49,6 +49,7 @@ use rustc_middle::{
         ConstKind,
         Ty,
         TypeckResults,
+        Value,
     },
 };
 use rustc_session::{
@@ -200,8 +201,9 @@ impl<'a, 'tcx> APIUsageChecker<'a, 'tcx> {
             ty::Array(inner_ty, len_const) => {
                 if_chain! {
                     if self.is_statically_known(inner_ty);
-                    if let ConstKind::Value(_, ty::ValTree::Leaf(elements_count)) = len_const.kind();
-                    let elements_size = elements_count.to_target_usize(self.cx.tcx);
+                    if let ConstKind::Value(value) = len_const.kind();
+                    if let Value { ty: _, valtree } = value;
+                    let elements_size = valtree.unwrap_leaf().to_target_usize(self.cx.tcx);
                     if elements_size < (ink_env::BUFFER_SIZE as u64);
                     then { true } else { false }
                 }
@@ -228,14 +230,12 @@ impl<'a, 'tcx> APIUsageChecker<'a, 'tcx> {
                     NON_FALLIBLE_API,
                     method_path.ident.span,
                     format!(
-                        "using a non-fallible `{:?}::{}` with an argument that may not fit into the static buffer",
-                        receiver_ty,
-                        method_name,
+                        "using a non-fallible `{receiver_ty:?}::{method_name}` with an argument that may not fit into the static buffer",
                     ).as_str().to_owned(),
                     |diag| {
                         diag.span_suggestion(
                             method_path.ident.span,
-                            format!("consider using `{}`", fallible_method),
+                            format!("consider using `{fallible_method}`"),
                             "",
                             Applicability::Unspecified,
                         );
@@ -251,6 +251,10 @@ impl<'a, 'tcx> APIUsageChecker<'a, 'tcx> {
 
 impl<'tcx> Visitor<'tcx> for APIUsageChecker<'_, 'tcx> {
     type NestedFilter = nested_filter::OnlyBodies;
+
+    fn maybe_tcx(&mut self) -> Self::MaybeTyCtxt {
+        self.cx.tcx
+    }
 
     fn visit_expr(&mut self, e: &'tcx Expr<'tcx>) {
         if_chain! {
@@ -284,10 +288,6 @@ impl<'tcx> Visitor<'tcx> for APIUsageChecker<'_, 'tcx> {
         walk_body(self, body);
         self.maybe_typeck_results = old_maybe_typeck_results;
     }
-
-    fn nested_visit_map(&mut self) -> Self::Map {
-        self.cx.tcx.hir()
-    }
 }
 
 impl<'tcx> LateLintPass<'tcx> for NonFallibleAPI {
@@ -300,11 +300,11 @@ impl<'tcx> LateLintPass<'tcx> for NonFallibleAPI {
         if_chain! {
             let all_item_ids = expand_unnamed_consts(cx, m.item_ids);
             if let Some(contract_impl_id) = find_contract_impl_id(cx, all_item_ids);
-            let contract_impl = cx.tcx.hir().item(contract_impl_id);
+            let contract_impl = cx.tcx.hir_item(contract_impl_id);
             if let ItemKind::Impl(contract_impl) = contract_impl.kind;
             then {
                 contract_impl.items.iter().for_each(|impl_item| {
-                    let impl_item = cx.tcx.hir().impl_item(impl_item.id);
+                    let impl_item = cx.tcx.hir_impl_item(impl_item.id);
                     if let ImplItemKind::Fn(..) = impl_item.kind {
                         let mut visitor = APIUsageChecker::new(cx);
                         visitor.visit_impl_item(impl_item);

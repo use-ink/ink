@@ -1,6 +1,6 @@
 [package]
 name = "traits"
-version = "6.0.0-alpha"
+version = "6.0.0-alpha.1"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 publish = false
@@ -9,7 +9,6 @@ publish = false
 ink = { path = "../../../../crates/ink", default-features = false }
 
 [lib]
-name = "traits"
 path = "lib.rs"
 crate-type = ["rlib"]
 
@@ -19,3 +18,6 @@ std = [
     "ink/std",
 ]
 ink-as-dependency = []
+
+[package.metadata.ink-lang]
+abi = "ink"

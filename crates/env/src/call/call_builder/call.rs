@@ -12,6 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use ink_primitives::{
+    abi::AbiEncodeWith,
+    Address,
+    U256,
+};
+use pallet_revive_uapi::CallFlags;
+
 use crate::{
     call::{
         common::{
@@ -20,6 +27,7 @@ use crate::{
             Unset,
         },
         execution::EmptyArgumentList,
+        utils::DecodeMessageResult,
         CallBuilder,
         CallParams,
         ExecutionInput,
@@ -30,18 +38,13 @@ use crate::{
     },
     Error,
 };
-use ink_primitives::{
-    H160,
-    U256,
-};
-use pallet_revive_uapi::CallFlags;
 
 /// The default call type for cross-contract calls, for calling into the latest `call`
 /// host function. This adds the additional weight limit parameter `proof_size_limit` as
 /// well as `storage_deposit_limit`.
 #[derive(Clone)]
 pub struct Call {
-    callee: H160,
+    callee: Address,
     ref_time_limit: u64,
     proof_size_limit: u64,
     storage_deposit_limit: Option<U256>,
@@ -51,11 +54,11 @@ pub struct Call {
 
 impl Call {
     /// Returns a clean builder for [`Call`].
-    pub fn new(callee: H160) -> Self {
+    pub fn new(callee: Address) -> Self {
         Self {
             callee,
-            ref_time_limit: Default::default(),
-            proof_size_limit: Default::default(),
+            ref_time_limit: u64::MAX,
+            proof_size_limit: u64::MAX,
             storage_deposit_limit: None,
             transferred_value: U256::zero(),
             call_flags: CallFlags::empty(),
@@ -152,13 +155,13 @@ where
     }
 }
 
-impl<E, Args, RetType>
-    CallBuilder<E, Set<Call>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
+impl<E, Args, RetType, Abi>
+    CallBuilder<E, Set<Call>, Set<ExecutionInput<Args, Abi>>, Set<ReturnType<RetType>>>
 where
     E: Environment,
 {
     /// Finalizes the call builder to call a function.
-    pub fn params(self) -> CallParams<E, Call, Args, RetType> {
+    pub fn params(self) -> CallParams<E, Call, Args, RetType, Abi> {
         CallParams {
             call_type: self.call_type.value(),
             _return_type: Default::default(),
@@ -168,13 +171,19 @@ where
     }
 }
 
-impl<E, RetType>
-    CallBuilder<E, Set<Call>, Unset<ExecutionInput<EmptyArgumentList>>, Unset<RetType>>
+impl<E, RetType, Abi>
+    CallBuilder<
+        E,
+        Set<Call>,
+        Unset<ExecutionInput<EmptyArgumentList<Abi>, Abi>>,
+        Unset<RetType>,
+    >
 where
     E: Environment,
+    Abi: Default,
 {
     /// Finalizes the call builder to call a function.
-    pub fn params(self) -> CallParams<E, Call, EmptyArgumentList, ()> {
+    pub fn params(self) -> CallParams<E, Call, EmptyArgumentList<Abi>, (), Abi> {
         CallParams {
             call_type: self.call_type.value(),
             _return_type: Default::default(),
@@ -184,15 +193,18 @@ where
     }
 }
 
-impl<E>
+impl<E, Abi>
     CallBuilder<
         E,
         Set<Call>,
-        Unset<ExecutionInput<EmptyArgumentList>>,
+        Unset<ExecutionInput<EmptyArgumentList<Abi>, Abi>>,
         Unset<ReturnType<()>>,
     >
 where
     E: Environment,
+    EmptyArgumentList<Abi>: AbiEncodeWith<Abi>,
+    (): DecodeMessageResult<Abi>,
+    Abi: Default,
 {
     /// Invokes the cross-chain function call.
     ///
@@ -217,11 +229,13 @@ where
     }
 }
 
-impl<E, Args, R> CallBuilder<E, Set<Call>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
+impl<E, Args, R, Abi>
+    CallBuilder<E, Set<Call>, Set<ExecutionInput<Args, Abi>>, Set<ReturnType<R>>>
 where
     E: Environment,
-    Args: scale::Encode,
-    R: scale::Decode,
+    Args: AbiEncodeWith<Abi>,
+    R: DecodeMessageResult<Abi>,
+    Abi: Default,
 {
     /// Invokes the cross-chain function call and returns the result.
     ///
@@ -246,13 +260,13 @@ where
     }
 }
 
-impl<E, Args, R> CallParams<E, Call, Args, R>
+impl<E, Args, R, Abi> CallParams<E, Call, Args, R, Abi>
 where
     E: Environment,
 {
     /// Returns the contract address of the called contract instance.
     #[inline]
-    pub fn callee(&self) -> &H160 {
+    pub fn callee(&self) -> &Address {
         &self.call_type.callee
     }
 
@@ -288,11 +302,11 @@ where
     }
 }
 
-impl<E, Args, R> CallParams<E, Call, Args, R>
+impl<E, Args, R, Abi> CallParams<E, Call, Args, R, Abi>
 where
     E: Environment,
-    Args: scale::Encode,
-    R: scale::Decode,
+    Args: AbiEncodeWith<Abi>,
+    R: DecodeMessageResult<Abi>,
 {
     /// Invokes the contract with the given built-up call parameters.
     ///

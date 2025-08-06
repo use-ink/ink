@@ -67,18 +67,15 @@ use scale::{
 ///
 /// # #[ink::contract]
 /// # mod my_module {
-/// use ink::{
-///     storage::{
-///         traits::ManualKey,
-///         Lazy,
-///     },
-///     H160,
+/// use ink::storage::{
+///     traits::ManualKey,
+///     Lazy,
 /// };
 ///
 /// #[ink(storage)]
 /// #[derive(Default)]
 /// pub struct MyContract {
-///     owner: Lazy<H160>,
+///     owner: Lazy<Address>,
 ///     // todo maybe use something else than `Balance`?
 ///     balance: Lazy<Balance, ManualKey<123>>,
 /// }
@@ -160,6 +157,7 @@ where
     /// - `Some(Ok(_))` if `value` was received from storage and could be decoded.
     /// - `Some(Err(_))` if retrieving the `value` would exceed the static buffer size.
     /// - `None` if there was no value under this storage key.
+    #[cfg(feature = "unstable-hostfn")]
     pub fn try_get(&self) -> Option<ink_env::Result<V>> {
         let key_size = <Key as Storable>::encoded_size(&KeyType::KEY);
 

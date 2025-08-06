@@ -29,8 +29,6 @@ pub struct Config {
     /// be used to change the underlying environmental types of an ink! smart
     /// contract.
     env: Option<Environment>,
-    /// todo: docs
-    abi_encoding: AbiEncoding,
     /// The set of attributes that can be passed to call builder in the codegen.
     whitelisted_attributes: WhitelistedAttributes,
 }
@@ -41,7 +39,6 @@ impl TryFrom<ast::AttributeArgs> for Config {
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
         let mut env: Option<(Environment, ast::MetaNameValue)> = None;
         let mut whitelisted_attributes = WhitelistedAttributes::default();
-        let mut abi_encoding: Option<(AbiEncoding, ast::MetaNameValue)> = None;
 
         for arg in args.into_iter() {
             if arg.name().is_ident("env") {
@@ -57,37 +54,6 @@ impl TryFrom<ast::AttributeArgs> for Config {
                     return Err(format_err_spanned!(
                         arg,
                         "expected a path value for `env` ink! configuration argument",
-                    ));
-                }
-            } else if arg.name().is_ident("abi_encoding") {
-                if let Some((_, ast)) = abi_encoding {
-                    return Err(duplicate_config_err(
-                        ast,
-                        arg,
-                        "abi_encoding",
-                        "contract",
-                    ));
-                }
-                let encoding = arg
-                    .name_value()
-                    .zip(arg.value().and_then(ast::MetaValue::as_string));
-                if let Some((name_value, path)) = encoding {
-                    let encoding = match path.as_str() {
-                        "scale" => AbiEncoding::Scale,
-                        "rlp" => AbiEncoding::Rlp,
-                        "all" => AbiEncoding::All,
-                        _ => {
-                            return Err(format_err_spanned!(
-                                arg,
-                                "expected one of `scale`, `rlp` or `all` for `abi_encoding` ink! configuration argument",
-                            ));
-                        }
-                    };
-                    abi_encoding = Some((encoding, name_value.clone()))
-                } else {
-                    return Err(format_err_spanned!(
-                        arg,
-                        "expected a string value for `abi_encoding` ink! configuration argument",
                     ));
                 }
             } else if arg.name().is_ident("keep_attr") {
@@ -108,8 +74,6 @@ impl TryFrom<ast::AttributeArgs> for Config {
         }
         Ok(Config {
             env: env.map(|(value, _)| value),
-            abi_encoding: abi_encoding
-                .map_or(AbiEncoding::default(), |(encoding, _)| encoding),
             whitelisted_attributes,
         })
     }
@@ -125,10 +89,6 @@ impl Config {
             .map(|env| &env.path)
             .cloned()
             .unwrap_or(Environment::default().path)
-    }
-
-    pub fn abi_encoding(&self) -> &AbiEncoding {
-        &self.abi_encoding
     }
 
     /// Return set of attributes that can be passed to call builder in the codegen.
@@ -149,29 +109,6 @@ impl Default for Environment {
         Self {
             path: syn::parse_quote! { ::ink::env::DefaultEnvironment },
         }
-    }
-}
-
-/// Which format is used for ABI encoding.
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
-
-pub enum AbiEncoding {
-    /// SCALE codec, the default.
-    #[default]
-    Scale,
-    /// RLP codec, useful for compatibility with Solidity contracts.
-    Rlp,
-    /// Support both Scale and RLP encoding for each contract entry point.
-    All,
-}
-
-impl AbiEncoding {
-    pub fn is_rlp(&self) -> bool {
-        matches!(self, Self::Rlp | Self::All)
-    }
-
-    pub fn is_scale(&self) -> bool {
-        matches!(self, Self::Scale | Self::All)
     }
 }
 
@@ -208,7 +145,6 @@ mod tests {
                     path: syn::parse_quote! { ::my::env::Types },
                 }),
                 whitelisted_attributes: Default::default(),
-                abi_encoding: Default::default(),
             }),
         )
     }
@@ -259,7 +195,6 @@ mod tests {
             },
             Ok(Config {
                 env: None,
-                abi_encoding: Default::default(),
                 whitelisted_attributes: attrs,
             }),
         )

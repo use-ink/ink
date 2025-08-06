@@ -12,41 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::EnvInstance;
-use crate::{
-    call::{
-        Call,
-        CallParams,
-        ConstructorReturnType,
-        CreateParams,
-        DelegateCall,
-        FromAddr,
-        LimitParamsV2,
-    },
-    event::{
-        Event,
-        TopicsBuilderBackend,
-    },
-    hash::{
-        Blake2x128,
-        Blake2x256,
-        CryptoHash,
-        HashOutput,
-        Keccak256,
-        Sha2x256,
-    },
-    test::callee,
-    Clear,
-    DecodeDispatch,
-    DispatchError,
-    EnvBackend,
-    Result,
-    TypedEnvBackend,
-};
 use ink_engine::ext::Engine;
+#[cfg(feature = "unstable-hostfn")]
+use ink_primitives::types::AccountIdMapper;
 use ink_primitives::{
+    abi::AbiEncodeWith,
     types::Environment,
-    H160,
+    Address,
+    SolEncode,
     H256,
     U256,
 };
@@ -58,9 +31,50 @@ use pallet_revive_uapi::{
     ReturnErrorCode,
     ReturnFlags,
 };
+#[cfg(feature = "unstable-hostfn")]
 use schnorrkel::{
     PublicKey,
     Signature,
+};
+
+use super::EnvInstance;
+use crate::{
+    call::{
+        utils::DecodeMessageResult,
+        Call,
+        CallParams,
+        DelegateCall,
+    },
+    event::{
+        Event,
+        TopicsBuilderBackend,
+    },
+    hash::{
+        CryptoHash,
+        HashOutput,
+        Keccak256,
+        Sha2x256,
+    },
+    DecodeDispatch,
+    DispatchError,
+    EnvBackend,
+    Result,
+    TypedEnvBackend,
+};
+#[cfg(feature = "unstable-hostfn")]
+use crate::{
+    call::{
+        ConstructorReturnType,
+        CreateParams,
+        FromAddr,
+        LimitParamsV2,
+    },
+    hash::{
+        Blake2x128,
+        Blake2x256,
+    },
+    test::callee,
+    Clear,
 };
 
 /// The capacity of the static buffer.
@@ -85,30 +99,27 @@ where
         >::Type
         as DecodeDispatch
     >::decode_dispatch(&mut &input[..])
-        .unwrap_or_else(|e| panic!("Failed to decode constructor call: {:?}", e));
+        .unwrap_or_else(|e| panic!("Failed to decode constructor call: {e:?}"));
 
     crate::reflect::ExecuteDispatchable::execute_dispatchable(dispatch)
-        .unwrap_or_else(|e| panic!("Message call failed: {:?}", e));
+        .unwrap_or_else(|e| panic!("Message call failed: {e:?}"));
 
     crate::test::get_return_value()
 }
 
-fn invoke_contract_impl<R>(
+fn invoke_contract_impl<R, Abi>(
     env: &mut EnvInstance,
     _gas_limit: Option<u64>,
     _call_flags: u32,
     _transferred_value: Option<&U256>,
-    callee_account: H160,
+    callee_account: Address,
     input: Vec<u8>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
-    R: scale::Decode,
+    R: DecodeMessageResult<Abi>,
 {
     let callee_code_hash = env.code_hash(&callee_account).unwrap_or_else(|err| {
-        panic!(
-            "failed getting code hash for {:?}: {:?}",
-            callee_account, err
-        )
+        panic!("failed getting code hash for {callee_account:?}: {err:?}")
     });
 
     let handler = env
@@ -122,29 +133,23 @@ where
 
     env.engine.set_callee(old_callee);
 
-    let result =
-        <ink_primitives::MessageResult<R> as scale::Decode>::decode(&mut &result[..])
-            .expect("failed to decode return value");
-
-    Ok(result)
+    // TODO: (@davidsemakula) Track return flag and set `did_revert` as appropriate.
+    R::decode_output(&result, false)
 }
 
-fn invoke_contract_impl_delegate<R>(
+fn invoke_contract_impl_delegate<R, Abi>(
     env: &mut EnvInstance,
     _gas_limit: Option<u64>,
     _call_flags: u32,
     _transferred_value: Option<&U256>,
-    callee_account: H160,
+    callee_account: Address,
     input: Vec<u8>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
-    R: scale::Decode,
+    R: DecodeMessageResult<Abi>,
 {
     let callee_code_hash = env.code_hash(&callee_account).unwrap_or_else(|err| {
-        panic!(
-            "failed getting code hash for {:?}: {:?}",
-            callee_account, err
-        )
+        panic!("failed getting code hash for {callee_account:?}: {err:?}")
     });
 
     let handler = env
@@ -153,13 +158,11 @@ where
         .get_contract_message_handler(&callee_code_hash);
     let result = handler(input);
 
-    let result =
-        <ink_primitives::MessageResult<R> as scale::Decode>::decode(&mut &result[..])
-            .expect("failed to decode return value");
-
-    Ok(result)
+    // TODO: (@davidsemakula) Track return flag and set `did_revert` as appropriate.
+    R::decode_output(&result, false)
 }
 
+#[cfg(feature = "unstable-hostfn")]
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
         type OutputType = [u8; 16];
@@ -172,6 +175,7 @@ impl CryptoHash for Blake2x128 {
     }
 }
 
+#[cfg(feature = "unstable-hostfn")]
 impl CryptoHash for Blake2x256 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
         type OutputType = [u8; 32];
@@ -219,6 +223,7 @@ where
 {
     type Output = Vec<u8>;
 
+    #[cfg(feature = "unstable-hostfn")]
     fn push_topic<T>(&mut self, topic_value: &T)
     where
         T: scale::Encode,
@@ -312,6 +317,7 @@ impl EnvBackend for EnvInstance {
         }
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn take_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
         K: scale::Encode,
@@ -327,6 +333,7 @@ impl EnvBackend for EnvInstance {
         }
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,
@@ -334,6 +341,7 @@ impl EnvBackend for EnvInstance {
         self.engine.contains_storage(&key.encode())
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,
@@ -366,15 +374,11 @@ impl EnvBackend for EnvInstance {
         self.engine.set_storage(&[255_u8; 32], &v[..]);
     }
 
-    fn return_value_rlp<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
+    fn return_value_solidity<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
     where
-        R: alloy_rlp::Encodable,
+        R: for<'a> SolEncode<'a>,
     {
-        unimplemented!("the off-chain env does not implement `return_value_rlp`")
-    }
-
-    fn debug_message(&mut self, message: &str) {
-        self.engine.debug_message(message)
+        unimplemented!("the off-chain env does not implement `return_value_solidity`")
     }
 
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
@@ -436,6 +440,7 @@ impl EnvBackend for EnvInstance {
         }
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn ecdsa_to_eth_address(
         &mut self,
         pubkey: &[u8; 33],
@@ -450,6 +455,7 @@ impl EnvBackend for EnvInstance {
         Ok(())
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn sr25519_verify(
         &mut self,
         signature: &[u8; 64],
@@ -472,6 +478,7 @@ impl EnvBackend for EnvInstance {
             .map_err(|_| ReturnErrorCode::Sr25519VerifyFailed.into())
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
         &mut self,
         id: u32,
@@ -501,6 +508,7 @@ impl EnvBackend for EnvInstance {
         Ok(decoded)
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn set_code_hash(&mut self, code_hash: &H256) -> Result<()> {
         self.engine
             .database
@@ -510,8 +518,8 @@ impl EnvBackend for EnvInstance {
 }
 
 impl TypedEnvBackend for EnvInstance {
-    fn caller(&mut self) -> H160 {
-        self.get_property::<H160>(Engine::caller)
+    fn caller(&mut self) -> Address {
+        self.get_property::<Address>(Engine::caller)
             .unwrap_or_else(|error| panic!("could not read `caller` property: {error:?}"))
     }
 
@@ -529,6 +537,7 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn account_id<E: Environment>(&mut self) -> E::AccountId {
         // todo should not use `Engine::account_id`
         self.get_property::<E::AccountId>(Engine::address)
@@ -537,8 +546,8 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
-    fn address(&mut self) -> H160 {
-        self.get_property::<H160>(Engine::address)
+    fn address(&mut self) -> Address {
+        self.get_property::<Address>(Engine::address)
             .unwrap_or_else(|error| {
                 panic!("could not read `account_id` property: {error:?}")
             })
@@ -558,6 +567,7 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn minimum_balance<E: Environment>(&mut self) -> E::Balance {
         self.get_property::<E::Balance>(Engine::minimum_balance)
             .unwrap_or_else(|error| {
@@ -576,22 +586,21 @@ impl TypedEnvBackend for EnvInstance {
         self.engine.deposit_event(&enc_topics[..], enc_data);
     }
 
-    fn invoke_contract<E, Args, R>(
+    fn invoke_contract<E, Args, R, Abi>(
         &mut self,
-        params: &CallParams<E, Call, Args, R>,
+        params: &CallParams<E, Call, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        Args: scale::Encode,
-        R: scale::Decode,
+        Args: AbiEncodeWith<Abi>,
+        R: DecodeMessageResult<Abi>,
     {
         let call_flags = params.call_flags().bits();
         let transferred_value = params.transferred_value();
-        let input = params.exec_input();
+        let input = params.exec_input().encode();
         let callee_account = params.callee();
-        let input = scale::Encode::encode(input);
 
-        invoke_contract_impl::<R>(
+        invoke_contract_impl::<R, Abi>(
             self,
             None,
             call_flags,
@@ -601,21 +610,20 @@ impl TypedEnvBackend for EnvInstance {
         )
     }
 
-    fn invoke_contract_delegate<E, Args, R>(
+    fn invoke_contract_delegate<E, Args, R, Abi>(
         &mut self,
-        params: &CallParams<E, DelegateCall, Args, R>,
+        params: &CallParams<E, DelegateCall, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        Args: scale::Encode,
-        R: scale::Decode,
+        Args: AbiEncodeWith<Abi>,
+        R: DecodeMessageResult<Abi>,
     {
         let _addr = params.address(); // todo remove
         let call_flags = params.call_flags().bits();
-        let input = params.exec_input();
-        let input = scale::Encode::encode(input);
+        let input = params.exec_input().encode();
 
-        invoke_contract_impl_delegate::<R>(
+        invoke_contract_impl_delegate::<R, Abi>(
             self,
             None,
             call_flags,
@@ -625,12 +633,13 @@ impl TypedEnvBackend for EnvInstance {
         )
     }
 
-    fn instantiate_contract<E, ContractRef, Args, R>(
+    #[cfg(feature = "unstable-hostfn")]
+    fn instantiate_contract<E, ContractRef, Args, R, Abi>(
         &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
     ) -> Result<
         ink_primitives::ConstructorResult<
-            <R as ConstructorReturnType<ContractRef>>::Output,
+            <R as ConstructorReturnType<ContractRef, Abi>>::Output,
         >,
     >
     where
@@ -638,18 +647,17 @@ impl TypedEnvBackend for EnvInstance {
         ContractRef: FromAddr + crate::ContractReverseReference,
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
-        Args: scale::Encode,
-        R: ConstructorReturnType<ContractRef>,
+        Args: AbiEncodeWith<Abi>,
+        R: ConstructorReturnType<ContractRef, Abi>,
     {
         let endowment = params.endowment();
         let salt_bytes = params.salt_bytes();
         let code_hash = params.code_hash();
 
-        let input = params.exec_input();
-        let input = scale::Encode::encode(input);
+        let input = params.exec_input().encode();
 
         // Compute address for instantiated contract.
-        let addr_id_vec = {
+        let account_id_vec = {
             let mut account_input = Vec::<u8>::new();
             account_input.extend(&b"contract_addr".to_vec());
             scale::Encode::encode_to(
@@ -665,7 +673,8 @@ impl TypedEnvBackend for EnvInstance {
             ink_engine::hashing::blake2b_256(&account_input[..], &mut account_id);
             account_id.to_vec()
         };
-        let contract_addr = H160::from_slice(&addr_id_vec[..20]);
+        // todo don't convert to vec and back, simplify type
+        let contract_addr = AccountIdMapper::to_address(&account_id_vec[..]);
 
         let old_callee = self.engine.get_callee();
         self.engine.set_callee(contract_addr);
@@ -680,9 +689,9 @@ impl TypedEnvBackend for EnvInstance {
             >::Type
             as DecodeDispatch
         >::decode_dispatch(&mut &input[..])
-            .unwrap_or_else(|e| panic!("Failed to decode constructor call: {:?}", e));
+            .unwrap_or_else(|e| panic!("Failed to decode constructor call: {e:?}"));
         crate::reflect::ExecuteDispatchable::execute_dispatchable(dispatch)
-            .unwrap_or_else(|e| panic!("Constructor call failed: {:?}", e));
+            .unwrap_or_else(|e| panic!("Constructor call failed: {e:?}"));
 
         self.set_code_hash(code_hash)?;
         self.engine.set_contract(callee());
@@ -699,11 +708,12 @@ impl TypedEnvBackend for EnvInstance {
         ))))
     }
 
-    fn terminate_contract(&mut self, beneficiary: H160) -> ! {
+    #[cfg(feature = "unstable-hostfn")]
+    fn terminate_contract(&mut self, beneficiary: Address) -> ! {
         self.engine.terminate(beneficiary)
     }
 
-    fn transfer<E>(&mut self, destination: H160, value: U256) -> Result<()>
+    fn transfer<E>(&mut self, destination: Address, value: U256) -> Result<()>
     where
         E: Environment,
     {
@@ -721,10 +731,12 @@ impl TypedEnvBackend for EnvInstance {
         })
     }
 
-    fn is_contract(&mut self, account: &H160) -> bool {
+    #[cfg(feature = "unstable-hostfn")]
+    fn is_contract(&mut self, account: &Address) -> bool {
         self.engine.is_contract(account)
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn caller_is_origin<E>(&mut self) -> bool
     where
         E: Environment,
@@ -732,6 +744,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support cross-contract calls")
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn caller_is_root<E>(&mut self) -> bool
     where
         E: Environment,
@@ -739,7 +752,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `caller_is_root`")
     }
 
-    fn code_hash(&mut self, addr: &H160) -> Result<H256> {
+    fn code_hash(&mut self, addr: &Address) -> Result<H256> {
         let code_hash = self.engine.database.get_code_hash(addr);
         if let Some(code_hash) = code_hash {
             // todo
@@ -750,6 +763,7 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn own_code_hash(&mut self) -> Result<H256> {
         let callee = &self.engine.get_callee();
         let code_hash = self.engine.database.get_code_hash(callee);
@@ -760,6 +774,7 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn call_runtime<E, Call>(&mut self, _call: &Call) -> Result<()>
     where
         E: Environment,
@@ -767,13 +782,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `call_runtime`")
     }
 
-    fn lock_delegate_dependency<E>(&mut self, _code_hash: &H256)
-    where
-        E: Environment,
-    {
-        unimplemented!("off-chain environment does not support delegate dependencies")
-    }
-
+    #[cfg(feature = "unstable-hostfn")]
     fn xcm_execute<E, Call>(&mut self, _msg: &xcm::VersionedXcm<Call>) -> Result<()>
     where
         E: Environment,
@@ -781,6 +790,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `xcm_execute`")
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     fn xcm_send<E, Call>(
         &mut self,
         _dest: &xcm::VersionedLocation,
@@ -790,12 +800,5 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         unimplemented!("off-chain environment does not support `xcm_send`")
-    }
-
-    fn unlock_delegate_dependency<E>(&mut self, _code_hash: &H256)
-    where
-        E: Environment,
-    {
-        unimplemented!("off-chain environment does not support delegate dependencies")
     }
 }

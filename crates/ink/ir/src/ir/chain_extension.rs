@@ -54,7 +54,7 @@ impl ChainExtension {
     }
 
     /// Returns a slice over all the chain extension methods.
-    pub fn iter_methods(&self) -> SliceIter<ChainExtensionMethod> {
+    pub fn iter_methods(&self) -> SliceIter<'_, ChainExtensionMethod> {
         self.methods.iter()
     }
 
@@ -186,7 +186,7 @@ impl ChainExtensionMethod {
     }
 
     /// Returns an iterator over the inputs of the chain extension method.
-    pub fn inputs(&self) -> ChainExtensionMethodInputs {
+    pub fn inputs(&self) -> ChainExtensionMethodInputs<'_> {
         ChainExtensionMethodInputs {
             iter: self.item.sig.inputs.iter(),
         }

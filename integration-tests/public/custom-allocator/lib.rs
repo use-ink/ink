@@ -27,6 +27,10 @@
 //! Providing your own allocator lets you choose the right tradeoffs for your use case.
 
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
+#![feature(sync_unsafe_cell)]
+#![feature(allocator_api)]
+
+// todo
 // Here we set `dlmalloc` to be the global memory allocator.
 //
 // The [`GlobalAlloc`](https://doc.rust-lang.org/std/alloc/trait.GlobalAlloc.html) trait is
@@ -34,8 +38,7 @@
 //#[cfg(not(feature = "std"))]
 //#[global_allocator]
 //static ALLOC: dlmalloc::GlobalDlmalloc = dlmalloc::GlobalDlmalloc;
-#![feature(sync_unsafe_cell)]
-#![feature(allocator_api)]
+
 use core::{
     alloc::{
         GlobalAlloc,
@@ -184,8 +187,7 @@ mod custom_allocator {
             Ok(())
         }
 
-        /// We test that we can read and write a value from the on-chain contract
-        /// contract.
+        /// We test that we can read and write a value from the on-chain contract.
         #[ink_e2e::test]
         async fn it_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // Given

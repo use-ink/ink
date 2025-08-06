@@ -17,18 +17,15 @@ jobs:
           - awesome-ink
           - cargo-contract
           - contracts-ui
+          - docker-images
           - ink
           - ink-docs
           - ink-examples
-          - ink-waterfall
           - ink-workshop
           - link
-          - nft-marketplace-demo
-          - pallet-contracts-xcm
-          - smart-bench
           - squink-splash-advanced
           - squink-splash-beginner
-          - substrate-contracts-node
+          - ink-node
     steps:
       - name: Generate token
         id: generate_token

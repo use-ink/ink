@@ -12,17 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ChainExtensionInstance;
 use core::marker::PhantomData;
+
+#[cfg(feature = "unstable-hostfn")]
+use ink_env::call::{
+    ConstructorReturnType,
+    CreateParams,
+    FromAddr,
+    LimitParamsV2,
+};
 use ink_env::{
     call::{
+        utils::DecodeMessageResult,
         Call,
         CallParams,
-        ConstructorReturnType,
-        CreateParams,
         DelegateCall,
-        FromAddr,
-        LimitParamsV2,
     },
     hash::{
         CryptoHash,
@@ -32,11 +36,14 @@ use ink_env::{
     Result,
 };
 use ink_primitives::{
-    H160,
+    abi::AbiEncodeWith,
+    Address,
     H256,
     U256,
 };
 use pallet_revive_uapi::ReturnErrorCode;
+
+use crate::ChainExtensionInstance;
 
 /// The API behind the `self.env()` and `Self::env()` syntax in ink!.
 ///
@@ -99,7 +106,6 @@ where
     /// #[ink(message)]
     /// pub fn call_me(&self) {
     ///     let caller = self.env().caller();
-    ///     ink::env::debug_println!("got a call from {:?}", &caller);
     /// }
     /// #
     /// #     }
@@ -109,7 +115,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::caller`]
-    pub fn caller(self) -> H160 {
+    pub fn caller(self) -> Address {
         ink_env::caller()
     }
 
@@ -131,14 +137,9 @@ where
     /// #
     /// /// Allows funding the contract. Prints a debug message with the transferred value.
     /// #[ink(message, payable)]
-    /// pub fn fund(&self) {
+    /// pub fn fund(&mut self) {
     ///     let caller = self.env().caller();
     ///     let value = self.env().transferred_value();
-    ///     ink::env::debug_println!(
-    ///         "thanks for the funding of {:?} from {:?}",
-    ///         value,
-    ///         caller
-    ///     );
     /// }
     /// #
     /// #     }
@@ -247,7 +248,7 @@ where
     /// pub mod only_owner {
     ///     #[ink(storage)]
     ///     pub struct OnlyOwner {
-    ///         owner: ink::H160,
+    ///         owner: ink::Address,
     ///         value: u32,
     ///     }
     ///
@@ -278,6 +279,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::account_id`]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn account_id(self) -> E::AccountId {
         ink_env::account_id::<E>()
     }
@@ -285,7 +287,7 @@ where
     /// Returns the address of the executed contract.
     ///
     /// For more details visit: [`ink_env::address`]
-    pub fn address(self) -> H160 {
+    pub fn address(self) -> Address {
         ink_env::address()
     }
 
@@ -389,6 +391,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::minimum_balance`]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn minimum_balance(self) -> E::Balance {
         ink_env::minimum_balance::<E>()
     }
@@ -421,8 +424,12 @@ where
     /// #     pub use super::MyContractRef as OtherContractRef;
     /// # }
     /// use ink::env::{
+    ///     call::{
+    ///         build_create,
+    ///         ExecutionInput,
+    ///         Selector,
+    ///     },
     ///     DefaultEnvironment,
-    ///     call::{build_create, Selector, ExecutionInput}
     /// };
     /// use other_contract::OtherContractRef;
     /// #
@@ -458,11 +465,13 @@ where
     ///         .instantiate_contract(&create_params)
     ///         .unwrap_or_else(|error| {
     ///             panic!(
-    ///                 "Received an error from the Contracts pallet while instantiating: {:?}",
+    ///                 "Received an error from `pallet-revive` while instantiating: {:?}",
     ///                 error
     ///             )
     ///         })
-    ///         .unwrap_or_else(|error| panic!("Received a `LangError` while instatiating: {:?}", error))
+    ///         .unwrap_or_else(|error| {
+    ///             panic!("Received a `LangError` while instantiating: {:?}", error)
+    ///         })
     /// }
     /// #
     /// #     }
@@ -475,22 +484,24 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::instantiate_contract`]
-    pub fn instantiate_contract<ContractRef, Args, R>(
+    #[cfg(feature = "unstable-hostfn")]
+    pub fn instantiate_contract<ContractRef, Args, R, Abi>(
         self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
     ) -> Result<
         ink_primitives::ConstructorResult<
-            <R as ConstructorReturnType<ContractRef>>::Output,
+            <R as ConstructorReturnType<ContractRef, Abi>>::Output,
         >,
     >
     where
         ContractRef: FromAddr + ink_env::ContractReverseReference,
         <ContractRef as ink_env::ContractReverseReference>::Type:
             ink_env::reflect::ContractConstructorDecoder,
-        Args: scale::Encode,
-        R: ConstructorReturnType<ContractRef>,
+
+        Args: AbiEncodeWith<Abi>,
+        R: ConstructorReturnType<ContractRef, Abi>,
     {
-        ink_env::instantiate_contract::<E, ContractRef, Args, R>(params)
+        ink_env::instantiate_contract::<E, ContractRef, Args, R, Abi>(params)
     }
 
     /// Invokes a contract message and returns its result.
@@ -523,7 +534,7 @@ where
     /// #[ink(message)]
     /// pub fn invoke_contract(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
-    ///         .call(ink::H160::from([0x42; 20]))
+    ///         .call(ink::Address::from([0x42; 20]))
     ///         .ref_time_limit(500_000_000)
     ///         .proof_size_limit(100_000)
     ///         .storage_deposit_limit(1_000_000_000.into())
@@ -551,15 +562,15 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::invoke_contract`]
-    pub fn invoke_contract<Args, R>(
+    pub fn invoke_contract<Args, R, Abi>(
         self,
-        params: &CallParams<E, Call, Args, R>,
+        params: &CallParams<E, Call, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
-        Args: scale::Encode,
-        R: scale::Decode,
+        Args: AbiEncodeWith<Abi>,
+        R: DecodeMessageResult<Abi>,
     {
-        ink_env::invoke_contract::<E, Args, R>(params)
+        ink_env::invoke_contract::<E, Args, R, Abi>(params)
     }
 
     /// Invokes in delegate manner a code message and returns its result.
@@ -595,7 +606,7 @@ where
     /// #[ink(message)]
     /// pub fn invoke_contract_delegate(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
-    ///         .call_type(DelegateCall::new(ink::H160::zero()))
+    ///         .call_type(DelegateCall::new(ink::Address::zero()))
     ///         .exec_input(
     ///             ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
     ///                 .push_arg(42u8)
@@ -619,15 +630,15 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::invoke_contract_delegate`]
-    pub fn invoke_contract_delegate<Args, R>(
+    pub fn invoke_contract_delegate<Args, R, Abi>(
         self,
-        params: &CallParams<E, DelegateCall, Args, R>,
+        params: &CallParams<E, DelegateCall, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
-        Args: scale::Encode,
-        R: scale::Decode,
+        Args: AbiEncodeWith<Abi>,
+        R: DecodeMessageResult<Abi>,
     {
-        ink_env::invoke_contract_delegate::<E, Args, R>(params)
+        ink_env::invoke_contract_delegate::<E, Args, R, Abi>(params)
     }
 
     /// Terminates the existence of a contract.
@@ -660,7 +671,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::terminate_contract`]
-    pub fn terminate_contract(self, beneficiary: H160) -> ! {
+    #[cfg(feature = "unstable-hostfn")]
+    pub fn terminate_contract(self, beneficiary: Address) -> ! {
         ink_env::terminate_contract(beneficiary)
     }
 
@@ -696,7 +708,7 @@ where
     // # Note
     //
     // For more details visit: [`ink_env::transfer`]
-    pub fn transfer(self, destination: H160, value: U256) -> Result<()> {
+    pub fn transfer(self, destination: Address, value: U256) -> Result<()> {
         // todo remove E
         ink_env::transfer::<E>(destination, value)
     }
@@ -866,6 +878,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::ecdsa_to_eth_address`]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn ecdsa_to_eth_address(self, pubkey: &[u8; 33]) -> Result<[u8; 20]> {
         let mut output = [0; 20];
         ink_env::ecdsa_to_eth_address(pubkey, &mut output)
@@ -924,6 +937,7 @@ where
     /// todo
     /// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
     /// which is unsafe and normally is not available on production chains.
+    #[cfg(feature = "unstable-hostfn")]
     pub fn sr25519_verify(
         self,
         signature: &[u8; 64],
@@ -952,7 +966,7 @@ where
     /// #         }
     /// #
     /// #[ink(message)]
-    /// pub fn is_contract(&mut self, addr: ink::H160) -> bool {
+    /// pub fn is_contract(&mut self, addr: ink::Address) -> bool {
     ///     self.env().is_contract(&addr)
     /// }
     /// #    }
@@ -962,7 +976,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::is_contract`]
-    pub fn is_contract(self, addr: &H160) -> bool {
+    #[cfg(feature = "unstable-hostfn")]
+    pub fn is_contract(self, addr: &Address) -> bool {
         ink_env::is_contract(addr)
     }
 
@@ -994,6 +1009,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::caller_is_origin`]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn caller_is_origin(self) -> bool {
         ink_env::caller_is_origin::<E>()
     }
@@ -1025,6 +1041,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::caller_is_root`]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn caller_is_root(self) -> bool {
         ink_env::caller_is_root::<E>()
     }
@@ -1047,7 +1064,7 @@ where
     /// #
     /// #[ink(message)]
     /// // todo
-    /// pub fn code_hash(&mut self, addr: ink::H160) -> Option<ink::H256> {
+    /// pub fn code_hash(&mut self, addr: ink::Address) -> Option<ink::H256> {
     ///     self.env().code_hash(&addr).ok()
     /// }
     /// #    }
@@ -1057,7 +1074,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::code_hash`]
-    pub fn code_hash(self, addr: &H160) -> Result<H256> {
+    pub fn code_hash(self, addr: &Address) -> Result<H256> {
         ink_env::code_hash(addr)
     }
 
@@ -1090,6 +1107,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::own_code_hash`]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn own_code_hash(self) -> Result<H256> {
         ink_env::own_code_hash()
     }
@@ -1123,77 +1141,17 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::set_code_hash`]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn set_code_hash(self, code_hash: &H256) -> Result<()> {
         ink_env::set_code_hash::<E>(code_hash)
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     pub fn call_runtime<Call: scale::Encode>(self, call: &Call) -> Result<()> {
         ink_env::call_runtime::<E, _>(call)
     }
 
-    /// Adds a new delegate dependency lock for the given `code_hash` to prevent it from
-    /// being deleted.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// # #[ink::contract]
-    /// # pub mod my_contract {
-    /// #     #[ink(storage)]
-    /// #     pub struct MyContract { }
-    /// #
-    /// #     impl MyContract {
-    /// #         #[ink(constructor)]
-    /// #         pub fn new() -> Self {
-    /// #             Self {}
-    /// #         }
-    /// #
-    /// #[ink(message)]
-    /// pub fn lock_delegate_dependency(&mut self, code_hash: ink::H256) {
-    ///     self.env().lock_delegate_dependency(&code_hash)
-    /// }
-    /// #    }
-    /// # }
-    /// ```
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_env::lock_delegate_dependency`]
-    pub fn lock_delegate_dependency(self, code_hash: &H256) {
-        ink_env::lock_delegate_dependency::<E>(code_hash)
-    }
-
-    /// Removes the delegate dependency lock from this contract for the given `code_hash`.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// # #[ink::contract]
-    /// # pub mod my_contract {
-    /// #     #[ink(storage)]
-    /// #     pub struct MyContract { }
-    /// #
-    /// #     impl MyContract {
-    /// #         #[ink(constructor)]
-    /// #         pub fn new() -> Self {
-    /// #             Self {}
-    /// #         }
-    /// #
-    /// #[ink(message)]
-    /// pub fn unlock_delegate_dependency(&mut self, code_hash: ink::H256) {
-    ///     self.env().unlock_delegate_dependency(&code_hash)
-    /// }
-    /// #    }
-    /// # }
-    /// ```
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_env::unlock_delegate_dependency`]
-    pub fn unlock_delegate_dependency(self, code_hash: &H256) {
-        ink_env::unlock_delegate_dependency::<E>(code_hash)
-    }
-
+    #[cfg(feature = "unstable-hostfn")]
     pub fn xcm_execute<Call: scale::Encode>(
         self,
         msg: &xcm::VersionedXcm<Call>,
@@ -1201,6 +1159,7 @@ where
         ink_env::xcm_execute::<E, _>(msg)
     }
 
+    #[cfg(feature = "unstable-hostfn")]
     pub fn xcm_send<Call: scale::Encode>(
         self,
         dest: &xcm::VersionedLocation,

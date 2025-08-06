@@ -1,16 +1,16 @@
 [package]
 name = "payment_channel"
-version = "6.0.0-alpha"
+version = "6.0.0-alpha.1"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../../crates/ink", default-features = false }
+ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
+sp-core = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
 
 [dev-dependencies]
-hex-literal = { version = "0.4.1" }
-sp-core = { version = "35.0.0", default-features = false }
+hex-literal = "1"
 
 [lib]
 path = "lib.rs"
@@ -19,7 +19,9 @@ path = "lib.rs"
 default = ["std"]
 std = [
     "ink/std",
-    "sp-core/std",
 ]
 
 ink-as-dependency = []
+
+[package.metadata.ink-lang]
+abi = "ink"

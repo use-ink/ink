@@ -15,9 +15,11 @@
 use super::types::{
     BlockNumber,
     BlockTimestamp,
-    H160,
 };
-use ink_primitives::U256;
+use ink_primitives::{
+    Address,
+    U256,
+};
 
 /// The context of a contract execution.
 #[cfg_attr(test, derive(Debug, PartialEq, Eq))]
@@ -30,14 +32,14 @@ pub struct ExecContext {
     /// type of default `AccountId` makes sense ‒ they are left to be initialized
     /// by the crate which uses the `engine`. Methods which require a caller might
     /// panic when it has not been set.
-    pub caller: H160,
+    pub caller: Address,
     /// The callee of the contract execution. Might be user or another contract.
     ///
     /// We don't know the specifics of the `AccountId` ‒ like how many bytes or what
     /// type of default `AccountId` makes sense ‒ they are left to be initialized
     /// by the crate which uses the `engine`. Methods which require a callee might
     /// panic when it has not been set.
-    pub callee: Option<H160>,
+    pub callee: Option<Address>,
     /// The value transferred to the contract as part of the call.
     pub value_transferred: U256,
     /// The current block number.
@@ -45,7 +47,7 @@ pub struct ExecContext {
     /// The current block timestamp.
     pub block_timestamp: BlockTimestamp,
     /// Known contract accounts
-    pub contracts: Vec<H160>,
+    pub contracts: Vec<Address>,
 }
 
 impl ExecContext {
@@ -55,7 +57,7 @@ impl ExecContext {
     }
 
     /// Returns the callee.
-    pub fn callee(&self) -> H160 {
+    pub fn callee(&self) -> Address {
         self.callee.expect("no callee has been set")
     }
 
@@ -77,17 +79,19 @@ impl ExecContext {
 
 #[cfg(test)]
 mod tests {
-    use super::ExecContext;
-    use crate::types::H160;
+    use super::{
+        Address,
+        ExecContext,
+    };
 
     #[test]
     fn basic_operations() {
         let mut exec_cont = ExecContext::new();
 
-        exec_cont.callee = Some(H160::from([13; 20]));
-        exec_cont.caller = H160::from([14; 20]);
+        exec_cont.callee = Some(Address::from([13; 20]));
+        exec_cont.caller = Address::from([14; 20]);
         exec_cont.value_transferred = 15.into();
-        assert_eq!(exec_cont.callee(), H160::from([13; 20]));
+        assert_eq!(exec_cont.callee(), Address::from([13; 20]));
 
         exec_cont.reset();
 

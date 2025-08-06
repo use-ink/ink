@@ -28,9 +28,12 @@ impl<
             .build_storage()
             .unwrap();
 
-        pallet_balances::GenesisConfig::<T> { balances }
-            .assimilate_storage(&mut storage)
-            .unwrap();
+        pallet_balances::GenesisConfig::<T> {
+            balances,
+            dev_accounts: None,
+        }
+        .assimilate_storage(&mut storage)
+        .unwrap();
 
         let mut ext = TestExternalities::new(storage);
 
@@ -64,6 +67,12 @@ impl<
         height: frame_system::pallet_prelude::BlockNumberFor<T>,
     ) -> <T as frame_system::Config>::Hash {
         pallet_revive::Pallet::<T>::on_finalize(height);
+        use sp_core::Get;
+        let minimum_period = <T as pallet_timestamp::Config>::MinimumPeriod::get();
+        let now = pallet_timestamp::Pallet::<T>::get()
+            .checked_add(minimum_period)
+            .unwrap();
+        pallet_timestamp::Pallet::<T>::set_timestamp(now);
         pallet_timestamp::Pallet::<T>::on_finalize(height);
         pallet_balances::Pallet::<T>::on_finalize(height);
         frame_system::Pallet::<T>::finalize().hash()
@@ -182,27 +191,33 @@ mod construct_runtime {
 
     impl $crate::pallet_revive::Config for $runtime {
         type AddressMapper = $crate::pallet_revive::AccountId32Mapper<Self>;
-        type ChainId = ConstU64<0>; // TODO
-        type NativeToEthRatio = ConstU32<1>;
+        type ChainId = ConstU64<1>; // TODO
+        type NativeToEthRatio = ConstU32<100_000_000>;
         type Time = Timestamp;
         type Currency = Balances;
         type RuntimeEvent = RuntimeEvent;
         type RuntimeCall = RuntimeCall;
-        type CallFilter = ();
         type DepositPerItem = ConstU128<1>;
         type DepositPerByte = ConstU128<1>;
         type WeightPrice = Self;
         type WeightInfo = ();
-        type ChainExtension = $chain_extension;
+        // todo remove this + the $chain_extension variable
+        // type ChainExtension = $chain_extension;
         type RuntimeMemory = ConstU32<{ 128 * 1024 * 1024 }>;
         type PVFMemory = ConstU32<{ 512 * 1024 * 1024 }>;
         type UnsafeUnstableInterface = ConstBool<true>;
         type CodeHashLockupDepositPercent = CodeHashLockupDepositPercent;
         type RuntimeHoldReason = RuntimeHoldReason;
-        type Debug = $debug;
-        type Xcm = ();
         type UploadOrigin = $crate::frame_system::EnsureSigned<Self::AccountId>;
         type InstantiateOrigin = $crate::frame_system::EnsureSigned<Self::AccountId>;
+        type EthGasEncoder = ();
+        type FindAuthor = ();
+        type Precompiles = (
+            // todo
+            //ERC20<Self, InlineIdConfig<0x120>, TrustBackedAssetsInstance>,
+            //ERC20<Self, InlineIdConfig<0x320>, PoolAssetsInstance>,
+            //XcmPrecompile<Self>,
+        );
     }
 
     // Implement `crate::Sandbox` trait

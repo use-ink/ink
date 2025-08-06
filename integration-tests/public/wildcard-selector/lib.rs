@@ -2,10 +2,29 @@
 
 #[ink::contract]
 pub mod wildcard_selector {
+    #[cfg(feature = "emit-event")]
+    use ink::prelude::format;
     use ink::prelude::string::String;
+
+    #[cfg(feature = "emit-event")]
+    #[ink::event]
+    pub struct Event {
+        msg: String,
+    }
 
     #[ink(storage)]
     pub struct WildcardSelector {}
+
+    struct MessageInput([u8; 4], String);
+    impl ink::env::DecodeDispatch for MessageInput {
+        fn decode_dispatch(input: &mut &[u8]) -> Result<Self, ink::env::DispatchError> {
+            // todo improve code here
+            let mut selector: [u8; 4] = [0u8; 4];
+            selector.copy_from_slice(&input[..4]);
+            let arg: String = ink::scale::Decode::decode(&mut &input[4..]).unwrap();
+            Ok(MessageInput(selector, arg))
+        }
+    }
 
     impl WildcardSelector {
         /// Creates a new wildcard selector smart contract.
@@ -18,19 +37,22 @@ pub mod wildcard_selector {
         /// Wildcard selector handles messages with any selector.
         #[ink(message, selector = _)]
         pub fn wildcard(&mut self) {
-            let (_selector, _message) =
-                ink::env::decode_input::<([u8; 4], String)>().unwrap();
-            ink::env::debug_println!(
-                "Wildcard selector: {:?}, message: {}",
-                _selector,
-                _message
-            );
+            let MessageInput(_selector, _message) =
+                ink::env::decode_input::<MessageInput>().unwrap();
+
+            #[cfg(feature = "emit-event")]
+            self.env().emit_event(Event {
+                msg: format!("Wildcard selector: {_selector:?}, message: {_message}"),
+            })
         }
 
         /// Wildcard complement handles messages with a well-known reserved selector.
         #[ink(message, selector = @)]
         pub fn wildcard_complement(&mut self, _message: String) {
-            ink::env::debug_println!("Wildcard complement message: {}", _message);
+            #[cfg(feature = "emit-event")]
+            self.env().emit_event(Event {
+                msg: format!("Wildcard complement message: {_message}"),
+            });
         }
     }
 
@@ -39,23 +61,27 @@ pub mod wildcard_selector {
         use super::*;
         use ink_e2e::ContractsBackend;
 
-        use ink::env::call::utils::{
-            Argument,
-            ArgumentList,
-            EmptyArgumentList,
+        use ink::{
+            env::call::utils::{
+                Argument,
+                ArgumentList,
+                EmptyArgumentList,
+            },
+            primitives::abi::Ink,
         };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
         type Environment = <WildcardSelectorRef as ink::env::ContractEnv>::Env;
 
         fn build_message(
-            addr: ink::H160,
+            addr: Address,
             selector: [u8; 4],
             message: String,
         ) -> ink_e2e::CallBuilderFinal<
             Environment,
-            ArgumentList<Argument<String>, EmptyArgumentList>,
+            ArgumentList<Argument<String>, EmptyArgumentList<Ink>, Ink>,
             (),
+            Ink,
         > {
             ink::env::call::build_call::<Environment>()
                 .call(addr)
@@ -68,7 +94,7 @@ pub mod wildcard_selector {
                 .returns::<()>()
         }
 
-        #[ink_e2e::test]
+        #[ink_e2e::test(features = ["emit-event"])]
         async fn arbitrary_selectors_handled_by_wildcard<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
@@ -90,7 +116,7 @@ pub mod wildcard_selector {
                 wildcard_message.clone(),
             );
 
-            let result = client
+            let _result = client
                 .call(&ink_e2e::bob(), &wildcard)
                 .submit()
                 .await
@@ -104,13 +130,28 @@ pub mod wildcard_selector {
                 wildcard_message2.clone(),
             );
 
-            let result2 = client
+            let _result2 = client
                 .call(&ink_e2e::bob(), &wildcard2)
                 .submit()
                 .await
                 .expect("wildcard failed");
 
             // then
+            let contract_events = _result.contract_emitted_events()?;
+            assert_eq!(1, contract_events.len());
+            let contract_event = contract_events.first().expect("first event must exist");
+            let event: Event =
+                ink::scale::Decode::decode(&mut &contract_event.event.data[..])
+                    .expect("encountered invalid contract event data buffer");
+            assert_eq!(
+                event.msg,
+                format!(
+                    "Wildcard selector: {ARBITRARY_SELECTOR:?}, message: {wildcard_message}"
+                )
+            );
+
+            /*
+            // todo
             assert!(result.debug_message().contains(&format!(
                 "Wildcard selector: {:?}, message: {}",
                 ARBITRARY_SELECTOR, wildcard_message
@@ -120,6 +161,7 @@ pub mod wildcard_selector {
                 "Wildcard selector: {:?}, message: {}",
                 ARBITRARY_SELECTOR_2, wildcard_message2
             )));
+            */
 
             Ok(())
         }
@@ -145,17 +187,20 @@ pub mod wildcard_selector {
                 wildcard_complement_message.clone(),
             );
 
-            let result = client
+            let _result = client
                 .call(&ink_e2e::bob(), &wildcard)
                 .submit()
                 .await
                 .expect("wildcard failed");
 
             // then
+            /*
+            // todo
             assert!(result.debug_message().contains(&format!(
                 "Wildcard complement message: {}",
                 wildcard_complement_message
             )));
+            */
 
             Ok(())
         }

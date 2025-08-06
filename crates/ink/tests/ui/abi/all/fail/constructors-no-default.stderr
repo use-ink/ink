@@ -1,0 +1,9 @@
+error: One constructor used for Solidity ABI encoded instantiation must be annotated with the `default` attribute argument in "all" ABI mode
+  --> tests/ui/abi/all/fail/constructors-no-default.rs:4:1
+   |
+4  | / mod contract {
+5  | |     #[ink(storage)]
+6  | |     pub struct Contract {}
+...  |
+22 | | }
+   | |_^

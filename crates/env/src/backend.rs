@@ -12,15 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use ink_primitives::{
+    abi::AbiEncodeWith,
+    types::Environment,
+    Address,
+    SolEncode,
+    H256,
+    U256,
+};
+use ink_storage_traits::Storable;
+pub use pallet_revive_uapi::ReturnFlags;
+
+#[cfg(feature = "unstable-hostfn")]
+use crate::call::{
+    ConstructorReturnType,
+    CreateParams,
+    FromAddr,
+    LimitParamsV2,
+};
 use crate::{
     call::{
+        utils::DecodeMessageResult,
         Call,
         CallParams,
-        ConstructorReturnType,
-        CreateParams,
         DelegateCall,
-        FromAddr,
-        LimitParamsV2,
     },
     event::Event,
     hash::{
@@ -31,14 +46,6 @@ use crate::{
     DispatchError,
     Result,
 };
-use ink_primitives::{
-    types::Environment,
-    H160,
-    H256,
-    U256,
-};
-use ink_storage_traits::Storable;
-pub use pallet_revive_uapi::ReturnFlags;
 
 /// Environmental contract functionality that does not require `Environment`.
 pub trait EnvBackend {
@@ -67,12 +74,14 @@ pub trait EnvBackend {
     /// # Errors
     ///
     /// - If the decoding of the typed value failed
+    #[cfg(feature = "unstable-hostfn")]
     fn take_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
         K: scale::Encode,
         R: Storable;
 
     /// Returns the size of a value stored under the given storage key is returned if any.
+    #[cfg(feature = "unstable-hostfn")]
     fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode;
@@ -80,6 +89,7 @@ pub trait EnvBackend {
     /// Clears the contract's storage key entry under the given storage key.
     ///
     /// Returns the size of the previously stored value at the specified key if any.
+    #[cfg(feature = "unstable-hostfn")]
     fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode;
@@ -140,19 +150,9 @@ pub trait EnvBackend {
         R: scale::Encode;
 
     /// todo: comment
-    fn return_value_rlp<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
+    fn return_value_solidity<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
-        R: alloy_rlp::Encodable;
-
-    /// Emit a custom debug message.
-    ///
-    /// The message is appended to the debug buffer which is then supplied to the calling
-    /// RPC client. This buffer is also printed as a debug message to the node console
-    /// if the `debug` log level is enabled for the `runtime::contracts` target.
-    ///
-    /// If debug message recording is disabled in the contracts pallet, which is always
-    /// the case when the code is executing on-chain, then this will have no effect.
-    fn debug_message(&mut self, content: &str);
+        R: for<'a> SolEncode<'a>;
 
     /// Conducts the crypto hash of the given input and stores the result in `output`.
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
@@ -177,6 +177,7 @@ pub trait EnvBackend {
 
     /// Retrieves an Ethereum address from the ECDSA compressed `pubkey`
     /// and stores the result in `output`.
+    #[cfg(feature = "unstable-hostfn")]
     fn ecdsa_to_eth_address(
         &mut self,
         pubkey: &[u8; 33],
@@ -191,6 +192,7 @@ pub trait EnvBackend {
     ///
     /// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
     /// which is unsafe and normally is not available on production chains.
+    #[cfg(feature = "unstable-hostfn")]
     fn sr25519_verify(
         &mut self,
         signature: &[u8; 64],
@@ -218,6 +220,7 @@ pub trait EnvBackend {
     /// successful call to the chain extension method is the resulting
     /// output buffer passed to the `decode_to_result` closure, in order to
     /// drive the decoding and error management process from the outside.
+    #[cfg(feature = "unstable-hostfn")]
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
         &mut self,
         id: u32,
@@ -239,6 +242,7 @@ pub trait EnvBackend {
     /// # Errors
     ///
     /// - If the supplied `code_hash` cannot be found on-chain.
+    #[cfg(feature = "unstable-hostfn")]
     fn set_code_hash(&mut self, code_hash: &H256) -> Result<()>;
 }
 
@@ -249,7 +253,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`caller`][`crate::caller`]
-    fn caller(&mut self) -> H160;
+    fn caller(&mut self) -> Address;
 
     /// Returns the transferred value for the contract execution.
     ///
@@ -277,6 +281,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`account_id`][`crate::account_id`]
+    #[cfg(feature = "unstable-hostfn")]
     fn account_id<E: Environment>(&mut self) -> E::AccountId;
 
     /// Returns the address of the executed contract.
@@ -284,7 +289,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`address`][`crate::address`]
-    fn address(&mut self) -> H160;
+    fn address(&mut self) -> Address;
 
     /// Returns the balance of the executed contract.
     ///
@@ -306,6 +311,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`minimum_balance`][`crate::minimum_balance`]
+    #[cfg(feature = "unstable-hostfn")]
     fn minimum_balance<E: Environment>(&mut self) -> E::Balance;
 
     /// Emits an event with the given event data.
@@ -325,14 +331,14 @@ pub trait TypedEnvBackend: EnvBackend {
     /// **This will call into the latest `call_v2` host function.**
     ///
     /// For more details visit: [`invoke_contract`][`crate::invoke_contract`]
-    fn invoke_contract<E, Args, R>(
+    fn invoke_contract<E, Args, R, Abi>(
         &mut self,
-        call_data: &CallParams<E, Call, Args, R>,
+        call_data: &CallParams<E, Call, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        Args: scale::Encode,
-        R: scale::Decode;
+        Args: AbiEncodeWith<Abi>,
+        R: DecodeMessageResult<Abi>;
 
     /// Invokes a contract message via delegate call and returns its result.
     ///
@@ -340,26 +346,27 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// For more details visit:
     /// [`invoke_contract_delegate`][`crate::invoke_contract_delegate`]
-    fn invoke_contract_delegate<E, Args, R>(
+    fn invoke_contract_delegate<E, Args, R, Abi>(
         &mut self,
-        call_data: &CallParams<E, DelegateCall, Args, R>,
+        call_data: &CallParams<E, DelegateCall, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        Args: scale::Encode,
-        R: scale::Decode;
+        Args: AbiEncodeWith<Abi>,
+        R: DecodeMessageResult<Abi>;
 
     /// Instantiates another contract.
     ///
     /// # Note
     ///
     /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
-    fn instantiate_contract<E, ContractRef, Args, R>(
+    #[cfg(feature = "unstable-hostfn")]
+    fn instantiate_contract<E, ContractRef, Args, R, Abi>(
         &mut self,
-        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
+        params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
     ) -> Result<
         ink_primitives::ConstructorResult<
-            <R as ConstructorReturnType<ContractRef>>::Output,
+            <R as ConstructorReturnType<ContractRef, Abi>>::Output,
         >,
     >
     where
@@ -367,22 +374,23 @@ pub trait TypedEnvBackend: EnvBackend {
         ContractRef: FromAddr + crate::ContractReverseReference,
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
-        Args: scale::Encode,
-        R: ConstructorReturnType<ContractRef>;
+        Args: AbiEncodeWith<Abi>,
+        R: ConstructorReturnType<ContractRef, Abi>;
 
     /// Terminates a smart contract.
     ///
     /// # Note
     ///
     /// For more details visit: [`terminate_contract`][`crate::terminate_contract`]
-    fn terminate_contract(&mut self, beneficiary: H160) -> !;
+    #[cfg(feature = "unstable-hostfn")]
+    fn terminate_contract(&mut self, beneficiary: Address) -> !;
 
     /// Transfers value from the contract to the destination account ID.
     ///
     /// # Note
     ///
     /// For more details visit: [`transfer`][`crate::transfer`]
-    fn transfer<E>(&mut self, destination: H160, value: U256) -> Result<()>
+    fn transfer<E>(&mut self, destination: Address, value: U256) -> Result<()>
     where
         E: Environment;
 
@@ -392,7 +400,8 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// For more details visit: [`is_contract`][`crate::is_contract`]
     #[allow(clippy::wrong_self_convention)]
-    fn is_contract(&mut self, account: &H160) -> bool;
+    #[cfg(feature = "unstable-hostfn")]
+    fn is_contract(&mut self, account: &Address) -> bool;
 
     /// Checks whether the caller of the current contract is the origin of the whole call
     /// stack.
@@ -400,6 +409,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`caller_is_origin`][`crate::caller_is_origin`]
+    #[cfg(feature = "unstable-hostfn")]
     fn caller_is_origin<E>(&mut self) -> bool
     where
         E: Environment;
@@ -409,6 +419,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`caller_is_root`][`crate::caller_is_root`]
+    #[cfg(feature = "unstable-hostfn")]
     fn caller_is_root<E>(&mut self) -> bool
     where
         E: Environment;
@@ -418,45 +429,28 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`code_hash`][`crate::code_hash`]
-    fn code_hash(&mut self, account: &H160) -> Result<H256>;
+    fn code_hash(&mut self, account: &Address) -> Result<H256>;
 
     /// Retrieves the code hash of the currently executing contract.
     ///
     /// # Note
     ///
     /// For more details visit: [`own_code_hash`][`crate::own_code_hash`]
+    #[cfg(feature = "unstable-hostfn")]
     fn own_code_hash(&mut self) -> Result<H256>;
 
+    #[cfg(feature = "unstable-hostfn")]
     fn call_runtime<E, Call>(&mut self, call: &Call) -> Result<()>
     where
         E: Environment,
         Call: scale::Encode;
-
-    /// Adds a new delegate dependency lock to the contract.
-    ///
-    /// # Note
-    ///
-    /// For more details visit:
-    /// [`lock_delegate_dependency`][`crate::lock_delegate_dependency`]
-    fn lock_delegate_dependency<E>(&mut self, code_hash: &H256)
-    where
-        E: Environment;
-
-    /// Unlocks the delegate dependency from the contract.
-    ///
-    /// # Note
-    ///
-    /// For more details visit:
-    /// [`unlock_delegate_dependency`][`crate::unlock_delegate_dependency`].
-    fn unlock_delegate_dependency<E>(&mut self, code_hash: &H256)
-    where
-        E: Environment;
 
     /// Execute an XCM message locally, using the contract's address as the origin.
     ///
     /// # Note
     ///
     /// For more details visit: [`xcm`][`crate::xcm_execute`].
+    #[cfg(feature = "unstable-hostfn")]
     fn xcm_execute<E, Call>(&mut self, msg: &xcm::VersionedXcm<Call>) -> Result<()>
     where
         E: Environment,
@@ -467,6 +461,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`xcm`][`crate::xcm_send`].
+    #[cfg(feature = "unstable-hostfn")]
     fn xcm_send<E, Call>(
         &mut self,
         dest: &xcm::VersionedLocation,

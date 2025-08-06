@@ -17,6 +17,7 @@
 mod dispatch;
 mod env;
 mod implies_return;
+pub mod sol;
 mod trait_def;
 pub mod utils;
 
@@ -25,7 +26,9 @@ pub use self::{
         deny_payment,
         ContractCallBuilder,
         DispatchInput,
+        DispatchInputSol,
         DispatchOutput,
+        DispatchOutputSol,
     },
     env::{
         Env,

@@ -1,0 +1,4 @@
+[build]
+# Tells `trybuild` not to pass a `--target` arg.
+# Ref: https://github.com/dtolnay/trybuild/blob/a2eb852409a69841ccca1acbf61813e8e8abb792/src/cargo.rs#L191-L204
+rustflags = ["--cfg", "trybuild_no_target"]

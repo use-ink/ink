@@ -1,0 +1,8 @@
+error[E0119]: conflicting implementations of trait `DispatchableMessageInfo<3793696718>` for type `contract::Contract`
+  --> tests/ui/abi/all/fail/message-selector-overlap.rs:16:9
+   |
+16 |         pub fn message(&self) {}
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^
+   |         |
+   |         first implementation here
+   |         conflicting implementation for `contract::Contract`

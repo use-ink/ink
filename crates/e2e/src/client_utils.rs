@@ -13,12 +13,14 @@
 // limitations under the License.
 
 use crate::log_info;
+use regex::Regex;
 use std::{
     collections::BTreeMap,
     path::PathBuf,
 };
 
 /// Generate a unique salt based on the system time.
+/// todo return no `Option` here, just the salt.
 pub fn salt() -> Option<[u8; 32]> {
     use funty::Fundamental as _;
 
@@ -67,7 +69,14 @@ impl ContractsRegistry {
     pub fn load_code(&self, contract: &str) -> Vec<u8> {
         let contract_binary_path = self
             .contracts
-            .get(&contract.replace('-', "_"))
+            .iter().find_map(|(name, path)| {
+                let re = Regex::new(r"-features-.+$").expect("failed creating regex");
+                let key = re.replace_all(name, "");
+                if key == contract || key.replace('_', "-") == contract {
+                    return Some(path);
+                }
+                None
+            })
             .unwrap_or_else(||
                 panic!(
                     "Unknown contract {contract}. Available contracts: {:?}.\n\
@@ -85,4 +94,23 @@ impl ContractsRegistry {
         log_info(&format!("{:?} has {} KiB", contract, code.len() / 1024));
         code
     }
+}
+
+/// Returns the `H256` hash of the code slice.
+pub fn code_hash(code: &[u8]) -> [u8; 32] {
+    h256_hash(code)
+}
+
+/// Returns the `H256` hash of the given `code` slice.
+fn h256_hash(code: &[u8]) -> [u8; 32] {
+    use sha3::{
+        Digest,
+        Keccak256,
+    };
+    let hash = Keccak256::digest(code);
+    let sl = hash.as_slice();
+    assert!(sl.len() == 32, "expected length of 32");
+    let mut arr = [0u8; 32];
+    arr.copy_from_slice(sl);
+    arr
 }

@@ -109,12 +109,12 @@ impl CallBuilder<'_> {
             #[allow(non_camel_case_types)]
             #[::ink::scale_derive(Encode, Decode)]
             #[repr(transparent)]
-            pub struct #call_builder_ident<E>
+            pub struct #call_builder_ident<E, Abi>
             where
                 E: ::ink::env::Environment,
             {
-                addr: ::ink::H160,
-                marker: ::core::marker::PhantomData<fn() -> E>,
+                addr: ::ink::Address,
+                _marker: ::core::marker::PhantomData<fn() -> (E, Abi)>,
             }
         )
     }
@@ -131,11 +131,11 @@ impl CallBuilder<'_> {
         let call_builder_ident = self.ident();
         quote_spanned!(span=>
             #[cfg(feature = "std")]
-            impl<E> ::ink::storage::traits::StorageLayout
-                for #call_builder_ident<E>
+            impl<E, Abi> ::ink::storage::traits::StorageLayout
+                for #call_builder_ident<E, Abi>
             where
                 E: ::ink::env::Environment,
-                ::ink::H160: ::ink::storage::traits::StorageLayout,
+                ::ink::Address: ::ink::storage::traits::StorageLayout,
             {
                 fn layout(
                     __key: &::ink::primitives::Key,
@@ -146,7 +146,7 @@ impl CallBuilder<'_> {
                             [
                                 ::ink::metadata::layout::FieldLayout::new(
                                     "addr",
-                                    <::ink::H160
+                                    <::ink::Address
                                         as ::ink::storage::traits::StorageLayout>::layout(__key)
                                 )
                             ]
@@ -168,27 +168,59 @@ impl CallBuilder<'_> {
     fn generate_auxiliary_trait_impls(&self) -> TokenStream2 {
         let span = self.span();
         let call_builder_ident = self.ident();
+        let sol_codec = if cfg!(any(ink_abi = "sol", ink_abi = "all")) {
+            // These manual implementations are a bit more efficient than the derived
+            // equivalents.
+            quote_spanned!(span=>
+                impl<E, Abi> ::ink::SolDecode for #call_builder_ident<E, Abi>
+                where
+                    E: ::ink::env::Environment,
+                {
+                    type SolType = ::ink::Address;
+
+                    fn from_sol_type(value: Self::SolType) -> ::core::result::Result<Self, ::ink::sol::Error> {
+                        Ok(Self {
+                            addr: value,
+                            _marker: ::core::marker::PhantomData,
+                        })
+                    }
+                }
+
+                impl<'a, E, Abi> ::ink::SolEncode<'a> for #call_builder_ident<E, Abi>
+                where
+                    E: ::ink::env::Environment,
+                {
+                    type SolType = &'a ::ink::Address;
+
+                    fn to_sol_type(&'a self) -> Self::SolType {
+                        &self.addr
+                    }
+                }
+            )
+        } else {
+            quote!()
+        };
         quote_spanned!(span=>
             /// We require this manual implementation since the derive produces incorrect trait bounds.
-            impl<E> ::core::clone::Clone for #call_builder_ident<E>
+            impl<E, Abi> ::core::clone::Clone for #call_builder_ident<E, Abi>
             where
                 E: ::ink::env::Environment,
-                ::ink::H160: ::core::clone::Clone,
+                ::ink::Address: ::core::clone::Clone,
             {
                 #[inline]
                 fn clone(&self) -> Self {
                     Self {
                         addr: ::core::clone::Clone::clone(&self.addr),
-                        marker: self.marker,
+                        _marker: self._marker,
                     }
                 }
             }
 
             /// We require this manual implementation since the derive produces incorrect trait bounds.
-            impl<E> ::core::fmt::Debug for #call_builder_ident<E>
+            impl<E, Abi> ::core::fmt::Debug for #call_builder_ident<E, Abi>
             where
                 E: ::ink::env::Environment,
-                ::ink::H160: ::core::fmt::Debug,
+                ::ink::Address: ::core::fmt::Debug,
             {
                 fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
                     f.debug_struct(::core::stringify!(#call_builder_ident))
@@ -200,17 +232,19 @@ impl CallBuilder<'_> {
             #[cfg(feature = "std")]
             // todo
             /// We require this manual implementation since the derive produces incorrect trait bounds.
-            impl<E> ::ink::scale_info::TypeInfo for #call_builder_ident<E>
+            impl<E, Abi> ::ink::scale_info::TypeInfo for #call_builder_ident<E, Abi>
             where
                 E: ::ink::env::Environment,
-                ::ink::H160: ::ink::scale_info::TypeInfo + 'static,
+                ::ink::Address: ::ink::scale_info::TypeInfo + 'static,
             {
-                type Identity = ::ink::H160;
+                type Identity = ::ink::Address;
 
                 fn type_info() -> ::ink::scale_info::Type {
-                    <::ink::H160 as ::ink::scale_info::TypeInfo>::type_info()
+                    <::ink::Address as ::ink::scale_info::TypeInfo>::type_info()
                 }
             }
+
+            #sol_codec
         )
     }
 
@@ -225,56 +259,63 @@ impl CallBuilder<'_> {
         let span = self.span();
         let call_builder_ident = self.ident();
         quote_spanned!(span=>
-            impl<E> ::ink::env::call::FromAddr
-                for #call_builder_ident<E>
+            impl<E, Abi> ::ink::env::call::FromAddr
+                for #call_builder_ident<E, Abi>
             where
                 E: ::ink::env::Environment,
             {
                 #[inline]
-                fn from_addr(addr: ::ink::H160) -> Self {
+                fn from_addr(addr: ::ink::Address) -> Self {
                     Self {
                         addr,
-                        marker: ::core::default::Default::default(),
+                        _marker: ::core::default::Default::default(),
                     }
                 }
             }
 
-            impl<E> ::core::convert::From<::ink::H160> for #call_builder_ident<E>
+            impl<E, Abi> ::core::convert::From<::ink::Address> for #call_builder_ident<E, Abi>
             where
                 E: ::ink::env::Environment,
-                ::ink::H160: ::ink::env::AccountIdGuard,
+                ::ink::Address: ::ink::env::AccountIdGuard,
             {
-                fn from(value: ::ink::H160) -> Self {
+                fn from(value: ::ink::Address) -> Self {
                     <Self as ::ink::env::call::FromAddr>::from_addr(value)
                 }
             }
 
-            impl<E> ::ink::ToAddr for #call_builder_ident<E>
+            impl<E, Abi> ::ink::ToAddr for #call_builder_ident<E, Abi>
             where
                 E: ::ink::env::Environment,
             {
                 #[inline]
-                fn to_addr(&self) -> ::ink::H160 {
-                    <::ink::H160 as ::core::clone::Clone>::clone(&self.addr)
+                fn to_addr(&self) -> ::ink::Address {
+                    <::ink::Address as ::core::clone::Clone>::clone(&self.addr)
                 }
             }
 
-            impl<E> ::core::convert::AsRef<::ink::H160> for #call_builder_ident<E>
+            impl<E, Abi> ::core::convert::AsRef<::ink::Address> for #call_builder_ident<E, Abi>
             where
                 E: ::ink::env::Environment,
             {
-                fn as_ref(&self) -> &::ink::H160 {
+                fn as_ref(&self) -> &::ink::Address {
                     &self.addr
                 }
             }
 
-            impl<E> ::core::convert::AsMut<::ink::H160> for #call_builder_ident<E>
+            impl<E, Abi> ::core::convert::AsMut<::ink::Address> for #call_builder_ident<E, Abi>
             where
                 E: ::ink::env::Environment,
             {
-                fn as_mut(&mut self) -> &mut ::ink::H160 {
+                fn as_mut(&mut self) -> &mut ::ink::Address {
                     &mut self.addr
                 }
+            }
+
+            impl<E, Abi> ::ink::env::ContractEnv for #call_builder_ident<E, Abi>
+            where
+                E: ::ink::env::Environment,
+            {
+                type Env = E;
             }
         )
     }
@@ -292,11 +333,11 @@ impl CallBuilder<'_> {
         let message_builder_ident = self.trait_def.message_builder_ident();
         quote_spanned!(span=>
             /// This trait allows to bridge from the call builder to message builder.
-            impl<E> ::ink::codegen::TraitMessageBuilder for #call_builder_ident<E>
+            impl<E, TypeAbi> ::ink::codegen::TraitMessageBuilder for #call_builder_ident<E, TypeAbi>
             where
                 E: ::ink::env::Environment
             {
-                type MessageBuilder = #message_builder_ident<E>;
+                type MessageBuilder<TraitAbi> = #message_builder_ident<E, TypeAbi>;
             }
         )
     }
@@ -315,34 +356,30 @@ impl CallBuilder<'_> {
         let trait_ident = self.trait_def.trait_def.item().ident();
         let trait_info_ident = self.trait_def.trait_info_ident();
         let builder_ident = self.ident();
-        let message_impls = self.generate_ink_trait_impl_messages();
-        quote_spanned!(span=>
-            impl<E> ::ink::env::ContractEnv for #builder_ident<E>
-            where
-                E: ::ink::env::Environment,
-            {
-                type Env = E;
-            }
+        generate_abi_impls!(@tokens |abi: TokenStream2| {
+            let message_impls = self.generate_ink_trait_impl_messages(abi.clone());
+            quote_spanned!(span=>
+                impl<E> #trait_ident for #builder_ident<E, #abi>
+                where
+                    E: ::ink::env::Environment,
+                {
+                    #[allow(non_camel_case_types)]
+                    type __ink_TraitInfo = #trait_info_ident<E>;
 
-            impl<E> #trait_ident for #builder_ident<E>
-            where
-                E: ::ink::env::Environment,
-            {
-                #[allow(non_camel_case_types)]
-                type __ink_TraitInfo = #trait_info_ident<E>;
-
-                #message_impls
-            }
-        )
+                    #message_impls
+                }
+            )
+        })
     }
 
     /// Generate the code for all ink! trait messages implemented by the trait call
     /// builder.
-    fn generate_ink_trait_impl_messages(&self) -> TokenStream2 {
+    fn generate_ink_trait_impl_messages(&self, abi: TokenStream2) -> TokenStream2 {
         let messages = self.trait_def.trait_def.item().iter_items().filter_map(
             |(item, _selector)| {
-                item.filter_map_message()
-                    .map(|message| self.generate_ink_trait_impl_for_message(&message))
+                item.filter_map_message().map(|message| {
+                    self.generate_ink_trait_impl_for_message(&message, abi.clone())
+                })
             },
         );
         quote! {
@@ -355,6 +392,7 @@ impl CallBuilder<'_> {
     fn generate_ink_trait_impl_for_message(
         &self,
         message: &ir::InkTraitMessage,
+        abi: TokenStream2,
     ) -> TokenStream2 {
         let span = message.span();
         let trait_ident = self.trait_def.trait_def.item().ident();
@@ -371,8 +409,9 @@ impl CallBuilder<'_> {
             output.map_or_else(|| quote! { () }, |output| quote! { #output });
         let input_bindings = generator::input_bindings(message.inputs());
         let input_types = generator::input_types(message.inputs());
-        let arg_list = generator::generate_argument_list(input_types.iter().cloned());
         let mut_tok = message.mutates().then(|| quote! { mut });
+        let arg_list =
+            generator::generate_argument_list(input_types.iter().cloned(), abi.clone());
         let cfg_attrs = message.get_cfg_attrs(span);
         quote_spanned!(span =>
             #[allow(clippy::type_complexity)]
@@ -380,7 +419,7 @@ impl CallBuilder<'_> {
             type #output_ident = ::ink::env::call::CallBuilder<
                 Self::Env,
                 ::ink::env::call::utils::Set< ::ink::env::call::Call >,
-                ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list> >,
+                ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list, #abi> >,
                 ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#output_type> >,
             >;
 
@@ -393,13 +432,13 @@ impl CallBuilder<'_> {
                 <::ink::env::call::CallBuilder<
                     Self::Env,
                     ::ink::env::call::utils::Unset< ::ink::env::call::Call >,
-                    ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list> >,
+                    ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list, #abi> >,
                     ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#output_type> >,
                 > as ::core::convert::From::<_>>::from(
-                    <<Self as ::ink::codegen::TraitMessageBuilder>::MessageBuilder as #trait_ident>
+                    <<Self as ::ink::codegen::TraitMessageBuilder>::MessageBuilder<#abi> as #trait_ident>
                         ::#message_ident(
                             & #mut_tok <<Self
-                                as ::ink::codegen::TraitMessageBuilder>::MessageBuilder
+                                as ::ink::codegen::TraitMessageBuilder>::MessageBuilder<#abi>
                                 as ::core::default::Default>::default()
                             #(
                                 , #input_bindings

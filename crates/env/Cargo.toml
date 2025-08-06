@@ -3,7 +3,7 @@ name = "ink_env"
 version.workspace = true
 authors = ["Use Ink <ink@use.ink>"]
 edition.workspace = true
-rust-version = "1.68"
+rust-version = "1.81"
 
 license.workspace = true
 readme = "README.md"
@@ -20,10 +20,8 @@ ink_allocator = { workspace = true }
 ink_storage_traits = { workspace = true }
 ink_prelude = { workspace = true }
 ink_primitives = { workspace = true }
-ink_macro = { workspace = true }
 pallet-revive-uapi = { workspace = true }
 
-alloy-rlp = { workspace = true }
 scale = { workspace = true, features = ["max-encoded-len"] }
 derive_more = { workspace = true, features = ["from", "display"] }
 num-traits = { workspace = true, features = ["i128"] }
@@ -31,16 +29,17 @@ cfg-if = { workspace = true }
 static_assertions = { workspace = true }
 const_env = { workspace = true }
 xcm = { workspace = true }
+hex-literal = "1"
 
-# We add the `sp-io` here to disable those features
-sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
-sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false, features = ["disable_target_static_assertions"] }
+sp-io = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false, features = ["disable_target_static_assertions"] }
 
 [target.'cfg(target_arch = "riscv64")'.dependencies]
 polkavm-derive = { workspace = true, default-features = false }
 
 [target.'cfg(not(target_arch = "riscv64"))'.dependencies]
 ink_engine = { workspace = true, default-features = true, optional = true }
+pallet-revive = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
 
 # Hashes for the off-chain environment.
 sha2 = { workspace = true, optional = true }
@@ -65,47 +64,46 @@ scale-info = { workspace = true, features = ["derive"], optional = true }
 ink = { path = "../ink" }
 
 [features]
-default = [ "std" ]
+default = ["std"]
 std = [
-	"alloy-rlp/std",
-	"blake2",
+    "blake2",
     "ink/std",
-	"ink_allocator/std",
-	"ink_prelude/std",
-	"ink_primitives/std",
-	"ink_storage_traits/std",
-	"ink_engine/std",
-    "ink_macro/std",
-	"scale/std",
-	"scale-decode",
-	"scale-encode",
-	"scale-info/std",
-	"secp256k1",
-	"schnorrkel",
+    "ink_allocator/std",
+    "ink_prelude/std",
+    "ink_primitives/std",
+    "ink_storage_traits/std",
+    "ink_engine/std",
+    "scale/std",
+    "scale-decode",
+    "scale-encode",
+    "scale-info/std",
+    "secp256k1",
+    "schnorrkel",
     "sp-io/std",
     "sp-runtime-interface/std",
-	"num-traits/std",
-	# Enables hashing crates for off-chain environment.
-	"sha2",
-	"sha3",
-	"scale-decode?/std",
-	"scale-encode?/std",
-	"xcm/std",
-	"derive_more/std"
+    "num-traits/std",
+    # Enables hashing crates for off-chain environment.
+    "sha2",
+    "sha3",
+    "xcm/std",
+    "derive_more/std"
 ]
 
 # Enable contract debug messages via `debug_print!` and `debug_println!`.
 ink-debug = []
 
 # Disable the ink! provided global memory allocator.
-no-allocator = [ "ink_allocator/no-allocator" ]
+no-allocator = ["ink_allocator/no-allocator"]
 
 # Disable the ink! provided panic handler.
 no-panic-handler = []
+
+unstable-hostfn = []
 
 # For the ui tests, which use this `Cargo.toml`
 [lints.rust.unexpected_cfgs]
 level = "warn"
 check-cfg = [
     'cfg(feature, values(any()))',
+    'cfg(ink_abi, values("ink", "sol", "all"))'
 ]

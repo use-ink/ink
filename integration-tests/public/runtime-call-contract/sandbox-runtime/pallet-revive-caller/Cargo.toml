@@ -35,3 +35,6 @@ std = [
     "ink/std"
 ]
 try-runtime = []
+
+[package.metadata.ink-lang]
+abi = "ink"

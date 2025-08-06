@@ -28,7 +28,7 @@ error[E0277]: the trait bound `NonPacked: Packed` is not satisfied
              &mut T
              Arc<T>
              Box<T>
-             Cow<'a, T>
+             Cow<'_, T>
              Rc<T>
              String
              Vec<T>

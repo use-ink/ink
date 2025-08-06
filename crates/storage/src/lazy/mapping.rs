@@ -55,14 +55,13 @@ use scale::{
 ///         traits::ManualKey,
 ///         Mapping,
 ///     },
-///     H160,
 ///     U256,
 /// };
 ///
 /// #[ink(storage)]
 /// #[derive(Default)]
 /// pub struct MyContract {
-///     balances: Mapping<H160, U256, ManualKey<123>>,
+///     balances: Mapping<Address, U256, ManualKey<123>>,
 /// }
 ///
 /// impl MyContract {
@@ -202,6 +201,7 @@ where
     ///   or (b) the value existed but its length exceeds the static buffer size.
     /// - `None` if there was no value under this mapping key.
     #[inline]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn try_get<Q>(&self, key: Q) -> Option<ink_env::Result<V>>
     where
         Q: scale::EncodeLike<K>,
@@ -239,6 +239,7 @@ where
     /// [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
     /// which is unsafe and normally is not available on production chains.
     #[inline]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn take<Q>(&self, key: Q) -> Option<V>
     where
         Q: scale::EncodeLike<K>,
@@ -262,6 +263,7 @@ where
     /// [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
     /// which is unsafe and normally is not available on production chains.
     #[inline]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn try_take<Q>(&self, key: Q) -> Option<ink_env::Result<V>>
     where
         Q: scale::EncodeLike<K>,
@@ -288,6 +290,7 @@ where
     ///
     /// Returns `None` if no `value` exists at the given `key`.
     #[inline]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn size<Q>(&self, key: Q) -> Option<u32>
     where
         Q: scale::EncodeLike<K>,
@@ -299,6 +302,7 @@ where
     ///
     /// Returns `false` if no `value` exists at the given `key`.
     #[inline]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn contains<Q>(&self, key: Q) -> bool
     where
         Q: scale::EncodeLike<K>,
@@ -308,6 +312,7 @@ where
 
     /// Clears the value at `key` from storage.
     #[inline]
+    #[cfg(feature = "unstable-hostfn")]
     pub fn remove<Q>(&self, key: Q)
     where
         Q: scale::EncodeLike<K>,

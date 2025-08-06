@@ -26,8 +26,6 @@ on:
       - 'FILE_HEADER'
 
 env:
-  # Image can be edited at https://github.com/use-ink/docker-images
-  IMAGE:                           useink/ci
   CARGO_TARGET_DIR:                /ci-cache/${{ github.repository }}/targets/${{ github.ref_name }}/${{ github.job }}
   PURELY_STD_CRATES:               ink/codegen metadata engine e2e e2e/macro ink/ir
   ALSO_RISCV_CRATES:               env storage storage/traits allocator prelude primitives ink ink/macro
@@ -44,6 +42,8 @@ env:
   RISCV_TARGET:                    .github/riscv64emac-unknown-none-polkavm.json
   # Clippy doesn't support JSON files for `--target`, hence we use another RISC-V target.
   CLIPPY_TARGET:                   riscv64imac-unknown-none-elf
+  # ID used for measurements: non-`master` branches may contain '/' which is problematic for file names
+  MEASUREMENTS_ID:                 ${{ github.ref == 'refs/heads/master' && 'master' || github.run_id }}
 
 concurrency:
   # Cancel in-progress jobs triggered only on pull_requests
@@ -53,154 +53,164 @@ concurrency:
 ### lint
 
 jobs:
-  set-image:
-    # GitHub Actions does not allow using 'env' in a container context.
-    # This workaround sets the container image for each job using the 'set-image' job output.
+  ci-image:
     runs-on: ubuntu-latest
     outputs:
-      IMAGE: ${{ steps.set_image.outputs.IMAGE }}
+      cargo-contract-version: ${{ steps.environment.outputs.cargo-contract-version }}
     steps:
-      - id: set_image
-        run: echo "IMAGE=${{ env.IMAGE }}" >> $GITHUB_OUTPUT
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Output environment information
+        id: environment
+        uses: ./.github/run-container-command
+        with:
+          command: |
+            rustup show
+            cargo --version
+            rustup +nightly show
+            cargo +nightly --version
+            bash --version
+            ink-node --version; cargo contract --version; git --version
+            echo -e '[registry]\nprotocol = \"sparse\"' > /usr/local/cargo/config.toml
+            echo \"cargo-contract-version=$(cargo contract --version)\" >> $GITHUB_OUTPUT
 
   spellcheck:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-    needs: [set-image]
-    container:
-      image: ${{ needs.set-image.outputs.IMAGE }}
+    needs: ci-image
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: Rust Info
-        uses: ./.github/rust-info
-
       - name: Check Spelling
-        run: |
-          cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
-          cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive ./integration-tests/*
+        uses: ./.github/run-container-command
+        with:
+          command: |
+            cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
+            cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive ./integration-tests/*
 
   fmt:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-    needs: [set-image]
-    container:
-      image: ${{ needs.set-image.outputs.IMAGE }}
+    needs: ci-image
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: Rust Info
-        uses: ./.github/rust-info
-
       - name: Check Formatting
-        run: |
-          zepter run check
-          cargo +nightly fmt --all -- --check
-          # For the UI tests we need to disable the license check
-          cargo +nightly fmt --all -- --check ./crates/ink/tests/ui/contract/{pass,fail}/*.rs
-          cargo +nightly fmt --all -- --check ./crates/ink/tests/ui/trait_def/{pass,fail}/*.rs
+        uses: ./.github/run-container-command
+        with:
+          command: |
+            zepter run check
+            cargo +nightly fmt --all -- --check
+            # For the UI tests we need to disable the license check
+            cargo +nightly fmt --all -- --check ./crates/ink/tests/ui/contract/{pass,fail}/*.rs
+            cargo +nightly fmt --all -- --check ./crates/ink/tests/ui/trait_def/{pass,fail}/*.rs
 
       - name: Check Examples Formatting
-        run: |
-          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo +nightly fmt --manifest-path {} -- --check
-          # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
-          rustfmt +nightly --check ./integration-tests/public/psp22-extension/runtime/psp22-extension-example.rs
+        uses: ./.github/run-container-command
+        with:
+          command: |
+            scripts/for_all_contracts_exec.sh --path integration-tests -- cargo +nightly fmt --manifest-path {} -- --check
+            # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
+            rustfmt +nightly --check ./integration-tests/public/psp22-extension/runtime/psp22-extension-example.rs
 
   clippy:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-    needs: [set-image]
-    container:
-      image: ${{ needs.set-image.outputs.IMAGE }}
+    needs: ci-image
+    strategy:
+      fail-fast: false
+      matrix:
+        type: [ ALL, RISCV ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: Cache
-        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
+      - name: Initialize runner
+        uses: ./.github/init
         with:
-          cache-directories: ${{ env.CARGO_TARGET_DIR }}
+          cache: true
+          cache-directories: ${{ github.workspace}}/${{ env.CARGO_TARGET_DIR }}
+          cache-key: ${{ matrix.type }}
 
-      - name: Rust Info
-        uses: ./.github/rust-info
-
-      - name: Run Clippy
-        run: |
-          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
-          for crate in ${ALL_CRATES}; do
-            cargo clippy --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml \
-              -- -D warnings -A ${CLIPPY_ALLOWED};
-          done
+      - name: Run Clippy for all crates
+        uses: ./.github/run-container-command
+        if: ${{ matrix.type == 'ALL' }}
+        env:
+          ALL_CRATES: "${{ env.PURELY_STD_CRATES }} ${{ env.ALSO_RISCV_CRATES }}"
+        with:
+          command: |
+            for crate in ${ALL_CRATES}; do
+             echo $crate;
+             cargo +nightly clippy --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml \
+               -- -D warnings -A ${CLIPPY_ALLOWED};
+            done
 
       - name: Run Clippy for RISC-V Crates
-        run: |
-          for crate in ${ALSO_RISCV_CRATES}; do
-            cargo clippy --no-default-features --manifest-path ./crates/${crate}/Cargo.toml \
-              --target ${CLIPPY_TARGET} \
-              -- -D warnings -A ${CLIPPY_ALLOWED};
-          done
+        uses: ./.github/run-container-command
+        if: ${{ matrix.type == 'RISCV' }}
+        with:
+          command: |
+            for crate in ${ALSO_RISCV_CRATES}; do
+              echo $crate;
+              cargo +nightly clippy --no-default-features --manifest-path ./crates/${crate}/Cargo.toml \
+                --target ${CLIPPY_TARGET} \
+                -- -D warnings -A ${CLIPPY_ALLOWED};
+            done
 
   clippy-examples:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-    needs: [set-image]
-    container:
-      image: ${{ needs.set-image.outputs.IMAGE }}
+    needs: ci-image
     strategy:
       fail-fast: false
       matrix:
         type: [STD, RISCV]
+    env:
+      # TODO: (@davidsemakula) Update all manifests for integration-tests and remove this
+      # i.e. update with equivalent of setting `--check-cfg cfg(ink_abi,values("ink","sol","all"))`
+      ALLOWED_LINTS: -A unexpected_cfgs
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: Cache
-        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
+      - name: Initialize runner
+        uses: ./.github/init
         with:
-          cache-directories: ${{ env.CARGO_TARGET_DIR }}
-
-      - name: Rust Info
-        uses: ./.github/rust-info
+          cache: true
+          cache-directories: ${{ github.workspace}}/${{ env.CARGO_TARGET_DIR }}
+          cache-key: ${{ matrix.type }}
 
       - name: Run Clippy for Examples
+        uses: ./.github/run-container-command
         if: ${{ matrix.type == 'STD' }}
-        run: |
-          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --all-targets \
-            --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
+        with:
+          command: |
+            scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --all-targets \
+              --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED $ALLOWED_LINTS
 
       - name: Run Clippy for RISC-V Examples
+        uses: ./.github/run-container-command
         if: ${{ matrix.type == 'RISCV' }}
-        run: |
-          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --no-default-features \
-            --target ${CLIPPY_TARGET} \
-            --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED
+        env:
+          RUSTFLAGS: "--cfg substrate_runtime"
+        with:
+          command: |
+            scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --no-default-features \
+              --target ${CLIPPY_TARGET} \
+              --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED $ALLOWED_LINTS
 
   check:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-    needs: [set-image]
-    container:
-      image: ${{ needs.set-image.outputs.IMAGE }}
+    needs: ci-image
     strategy:
       fail-fast: false
       matrix:
@@ -211,75 +221,89 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Cache
-        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
+      - name: Initialize runner
+        uses: ./.github/init
         with:
-          cache-directories: ${{ env.CARGO_TARGET_DIR }}
-
-      - name: Rust Info
-        uses: ./.github/rust-info
+          cache: true
+          cache-directories: ${{ github.workspace}}/${{ env.CARGO_TARGET_DIR }}
+          cache-key: ${{ matrix.type }}
 
       - name: Check
+        uses: ./.github/run-container-command
         if: ${{ matrix.type == 'STD' }}
-        run: |
-          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
-          for crate in ${ALL_CRATES}; do
-            cargo check --all-features --manifest-path ./crates/${crate}/Cargo.toml;
-          done
+        env:
+          ALL_CRATES: "${{ env.PURELY_STD_CRATES }} ${{ env.ALSO_RISCV_CRATES }}"
+        with:
+          command: |
+            for crate in ${ALL_CRATES}; do
+              cargo check --all-features --manifest-path ./crates/${crate}/Cargo.toml;
+            done
 
       - name: Check RISCV
+        uses: ./.github/run-container-command
         if: ${{ matrix.type == 'RISCV' }}
         env:
           RUSTC_BOOTSTRAP: 1
-        run: |
-          for crate in ${ALSO_RISCV_CRATES}; do
-            # remove `nightly` once new stable is released, currently there is an ICE in stable
-            cargo +nightly check --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" \
-              --manifest-path ./crates/${crate}/Cargo.toml;
-          done
+        with:
+          command: |
+            for crate in ${ALSO_RISCV_CRATES}; do
+              cargo check --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" \
+                --manifest-path ./crates/${crate}/Cargo.toml;
+            done
 
-  dylint:
+  dylint-checks:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-    needs: [set-image]
-    container:
-      image: ${{ needs.set-image.outputs.IMAGE }}
+    needs: ci-image
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: Cache
-        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
+      - name: Initialize runner
+        uses: ./.github/init
         with:
-          cache-directories: ${{ env.CARGO_TARGET_DIR }}
-
-      - name: Rust Info
-        uses: ./.github/rust-info
+          cache: true
+          cache-directories: ${{ github.workspace}}/${{ env.CARGO_TARGET_DIR }}
 
       - name: Dylint
-        run: |
-          cd linting/
-          # we are using a toolchain file in this directory
-          # add required components for CI
-          cargo check --verbose
-          cargo +nightly fmt --all -- --check
-          cargo clippy -- -D warnings;
-          cargo test --all-features
+        uses: ./.github/run-container-command
+        with:
+          command: |
+            cd linting/
+            # we are using a toolchain file in this directory
+            # add required components for CI
+            cargo check --verbose
+            cargo +nightly fmt --all -- --check
+            cargo clippy -- -D warnings;
+
+  dylint-testing:
+    runs-on: ubuntu-latest
+    needs: ci-image
+    steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+          with:
+              fetch-depth: 1
+
+        - name: Initialize runner
+          uses: ./.github/init
+          with:
+            cache: true
+            cache-directories: ${{ github.workspace}}/${{ env.CARGO_TARGET_DIR }}
+
+        - name: Dylint
+          uses: ./.github/run-container-command
+          with:
+            command: |
+                cd linting/
+                cargo test --all-features
 
 ### workspace
 
   build:
     runs-on: ubuntu-latest
-    needs: [set-image, check]
-    defaults:
-      run:
-        shell: bash
-    container:
-      image: ${{ needs.set-image.outputs.IMAGE }}
+    needs: [check]
     strategy:
       fail-fast: false
       matrix:
@@ -290,125 +314,169 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Cache
-        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
+      - name: Initialize runner
+        uses: ./.github/init
         with:
-          cache-directories: ${{ env.CARGO_TARGET_DIR }}
-
-      - name: Rust Info
-        uses: ./.github/rust-info
+          cache: true
+          cache-directories: ${{ github.workspace}}/${{ env.CARGO_TARGET_DIR }}
+          cache-key: ${{ matrix.type }}
 
       - name: Build for STD
+        uses: ./.github/run-container-command
         if: ${{ matrix.type == 'STD' }}
-        run: |
-          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
-          for crate in ${ALL_CRATES}; do
-            cargo build --all-features --release --manifest-path ./crates/${crate}/Cargo.toml;
-          done
+        env:
+          ALL_CRATES: "${{ env.PURELY_STD_CRATES }} ${{ env.ALSO_RISCV_CRATES }}"
+        with:
+          command: |
+            for crate in ${ALL_CRATES}; do
+              cargo build --all-features --release --manifest-path ./crates/${crate}/Cargo.toml;
+            done
 
       - name: Build for RISC-V
+        uses: ./.github/run-container-command
         if: ${{ matrix.type == 'RISCV' }}
-        #env:
-            #RUSTC_BOOTSTRAP: 1
-            #CARGO_ENCODED_RUSTFLAGS: "--cfg\x1fsubstrate_runtime"
-            #RUSTFLAGS: "--cfg substrate_runtime"
-        run: |
-          for crate in ${ALSO_RISCV_CRATES}; do
-            echo ${crate};
-            RUSTFLAGS="--cfg substrate_runtime" cargo +nightly build \
-              --no-default-features --release \
-              --target $CLIPPY_TARGET \
-              --manifest-path ./crates/${crate}/Cargo.toml \
-              -Zbuild-std="core,alloc";
-          done
+        env:
+          RUSTC_BOOTSTRAP: 1
+        with:
+          command: |
+            for crate in ${ALSO_RISCV_CRATES}; do
+              echo ${crate};
+              RUSTFLAGS=\"--cfg substrate_runtime\" cargo build \
+                --no-default-features --release \
+                --target ${CLIPPY_TARGET} \
+                --manifest-path ./crates/${crate}/Cargo.toml \
+                -Zbuild-std=\"core,alloc\";
+            done
 
   test:
     runs-on: ubuntu-latest
-    needs: [set-image, check]
-    defaults:
-      run:
-        shell: bash
-    container:
-      image: ${{ needs.set-image.outputs.IMAGE }}
-    strategy:
-      fail-fast: false
-      matrix:
-        workspace: [ink, linting]
+    needs: [check]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: Cache
-        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
+      - name: Initialize runner
+        uses: ./.github/init
         with:
-          cache-directories: |
-            ${{ env.CARGO_TARGET_DIR }}
-
-      - name: Rust Info
-        uses: ./.github/rust-info
+          cache: true
+          cache-directories: ${{ github.workspace}}/${{ env.CARGO_TARGET_DIR }}
+          cache-on-failure: true
 
       - name: Test
-        if: ${{ matrix.workspace == 'ink' }}
+        uses: ./.github/run-container-command
         env:
           # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
-          RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc
+          RUSTFLAGS: -Clink-dead-code -Clink-arg=-z -Clink-arg=nostart-stop-gc
           # Since we run the tests with `--all-features` this implies the feature
           # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
           # There's no way to disable a single feature while enabling all features
           # at the same time, hence we use this workaround.
-          QUICKCHECK_TESTS:            0
-        run: |
-          cargo +nightly nextest run --all-features --no-fail-fast --workspace --locked
-          cargo +nightly test --all-features --no-fail-fast --workspace --doc --locked
+          QUICKCHECK_TESTS: 0
+        with:
+          command: |
+            cargo nextest run --all-features --no-fail-fast --workspace --locked
 
-      - name: Test Linting
-        if: ${{ matrix.workspace == 'linting' }}
-        env:
-          # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
-          RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc
-          # Since we run the tests with `--all-features` this implies the feature
-          # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
-          # There's no way to disable a single feature while enabling all features
-          # at the same time, hence we use this workaround.
-          QUICKCHECK_TESTS:            0
-        run: |
-          pushd linting && cargo nextest run --all-features --no-fail-fast --workspace && popd
+  test-docs:
+    runs-on: ubuntu-latest
+    needs: [check]
+    strategy:
+        fail-fast: false
+        matrix:
+            workspace: [ink, linting]
+    steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+          with:
+              fetch-depth: 1
+
+        - name: Initialize runner
+          uses: ./.github/init
+          with:
+            cache: true
+            cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
+            cache-key: ${{ matrix.type }}
+
+        - name: Test
+          uses: ./.github/run-container-command
+          #  todo check if this workspace condition is still necessary
+          if: ${{ matrix.workspace == 'ink' }}
+          env:
+              # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
+              RUSTFLAGS: -Clink-dead-code -Clink-arg=-z -Clink-arg=nostart-stop-gc
+              # Since we run the tests with `--all-features` this implies the feature
+              # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
+              # There's no way to disable a single feature while enabling all features
+              # at the same time, hence we use this workaround.
+              QUICKCHECK_TESTS:            0
+          with:
+            command: |
+                cargo test --all-features --no-fail-fast --workspace --doc --locked
+
+  test-linting:
+    runs-on: ubuntu-latest
+    needs: [check]
+    strategy:
+        fail-fast: false
+        matrix:
+            workspace: [ink, linting]
+    steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+          with:
+              fetch-depth: 1
+
+        - name: Initialize runner
+          uses: ./.github/init
+          with:
+            cache: true
+            cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
+            cache-key: ${{ matrix.type }}
+
+        - name: Test Linting
+          uses: ./.github/run-container-command
+          if: ${{ matrix.workspace == 'linting' }}
+          env:
+            # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
+            RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
+            # Since we run the tests with `--all-features` this implies the feature
+            # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
+            # There's no way to disable a single feature while enabling all features
+            # at the same time, hence we use this workaround.
+            QUICKCHECK_TESTS:            0
+          with:
+            command: |
+              pushd linting && cargo nextest run --all-features --no-fail-fast --workspace && popd
 
   docs:
     runs-on: ubuntu-latest
-    needs: [set-image, check, fmt, clippy, clippy-examples, dylint, spellcheck]
-    defaults:
-      run:
-        shell: bash
-    container:
-      image: ${{ needs.set-image.outputs.IMAGE }}
+    needs: [check, fmt, clippy, clippy-examples, dylint-checks, dylint-testing, spellcheck]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: Cache
-        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
+      - name: Initialize runner
+        uses: ./.github/init
         with:
-          cache-directories: ${{ env.CARGO_TARGET_DIR }}
-
-      - name: Rust Info
-        uses: ./.github/rust-info
+          cache: true
+          cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
 
       - name: Create docs
+        uses: ./.github/run-container-command
         env:
           RUSTDOCFLAGS:                  -Dwarnings
-        run: |
-          for package in $(cargo metadata --format-version 1 | jq -r '.workspace_members[]' | awk '{print $1}'); do
-            # Run cargo doc for each workspace member
-            cargo +nightly doc --no-deps --all-features -p ${package}
-          done
-          mv ${CARGO_TARGET_DIR}/doc ./crate-docs
-          # FIXME: remove me after CI image gets nonroot
-          chown -R nonroot:nonroot ./crate-docs
+        with:
+          command: |
+            for package in $(cargo metadata --format-version 1 | jq -r '.workspace_members[]' | awk '{print $1}'); do
+              # Run cargo doc for each workspace member
+              cargo doc --no-deps --all-features -p ${package}
+            done
+            mv ${CARGO_TARGET_DIR}/doc ./crate-docs
+            # FIXME: remove me after CI image gets nonroot
+            chown -R nonroot:nonroot ./crate-docs
 
       - uses: actions/upload-artifact@v4
         with:
@@ -416,196 +484,57 @@ jobs:
           path: ./crate-docs
           retention-days: 1
 
-  codecov:
-    runs-on: ubuntu-latest
-    needs: [set-image, check, fmt, clippy, clippy-examples, dylint, spellcheck]
-    defaults:
-      run:
-        shell: bash
-    container:
-      image: ${{ needs.set-image.outputs.IMAGE }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Rust Info
-        uses: ./.github/rust-info
-
-      - name: Codecov
-        env:
-          # For codecov it's sufficient to run the fuzz tests only once.
-          QUICKCHECK_TESTS:              1
-          INK_COVERAGE_REPORTING:        true
-          CARGO_INCREMENTAL:             0
-          # Needed because `codecov` requires nightly features to work
-          # (see `-Z` in the `RUSTFLAGS` below).
-          RUSTC_BOOTSTRAP:               1
-          RUSTDOCFLAGS:                  -Cpanic=abort
-          # Variables partly came from https://github.com/mozilla/grcov/blob/master/README.md
-          RUSTFLAGS:                     -Zmir-opt-level=0 -Ccodegen-units=1
-                                         -Clink-dead-code -Copt-level=0 -Coverflow-checks=off
-                                         -Cinstrument-coverage -Zpanic_abort_tests
-          # The `cargo-tarpaulin` coverage reporting tool seems to have better code instrumentation and thus
-          # produces better results for Rust codebases in general. However, unlike `grcov` it requires
-          # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
-          CODECOV_L_TOKEN:               ${{ secrets.CODECOV_L_TOKEN }}
-        run: |
-          # RUSTFLAGS are the cause target cache can't be used here
-          # FIXME: rust-covfix doesn't support the external target dir
-          # https://github.com/Kogia-sima/rust-covfix/issues/7
-          unset "CARGO_TARGET_DIR"
-          cargo clean
-          # make sure there are no stale coverage artifacts
-          find . -name "*.profraw" -type f -delete
-          find . -name "*.gcda" -type f -delete
-          # FIXME: Access from 2 users, should be solved once ci-image works from a non-root user
-          git config --global --add safe.directory '*'
-          # RUSTFLAGS are the cause target cache can't be used here
-          rustup component add llvm-tools-preview
-          cargo +nightly build --all-features --workspace
-          cargo +nightly test --all-features --no-fail-fast --workspace --locked -- --skip ui_tests
-          # coverage with branches
-          grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm --branch \
-            --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
-          rust-covfix lcov-w-branch.info --output lcov-w-branch-fixed.info
-          codecov --token "$CODECOV_L_TOKEN" --file lcov-w-branch-fixed.info --nonZero
-          # lines coverage
-          grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm \
-            --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-lines.info
-          rust-covfix lcov-lines.info --output lcov-lines-fixed.info
-          codecov --token "$CODECOV_L_TOKEN" --file lcov-lines-fixed.info --nonZero
+#  todo bring this stage back
+#  codecov:
+#    runs-on: ubuntu-latest
+#    #needs: [set-image]
+#    container:
+#        image: xd009642/tarpaulin:develop-nightly
+#        options: --security-opt seccomp=unconfined
+#    # needs: [set-image, check, fmt, clippy, clippy-examples, dylint-checks, dylint-testing, spellcheck]
+#    defaults:
+#      run:
+#        shell: bash
+#    #container:
+#      #image: ${{ needs.set-image.outputs.IMAGE }}
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v4
+#        with:
+#          fetch-depth: 0
+#
+#      - name: Initialize runner
+#        uses: ./.github/init
+#        with:
+#          cache: true
+#          cache-directories: ${{ env.CARGO_TARGET_DIR }}
+#          cache-on-failure: 'true'
+#
+#      - name: Generate code coverage
+#        env:
+#          # For codecov it's sufficient to run the fuzz tests only once.
+#          QUICKCHECK_TESTS:              1
+#          INK_COVERAGE_REPORTING:        true
+#          #CARGO_INCREMENTAL:             0
+#        run: |
+#          #cargo +nightly install cargo-tarpaulin
+#          curl
+#          cargo +nightly tarpaulin --verbose --tests --all-features --all-targets --workspace --locked --out xml
+#
+#      - name: Upload to codecov.io
+#        uses: codecov/codecov-action@v2
+#        with:
+#          # token: ${{secrets.CODECOV_TOKEN}} # not required for public repos
+#          fail_ci_if_error: true
 
 ### examples
 
   examples-test:
     runs-on: ubuntu-latest
-    needs: [clippy]
-    strategy:
-      matrix:
-        partition: [1, 2, 3, 4, 5, 6]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Cache
-        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
-        with:
-          cache-directories: ${{ env.CARGO_TARGET_DIR }}
-
-      - name: Test Examples
-        uses: docker://useink/ci
-        env:
-            #RUSTFLAGS: -Clinker-plugin-lto -Clink-arg=-zstack-size=4096
-            # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
-            RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc
-        with:
-          # run all tests with --all-features, which will run the e2e-tests feature if present
-          args:
-            /bin/bash -c "scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer --ignore internal/mapping --partition ${{ matrix.partition }}/6 -- \
-                cargo +nightly test --all-features --all --manifest-path {}"
-
-  examples-test-mapping:
-      runs-on: ubuntu-latest
-      needs: [set-image]
-      defaults:
-          run:
-              shell: bash
-      container:
-          image: ${{ needs.set-image.outputs.IMAGE }}
-      steps:
-          - name: Checkout
-            uses: actions/checkout@v4
-            with:
-                fetch-depth: 1
-
-          - name: Cache
-            uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
-            with:
-                cache-directories: ${{ env.CARGO_TARGET_DIR }}
-
-          - name: Rust Info
-            uses: ./.github/rust-info
-
-          - name: Test Mapping Example
-            env:
-                # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
-                RUSTFLAGS:                   -Clink-arg=-z -Clink-arg=nostart-stop-gc
-                # needed for `mapping::e2e_tests::fallible_storage_methods_work`
-                INK_STATIC_BUFFER_SIZE: 256
-            run:
-                rustup install nightly-2025-01-07;
-                rustup component add rust-src --toolchain nightly-2025-01-07;
-                cargo +nightly-2024-11-28 test --all-features --all --manifest-path integration-tests/internal/mapping/Cargo.toml
-
-  examples-custom-test:
-    runs-on: ubuntu-latest
-    needs: [set-image, clippy, clippy-examples]
-    defaults:
-      run:
-        shell: bash
-    container:
-      image: ${{ needs.set-image.outputs.IMAGE }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Cache
-        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
-        with:
-          cache-directories: ${{ env.CARGO_TARGET_DIR }}
-
-      - name: Rust Info
-        uses: ./.github/rust-info
-
-      - name: Test static-buffer example
-        env:
-          # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
-          RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
-        run: |
-          # run the static buffer test with a custom buffer size.
-          # the readme + test comments explain why `32`, in short because the tests write
-          # content into the buffer and want to provoke an exhaustion of the buffer.
-          cargo clean --manifest-path integration-tests/internal/static-buffer/Cargo.toml
-          INK_STATIC_BUFFER_SIZE=32 cargo +nightly test --manifest-path integration-tests/internal/static-buffer/Cargo.toml --all-features
-
-      - name: Run E2E test with on-chain contract
-        # todo disabled until `cargo-contract` supports mapping the account
-        if: false
-        env:
-          # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
-          RUSTFLAGS:                     -Clink-arg=-z -Clink-arg=nostart-stop-gc
-        run: |
-          # run flipper E2E test with on-chain contract
-          substrate-contracts-node -lruntime::revive=debug 2>&1 &
-          cargo +nightly contract build --release --manifest-path integration-tests/public/flipper/Cargo.toml
-          export CONTRACT_ADDR_HEX=$(cargo +nightly contract instantiate \
-            --manifest-path integration-tests/public/flipper/Cargo.toml \
-            --suri //Alice --args true -x -y --output-json | \
-            jq -r .contract | xargs subkey inspect | grep -o "0x.*" | head -n1)
-          CONTRACTS_NODE_URL=ws://127.0.0.1:9944 cargo +nightly test \
-            --features e2e-tests \
-            --manifest-path integration-tests/public/flipper/Cargo.toml \
-            e2e_test_deployed_contract \
-            -- --ignored --nocapture
-
-  examples-contract-build:
-    runs-on: ubuntu-latest
-    needs: [set-image, build]
-    defaults:
-      run:
-        shell: bash
-    container:
-      image: ${{ needs.set-image.outputs.IMAGE }}
+    needs: [fmt]
     strategy:
       fail-fast: false
       matrix:
-        type: [RISCV]
         partition: [1, 2, 3, 4]
     steps:
       - name: Checkout
@@ -613,112 +542,436 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Cache
-        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
+      - name: Initialize runner
+        uses: ./.github/init
         with:
-          cache-directories: ${{ env.CARGO_TARGET_DIR }}
+          # TODO: (@davidsemakula) Re-enable cache if we can improve its ROI,
+          # currently it eats up more than 65% of disk space, causing this job to run out of disk space,
+          # or require a very large number of partitions, and generally makes this job too flaky.
+          cache: false
+          # cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
+          # cache-on-failure: true
+          # cache-key: ${{ matrix.partition }}
 
-      - name: Rust Info
-        uses: ./.github/rust-info
-
-      - name: Build Contract RISCV Examples
-        if: ${{ matrix.type == 'RISCV' }}
+      - name: Test Examples
+        uses: ./.github/run-container-command
         env:
-          RUSTC_BOOTSTRAP: 1
+            # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
+            RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
+            # Run the quickcheck tests inside contracts, but not for the default amount
+            # of times (as that would take quite long).
+            QUICKCHECK_TESTS: 2
+        with:
+          # Run all tests with --all-features, which will run the `e2e-tests` feature if present.
+          command: |
+            scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer \
+            --ignore internal/mapping --ignore public/debugging-strategies --ignore public/wildcard-selector \
+            --ignore solidity-abi/sol-cross-contract --ignore solidity-abi/sol-encoding \
+            --ignore solidity-abi/solidity-calls-flipper --ignore solidity-abi/events \
+            --ignore solidity-abi/trait-flipper --ignore solidity-abi/trait-dyn-cross-contract-calls \
+            --ignore solidity-abi/fallible-setter \
+            --ignore solidity-abi/sol-cross-contract/other-contract-sol \
+            --ignore solidity-abi/trait-dyn-cross-contract-calls/contracts/incrementer \
+            --partition ${{ matrix.partition }}/4 -- \
+            cargo contract test --all-features --manifest-path {}
+
+  examples-test-mapping:
+    runs-on: ubuntu-latest
+    needs: ci-image
+    steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+          with:
+              fetch-depth: 1
+
+        - name: Initialize runner
+          uses: ./.github/init
+          with:
+            cache: true
+            cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
+            cache-on-failure: true
+
+        - name: Test Mapping Example
+          uses: ./.github/run-container-command
+          env:
+              # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
+              RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
+              # needed for `mapping::e2e_tests::fallible_storage_methods_work`
+              INK_STATIC_BUFFER_SIZE: 256
+              # Run the quickcheck tests inside contracts, but not for the default amount
+              # of times (as that would take quite long).
+              QUICKCHECK_TESTS: 2
+          with:
+            command: |
+                cargo contract test --all-features --manifest-path integration-tests/internal/mapping/Cargo.toml
+
+  # TODO: (@davidsemakula) Add back to `examples-test` job when flakiness is fixed.
+  examples-test-debugging-strategies:
+    runs-on: ubuntu-latest
+    needs: ci-image
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Initialize runner
+        uses: ./.github/init
+        with:
+          cache: true
+          cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
+          cache-on-failure: true
+
+      - name: Test Debugging Strategies Example
+        uses: ./.github/run-container-command
+        with:
+          command: |
+            cargo contract test --all-features --manifest-path integration-tests/public/debugging-strategies/Cargo.toml
+
+
+  # TODO: (@davidsemakula) Add back to `examples-test` job when flakiness is fixed.
+  examples-test-wildcard-selector:
+    runs-on: ubuntu-latest
+    needs: ci-image
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Initialize runner
+        uses: ./.github/init
+        with:
+          cache: true
+          cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
+          cache-on-failure: true
+
+      - name: Test Wildcard Selector Example
+        uses: ./.github/run-container-command
+        with:
+          command: |
+            cargo contract test --all-features --manifest-path integration-tests/public/wildcard-selector/Cargo.toml
+
+  examples-custom-test:
+    runs-on: ubuntu-latest
+    needs: [clippy, clippy-examples]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Initialize runner
+        uses: ./.github/init
+        with:
+          cache: true
+          cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
+          cache-on-failure: true
+
+      - name: Run E2E test with on-chain contract
+        uses: ./.github/run-container-command
+        # todo disabled until `cargo-contract` supports mapping the account
+        if: false
+        env:
+          # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
+          RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
+        with:
+          command: |
+            # run flipper E2E test with on-chain contract
+            ink-node -lruntime::revive=debug 2>&1 &
+            cargo contract build --release --manifest-path integration-tests/public/flipper/Cargo.toml
+            export CONTRACT_ADDR_HEX=$(cargo contract instantiate \
+              --manifest-path integration-tests/public/flipper/Cargo.toml \
+              --suri //Alice --args true -x -y --output-json | \
+              jq -r .contract | xargs subkey inspect | grep -o "0x.*" | head -n1)
+            CONTRACTS_NODE_URL=ws://127.0.0.1:9944 cargo contract test \
+              --features e2e-tests \
+              --manifest-path integration-tests/public/flipper/Cargo.toml \
+              e2e_test_deployed_contract \
+              -- --ignored --nocapture
+
+      - name: Test static-buffer example
+        uses: ./.github/run-container-command
+        env:
+            # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
+            RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
+            RUST_LOG: trace
+        with:
+          command: |
+            # run the static buffer test with a custom buffer size.
+            # the readme + test comments explain why `32`, in short because the tests write
+            # content into the buffer and want to provoke an exhaustion of the buffer.
+            cargo clean --manifest-path integration-tests/internal/static-buffer/Cargo.toml
+            INK_STATIC_BUFFER_SIZE=32 cargo contract test --manifest-path integration-tests/internal/static-buffer/Cargo.toml --all-features
+
+  # NOTE: Sharing build artifacts (i.e. via a shared cargo target directory) with other tests
+  # that don't have the `ink_abi="sol"` `cfg` option set makes the Solidity ABI tests fail.
+  examples-test-solidity-abi:
+    runs-on: ubuntu-latest
+    needs: ci-image
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Initialize runner
+        uses: ./.github/init
+        with:
+          cache: true
+          cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
+          cache-on-failure: true
+
+      - name: Test Solidity ABI Examples
+        uses: ./.github/run-container-command
+        with:
+          command: |
+            scripts/for_all_contracts_exec.sh --path integration-tests/solidity-abi -- \
+            cargo contract test --all-features --manifest-path {}
+
+  examples-contract-build:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Initialize runner
+        uses: ./.github/init
+        with:
+          # FIXME: (@davidsemakula) This job runs into "No space left" issue while saving cache,
+          # So cache is disable for now.
+          # See https://github.com/use-ink/ink/actions/runs/15879206960/job/44775329120?pr=2531#step:11:54
+          cache: false
+          #cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
+          #cache-on-failure: true
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
+
+      - name: Build Contract Examples for RISC-V
+        uses: ./.github/run-container-command
+        env:
+          MANIFEST_PATH: ""
+          CONTRACT_SIZE_FILE: "measurements-${{ env.MEASUREMENTS_ID }}/contract_size_"
+          CARGO_INCREMENTAL: 0
+        with:
+          command: |
+            mkdir -p measurements-${{ env.MEASUREMENTS_ID }}/
+            scripts/for_all_contracts_exec2.sh --path integration-tests \
+              --ignore solidity-abi/sol-cross-contract --ignore solidity-abi/sol-encoding \
+              --ignore solidity-abi/solidity-calls-flipper --ignore solidity-abi/events \
+              --ignore solidity-abi/trait-flipper --ignore solidity-abi/trait-dyn-cross-contract-calls \
+              --ignore solidity-abi/fallible-setter \
+              --ignore solidity-abi/sol-cross-contract/other-contract-sol \
+              --ignore solidity-abi/trait-dyn-cross-contract-calls/contracts/incrementer -- \
+              scripts/build_and_determine_contract_size.sh {}
+
+      # NOTE: Sharing build artifacts (i.e. via a shared cargo target directory) with other contracts
+      # that don't have the same ABI set makes the builds fail.
+      - name: Build Contract Examples for RISC-V (Solidity ABI)
+        uses: ./.github/run-container-command
+        env:
+          MANIFEST_PATH: ""
+          CONTRACT_SIZE_FILE: "measurements-${{ env.MEASUREMENTS_ID }}/contract_size_"
+          CARGO_INCREMENTAL: 0
+          CARGO_TARGET_DIR: ${{ env.CARGO_TARGET_DIR }}/sol-abi
+        with:
+          command: |
+            mkdir -p measurements-${{ env.MEASUREMENTS_ID }}/
+            scripts/for_all_contracts_exec2.sh --path integration-tests/solidity-abi -- \
+              scripts/build_and_determine_contract_size.sh {}
+
+      - uses: actions/upload-artifact@v4
+        with:
+            path: ./measurements-${{ env.MEASUREMENTS_ID }}/*
+            name: ${{ github.run_id }}_artifact
+            retention-days: 1
+
+  process-contract-sizes:
+    needs: [examples-contract-build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download reports' artifacts
+        uses: actions/download-artifact@v4
+        with:
+            path: downloaded_artifacts
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
+
+      - name: Combine contract sizes from individual examples
         run: |
-          # We skip some examples for those reasons:
-          # This uses dlmalloc which is only supported on select targets.
-          #   - custom_allocator
-          # Pulls in sp-std which needlessly requires atomic pointers (TODO: Fix sp-std and enable this example)
-          #   - call-runtime
-          scripts/for_all_contracts_exec.sh --path integration-tests --ignore public/custom-allocator --ignore public/call-runtime --ignore public/contract-xcm \
-            -- cargo +nightly build --manifest-path {} --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc"
+            cat downloaded_artifacts/${{github.run_id}}_artifact/* | \
+            sed -e 's/^integration-tests\/\(public\/\|internal\/\)\?//' | \
+            sort | uniq > measurements-${{ env.MEASUREMENTS_ID }}
+            cat measurements-${{ env.MEASUREMENTS_ID }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+            name: measurements-${{ env.MEASUREMENTS_ID }}
+            path: ./measurements-${{ env.MEASUREMENTS_ID }}
+            retention-days: 31
+
+  examples-contract-build-force-specific-abi:
+      runs-on: ubuntu-latest
+      needs: [build]
+      strategy:
+          fail-fast: false
+          matrix:
+              type: [ sol, all ]
+      steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+            with:
+                fetch-depth: 1
+
+          - name: Initialize runner
+            uses: ./.github/init
+            with:
+                cache: true
+                cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
+                cache-on-failure: true
+
+          - name: Extract branch name
+            shell: bash
+            run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+            id: extract_branch
+
+          - name: Build Contract Examples
+            uses: ./.github/run-container-command
+            env:
+                MANIFEST_PATH: ""
+                CONTRACT_SIZE_FILE: "measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}/contract_size_"
+                CARGO_INCREMENTAL: 0
+                ABI: ${{ matrix.type }}
+            with:
+                command: |
+                    echo $ABI
+                    find integration-tests/public -type f -name "Cargo.toml" | xargs -n1 sed -i 's/abi = \".*\"/abi = \"'$ABI'\"/g'
+                    find integration-tests/internal -type f -name "Cargo.toml" | xargs -n1 sed -i 's/abi = \".*\"/abi = \"'$ABI'\"/g'
+                    find integration-tests/solidity-abi -type f -name "Cargo.toml" | xargs -n1 sed -i 's/abi = \".*\"/abi = \"'$ABI'\"/g'
+
+                    mkdir -p measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}/
+                    IGNORE_ERR=true scripts/for_all_contracts_exec.sh --path integration-tests \
+                      --ignore solidity-abi/sol-cross-contract --ignore solidity-abi/sol-encoding \
+                      --ignore solidity-abi/solidity-calls-flipper --ignore solidity-abi/events \
+                      --ignore solidity-abi/trait-flipper --ignore solidity-abi/trait-dyn-cross-contract-calls \
+                      --ignore solidity-abi/sol-cross-contract/other-contract-sol \
+                      --ignore solidity-abi/trait-dyn-cross-contract-calls/contracts/incrementer -- \
+                      .github/scripts/output-contract-sizes.sh {}
+
+          - uses: actions/upload-artifact@v4
+            with:
+                path: ./measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}/*
+                name: ${{ github.run_id }}_${{ matrix.type }}_abi_artifact
+                retention-days: 1
+
+  process-forced-abi-contract-sizes:
+      needs: [examples-contract-build-force-specific-abi]
+      runs-on: ubuntu-latest
+      strategy:
+          fail-fast: false
+          matrix:
+              type: [ sol, all ]
+      steps:
+          - name: Download reports' artifacts
+            uses: actions/download-artifact@v4
+            with:
+                path: downloaded_artifacts
+
+          - name: Extract branch name
+            shell: bash
+            run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+            id: extract_branch
+
+          - name: Combine contract sizes from individual examples
+            run: |
+                cat downloaded_artifacts/${{ github.run_id }}_${{ matrix.type }}_abi_artifact/* | \
+                sed -e 's/^integration-tests\/\(public\/\|internal\/\)\?//' | \
+                sort | uniq > measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}
+                cat measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}
+
+          - uses: actions/upload-artifact@v4
+            with:
+                name: measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}
+                path: ./measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}
+                retention-days: 31
 
   examples-docs:
     runs-on: ubuntu-latest
-    needs: [set-image, build]
-    defaults:
-      run:
-        shell: bash
-    container:
-      image: ${{ needs.set-image.outputs.IMAGE }}
+    needs: [build]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: Cache
-        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
+      - name: Initialize runner
+        uses: ./.github/init
         with:
-          cache-directories: ${{ env.CARGO_TARGET_DIR }}
-
-      - name: Rust Info
-        uses: ./.github/rust-info
+          cache: true
+          cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
 
       - name: Create Examples Docs
+        uses: ./.github/run-container-command
         env:
-          RUSTDOCFLAGS:                  -Dwarnings
-        run: |
-          # `--document-private-items` needs to be in here because currently our contract macro
-          # puts the contract functions in a private module.
-          # Once https://github.com/use-ink/ink/issues/336 has been implemented we can get rid
-          # of this flag.
-          scripts/for_all_contracts_exec.sh --path integration-tests -- cargo doc --manifest-path {} \
-            --document-private-items --no-deps
-
-# measurements
-
-  measurements:
-    needs: [examples-docs, examples-contract-build, examples-test, examples-custom-test, examples-test-mapping]
-    uses: ./.github/workflows/measurements.yml
+          # TODO: (@davidsemakula) Update all manifests for integration-tests and remove `--check-cfg` flag
+          RUSTDOCFLAGS: -Dwarnings --check-cfg cfg(ink_abi,values("ink","sol","all"))
+        with:
+          command: |
+            # `--document-private-items` needs to be in here because currently our contract macro
+            # puts the contract functions in a private module.
+            # Once https://github.com/use-ink/ink/issues/336 has been implemented we can get rid
+            # of this flag.
+            scripts/for_all_contracts_exec.sh --path integration-tests -- cargo doc --manifest-path {} \
+              --document-private-items --no-deps
 
 # fuzz
-
   fuzz:
     runs-on: ubuntu-latest
-    needs: [set-image, examples-docs, examples-contract-build, examples-test, examples-custom-test]
+    needs: [examples-docs, examples-contract-build, examples-test, examples-custom-test]
     if: >
       github.event_name == 'push' &&
         github.ref == 'refs/heads/master'
-
     permissions:
       issues: write
-    defaults:
-      run:
-        shell: bash
-    container:
-      image: ${{ needs.set-image.outputs.IMAGE }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: Cache
-        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
+      - name: Initialize runner
+        uses: ./.github/init
         with:
-          cache-directories: ${{ env.CARGO_TARGET_DIR }}
-
-      - name: Rust Info
-        uses: ./.github/rust-info
+          cache: true
+          cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
 
       - name: Fuzz
+        uses: ./.github/run-container-command
         id: fuzz_test
         env:
           QUICKCHECK_TESTS:              5000
-        run: |
-          # We fuzz-test only crates which possess the `ink-fuzz-tests` feature
-          all_tests_passed=0
-          ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
-          for crate in ${ALL_CRATES}; do
-            if grep "ink-fuzz-tests =" ./crates/${crate}/Cargo.toml;
-            then
-              cargo test --features ink-fuzz-tests --manifest-path ./crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_ || exit_code=$?;
-              all_tests_passed=$(( all_tests_passed | exit_code ));
-            fi
-          done
-          exit ${all_tests_passed}
+        with:
+          command: |
+            # We fuzz-test only crates which possess the `ink-fuzz-tests` feature
+            all_tests_passed=0
+            ALL_CRATES="${PURELY_STD_CRATES} ${ALSO_RISCV_CRATES}"
+            for crate in ${ALL_CRATES}; do
+              if grep "ink-fuzz-tests =" ./crates/${crate}/Cargo.toml;
+              then
+                cargo test --features ink-fuzz-tests --manifest-path ./crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_ || exit_code=$?;
+                all_tests_passed=$(( all_tests_passed | exit_code ));
+              fi
+            done
+            exit ${all_tests_passed}
 
       - name: Create Issue
         if: ${{ failure() && steps.fuzz_test.conclusion == 'failure' }}
@@ -763,3 +1016,130 @@ jobs:
               labels: ['P-high']
             });
             console.log(`Issue created: ${issue.data.html_url}`);
+
+  submit-contract-sizes:
+    runs-on: ubuntu-latest
+    needs: [ci-image, process-contract-sizes, process-forced-abi-contract-sizes]
+    permissions:
+        pull-requests: write
+    if: github.ref != 'refs/heads/master'
+    steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+          with:
+              fetch-depth: 1
+
+        - name: Extract GitHub
+          shell: bash
+          run: |
+              git config --global --add safe.directory /__w/ink/ink
+              ink_master_head=$(curl -s "https://api.github.com/repos/use-ink/ink/commits/master" | jq -r .sha)
+              head_in_branch=$(git log | grep -q $ink_master_head; echo $?)
+              echo "head_in_branch=$head_in_branch" >> $GITHUB_OUTPUT
+          id: extract_github
+
+        - name: Extract branch name
+          shell: bash
+          run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+          id: extract_branch
+
+        - name: Output branch name
+          run: |
+              echo "${{ steps.extract_branch.outputs.branch }}"
+              echo "${{ steps.extract_github.outputs.head_in_branch }}"
+
+        - name: Download artifact from this branch
+          uses: dawidd6/action-download-artifact@v11
+          with:
+              name: measurements-${{ env.MEASUREMENTS_ID }}
+              run_id: ${{ github.run_id }}
+
+        - name: Download Solidity ABI artifact from this branch
+          uses: dawidd6/action-download-artifact@v9
+          with:
+              name: measurements-sol-abi-${{ env.MEASUREMENTS_ID }}
+              run_id: ${{ github.run_id }}
+
+        - name: Download All ABI artifact from this branch
+          uses: dawidd6/action-download-artifact@v9
+          with:
+              name: measurements-all-abi-${{ env.MEASUREMENTS_ID }}
+              run_id: ${{ github.run_id }}
+
+        - name: Download master artifact
+          uses: dawidd6/action-download-artifact@v9
+          with:
+              workflow: ci.yml
+              branch: master
+              name: measurements-master
+              # Use any workflow that contains the artifact, regardless of the workflow conclusion
+              workflow_conclusion: ""
+              search_artifacts: true
+
+        - name: Collect Contract Sizes (with the ABI set in the contract)
+          run: |
+              # Build the comparison table
+              echo "---master:"
+              cat measurements-master
+              if [[ ! -s "measurements-master" ]]; then
+                echo "measurements-master is empty! It seems the CI job"
+                echo "to collect contract sizes was not run on master."
+                exit 1
+              fi
+              echo "---branch:"
+              cat measurements-${{ env.MEASUREMENTS_ID }}
+              echo "---"
+              ./scripts/contract_sizes_diff.sh measurements-master measurements-${{ env.MEASUREMENTS_ID }} > contract_sizes_diff.md
+              cat contract_sizes_diff.md
+
+        - name: Collect Contract Sizes (with enforced Solidity ABI)
+          run: |
+              # Build the comparison table
+              echo "---branch with abi specified in contract:"
+              cat measurements-${{ env.MEASUREMENTS_ID }}
+              echo "---branch with solidity abi:"
+              cat measurements-sol-abi-${{ env.MEASUREMENTS_ID }}
+              echo "---"
+              ./scripts/contract_sizes_diff.sh measurements-${{ env.MEASUREMENTS_ID }} measurements-sol-abi-${{ env.MEASUREMENTS_ID }} > abi_sol_contract_sizes_diff.md
+              cat abi_sol_contract_sizes_diff.md
+
+        - name: Collect Contract Sizes (with enforced "all" ABI)
+          run: |
+              # Build the comparison table
+              echo "---branch with abi specified in contract:"
+              cat measurements-${{ env.MEASUREMENTS_ID }}
+              echo "---branch with all abi:"
+              cat measurements-all-abi-${{ env.MEASUREMENTS_ID }}
+              echo "---"
+              ./scripts/contract_sizes_diff.sh measurements-${{ env.MEASUREMENTS_ID }} measurements-all-abi-${{ env.MEASUREMENTS_ID }} > abi_all_contract_sizes_diff.md
+              cat abi_all_contract_sizes_diff.md
+
+        - name: Create CSV
+          run: |
+              cat ./measurements-master | cut -f1 -d " " | xargs -n1 ./.github/scripts/create-csv.sh \
+                ./measurements-master \
+                ./measurements-${{ env.MEASUREMENTS_ID }} \
+                ./measurements-sol-abi-${{ env.MEASUREMENTS_ID }} \
+                ./measurements-all-abi-${{ env.MEASUREMENTS_ID }} \
+                ./.github/v5-contract-sizes.csv \
+                > measurements.csv
+              cat measurements.csv
+
+        - name: Create Mermaid Diagram
+          run: |
+              .github/scripts/create-mermaid-diagram.sh ./measurements.csv > mermaid_diagram.md
+              cat mermaid_diagram.md
+
+        - name: Submit Comment
+          env:
+              CARGO_CONTRACT_VERSION:  ${{ needs.ci-image.outputs.cargo-contract-version }}
+              GITHUB_PR_TOKEN:         ${{ secrets.github_token }}
+              GITHUB_PR_WORKFLOW_ID:   ${{ github.event.workflow_run.id }}
+              PR_NUMBER:               ${{ github.event.number }}
+          run: |
+              PR_COMMENTS_URL="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments"
+              WORKFLOW_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_PR_WORKFLOW_ID}"
+
+              # Submit the comparison table as a comment to the PR
+              echo "Submitting contract sizes diff to ${PR_COMMENTS_URL}"
+              GITHUB_PR_TOKEN=${GITHUB_PR_TOKEN} .github/scripts/contract_sizes_submit.sh ${PR_COMMENTS_URL} ${WORKFLOW_URL} ${{ steps.extract_github.outputs.head_in_branch }}${head_in_branch} ./contract_sizes_diff.md ./abi_sol_contract_sizes_diff.md ./abi_all_contract_sizes_diff.md ./mermaid_diagram.md

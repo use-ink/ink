@@ -14,19 +14,33 @@
 
 //! The public raw interface towards the host engine.
 
+use ink_primitives::{
+    abi::AbiEncodeWith,
+    Address,
+    SolEncode,
+    H256,
+    U256,
+};
+use ink_storage_traits::Storable;
+use pallet_revive_uapi::ReturnFlags;
+
+#[cfg(feature = "unstable-hostfn")]
+use crate::call::{
+    ConstructorReturnType,
+    CreateParams,
+    FromAddr,
+    LimitParamsV2,
+};
 use crate::{
     backend::{
         EnvBackend,
         TypedEnvBackend,
     },
     call::{
+        utils::DecodeMessageResult,
         Call,
         CallParams,
-        ConstructorReturnType,
-        CreateParams,
         DelegateCall,
-        FromAddr,
-        LimitParamsV2,
     },
     engine::{
         EnvInstance,
@@ -45,20 +59,13 @@ use crate::{
     DispatchError,
     Result,
 };
-use ink_primitives::{
-    H160,
-    H256,
-    U256,
-};
-use ink_storage_traits::Storable;
-use pallet_revive_uapi::ReturnFlags;
 
 /// Returns the address of the caller of the executed contract.
 ///
 /// # Errors
 ///
 /// If the returned caller cannot be properly decoded.
-pub fn caller() -> H160 {
+pub fn caller() -> Address {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::caller)
 }
 
@@ -110,6 +117,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
+#[cfg(feature = "unstable-hostfn")]
 pub fn account_id<E>() -> E::AccountId
 where
     E: Environment,
@@ -124,7 +132,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn address() -> H160 {
+pub fn address() -> Address {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::address(instance)
     })
@@ -161,6 +169,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
+#[cfg(feature = "unstable-hostfn")]
 pub fn minimum_balance<E>() -> E::Balance
 where
     E: Environment,
@@ -218,6 +227,7 @@ where
 /// # Errors
 ///
 /// - If the decoding of the typed value failed (`KeyNotFound`)
+#[cfg(feature = "unstable-hostfn")]
 pub fn take_contract_storage<K, R>(key: &K) -> Result<Option<R>>
 where
     K: scale::Encode,
@@ -232,6 +242,7 @@ where
 /// storage.
 ///
 /// If a value is stored under the specified key, the size of the value is returned.
+#[cfg(feature = "unstable-hostfn")]
 pub fn contains_contract_storage<K>(key: &K) -> Option<u32>
 where
     K: scale::Encode,
@@ -245,6 +256,7 @@ where
 ///
 /// If a value was stored under the specified storage key, the size of the value is
 /// returned.
+#[cfg(feature = "unstable-hostfn")]
 pub fn clear_contract_storage<K>(key: &K) -> Option<u32>
 where
     K: scale::Encode,
@@ -273,16 +285,16 @@ where
 /// - If the called contract ran out of gas, proof size, or storage deposit upon
 ///   execution.
 /// - If the returned value failed to decode properly.
-pub fn invoke_contract<E, Args, R>(
-    params: &CallParams<E, Call, Args, R>,
+pub fn invoke_contract<E, Args, R, Abi>(
+    params: &CallParams<E, Call, Args, R, Abi>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
-    Args: scale::Encode,
-    R: scale::Decode,
+    Args: AbiEncodeWith<Abi>,
+    R: DecodeMessageResult<Abi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::invoke_contract::<E, Args, R>(instance, params)
+        TypedEnvBackend::invoke_contract::<E, Args, R, Abi>(instance, params)
     })
 }
 
@@ -298,16 +310,16 @@ where
 /// - If the specified code hash does not exist.
 /// - If arguments passed to the called code message are invalid.
 /// - If the called code execution has trapped.
-pub fn invoke_contract_delegate<E, Args, R>(
-    params: &CallParams<E, DelegateCall, Args, R>,
+pub fn invoke_contract_delegate<E, Args, R, Abi>(
+    params: &CallParams<E, DelegateCall, Args, R, Abi>,
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
-    Args: scale::Encode,
-    R: scale::Decode,
+    Args: AbiEncodeWith<Abi>,
+    R: DecodeMessageResult<Abi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::invoke_contract_delegate::<E, Args, R>(instance, params)
+        TypedEnvBackend::invoke_contract_delegate::<E, Args, R, Abi>(instance, params)
     })
 }
 
@@ -330,21 +342,26 @@ where
 /// - If the instantiation process runs out of gas.
 /// - If given insufficient endowment.
 /// - If the returned account ID failed to decode properly.
-pub fn instantiate_contract<E, ContractRef, Args, R>(
-    params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R>,
+#[cfg(feature = "unstable-hostfn")]
+pub fn instantiate_contract<E, ContractRef, Args, R, Abi>(
+    params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
 ) -> Result<
-    ink_primitives::ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>,
+    ink_primitives::ConstructorResult<
+        <R as ConstructorReturnType<ContractRef, Abi>>::Output,
+    >,
 >
 where
     E: Environment,
     ContractRef: FromAddr + crate::ContractReverseReference,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractConstructorDecoder,
-    Args: scale::Encode,
-    R: ConstructorReturnType<ContractRef>,
+    Args: AbiEncodeWith<Abi>,
+    R: ConstructorReturnType<ContractRef, Abi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::instantiate_contract::<E, ContractRef, Args, R>(instance, params)
+        TypedEnvBackend::instantiate_contract::<E, ContractRef, Args, R, Abi>(
+            instance, params,
+        )
     })
 }
 
@@ -358,7 +375,8 @@ where
 /// This function never returns. Either the termination was successful and the
 /// execution of the destroyed contract is halted. Or it failed during the termination
 /// which is considered fatal and results in a trap and rollback.
-pub fn terminate_contract(beneficiary: H160) -> ! {
+#[cfg(feature = "unstable-hostfn")]
+pub fn terminate_contract(beneficiary: Address) -> ! {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::terminate_contract(instance, beneficiary)
     })
@@ -377,7 +395,7 @@ pub fn terminate_contract(beneficiary: H160) -> ! {
 /// - If the contract does not have sufficient free funds.
 /// - If the transfer had brought the sender's total balance below the minimum balance.
 ///   You need to use `terminate_contract` in case this is your intention.
-pub fn transfer<E>(destination: H160, value: U256) -> Result<()>
+pub fn transfer<E>(destination: Address, value: U256) -> Result<()>
 where
     E: Environment,
 {
@@ -449,24 +467,17 @@ where
     })
 }
 
-/// Returns the *RLP encoded* value back to the caller of the executed contract.
+/// Returns the *Solidity ABI encoded* value back to the caller of the executed contract.
 ///
 /// # Note
 ///
 /// This function  stops the execution of the contract immediately.
-pub fn return_value_rlp<R>(return_flags: ReturnFlags, return_value: &R) -> !
+pub fn return_value_solidity<R>(return_flags: ReturnFlags, return_value: &R) -> !
 where
-    R: alloy_rlp::Encodable,
+    R: for<'a> SolEncode<'a>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::return_value_rlp::<R>(instance, return_flags, return_value)
-    })
-}
-
-/// Appends the given message to the debug message buffer.
-pub fn debug_message(message: &str) {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::debug_message(instance, message)
+        EnvBackend::return_value_solidity::<R>(instance, return_flags, return_value)
     })
 }
 
@@ -572,6 +583,7 @@ pub fn ecdsa_recover(
 /// # Errors
 ///
 /// - If the ECDSA public key cannot be recovered from the provided public key.
+#[cfg(feature = "unstable-hostfn")]
 pub fn ecdsa_to_eth_address(pubkey: &[u8; 33], output: &mut [u8; 20]) -> Result<()> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.ecdsa_to_eth_address(pubkey, output)
@@ -605,6 +617,7 @@ pub fn ecdsa_to_eth_address(pubkey: &[u8; 33], output: &mut [u8; 20]) -> Result<
 ///
 /// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
 /// which is unsafe and normally is not available on production chains.
+#[cfg(feature = "unstable-hostfn")]
 pub fn sr25519_verify(
     signature: &[u8; 64],
     message: &[u8],
@@ -620,7 +633,8 @@ pub fn sr25519_verify(
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn is_contract(account: &H160) -> bool {
+#[cfg(feature = "unstable-hostfn")]
+pub fn is_contract(account: &Address) -> bool {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::is_contract(instance, account)
     })
@@ -632,7 +646,7 @@ pub fn is_contract(account: &H160) -> bool {
 ///
 /// - If no code hash was found for the specified account id.
 /// - If the returned value cannot be properly decoded.
-pub fn code_hash(addr: &H160) -> Result<H256> {
+pub fn code_hash(addr: &Address) -> Result<H256> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::code_hash(instance, addr)
     })
@@ -643,6 +657,7 @@ pub fn code_hash(addr: &H160) -> Result<H256> {
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
+#[cfg(feature = "unstable-hostfn")]
 pub fn own_code_hash() -> Result<H256> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::own_code_hash(instance)
@@ -662,6 +677,7 @@ pub fn own_code_hash() -> Result<H256> {
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
+#[cfg(feature = "unstable-hostfn")]
 pub fn caller_is_origin<E>() -> bool
 where
     E: Environment,
@@ -682,6 +698,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
+#[cfg(feature = "unstable-hostfn")]
 pub fn caller_is_root<E>() -> bool
 where
     E: Environment,
@@ -792,6 +809,7 @@ where
 /// Please refer to the
 /// [Open Zeppelin docs](https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#modifying-your-contracts)
 /// for more details and examples.
+#[cfg(feature = "unstable-hostfn")]
 pub fn set_code_hash<E>(code_hash: &H256) -> Result<()>
 where
     E: Environment,
@@ -816,6 +834,7 @@ where
 /// # Panics
 ///
 /// Panics in the off-chain environment.
+#[cfg(feature = "unstable-hostfn")]
 pub fn call_runtime<E, Call>(call: &Call) -> Result<()>
 where
     E: Environment,
@@ -823,45 +842,6 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::call_runtime::<E, _>(instance, call)
-    })
-}
-
-/// Adds a new delegate dependency lock to the contract.
-///
-/// This guarantees that the code of the dependency cannot be removed without first
-/// calling [`unlock_delegate_dependency`]. It charges a fraction of the code
-/// deposit, see [`pallet_contracts::Config::CodeHashLockupDepositPercent`](https://docs.rs/pallet-revive/latest/pallet_revive/pallet/trait.Config.html#associatedtype.CodeHashLockupDepositPercent) for details.
-///
-/// # Errors
-///
-/// - If the supplied `code_hash` cannot be found on-chain.
-/// - If the `code_hash` is the same as the calling contract.
-/// - If the maximum number of delegate dependencies is reached.
-/// - If the delegate dependency already exists.
-pub fn lock_delegate_dependency<E>(code_hash: &H256)
-where
-    E: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.lock_delegate_dependency::<E>(code_hash)
-    })
-}
-
-/// Unlocks the delegate dependency from the contract.
-///
-/// This removes the lock and refunds the deposit from the call to
-/// [`lock_delegate_dependency`]. The code of the dependency can be removed if the
-/// reference count for the code hash is now zero.
-///
-/// # Errors
-///
-/// - If the delegate dependency does not exist.
-pub fn unlock_delegate_dependency<E>(code_hash: &H256)
-where
-    E: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.unlock_delegate_dependency::<E>(code_hash)
     })
 }
 
@@ -878,6 +858,7 @@ where
 /// # Panics
 ///
 /// Panics in the off-chain environment.
+#[cfg(feature = "unstable-hostfn")]
 pub fn xcm_execute<E, Call>(msg: &xcm::VersionedXcm<Call>) -> Result<()>
 where
     E: Environment,
@@ -903,6 +884,7 @@ where
 /// # Panics
 ///
 /// Panics in the off-chain environment.
+#[cfg(feature = "unstable-hostfn")]
 pub fn xcm_send<E, Call>(
     dest: &xcm::VersionedLocation,
     msg: &xcm::VersionedXcm<Call>,

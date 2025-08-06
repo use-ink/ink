@@ -12,6 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use std::marker::PhantomData;
+
+use ink_env::{
+    call::utils::DecodeMessageResult,
+    Environment,
+};
+use ink_primitives::{
+    abi::AbiEncodeWith,
+    DepositLimit,
+};
+use sp_weights::Weight;
+
 use super::{
     balance_to_deposit_limit,
     InstantiateDryRunResult,
@@ -28,47 +40,39 @@ use crate::{
     UploadResult,
     H256,
 };
-use ink_env::Environment;
-use ink_primitives::DepositLimit;
-use scale::{
-    Decode,
-    Encode,
-};
-use sp_weights::Weight;
-use std::marker::PhantomData;
 
 /// Allows to build an end-to-end call using a builder pattern.
-pub struct CallBuilder<'a, E, Args, RetType, B>
+pub struct CallBuilder<'a, E, Args, RetType, B, Abi>
 where
     E: Environment,
-    Args: Encode + Clone,
-    RetType: Send + Decode,
-
+    Args: AbiEncodeWith<Abi> + Clone,
+    RetType: Send + DecodeMessageResult<Abi>,
     B: BuilderClient<E>,
+    Abi: Clone,
 {
     client: &'a mut B,
     caller: &'a Keypair,
-    message: &'a CallBuilderFinal<E, Args, RetType>,
+    message: &'a CallBuilderFinal<E, Args, RetType, Abi>,
     value: E::Balance,
     extra_gas_portion: Option<u64>,
     gas_limit: Option<Weight>,
     storage_deposit_limit: E::Balance,
 }
 
-impl<'a, E, Args, RetType, B> CallBuilder<'a, E, Args, RetType, B>
+impl<'a, E, Args, RetType, B, Abi> CallBuilder<'a, E, Args, RetType, B, Abi>
 where
     E: Environment,
-    Args: Sync + Encode + Clone,
-    RetType: Send + Decode,
-
+    Args: Sync + AbiEncodeWith<Abi> + Clone,
+    RetType: Send + DecodeMessageResult<Abi>,
     B: BuilderClient<E>,
+    Abi: Sync + Clone,
 {
     /// Initialize a call builder with defaults values.
     pub fn new(
         client: &'a mut B,
         caller: &'a Keypair,
-        message: &'a CallBuilderFinal<E, Args, RetType>,
-    ) -> CallBuilder<'a, E, Args, RetType, B>
+        message: &'a CallBuilderFinal<E, Args, RetType, Abi>,
+    ) -> CallBuilder<'a, E, Args, RetType, B, Abi>
     where
         E::Balance: From<u32>,
     {
@@ -136,9 +140,9 @@ where
     /// to add a margin to the gas limit.
     pub async fn submit(
         &mut self,
-    ) -> Result<CallResult<E, RetType, B::EventLog>, B::Error>
+    ) -> Result<CallResult<E, RetType, B::EventLog, Abi>, B::Error>
     where
-        CallBuilderFinal<E, Args, RetType>: Clone,
+        CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {
         let _map = B::map_account(self.client, self.caller).await; // todo will fail if instantiation happened before
 
@@ -160,7 +164,7 @@ where
             calculate_weight(proof_size, ref_time, self.extra_gas_portion)
         };
 
-        let call_result = B::bare_call(
+        let (events, trace) = B::bare_call(
             self.client,
             self.caller,
             self.message,
@@ -173,14 +177,15 @@ where
 
         Ok(CallResult {
             dry_run,
-            events: call_result,
+            events,
+            trace,
         })
     }
 
     /// Dry run the call.
-    pub async fn dry_run(&mut self) -> Result<CallDryRunResult<E, RetType>, B::Error>
+    pub async fn dry_run(&mut self) -> Result<CallDryRunResult<E, RetType, Abi>, B::Error>
     where
-        CallBuilderFinal<E, Args, RetType>: Clone,
+        CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {
         B::bare_call_dry_run(
             self.client,
@@ -194,39 +199,39 @@ where
 }
 
 /// Allows to build an end-to-end instantiation call using a builder pattern.
-pub struct InstantiateBuilder<'a, E, Contract, Args, R, B>
+pub struct InstantiateBuilder<'a, E, Contract, Args, R, B, Abi>
 where
     E: Environment,
-    Args: Encode + Clone,
+    Args: AbiEncodeWith<Abi> + Clone,
     Contract: Clone,
-
     B: ContractsBackend<E>,
 {
     client: &'a mut B,
     caller: &'a Keypair,
     contract_name: &'a str,
-    constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R>,
+    constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
     value: E::Balance,
     extra_gas_portion: Option<u64>,
     gas_limit: Option<Weight>,
     storage_deposit_limit: DepositLimit<E::Balance>,
 }
 
-impl<'a, E, Contract, Args, R, B> InstantiateBuilder<'a, E, Contract, Args, R, B>
+impl<'a, E, Contract, Args, R, B, Abi>
+    InstantiateBuilder<'a, E, Contract, Args, R, B, Abi>
 where
     E: Environment,
-    Args: Encode + Clone + Send + Sync,
+    Args: AbiEncodeWith<Abi> + Clone + Send + Sync,
     Contract: Clone,
-
     B: BuilderClient<E>,
+    Abi: Send + Sync + Clone,
 {
     /// Initialize a call builder with essential values.
     pub fn new(
         client: &'a mut B,
         caller: &'a Keypair,
         contract_name: &'a str,
-        constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R>,
-    ) -> InstantiateBuilder<'a, E, Contract, Args, R, B>
+        constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
+    ) -> InstantiateBuilder<'a, E, Contract, Args, R, B, Abi>
     where
         E::Balance: From<u32>,
     {
@@ -238,7 +243,7 @@ where
             value: 0u32.into(),
             extra_gas_portion: None,
             gas_limit: None,
-            storage_deposit_limit: DepositLimit::Unchecked,
+            storage_deposit_limit: DepositLimit::UnsafeOnlyForDryRun,
         }
     }
 
@@ -270,7 +275,7 @@ where
     /// # Notes
     ///
     /// Overwrites any values specified for `extra_gas_portion`.
-    /// The gas estimate fro dry-run will be ignored.
+    /// The gas estimate from dry-run will be ignored.
     pub fn gas_limit(&mut self, limit: Weight) -> &mut Self {
         if limit == Weight::from_parts(0, 0) {
             self.gas_limit = None
@@ -295,7 +300,7 @@ where
     /// to add a margin to the gas limit.
     pub async fn submit(
         &mut self,
-    ) -> Result<InstantiationResult<E, B::EventLog>, B::Error> {
+    ) -> Result<InstantiationResult<E, B::EventLog, Abi>, B::Error> {
         // we have to make sure the account was mapped
         let _map = B::map_account(self.client, self.caller).await; // todo will fail if instantiation happened before
 
@@ -335,11 +340,13 @@ where
             addr: instantiate_result.addr,
             dry_run,
             events: instantiate_result.events,
+            trace: instantiate_result.trace,
+            code_hash: instantiate_result.code_hash,
         })
     }
 
     /// Dry run the instantiate call.
-    pub async fn dry_run(&mut self) -> Result<InstantiateDryRunResult<E>, B::Error> {
+    pub async fn dry_run(&mut self) -> Result<InstantiateDryRunResult<E, Abi>, B::Error> {
         B::bare_instantiate_dry_run(
             self.client,
             self.contract_name,

@@ -95,6 +95,17 @@ pub struct E2EConfig {
     /// The type of the architecture that should be used to run test.
     #[darling(default)]
     backend: Backend,
+    /// Features that are enabled in the contract during the build process.
+    /// todo add tests below in this file
+    #[darling(default)]
+    features: Vec<syn::LitStr>,
+    /// A replacement attribute for `#[test]`. Instead of `#[test]` the E2E code
+    /// generation will output this attribute.
+    ///
+    /// This can be used to supply e.g. `#[quicktest]`, thus transforming the
+    /// test into a fuzzing E2E test.
+    #[darling(default)]
+    replace_test_attr: Option<String>,
 }
 
 impl E2EConfig {
@@ -103,9 +114,20 @@ impl E2EConfig {
         self.environment.clone()
     }
 
+    /// Features for the contract build.
+    pub fn features(&self) -> Vec<String> {
+        self.features.iter().map(|ls| ls.value()).collect()
+    }
+
     /// The type of the architecture that should be used to run test.
     pub fn backend(&self) -> Backend {
         self.backend.clone()
+    }
+
+    /// A custom attribute which the code generation will output instead
+    /// of `#[test]`.
+    pub fn replace_test_attr(&self) -> Option<String> {
+        self.replace_test_attr.clone()
     }
 }
 
@@ -235,5 +257,16 @@ mod tests {
             }
             _ => panic!("Expected Backend::Node"),
         }
+    }
+
+    #[test]
+    fn config_works_test_attr_replacement() {
+        let input = quote! {
+            replace_test_attr = "#[quickcheck]"
+        };
+        let config =
+            E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
+
+        assert_eq!(config.replace_test_attr(), Some("#[quickcheck]".to_owned()));
     }
 }

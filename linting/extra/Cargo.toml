@@ -17,29 +17,36 @@ include = ["Cargo.toml", "*.rs", "LICENSE"]
 crate-type = ["cdylib"]
 
 [dependencies]
-dylint_linting = "3.3.0"
+dylint_linting = "4.1.0"
 if_chain = "1.0.2"
 log = "0.4.14"
 regex = "1.5.4"
 ink_linting_utils = { workspace = true }
-ink_env = { version = "=6.0.0-alpha", path = "../../crates/env", default-features = false }
+ink_env = { version = "=6.0.0-alpha.1", path = "../../crates/env" }
 
-#rustc_middle = {path = "/Users/michi/.rustup/toolchains/nightly-2024-09-05-aarch64-apple-darwin/lib/rustlib/rustc-src/rust/compiler/rustc_middle", optional = true}
+# todo Remove once the `polkadot-sdk` compilation error
+# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
+tokio = { workspace = true, features = ["net"] }
 
 [dev-dependencies]
-dylint_testing = "3.3.0"
+dylint_testing = "4.1.0"
 
 # The ink! dependencies used to build the `ui` tests and to compile the linting
-# library with `--default-features=std` (see the `features` section bellow).
+# library with `--default-features=std` (see the `features` section below).
 #
 # These cannot be moved to the workspace level because `cargo` does not provide
 # the `[[workspace.dev-dependencies]]` directive.
-ink = { version = "=6.0.0-alpha", path = "../../crates/ink", default-features = false, features = ["std"] }
-ink_metadata = { version = "=6.0.0-alpha", path = "../../crates/metadata", default-features = false }
-ink_primitives = { version = "=6.0.0-alpha", path = "../../crates/primitives", default-features = false }
-ink_storage = { version = "=6.0.0-alpha", path = "../../crates/storage", default-features = false }
-scale = { package = "parity-scale-codec", version = "3.6.12", default-features = false, features = ["derive"] }
-scale-info = { version = "2.6", default-features = false, features = ["derive"] }
+ink = { version = "=6.0.0-alpha.1", path = "../../crates/ink" }
+ink_primitives = { version = "=6.0.0-alpha.1", path = "../../crates/primitives" }
+
+# todo Remove once the `polkadot-sdk` compilation error
+# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
+tokio = { workspace = true, features = ["net"] }
+
+# todo Remove once the `polkadot-sdk` compilation error
+# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
+[build-dependencies]
+tokio = { workspace = true, features = ["net"] }
 
 # For the moment we have to include the tests as examples and
 # then use `dylint_testing::ui_test_examples`.
@@ -79,16 +86,12 @@ path = "ui/fail/non_fallible_api.rs"
 rustc_private = true
 
 [features]
-default = ["std"]
+default = ["std", "unstable-hostfn"]
 std = [
-    "ink_metadata/std",
-    "ink_env/std",
-    "ink_storage/std",
-    "ink_primitives/std",
-    "scale/std",
-    "scale-info/std",
+    "ink/std",
 ]
 ink-as-dependency = []
+unstable-hostfn = ["ink/unstable-hostfn", "ink_env/unstable-hostfn"]
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(dylint_lib, values("ink_linting"))'] }

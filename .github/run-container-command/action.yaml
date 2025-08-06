@@ -1,0 +1,23 @@
+name: Run Container Command
+description: |
+  This action runs a specified command within a container using the `useink/ci` image.
+
+inputs:
+  command:
+    description: The command to be run within a container.
+    required: true
+
+runs:
+  using: composite
+
+  steps:
+    - name: Run command in container
+      # Image can be edited at https://github.com/use-ink/docker-images
+      uses: docker://useink/ci
+      env:
+        # Update the target directory used within the container to one which is within the path mounted to the host
+        # runner workspace path. Required for effective caching.
+        CARGO_TARGET_DIR: "/github/workspace/${{ env.CARGO_TARGET_DIR }}"
+      with:
+        entrypoint: /bin/bash
+        args: -c "${{ inputs.command }}"

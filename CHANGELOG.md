@@ -6,18 +6,255 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Unreleased]
 
-- Implement contract invokation in off-chain environment engine - [#1957](https://github.com/paritytech/ink/pull/1988)
+### Added
+- Support ABI `cfg` flag in codegen - [#2501](https://github.com/use-ink/ink/pull/2501)
+- Generate Solidity ABI compatibility metadata - [#2510](https://github.com/use-ink/ink/pull/2510)
+- Improve Solidity ABI support in `codegen`, `ink_env` and `ink_e2e` - [#2517](https://github.com/use-ink/ink/pull/2517)
+- Support Solidity ABI encoded constructor dispatch - [#2525](https://github.com/use-ink/ink/pull/2525)
+- Export `Weight` with Solidity encoding - [#2540](https://github.com/use-ink/ink/pull/2540)
+- Implement `SolEncode` and `SolDecode` for generated contract refs, call and message builders - [#2539](https://github.com/use-ink/ink/pull/2539)
+- Abstractions for mapping Rust/ink! `Result` and error types to/from Solidity ABI error and result representations - [#2543](https://github.com/use-ink/ink/pull/2543)
+- `Derive` macros for implementing `SolEncode` and `SolDecode` for arbitrary types - [#2549](https://github.com/use-ink/ink/pull/2549)
+- Improve handling of Solidity constructor return and revert data - [#2552](https://github.com/use-ink/ink/pull/2552)
+- Implement `SolEncode` and `SolDecode` for `Option<T>` - [#2545](https://github.com/use-ink/ink/pull/2545)
+- Allow writing E2E fuzz tests for contracts - [#2570](https://github.com/use-ink/ink/pull/2570)
 
-## Changed
+### Changed
+- Use marker trait for finding ink! storage `struct` during code analysis - [2499](https://github.com/use-ink/ink/pull/2499)
+- Solidity ABI compatibility metadata improvements - [#2511](https://github.com/use-ink/ink/pull/2511)
+- Share intermediate build artifacts across all contract builds in e2e tests - [#2531](https://github.com/use-ink/ink/pull/2531)
+- Refactor Solidity bytes wrapper(s) - [#2569](https://github.com/use-ink/ink/pull/2569)
+
+### Fixed
+- Update metadata version to version 6 ‒ [#2507](https://github.com/use-ink/ink/pull/2507)
+- Ensure immutable messages are not payable - [#2535](https://github.com/use-ink/ink/pull/2535)
+
+## Version 6.0.0-alpha
+
+This is our first alpha release for ink! v6. We release it together
+with `cargo-contract` `v6.0.0-alpha`.
+
+The biggest change is that we are in the process of migrating from `pallet-contracts` +
+WebAssembly (executed in `wasmi`) to [`pallet-revive`](https://github.com/paritytech/polkadot-sdk/tree/master/substrate/frame/revive) +
+RISC-V (executed in [PolkaVM](https://github.com/paritytech/polkavm/)).
+_This is a major breaking change, ink! v6 will only be compatible with `cargo-contract` >= v6
+and chains that include `pallet-revive`._
+
+We did a detailed write-up of the background to this development and the reasoning
+[here](https://use.ink/6.x/current-state). We also updated the [`ink/ARCHITECTURE.md`](https://github.com/use-ink/ink/blob/master/ARCHITECTURE.md)
+to reflect the new setup.
+
+Compatibility of this release:
+* Rust >= 1.86
+* [`cargo-contract` `v6.0.0-alpha`](https://github.com/use-ink/cargo-contract/releases/tag/v6.0.0-alpha)
+* [`ink-node/5f93093`](https://github.com/use-ink/ink-node/commit/5f93093dcffbbd2c2e44bfd2e457dc418c844623)
+* [`polkadot-sdk/stable2503`](https://github.com/paritytech/polkadot-sdk/tree/stable2503)
+
+In the following we'll describe some breaking changes on a high-level. The
+context to understand them is that the `pallet-revive` team has Ethereum/Solidity
+support as the number one priority. All their design decisions derive from that,
+they don't want to maintain code that is unnecessary for that objective.
+
+_🚧 This is an alpha release, changes will still happen and there are rough edges. 🚧_
+
+### Cross-contract calling Solidity contracts
+We are introducing a new attribute `abi` for the `#[ink::contract]` macro.
+These are the values it takes:
+
+```
+#[ink::contract(abi = "all")]
+#[ink::contract(abi = "sol")]
+#[ink::contract(abi = "ink")]
+```
+
+The default currently is `abi = "ink"`, but we might change this before a production
+release.
+
+The implication of supporting Solidity ABI encoding is that there is a restriction on
+the types you can use as constructor/message arguments or return types.
+You won't be able to use Rust types for which no mapping to a Solidity type exists.
+An error about a missing trait implementation for this type will be thrown.
+
+Please note that your contract sizes will get larger if you support both the ink!
+and Solidity ABI.
+
+### Types
+
+#### Contract Balance: `U256`
+For the type of a contract's balance, `pallet-revive` uses depending on the context
+* either the configured `pallet_revive::Config::Currency` type (which corresponds
+  to the `ink::Environment::Balance` type.
+* or a hardcoded `U256` (which corresponds to what Ethereum uses).
+  In this alpha release we just adhere to requiring the types that `pallet-revive` uses.
+  In an upcoming beta release this could be simplified to reduce UX friction by just
+  using one type everywhere and converting to the `pallet-revive` one.
+
+#### Contract Address: `Address` / `H160`
+For a contract's account, `pallet-revive` is using either the configured `AccountId` type
+of the `polkadot-sdk` runtime, or `H160`.
+
+`Address` is a more semantically named type alias for `H160` defined in `ink_primitives`,
+and re-exported in the `ink` crate.
+
+Finding the `Address`/`H160` for an `AccountId` is done via an address derivation scheme
+derived in [#7662](https://github.com/paritytech/polkadot-sdk/pull/7662).
+After instantiating a contract, the address is no longer returned by `pallet-revive`.
+Instead one has to derive it from given parameters (see the linked PR). `cargo-contract`
+does that automatically.
+
+For contract instantiations and contract calls the pallet requires that a 1-to-1 mapping
+of an `AccountId` to an `Address`/`H160` has been created. This can be done via the
+`map_account`/`unmap_account` API.
+The PR [#6096](https://github.com/paritytech/polkadot-sdk/pull/6096) contains more
+information.
+
+Besides the publicly exposed crate functions, we've introduced a new subcommand
+`cargo contract account` that allows resolving the `H160` contract address to the
+Substrate `AccountId` which it is mapped to.
+
+#### Contract Hash: `H256`
+For a contract's hash value, `pallet-revive` uses a fixed `H256`, Previously,
+the `ink::Environment::Hash` type referenced the hash type being used for the
+contract's hash. Now it's just a fixed `H256`.
+
+### Contract delegates can no longer be done by code
+In `pallet-contracts` (and hence up until ink! v5), a pattern for upgradeable
+contracts was to delegate the contract execution to a different code, e.g. to
+a new version of the contract's code.
+
+This distinction of contract code that was uploaded to a chain vs. an instantiated
+contract from this code no longer exists in `pallet-revive`. If you want to
+delegate the execution, you will have to specify another contract's address
+to which code you want to delegate to. This other contract needs to be instantiated
+on-chain.
+
+For the execution, the context of the contract that delegates will continue
+to be used (storage, caller, value).
+
+Specifically the delegate API changed like this:
+
+```
+/// ink! v5
+#[derive(Clone)]
+pub struct DelegateCall<E: Environment> {
+    code_hash: E::Hash,
+    call_flags: CallFlags,
+}
+
+/// ink! v6
+#[derive(Clone)]
+pub struct DelegateCall {
+    address: H160,
+    flags: CallFlags,
+    ref_time_limit: u64,
+    proof_size_limit: u64,
+    deposit_limit: Option<[u8; 32]>,
+}
+```
+
+### Feature `ink/unstable-hostfn`
+In `pallet-revive` a number of functions can only be called by smart contracts
+if the chain that the pallet is running on has enabled the feature
+`pallet-revive/unstable-hostfn`.
+This feature is not enabled on Kusama or Westend!
+
+It is enabled for the `substrate-contracts-node` version that we linked above.
+
+### New debugging workflow
+Previously `pallet-contracts` returned a `debug_message` field with contract
+instantiations and dry-runs.
+Whenever `ink::env::debug_println` was invoked in a contract, ink! wrote debugging
+info to this field. This functionality has been removed. Instead `pallet-revive` now
+supports other means of debugging.
+
+The most relevant new debugging workflow is the tracing API. There are a number
+of PRs that implemented it, so we won't link a specific one here. A good starting
+point to look deeper into it is the [`tracing.rs`](https://github.com/paritytech/polkadot-sdk/blob/master/substrate/frame/revive/src/tracing.rs).
+
+We have implemented barebones support for this tracing API in the 6.0.0-alpha
+versions of ink! + `cargo-contract`. But it's really barebones and should
+certainly be improved before a production release.
+
+Please see [our developer documentation](https://use.ink/docs/v6/contract-debugging)
+for more details.
+We've also added a contract example to illustrate these new debugging strategies:
+[`debugging-strategies`](https://github.com/use-ink/ink/tree/master/integration-tests/public/debugging-strategies).
+
+### Restrictions which `cfg` attributes can be used
+
+This change was done as a recommendation from the ink! 5.x audit.
+In a nutshell it prevents developers from hiding functionality in a contract,
+that would not be visible in the metadata (so e.g. on a block explorer).
+The relevant PR is [#2313](https://github.com/use-ink/ink/pull/2313).
+
+From ink! 6.0 on only these attributes are allowed in `#[cfg(…)]`:
+- `test`
+- `feature` (without `std`)
+- `any`
+- `not`
+- `all`
+
+### Metadata Changes
+
+The field `source.wasm` was renamed to `source.contract_binary`.
+
+### `no_main`
+
+Previously ink! contracts started with this line:
+
+```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+```
+
+This line instructs the Rust compiler to not link the Rust
+standard library with your contract.
+If you want to know about why:
+we have an entry
+["Why is Rust's standard library (stdlib) not available in ink!?"](./faq.md#why-no_std)
+Please see [our developer documentation](https://use.ink/docs/v6/faq/#why-no_std)
+in our FAQ.
+
+With ink! v6, an additional crate-level attribute needs to be set:
+
+```rust
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
+```
+
+It instructs the compiler not to use the default `fn main() {}` function as the
+entry point for your smart contract. This is needed because PolkaVM uses a different
+entry point (the `deploy` function).
+
+### `substrate-contracts-node` can no longer be used
+The `substrate-contracts-node` is still maintained by Parity for ink! v5 and
+`pallet-contracts`, but it does not support `pallet-revive`.
+
+We've set up a new project in its place: [`ink-node`](https://github.com/use-ink/ink-node).
+As before, it functions as a simple local development node.
+It contains `pallet-revive` in a default configuration.
+You can find binary releases of the node [here](https://github.com/use-ink/ink-node/releases).
+
+### Changed
 - Restrict which `cfg` attributes can be used ‒ [#2313](https://github.com/use-ink/ink/pull/2313)
 - More idiomatic return types for metadata getters - [#2398](https://github.com/use-ink/ink/pull/2398)
+- Define static distributed events slice in `ink` crate - [#2487](https://github.com/use-ink/ink/pull/2487)
+- [E2E] Update `subxt` dependencies ‒ [#2504](https://github.com/use-ink/ink/pull/2504)
 
-## Added
-- Add feature flag to compile contracts for `pallet-revive` ‒ [#2318](https://github.com/use-ink/ink/pull/2318)
-- Support for `caller_is_root` - [#2332] (https://github.com/use-ink/ink/pull/2332)
+### Added
+- Support for `caller_is_root` - [#2332](https://github.com/use-ink/ink/pull/2332)
+- Allow setting features for contract build in E2E tests - [#2460](https://github.com/use-ink/ink/pull/2460)
+- Improve support for Solidity ABI calling conventions - [#2411](https://github.com/use-ink/ink/pull/2411)
+- Implement contract invocation in off-chain environment engine - [#1957](https://github.com/paritytech/ink/pull/1988)
+- Abstractions for mapping arbitrary Rust types to Solidity ABI compatible types - [#2441](https://github.com/use-ink/ink/pull/2441)
+- Documentation for contract abi arg and provided Rust/ink! to Solidity type mappings - [2463](https://github.com/use-ink/ink/pull/2463)
+- Implement `SolDecode`, `SolTypeDecode` and support `SolBytes` for boxed slices - [2476](https://github.com/use-ink/ink/pull/2476)
 
-## Fixed
+### Fixed
 - [E2E] Have port parsing handle comma-separated list ‒ [#2336](https://github.com/use-ink/ink/pull/2336)
+- Always use ink! ABI/ SCALE codec for constructor and instantiation related builders and utilities - [#2474](https://github.com/use-ink/ink/pull/2474)
+- Get rid of "extrinsic for call failed: Pallet error: Revive::AccountAlreadyMapped" - [2483](https://github.com/use-ink/ink/pull/2483)
+- CI disk usage via standardised toolchains: `stable` 1.86, `nightly` 2025-02-20 - [#2484](https://github.com/use-ink/ink/pull/2484)
+- CI contract size submission - [#2490](https://github.com/use-ink/ink/pull/2490)
+- CI relax criteria for `measurements-master` artifact lookup - [#2491](https://github.com/use-ink/ink/pull/2491)
 
 ## Version 5.1.0
 
@@ -607,7 +844,7 @@ errors that may come from the smart contracting language itself.
 
 For example, take the case where a contract message is called using an invalid selector.
 This is not something a smart contract author should need to define as failure case, nor
-is it something that the Contracts pallet needs to be aware of.
+is it something that `pallet-revive` needs to be aware of.
 
 Previously, the contract execution would trap if an invalid selector was used, leaving
 callers with no way to handle the error gracefully. This can now be handled with the help
@@ -1832,7 +2069,7 @@ mod erc20 {
 }
 ```
 
-Calling the above `Erc20` explicitely through its trait implementation can be done just as if it was normal Rust code:
+Calling the above `Erc20` explicitly through its trait implementation can be done just as if it was normal Rust code:
 
 ```rust
 // --- Instantiating the ERC-20 contract:
@@ -1943,7 +2180,7 @@ mod erc20 {
 
 > Note: we now require a mandatory ink! version in the header. You're welcome.
 
-See the [ERC20 example](https://github.com/use-ink/ink/blob/master/examples/erc20/src/lib.rs).
+See the [ERC20 example](https://github.com/use-ink/ink/blob/master/integration-tests/public/upgradeable-contracts/delegator/lib.rs).
 
 ### ink! Contract Tag
 
@@ -2271,7 +2508,7 @@ let accumulator = Accumulator::new(init_value)
 </tr>
 </table>
 
-See the [delegator example](https://github.com/use-ink/ink/blob/master/examples/delegator/lib.rs).
+See the [delegator example](https://github.com/use-ink/ink/blob/master/integration-tests/public/upgradeable-contracts/delegator/lib.rs).
 
 ### Contract Tests
 

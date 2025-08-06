@@ -74,7 +74,6 @@ mod multisig {
         prelude::vec::Vec,
         scale::Output,
         storage::Mapping,
-        H160,
         U256,
     };
 
@@ -120,7 +119,7 @@ mod multisig {
     #[ink::scale_derive(Encode, Decode, TypeInfo)]
     pub struct Transaction {
         /// The address of the contract that is called in this transaction.
-        pub callee: H160,
+        pub callee: Address,
         /// The selector bytes that identifies the function of the callee that should be
         /// called.
         pub selector: [u8; 4],
@@ -169,7 +168,7 @@ mod multisig {
         transaction: TransactionId,
         /// The owner that sent the confirmation.
         #[ink(topic)]
-        from: H160,
+        from: Address,
         /// The confirmation status after this confirmation was applied.
         #[ink(topic)]
         status: ConfirmationStatus,
@@ -183,7 +182,7 @@ mod multisig {
         transaction: TransactionId,
         /// The owner that sent the revocation.
         #[ink(topic)]
-        from: H160,
+        from: Address,
     }
 
     /// Emitted when an owner submits a transaction.
@@ -221,7 +220,7 @@ mod multisig {
     pub struct OwnerAddition {
         /// The owner that was added.
         #[ink(topic)]
-        owner: H160,
+        owner: Address,
     }
 
     /// Emitted when an owner is removed from the wallet.
@@ -229,7 +228,7 @@ mod multisig {
     pub struct OwnerRemoval {
         /// The owner that was removed.
         #[ink(topic)]
-        owner: H160,
+        owner: Address,
     }
 
     /// Emitted when the requirement changed.
@@ -244,7 +243,7 @@ mod multisig {
     pub struct Multisig {
         /// Every entry in this map represents the confirmation of an owner for a
         /// transaction. This is effectively a set rather than a map.
-        confirmations: Mapping<(TransactionId, H160), ()>,
+        confirmations: Mapping<(TransactionId, Address), ()>,
         /// The amount of confirmations for every transaction. This is a redundant
         /// information and is kept in order to prevent iterating through the
         /// confirmation set to check if a transaction is confirmed.
@@ -256,9 +255,9 @@ mod multisig {
         transaction_list: Transactions,
         /// The list is a vector because iterating over it is necessary when cleaning
         /// up the confirmation set.
-        owners: Vec<H160>,
+        owners: Vec<Address>,
         /// Redundant information to speed up the check whether a caller is an owner.
-        is_owner: Mapping<H160, ()>,
+        is_owner: Mapping<Address, ()>,
         /// Minimum number of owners that have to confirm a transaction to be executed.
         requirement: u32,
     }
@@ -273,7 +272,7 @@ mod multisig {
         ///
         /// If `requirement` violates our invariant.
         #[ink(constructor)]
-        pub fn new(requirement: u32, mut owners: Vec<H160>) -> Self {
+        pub fn new(requirement: u32, mut owners: Vec<Address>) -> Self {
             let mut contract = Multisig::default();
             owners.sort_unstable();
             owners.dedup();
@@ -324,10 +323,10 @@ mod multisig {
         /// };
         ///
         /// // address of an existing `Multisig` contract
-        /// let wallet_id: ink::H160 = [7u8; 20].into();
+        /// let wallet_id: ink::Address = [7u8; 20].into();
         ///
         /// // first create the transaction that adds `alice` through `add_owner`
-        /// let alice: ink::H160 = [1u8; 20].into();
+        /// let alice: ink::Address = [1u8; 20].into();
         /// let add_owner_args = ArgumentList::empty().push_arg(&alice);
         ///
         /// let transaction_candidate = Transaction {
@@ -365,7 +364,7 @@ mod multisig {
         ///     .invoke();
         /// ```
         #[ink(message)]
-        pub fn add_owner(&mut self, new_owner: H160) {
+        pub fn add_owner(&mut self, new_owner: Address) {
             self.ensure_from_wallet();
             self.ensure_no_owner(&new_owner);
             ensure_requirement_is_valid(
@@ -387,7 +386,7 @@ mod multisig {
         ///
         /// If `owner` is no owner of the wallet.
         #[ink(message)]
-        pub fn remove_owner(&mut self, owner: H160) {
+        pub fn remove_owner(&mut self, owner: Address) {
             self.ensure_from_wallet();
             self.ensure_owner(&owner);
             // If caller is an owner the len has to be > 0
@@ -411,7 +410,7 @@ mod multisig {
         ///
         /// If `old_owner` is no owner or if `new_owner` already is one.
         #[ink(message)]
-        pub fn replace_owner(&mut self, old_owner: H160, new_owner: H160) {
+        pub fn replace_owner(&mut self, old_owner: Address, new_owner: Address) {
             self.ensure_from_wallet();
             self.ensure_owner(&old_owner);
             self.ensure_no_owner(&new_owner);
@@ -620,7 +619,7 @@ mod multisig {
         /// by `confirmer`.
         fn confirm_by_caller(
             &mut self,
-            confirmer: H160,
+            confirmer: Address,
             transaction: TransactionId,
         ) -> ConfirmationStatus {
             let mut count = self.confirmation_count.get(transaction).unwrap_or(0);
@@ -652,7 +651,7 @@ mod multisig {
 
         /// Get the index of `owner` in `self.owners`.
         /// Panics if `owner` is not found in `self.owners`.
-        fn owner_index(&self, owner: &H160) -> u32 {
+        fn owner_index(&self, owner: &Address) -> u32 {
             self.owners.iter().position(|x| *x == *owner).expect(
                 "This is only called after it was already verified that the id is
                  actually an owner.",
@@ -682,7 +681,7 @@ mod multisig {
 
         /// Remove all confirmation state associated with `owner`.
         /// Also adjusts the `self.confirmation_count` variable.
-        fn clean_owner_confirmations(&mut self, owner: &H160) {
+        fn clean_owner_confirmations(&mut self, owner: &Address) {
             for trans_id in &self.transaction_list.transactions {
                 let key = (*trans_id, *owner);
                 if self.confirmations.contains(key) {
@@ -721,12 +720,12 @@ mod multisig {
         }
 
         /// Panic if `owner` is not an owner,
-        fn ensure_owner(&self, owner: &H160) {
+        fn ensure_owner(&self, owner: &Address) {
             assert!(self.is_owner.contains(owner));
         }
 
         /// Panic if `owner` is an owner.
-        fn ensure_no_owner(&self, owner: &H160) {
+        fn ensure_no_owner(&self, owner: &Address) {
             assert!(!self.is_owner.contains(owner));
         }
     }
@@ -754,7 +753,7 @@ mod multisig {
 
                 // Multisig::change_requirement()
                 Self {
-                    callee: H160::from(WALLET),
+                    callee: Address::from(WALLET),
                     selector: ink::selector_bytes!("change_requirement"),
                     input: call_args.encode(),
                     transferred_value: U256::zero(),
@@ -764,12 +763,12 @@ mod multisig {
             }
         }
 
-        fn set_caller(sender: H160) {
+        fn set_caller(sender: Address) {
             ink::env::test::set_caller(sender);
         }
 
         fn set_from_wallet() {
-            let callee = H160::from(WALLET);
+            let callee = Address::from(WALLET);
             set_caller(callee);
         }
 
@@ -789,7 +788,7 @@ mod multisig {
 
         fn build_contract() -> Multisig {
             // Set the contract's address as `WALLET`.
-            let callee: H160 = H160::from(WALLET);
+            let callee: Address = Address::from(WALLET);
             ink::env::test::set_callee(callee);
 
             let accounts = default_accounts();
@@ -819,7 +818,11 @@ mod multisig {
 
             assert_eq!(contract.owners.len(), 3);
             assert_eq!(contract.requirement, 2);
-            assert!(contract.owners.iter().eq(owners.iter()));
+            use ink::prelude::collections::HashSet;
+            assert_eq!(
+                HashSet::<&Address>::from_iter(contract.owners.iter()),
+                HashSet::from_iter(owners.iter()),
+            );
             assert!(contract.is_owner.contains(accounts.alice));
             assert!(contract.is_owner.contains(accounts.bob));
             assert!(contract.is_owner.contains(accounts.eve));

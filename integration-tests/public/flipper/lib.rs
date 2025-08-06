@@ -14,12 +14,6 @@ pub mod flipper {
             Self { value: init_value }
         }
 
-        /// Creates a new flipper smart contract initialized to `false`.
-        #[ink(constructor)]
-        pub fn new_default() -> Self {
-            Self::new(Default::default())
-        }
-
         /// Flips the current value of the Flipper's boolean.
         #[ink(message)]
         pub fn flip(&mut self) {
@@ -36,12 +30,6 @@ pub mod flipper {
     #[cfg(test)]
     mod tests {
         use super::*;
-
-        #[ink::test]
-        fn default_works() {
-            let flipper = Flipper::new_default();
-            assert!(!flipper.get());
-        }
 
         #[ink::test]
         fn it_works() {
@@ -64,14 +52,14 @@ pub mod flipper {
             // given
             let mut constructor = FlipperRef::new(false);
             let contract = client
-                .instantiate("flipper", &ink_e2e::alice(), &mut constructor)
+                .instantiate("flipper", &ink_e2e::bob(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
             let mut call_builder = contract.call_builder::<Flipper>();
 
             let get = call_builder.get();
-            let get_res = client.call(&ink_e2e::bob(), &get).dry_run().await?;
+            let get_res = client.call(&ink_e2e::bob(), &get).submit().await?;
             assert!(!get_res.return_value());
 
             // when
@@ -86,27 +74,6 @@ pub mod flipper {
             let get = call_builder.get();
             let get_res = client.call(&ink_e2e::bob(), &get).dry_run().await?;
             assert!(get_res.return_value());
-
-            Ok(())
-        }
-
-        #[ink_e2e::test]
-        async fn default_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
-            // given
-            let mut constructor = FlipperRef::new_default();
-
-            // when
-            let contract = client
-                .instantiate("flipper", &ink_e2e::bob(), &mut constructor)
-                .submit()
-                .await
-                .expect("instantiate failed");
-            let call_builder = contract.call_builder::<Flipper>();
-
-            // then
-            let get = call_builder.get();
-            let get_res = client.call(&ink_e2e::bob(), &get).dry_run().await?;
-            assert!(!get_res.return_value());
 
             Ok(())
         }
@@ -144,12 +111,12 @@ pub mod flipper {
             mut client: Client,
         ) -> E2EResult<()> {
             // given
-            use ink::H160;
+            use ink::Address;
             let addr = std::env::var("CONTRACT_ADDR_HEX")
                 .unwrap()
                 .replace("0x", "");
             let addr_bytes: Vec<u8> = hex::decode(addr).unwrap();
-            let addr = H160::from_slice(&addr_bytes[..]);
+            let addr = Address::from_slice(&addr_bytes[..]);
 
             use std::str::FromStr;
             let suri = ink_e2e::subxt_signer::SecretUri::from_str("//Alice").unwrap();

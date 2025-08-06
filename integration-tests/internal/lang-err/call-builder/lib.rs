@@ -8,11 +8,11 @@
 //! [`CreateBuilder`](`ink::env::call::CreateBuilder`) structs.
 //!
 //! This differs from the codepath used by external tooling, such as `cargo-contract` or
-//! the `Contracts-UI` which instead depend on methods from the Contracts pallet which are
+//! the `Contracts-UI` which instead depend on methods from `pallet-revive` which are
 //! exposed via RPC.
 //!
 //! Note that during testing we make use of ink!'s end-to-end testing features, so ensure
-//! that you have a node which includes the Contracts pallet running alongside your tests.
+//! that you have a node which includes `pallet-revive` running alongside your tests.
 
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
@@ -28,7 +28,6 @@ mod call_builder {
             },
             DefaultEnvironment,
         },
-        H160,
         H256,
     };
 
@@ -53,7 +52,7 @@ mod call_builder {
         #[ink(message)]
         pub fn call(
             &mut self,
-            address: H160,
+            address: Address,
             selector: [u8; 4],
         ) -> Option<ink::LangError> {
             let result = build_call::<DefaultEnvironment>()
@@ -61,7 +60,7 @@ mod call_builder {
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<()>()
                 .try_invoke()
-                .expect("Error from the Contracts pallet.");
+                .expect("Error from `pallet-revive`.");
 
             match result {
                 Ok(_) => None,
@@ -81,7 +80,7 @@ mod call_builder {
         /// This message does not allow the caller to handle any `LangErrors`, for that
         /// use the `call` message instead.
         #[ink(message)]
-        pub fn invoke(&mut self, address: H160, selector: [u8; 4]) {
+        pub fn invoke(&mut self, address: Address, selector: [u8; 4]) {
             use ink::env::call::build_call;
 
             build_call::<DefaultEnvironment>()
@@ -143,7 +142,7 @@ mod call_builder {
             init_value: bool,
         ) -> Option<
             Result<
-                Result<H160, constructors_return_value::ConstructorError>,
+                Result<Address, constructors_return_value::ConstructorError>,
                 ink::LangError,
             >,
         > {
@@ -157,7 +156,7 @@ mod call_builder {
 
             let lang_result = params
                 .try_instantiate()
-                .expect("Error from the Contracts pallet.");
+                .expect("Error from `pallet-revive`.");
 
             Some(lang_result.map(|contract_result| {
                 contract_result.map(|inner| ink::ToAddr::to_addr(&inner))
@@ -234,13 +233,9 @@ mod call_builder {
         async fn e2e_invalid_message_selector_panics_on_invoke<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
-            let origin = client
-                .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
-                .await;
-
             let mut constructor = CallBuilderTestRef::new();
             let contract = client
-                .instantiate("call_builder", &origin, &mut constructor)
+                .instantiate("call_builder", &ink_e2e::bob(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -248,7 +243,11 @@ mod call_builder {
 
             let mut flipper_constructor = FlipperRef::new_default();
             let flipper = client
-                .instantiate("integration_flipper", &origin, &mut flipper_constructor)
+                .instantiate(
+                    "integration_flipper",
+                    &ink_e2e::bob(),
+                    &mut flipper_constructor,
+                )
                 .submit()
                 .await
                 .expect("instantiate `flipper` failed");
@@ -257,18 +256,10 @@ mod call_builder {
             // we expect this to panic.
             let invalid_selector = [0x00, 0x00, 0x00, 0x00];
             let call = call_builder.invoke(flipper.addr, invalid_selector);
-            let call_result = client.call(&origin, &call).dry_run().await;
-
-            if let Err(ink_e2e::Error::CallDryRun(dry_run)) = call_result {
-                assert!(
-                    dry_run
-                        .debug_message
-                        .contains("Cross-contract call failed with CouldNotReadInput"),
-                    "Call execution failed for an unexpected reason."
-                );
-            } else {
-                panic!("Call execution should've failed, but didn't.");
-            }
+            let call_result = client.call(&ink_e2e::bob(), &call).dry_run().await?;
+            assert!(call_result.did_revert());
+            let err_msg = String::from_utf8_lossy(call_result.return_data());
+            assert!(err_msg.contains("Cross-contract call failed with CouldNotReadInput"));
 
             Ok(())
         }
@@ -384,16 +375,12 @@ mod call_builder {
             let init_value = false;
             let call = call_builder.call_instantiate(code_hash, selector, init_value);
 
-            let call_result = client.call(&origin, &call).dry_run().await;
-
-            if let Err(ink_e2e::Error::CallDryRun(dry_run)) = call_result {
-                assert!(dry_run
-                            .debug_message
-                            .contains("The callee reverted, but did not encode an error in the output buffer."),
-                        "Call execution failed for an unexpected reason.");
-            } else {
-                panic!("Call execution should've failed, but didn't.");
-            }
+            let call_result = client.call(&origin, &call).dry_run().await?;
+            assert!(call_result.did_revert());
+            let err_msg = String::from_utf8_lossy(call_result.return_data());
+            // The callee reverted, but did not encode an error in the output buffer.
+            // So the output buffer couldn't be decoded.
+            assert!(err_msg.contains("Decode(Error)"));
 
             Ok(())
         }
@@ -522,16 +509,12 @@ mod call_builder {
             let init_value = true;
             let call =
                 call_builder.call_instantiate_fallible(code_hash, selector, init_value);
-            let call_result = client.call(&origin, &call).dry_run().await;
-
-            if let Err(ink_e2e::Error::CallDryRun(dry_run)) = call_result {
-                assert!(dry_run
-                    .debug_message
-                    .contains("The callee reverted, but did not encode an error in the output buffer."),
-                        "Call execution failed for an unexpected reason.");
-            } else {
-                panic!("Call execution should've failed, but didn't.");
-            }
+            let call_result = client.call(&origin, &call).dry_run().await?;
+            assert!(call_result.did_revert());
+            let err_msg = String::from_utf8_lossy(call_result.return_data());
+            // The callee reverted, but did not encode an error in the output buffer.
+            // So the output buffer couldn't be decoded.
+            assert!(err_msg.contains("Decode(Error)"));
 
             Ok(())
         }

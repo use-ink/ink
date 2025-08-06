@@ -1,16 +1,15 @@
 [package]
 name = "flipper"
-version = "6.0.0-alpha"
+version = "6.0.0-alpha.1"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 publish = false
 
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false }
-#foo = { path = "../../../foo", default-features = false }
 
 [dev-dependencies]
-ink_e2e = { path = "../../../crates/e2e" }
+ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
 hex = { version = "0.4.3" }
 
 [lib]
@@ -23,3 +22,6 @@ std = [
 ]
 ink-as-dependency = []
 e2e-tests = []
+
+[package.metadata.ink-lang]
+abi = "ink"

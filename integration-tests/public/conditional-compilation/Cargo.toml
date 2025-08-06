@@ -1,11 +1,11 @@
 [package]
 name = "conditional-compilation"
-version = "6.0.0-alpha"
+version = "6.0.0-alpha.1"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 
 [dependencies]
-ink = { path = "../../../crates/ink", default-features = false }
+ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
@@ -23,3 +23,6 @@ e2e-tests = []
 # user-defined features
 foo = []
 bar = []
+
+[package.metadata.ink-lang]
+abi = "ink"

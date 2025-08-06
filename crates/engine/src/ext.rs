@@ -25,12 +25,13 @@ use crate::{
         DebugInfo,
         EmittedEvent,
     },
-    types::{
-        BlockTimestamp,
-        H160,
-    },
+    types::BlockTimestamp,
 };
-use ink_primitives::U256;
+use hex_literal::hex;
+use ink_primitives::{
+    Address,
+    U256,
+};
 pub use pallet_revive_uapi::ReturnErrorCode as Error;
 use scale::Encode;
 use std::panic::panic_any;
@@ -101,7 +102,7 @@ impl Default for Engine {
 impl Engine {
     /// Transfers value from the contract to the destination account.
     #[allow(clippy::arithmetic_side_effects)] // todo
-    pub fn transfer(&mut self, dest: H160, mut value: &[u8]) -> Result<(), Error> {
+    pub fn transfer(&mut self, dest: Address, mut value: &[u8]) -> Result<(), Error> {
         // Note that a transfer of `0` is allowed here
         let increment = <u128 as scale::Decode>::decode(&mut value)
             .map_err(|_| Error::TransferFailed)?;
@@ -215,7 +216,7 @@ impl Engine {
     /// This function never returns. Either the termination was successful and the
     /// execution of the destroyed contract is halted. Or it failed during the
     /// termination which is considered fatal.
-    pub fn terminate(&mut self, beneficiary: H160) -> ! {
+    pub fn terminate(&mut self, beneficiary: Address) -> ! {
         // Send the remaining balance to the beneficiary
         let contract = self.get_callee();
         let all = self
@@ -271,12 +272,6 @@ impl Engine {
             .expect("no callee has been set")
             .as_bytes();
         set_output(output, callee)
-    }
-
-    /// Records the given debug message and appends to stdout.
-    pub fn debug_message(&mut self, message: &str) {
-        self.debug_info.record_debug_message(String::from(message));
-        print!("{message}");
     }
 
     /// Conduct the BLAKE-2 256-bit hash and place the result into `output`.
@@ -337,13 +332,28 @@ impl Engine {
 
     pub fn call(
         &mut self,
-        _callee: &[u8],
+        callee: &[u8],
         _gas_limit: u64,
         _value: &[u8],
-        _input: &[u8],
-        _output: &mut &mut [u8],
+        input: &[u8],
+        output: &mut &mut [u8],
     ) -> Result<(), Error> {
-        unimplemented!("off-chain environment does not yet support `call`");
+        const ECRECOVER: [u8; 20] = hex!("0000000000000000000000000000000000000001");
+        if callee == ECRECOVER {
+            let mut signature = [0u8; 65];
+            signature.copy_from_slice(&input[..65]);
+            let mut message_hash = [0u8; 32];
+            message_hash.copy_from_slice(&input[65..65 + 32]);
+
+            let out: &mut [u8; 33] = output
+                .as_mut()
+                .try_into()
+                .expect("Slice must be exactly 33 bytes long");
+            let _ = self.ecdsa_recover(&signature, &message_hash, out);
+        }
+        unimplemented!(
+            "off-chain environment does not yet support `call` for non-precompiles"
+        );
     }
 
     /// Emulates gas price calculation.
@@ -373,7 +383,9 @@ impl Engine {
         let decoded: Vec<u8> = scale::Encode::encode(&res);
         set_output(output, &decoded[..])
     }
+}
 
+impl Engine {
     /// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,
     /// and stores the result in `output`.
     #[allow(clippy::arithmetic_side_effects)] // todo

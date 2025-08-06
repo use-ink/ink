@@ -48,8 +48,6 @@ pub struct CallableWithSelector<'a, C> {
     /// The composed selector computed by the associated implementation block
     /// and the given callable.
     composed_selector: ir::Selector,
-    /// The composed selector for the callable with RLP encoding.
-    composed_rlp_selector: ir::Selector,
     /// The parent implementation block.
     item_impl: &'a ir::ItemImpl,
     /// The actual callable.
@@ -71,7 +69,6 @@ where
     pub(super) fn new(item_impl: &'a ir::ItemImpl, callable: &'a C) -> Self {
         Self {
             composed_selector: compose_selector(item_impl, callable),
-            composed_rlp_selector: compose_selector_rlp(item_impl, callable),
             item_impl,
             callable,
         }
@@ -82,11 +79,6 @@ impl<'a, C> CallableWithSelector<'a, C> {
     /// Returns the composed selector of the ink! callable the `impl` block.
     pub fn composed_selector(&self) -> ir::Selector {
         self.composed_selector
-    }
-
-    /// Returns the composed selector of the ink! callable with RLP encoding.
-    pub fn composed_rlp_selector(&self) -> ir::Selector {
-        self.composed_rlp_selector
     }
 
     /// Returns a shared reference to the underlying callable.
@@ -136,7 +128,7 @@ where
         <C as Callable>::visibility(self.callable)
     }
 
-    fn inputs(&self) -> InputsIter {
+    fn inputs(&self) -> InputsIter<'_> {
         <C as Callable>::inputs(self.callable)
     }
 
@@ -195,7 +187,7 @@ pub trait Callable {
     fn visibility(&self) -> Visibility;
 
     /// Returns an iterator yielding all input parameters of the ink! callable.
-    fn inputs(&self) -> InputsIter;
+    fn inputs(&self) -> InputsIter<'_>;
 
     /// Returns the span of the inputs of the ink! callable.
     fn inputs_span(&self) -> Span;
@@ -334,19 +326,6 @@ where
     }
     let preimage = compose_selector_preimage(item_impl, callable);
     ir::Selector::compute(&preimage)
-}
-
-/// Returns the composed selector of the ink! callable.
-fn compose_selector_rlp<C>(item_impl: &ir::ItemImpl, callable: &C) -> ir::Selector
-where
-    C: Callable,
-{
-    // todo: handle user provided RLP selector...
-    if let Some(selector) = callable.user_provided_selector() {
-        return *selector
-    }
-    let preimage = compose_selector_preimage(item_impl, callable);
-    ir::Selector::compute_keccak(&preimage)
 }
 
 fn compose_selector_preimage<C>(item_impl: &ir::ItemImpl, callable: &C) -> Vec<u8>

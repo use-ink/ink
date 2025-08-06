@@ -24,6 +24,9 @@ mod selector;
 pub mod utils {
     pub use super::{
         common::{
+            ConstructorError,
+            DecodeConstructorError,
+            DecodeMessageResult,
             ReturnType,
             Set,
             Unset,
@@ -42,6 +45,8 @@ pub mod utils {
 pub use self::{
     call_builder::{
         build_call,
+        build_call_abi,
+        build_call_solidity,
         Call,
         CallBuilder,
         CallParams,
@@ -49,6 +54,8 @@ pub use self::{
     },
     create_builder::{
         build_create,
+        build_create_abi,
+        build_create_solidity,
         state,
         ConstructorReturnType,
         CreateBuilder,

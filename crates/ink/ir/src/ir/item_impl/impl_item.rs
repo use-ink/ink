@@ -66,7 +66,7 @@ impl TryFrom<syn::ImplItem> for ImplItem {
                     return Ok(Self::Other(fn_item.into()))
                 }
                 let attr = ir::first_ink_attribute(&fn_item.attrs)?
-                    .expect("missing expected ink! attribute for struct");
+                    .expect("missing expected ink! attribute for fn");
                 match attr.first().kind() {
                     ir::AttributeArg::Message => {
                         <Message as TryFrom<_>>::try_from(fn_item)

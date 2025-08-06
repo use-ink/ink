@@ -21,7 +21,6 @@ ink_primitives = { workspace = true }
 serde = { workspace = true, features = ["derive", "alloc"] }
 impl-serde = { workspace = true, default-features = true }
 derive_more = { workspace = true, features = ["from"] }
-linkme = { workspace = true }
 scale = { workspace = true }
 scale-info = { workspace = true, features = ["derive", "serde", "decode", "schema"] }
 schemars = { workspace = true }
@@ -31,7 +30,7 @@ pretty_assertions = "1"
 serde_json = "1"
 
 [features]
-default = [ "derive", "std" ]
+default = [ "derive", "std"]
 std = [
 	"ink_prelude/std",
 	"ink_primitives/std",
@@ -41,3 +40,4 @@ std = [
 	"derive_more/std"
 ]
 derive = []
+event-collection = []

@@ -1,13 +1,14 @@
 [package]
 name = "complex_storage_structures"
-version = "6.0.0-alpha"
+version = "6.0.0-alpha.1"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 publish = false
 
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false }
-scale = { package = "parity-scale-codec", version = "3.6.12", default-features = false, features = ["derive"] }
+# todo remove scale, use ink::scale
+scale = { package = "parity-scale-codec", version = "3.7.4", default-features = false, features = ["derive"] }
 scale-info = { version = "2.11", default-features = false }
 
 [dev-dependencies]
@@ -23,3 +24,6 @@ std = [
 ]
 ink-as-dependency = []
 e2e-tests = []
+
+[package.metadata.ink-lang]
+abi = "ink"

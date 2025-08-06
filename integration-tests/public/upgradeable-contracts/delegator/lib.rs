@@ -18,14 +18,14 @@ pub mod delegator {
             Lazy,
             Mapping,
         },
-        H160,
     };
 
     #[ink(storage)]
     pub struct Delegator {
-        addresses: Mapping<H160, i32, ManualKey<0x23>>,
+        addresses: Mapping<Address, i32, ManualKey<0x23>>,
         counter: i32,
-        delegate_to: Lazy<(H256, H160)>,
+        // TODO check if we even need to save the `H256` hash in here.
+        delegate_to: Lazy<(H256, Address)>,
     }
 
     impl Delegator {
@@ -35,20 +35,11 @@ pub mod delegator {
         /// Additionally, this code hash will be locked to prevent its deletion, since
         /// this contract depends on it.
         #[ink(constructor)]
-        pub fn new(init_value: i32, hash: H256, addr: H160) -> Self {
+        pub fn new(init_value: i32, hash: H256, addr: Address) -> Self {
             let v = Mapping::new();
 
             let mut delegate_to = Lazy::new();
             delegate_to.set(&(hash, addr));
-            // todo locking is no longer necessary, as the contract needs
-            // to be instantiated anyway. and the code can anyway not be removed,
-            // as long as there is a contract for it.
-            /*
-            // Initialize the hash of the contract to delegate to.
-            // Adds a delegate dependency lock, ensuring that the delegated to code cannot
-            // be removed.
-            Self::env().lock_delegate_dependency(&hash);
-             */
 
             Self {
                 addresses: v,
@@ -63,12 +54,10 @@ pub mod delegator {
         /// - Adds a new delegate dependency lock, ensuring that the new delegated to code
         ///   cannot be removed.
         #[ink(message)]
-        pub fn update_delegate_to(&mut self, hash: H256, addr: H160) {
+        pub fn update_delegate_to(&mut self, hash: H256, addr: Address) {
             if let Some(delegate_to) = self.delegate_to.get() {
                 let _old_hash = delegate_to.0;
-                //self.env().unlock_delegate_dependency(&old_hash)
             }
-            //self.env().lock_delegate_dependency(&hash);
             self.delegate_to.set(&(hash, addr));
         }
 
@@ -113,11 +102,11 @@ pub mod delegator {
 
         /// Returns the current value of the address.
         #[ink(message)]
-        pub fn get_value(&self, address: H160) -> (H160, Option<i32>) {
+        pub fn get_value(&self, address: Address) -> (Address, Option<i32>) {
             (self.env().caller(), self.addresses.get(address))
         }
 
-        fn delegate_to(&self) -> (H256, H160) {
+        fn delegate_to(&self) -> (H256, Address) {
             self.delegate_to
                 .get()
                 .expect("delegate_to always has a value")
@@ -266,7 +255,7 @@ pub mod delegator {
             // Alice's address
             // todo
             let acc = origin.public_key().to_account_id().0;
-            let address = H160::from_slice(&acc[0..20]);
+            let address = ink::primitives::AccountIdMapper::to_address(&acc);
 
             let call_get_value = call_builder.get_value(address);
             let call_get_result = client

@@ -7,6 +7,7 @@
 #[ink::contract]
 pub mod give_me {
     use ink::primitives::U256;
+
     /// No storage is needed for this simple contract.
     #[ink(storage)]
     pub struct GiveMe {}
@@ -28,9 +29,6 @@ pub mod give_me {
         /// - Panics in case the transfer failed for another reason.
         #[ink(message)]
         pub fn give_me(&mut self, value: U256) {
-            ink::env::debug_println!("requested value: {}", value);
-            ink::env::debug_println!("contract balance: {}", self.env().balance());
-
             assert!(value <= self.env().balance(), "insufficient funds!");
 
             if self.env().transfer(self.env().caller(), value).is_err() {
@@ -51,11 +49,13 @@ pub mod give_me {
         /// The method needs to be annotated with `payable`; only then it is
         /// allowed to receive value as part of the call.
         #[ink(message, payable, selector = 0xCAFEBABE)]
-        pub fn was_it_ten(&self) {
+        pub fn was_it_ten(&mut self) {
+            /*
             ink::env::debug_println!(
                 "received payment: {}",
                 self.env().transferred_value()
             );
+            */
             assert!(
                 self.env().transferred_value() == U256::from(10),
                 "payment was not ten"
@@ -73,7 +73,6 @@ pub mod give_me {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use ink::H160;
 
         #[ink::test]
         fn transfer_works() {
@@ -112,7 +111,7 @@ pub mod give_me {
             use ink::codegen::Env;
             // given
             let accounts = default_accounts();
-            let give_me = create_contract(100.into());
+            let mut give_me = create_contract(100.into());
             let contract_account = give_me.env().address();
 
             // when
@@ -141,7 +140,7 @@ pub mod give_me {
         fn test_transferred_value_must_fail() {
             // given
             let accounts = default_accounts();
-            let give_me = create_contract(100.into());
+            let mut give_me = create_contract(100.into());
 
             // when
             // Push the new execution context which sets Eve as caller and
@@ -164,11 +163,11 @@ pub mod give_me {
             GiveMe::new()
         }
 
-        fn contract_id() -> H160 {
+        fn contract_id() -> Address {
             ink::env::test::callee()
         }
 
-        fn set_sender(sender: H160) {
+        fn set_sender(sender: Address) {
             ink::env::test::set_caller(sender);
         }
 
@@ -177,11 +176,11 @@ pub mod give_me {
         }
 
         // todo change all to addr
-        fn set_balance(account_id: H160, balance: U256) {
+        fn set_balance(account_id: Address, balance: U256) {
             ink::env::test::set_account_balance(account_id, balance)
         }
 
-        fn get_balance(account_id: H160) -> U256 {
+        fn get_balance(account_id: Address) -> U256 {
             ink::env::test::get_account_balance::<ink::env::DefaultEnvironment>(
                 account_id,
             )
@@ -200,6 +199,7 @@ pub mod give_me {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
+        //#[ink_e2e::test(backend(runtime_only))]
         async fn e2e_sending_value_to_give_me_must_fail<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
@@ -231,11 +231,12 @@ pub mod give_me {
             } else {
                 panic!("Paying an unpayable message should fail")
             }
-             */
+            */
             Ok(())
         }
 
-        #[ink_e2e::test]
+        //#[ink_e2e::test]
+        #[ink_e2e::test(backend(runtime_only))]
         async fn e2e_contract_must_transfer_value_to_sender<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
@@ -243,12 +244,23 @@ pub mod give_me {
             let mut constructor = GiveMeRef::new();
             let contract = client
                 .instantiate("contract_transfer", &ink_e2e::bob(), &mut constructor)
+                // todo convert the argument type to U256
                 .value(1_337_000_000)
                 .submit()
                 .await
                 .expect("instantiate failed");
+            let contract_addr = contract.addr;
+
+            // todo make `NativeToEthRatio` part of  the `Environment`
+            #[allow(non_upper_case_globals)]
+            const NativeToEthRatio: u128 = 100_000_000;
+            assert_eq!(
+                contract.trace.clone().unwrap().value,
+                Some(U256::from(1_337_000_000 * NativeToEthRatio))
+            );
             let mut call_builder = contract.call_builder::<GiveMe>();
 
+            // todo extract account id from something else
             let acc = call_builder.account_id();
             let call_res = client
                 .call(&ink_e2e::eve(), &acc)
@@ -258,12 +270,12 @@ pub mod give_me {
             let account_id: AccountId = call_res.return_value();
 
             let balance_before: Balance = client
-                .free_balance(account_id)
+                .free_balance(account_id) // todo can't we take a ref here?
                 .await
                 .expect("getting balance failed");
 
             // when
-            let transfer = call_builder.give_me(120_000_000.into());
+            let transfer = call_builder.give_me(U256::from(120_000_000_0));
 
             let call_res = client
                 .call(&ink_e2e::eve(), &transfer)
@@ -272,15 +284,18 @@ pub mod give_me {
                 .expect("call failed");
 
             // then
-            assert!(call_res
-                .debug_message()
-                .contains("requested value: 120000000\n"));
+            let outgoing_trace = &call_res.trace.unwrap().calls[0];
+            assert_eq!(outgoing_trace.value, Some(U256::from(120_000_000_0)));
+            assert_eq!(outgoing_trace.from, contract_addr);
+            // todo
+            // let eve = AccountId32Mapper::to_address(&ink_e2e::eve().account_id().
+            // encode()[..20]); assert_eq!(trace.to, eve);
 
             let balance_after: Balance = client
                 .free_balance(account_id)
                 .await
                 .expect("getting balance failed");
-            assert_eq!(balance_before - balance_after, 120);
+            assert_eq!(balance_before - balance_after, 12);
 
             Ok(())
         }

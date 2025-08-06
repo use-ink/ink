@@ -15,7 +15,6 @@ categories.workspace = true
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [lib]
-name = "ink_ir"
 
 [dependencies]
 quote = { workspace = true }
@@ -31,8 +30,15 @@ sha3 = { workspace = true }
 [features]
 default = [ "std" ]
 std = [
+    "either/std",
 	"either/use_std",
 	"ink_prelude/std",
 	"itertools/use_std",
 	"impl-serde/std"
+]
+
+[lints.rust.unexpected_cfgs]
+level = "warn"
+check-cfg = [
+	'cfg(ink_abi, values("ink", "sol", "all"))'
 ]

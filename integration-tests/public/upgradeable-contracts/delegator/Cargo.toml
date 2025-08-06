@@ -1,6 +1,6 @@
 [package]
 name = "delegator"
-version = "6.0.0-alpha"
+version = "6.0.0-alpha.1"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 publish = false
@@ -23,3 +23,6 @@ std = [
 ]
 ink-as-dependency = []
 e2e-tests = []
+
+[package.metadata.ink-lang]
+abi = "ink"

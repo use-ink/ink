@@ -2,7 +2,7 @@
 
 pub use self::contract1::Contract1Ref;
 
-#[ink::contract()]
+#[ink::contract]
 mod contract1 {
 
     #[ink(storage)]
@@ -29,11 +29,12 @@ mod contract1 {
 
         /// Returns the address of the contract.
         #[ink(message)]
-        pub fn own_addr(&self) -> ink::H160 {
+        pub fn own_addr(&self) -> Address {
             self.env().address()
         }
 
         /*
+        // todo
         /// Returns the hash code of the contract through the function 'own_code_hash'.
         #[ink(message)]
         pub fn own_code_hash(&self) -> ink::H256 {

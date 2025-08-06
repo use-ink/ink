@@ -18,16 +18,13 @@
 
 #[ink::contract]
 mod mother {
-    use ink::{
-        prelude::{
-            format,
-            string::{
-                String,
-                ToString,
-            },
-            vec::Vec,
+    use ink::prelude::{
+        format,
+        string::{
+            String,
+            ToString,
         },
-        H160,
+        vec::Vec,
     };
 
     use ink::storage::{
@@ -41,7 +38,7 @@ mod mother {
     #[derive(Default, PartialEq, Eq, Debug, Clone)]
     #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
     #[ink::scale_derive(Encode, Decode, TypeInfo)]
-    pub struct Bids(Vec<Vec<Option<(H160, Balance)>>>);
+    pub struct Bids(Vec<Vec<Option<(Address, Balance)>>>);
 
     /// Auction outline.
     #[derive(PartialEq, Eq, Debug, Clone)]
@@ -133,7 +130,7 @@ mod mother {
     #[derive(Default)]
     pub struct Mother {
         auction: Auction,
-        balances: Mapping<H160, Balance>,
+        balances: Mapping<Address, Balance>,
         log: StorageVec<String>,
     }
 
@@ -183,12 +180,6 @@ mod mother {
                 }
                 None => Ok(()),
             }
-        }
-
-        /// Prints the specified string into node's debug log.
-        #[ink(message)]
-        pub fn debug_log(&mut self, _message: String) {
-            ink::env::debug_println!("debug_log: {}", _message);
         }
 
         /// Mutates the input string to return "Hello, { name }"

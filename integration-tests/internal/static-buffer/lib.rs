@@ -30,9 +30,9 @@ pub mod static_buffer {
 
         /// Returns the caller of the contract.
         /// Should panic if the buffer size is less than 40 bytes (2 * 20 bytes
-        /// for each `H160`).
+        /// for each `Address`).
         #[ink(message)]
-        pub fn get_caller(&self) -> (ink::H160, ink::H160) {
+        pub fn get_caller(&self) -> (Address, Address) {
             (self.env().caller(), self.env().caller())
         }
 
@@ -62,8 +62,8 @@ pub mod static_buffer {
             // for the call we provoke an exhaustion of the static buffer.
             const ERR: &str = "For this test the env variable `INK_STATIC_BUFFER_SIZE` needs to be set to `32`";
             let buffer_size = std::env::var("INK_STATIC_BUFFER_SIZE")
-                .unwrap_or_else(|err| panic!("{} {}", ERR, err));
-            assert_eq!(buffer_size, "32", "{}", ERR);
+                .unwrap_or_else(|err| panic!("{ERR} {err}"));
+            assert_eq!(buffer_size, "32", "{ERR}");
         }
 
         #[ink_e2e::test]
@@ -89,7 +89,7 @@ pub mod static_buffer {
                 res.is_err(),
                 "Call should have failed, but succeeded. Likely because the \
                 used buffer size was too large: {} {:?}",
-                super::BUFFER_SIZE.to_string(),
+                super::BUFFER_SIZE,
                 std::env::var("INK_STATIC_BUFFER_SIZE")
             );
 
@@ -117,10 +117,12 @@ pub mod static_buffer {
             let value = buffer_call_res.return_value();
             assert!(value.is_ok());
             let value = value.unwrap();
-            let padding = value.0;
+            let _padding = value.0;
             let align = value.1;
             assert_eq!(align, 8, "align incorrect, should be 8");
-            assert_eq!(padding, 4, "padding incorrect, should be 4");
+            // TODO: (@davidsemakula) Re-enable after `ink_allocator` updates.
+            // See todos and disabled tests in `ink_allocator` crate for context.
+            // assert_eq!(padding, 8, "padding incorrect, should be 8");
             Ok(())
         }
     }

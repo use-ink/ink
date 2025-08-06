@@ -15,17 +15,20 @@ use frame_support::{
     weights::Weight,
 };
 use frame_system::pallet_prelude::OriginFor;
-use ink_primitives::DepositLimit;
+use ink_primitives::{
+    Address,
+    DepositLimit,
+};
 use pallet_revive::{
+    evm::{
+        Tracer,
+        TracerType,
+    },
+    BumpNonce,
     Code,
     CodeUploadResult,
-    CollectEvents,
-    DebugInfo,
 };
-use sp_core::{
-    H160,
-    U256,
-};
+use sp_core::U256;
 use std::ops::Not;
 
 type BalanceOf<R> =
@@ -33,7 +36,7 @@ type BalanceOf<R> =
 
 type MomentOf<T> = <<T as pallet_revive::Config>::Time as Time>::Moment;
 
-/// Contract API used to interact with the contracts pallet.
+/// Contract API used to interact with `pallet-revive`.
 pub trait ContractAPI {
     /// The runtime contract config.
     type T: pallet_revive::Config;
@@ -128,13 +131,15 @@ pub trait ContractAPI {
     #[allow(clippy::type_complexity, clippy::too_many_arguments)]
     fn call_contract(
         &mut self,
-        address: H160,
+        address: Address,
         value: BalanceOf<Self::T>,
         data: Vec<u8>,
         origin: OriginFor<Self::T>,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
     ) -> ContractExecResultFor<Self::T>;
+
+    fn evm_tracer(&mut self, tracer_type: TracerType) -> Tracer<Self::T>;
 }
 
 impl<T> ContractAPI for T
@@ -144,6 +149,7 @@ where
 
     BalanceOf<T::Runtime>: Into<U256> + TryFrom<U256> + Bounded,
     MomentOf<T::Runtime>: Into<U256>,
+    <<T as Sandbox>::Runtime as frame_system::Config>::Nonce: Into<u32>,
 
     // todo
     <<T as Sandbox>::Runtime as frame_system::Config>::Hash:
@@ -178,8 +184,7 @@ where
                 Code::Upload(contract_bytes),
                 data,
                 salt,
-                DebugInfo::UnsafeDebug,
-                CollectEvents::UnsafeCollect,
+                BumpNonce::Yes,
             )
         })
     }
@@ -204,8 +209,7 @@ where
                 Code::Existing(code_hash),
                 data,
                 salt,
-                DebugInfo::UnsafeDebug,
-                CollectEvents::Skip,
+                BumpNonce::Yes,
             )
         })
     }
@@ -227,7 +231,7 @@ where
 
     fn call_contract(
         &mut self,
-        address: H160,
+        address: Address,
         value: BalanceOf<Self::T>,
         data: Vec<u8>,
         origin: OriginFor<Self::T>,
@@ -243,10 +247,12 @@ where
                 gas_limit,
                 storage_deposit_limit,
                 data,
-                DebugInfo::UnsafeDebug,
-                CollectEvents::UnsafeCollect,
             )
         })
+    }
+
+    fn evm_tracer(&mut self, tracer_type: TracerType) -> Tracer<Self::T> {
+        self.execute_with(|| pallet_revive::Pallet::<Self::T>::evm_tracer(tracer_type))
     }
 }
 
@@ -255,11 +261,14 @@ fn storage_deposit_limit_fn<Balance>(
     limit: DepositLimit<Balance>,
 ) -> pallet_revive::DepositLimit<Balance> {
     match limit {
-        DepositLimit::Unchecked => pallet_revive::DepositLimit::Unchecked,
+        DepositLimit::UnsafeOnlyForDryRun => {
+            pallet_revive::DepositLimit::UnsafeOnlyForDryRun
+        }
         DepositLimit::Balance(v) => pallet_revive::DepositLimit::Balance(v),
     }
 }
 
+/// todo
 /// Converts bytes to a '\n'-split string, ignoring empty lines.
 pub fn decode_debug_buffer(buffer: &[u8]) -> Vec<String> {
     let decoded = buffer.iter().map(|b| *b as char).collect::<String>();
@@ -276,12 +285,12 @@ mod tests {
         api::prelude::*,
         DefaultSandbox,
         RuntimeEventOf,
-        RuntimeOf,
     };
 
-    const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::Unchecked;
+    const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::UnsafeOnlyForDryRun;
 
     fn compile_module(contract_name: &str) -> Vec<u8> {
+        // todo compile the contract, instead of reading the binary
         let path = [
             std::env::var("CARGO_MANIFEST_DIR").as_deref().unwrap(),
             "/test-resources/",
@@ -324,6 +333,19 @@ mod tests {
             DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
         sandbox.map_account(origin.clone()).expect("cannot map");
         let result = sandbox.deploy_contract(
+            contract_binary.clone(),
+            0,
+            vec![],
+            None,
+            origin.clone(),
+            DefaultSandbox::default_gas_limit(),
+            DepositLimit::Balance(100000000000000),
+        );
+        assert!(result.result.is_ok());
+        assert!(!result.result.unwrap().result.did_revert());
+
+        // deploying again must fail due to `DuplicateContract`
+        let result = sandbox.deploy_contract(
             contract_binary,
             0,
             vec![],
@@ -332,25 +354,9 @@ mod tests {
             DefaultSandbox::default_gas_limit(),
             DepositLimit::Balance(100000000000000),
         );
-        assert!(result.result.is_ok());
-        assert!(!result.result.unwrap().result.did_revert());
-
-        let events = result.events.expect("Sandbox should collect events");
-        let event_count = events.len();
-        let instantiation_event = events[event_count - 2].clone();
-        assert!(matches!(
-            instantiation_event.event,
-            RuntimeEventOf::<DefaultSandbox>::Revive(pallet_revive::Event::<
-                RuntimeOf<DefaultSandbox>,
-            >::Instantiated { .. })
-        ));
-        let deposit_event = events[event_count - 1].clone();
-        assert!(matches!(
-            deposit_event.event,
-            RuntimeEventOf::<DefaultSandbox>::Revive(pallet_revive::Event::<
-                RuntimeOf<DefaultSandbox>,
-            >::StorageDepositTransferredAndHeld { .. })
-        ));
+        assert!(result.result.is_err());
+        let dispatch_err = result.result.unwrap_err();
+        assert!(format!("{dispatch_err:?}").contains("DuplicateContract"));
     }
 
     #[test]
@@ -388,36 +394,17 @@ mod tests {
         assert!(result.result.is_ok());
         assert!(!result.result.unwrap().did_revert());
 
-        let events = result.events.expect("Sandbox should collect events");
-        assert_eq!(events.len(), 2);
-
+        let events = sandbox.events();
+        assert_eq!(events.len(), 1);
         assert_eq!(
             events[0].event,
-            RuntimeEventOf::<DefaultSandbox>::Revive(pallet_revive::Event::<
-                RuntimeOf<DefaultSandbox>,
-            >::ContractEmitted {
-                contract: contract_address,
-                topics: vec![H256::from([42u8; 32])],
-                data: vec![1, 2, 3, 4],
-            })
+            RuntimeEventOf::<DefaultSandbox>::Revive(
+                pallet_revive::Event::ContractEmitted {
+                    contract: contract_address,
+                    topics: vec![H256::from([42u8; 32])],
+                    data: vec![1, 2, 3, 4],
+                }
+            )
         );
-
-        // TODO Wait for `pallet_revive::exec::Origin` re-export.
-        // let account_id = DefaultSandbox::default_actor();
-        // let caller = origin.clone();
-        // let caller = pallet_revive::exec::Origin::from_runtime_origin(caller).unwrap();
-        // let origin =
-        // DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
-        // let foo = pallet_revive::Origin::<RuntimeOf<DefaultSandbox>>::from(origin);
-        // assert_eq!(
-        // events[1].event,
-        // RuntimeEventOf::<DefaultSandbox>::Revive(pallet_revive::Event::<
-        // RuntimeOf<DefaultSandbox>,
-        // >::Called {
-        // contract: contract_address,
-        // caller: frame_system::EnsureSigned::try_origin(actor).unwrap(),
-        // caller,
-        // }),
-        // );
     }
 }

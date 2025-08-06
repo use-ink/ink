@@ -1,6 +1,6 @@
 [package]
 name = "adder"
-version = "6.0.0-alpha"
+version = "6.0.0-alpha.1"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 
@@ -19,3 +19,6 @@ std = [
     "accumulator/std",
 ]
 ink-as-dependency = []
+
+[package.metadata.ink-lang]
+abi = "ink"

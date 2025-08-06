@@ -32,9 +32,13 @@ extern crate rustc_type_ir;
 
 pub use parity_clippy_utils as clippy;
 
-use clippy::match_def_path;
 use if_chain::if_chain;
 use rustc_hir::{
+    def::DefKind,
+    def_id::{
+        DefId,
+        LOCAL_CRATE,
+    },
     ExprKind,
     HirId,
     ItemId,
@@ -45,10 +49,39 @@ use rustc_hir::{
     TyKind,
 };
 use rustc_lint::LateContext;
+use rustc_middle::ty::{
+    fast_reject::SimplifiedType,
+    TyCtxt,
+};
+use rustc_span::Symbol;
+
+/// Returns `DefId` of the `__ink_StorageMarker` marker trait (if any).
+///
+/// # Developer Note
+///
+/// In ink! 6.0.0, our code generation implements the marker trait `__ink_StorageMarker`
+/// for the `#[ink(storage)]` annotated `struct`.
+///
+/// This marker trait can be used to find the ink! storage struct.
+///
+/// This approach is similar to Rust's use of [marker][rust-markers] traits
+/// to express that a type satisfies some property.
+///
+/// [rust-markers]: https://doc.rust-lang.org/std/marker/index.html
+fn storage_marker_trait(tcx: TyCtxt) -> Option<&DefId> {
+    tcx.traits(LOCAL_CRATE).iter().find(|trait_def_id| {
+        tcx.item_name(**trait_def_id).as_str() == "__ink_StorageMarker"
+    })
+}
 
 /// Returns `true` iff the ink storage attribute is defined for the given HIR
 ///
 /// # Developer Note
+///
+/// **IMPORTANT**: The description below doesn't apply to ink! 6.0.0,
+/// because this mechanism is now replaced with the more idiomatic approach
+/// of using a "marker" trait to identify the ink! storage `struct`
+/// (see [`storage_marker_trait`] for details).
 ///
 /// In ink! 5.0.0 our code generation added the annotation
 /// `#[cfg(not(feature = "__ink_dylint_Storage"))] to contracts. This
@@ -70,24 +103,59 @@ use rustc_lint::LateContext;
 fn has_storage_attr(cx: &LateContext, hir: HirId) -> bool {
     const INK_STORAGE_1: &str = "__ink_dylint_Storage";
     const INK_STORAGE_2: &str = "fortanix";
-    let attrs = format!("{:?}", cx.tcx.hir().attrs(hir));
+    let attrs = format!("{:?}", cx.tcx.hir_attrs(hir));
     attrs.contains(INK_STORAGE_1) || attrs.contains(INK_STORAGE_2)
+}
+
+/// Returns `DefId` of the `struct` annotated with `#[ink(storage)]` (if any).
+///
+/// See [`storage_marker_trait`].
+pub fn find_storage_struct_def(tcx: TyCtxt) -> Option<&DefId> {
+    let storage_marker_trait_id = storage_marker_trait(tcx)?;
+    let storage_marker_impls = tcx
+        .trait_impls_of(storage_marker_trait_id)
+        .non_blanket_impls();
+    debug_assert_eq!(
+        storage_marker_impls.len(),
+        1,
+        "Expected exactly one implementation of the `__ink_StorageMarker` marker trait"
+    );
+    let (storage_ty, _) = storage_marker_impls.first()?;
+    let SimplifiedType::Adt(adt_def_id) = storage_ty else {
+        return None;
+    };
+    matches!(tcx.def_kind(adt_def_id), DefKind::Struct).then_some(adt_def_id)
 }
 
 /// Returns `ItemId` of the structure annotated with `#[ink(storage)]`
 pub fn find_storage_struct(cx: &LateContext, item_ids: &[ItemId]) -> Option<ItemId> {
-    item_ids
-        .iter()
-        .find(|&item_id| {
-            let item = cx.tcx.hir().item(*item_id);
-            if_chain! {
-                if has_storage_attr(cx, item.hir_id());
-                if let ItemKind::Struct(..) = item.kind;
-                then { true } else { false }
-
+    let tcx = cx.tcx;
+    // Finds storage item using `__ink_StorageMarker` marker trait for ink! 6.0.0
+    // (see [`storage_marker_trait`] for details).
+    let storage_item_id = find_storage_struct_def(tcx)
+        .and_then(|def_id| def_id.as_local())
+        .map(|local_def_id| tcx.local_def_id_to_hir_id(local_def_id))
+        .map(|hir_id| {
+            // See `Item::hir_id` for reverse operation.
+            ItemId {
+                owner_id: hir_id.owner,
             }
-        })
-        .copied()
+        });
+    storage_item_id.or_else(|| {
+        // Fallback for ink! 5.0.0 (see [`has_storage_attr`] for details).
+        item_ids
+            .iter()
+            .find(|&item_id| {
+                let item = cx.tcx.hir_item(*item_id);
+                if_chain! {
+                    if has_storage_attr(cx, item.hir_id());
+                    if let ItemKind::Struct(..) = item.kind;
+                    then { true } else { false }
+
+                }
+            })
+            .copied()
+    })
 }
 
 /// Returns `ItemId`s defined inside the code block of `const _: () = {}`.
@@ -96,9 +164,9 @@ pub fn find_storage_struct(cx: &LateContext, item_ids: &[ItemId]) -> Option<Item
 /// implementations of a contract.
 fn items_in_unnamed_const(cx: &LateContext<'_>, id: &ItemId) -> Vec<ItemId> {
     if_chain! {
-        if let ItemKind::Const(ty, _, body_id) = cx.tcx.hir().item(*id).kind;
+        if let ItemKind::Const(_, ty, _, body_id) = cx.tcx.hir_item(*id).kind;
         if let TyKind::Tup([]) = ty.kind;
-        let body = cx.tcx.hir().body(body_id);
+        let body = cx.tcx.hir_body(body_id);
         if let ExprKind::Block(block, _) = body.value.kind;
         then {
             block.stmts.iter().fold(Vec::new(), |mut acc, stmt| {
@@ -133,7 +201,7 @@ fn find_contract_ty_hir<'tcx>(
         .iter()
         .find_map(|item_id| {
             if_chain! {
-                let item = cx.tcx.hir().item(*item_id);
+                let item = cx.tcx.hir_item(*item_id);
                 if let ItemKind::Impl(item_impl) = &item.kind;
                 if let Some(trait_ref) = cx.tcx.impl_trait_ref(item.owner_id);
                 if match_def_path(
@@ -145,6 +213,65 @@ fn find_contract_ty_hir<'tcx>(
             }
         })
         .copied()
+}
+
+/// Copied from <https://github.com/trailofbits/dylint/blob/3fcec25488436faef3700d09e56dbb588ba8c8a5/internal/src/match_def_path.rs#L31-L42>.
+///
+/// Checks if the given `DefId` matches any of the paths. Returns the index of matching
+/// path, if any.
+pub fn match_any_def_paths(
+    cx: &LateContext<'_>,
+    did: DefId,
+    paths: &[&[&str]],
+) -> Option<usize> {
+    let search_path = cx.get_def_path(did);
+    paths.iter().position(|p| {
+        p.iter()
+            .map(|x| Symbol::intern(x))
+            .eq(search_path.iter().cloned())
+    })
+}
+
+/// Copied from <https://github.com/trailofbits/dylint/blob/3fcec25488436faef3700d09e56dbb588ba8c8a5/internal/src/match_def_path.rs#L44-L51>.
+///
+/// Checks if the given `DefId` matches the path.
+pub fn match_def_path(cx: &LateContext<'_>, did: DefId, syms: &[&str]) -> bool {
+    // We should probably move to Symbols in Clippy as well rather than interning every
+    // time.
+    let path = cx.get_def_path(did);
+    syms.iter()
+        .map(|x| Symbol::intern(x))
+        .eq(path.iter().copied())
+}
+
+/// Copied from <https://github.com/rust-lang/rust-clippy/blob/rust-1.86.0/clippy_utils/src/lib.rs#L507-L533>.
+///
+/// THIS METHOD IS DEPRECATED and will eventually be removed since it does not match
+/// against the entire path or resolved `DefId`. Prefer using `match_def_path`. Consider
+/// getting a `DefId` from `QPath::Resolved.1.res.opt_def_id()`.
+///
+/// Matches a `Path` against a slice of segment string literals.
+///
+/// There is also `match_qpath` if you are dealing with a `rustc_hir::QPath` instead of a
+/// `rustc_hir::Path`.
+///
+/// # Examples
+///
+/// ```rust,ignore
+/// if match_path(&trait_ref.path, &paths::HASH) {
+///     // This is the `std::hash::Hash` trait.
+/// }
+///
+/// if match_path(ty_path, &["rustc", "lint", "Lint"]) {
+///     // This is a `rustc_middle::lint::Lint`.
+/// }
+/// ```
+pub fn match_path(path: &rustc_hir::Path<'_>, segments: &[&str]) -> bool {
+    path.segments
+        .iter()
+        .rev()
+        .zip(segments.iter().rev())
+        .all(|(a, b)| a.ident.name.as_str() == *b)
 }
 
 /// Compares types of two user-defined structs
@@ -168,7 +295,7 @@ pub fn find_contract_impl_id(
         .iter()
         .find(|item_id| {
             if_chain! {
-                let item = cx.tcx.hir().item(**item_id);
+                let item = cx.tcx.hir_item(**item_id);
                 if let ItemKind::Impl(item_impl) = &item.kind;
                 if item_impl.of_trait.is_none();
                 if eq_hir_struct_tys(contract_struct_ty, item_impl.self_ty);

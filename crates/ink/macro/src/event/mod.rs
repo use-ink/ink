@@ -274,7 +274,7 @@ fn has_ink_attribute(ink_attrs: &[syn::Meta], path: &str) -> syn::Result<bool> {
         } else if a.path().is_ident(path) {
             return Err(syn::Error::new(
                 a.span(),
-                format!("Only a single `#[ink({})]` is allowed", path),
+                format!("Only a single `#[ink({path})]` is allowed"),
             ));
         } else {
             return Err(syn::Error::new(
@@ -342,6 +342,6 @@ fn signature_topic(fields: &syn::Fields, event_ident: &syn::Ident) -> TokenStrea
         })
         .collect::<Vec<_>>()
         .join(",");
-    let topic_str = format!("{}({fields})", event_ident);
+    let topic_str = format!("{event_ident}({fields})");
     quote!(::ink::blake2x256!(#topic_str))
 }

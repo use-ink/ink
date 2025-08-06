@@ -1,0 +1,44 @@
+name: Initialize Runner
+description: |
+  This action initializes a runner/worker for use in other actions by maximizing build space and initializing caching 
+  for Rust/Cargo projects.
+
+inputs:
+  maximize-space:
+    description: Whether to maximise build space by removing unnecessary software by default. Defaults to true.
+    default: 'true'
+  cache:
+    description: Whether to cache Rust/cargo projects.
+  cache-all-crates:
+    description: Whether all crates should be cached, or only dependent crates. Defaults to true.
+    default: 'true'
+  cache-directories:
+    description: Additional non-workspace directories to be cached, separated by newlines.
+  cache-on-failure:
+    description: Cache even if the build fails. Defaults to false.
+    default: 'false'
+  cache-key:
+    description: An additional optional key to be added. Useful for jobs utilizing a matrix.
+
+runs:
+  using: composite
+
+  steps:
+    - name: Maximize build space
+      uses: AdityaGarg8/remove-unwanted-software@v5
+      if: ${{ inputs.maximize-space == 'true' }}
+      with:
+        remove-android: 'true'
+        remove-codeql: 'true'
+        remove-docker-images: 'true'
+        remove-dotnet: 'true'
+        remove-haskell: 'true'
+
+    - name: Cache Rust/Cargo projects and dependencies
+      uses: Swatinem/rust-cache@v2
+      if: ${{ inputs.cache == 'true' }}
+      with:
+        cache-all-crates: ${{ inputs.cache-all-crates }}
+        cache-directories: ${{ inputs.cache-directories }}
+        cache-on-failure: ${{ inputs.cache-on-failure }}
+        key: ${{ inputs.cache-key }}

@@ -8,8 +8,9 @@ runs:
         cargo --version
         rustup +nightly show
         cargo +nightly --version
-        cargo spellcheck --version
         bash --version
-        substrate-contracts-node --version
+        ink-node --version
         cargo contract --version
+        git --version
+        echo -e '[registry]\nprotocol = "sparse"' > /usr/local/cargo/config.toml
       shell: bash

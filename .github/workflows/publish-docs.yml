@@ -21,8 +21,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 100
+          fetch-depth: 1
 
+      # todo doesn't work, fails in ci
       - name: Download Docs
         uses: ./.github/download-artifact
         with:

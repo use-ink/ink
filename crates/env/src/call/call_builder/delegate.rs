@@ -12,6 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use ink_primitives::{
+    abi::AbiEncodeWith,
+    Address,
+};
+use pallet_revive_uapi::CallFlags;
+
 use crate::{
     call::{
         common::{
@@ -20,6 +26,7 @@ use crate::{
             Unset,
         },
         execution::EmptyArgumentList,
+        utils::DecodeMessageResult,
         CallBuilder,
         CallParams,
         ExecutionInput,
@@ -27,14 +34,12 @@ use crate::{
     types::Environment,
     Error,
 };
-use ink_primitives::H160;
-use pallet_revive_uapi::CallFlags;
 
 /// The `delegatecall` call type. Performs a call with the given code hash.
 #[derive(Clone)]
 pub struct DelegateCall {
     // todo comments please
-    address: H160,
+    address: Address,
     flags: CallFlags,
     ref_time_limit: u64,
     proof_size_limit: u64,
@@ -44,23 +49,23 @@ pub struct DelegateCall {
 
 impl DelegateCall {
     /// Returns a clean builder for [`DelegateCall`]
-    pub const fn new(address: H160) -> Self {
+    pub const fn new(address: Address) -> Self {
         DelegateCall {
             address,
             flags: CallFlags::empty(),
-            ref_time_limit: 0,
-            proof_size_limit: 0,
+            ref_time_limit: u64::MAX,
+            proof_size_limit: u64::MAX,
             deposit_limit: None,
         }
     }
 
     /// Sets the `address` to perform a delegate call with.
-    pub fn address(self, address: H160) -> Self {
+    pub fn address(self, address: Address) -> Self {
         DelegateCall {
             address,
             flags: CallFlags::empty(),
-            ref_time_limit: 0,
-            proof_size_limit: 0,
+            ref_time_limit: u64::MAX,
+            proof_size_limit: u64::MAX,
             deposit_limit: None,
         }
     }
@@ -71,7 +76,7 @@ where
     E: Environment,
 {
     /// Sets the `address` to perform a delegate call with.
-    pub fn address(self, address: H160) -> Self {
+    pub fn address(self, address: Address) -> Self {
         let call_type = self.call_type.value();
         CallBuilder {
             call_type: Set(DelegateCall {
@@ -96,13 +101,18 @@ where
     }
 }
 
-impl<E, Args, RetType>
-    CallBuilder<E, Set<DelegateCall>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
+impl<E, Args, RetType, Abi>
+    CallBuilder<
+        E,
+        Set<DelegateCall>,
+        Set<ExecutionInput<Args, Abi>>,
+        Set<ReturnType<RetType>>,
+    >
 where
     E: Environment,
 {
     /// Finalizes the call builder to call a function.
-    pub fn params(self) -> CallParams<E, DelegateCall, Args, RetType> {
+    pub fn params(self) -> CallParams<E, DelegateCall, Args, RetType, Abi> {
         CallParams {
             call_type: self.call_type.value(),
             _return_type: Default::default(),
@@ -112,18 +122,21 @@ where
     }
 }
 
-impl<E, RetType>
+impl<E, RetType, Abi>
     CallBuilder<
         E,
         Set<DelegateCall>,
-        Unset<ExecutionInput<EmptyArgumentList>>,
+        Unset<ExecutionInput<EmptyArgumentList<Abi>, Abi>>,
         Unset<RetType>,
     >
 where
     E: Environment,
+    EmptyArgumentList<Abi>: AbiEncodeWith<Abi>,
+    (): DecodeMessageResult<Abi>,
+    Abi: Default,
 {
     /// Finalizes the call builder to call a function.
-    pub fn params(self) -> CallParams<E, DelegateCall, EmptyArgumentList, ()> {
+    pub fn params(self) -> CallParams<E, DelegateCall, EmptyArgumentList<Abi>, (), Abi> {
         CallParams {
             call_type: self.call_type.value(),
             _return_type: Default::default(),
@@ -133,15 +146,18 @@ where
     }
 }
 
-impl<E>
+impl<E, Abi>
     CallBuilder<
         E,
         Set<DelegateCall>,
-        Unset<ExecutionInput<EmptyArgumentList>>,
+        Unset<ExecutionInput<EmptyArgumentList<Abi>, Abi>>,
         Unset<ReturnType<()>>,
     >
 where
     E: Environment,
+    EmptyArgumentList<Abi>: AbiEncodeWith<Abi>,
+    (): DecodeMessageResult<Abi>,
+    Abi: Default,
 {
     /// Invokes the cross-chain function call using Delegate Call semantics.
     ///
@@ -165,12 +181,12 @@ where
     }
 }
 
-impl<E, Args, R>
-    CallBuilder<E, Set<DelegateCall>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
+impl<E, Args, R, Abi>
+    CallBuilder<E, Set<DelegateCall>, Set<ExecutionInput<Args, Abi>>, Set<ReturnType<R>>>
 where
     E: Environment,
-    Args: scale::Encode,
-    R: scale::Decode,
+    Args: AbiEncodeWith<Abi>,
+    R: DecodeMessageResult<Abi>,
 {
     /// Invokes the cross-chain function call using Delegate Call semantics and returns
     /// the result.
@@ -197,7 +213,7 @@ where
     }
 }
 
-impl<E, Args, R> CallParams<E, DelegateCall, Args, R>
+impl<E, Args, R, Abi> CallParams<E, DelegateCall, Args, R, Abi>
 where
     E: Environment,
 {
@@ -209,7 +225,7 @@ where
 
     /// Returns the contract address which we use to perform a delegate call.
     #[inline]
-    pub fn address(&self) -> &H160 {
+    pub fn address(&self) -> &Address {
         &self.call_type.address
     }
 
@@ -232,11 +248,11 @@ where
     }
 }
 
-impl<E, Args, R> CallParams<E, DelegateCall, Args, R>
+impl<E, Args, R, Abi> CallParams<E, DelegateCall, Args, R, Abi>
 where
     E: Environment,
-    Args: scale::Encode,
-    R: scale::Decode,
+    Args: AbiEncodeWith<Abi>,
+    R: DecodeMessageResult<Abi>,
 {
     /// Invoke the contract using Delegate Call semantics with the given built-up call
     /// parameters.

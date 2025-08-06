@@ -1,0 +1,12 @@
+error: The feature `std` is not allowed in `cfg`.
+
+       Allowed in `#[cfg(…)]`:
+       - `test`
+       - `feature` (without `std`)
+       - `any`
+       - `not`
+       - `all`
+  --> tests/ui/contract/fail/cfg/cfg-forbidden-usage-03.rs:18:23
+   |
+18 |         #[cfg(any(not(feature = "std")))]
+   |                       ^^^^^^^

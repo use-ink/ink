@@ -13,11 +13,13 @@
 // limitations under the License.
 
 use if_chain::if_chain;
-use ink_linting_utils::clippy::{
-    diagnostics::span_lint_and_then,
-    is_lint_allowed,
+use ink_linting_utils::{
+    clippy::{
+        diagnostics::span_lint_and_then,
+        is_lint_allowed,
+        source::snippet_opt,
+    },
     match_def_path,
-    source::snippet_opt,
 };
 use rustc_errors::Applicability;
 use rustc_hir::{
@@ -132,8 +134,8 @@ fn is_primitive_number_ty(ty: &Ty) -> bool {
 /// Reports a topic-annotated field with a numerical primitive type
 fn report_field(cx: &LateContext, event_def_id: DefId, field_name: &str) {
     if_chain! {
-        if let Some(Node::Item(event_node)) = cx.tcx.hir().get_if_local(event_def_id);
-        if let ItemKind::Struct(ref struct_def, _) = event_node.kind;
+        if let Some(Node::Item(event_node)) = cx.tcx.hir_get_if_local(event_def_id);
+        if let ItemKind::Struct(_, ref struct_def, _) = event_node.kind;
         if let Some(field) = struct_def.fields().iter().find(|f|{ f.ident.as_str() == field_name });
         if !is_lint_allowed(cx, PRIMITIVE_TOPIC, field.hir_id);
         then {
@@ -179,7 +181,7 @@ impl<'tcx> LateLintPass<'tcx> for PrimitiveTopic {
             then {
                 topics_impl.items.iter().for_each(|impl_item| {
                     if_chain! {
-                        // We need to extract field patterns from the event sturct matched in the
+                        // We need to extract field patterns from the event struct matched in the
                         // `topics` function to access their inferred types.
                         // Here is the simplified example of the expanded code:
                         // ```
@@ -195,9 +197,9 @@ impl<'tcx> LateLintPass<'tcx> for PrimitiveTopic {
                         // }
                         // ```
                         if is_topics_function(impl_item);
-                        let impl_item = cx.tcx.hir().impl_item(impl_item.id);
+                        let impl_item = cx.tcx.hir_impl_item(impl_item.id);
                         if let ImplItemKind::Fn(_, eid) = impl_item.kind;
-                        let body = cx.tcx.hir().body(eid).value;
+                        let body = cx.tcx.hir_body(eid).value;
                         if let ExprKind::Block (block, _) = body.kind;
                         if let Some(match_self) = block.expr;
                         if let ExprKind::Match(_, [Arm { pat: arm_pat, .. }], _) = match_self.kind;

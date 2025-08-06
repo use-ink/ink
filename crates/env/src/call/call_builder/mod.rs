@@ -18,6 +18,13 @@ mod delegate;
 pub use call::Call;
 pub use delegate::DelegateCall;
 
+use core::marker::PhantomData;
+
+use ink_primitives::{
+    abi::Sol,
+    Address,
+};
+
 use crate::{
     call::{
         utils::{
@@ -31,12 +38,10 @@ use crate::{
     },
     types::Environment,
 };
-use core::marker::PhantomData;
-use ink_primitives::H160;
 
 /// The final parameters to the cross-contract call.
 #[derive(Debug)]
-pub struct CallParams<E, CallType, Args, R>
+pub struct CallParams<E, CallType, Args, R, Abi>
 where
     E: Environment,
 {
@@ -45,23 +50,29 @@ where
     /// The expected return type.
     _return_type: ReturnType<R>,
     /// The inputs to the execution which is a selector and encoded arguments.
-    exec_input: ExecutionInput<Args>,
+    exec_input: ExecutionInput<Args, Abi>,
     /// `Environment` is used by `CallType` for correct types
     _phantom: PhantomData<fn() -> E>,
 }
 
-impl<E, CallType, Args, R> CallParams<E, CallType, Args, R>
+impl<E, CallType, Args, R, Abi> CallParams<E, CallType, Args, R, Abi>
 where
     E: Environment,
 {
     /// Returns the execution input.
     #[inline]
-    pub fn exec_input(&self) -> &ExecutionInput<Args> {
+    pub fn exec_input(&self) -> &ExecutionInput<Args, Abi> {
         &self.exec_input
     }
 }
 
-/// Returns a new [`CallBuilder`] to build up the parameters to a cross-contract call.
+/// Returns a new [`CallBuilder`] to build up the parameters to a cross-contract call
+/// that uses the "default" ABI for calls for the ink! project.
+///
+/// # Note
+///
+/// The "default" ABI for calls is "ink", unless the ABI is set to "sol"
+/// in the ink! project's manifest file (i.e. `Cargo.toml`).
 ///
 /// # Example
 ///
@@ -87,12 +98,12 @@ where
 /// #     call::{build_call, Selector, ExecutionInput}
 /// # };
 /// # use ink_env::call::Call;
-/// # use ink_primitives::H160;
+/// # use ink_primitives::Address;
 ///
 /// type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// # type Balance = <DefaultEnvironment as Environment>::Balance;
 /// build_call::<DefaultEnvironment>()
-///     .call(H160::from([0x42; 20]))
+///     .call(Address::from([0x42; 20]))
 ///     .ref_time_limit(5000)
 ///     .transferred_value(ink::U256::from(10))
 ///     .exec_input(
@@ -124,7 +135,7 @@ where
 /// # };
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
-///     .call_type(Call::new(ink::H160::from([0x42; 20])))
+///     .call_type(Call::new(ink::Address::from([0x42; 20])))
 ///     .ref_time_limit(5000)
 ///     .transferred_value(ink::U256::from(10))
 ///     .exec_input(
@@ -149,11 +160,11 @@ where
 /// #     DefaultEnvironment,
 /// #     call::{build_call, Selector, ExecutionInput, utils::ReturnType, DelegateCall},
 /// # };
-/// use ink::H160;
+/// use ink::Address;
 /// # use ink_primitives::Clear;
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
-///     .delegate(H160::zero())
+///     .delegate(Address::zero())
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -186,12 +197,12 @@ where
 /// #     call::{build_call, Selector, ExecutionInput}
 /// # };
 /// # use ink_env::call::Call;
-/// # use ink_primitives::H160;
+/// # use ink_primitives::Address;
 ///
 /// type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// # type Balance = <DefaultEnvironment as Environment>::Balance;
 /// let call_result = build_call::<DefaultEnvironment>()
-///     .call(H160::from([0x42; 20]))
+///     .call(Address::from([0x42; 20]))
 ///     .ref_time_limit(5000)
 ///     .transferred_value(ink::U256::from(10))
 ///     .try_invoke()
@@ -207,7 +218,49 @@ where
 pub fn build_call<E>() -> CallBuilder<
     E,
     Unset<Call>,
-    Unset<ExecutionInput<EmptyArgumentList>>,
+    Unset<ExecutionInput<EmptyArgumentList<crate::DefaultAbi>, crate::DefaultAbi>>,
+    Unset<ReturnType<()>>,
+>
+where
+    E: Environment,
+{
+    CallBuilder {
+        call_type: Default::default(),
+        exec_input: Default::default(),
+        return_type: Default::default(),
+        _phantom: Default::default(),
+    }
+}
+
+/// Returns a new [`CallBuilder`] for the specified ABI to build up the parameters to a
+/// cross-contract call.
+/// See [`build_call`] for more details on usage.
+#[allow(clippy::type_complexity)]
+pub fn build_call_abi<E, Abi>() -> CallBuilder<
+    E,
+    Unset<Call>,
+    Unset<ExecutionInput<EmptyArgumentList<Abi>, Abi>>,
+    Unset<ReturnType<()>>,
+>
+where
+    E: Environment,
+{
+    CallBuilder {
+        call_type: Default::default(),
+        exec_input: Default::default(),
+        return_type: Default::default(),
+        _phantom: Default::default(),
+    }
+}
+
+/// Returns a new [`CallBuilder`] to build up the parameters to a cross-contract call
+/// that uses Solidity ABI Encoding.
+/// See [`build_call`] for more details on usage.
+#[allow(clippy::type_complexity)]
+pub fn build_call_solidity<E>() -> CallBuilder<
+    E,
+    Unset<Call>,
+    Unset<ExecutionInput<EmptyArgumentList<Sol>, Sol>>,
     Unset<ReturnType<()>>,
 >
 where
@@ -234,12 +287,17 @@ where
     _phantom: PhantomData<fn() -> E>, // todo possibly remove?
 }
 
-impl<E, Args, RetType> From<Execution<Args, RetType>>
-    for CallBuilder<E, Unset<Call>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
+impl<E, Args, RetType, Abi> From<Execution<Args, RetType, Abi>>
+    for CallBuilder<
+        E,
+        Unset<Call>,
+        Set<ExecutionInput<Args, Abi>>,
+        Set<ReturnType<RetType>>,
+    >
 where
     E: Environment,
 {
-    fn from(invoke: Execution<Args, RetType>) -> Self {
+    fn from(invoke: Execution<Args, RetType, Abi>) -> Self {
         CallBuilder {
             call_type: Default::default(),
             exec_input: Set(invoke.input),
@@ -290,16 +348,16 @@ where
     }
 }
 
-impl<E, CallType, RetType>
-    CallBuilder<E, CallType, Unset<ExecutionInput<EmptyArgumentList>>, RetType>
+impl<E, CallType, RetType, Abi>
+    CallBuilder<E, CallType, Unset<ExecutionInput<EmptyArgumentList<Abi>, Abi>>, RetType>
 where
     E: Environment,
 {
     /// Sets the execution input to the given value.
     pub fn exec_input<Args>(
         self,
-        exec_input: ExecutionInput<Args>,
-    ) -> CallBuilder<E, CallType, Set<ExecutionInput<Args>>, RetType> {
+        exec_input: ExecutionInput<Args, Abi>,
+    ) -> CallBuilder<E, CallType, Set<ExecutionInput<Args, Abi>>, RetType> {
         CallBuilder {
             call_type: self.call_type,
             exec_input: Set(exec_input),
@@ -315,7 +373,7 @@ where
 {
     /// Prepares the `CallBuilder` for a cross-contract [`Call`] to the latest `call_v2`
     /// host function.
-    pub fn call(self, callee: H160) -> CallBuilder<E, Set<Call>, Args, RetType> {
+    pub fn call(self, callee: Address) -> CallBuilder<E, Set<Call>, Args, RetType> {
         CallBuilder {
             call_type: Set(Call::new(callee)),
             exec_input: self.exec_input,
@@ -327,7 +385,7 @@ where
     /// Prepares the `CallBuilder` for a cross-contract [`DelegateCall`].
     pub fn delegate(
         self,
-        address: H160,
+        address: Address,
     ) -> CallBuilder<E, Set<DelegateCall>, Args, RetType> {
         CallBuilder {
             // todo Generic `Set` can be removed

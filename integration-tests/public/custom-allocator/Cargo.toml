@@ -1,6 +1,6 @@
 [package]
 name = "custom-allocator"
-version = "6.0.0-alpha"
+version = "6.0.0-alpha.1"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 publish = false
@@ -8,10 +8,11 @@ publish = false
 [dependencies]
 # We're going to use a different allocator than the one provided by ink!. To do that we
 # first need to disable the included memory allocator.
-ink = { path = "../../../crates/ink", default-features = false, features = ["no-allocator"]  }
+ink = { path = "../../../crates/ink", default-features = false, features = ["no-allocator"] }
 
+# todo
 #foo = { path = "../../../foo", default-features = false }
-# This is going to be our new global memory allocator.
+#This is going to be our new global memory allocator.
 #dlmalloc = {version = "0.2", default-features = false, features = ["global"] }
 #bumpalo = "3.16.0"
 
@@ -28,3 +29,6 @@ std = [
 ]
 ink-as-dependency = []
 e2e-tests = []
+
+[package.metadata.ink-lang]
+abi = "ink"

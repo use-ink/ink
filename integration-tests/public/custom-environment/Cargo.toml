@@ -1,12 +1,12 @@
 [package]
 name = "custom-environment"
-version = "6.0.0-alpha"
+version = "6.0.0-alpha.1"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../../crates/ink", default-features = false }
+ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
@@ -24,3 +24,6 @@ e2e-tests = []
 
 # Assumes that the node used in E2E testing allows for at least 6 event topics.
 permissive-node = []
+
+[package.metadata.ink-lang]
+abi = "ink"

@@ -26,6 +26,7 @@ mod event;
 mod ink_test;
 mod scale;
 mod selector;
+mod sol;
 mod storage;
 mod storage_item;
 mod trait_def;
@@ -120,92 +121,92 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///
 /// - `keep_attr: String`
 ///
-///     Tells the ink! code generator which attributes should be passed to call builders.
-///     Call builders are used to doing cross-contract calls and are automatically
-///     generated for contracts.
+///   Tells the ink! code generator which attributes should be passed to call builders.
+///   Call builders are used for making cross-contract calls and are automatically
+///   generated for contracts.
 ///
-///     **Usage Example:**
-///     ```
-///     #[ink::contract(keep_attr = "foo, bar")]
-///     mod my_contract {
-///         # #[ink(storage)]
-///         # pub struct MyStorage;
-///         # impl MyStorage {
-///         #     #[ink(constructor)]
-///         //    #[bar]
-///         #     pub fn construct() -> Self { MyStorage {} }
-///         #     #[ink(message)]
-///         //    #[foo]
-///         #     pub fn message(&self) {}
-///         # }
-///         // ...
-///     }
-///     ```
+///   **Usage Example:**
+///   ```
+///   #[ink::contract(keep_attr = "foo, bar")]
+///   mod my_contract {
+///       # #[ink(storage)]
+///       # pub struct MyStorage;
+///       # impl MyStorage {
+///       #     #[ink(constructor)]
+///       //    #[bar]
+///       #     pub fn construct() -> Self { MyStorage {} }
+///       #     #[ink(message)]
+///       //    #[foo]
+///       #     pub fn message(&self) {}
+///       # }
+///       // ...
+///   }
+///   ```
 ///
-///     **Allowed attributes by default:** `cfg`, `cfg_attr`, `allow`, `warn`, `deny`,
-///     `forbid`, `deprecated`, `must_use`, `doc`, `rustfmt`.
+///   **Allowed attributes by default:** `cfg`, `cfg_attr`, `allow`, `warn`, `deny`,
+///   `forbid`, `deprecated`, `must_use`, `doc`, `rustfmt`.
 ///
 /// - `env: impl Environment`
 ///
-///     Tells the ink! code generator which environment to use for the ink! smart
-///     contract. The environment must implement the `Environment` (defined in `ink_env`)
-///     trait and provides all the necessary fundamental type definitions for `Balance`,
-///     `AccountId` etc.
+///   Tells the ink! code generator which environment to use for the ink! smart
+///   contract. The environment must implement the `Environment` (defined in `ink_env`)
+///   trait and provides all the necessary fundamental type definitions for `Balance`,
+///   `AccountId` etc.
 ///
-///     When using a custom `Environment` implementation for a smart contract all types
-///     that it exposes to the ink! smart contract and the mirrored types used in the
-///     runtime must be aligned with respect to SCALE encoding and semantics.
+///   When using a custom `Environment` implementation for a smart contract all types
+///   that it exposes to the ink! smart contract and the mirrored types used in the
+///   runtime must be aligned with respect to SCALE encoding and semantics.
 ///
-///     **Usage Example:**
+///   **Usage Example:**
 ///
-///     Given a custom `Environment` implementation:
-///     ```
-///     #[derive(Clone)]
-///     pub struct MyEnvironment;
+///   Given a custom `Environment` implementation:
+///   ```
+///   #[derive(Clone)]
+///   pub struct MyEnvironment;
 ///
-///     impl ink_env::Environment for MyEnvironment {
-///         const MAX_EVENT_TOPICS: usize = 3;
-///         type AccountId = [u8; 16];
-///         type Balance = u128;
-///         type Hash = [u8; 32];
-///         type Timestamp = u64;
-///         type BlockNumber = u32;
-///         type ChainExtension = ::ink::env::NoChainExtension;
-///         type EventRecord = ();
-///     }
-///     ```
-///     A user might implement their ink! smart contract using the above custom
-///     `Environment` implementation as demonstrated below:
-///     ```
-///     #[ink::contract(env = MyEnvironment)]
-///     mod my_contract {
-///         # #[derive(Clone)]
-///         # pub struct MyEnvironment;
-///         #
-///         # impl ink_env::Environment for MyEnvironment {
-///         #     const MAX_EVENT_TOPICS: usize = 3;
-///         #     type AccountId = [u8; 16];
-///         #     type Balance = u128;
-///         #     type Hash = [u8; 32];
-///         #     type Timestamp = u64;
-///         #     type BlockNumber = u32;
-///         #     type ChainExtension = ::ink::env::NoChainExtension;
-///         #     type EventRecord = ();
-///         # }
-///         #
-///         # #[ink(storage)]
-///         # pub struct MyStorage;
-///         # impl MyStorage {
-///         #     #[ink(constructor)]
-///         #     pub fn construct() -> Self { MyStorage {} }
-///         #     #[ink(message)]
-///         #     pub fn message(&self) {}
-///         # }
-///         // ...
-///     }
-///     ```
+///   impl ink_env::Environment for MyEnvironment {
+///       const MAX_EVENT_TOPICS: usize = 3;
+///       type AccountId = [u8; 16];
+///       type Balance = u128;
+///       type Hash = [u8; 32];
+///       type Timestamp = u64;
+///       type BlockNumber = u32;
+///       type ChainExtension = ::ink::env::NoChainExtension;
+///       type EventRecord = ();
+///   }
+///   ```
+///   A user might implement their ink! smart contract using the above custom
+///   `Environment` implementation as demonstrated below:
+///   ```
+///   #[ink::contract(env = MyEnvironment)]
+///   mod my_contract {
+///       # #[derive(Clone)]
+///       # pub struct MyEnvironment;
+///       #
+///       # impl ink_env::Environment for MyEnvironment {
+///       #     const MAX_EVENT_TOPICS: usize = 3;
+///       #     type AccountId = [u8; 16];
+///       #     type Balance = u128;
+///       #     type Hash = [u8; 32];
+///       #     type Timestamp = u64;
+///       #     type BlockNumber = u32;
+///       #     type ChainExtension = ::ink::env::NoChainExtension;
+///       #     type EventRecord = ();
+///       # }
+///       #
+///       # #[ink(storage)]
+///       # pub struct MyStorage;
+///       # impl MyStorage {
+///       #     #[ink(constructor)]
+///       #     pub fn construct() -> Self { MyStorage {} }
+///       #     #[ink(message)]
+///       #     pub fn message(&self) {}
+///       # }
+///       // ...
+///   }
+///   ```
 ///
-///     **Default value:** `DefaultEnvironment` defined in `ink_env` crate.
+///   **Default value:** `DefaultEnvironment` defined in `ink_env` crate.
 ///
 /// ## Analysis
 ///
@@ -216,181 +217,187 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///
 /// - There must be exactly one `#[ink(storage)]` struct.
 ///
-///     This struct defines the layout of the storage that the ink! smart contract
-///     operates on. The user is able to use a variety of built-in facilities, combine
-///     them in various ways or even provide their own implementations of storage data
-///     structures.
+///   This struct defines the layout of the storage that the ink! smart contract
+///   operates on. The user is able to use a variety of built-in facilities, combine
+///   them in various ways or even provide their own implementations of storage data
+///   structures.
 ///
-///     For more information visit the `ink::storage` crate documentation.
+///   For more information visit the `ink::storage` crate documentation.
 ///
-///     **Example:**
+///   **Example:**
 ///
-///     ```
-///     #[ink::contract]
-///     mod flipper {
-///         #[ink(storage)]
-///         pub struct Flipper {
-///             value: bool,
-///         }
-///         # impl Flipper {
-///         #     #[ink(constructor)]
-///         #     pub fn construct() -> Self { Flipper { value: false } }
-///         #     #[ink(message)]
-///         #     pub fn message(&self) {}
-///         # }
-///     }
-///     ```
+///   ```
+///   #[ink::contract]
+///   mod flipper {
+///       #[ink(storage)]
+///       pub struct Flipper {
+///           value: bool,
+///       }
+///       # impl Flipper {
+///       #     #[ink(constructor)]
+///       #     pub fn construct() -> Self { Flipper { value: false } }
+///       #     #[ink(message)]
+///       #     pub fn message(&self) {}
+///       # }
+///   }
+///   ```
 ///
 /// - There must be at least one `#[ink(constructor)]` defined method.
 ///
-///     Methods flagged with `#[ink(constructor)]` are special in that they are
-///     dispatchable upon contract instantiation. A contract may define multiple such
-///     constructors which allow users of the contract to instantiate a contract in
-///     multiple different ways.
+///   Methods flagged with `#[ink(constructor)]` are special in that they are
+///   dispatchable upon contract instantiation. A contract may define multiple such
+///   constructors which allow users of the contract to instantiate a contract in
+///   multiple different ways.
 ///
-///     **Example:**
+///   **Example:**
 ///
-///     Given the `Flipper` contract definition above we add an `#[ink(constructor)]`
-///     as follows:
+///   Given the `Flipper` contract definition above we add an `#[ink(constructor)]`
+///   as follows:
 ///
-///     ```
-///     # #[ink::contract]
-///     # mod flipper {
-///         # #[ink(storage)]
-///         # pub struct Flipper {
-///         #     value: bool,
-///         # }
-///     impl Flipper {
-///         #[ink(constructor)]
-///         pub fn new(initial_value: bool) -> Self {
-///             Flipper { value: false }
-///         }
-///         # #[ink(message)]
-///         # pub fn message(&self) {}
-///     }
-///     # }
-///     ```
+///   ```
+///   # #[ink::contract]
+///   # mod flipper {
+///       # #[ink(storage)]
+///       # pub struct Flipper {
+///       #     value: bool,
+///       # }
+///   impl Flipper {
+///       #[ink(constructor)]
+///       pub fn new(initial_value: bool) -> Self {
+///           Flipper { value: false }
+///       }
+///       # #[ink(message)]
+///       # pub fn message(&self) {}
+///   }
+///   # }
+///   ```
 ///
 /// - There must be at least one `#[ink(message)]` defined method.
 ///
-///     Methods flagged with `#[ink(message)]` are special in that they are dispatchable
-///     upon contract invocation. The set of ink! messages defined for an ink! smart
-///     contract define its API surface with which users are allowed to interact.
+///   Methods flagged with `#[ink(message)]` are special in that they are dispatchable
+///   upon contract invocation. The set of ink! messages defined for an ink! smart
+///   contract define its API surface with which users are allowed to interact.
 ///
-///     An ink! smart contract can have multiple such ink! messages defined.
+///   An ink! smart contract can have multiple such ink! messages defined.
 ///
-///     **Note:**
+///   **Note:**
 ///
-///     - An ink! message with a `&self` receiver may only read state whereas an ink!
-///       message with a `&mut self` receiver may mutate the contract's storage.
+///   - An ink! message with a `&self` receiver may only read state whereas an ink!
+///     message with a `&mut self` receiver may mutate the contract's storage.
 ///
-///     **Example:**
+///   **Example:**
 ///
-///     Given the `Flipper` contract definition above we add some `#[ink(message)]`
-///     definitions as follows:
+///   Given the `Flipper` contract definition above we add some `#[ink(message)]`
+///   definitions as follows:
 ///
-///     ```
-///     # #[ink::contract]
-///     # mod flipper {
-///         # #[ink(storage)]
-///         # pub struct Flipper {
-///         #     value: bool,
-///         # }
-///     impl Flipper {
-///         # #[ink(constructor)]
-///         # pub fn new(initial_value: bool) -> Self {
-///         #     Flipper { value: false }
-///         # }
-///         /// Flips the current value.
-///         #[ink(message)]
-///         pub fn flip(&mut self) {
-///             self.value = !self.value;
-///         }
+///   ```
+///   # #[ink::contract]
+///   # mod flipper {
+///       # #[ink(storage)]
+///       # pub struct Flipper {
+///       #     value: bool,
+///       # }
+///   impl Flipper {
+///       # #[ink(constructor)]
+///       # pub fn new(initial_value: bool) -> Self {
+///       #     Flipper { value: false }
+///       # }
+///       /// Flips the current value.
+///       #[ink(message)]
+///       pub fn flip(&mut self) {
+///           self.value = !self.value;
+///       }
 ///
-///         /// Returns the current value.
-///         #[ink(message)]
-///         pub fn get(&self) -> bool {
-///             self.value
-///         }
-///     }
-///     # }
-///     ```
+///       /// Returns the current value.
+///       #[ink(message)]
+///       pub fn get(&self) -> bool {
+///           self.value
+///       }
+///   }
+///   # }
+///   ```
 ///
-///     **Payable Messages:**
+///   **Payable Messages:**
 ///
-///     An ink! message by default will reject calls that additional fund the smart
-///     contract. Authors of ink! smart contracts can make an ink! message payable by
-///     adding the `payable` flag to it. An example below:
+///   An ink! message by default will reject calls that additional fund the smart
+///   contract. Authors of ink! smart contracts can make an ink! message payable by
+///   adding the `payable` flag to it. An example below:
 ///
-///     Note that ink! constructors are always implicitly payable and thus cannot be
-///     flagged as such.
+///   Note that ink! constructors are always implicitly payable and thus cannot be
+///   flagged as such.
 ///
-///     ```
-///     # #[ink::contract]
-///     # mod flipper {
-///         # #[ink(storage)]
-///         # pub struct Flipper {
-///         #     value: bool,
-///         # }
-///     impl Flipper {
-///         # #[ink(constructor)]
-///         # pub fn new(initial_value: bool) -> Self {
-///         #     Flipper { value: false }
-///         # }
-///         /// Flips the current value.
-///         #[ink(message)]
-///         #[ink(payable)] // You can either specify payable out-of-line.
-///         pub fn flip(&mut self) {
-///             self.value = !self.value;
-///         }
+///   ```
+///   # #[ink::contract]
+///   # mod flipper {
+///       # #[ink(storage)]
+///       # pub struct Flipper {
+///       #     value: bool,
+///       # }
+///   impl Flipper {
+///       # #[ink(constructor)]
+///       # pub fn new(initial_value: bool) -> Self {
+///       #     Flipper { value: false }
+///       # }
+///       /// Flips the current value.
+///       #[ink(message)]
+///       #[ink(payable)] // You can either specify payable out-of-line.
+///       pub fn flip(&mut self) {
+///           self.value = !self.value;
+///       }
 ///
-///         /// Returns the current value.
-///         #[ink(message, payable)] // ...or specify payable inline.
-///         pub fn get(&self) -> bool {
-///             self.value
-///         }
-///     }
-///     # }
-///     ```
+///       /// Flips the current value.
+///       #[ink(message, payable)] // ...or specify payable inline.
+///       pub fn flip_2(&mut self) {
+///           self.value = !self.value;
+///       }
 ///
-///     **Controlling the messages selector:**
+///       /// Returns the current value.
+///       #[ink(message)]
+///       pub fn get(&self) -> bool {
+///           self.value
+///       }
+///   }
+///   # }
+///   ```
 ///
-///     Every ink! message and ink! constructor has a unique selector with which the
-///     message or constructor can be uniquely identified within the ink! smart contract.
-///     These selectors are mainly used to drive the contract's dispatch upon calling it.
+///   **Controlling the messages selector:**
 ///
-///     An ink! smart contract author can control the selector of an ink! message or ink!
-///     constructor using the `selector` flag. An example is shown below:
+///   Every ink! message and ink! constructor has a unique selector with which the
+///   message or constructor can be uniquely identified within the ink! smart contract.
+///   These selectors are mainly used to drive the contract's dispatch upon calling it.
 ///
-///     ```
-///     # #[ink::contract]
-///     # mod flipper {
-///         # #[ink(storage)]
-///         # pub struct Flipper {
-///         #     value: bool,
-///         # }
-///     impl Flipper {
-///         #[ink(constructor)]
-///         #[ink(selector = 0xDEADBEEF)] // Works on constructors as well.
-///         pub fn new(initial_value: bool) -> Self {
-///             Flipper { value: false }
-///         }
+///   An ink! smart contract author can control the selector of an ink! message or ink!
+///   constructor using the `selector` flag. An example is shown below:
 ///
-///         /// Flips the current value.
-///         #[ink(message)]
-///         #[ink(selector = 0xCAFEBABE)] // You can either specify selector out-of-line.
-///         pub fn flip(&mut self) {
-///             self.value = !self.value;
-///         }
+///   ```
+///   # #[ink::contract]
+///   # mod flipper {
+///       # #[ink(storage)]
+///       # pub struct Flipper {
+///       #     value: bool,
+///       # }
+///   impl Flipper {
+///       #[ink(constructor)]
+///       #[ink(selector = 0xDEADBEEF)] // Works on constructors as well.
+///       pub fn new(initial_value: bool) -> Self {
+///           Flipper { value: false }
+///       }
 ///
-///         /// Returns the current value.
-///         #[ink(message, selector = 0xFEEDBEEF)] // ...or specify selector inline.
-///         pub fn get(&self) -> bool {
-///             self.value
-///         }
-///     }
-///     # }
-///     ```
+///       /// Flips the current value.
+///       #[ink(message)]
+///       #[ink(selector = 0xCAFEBABE)] // You can either specify selector out-of-line.
+///       pub fn flip(&mut self) {
+///           self.value = !self.value;
+///       }
+///
+///       /// Returns the current value.
+///       #[ink(message, selector = 0xFEEDBEEF)] // ...or specify selector inline.
+///       pub fn get(&self) -> bool {
+///           self.value
+///       }
+///   }
+///   # }
+///   ```
 ///
 /// ## Interacting with the Contract Executor
 ///
@@ -412,8 +419,6 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 /// ```
 /// #[ink::contract]
 /// mod greeter {
-///     use ink_env::debug_println;
-///
 ///     #[ink(storage)]
 ///     pub struct Greeter;
 ///
@@ -421,15 +426,13 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///         #[ink(constructor)]
 ///         pub fn new() -> Self {
 ///             let caller = Self::env().caller();
-///             debug_println!("thanks for instantiation {:?}", caller);
 ///             Greeter {}
 ///         }
 ///
 ///         #[ink(message, payable)]
-///         pub fn fund(&self) {
+///         pub fn fund(&mut self) {
 ///             let caller = self.env().caller();
 ///             let value = self.env().transferred_value();
-///             debug_println!("thanks for the funding of {:?} from {:?}", value, caller);
 ///         }
 ///     }
 /// }
@@ -447,16 +450,13 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 /// ```
 /// #[ink::contract]
 /// mod erc20 {
-///     use ink::{
-///         H160,
-///         U256,
-///     };
+///     use ink::U256;
 ///
 ///     /// Defines an event that is emitted every time value is transferred.
 ///     #[ink(event)]
 ///     pub struct Transferred {
-///         from: Option<H160>,
-///         to: Option<H160>,
+///         from: Option<Address>,
+///         to: Option<Address>,
 ///         value: U256,
 ///     }
 ///
@@ -553,7 +553,7 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 ///     /// Transfers balance from the caller to the given address.
 ///     #[ink(message)]
-///     fn transfer(&mut self, amount: ink::U256, to: ink::H160) -> bool;
+///     fn transfer(&mut self, amount: ink::U256, to: ink::Address) -> bool;
 ///
 ///     // etc.
 /// }
@@ -566,7 +566,7 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// ```
 /// #[ink::contract]
 /// mod base_erc20 {
-///     use ink::{H160, U256};
+///     use ink::U256;
 /// #    // We somehow cannot put the trait in the doc-test crate root due to bugs.
 /// #    #[ink::trait_definition]
 /// #    pub trait Erc20 {
@@ -576,7 +576,7 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// #
 /// #       /// Transfers balance from the caller to the given address.
 /// #       #[ink(message)]
-/// #       fn transfer(&mut self, amount: U256, to: H160) -> bool;
+/// #       fn transfer(&mut self, amount: U256, to: Address) -> bool;
 /// #    }
 /// #
 ///     #[ink(storage)]
@@ -599,7 +599,7 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///         }
 ///
 ///         #[ink(message)]
-///         fn transfer(&mut self, amount: U256, to: H160) -> bool {
+///         fn transfer(&mut self, amount: U256, to: Address) -> bool {
 ///             unimplemented!()
 ///         }
 ///     }
@@ -613,46 +613,46 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// - `namespace: String`
 ///
-///     The namespace configuration parameter is used to influence the generated
-///     selectors of the ink! trait messages. This is useful to disambiguate
-///     ink! trait definitions with equal names.
+///   The namespace configuration parameter is used to influence the generated
+///   selectors of the ink! trait messages. This is useful to disambiguate
+///   ink! trait definitions with equal names.
 ///
-///     **Usage Example:**
-///     ```
-///     #[ink::trait_definition(namespace = "foo")]
-///     pub trait TraitDefinition {
-///         #[ink(message)]
-///         fn message1(&self);
+///   **Usage Example:**
+///   ```
+///   #[ink::trait_definition(namespace = "foo")]
+///   pub trait TraitDefinition {
+///       #[ink(message)]
+///       fn message1(&self);
 ///
-///         #[ink(message, selector = 42)]
-///         fn message2(&self);
-///     }
-///     ```
+///       #[ink(message, selector = 42)]
+///       fn message2(&self);
+///   }
+///   ```
 ///
-///     **Default value:** Empty.
+///   **Default value:** Empty.
 ///
 /// - `keep_attr: String`
 ///
-///     Tells the ink! code generator which attributes should be passed to call builders.
-///     Call builders are used to doing cross-contract calls and are automatically
-///     generated for contracts.
+///   Tells the ink! code generator which attributes should be passed to call builders.
+///   Call builders are used for making cross-contract calls and are automatically
+///   generated for contracts.
 ///
-///     **Usage Example:**
-///     ```
-///     #[ink::trait_definition(keep_attr = "foo, bar")]
-///     pub trait Storage {
-///         #[ink(message)]
-///     //  #[foo]
-///         fn message1(&self);
+///   **Usage Example:**
+///   ```
+///   #[ink::trait_definition(keep_attr = "foo, bar")]
+///   pub trait Storage {
+///       #[ink(message)]
+///   //  #[foo]
+///       fn message1(&self);
 ///
-///         #[ink(message)]
-///     //  #[bar]
-///         fn message2(&self);
-///     }
-///     ```
+///       #[ink(message)]
+///   //  #[bar]
+///       fn message2(&self);
+///   }
+///   ```
 ///
-///     **Allowed attributes by default:** `cfg`, `cfg_attr`, `allow`, `warn`, `deny`,
-///     `forbid`, `deprecated`, `must_use`, `doc`, `rustfmt`.
+///   **Allowed attributes by default:** `cfg`, `cfg_attr`, `allow`, `warn`, `deny`,
+///   `forbid`, `deprecated`, `must_use`, `doc`, `rustfmt`.
 #[proc_macro_attribute]
 pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
     trait_def::analyze(attr.into(), item.into()).into()
@@ -830,27 +830,27 @@ pub fn event(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// - `derive: bool`
 ///
-///     The `derive` configuration parameter is used to enable/disable auto deriving of
-///     all required storage traits.
+///   The `derive` configuration parameter is used to enable/disable auto deriving of
+///   all required storage traits.
 ///
-///     **Usage Example:**
-///     ```
-///     use ink::storage::Mapping;
-///     use ink::storage::traits::{
-///         StorableHint,
-///         StorageKey,
-///         Storable,
-///     };
+///   **Usage Example:**
+///   ```
+///   use ink::storage::Mapping;
+///   use ink::storage::traits::{
+///       StorableHint,
+///       StorageKey,
+///       Storable,
+///   };
 ///
-///     #[ink::storage_item(derive = false)]
-///     #[derive(StorableHint, Storable, StorageKey)]
-///     struct NonPackedGeneric<T: ink::storage::traits::Packed> {
-///         s1: u32,
-///         s2: Mapping<u128, T>,
-///     }
-///     ```
+///   #[ink::storage_item(derive = false)]
+///   #[derive(StorableHint, Storable, StorageKey)]
+///   struct NonPackedGeneric<T: ink::storage::traits::Packed> {
+///       s1: u32,
+///       s2: Mapping<u128, T>,
+///   }
+///   ```
 ///
-///     **Default value:** true.
+///   **Default value:** true.
 #[proc_macro_attribute]
 pub fn storage_item(attr: TokenStream, item: TokenStream) -> TokenStream {
     storage_item::generate(attr.into(), item.into()).into()
@@ -929,9 +929,9 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// - `extension = N: u16`:
 ///
-///     The runtime may have several chain extensions at the same time. The `extension`
-///     identifier points to the corresponding chain extension in the runtime.
-///     The value should be the same as during the definition of the chain extension.
+///   The runtime may have several chain extensions at the same time. The `extension`
+///   identifier points to the corresponding chain extension in the runtime.
+///   The value should be the same as during the definition of the chain extension.
 ///
 /// # Method Attributes
 ///
@@ -1637,6 +1637,226 @@ pub fn scale_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
         Err(err) => err.to_compile_error().into(),
     }
 }
+
+synstructure::decl_derive!(
+    [SolDecode] =>
+    /// Derives an implementation of `ink::SolDecode`
+    /// for the given `struct` or `enum`.
+    ///
+    /// # Note
+    ///
+    /// All field types (if any) must implement [`ink::SolDecode`].
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use ink_macro::SolDecode;
+    ///
+    /// #[derive(SolDecode)]
+    /// struct UnitStruct;
+    ///
+    /// #[derive(SolDecode)]
+    /// struct TupleStruct(bool, u8, String);
+    ///
+    /// #[derive(SolDecode)]
+    /// struct FieldStruct {
+    ///     status: bool,
+    ///     count: u8,
+    ///     reason: String,
+    /// }
+    ///
+    /// #[derive(SolDecode)]
+    /// enum SimpleEnum {
+    ///     One,
+    ///     Two,
+    ///     Three,
+    /// }
+    ///
+    /// #[derive(SolDecode)]
+    /// struct NestedStruct {
+    ///     unit: UnitStruct,
+    ///     tuple: TupleStruct,
+    ///     fields: FieldStruct,
+    ///     enumerate: SimpleEnum,
+    /// }
+    ///
+    /// #[derive(SolDecode)]
+    /// struct GenericStruct<T> {
+    ///     concrete: u8,
+    ///     generic: T,
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// Solidity has no semantic equivalent for enums with fields
+    /// (i.e. [Solidity enums][sol-enum] can only express the equivalent of
+    /// Rust [unit-only][rust-enum-unit-only] or [field-less][rust-enum-field-less] enums).
+    /// So mapping complex Rust enums (i.e. enums with fields) to "equivalent" Solidity
+    /// representations typically yields complex structures based on
+    /// tuples (at [Solidity ABI encoding][sol-abi] level)
+    /// and structs (at Solidity language level).
+    ///
+    /// Because of this, this `Derive` macro doesn't generate [`ink::SolEncode`]
+    /// implementations for enums with fields.
+    ///
+    /// [sol-enum]: https://docs.soliditylang.org/en/latest/types.html#enums
+    /// [rust-enum-unit-only]: https://doc.rust-lang.org/reference/items/enumerations.html#r-items.enum.unit-only
+    /// [rust-enum-field-less]: https://doc.rust-lang.org/reference/items/enumerations.html#r-items.enum.fieldless
+    /// [sol-abi]: https://docs.soliditylang.org/en/latest/abi-spec.html#mapping-solidity-to-abi-types
+    sol::sol_decode_derive
+);
+
+synstructure::decl_derive!(
+    [SolEncode] =>
+    /// Derives an implementation of `ink::SolEncode`
+    /// for the given `struct` or `enum`.
+    ///
+    /// # Note
+    ///
+    /// All field types (if any) must implement [`ink::SolEncode`].
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use ink_macro::SolEncode;
+    ///
+    /// #[derive(SolEncode)]
+    /// struct UnitStruct;
+    ///
+    /// #[derive(SolEncode)]
+    /// struct TupleStruct(bool, u8, String);
+    ///
+    /// #[derive(SolEncode)]
+    /// struct FieldStruct {
+    ///     status: bool,
+    ///     count: u8,
+    ///     reason: String,
+    /// }
+    ///
+    /// #[derive(SolEncode)]
+    /// enum SimpleEnum {
+    ///     One,
+    ///     Two,
+    ///     Three,
+    /// }
+    ///
+    /// #[derive(SolEncode)]
+    /// struct NestedStruct {
+    ///     unit: UnitStruct,
+    ///     tuple: TupleStruct,
+    ///     fields: FieldStruct,
+    ///     enumerate: SimpleEnum,
+    /// }
+    ///
+    /// #[derive(SolEncode)]
+    /// struct GenericStruct<T> {
+    ///     concrete: u8,
+    ///     generic: T,
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// Solidity has no semantic equivalent for enums with fields
+    /// (i.e. [Solidity enums][sol-enum] can only express the equivalent of
+    /// Rust [unit-only][rust-enum-unit-only] or [field-less][rust-enum-field-less] enums).
+    /// So mapping complex Rust enums (i.e. enums with fields) to "equivalent" Solidity
+    /// representations typically yields complex structures based on
+    /// tuples (at [Solidity ABI encoding][sol-abi] level)
+    /// and structs (at Solidity language level).
+    ///
+    /// Because of this, this `Derive` macro doesn't generate [`ink::SolEncode`]
+    /// implementations for enums with fields.
+    ///
+    /// [sol-enum]: https://docs.soliditylang.org/en/latest/types.html#enums
+    /// [rust-enum-unit-only]: https://doc.rust-lang.org/reference/items/enumerations.html#r-items.enum.unit-only
+    /// [rust-enum-field-less]: https://doc.rust-lang.org/reference/items/enumerations.html#r-items.enum.fieldless
+    /// [sol-abi]: https://docs.soliditylang.org/en/latest/abi-spec.html#mapping-solidity-to-abi-types
+    sol::sol_encode_derive
+);
+
+synstructure::decl_derive!(
+    [SolErrorDecode] =>
+    /// Derives an implementation of `ink::sol::SolErrorDecode`
+    /// for the given `struct` or `enum`.
+    ///
+    /// # Note
+    ///
+    /// All field types (if any) must implement [`ink::SolDecode`].
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use ink_macro::SolErrorDecode;
+    ///
+    /// #[derive(SolErrorDecode)]
+    /// struct UnitError;
+    ///
+    /// #[derive(SolErrorDecode)]
+    /// struct ErrorWithParams(bool, u8, String);
+    ///
+    /// #[derive(SolErrorDecode)]
+    /// struct ErrorWithNamedParams {
+    ///     status: bool,
+    ///     count: u8,
+    ///     reason: String,
+    /// }
+    ///
+    /// #[derive(SolErrorDecode)]
+    /// enum MultipleErrors {
+    ///     UnitError,
+    ///     ErrorWithParams(bool, u8, String),
+    ///     ErrorWithNamedParams {
+    ///         status: bool,
+    ///         count: u8,
+    ///         reason: String,
+    ///     }
+    /// }
+    /// ```
+    sol::sol_error_decode_derive
+);
+
+synstructure::decl_derive!(
+    [SolErrorEncode] =>
+    /// Derives an implementation of `ink::sol::SolErrorEncode`
+    /// for the given `struct` or `enum`.
+    ///
+    /// # Note
+    ///
+    /// All field types (if any) must implement [`ink::SolEncode`].
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use ink_macro::SolErrorEncode;
+    ///
+    /// #[derive(SolErrorEncode)]
+    /// struct UnitError;
+    ///
+    /// #[derive(SolErrorEncode)]
+    /// struct ErrorWithParams(bool, u8, String);
+    ///
+    /// #[derive(SolErrorEncode)]
+    /// struct ErrorWithNamedParams {
+    ///     status: bool,
+    ///     count: u8,
+    ///     reason: String,
+    /// }
+    ///
+    /// #[derive(SolErrorEncode)]
+    /// enum MultipleErrors {
+    ///     UnitError,
+    ///     ErrorWithParams(bool, u8, String),
+    ///     ErrorWithNamedParams {
+    ///         status: bool,
+    ///         count: u8,
+    ///         reason: String,
+    ///     }
+    /// }
+    /// ```
+    sol::sol_error_encode_derive
+);
 
 #[cfg(test)]
 pub use contract::generate_or_err;

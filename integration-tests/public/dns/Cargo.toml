@@ -1,12 +1,12 @@
 [package]
 name = "dns"
-version = "6.0.0-alpha"
+version = "6.0.0-alpha.1"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../../crates/ink", default-features = false }
+ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
 
 [lib]
 path = "lib.rs"
@@ -17,3 +17,6 @@ std = [
     "ink/std",
 ]
 ink-as-dependency = []
+
+[package.metadata.ink-lang]
+abi = "ink"

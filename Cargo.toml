@@ -15,7 +15,7 @@ members = [
     "crates/prelude",
     "crates/primitives",
     "crates/storage",
-    "crates/storage/traits",
+    "crates/storage/traits"
 ]
 exclude = [
     "integration-tests",
@@ -30,24 +30,24 @@ homepage = "https://use.ink"
 keywords = ["polkavm", "ink", "riscv", "blockchain", "edsl"]
 license = "Apache-2.0"
 repository = "https://github.com/use-ink/ink"
-version = "6.0.0-alpha"
+version = "6.0.0-alpha.1"
 
 [workspace.dependencies]
 arrayref = { version = "0.3" }
 array-init = { version = "2.0", default-features = false }
 blake2 = { version = "0.10" }
-cargo_metadata = { version = "0.19.0" }
+cargo_metadata = { version = "0.21.0" }
 cfg-if = { version = "1.0" }
 contract-build = { git = "https://github.com/use-ink/cargo-contract", branch = "master" }
-darling = { version = "0.20.10" }
-derive_more = { version = "1.0.0", default-features = false }
+darling = { version = "0.20.11" }
+derive_more = { version = "2.0.1", default-features = false }
 either = { version = "1.13", default-features = false }
 funty = { version = "2.0.0" }
 heck = { version = "0.5.0" }
 impl-serde = { version = "0.5.0", default-features = false }
 itertools = { version = "0.14.0", default-features = false }
 jsonrpsee = { version = "0.24" }
-linkme = { version = "0.3.30" }
+linkme = { version = "0.3" }
 num-traits = { version = "0.2", default-features = false }
 paste = { version = "1.0" }
 pretty_assertions = { version = "1" }
@@ -55,10 +55,9 @@ proc-macro2 = { version = "1" }
 quickcheck = { version = "1" }
 quickcheck_macros = { version = "1" }
 quote = { version = "1" }
-alloy-rlp = { version = "0.3.9", default-features = false }
-scale = { package = "parity-scale-codec", version = "3.6.12", default-features = false, features = ["derive"] }
-scale-decode = { version = "0.14.0", default-features = false }
-scale-encode = { version = "0.8.0", default-features = false }
+scale = { package = "parity-scale-codec", version = "3.7.4", default-features = false, features = ["derive"] }
+scale-decode = { version = "0.16.0", default-features = false }
+scale-encode = { version = "0.10.0", default-features = false }
 scale-info = { version = "2.11", default-features = false }
 schemars = { version = "0.8" }
 secp256k1 = { version = "0.30.0" }
@@ -67,55 +66,62 @@ serde_json = { version = "1.0.137" }
 sha2 = { version = "0.10" }
 sha3 = { version = "0.10" }
 static_assertions = { version = "1.1" }
-subxt = { version = "0.38" }
-subxt-metadata = { version = "0.38" }
-subxt-signer = { version = "0.38" }
+subxt = { version = "0.42.1" }
+subxt-metadata = { version = "0.42.1" }
+subxt-signer = { version = "0.42.1" }
 syn = { version = "2" }
 synstructure = { version = "0.13.1" }
 thiserror = { version = "2.0.11" }
-tokio = { version = "1.43.0" }
+tokio = { version = "1.47.1" }
 tracing = { version = "0.1.41" }
 tracing-subscriber = { version = "0.3.19" }
-trybuild = { version = "1.0.102" }
+trybuild = { version = "1.0.110" }
 which = { version = "7.0.0" }
 xxhash-rust = { version = "0.8" }
-const_env = { version = "0.1"}
+const_env = { version = "0.1" }
 
 # Substrate dependencies
-frame-metadata = { version = "18.0.0", default-features = false }
-frame-system = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
-frame-support = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
-pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
-pallet-timestamp = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
-pallet-revive = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
-pallet-revive-uapi = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false, features = ["unstable-hostfn"] }
-pallet-revive-mock-network = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
-sp-externalities = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
-sp-io = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
-sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false, features = ["disable_target_static_assertions"] }
-sp-core = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
-sp-keyring = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
-sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
-sp-weights = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
-xcm = { package = "staging-xcm", git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
+frame-metadata = { version = "23.0.0", default-features = false }
+frame-system = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+frame-support = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+pallet-timestamp = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+
+pallet-revive = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+pallet-revive-uapi = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false, features = ["unstable-hostfn"] }
+
+sp-externalities = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+sp-io = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false, features = ["disable_target_static_assertions"] }
+sp-core = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+sp-keyring = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4" }
+sp-weights = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+xcm = { package = "staging-xcm", git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
 
 # PolkaVM dependencies
-polkavm-derive = {  version = "0.18.0", default-features = false }
+polkavm-derive = { version = "0.26.0", default-features = false }
+
+# Solidity dependencies
+alloy-sol-types = { version = "1.3.0", default-features = false }
+const_format = { version = "0.2.34", features = ["fmt"] }
+keccak-const = "0.2.0"
+impl-trait-for-tuples = "0.2.3"
 
 # Local dependencies
-ink = { version = "=6.0.0-alpha", path = "crates/ink", default-features = false }
-ink_allocator = { version = "=6.0.0-alpha", path = "crates/allocator", default-features = false }
-ink_codegen = { version = "=6.0.0-alpha", path = "crates/ink/codegen", default-features = false }
-ink_e2e_macro = { version = "=6.0.0-alpha", path = "crates/e2e/macro", default-features = false }
-ink_engine = { version = "=6.0.0-alpha", path = "crates/engine", default-features = false }
-ink_env = { version = "=6.0.0-alpha", path = "crates/env", default-features = false }
-ink_ir = { version = "=6.0.0-alpha", path = "crates/ink/ir", default-features = false }
-ink_macro = { version = "=6.0.0-alpha", path = "crates/ink/macro", default-features = false }
-ink_metadata = { version = "=6.0.0-alpha", path = "crates/metadata", default-features = false }
-ink_prelude = { version = "=6.0.0-alpha", path = "crates/prelude", default-features = false }
-ink_primitives = { version = "=6.0.0-alpha", path = "crates/primitives", default-features = false }
-ink_storage = { version = "=6.0.0-alpha", path = "crates/storage", default-features = false }
-ink_storage_traits = { version = "=6.0.0-alpha", path = "crates/storage/traits", default-features = false }
+ink = { version = "=6.0.0-alpha.1", path = "crates/ink", default-features = false }
+ink_allocator = { version = "=6.0.0-alpha.1", path = "crates/allocator", default-features = false }
+ink_codegen = { version = "=6.0.0-alpha.1", path = "crates/ink/codegen", default-features = false }
+ink_e2e_macro = { version = "=6.0.0-alpha.1", path = "crates/e2e/macro", default-features = false }
+ink_engine = { version = "=6.0.0-alpha.1", path = "crates/engine", default-features = false }
+ink_env = { version = "=6.0.0-alpha.1", path = "crates/env", default-features = false }
+ink_ir = { version = "=6.0.0-alpha.1", path = "crates/ink/ir", default-features = false }
+ink_macro = { version = "=6.0.0-alpha.1", path = "crates/ink/macro", default-features = false }
+ink_metadata = { version = "=6.0.0-alpha.1", path = "crates/metadata", default-features = false }
+ink_prelude = { version = "=6.0.0-alpha.1", path = "crates/prelude", default-features = false }
+ink_primitives = { version = "=6.0.0-alpha.1", path = "crates/primitives", default-features = false }
+ink_storage = { version = "=6.0.0-alpha.1", path = "crates/storage", default-features = false }
+ink_storage_traits = { version = "=6.0.0-alpha.1", path = "crates/storage/traits", default-features = false }
 
 [profile.release]
 panic = "abort"

@@ -73,6 +73,7 @@ impl IsDocAttribute for syn::Attribute {
     }
 }
 
+#[allow(clippy::large_enum_variant)] // todo
 /// Either an ink! specific attribute, or another uninterpreted attribute.
 #[derive(Debug, PartialEq, Eq)]
 pub enum Attribute {
@@ -258,7 +259,7 @@ impl InkAttribute {
     /// # Note
     ///
     /// This yields at least one ink! attribute flag.
-    pub fn args(&self) -> ::core::slice::Iter<AttributeFrag> {
+    pub fn args(&self) -> ::core::slice::Iter<'_, AttributeFrag> {
         self.args.iter()
     }
 
@@ -524,7 +525,7 @@ impl core::fmt::Display for AttributeArg {
             Self::Payable => write!(f, "payable"),
             Self::Selector(selector) => core::fmt::Display::fmt(&selector, f),
             Self::SignatureTopic(hash) => {
-                write!(f, "signature_topic = {:?}", hash)
+                write!(f, "signature_topic = {hash:?}")
             }
             Self::Function(function) => {
                 write!(f, "function = {:?}", function.into_u16())
@@ -1102,6 +1103,7 @@ mod tests {
 
         /// Mock for `ir::Attribute` to improve the ability to test.
         #[derive(Debug, PartialEq, Eq)]
+        #[allow(clippy::large_enum_variant)] // todo
         pub enum Attribute {
             Ink(Vec<ir::AttributeArg>),
             Other(syn::Attribute),

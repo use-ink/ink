@@ -14,6 +14,8 @@
 
 use pallet_revive_uapi::ReturnFlags;
 
+use crate::abi::Abi;
+
 /// Stores various information of the respective dispatchable ink! message.
 ///
 /// # Note
@@ -111,7 +113,7 @@ pub trait DispatchableMessageInfo<const ID: u32> {
     /// `&mut self` to `&self` with our current dispatch codegen architecture.
     const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output;
 
-    /// closure for decoding
+    /// The closure for decoding message input.
     const DECODE: fn(
         &mut &[::core::primitive::u8],
     ) -> Result<Self::Input, DispatchError>;
@@ -128,12 +130,12 @@ pub trait DispatchableMessageInfo<const ID: u32> {
     const MUTATES: bool;
     /// Yields `true` if the dispatchable ink! message is payable.
     const PAYABLE: bool;
-    /// The selectors of the dispatchable ink! message.
+    /// The selector of the dispatchable ink! message.
     const SELECTOR: [u8; 4];
     /// The label of the dispatchable ink! message.
     const LABEL: &'static str;
-    /// The encoding of input and output data for the message
-    const ENCODING: Encoding;
+    /// The ABI spec for the decoding the message call.
+    const ABI: Abi;
 }
 
 /// Stores various information of the respective dispatchable ink! constructor.
@@ -184,7 +186,7 @@ pub trait DispatchableMessageInfo<const ID: u32> {
 /// {
 ///     assert_eq!(
 ///         <Contract as DispatchableConstructorInfo<{ ID }>>::SELECTOR,
-///         selector,
+///         Some(selector),
 ///     );
 ///     assert_eq!(
 ///         <Contract as DispatchableConstructorInfo<{ ID }>>::LABEL,
@@ -220,26 +222,31 @@ pub trait DispatchableConstructorInfo<const ID: u32> {
     /// The closure that can be used to dispatch into the dispatchable ink! constructor.
     const CALLABLE: fn(Self::Input) -> Self::Output;
 
+    /// The closure for decoding constructor input.
+    const DECODE: fn(
+        &mut &[::core::primitive::u8],
+    ) -> Result<Self::Input, DispatchError>;
+
+    /// The closure for returning return data.
+    #[cfg(not(feature = "std"))]
+    const RETURN: fn(ReturnFlags, Result<(), &Self::Error>) -> !;
+
+    /// The closure for returning return data.
+    #[cfg(feature = "std")]
+    const RETURN: fn(ReturnFlags, Result<(), &Self::Error>) -> ();
+
     /// Yields `true` if the dispatchable ink! constructor is payable.
     const PAYABLE: bool;
 
-    /// The selectors of the dispatchable ink! constructor.
-    const SELECTOR: [u8; 4];
+    /// The selector (if any) of the dispatchable ink! constructor.
+    const SELECTOR: Option<[u8; 4]>;
 
     /// The label of the dispatchable ink! constructor.
     const LABEL: &'static str;
-}
 
-/// todo: comment
-pub enum Encoding {
-    Scale,
-    Rlp,
+    /// The ABI spec for the decoding the constructor call.
+    const ABI: Abi;
 }
-
-/// Custom unit type for RLP encodable messages which return `()`.
-/// This is because [`alloy_rlp::Encodable`] is not implemented for the build-in `()` type
-#[derive(alloy_rlp::RlpEncodable)]
-pub struct RlpUnit {}
 
 mod private {
     /// Seals the implementation of `ConstructorReturnType`.
@@ -250,7 +257,7 @@ mod private {
 ///
 /// # Note
 ///
-/// Currently the only allowed types are `()` and `Result<(), E>`
+/// Currently, the only allowed types are `()` and `Result<(), E>`
 /// where `E` is some unspecified error type.
 /// If the contract initializer returns `Result::Err` the utility
 /// method that is used to initialize an ink! smart contract will
@@ -281,7 +288,7 @@ pub trait ConstructorOutput<C>: private::Sealed {
 ///
 /// # Note
 ///
-/// Currently the only allowed types are `()` and `Result<(), E>`
+/// Currently, the only allowed types are `()` and `Result<(), E>`
 /// where `E` is some unspecified error type.
 /// If the contract initializer returns `Result::Err` the utility
 /// method that is used to initialize an ink! smart contract will
@@ -352,6 +359,7 @@ impl<C, E> ConstructorOutput<C> for ConstructorOutputValue<Result<C, E>> {
 /// }
 ///
 /// use contract::Contract;
+/// use ink::env::DecodeDispatch;
 ///
 /// fn main() {
 ///     // Call to `message1` without input parameters.
@@ -359,7 +367,7 @@ impl<C, E> ConstructorOutput<C> for ConstructorOutputValue<Result<C, E>> {
 ///         let mut input_bytes = Vec::new();
 ///         input_bytes.extend(selector_bytes!("message1"));
 ///         assert!(
-///             <<Contract as ContractMessageDecoder>::Type as Decode>::decode(
+///             <<Contract as ContractMessageDecoder>::Type as DecodeDispatch>::decode_dispatch(
 ///                 &mut &input_bytes[..]
 ///             )
 ///             .is_ok()
@@ -372,7 +380,7 @@ impl<C, E> ConstructorOutput<C> for ConstructorOutputValue<Result<C, E>> {
 ///         input_bytes.extend(true.encode());
 ///         input_bytes.extend(42i32.encode());
 ///         assert!(
-///             <<Contract as ContractMessageDecoder>::Type as Decode>::decode(
+///             <<Contract as ContractMessageDecoder>::Type as DecodeDispatch>::decode_dispatch(
 ///                 &mut &input_bytes[..]
 ///             )
 ///             .is_ok()
@@ -383,7 +391,7 @@ impl<C, E> ConstructorOutput<C> for ConstructorOutputValue<Result<C, E>> {
 ///         let mut input_bytes = Vec::new();
 ///         input_bytes.extend(selector_bytes!("non_existing_message"));
 ///         assert!(
-///             <<Contract as ContractMessageDecoder>::Type as Decode>::decode(
+///             <<Contract as ContractMessageDecoder>::Type as DecodeDispatch>::decode_dispatch(
 ///                 &mut &input_bytes[..]
 ///             )
 ///             .is_err()
@@ -394,7 +402,7 @@ impl<C, E> ConstructorOutput<C> for ConstructorOutputValue<Result<C, E>> {
 ///         let mut input_bytes = Vec::new();
 ///         input_bytes.extend(selector_bytes!("message2"));
 ///         assert!(
-///             <<Contract as ContractMessageDecoder>::Type as Decode>::decode(
+///             <<Contract as ContractMessageDecoder>::Type as DecodeDispatch>::decode_dispatch(
 ///                 &mut &input_bytes[..]
 ///             )
 ///             .is_err()
@@ -445,6 +453,7 @@ pub trait ContractMessageDecoder {
 /// }
 ///
 /// use contract::Contract;
+/// use ink::env::DecodeDispatch;
 ///
 /// fn main() {
 ///     // Call to `constructor1` without input parameters.
@@ -452,7 +461,7 @@ pub trait ContractMessageDecoder {
 ///         let mut input_bytes = Vec::new();
 ///         input_bytes.extend(selector_bytes!("constructor1"));
 ///         assert!(
-///             <<Contract as ContractConstructorDecoder>::Type as Decode>::decode(
+///             <<Contract as ContractConstructorDecoder>::Type as DecodeDispatch>::decode_dispatch(
 ///                 &mut &input_bytes[..]
 ///             )
 ///             .is_ok()
@@ -465,7 +474,7 @@ pub trait ContractMessageDecoder {
 ///         input_bytes.extend(true.encode());
 ///         input_bytes.extend(42i32.encode());
 ///         assert!(
-///             <<Contract as ContractConstructorDecoder>::Type as Decode>::decode(
+///             <<Contract as ContractConstructorDecoder>::Type as DecodeDispatch>::decode_dispatch(
 ///                 &mut &input_bytes[..]
 ///             )
 ///             .is_ok()
@@ -476,7 +485,7 @@ pub trait ContractMessageDecoder {
 ///         let mut input_bytes = Vec::new();
 ///         input_bytes.extend(selector_bytes!("non_existing_constructor"));
 ///         assert!(
-///             <<Contract as ContractConstructorDecoder>::Type as Decode>::decode(
+///             <<Contract as ContractConstructorDecoder>::Type as DecodeDispatch>::decode_dispatch(
 ///                 &mut &input_bytes[..]
 ///             )
 ///             .is_err()
@@ -487,7 +496,7 @@ pub trait ContractMessageDecoder {
 ///         let mut input_bytes = Vec::new();
 ///         input_bytes.extend(selector_bytes!("constructor2"));
 ///         assert!(
-///             <<Contract as ContractConstructorDecoder>::Type as Decode>::decode(
+///             <<Contract as ContractConstructorDecoder>::Type as DecodeDispatch>::decode_dispatch(
 ///                 &mut &input_bytes[..]
 ///             )
 ///             .is_err()

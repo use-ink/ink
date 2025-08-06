@@ -106,25 +106,6 @@ impl scale::Output for EncodeScope<'_> {
     }
 }
 
-unsafe impl<'a> alloy_rlp::bytes::BufMut for EncodeScope<'a> {
-    fn remaining_mut(&self) -> usize {
-        self.capacity() - self.len()
-    }
-    unsafe fn advance_mut(&mut self, cnt: usize) {
-        debug_assert!(
-            self.len().checked_add(cnt).unwrap() <= self.capacity(),
-            "encode scope buffer overflowed. capacity is {} but last write index is {}",
-            self.capacity(),
-            self.len().checked_add(cnt).unwrap(),
-        );
-        self.len = self.len.checked_add(cnt).unwrap()
-    }
-
-    fn chunk_mut(&mut self) -> &mut alloy_rlp::bytes::buf::UninitSlice {
-        alloy_rlp::bytes::buf::UninitSlice::new(&mut self.buffer[self.len..])
-    }
-}
-
 /// Scoped access to an underlying bytes buffer.
 ///
 /// # Note
@@ -147,6 +128,7 @@ impl<'a> ScopedBuffer<'a> {
     /// Splits the scoped buffer into yet another piece to operate on it temporarily.
     ///
     /// The split buffer will have an offset of 0 but be offset by `self`'s offset.
+    #[cfg(feature = "unstable-hostfn")] // only usages are when unstable-hostfn is enabled
     pub fn split(&mut self) -> ScopedBuffer {
         ScopedBuffer {
             offset: 0,
@@ -195,6 +177,16 @@ impl<'a> ScopedBuffer<'a> {
         self.take(encode_len)
     }
 
+    /// Encode the given value into the scoped buffer using the given encoder function
+    /// and return the sub slice containing all the encoded bytes.
+    pub fn take_encoded_with<F>(&mut self, encoder: F) -> &'a mut [u8]
+    where
+        F: FnOnce(&mut [u8]) -> usize,
+    {
+        let encode_len = encoder(self.buffer);
+        self.take(encode_len)
+    }
+
     /// Encode the given storable value into the scoped buffer and return the sub slice
     /// containing all the encoded bytes.
     #[inline(always)]
@@ -217,6 +209,7 @@ impl<'a> ScopedBuffer<'a> {
     /// afterwards. The [`take_appended`] method shall be used to return the buffer
     /// that includes all appended encodings as a single buffer.
     #[inline(always)]
+    #[cfg(feature = "unstable-hostfn")] // only usages are when unstable-hostfn is enabled
     pub fn append_encoded<T>(&mut self, value: &T)
     where
         T: scale::Encode,

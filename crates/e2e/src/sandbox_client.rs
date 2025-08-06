@@ -12,6 +12,63 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use std::{
+    marker::PhantomData,
+    path::PathBuf,
+};
+
+use frame_support::{
+    dispatch::RawOrigin,
+    pallet_prelude::DispatchError,
+    traits::{
+        fungible::Inspect,
+        IsType,
+    },
+};
+use ink_env::{
+    call::utils::DecodeMessageResult,
+    Environment,
+};
+use ink_primitives::{
+    abi::AbiEncodeWith,
+    DepositLimit,
+};
+use ink_sandbox::{
+    api::prelude::*,
+    frame_system,
+    frame_system::pallet_prelude::OriginFor,
+    pallet_balances,
+    pallet_revive,
+    AccountIdFor,
+    RuntimeCall,
+    Sandbox,
+    Weight,
+};
+use jsonrpsee::core::async_trait;
+use pallet_revive::{
+    evm::{
+        CallTrace,
+        CallTracerConfig,
+        Trace,
+        TracerType,
+        U256,
+    },
+    CodeUploadReturnValue,
+    InstantiateReturnValue,
+    MomentOf,
+};
+use scale::Decode;
+use sp_core::{
+    sr25519::Pair,
+    Pair as _,
+};
+use sp_runtime::traits::Bounded;
+use subxt::{
+    dynamic::Value,
+    tx::Payload,
+};
+use subxt_signer::sr25519::Keypair;
+
 use crate::{
     backend::BuilderClient,
     builders::{
@@ -38,52 +95,6 @@ use crate::{
     UploadResult,
     H256,
 };
-use frame_support::{
-    dispatch::RawOrigin,
-    pallet_prelude::DispatchError,
-    traits::{
-        fungible::Inspect,
-        IsType,
-    },
-};
-use ink_env::Environment;
-use ink_primitives::DepositLimit;
-use ink_sandbox::{
-    api::prelude::*,
-    frame_system,
-    frame_system::pallet_prelude::OriginFor,
-    pallet_balances,
-    pallet_revive,
-    AccountIdFor,
-    RuntimeCall,
-    Sandbox,
-    Weight,
-};
-use jsonrpsee::core::async_trait;
-use pallet_revive::{
-    evm::U256,
-    CodeUploadReturnValue,
-    InstantiateReturnValue,
-    MomentOf,
-};
-use scale::{
-    Decode,
-    Encode,
-};
-use sp_core::{
-    sr25519::Pair,
-    Pair as _,
-};
-use sp_runtime::traits::Bounded;
-use std::{
-    marker::PhantomData,
-    path::PathBuf,
-};
-use subxt::{
-    dynamic::Value,
-    tx::Payload,
-};
-use subxt_signer::sr25519::Keypair;
 
 type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
 type ContractsBalanceOf<R> =
@@ -135,7 +146,7 @@ where
         for account in accounts.iter() {
             sandbox
                 .mint_into(account, TOKENS.into())
-                .unwrap_or_else(|_| panic!("Failed to mint {} tokens", TOKENS));
+                .unwrap_or_else(|_| panic!("Failed to mint {TOKENS} tokens"));
         }
     }
 }
@@ -233,15 +244,23 @@ where
     ContractsBalanceOf<S::Runtime>: Into<U256> + TryFrom<U256> + Bounded,
     MomentOf<S::Runtime>: Into<U256>,
 
+    <<S as Sandbox>::Runtime as frame_system::Config>::Nonce: Into<u32>,
+
     // todo
     <<S as Sandbox>::Runtime as frame_system::Config>::Hash:
         frame_support::traits::IsType<sp_core::H256>,
+    //S: ink_sandbox::api::revive_api::ContractAPI,
 {
-    async fn bare_instantiate<Contract: Clone, Args: Send + Sync + Encode + Clone, R>(
+    async fn bare_instantiate<
+        Contract: Clone,
+        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
+        R,
+        Abi: Send + Sync + Clone,
+    >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
@@ -249,18 +268,27 @@ where
         let _ =
             <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 
-        let code = self.contracts.load_code(contract_name);
-        let data = constructor_exec_input(constructor.clone());
+        // get the trace
+        let _ = self.sandbox.build_block();
 
-        let result = self.sandbox.deploy_contract(
-            code,
-            value,
-            data,
-            salt(),
-            caller_to_origin::<S>(caller),
-            gas_limit,
-            storage_deposit_limit,
-        );
+        let tracer_type = TracerType::CallTracer(Some(CallTracerConfig::default()));
+        let mut tracer = self.sandbox.evm_tracer(tracer_type);
+
+        let mut code_hash: Option<H256> = None;
+        let result = pallet_revive::tracing::trace(tracer.as_tracing(), || {
+            let code = self.contracts.load_code(contract_name);
+            code_hash = Some(H256(crate::client_utils::code_hash(&code[..])));
+            let data = constructor_exec_input(constructor.clone());
+            self.sandbox.deploy_contract(
+                code,
+                value,
+                data,
+                salt(),
+                caller_to_origin::<S>(caller),
+                gas_limit,
+                storage_deposit_limit,
+            )
+        });
 
         let addr_raw = match &result.result {
             Err(err) => {
@@ -270,20 +298,32 @@ where
             Ok(res) => res.addr,
         };
 
+        let trace = match tracer.collect_trace() {
+            Some(Trace::Call(call_trace)) => Some(call_trace),
+            _ => None,
+        };
+
         Ok(BareInstantiationResult {
             addr: addr_raw,
             events: (), // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
+            trace,
+            code_hash: code_hash.expect("code_hash must have been calculated"),
         })
     }
 
-    async fn bare_instantiate_dry_run<Contract: Clone, Args: Send + Encode + Clone, R>(
+    async fn bare_instantiate_dry_run<
+        Contract: Clone,
+        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
+        R,
+        Abi: Send + Sync + Clone,
+    >(
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<InstantiateDryRunResult<E>, Self::Error> {
+    ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error> {
         // todo has to be: let _ = <Client<AccountId, S> as
         // BuilderClient<E>>::map_account_dry_run(self, &caller).await;
         let _ =
@@ -314,7 +354,6 @@ where
             gas_consumed: result.gas_consumed,
             gas_required: result.gas_required,
             storage_deposit: result.storage_deposit,
-            debug_message: result.debug_message,
             result: result.result.map(|r| {
                 InstantiateReturnValue {
                     result: r.result,
@@ -363,55 +402,72 @@ where
         unimplemented!("sandbox does not yet support remove_code")
     }
 
-    async fn bare_call<Args: Sync + Encode + Clone, RetType: Send + Decode>(
+    async fn bare_call<
+        Args: Sync + AbiEncodeWith<Abi> + Clone,
+        RetType: Send + DecodeMessageResult<Abi>,
+        Abi: Sync + Clone,
+    >(
         &mut self,
         caller: &Keypair,
-        message: &CallBuilderFinal<E, Args, RetType>,
+        message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<Self::EventLog, Self::Error>
+    ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error>
     where
-        CallBuilderFinal<E, Args, RetType>: Clone,
+        CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {
         let _ =
             <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 
         // todo rename any account_id coming back from callee
         let addr = *message.clone().params().callee();
-        let exec_input = Encode::encode(message.clone().params().exec_input());
+        let exec_input = message.clone().params().exec_input().encode();
 
-        self.sandbox
-            .call_contract(
-                addr,
-                value,
-                exec_input,
-                caller_to_origin::<S>(caller),
-                gas_limit,
-                storage_deposit_limit,
-            )
-            .result
-            .map_err(|err| SandboxErr::new(format!("bare_call: {err:?}")))?;
+        // todo
+        let tracer_type = TracerType::CallTracer(Some(CallTracerConfig::default()));
+        let mut tracer = self.sandbox.evm_tracer(tracer_type);
+        let _result = pallet_revive::tracing::trace(tracer.as_tracing(), || {
+            self.sandbox
+                .call_contract(
+                    addr,
+                    value,
+                    exec_input,
+                    caller_to_origin::<S>(caller),
+                    gas_limit,
+                    storage_deposit_limit,
+                )
+                .result
+                .map_err(|err| SandboxErr::new(format!("bare_call: {err:?}")))
+        })?;
+        let trace = match tracer.collect_trace() {
+            Some(Trace::Call(call_trace)) => Some(call_trace),
+            _ => None,
+        };
 
-        Ok(())
+        Ok(((), trace))
     }
 
-    async fn bare_call_dry_run<Args: Sync + Encode + Clone, RetType: Send + Decode>(
+    async fn bare_call_dry_run<
+        Args: Sync + AbiEncodeWith<Abi> + Clone,
+        RetType: Send + DecodeMessageResult<Abi>,
+        Abi: Sync + Clone,
+    >(
         &mut self,
         caller: &Keypair,
-        message: &CallBuilderFinal<E, Args, RetType>,
+        message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<CallDryRunResult<E, RetType>, Self::Error>
+    ) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error>
     where
-        CallBuilderFinal<E, Args, RetType>: Clone,
+        CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {
         // todo there's side effects here
         let _ =
             <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 
         let addr = *message.clone().params().callee();
-        let exec_input = Encode::encode(message.clone().params().exec_input());
+        let exec_input = message.clone().params().exec_input().encode();
 
         let result = self.sandbox.dry_run(|sandbox| {
             sandbox.call_contract(
@@ -441,9 +497,9 @@ where
                 gas_consumed: result.gas_consumed,
                 gas_required: result.gas_required,
                 storage_deposit: result.storage_deposit,
-                debug_message: result.debug_message,
                 result: result.result,
             },
+            trace: None, // todo
             _marker: Default::default(),
         })
     }
@@ -456,7 +512,7 @@ where
         self.sandbox
             .dry_run(|sandbox| sandbox.map_account(origin))
             .map_err(|err| {
-                SandboxErr::new(format!("map_account_dry_run: execution error {:?}", err))
+                SandboxErr::new(format!("map_account_dry_run: execution error {err:?}"))
             })
     }
 
@@ -466,7 +522,7 @@ where
         let origin = OriginFor::<S::Runtime>::from(origin);
 
         self.sandbox.map_account(origin).map_err(|err| {
-            SandboxErr::new(format!("map_account: execution error {:?}", err))
+            SandboxErr::new(format!("map_account: execution error {err:?}"))
         })
     }
 }
@@ -485,6 +541,8 @@ where
     ContractsBalanceOf<Config::Runtime>: Send + Sync,
     ContractsBalanceOf<Config::Runtime>: Into<U256> + TryFrom<U256> + Bounded,
     MomentOf<Config::Runtime>: Into<U256>,
+
+    <Config::Runtime as frame_system::Config>::Nonce: Into<u32>,
 
     // todo
     <Config::Runtime as frame_system::Config>::Hash: IsType<sp_core::H256>,
@@ -523,6 +581,7 @@ where
 
 /// Exposes preset sandbox configurations to be used in tests.
 pub mod preset {
+    /*
     pub mod mock_network {
         use ink_sandbox::{
             frame_system,
@@ -639,4 +698,5 @@ pub mod preset {
             }
         }
     }
+     */
 }

@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::arithmetic::AtLeast32BitUnsigned;
-use core::array::TryFromSliceError;
+use core::{
+    array::TryFromSliceError,
+    borrow::Borrow,
+};
 use derive_more::From;
 use primitive_types::{
     H160,
@@ -24,12 +26,15 @@ use scale::{
     Encode,
     MaxEncodedLen,
 };
+use sp_core::keccak_256;
 #[cfg(feature = "std")]
 use {
     scale_decode::DecodeAsType,
     scale_encode::EncodeAsType,
     scale_info::TypeInfo,
 };
+
+use crate::arithmetic::AtLeast32BitUnsigned;
 
 /// The default environment `AccountId` type.
 ///
@@ -91,6 +96,21 @@ impl<'a> TryFrom<&'a [u8]> for AccountId {
     }
 }
 
+impl Borrow<[u8; 32]> for AccountId {
+    fn borrow(&self) -> &[u8; 32] {
+        &self.0
+    }
+}
+
+/// A Solidity compatible `address` type.
+///
+/// # Note
+///
+/// This is a type alias for the `H160` type used for addresses in `pallet-revive`.
+// For rationale for using `H160` as the `address` type,
+// see https://github.com/use-ink/ink/pull/2441#discussion_r2021230718.
+pub type Address = H160;
+
 /// The default environment `Hash` type.
 ///
 /// # Note
@@ -142,6 +162,12 @@ impl From<Hash> for [u8; 32] {
     }
 }
 
+impl Borrow<[u8; 32]> for Hash {
+    fn borrow(&self) -> &[u8; 32] {
+        &self.0
+    }
+}
+
 /// The equivalent of `Zero` for hashes.
 ///
 /// A hash that consists only of 0 bits is clear.
@@ -189,7 +215,7 @@ impl Clear for Hash {
 )]
 pub enum DepositLimit<Balance> {
     /// Allows bypassing all balance transfer checks.
-    Unchecked,
+    UnsafeOnlyForDryRun,
 
     /// Specifies a maximum allowable balance for a deposit.
     Balance(Balance),
@@ -278,7 +304,7 @@ pub trait AccountIdGuard {}
 /// used in the [`DefaultEnvironment`].
 impl AccountIdGuard for AccountId {}
 
-impl AccountIdGuard for H160 {}
+impl AccountIdGuard for Address {}
 
 cfg_if::cfg_if! {
     if #[cfg(feature = "std")] {
@@ -408,11 +434,11 @@ pub type BlockNumber = u32;
 pub struct RuntimeEvent();
 
 /// The default event record type.
-pub type EventRecord = EventRecordFoo<RuntimeEvent, Hash>;
+pub type EventRecord = EventRecordSpec<RuntimeEvent, Hash>;
 
 #[derive(Encode, Decode, Debug)]
 #[cfg_attr(feature = "std", derive(TypeInfo))]
-pub struct EventRecordFoo<E, H> {
+pub struct EventRecordSpec<E, H> {
     /// The phase of the block it happened in.
     pub phase: Phase,
     /// The event itself.
@@ -439,4 +465,34 @@ pub enum Phase {
 pub enum Origin<E: Environment> {
     Root,
     Signed(E::AccountId),
+}
+
+pub struct AccountIdMapper {}
+impl AccountIdMapper {
+    //pub fn to_address(account_id: &E::AccountId) -> Address {
+    pub fn to_address(account_id: &[u8]) -> Address {
+        let mut account_bytes: [u8; 32] = [0u8; 32];
+        account_bytes.copy_from_slice(&account_id[..32]);
+        if Self::is_eth_derived(account_id) {
+            // this was originally an eth address
+            // we just strip the 0xEE suffix to get the original address
+            Address::from_slice(&account_bytes[..20])
+        } else {
+            // this is an (ed|sr)25510 derived address
+            // avoid truncating the public key by hashing it first
+            let account_hash = keccak_256(account_bytes.as_ref());
+            Address::from_slice(&account_hash[12..])
+        }
+    }
+
+    /// Returns true if the passed account id is controlled by an Ethereum key.
+    ///
+    /// This is a stateless check that just compares the last 12 bytes. Please note that
+    /// it is theoretically possible to create an ed25519 keypair that passed this
+    /// filter. However, this can't be used for an attack. It also won't happen by
+    /// accident since everybody is using sr25519 where this is not a valid public key.
+    //fn is_eth_derived(account_id: &[u8]) -> bool {
+    fn is_eth_derived(account_bytes: &[u8]) -> bool {
+        account_bytes[20..] == [0xEE; 12]
+    }
 }

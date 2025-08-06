@@ -11,17 +11,19 @@ keywords = ["polkavm", "ink", "riscv", "blockchain", "edsl"]
 publish = false
 
 [workspace.dependencies]
-frame-support = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
-frame-system = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
-pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
-pallet-revive = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
-sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
-codec = { package = "parity-scale-codec", version =  "3.6.12", default-features = false }
+frame-support = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+frame-system = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+pallet-revive = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
+sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4" }
+
+# todo
+codec = { package = "parity-scale-codec", version =  "3.7.4", default-features = false }
 scale-info = { version = "2.11.1", default-features = false }
 
 [package]
 name = "runtime-call-contract"
-version = "6.0.0-alpha"
+version = "6.0.0-alpha.1"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 publish = false
@@ -36,7 +38,7 @@ sandbox-runtime = { path = "sandbox-runtime", default-features = false }
 scale-value = "0.18.0"
 # can't use workspace dependency because of `cargo-contract` build not
 # working with workspace dependencies
-frame-support = { git = "https://github.com/paritytech/polkadot-sdk", rev = "645878a27115db52e5d63115699b4bbb89034067", default-features = false }
+frame-support = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
 
 [lib]
 path = "lib.rs"
@@ -49,3 +51,6 @@ std = [
     "flipper-traits/std",
 ]
 ink-as-dependency = []
+
+[package.metadata.ink-lang]
+abi = "ink"

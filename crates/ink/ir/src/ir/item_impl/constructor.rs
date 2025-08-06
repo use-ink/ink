@@ -216,7 +216,7 @@ impl Callable for Constructor {
         }
     }
 
-    fn inputs(&self) -> InputsIter {
+    fn inputs(&self) -> InputsIter<'_> {
         InputsIter::from(self)
     }
 

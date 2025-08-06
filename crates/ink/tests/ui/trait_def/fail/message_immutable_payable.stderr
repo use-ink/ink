@@ -1,0 +1,5 @@
+error: ink! messages with a `payable` attribute argument must have a `&mut self` receiver
+ --> tests/ui/trait_def/fail/message_immutable_payable.rs:4:16
+  |
+4 |     fn message(&self);
+  |                ^^^^^

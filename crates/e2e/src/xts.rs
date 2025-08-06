@@ -21,15 +21,25 @@ use ink_env::Environment;
 
 use crate::contract_results::{
     ContractExecResultFor,
-    ContractInstantiateResultForBar,
+    ContractInstantiateResultFor,
 };
 use core::marker::PhantomData;
-use ink_primitives::DepositLimit;
+use funty::Fundamental;
+use ink_primitives::{
+    Address,
+    DepositLimit,
+};
 use pallet_revive::{
-    evm::H160,
+    evm::{
+        CallTrace,
+        CallTracerConfig,
+        Trace,
+        TracerType,
+    },
     CodeUploadResult,
 };
 use sp_core::H256;
+use sp_runtime::OpaqueExtrinsic;
 use subxt::{
     backend::{
         legacy::LegacyRpcMethods,
@@ -40,10 +50,16 @@ use subxt::{
         DefaultExtrinsicParams,
         DefaultExtrinsicParamsBuilder,
         ExtrinsicParams,
+        HashFor,
+        Header,
     },
-    ext::scale_encode,
+    ext::{
+        scale_encode,
+        subxt_core::tx::Transaction,
+    },
     tx::{
         Signer,
+        SubmittableTransaction,
         TxStatus,
     },
     OnlineClient,
@@ -107,7 +123,7 @@ pub struct InstantiateWithCode<E: Environment> {
 #[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 pub struct Call<E: Environment> {
-    dest: H160,
+    dest: Address,
     #[codec(compact)]
     value: E::Balance,
     gas_limit: Weight,
@@ -154,7 +170,7 @@ struct RpcInstantiateRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
     value: E::Balance,
     gas_limit: Option<Weight>,
-    storage_deposit_limit: DepositLimit<E::Balance>,
+    storage_deposit_limit: Option<E::Balance>,
     code: Code,
     data: Vec<u8>,
     salt: Option<[u8; 32]>,
@@ -179,10 +195,10 @@ where
 // todo: #[serde(rename_all = "camelCase")]
 struct RpcCallRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
-    dest: H160,
+    dest: Address,
     value: E::Balance,
     gas_limit: Option<Weight>,
-    storage_deposit_limit: DepositLimit<E::Balance>,
+    storage_deposit_limit: Option<E::Balance>,
     input_data: Vec<u8>,
 }
 
@@ -261,9 +277,12 @@ where
         data: Vec<u8>,
         salt: Option<[u8; 32]>,
         signer: &Keypair,
-    ) -> ContractInstantiateResultForBar<E> {
-        // todo map_account beforehand?
+    ) -> ContractInstantiateResultFor<E> {
         let code = Code::Upload(code);
+        let storage_deposit_limit = match storage_deposit_limit {
+            DepositLimit::Balance(v) => Some(v),
+            DepositLimit::UnsafeOnlyForDryRun => None,
+        };
         let call_request = RpcInstantiateRequest::<C, E> {
             origin: Signer::<C>::account_id(signer),
             value,
@@ -283,16 +302,16 @@ where
                 panic!("error on ws request `revive_instantiate`: {err:?}");
             });
         scale::Decode::decode(&mut bytes.as_ref()).unwrap_or_else(|err| {
-            panic!("decoding ContractInstantiateResult failed: {err}")
+            panic!("decoding `ContractInstantiateResult` failed: {err}")
         })
     }
 
-    /// Sign and submit an extrinsic with the given call payload.
-    pub async fn submit_extrinsic<Call>(
+    /// todo
+    pub async fn create_extrinsic<Call>(
         &self,
         call: &Call,
         signer: &Keypair,
-    ) -> ExtrinsicEvents<C>
+    ) -> SubmittableTransaction<C, OnlineClient<C>>
     where
         Call: subxt::tx::Payload,
     {
@@ -307,13 +326,33 @@ where
         let params = DefaultExtrinsicParamsBuilder::new()
             .nonce(account_nonce)
             .build();
-        let mut tx = self
-            .client
+        self.client
             .tx()
-            .create_signed_offline(call, signer, params.into())
+            .create_partial_offline(call, params.into())
             .unwrap_or_else(|err| {
                 panic!("error on call `create_signed_with_nonce`: {err:?}");
             })
+            .sign(signer)
+    }
+
+    /// Sign and submit an extrinsic with the given call payload.
+    pub async fn submit_extrinsic<Call>(
+        &self,
+        call: &Call,
+        signer: &Keypair,
+    ) -> (ExtrinsicEvents<C>, Option<CallTrace>)
+    where
+        Call: subxt::tx::Payload,
+    {
+        // we have to retrieve the current block hash here. we use it later in this
+        // function when retrieving the log. the extrinsic is dry-run for tracing
+        // the log. if we were to use the latest block the extrinsic would already
+        // have been executed and we would get an error.
+        let parent_hash = self.best_block().await;
+
+        let mut tx = self
+            .create_extrinsic(call, signer)
+            .await
             .submit_and_watch()
             .await
             .inspect(|tx_progress| {
@@ -329,7 +368,7 @@ where
         // Below we use the low level API to replicate the `wait_for_in_block` behaviour
         // which was removed in subxt 0.33.0. See https://github.com/paritytech/subxt/pull/1237.
         //
-        // We require this because we use `substrate-contracts-node` as our development
+        // We require this because we use `ink-node` as our development
         // node, which does not currently support finality, so we just want to
         // wait until it is included in a block.
         while let Some(status) = tx.next().await {
@@ -338,9 +377,18 @@ where
             }) {
                 TxStatus::InBestBlock(tx_in_block)
                 | TxStatus::InFinalizedBlock(tx_in_block) => {
-                    return tx_in_block.fetch_events().await.unwrap_or_else(|err| {
+                    let events = tx_in_block.fetch_events().await.unwrap_or_else(|err| {
                         panic!("error on call `fetch_events`: {err:?}");
-                    })
+                    });
+                    let trace = self
+                        .trace(
+                            tx_in_block.block_hash(),
+                            Some(tx_in_block.extrinsic_hash()),
+                            parent_hash,
+                            None,
+                        )
+                        .await;
+                    return (events, trace)
                 }
                 TxStatus::Error { message } => {
                     panic!("TxStatus::Error: {message:?}");
@@ -357,8 +405,88 @@ where
         panic!("Error waiting for tx status")
     }
 
+    /// todo
+    pub async fn trace(
+        &self,
+        block_hash: HashFor<C>,
+        extrinsic_hash: Option<HashFor<C>>,
+        parent_hash: HashFor<C>,
+        extrinsic: Option<Vec<u8>>,
+    ) -> Option<CallTrace> {
+        // todo move below to its own function
+        let block_details = self
+            .rpc
+            .chain_get_block(Some(block_hash))
+            .await
+            .expect("no block found")
+            .expect("no block details found");
+        let header = block_details.block.header;
+        let mut exts: Vec<OpaqueExtrinsic> = block_details
+            .block
+            .extrinsics
+            .clone()
+            .into_iter()
+            .filter_map(|e| scale::Decode::decode(&mut &e[..]).ok())
+            .collect::<Vec<_>>();
+
+        // todo
+        let tx_index: usize = match (extrinsic_hash, extrinsic) {
+            (Some(hash), None) => {
+                let index = block_details
+                    .block
+                    .extrinsics
+                    .iter()
+                    .cloned()
+                    .enumerate()
+                    .find_map(|(index, ext)| {
+                        let hash_ext = Transaction::<C>::from_bytes(ext.0)
+                            .hash_with(self.client.hasher());
+                        if hash_ext == hash {
+                            return Some(index);
+                        }
+                        None
+                    })
+                    .expect("the extrinsic hash was not found in the block");
+                index
+            }
+            (None, Some(extrinsic)) => {
+                exts.push(
+                    OpaqueExtrinsic::from_bytes(&extrinsic[..])
+                        .expect("OpaqueExtrinsic cannot be created"),
+                );
+                exts.len() - 1
+            }
+            _ => panic!("pattern error"),
+        };
+
+        let tracer_type = TracerType::CallTracer(Some(CallTracerConfig::default()));
+        let func = "ReviveApi_trace_tx";
+
+        let params =
+            scale::Encode::encode(&((header, exts), tx_index.as_u32(), tracer_type));
+
+        let bytes = self
+            .rpc
+            .state_call(func, Some(&params), Some(parent_hash))
+            .await
+            .unwrap_or_else(|err| {
+                panic!(
+                    "error on ws request `trace_tx`: {err:?}\n\n{:#}",
+                    format!("{err}").trim_start_matches("RPC error: ")
+                );
+            });
+
+        let trace: Option<Trace> = scale::Decode::decode(&mut bytes.as_ref())
+            .unwrap_or_else(|err| panic!("decoding `trace_tx` result failed: {err}"));
+
+        match trace {
+            Some(Trace::Call(trace)) => Some(trace),
+            _ => None,
+        }
+    }
+
     /// Return the hash of the *best* block
-    pub async fn best_block(&self) -> C::Hash {
+    pub async fn best_block(&self) -> HashFor<C> {
         self.rpc
             .chain_get_block_hash(None)
             .await
@@ -400,7 +528,7 @@ where
         data: Vec<u8>,
         salt: Option<[u8; 32]>,
         signer: &Keypair,
-    ) -> ExtrinsicEvents<C> {
+    ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
         let call = subxt::tx::DefaultPayload::new(
             "Revive",
             "instantiate_with_code",
@@ -466,7 +594,7 @@ where
         )
         .unvalidated();
 
-        self.submit_extrinsic(&call, signer).await
+        self.submit_extrinsic(&call, signer).await.0
     }
 
     /// Submits an extrinsic to remove the code at the given hash.
@@ -485,25 +613,29 @@ where
         )
         .unvalidated();
 
-        self.submit_extrinsic(&call, signer).await
+        self.submit_extrinsic(&call, signer).await.0
     }
 
     /// Dry runs a call of the contract at `contract` with the given parameters.
     pub async fn call_dry_run(
         &self,
         origin: C::AccountId,
-        dest: H160,
+        dest: Address,
         input_data: Vec<u8>,
         value: E::Balance,
         _storage_deposit_limit: E::Balance, // todo
-    ) -> ContractExecResultFor<E> {
+        signer: &Keypair,
+    ) -> (ContractExecResultFor<E>, Option<CallTrace>) {
         let call_request = RpcCallRequest::<C, E> {
             origin,
             dest,
             value,
-            gas_limit: None,
-            storage_deposit_limit: DepositLimit::Unchecked,
-            input_data,
+            gas_limit: Some(Weight {
+                ref_time: u64::MAX,
+                proof_size: u64::MAX,
+            }),
+            storage_deposit_limit: None,
+            input_data: input_data.clone(),
         };
         let func = "ReviveApi_call";
         let params = scale::Encode::encode(&call_request);
@@ -514,23 +646,68 @@ where
             .unwrap_or_else(|err| {
                 panic!("error on ws request `contracts_call`: {err:?}");
             });
-        scale::Decode::decode(&mut bytes.as_ref())
-            .unwrap_or_else(|err| panic!("decoding ContractExecResult failed: {err}"))
+        let res: ContractExecResultFor<E> = scale::Decode::decode(&mut bytes.as_ref())
+            .unwrap_or_else(|err| panic!("decoding ContractExecResult failed: {err}"));
+
+        // todo for gas_limit and storage_deposit_limit we should use the values returned
+        // by a successful call above, otherwise the max.
+
+        // and now collect the trace and put it in there as well.
+        let call = subxt::tx::DefaultPayload::new(
+            "Revive",
+            "call",
+            crate::xts::Call::<E> {
+                dest,
+                value,
+                gas_limit: Weight {
+                    ref_time: u64::MAX,
+                    proof_size: u64::MAX,
+                },
+                storage_deposit_limit: E::Balance::from(u32::MAX), // todo
+                data: input_data,
+            },
+        )
+        .unvalidated();
+        let xt = self.create_extrinsic(&call, signer).await;
+
+        let block_hash = self.best_block().await;
+
+        let block_details = self
+            .rpc
+            .chain_get_block(Some(block_hash))
+            .await
+            .expect("no block found")
+            .expect("no block details found");
+        // let header = block_details.block.header;
+        let block_number: u64 = block_details.block.header.number().into();
+        let parent_hash = self
+            .rpc
+            .chain_get_block_hash(Some((block_number - 1u64).into()))
+            .await
+            .expect("no block hash found")
+            .expect("no block details found");
+
+        let trace = self
+            .trace(block_hash, None, parent_hash, Some(xt.into_encoded()))
+            .await;
+
+        (res, trace)
     }
 
     /// Submits an extrinsic to call a contract with the given parameters.
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
+    /// todo the API for `call_dry_run` should mirror that of `call`
     pub async fn call(
         &self,
-        contract: H160,
+        contract: Address,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: E::Balance,
         data: Vec<u8>,
         signer: &Keypair,
-    ) -> ExtrinsicEvents<C> {
+    ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
         let call = subxt::tx::DefaultPayload::new(
             "Revive",
             "call",
@@ -556,7 +733,7 @@ where
         let call = subxt::tx::DefaultPayload::new("Revive", "map_account", MapAccount {})
             .unvalidated();
 
-        self.submit_extrinsic(&call, signer).await
+        self.submit_extrinsic(&call, signer).await.0
     }
 
     /// Submit an extrinsic `call_name` for the `pallet_name`.
@@ -574,6 +751,6 @@ where
     ) -> ExtrinsicEvents<C> {
         let call = subxt::dynamic::tx(pallet_name, call_name, call_data);
 
-        self.submit_extrinsic(&call, signer).await
+        self.submit_extrinsic(&call, signer).await.0
     }
 }

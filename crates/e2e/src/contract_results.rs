@@ -12,22 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use std::{
+    fmt,
+    fmt::Debug,
+    marker::PhantomData,
+};
+
 use frame_support::pallet_prelude::{
     Decode,
     Encode,
 };
 use ink::codegen::ContractCallBuilder;
 use ink_env::{
-    call::FromAddr,
+    call::{
+        utils::DecodeMessageResult,
+        FromAddr,
+    },
     Environment,
 };
 use ink_primitives::{
+    Address,
     ConstructorResult,
     MessageResult,
     H256,
 };
 use pallet_revive::{
-    evm::H160,
+    evm::CallTrace,
     CodeUploadResult,
     ExecReturnValue,
     InstantiateReturnValue,
@@ -37,16 +47,12 @@ use sp_runtime::{
     DispatchError,
     Weight,
 };
-use std::{
-    fmt,
-    fmt::Debug,
-    marker::PhantomData,
-};
 
 /// Alias for the contract instantiate result.
-pub type ContractInstantiateResultForBar<E> =
+pub type ContractInstantiateResultFor<E> =
     ContractResult<InstantiateReturnValue, <E as Environment>::Balance>;
 
+// todo use the obj one from `pallet-revive` instead
 /// Result type of a `bare_call`, `bare_instantiate`, `ReviveApi::call`, and
 /// `ReviveApi::instantiate`.
 ///
@@ -79,21 +85,6 @@ pub struct ContractResult<R, Balance> {
     /// [`Self::result`] is `Err`. This is because on error all storage changes are
     /// rolled back including the payment of the deposit.
     pub storage_deposit: StorageDeposit<Balance>,
-    /// An optional debug message. This message is only filled when explicitly requested
-    /// by the code that calls into the contract. Otherwise it is empty.
-    ///
-    /// The contained bytes are valid UTF-8. This is not declared as `String` because
-    /// this type is not allowed within the runtime.
-    ///
-    /// Clients should not make any assumptions about the format of the buffer.
-    /// They should just display it as-is. It is **not** only a collection of log lines
-    /// provided by a contract but a formatted buffer with different sections.
-    ///
-    /// # Note
-    ///
-    /// The debug message is never generated during on-chain execution. It is reserved
-    /// for RPC calls.
-    pub debug_message: Vec<u8>,
     /// The execution result of the code.
     pub result: Result<R, DispatchError>,
 }
@@ -105,14 +96,19 @@ pub type ContractExecResultFor<E> =
 /// Result of a contract instantiation using bare call.
 pub struct BareInstantiationResult<EventLog> {
     /// The address at which the contract was instantiated.
-    pub addr: H160,
+    pub addr: Address,
     /// Events that happened with the contract instantiation.
     pub events: EventLog,
+    /// todo
+    pub trace: Option<CallTrace>,
+    /// todo
+    pub code_hash: H256,
 }
 
 impl<EventLog> BareInstantiationResult<EventLog> {
-    /// Returns the account id at which the contract was instantiated.
-    pub fn call(&self) -> H160 {
+    /// Returns the address at which the contract was instantiated.
+    /// todo why this strange name? shouldn't it be `fn addr()`?
+    pub fn call(&self) -> Address {
         self.addr
     }
 }
@@ -124,38 +120,66 @@ where
     EventLog: Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        f.debug_struct("InstantiationResult")
+        // todo add missing fields
+        f.debug_struct("BareInstantiationResult")
             .field("addr", &self.addr)
             .field("events", &self.events)
+            .field("trace", &self.trace)
             .finish()
     }
 }
 
 /// Result of a contract instantiation.
-pub struct InstantiationResult<E: Environment, EventLog> {
+pub struct InstantiationResult<E: Environment, EventLog, Abi> {
     /// The account id at which the contract was instantiated.
-    pub addr: H160,
+    pub addr: Address,
     /// The result of the dry run, contains debug messages
     /// if there were any.
-    pub dry_run: InstantiateDryRunResult<E>,
+    pub dry_run: InstantiateDryRunResult<E, Abi>,
     /// Events that happened with the contract instantiation.
     pub events: EventLog,
+    /// todo
+    pub trace: Option<CallTrace>,
+    /// todo
+    pub code_hash: H256,
 }
 
-impl<E: Environment, EventLog> InstantiationResult<E, EventLog> {
-    /// Returns the account id at which the contract was instantiated.
-    pub fn call_builder<Contract>(&self) -> <Contract as ContractCallBuilder>::Type
+impl<E: Environment, EventLog, Abi> InstantiationResult<E, EventLog, Abi> {
+    /// Returns a call builder for the contract which was instantiated.
+    ///
+    /// # Note
+    ///
+    /// This uses the ABI used for the contract instantiation call.
+    pub fn call_builder<Contract>(&self) -> <Contract as ContractCallBuilder>::Type<Abi>
     where
         Contract: ContractCallBuilder,
-        Contract::Type: FromAddr,
+        <Contract as ContractCallBuilder>::Type<Abi>: FromAddr,
     {
-        <<Contract as ContractCallBuilder>::Type as FromAddr>::from_addr(self.addr)
+        <<Contract as ContractCallBuilder>::Type<Abi> as FromAddr>::from_addr(self.addr)
+    }
+
+    /// Returns a call builder for the specified ABI for the contract which was
+    /// instantiated.
+    ///
+    /// # Note
+    ///
+    /// This is useful for contracts that support multiple ABIs.
+    pub fn call_builder_abi<Contract, CallAbi>(
+        &self,
+    ) -> <Contract as ContractCallBuilder>::Type<CallAbi>
+    where
+        Contract: ContractCallBuilder,
+        <Contract as ContractCallBuilder>::Type<CallAbi>: FromAddr,
+    {
+        <<Contract as ContractCallBuilder>::Type<CallAbi> as FromAddr>::from_addr(
+            self.addr,
+        )
     }
 }
 
 /// We implement a custom `Debug` here, as to avoid requiring the trait bound `Debug` for
 /// `E`.
-impl<E: Environment, EventLog> Debug for InstantiationResult<E, EventLog>
+impl<E: Environment, EventLog, Abi> Debug for InstantiationResult<E, EventLog, Abi>
 where
     E::AccountId: Debug,
     E::Balance: Debug,
@@ -163,6 +187,7 @@ where
     EventLog: Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        // todo add missing fields
         f.debug_struct("InstantiationResult")
             .field("addr", &self.addr)
             .field("dry_run", &self.dry_run)
@@ -199,14 +224,18 @@ where
 }
 
 /// Result of a contract call.
-pub struct CallResult<E: Environment, V, EventLog> {
+pub struct CallResult<E: Environment, V, EventLog, Abi> {
     /// The result of the dry run, contains debug messages if there were any.
-    pub dry_run: CallDryRunResult<E, V>,
+    pub dry_run: CallDryRunResult<E, V, Abi>,
     /// Events that happened with the contract instantiation.
     pub events: EventLog,
+    /// todo
+    pub trace: Option<CallTrace>,
 }
 
-impl<E: Environment, V: scale::Decode, EventLog> CallResult<E, V, EventLog> {
+impl<E: Environment, V: DecodeMessageResult<Abi>, EventLog, Abi>
+    CallResult<E, V, EventLog, Abi>
+{
     /// Returns the [`MessageResult`] from the execution of the dry-run message
     /// call.
     ///
@@ -224,22 +253,19 @@ impl<E: Environment, V: scale::Decode, EventLog> CallResult<E, V, EventLog> {
     pub fn return_value(self) -> V {
         self.dry_run.return_value()
     }
+}
 
-    /// Returns the return value as raw bytes of the message from the dry-run.
+impl<E: Environment, V, EventLog, Abi> CallResult<E, V, EventLog, Abi> {
+    /// Returns the return value of the message dry-run as raw bytes.
     ///
     /// Panics if the dry-run message call failed to execute.
     pub fn return_data(&self) -> &[u8] {
         &self.dry_run.exec_return_value().data
     }
-
-    /// Returns any debug message output by the contract decoded as UTF-8.
-    pub fn debug_message(&self) -> String {
-        self.dry_run.debug_message()
-    }
 }
 
 // TODO(#xxx) Improve the `Debug` implementation.
-impl<E: Environment, V, EventLog> Debug for CallResult<E, V, EventLog>
+impl<E: Environment, V, EventLog, Abi> Debug for CallResult<E, V, EventLog, Abi>
 where
     E: Debug,
     E::Balance: Debug,
@@ -251,20 +277,24 @@ where
         f.debug_struct("CallResult")
             .field("dry_run", &self.dry_run)
             .field("events", &self.events)
+            .field("trace", &self.trace)
             .finish()
     }
 }
 
 /// Result of the dry run of a contract call.
-pub struct CallDryRunResult<E: Environment, V> {
+pub struct CallDryRunResult<E: Environment, V, Abi> {
     /// The result of the dry run, contains debug messages if there were any.
     pub exec_result: ContractExecResultFor<E>,
-    pub _marker: PhantomData<V>,
+    /// The execution trace (if any).
+    pub trace: Option<CallTrace>,
+    /// Phantom data for return type and its ABI encoding.
+    pub _marker: PhantomData<(V, Abi)>,
 }
 
 /// We implement a custom `Debug` here, as to avoid requiring the trait bound `Debug` for
 /// `E`.
-impl<E: Environment, V> Debug for CallDryRunResult<E, V>
+impl<E: Environment, V, Abi> Debug for CallDryRunResult<E, V, Abi>
 where
     E::Balance: Debug,
     E::EventRecord: Debug,
@@ -276,10 +306,10 @@ where
     }
 }
 
-impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
+impl<E: Environment, V, Abi> CallDryRunResult<E, V, Abi> {
     /// Returns true if the dry-run execution resulted in an error.
     pub fn is_err(&self) -> bool {
-        self.exec_result.result.is_err()
+        self.exec_result.result.is_err() || self.did_revert()
     }
 
     /// Returns the [`ExecReturnValue`] resulting from the dry-run message call.
@@ -292,31 +322,10 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
             .unwrap_or_else(|call_err| panic!("Call dry-run failed: {call_err:?}"))
     }
 
-    /// Returns the [`MessageResult`] from the execution of the dry-run message call.
-    ///
-    /// # Panics
-    /// - if the dry-run message call failed to execute.
-    /// - if message result cannot be decoded into the expected return value type.
-    pub fn message_result(&self) -> MessageResult<V> {
-        let data = &self.exec_return_value().data;
-        scale::Decode::decode(&mut data.as_ref()).unwrap_or_else(|env_err| {
-            panic!(
-                "Decoding dry run result to ink! message return type failed: {env_err}"
-            )
-        })
-    }
-
-    /// Returns the decoded return value of the message from the dry-run.
-    ///
-    /// Panics if the value could not be decoded. The raw bytes can be accessed via
-    /// [`CallResult::return_data`].
-    pub fn return_value(self) -> V {
-        self.message_result()
-            .unwrap_or_else(|lang_err| {
-                panic!(
-                    "Encountered a `LangError` while decoding dry run result to ink! message: {lang_err:?}"
-                )
-            })
+    /// Returns true if the message call reverted.
+    pub fn did_revert(&self) -> bool {
+        let res = self.exec_result.result.clone().expect("no result found");
+        res.did_revert()
     }
 
     /// Returns the return value as raw bytes of the message from the dry-run.
@@ -325,28 +334,58 @@ impl<E: Environment, V: scale::Decode> CallDryRunResult<E, V> {
     pub fn return_data(&self) -> &[u8] {
         &self.exec_return_value().data
     }
+}
 
-    /// Returns any debug message output by the contract decoded as UTF-8.
-    pub fn debug_message(&self) -> String {
-        String::from_utf8_lossy(&self.exec_result.debug_message).into()
+impl<E: Environment, V: DecodeMessageResult<Abi>, Abi> CallDryRunResult<E, V, Abi> {
+    /// Returns the [`MessageResult`] from the execution of the dry-run message call.
+    ///
+    /// # Panics
+    /// - if the dry-run message call failed to execute.
+    /// - if message result cannot be decoded into the expected return value type.
+    pub fn message_result(&self) -> MessageResult<V> {
+        let data = &self.exec_return_value().data;
+        DecodeMessageResult::decode_output(data.as_ref(), self.did_revert()).unwrap_or_else(|env_err| {
+            panic!(
+                "Decoding dry run result to ink! message return type failed: {env_err:?} {:?}",
+                self.exec_return_value()
+            )
+        })
+    }
+
+    /// Returns the decoded return value of the message from the dry-run.
+    ///
+    /// Panics if the value could not be decoded. The raw bytes can be accessed via
+    /// [`CallResult::return_data`].
+    pub fn return_value(&self) -> V {
+        self.message_result()
+            .unwrap_or_else(|lang_err| {
+                panic!(
+                    "Encountered a `LangError` while decoding dry run result to ink! message: {lang_err:?}"
+                )
+            })
     }
 }
 
 /// Result of the dry run of a contract call.
-pub struct InstantiateDryRunResult<E: Environment> {
+pub struct InstantiateDryRunResult<E: Environment, Abi> {
     /// The result of the dry run, contains debug messages if there were any.
-    pub contract_result: ContractInstantiateResultForBar<E>,
+    pub contract_result: ContractInstantiateResultFor<E>,
+    /// Phantom data for return type and its ABI encoding.
+    pub _marker: PhantomData<Abi>,
 }
 
-impl<E: Environment> From<ContractInstantiateResultForBar<E>>
-    for InstantiateDryRunResult<E>
+impl<E: Environment, Abi> From<ContractInstantiateResultFor<E>>
+    for InstantiateDryRunResult<E, Abi>
 {
-    fn from(contract_result: ContractInstantiateResultForBar<E>) -> Self {
-        Self { contract_result }
+    fn from(contract_result: ContractInstantiateResultFor<E>) -> Self {
+        Self {
+            contract_result,
+            _marker: PhantomData,
+        }
     }
 }
 
-impl<E: Environment> InstantiateDryRunResult<E> {
+impl<E: Environment, Abi> InstantiateDryRunResult<E, Abi> {
     /// Returns true if the dry-run execution resulted in an error.
     pub fn is_err(&self) -> bool {
         self.contract_result.result.is_err()
@@ -367,20 +406,30 @@ impl<E: Environment> InstantiateDryRunResult<E> {
     /// # Panics
     /// - if the dry-run message instantiate failed to execute.
     /// - if message result cannot be decoded into the expected return value type.
-    pub fn constructor_result<V: scale::Decode>(&self) -> ConstructorResult<V> {
+    pub fn constructor_result<V: DecodeMessageResult<Abi>>(
+        &self,
+    ) -> ConstructorResult<V> {
         let data = &self.instantiate_return_value().result.data;
-        scale::Decode::decode(&mut data.as_ref()).unwrap_or_else(|env_err| {
-            panic!("Decoding dry run result to constructor return type failed: {env_err}")
+        DecodeMessageResult::decode_output(data.as_ref(), self.did_revert()).unwrap_or_else(|env_err| {
+            panic!("Decoding dry run result to constructor return type failed: {env_err:?}")
         })
     }
 
-    /// Returns any debug message output by the contract decoded as UTF-8.
-    pub fn debug_message(&self) -> String {
-        String::from_utf8_lossy(&self.contract_result.debug_message).into()
+    /// Returns the return value of the instantiation dry-run as raw bytes.
+    ///
+    /// Panics if the dry-run message call failed to execute.
+    pub fn return_data(&self) -> &[u8] {
+        &self.instantiate_return_value().result.data
+    }
+
+    /// Returns true if the instantiation dry-run reverted.
+    pub fn did_revert(&self) -> bool {
+        let res = self.instantiate_return_value().clone().result;
+        res.did_revert()
     }
 }
 
-impl<E> Debug for InstantiateDryRunResult<E>
+impl<E, Abi> Debug for InstantiateDryRunResult<E, Abi>
 where
     E: Environment,
     E::AccountId: Debug,

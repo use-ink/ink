@@ -96,8 +96,8 @@ pub mod e2e_call_runtime {
                 .dry_run()
                 .await?;
 
-            // todo NativeToEthRatio should be part of `Environment`
-            let native_to_eth_ratio = ink::U256::from(1_000_000);
+            // todo `NativeToEthRatio` should be part of `Environment`
+            let native_to_eth_ratio = ink::U256::from(100_000_000);
             assert_eq!(
                 get_balance_res.return_value() / native_to_eth_ratio,
                 pre_balance + transfer_amount

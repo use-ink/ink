@@ -251,7 +251,7 @@ mod storage_types {
         }
 
         #[ink(message, payable)]
-        pub fn payable(&self) -> Result<ink::U256, ()> {
+        pub fn payable(&mut self) -> Result<ink::U256, ()> {
             Ok(self.env().transferred_value())
         }
     }

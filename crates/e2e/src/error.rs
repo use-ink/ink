@@ -27,7 +27,6 @@ pub enum Error<DispatchError: fmt::Debug + fmt::Display> {
     /// The `instantiate_with_code` dry run failed.
     #[error("Instantiate dry-run error: {0}")]
     InstantiateDryRun(DryRunError<DispatchError>),
-    /// The `instantiate_with_code` extrinsic failed.
     #[error("Instantiate extrinsic error: {0}")]
     InstantiateExtrinsic(DispatchError),
     /// The `upload` dry run failed.
@@ -51,12 +50,14 @@ pub enum Error<DispatchError: fmt::Debug + fmt::Display> {
     /// Decoding failed.
     #[error("Decoding failed: {0}")]
     Decoding(String),
+    /// Other error.
+    #[error("Other error: {0}")]
+    Other(String),
 }
 
 /// Error during a dry run RPC invocation.
 #[derive(Debug)]
 pub struct DryRunError<DispatchError: fmt::Display + fmt::Debug> {
-    pub debug_message: String,
     pub error: DispatchError,
 }
 

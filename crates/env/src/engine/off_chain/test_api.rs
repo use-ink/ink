@@ -23,7 +23,6 @@ use crate::{
     Result,
 };
 use core::fmt::Debug;
-use ink_engine::test_api::RecordedDebugMessages;
 use std::panic::UnwindSafe;
 
 pub use super::call_data::CallData;
@@ -32,7 +31,8 @@ pub use ink_engine::{
     ChainExtension,
 };
 use ink_primitives::{
-    H160,
+    AccountIdMapper,
+    Address,
     H256,
     U256,
 };
@@ -62,13 +62,11 @@ pub struct EmittedEvent {
 /// - If the underlying `account` type does not match.
 /// - If the underlying `new_balance` type does not match.
 /// - If the `new_balance` is less than the existential minimum.
-pub fn set_account_balance(addr: H160, new_balance: U256) {
+#[cfg(feature = "unstable-hostfn")] // todo check this is needed here
+pub fn set_account_balance(addr: Address, new_balance: U256) {
     let min = ChainSpec::default().minimum_balance;
     if new_balance < min && new_balance != U256::zero() {
-        panic!(
-            "Balance must be at least [{}]. Use 0 as balance to reap the account.",
-            min
-        );
+        panic!("Balance must be at least [{min}]. Use 0 as balance to reap the account.");
     }
 
     <EnvInstance as OnInstance>::on_instance(|instance| {
@@ -88,7 +86,7 @@ pub fn set_account_balance(addr: H160, new_balance: U256) {
 ///
 /// - If `account` does not exist.
 /// - If the underlying `account` type does not match.
-pub fn get_account_balance<T>(addr: H160) -> Result<U256> {
+pub fn get_account_balance<T>(addr: Address) -> Result<U256> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.get_balance(addr).map_err(Into::into)
     })
@@ -104,13 +102,6 @@ where
             .engine
             .chain_extension_handler
             .register(Box::new(extension));
-    })
-}
-
-/// Returns the contents of the past performed environmental debug messages in order.
-pub fn recorded_debug_messages() -> RecordedDebugMessages {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.engine.get_emitted_debug_messages()
     })
 }
 
@@ -138,28 +129,29 @@ where
 }
 
 /// Sets a caller for the next call.
-pub fn set_caller(caller: H160) {
+pub fn set_caller(caller: Address) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.set_caller(caller);
     })
 }
 
 /// Sets the callee for the next call.
-pub fn set_callee(callee: H160) {
+pub fn set_callee(callee: Address) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.set_callee(callee);
     })
 }
 
 /// Sets an account as a contract
-pub fn set_contract(contract: H160) {
+pub fn set_contract(contract: Address) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.set_contract(contract);
     })
 }
 
 /// Returns a boolean to indicate whether an account is a contract
-pub fn is_contract(contract: H160) -> bool {
+#[cfg(feature = "unstable-hostfn")]
+pub fn is_contract(contract: Address) -> bool {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.is_contract(&contract)
     })
@@ -168,7 +160,7 @@ pub fn is_contract(contract: H160) -> bool {
 /// Gets the currently set callee.
 ///
 /// This is the address of the currently executing contract.
-pub fn callee() -> H160 {
+pub fn callee() -> Address {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         let callee = instance.engine.get_callee();
         scale::Decode::decode(&mut &callee[..])
@@ -177,7 +169,7 @@ pub fn callee() -> H160 {
 }
 
 /// Returns the total number of reads and writes of the contract's storage.
-pub fn get_contract_storage_rw(addr: H160) -> (usize, usize) {
+pub fn get_contract_storage_rw(addr: Address) -> (usize, usize) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.get_contract_storage_rw(addr)
     })
@@ -221,7 +213,7 @@ pub fn transfer_in(value: U256) {
 /// Returns the amount of storage cells used by the contract `addr`.
 ///
 /// Returns `None` if the contract at `addr` is non-existent.
-pub fn count_used_storage_cells<T>(addr: H160) -> Result<usize>
+pub fn count_used_storage_cells<T>(addr: Address) -> Result<usize>
 where
     T: Environment,
 {
@@ -287,31 +279,32 @@ where
 
 /// Returns the default accounts for testing purposes:
 /// Alice, Bob, Charlie, Django, Eve and Frank.
+/// todo should be `default_addresses`
 pub fn default_accounts() -> DefaultAccounts {
     DefaultAccounts {
-        alice: H160::from([0x01; 20]),
-        bob: H160::from([0x02; 20]),
-        charlie: H160::from([0x03; 20]),
-        django: H160::from([0x04; 20]),
-        eve: H160::from([0x05; 20]),
-        frank: H160::from([0x06; 20]),
+        alice: AccountIdMapper::to_address(&[0x01; 32]),
+        bob: AccountIdMapper::to_address(&[0x02; 32]),
+        charlie: AccountIdMapper::to_address(&[0x03; 32]),
+        django: AccountIdMapper::to_address(&[0x04; 32]),
+        eve: AccountIdMapper::to_address(&[0x05; 32]),
+        frank: AccountIdMapper::to_address(&[0x06; 32]),
     }
 }
 
 /// The default accounts.
 pub struct DefaultAccounts {
     /// The predefined `ALICE` account holding substantial amounts of value.
-    pub alice: H160,
+    pub alice: Address,
     /// The predefined `BOB` account holding some amounts of value.
-    pub bob: H160,
+    pub bob: Address,
     /// The predefined `CHARLIE` account holding some amounts of value.
-    pub charlie: H160,
+    pub charlie: Address,
     /// The predefined `DJANGO` account holding no value.
-    pub django: H160,
+    pub django: Address,
     /// The predefined `EVE` account holding no value.
-    pub eve: H160,
+    pub eve: Address,
     /// The predefined `FRANK` account holding no value.
-    pub frank: H160,
+    pub frank: Address,
 }
 
 /// Returns the recorded emitted events in order.
@@ -350,7 +343,7 @@ pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
 /// example for a complete usage exemplification.
 pub fn assert_contract_termination<T, F>(
     should_terminate: F,
-    expected_beneficiary: H160,
+    expected_beneficiary: Address,
     expected_value_transferred_to_beneficiary: U256,
 ) where
     T: Environment,
@@ -363,7 +356,7 @@ pub fn assert_contract_termination<T, F>(
     let encoded_input = value_any
         .downcast_ref::<Vec<u8>>()
         .expect("panic object can not be cast");
-    let (value_transferred, beneficiary): (U256, H160) =
+    let (value_transferred, beneficiary): (U256, Address) =
         scale::Decode::decode(&mut &encoded_input[..])
             .unwrap_or_else(|err| panic!("input can not be decoded: {err}"));
     assert_eq!(value_transferred, expected_value_transferred_to_beneficiary);

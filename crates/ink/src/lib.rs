@@ -35,13 +35,14 @@ mod chain_extension;
 mod contract_ref;
 mod env_access;
 mod message_builder;
+pub mod sol;
 
-pub use alloy_rlp as rlp;
 pub use ink_env as env;
 #[cfg(feature = "std")]
 pub use ink_metadata as metadata;
 pub use ink_prelude as prelude;
 pub use ink_primitives as primitives;
+pub use ink_primitives::abi;
 pub use scale;
 #[cfg(feature = "std")]
 pub use scale_info;
@@ -93,12 +94,58 @@ pub use ink_macro::{
     trait_definition,
     Event,
     EventMetadata,
+    SolDecode,
+    SolEncode,
+    SolErrorDecode,
+    SolErrorEncode,
 };
 pub use ink_primitives::{
+    Address,
     ConstructorResult,
     LangError,
     MessageResult,
+    SolDecode,
+    SolEncode,
     H160,
     H256,
     U256,
 };
+
+#[cfg(feature = "std")]
+#[doc(hidden)]
+pub use linkme;
+
+#[cfg(feature = "std")]
+use ink_metadata::EventSpec;
+
+/// Any event which derives `#[derive(ink::EventMetadata)]` and is used in the contract
+/// binary will have its implementation added to this distributed slice at linking time.
+#[cfg(feature = "std")]
+#[linkme::distributed_slice]
+#[linkme(crate = linkme)]
+pub static CONTRACT_EVENTS: [fn() -> EventSpec] = [..];
+
+/// Collect the [`EventSpec`] metadata of all event definitions linked and used in the
+/// binary.
+#[cfg(feature = "std")]
+pub fn collect_events() -> Vec<EventSpec> {
+    CONTRACT_EVENTS.iter().map(|event| event()).collect()
+}
+
+/// Any event whose parameters type implement `ink::SolDecode` and `ink::SolEncode`
+/// and is used in the contract binary will have its implementation added to this
+/// distributed slice at linking time.
+#[cfg(all(feature = "std", any(ink_abi = "sol", ink_abi = "all")))]
+#[linkme::distributed_slice]
+#[linkme(crate = linkme)]
+pub static CONTRACT_EVENTS_SOL: [fn() -> ink_metadata::sol::EventMetadata] = [..];
+
+/// Collect the Solidity ABI compatible metadata of all event definitions linked and used
+/// in the binary.
+#[cfg(all(feature = "std", any(ink_abi = "sol", ink_abi = "all")))]
+pub fn collect_events_sol() -> Vec<ink_metadata::sol::EventMetadata> {
+    crate::CONTRACT_EVENTS_SOL
+        .iter()
+        .map(|event| event())
+        .collect()
+}

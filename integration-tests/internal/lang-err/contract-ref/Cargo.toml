@@ -1,11 +1,11 @@
 [package]
 name = "contract_ref"
-version = "6.0.0-alpha"
+version = "6.0.0-alpha.1"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 
 [dependencies]
-ink = { path = "../../../../crates/ink", default-features = false }
+ink = { path = "../../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
 
 integration_flipper = { path = "../integration-flipper", default-features = false, features = ["ink-as-dependency"] }
 
@@ -24,3 +24,6 @@ std = [
 ]
 ink-as-dependency = []
 e2e-tests = []
+
+[package.metadata.ink-lang]
+abi = "ink"

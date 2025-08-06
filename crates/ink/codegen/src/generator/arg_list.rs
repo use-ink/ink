@@ -16,6 +16,7 @@ use heck::ToLowerCamelCase as _;
 use proc_macro2::{
     Span,
     TokenStream as TokenStream2,
+    TokenStream,
 };
 use quote::{
     format_ident,
@@ -43,7 +44,7 @@ pub fn input_bindings(inputs: ir::InputsIter) -> Vec<syn::Ident> {
 }
 
 /// Returns the sequence of input types for the message.
-pub fn input_types(inputs: ir::InputsIter) -> Vec<&syn::Type> {
+pub fn input_types(inputs: ir::InputsIter<'_>) -> Vec<&syn::Type> {
     inputs.map(|pat_type| &*pat_type.ty).collect::<Vec<_>>()
 }
 
@@ -88,18 +89,18 @@ pub fn input_bindings_tuple(inputs: ir::InputsIter) -> TokenStream2 {
 }
 
 /// Builds up the `ink_env::call::utils::ArgumentList` type structure for the given types.
-pub fn generate_argument_list<'b, Args>(args: Args) -> TokenStream2
+pub fn generate_argument_list<'b, Args>(args: Args, abi: TokenStream) -> TokenStream2
 where
     Args: IntoIterator<Item = &'b syn::Type>,
     <Args as IntoIterator>::IntoIter: Iterator,
 {
     use syn::spanned::Spanned as _;
     args.into_iter().fold(
-        quote! { ::ink::env::call::utils::EmptyArgumentList },
+        quote! { ::ink::env::call::utils::EmptyArgumentList<#abi>},
         |rest, arg| {
             let span = arg.span();
             quote_spanned!(span=>
-                ::ink::env::call::utils::ArgumentList<::ink::env::call::utils::Argument<#arg>, #rest>
+                ::ink::env::call::utils::ArgumentList<::ink::env::call::utils::Argument<#arg>, #rest, #abi>
             )
         }
     )

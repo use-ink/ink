@@ -12,24 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use cfg_if::cfg_if;
+#[cfg(feature = "unstable-hostfn")]
+use ink_primitives::ConstructorResult;
+#[cfg(feature = "unstable-hostfn")]
+use pallet_revive_uapi::ReturnErrorCode;
+
+use crate::backend::{
+    EnvBackend,
+    TypedEnvBackend,
+};
+#[cfg(feature = "unstable-hostfn")]
 use crate::{
-    backend::{
-        EnvBackend,
-        TypedEnvBackend,
-    },
     call::{
+        utils::{
+            ConstructorError,
+            DecodeConstructorError,
+        },
         ConstructorReturnType,
         FromAddr,
     },
     Error,
     Result as EnvResult,
 };
-use cfg_if::cfg_if;
-use ink_primitives::{
-    ConstructorResult,
-    LangError,
-};
-use pallet_revive_uapi::ReturnErrorCode;
 
 /// Convert a slice into an array reference.
 ///
@@ -70,74 +75,60 @@ cfg_if! {
 
 // We only use this function when 1) compiling for PolkaVM 2) compiling for tests.
 #[cfg_attr(all(feature = "std", not(test)), allow(dead_code))]
-pub(crate) fn decode_instantiate_result<I, ContractRef, R>(
+#[cfg(feature = "unstable-hostfn")] // only usages are when unstable-hostfn is enabled
+pub(crate) fn decode_instantiate_result<I, ContractRef, R, Abi>(
     instantiate_result: EnvResult<()>,
     out_address: &mut I,
-    out_return_value: &mut I,
-) -> EnvResult<ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>>
+    out_return_value: &[u8],
+) -> EnvResult<ConstructorResult<<R as ConstructorReturnType<ContractRef, Abi>>::Output>>
 where
     I: scale::Input,
     ContractRef: FromAddr,
-    R: ConstructorReturnType<ContractRef>,
+    R: ConstructorReturnType<ContractRef, Abi>,
 {
     match instantiate_result {
         Ok(()) => {
             let addr = scale::Decode::decode(out_address)?;
             let contract_ref = <ContractRef as FromAddr>::from_addr(addr);
-            let output = <R as ConstructorReturnType<ContractRef>>::ok(contract_ref);
+            let output = <R as ConstructorReturnType<ContractRef, Abi>>::ok(contract_ref);
             Ok(Ok(output))
         }
         Err(Error::ReturnError(ReturnErrorCode::CalleeReverted)) => {
-            decode_instantiate_err::<I, ContractRef, R>(out_return_value)
+            decode_instantiate_err::<ContractRef, R, Abi>(out_return_value)
         }
         Err(actual_error) => Err(actual_error),
     }
 }
 
 #[cfg_attr(all(feature = "std", not(test)), allow(dead_code))]
-fn decode_instantiate_err<I, ContractRef, R>(
-    out_return_value: &mut I,
-) -> EnvResult<ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>>
+#[cfg(feature = "unstable-hostfn")] // only usages are when unstable-hostfn is enabled
+fn decode_instantiate_err<ContractRef, R, Abi>(
+    out_return_value: &[u8],
+) -> EnvResult<ConstructorResult<<R as ConstructorReturnType<ContractRef, Abi>>::Output>>
 where
-    I: scale::Input,
     ContractRef: FromAddr,
-    R: ConstructorReturnType<ContractRef>,
+    R: ConstructorReturnType<ContractRef, Abi>,
 {
-    let constructor_result_variant = out_return_value.read_byte()?;
-    match constructor_result_variant {
-        // 0 == `ConstructorResult::Ok` variant
-        0 => {
-            if <R as ConstructorReturnType<ContractRef>>::IS_RESULT {
-                let result_variant = out_return_value.read_byte()?;
-                match result_variant {
-                    // 0 == `Ok` variant
-                    0 => panic!("The callee reverted, but did not encode an error in the output buffer."),
-                    // 1 == `Err` variant
-                    1 => {
-                        let contract_err = <<R as ConstructorReturnType<ContractRef>>::Error
-                        as scale::Decode>::decode(out_return_value)?;
-                        let err = <R as ConstructorReturnType<ContractRef>>::err(contract_err)
-                            .unwrap_or_else(|| {
-                                panic!("Expected an error instance for return type where IS_RESULT == true")
-                            });
-                        Ok(Ok(err))
-                    }
-                    _ => Err(Error::Decode(
-                        "Invalid inner constructor Result encoding, expected 0 or 1 as the first byte".into())
-                    )
+    let decoded_error =
+        <<R as ConstructorReturnType<ContractRef, Abi>>::Error as DecodeConstructorError<
+            Abi,
+        >>::decode_error_output(out_return_value);
+    match decoded_error {
+        ConstructorError::Contract(contract_err) => {
+            let error_output =
+                <R as ConstructorReturnType<ContractRef, Abi>>::err(contract_err);
+            match error_output {
+                Some(output) => Ok(Ok(output)),
+                None => {
+                    // No user defined error variant, and successful error decoding
+                    // (i.e. to unit), so we maintain the `CalleeReverted`
+                    // environmental error.
+                    Err(Error::ReturnError(ReturnErrorCode::CalleeReverted))
                 }
-            } else {
-                panic!("The callee reverted, but did not encode an error in the output buffer.")
             }
         }
-        // 1 == `ConstructorResult::Err` variant
-        1 => {
-            let lang_err = <LangError as scale::Decode>::decode(out_return_value)?;
-            Ok(Err(lang_err))
-        }
-        _ => Err(Error::Decode(
-            "Invalid outer constructor Result encoding, expected 0 or 1 as the first byte".into())
-        )
+        ConstructorError::Lang(lang_err) => Ok(Err(lang_err)),
+        ConstructorError::Env(env_err) => Err(env_err),
     }
 }
 
@@ -145,25 +136,26 @@ where
 mod decode_instantiate_result_tests {
     use super::*;
     use crate::DefaultEnvironment;
-    use ink_primitives::H160;
+    use ink_primitives::Address;
     use scale::Encode;
 
     // The `Result` type used to represent the programmer defined contract output.
     type ContractResult<T, E> = Result<T, E>;
 
-    #[derive(scale::Encode, scale::Decode)]
+    #[derive(Debug, PartialEq, scale::Encode, scale::Decode)]
     struct ContractError(String);
 
     // The `allow(dead_code)` is for the `AccountId` in the struct.
     #[allow(dead_code)]
-    struct TestContractRef(H160);
+    #[derive(Debug, PartialEq)]
+    struct TestContractRef(Address);
 
     impl crate::ContractEnv for TestContractRef {
         type Env = DefaultEnvironment;
     }
 
     impl FromAddr for TestContractRef {
-        fn from_addr(addr: H160) -> Self {
+        fn from_addr(addr: Address) -> Self {
             Self(addr)
         }
     }
@@ -173,20 +165,18 @@ mod decode_instantiate_result_tests {
     ) -> EnvResult<ConstructorResult<Result<TestContractRef, ContractError>>> {
         let out_address = Vec::new();
         let encoded_return_value = return_value.encode();
-        decode_return_value_fallible(
-            &mut &out_address[..],
-            &mut &encoded_return_value[..],
-        )
+        decode_return_value_fallible(&mut &out_address[..], &encoded_return_value[..])
     }
 
     fn decode_return_value_fallible<I: scale::Input>(
         out_address: &mut I,
-        out_return_value: &mut I,
+        out_return_value: &[u8],
     ) -> EnvResult<ConstructorResult<Result<TestContractRef, ContractError>>> {
         decode_instantiate_result::<
             I,
             TestContractRef,
             Result<TestContractRef, ContractError>,
+            ink_primitives::abi::Ink,
         >(
             Err(ReturnErrorCode::CalleeReverted.into()),
             out_address,
@@ -195,17 +185,22 @@ mod decode_instantiate_result_tests {
     }
 
     #[test]
-    #[should_panic(
-        expected = "The callee reverted, but did not encode an error in the output buffer."
-    )]
     fn revert_branch_rejects_valid_output_buffer_with_success_case() {
         let return_value = ConstructorResult::Ok(ContractResult::Ok(()));
 
-        let _decoded_result = encode_and_decode_return_value(return_value);
+        let decoded_result = encode_and_decode_return_value(return_value);
+
+        let expected_error: EnvResult<
+            ConstructorResult<Result<TestContractRef, ContractError>>,
+        > = EnvResult::Err(crate::Error::Decode(
+            "The callee reverted, but did not encode an error in the output buffer."
+                .into(),
+        ));
+        assert_eq!(decoded_result, expected_error);
     }
 
     #[test]
-    fn succesful_dispatch_with_error_from_contract_constructor() {
+    fn successful_dispatch_with_error_from_contract_constructor() {
         let return_value = ConstructorResult::Ok(ContractResult::Err(ContractError(
             "Contract's constructor failed.".to_owned(),
         )));
@@ -240,7 +235,7 @@ mod decode_instantiate_result_tests {
 
         let decoded_result = decode_return_value_fallible(
             &mut &out_address[..],
-            &mut &invalid_encoded_return_value[..],
+            &invalid_encoded_return_value[..],
         );
 
         assert!(matches!(decoded_result, Err(crate::Error::Decode(_))))

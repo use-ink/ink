@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use ink_primitives::{
+    SolDecode,
+    SolEncode,
+};
+
 /// Used to check if `T` is allowed as ink! input parameter type.
 ///
 /// # Note
@@ -67,3 +72,59 @@ where
 pub struct DispatchOutput<T>(T)
 where
     T: scale::Encode + 'static;
+
+/// Used to check if `T` is allowed as ink! input parameter type.
+///
+/// # Note
+///
+/// An ink! input parameter type must implement [`ink::SolDecode`][crate::SolDecode]
+/// and must have a `'static` lifetime.
+///
+/// # Example
+///
+/// This compiles since `i32` fulfills the requirements of an ink! input.
+///
+/// ```
+/// # use ink::codegen::DispatchInputSol;
+/// const _: () = ink::codegen::utils::consume_type::<DispatchInputSol<i32>>();
+/// ```
+///
+/// This fails to compile since `Foo` does not fulfill all requirements.
+///
+/// ```compile_fail
+/// # use ink::codegen::DispatchInputSol;
+/// // Foo is missing scale codec implementations.
+/// struct Foo {}
+/// const _: () = ink::codegen::utils::consume_type::<DispatchInputSol<Foo>>();
+/// ```
+pub struct DispatchInputSol<T>(T)
+where
+    T: SolDecode + 'static;
+
+/// Used to check if `T` is allowed as ink! output parameter type.
+///
+/// # Note
+///
+/// An ink! input parameter type must implement [`ink::SolEncode`][crate::SolEncode]
+/// and must have a `'static` lifetime.
+///
+/// # Example
+///
+/// This compiles since `i32` fulfills the requirements of an ink! output.
+///
+/// ```
+/// # use ink::codegen::DispatchOutputSol;
+/// const _: () = ink::codegen::utils::consume_type::<DispatchOutputSol<i32>>();
+/// ```
+///
+/// This fails to compile since `Foo` does not fulfill all requirements.
+///
+/// ```compile_fail
+/// # use ink::codegen::DispatchOutputSol;
+/// // Foo is missing scale codec implementations.
+/// struct Foo {}
+/// const _: () = ink::codegen::utils::consume_type::<DispatchOutputSol<Foo>>();
+/// ```
+pub struct DispatchOutputSol<T>(T)
+where
+    T: for<'a> SolEncode<'a> + 'static;
