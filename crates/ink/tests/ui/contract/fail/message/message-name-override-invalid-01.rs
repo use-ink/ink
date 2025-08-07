@@ -11,7 +11,7 @@ mod contract {
             Self {}
         }
 
-        #[ink(message, name = "1myMessage")]
+        #[ink(message, name = "1MyMessage")]
         pub fn message(&self) {}
     }
 }
