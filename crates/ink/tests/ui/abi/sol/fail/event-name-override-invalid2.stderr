@@ -1,0 +1,5 @@
+error: `name` attribute argument value can only contain alphanumeric characters, underscores and dollar signs
+ --> tests/ui/abi/sol/fail/event-name-override-invalid2.rs:1:21
+  |
+1 | #[ink::event(name = "My-Event")]
+  |                     ^^^^^^^^^^

@@ -1,5 +1,0 @@
-error: expected a string literal value for `sol_name` attribute argument
- --> tests/ui/abi/sol/fail/event-sol-name-missing.rs:1:14
-  |
-1 | #[ink::event(sol_name)]
-  |              ^^^^^^^^

@@ -1,5 +1,0 @@
-error: expected a string literal value for `sol_name` attribute argument
-  --> tests/ui/abi/sol/fail/message-sol-name-missing.rs:14:24
-   |
-14 |         #[ink(message, sol_name)]
-   |                        ^^^^^^^^

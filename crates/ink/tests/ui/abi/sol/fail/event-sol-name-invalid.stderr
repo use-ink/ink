@@ -1,5 +1,0 @@
-error: Solidity identifiers must begin with an alphabetic character, dollar sign or underscore
- --> tests/ui/abi/sol/fail/event-sol-name-invalid.rs:1:25
-  |
-1 | #[ink::event(sol_name = "1MyEvent")]
-  |                         ^^^^^^^^^^

@@ -13,7 +13,7 @@ mod contract {
             Self {}
         }
 
-        #[ink(message, sol_name = "myMessage")]
+        #[ink(message, name = "myMessage")]
         pub fn message(&self) {}
     }
 }
@@ -33,7 +33,7 @@ fn main() {
         [0x1b, 0x00, 0x8a, 0x9f],
     );
 
-    // Ensures `sol_name` is used in Solidity metadata.
+    // Ensures `name` is used in Solidity metadata.
     let metadata = generate_metadata();
     let message_specs = metadata.functions;
     assert_eq!(message_specs.len(), 1);

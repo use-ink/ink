@@ -190,29 +190,15 @@ pub fn extract_cfg_syn_attributes(attrs: &[syn::Attribute]) -> Vec<syn::Attribut
         .collect()
 }
 
-/// Returns `syn::LitStr` value if it's a valid Solidity identifier.
+/// Returns `syn::LitStr` value if it's an "identifier-like" string.
 ///
 /// # Note
 ///
-/// Always returns an error if we're not in Solidity compatibility mode (i.e. when the ABI
-/// mode is neither "sol" nor "all").
-///
-/// Ref: <https://docs.soliditylang.org/en/latest/grammar.html#a4.SolidityLexer.Identifier>
-pub fn extract_sol_name(
-    // unused in ink! ABI mode.
-    #[cfg_attr(not(any(ink_abi = "sol", ink_abi = "all")), allow(unused_variables))]
-    value: Option<&MetaValue>,
-    span: Span,
-) -> syn::Result<syn::LitStr> {
-    #[cfg(not(any(ink_abi = "sol", ink_abi = "all")))]
-    return Err(syn::Error::new(
-        span,
-        "`sol_name` attribute argument is only allowed in \
-        Solidity ABI compatibility mode",
-    ));
-
-    #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
-    if let Some(lit_str) = value.and_then(MetaValue::as_lit_string) {
+/// The string is considered to be "identifier-like" if:
+/// - It begins with an alphabetic character, underscore or dollar sign
+/// - It only contains alphanumeric characters, underscores and dollar signs
+pub fn extract_name_override(value: &MetaValue, span: Span) -> syn::Result<syn::LitStr> {
+    if let Some(lit_str) = value.as_lit_string() {
         let name = lit_str.value();
         if !name
             .chars()
@@ -222,8 +208,8 @@ pub fn extract_sol_name(
         {
             return Err(format_err_spanned!(
                 lit_str,
-                "Solidity identifiers must begin with an \
-                alphabetic character, dollar sign or underscore",
+                "`name` attribute argument value must begin with an \
+                alphabetic character, underscore or dollar sign",
             ));
         }
 
@@ -233,8 +219,8 @@ pub fn extract_sol_name(
         {
             return Err(format_err_spanned!(
                 lit_str,
-                "Solidity identifiers can only contain \
-                alphanumeric characters, dollar signs and underscores",
+                "`name` attribute argument value can only contain \
+                alphanumeric characters, underscores and dollar signs",
             ));
         }
 
@@ -242,7 +228,7 @@ pub fn extract_sol_name(
     } else {
         Err(syn::Error::new(
             span,
-            "expected a string literal value for `sol_name` \
+            "expected a string literal value for `name` \
             attribute argument",
         ))
     }

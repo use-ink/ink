@@ -52,7 +52,7 @@ pub fn sol_return_type(ty: &Type) -> TokenStream2 {
 /// Returns Solidity ABI compatible selector of an ink! message.
 pub fn selector(message: &Message) -> TokenStream2 {
     let name = message
-        .sol_name()
+        .name()
         .map(ToString::to_string)
         .unwrap_or_else(|| message.ident().to_string());
     let signature = call_signature(name, message.inputs());

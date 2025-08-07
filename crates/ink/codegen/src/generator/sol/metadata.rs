@@ -99,7 +99,7 @@ impl SolidityMetadata<'_> {
             .flat_map(|item_impl| item_impl.iter_messages())
             .map(|msg| {
                 let name = msg
-                    .sol_name()
+                    .name()
                     .map(ToString::to_string)
                     .unwrap_or_else(|| msg.ident().to_string());
                 let inputs = params_info(msg.inputs());

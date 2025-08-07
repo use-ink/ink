@@ -18,7 +18,7 @@ use crate::{
     ast,
     utils::{
         duplicate_config_err,
-        extract_sol_name,
+        extract_name_override,
     },
 };
 
@@ -31,17 +31,13 @@ pub struct EventConfig {
     anonymous: bool,
     /// Manually specified signature topic hash.
     signature_topic_hex: Option<String>,
-    /// An optional event name override to use for computing the Solidity ABI selector
-    /// of the event.
+    /// An optional event name override.
     ///
     /// # Note
     ///
-    /// - This configuration argument is only allowed in a Solidity compatible ABI mode
-    ///   (i.e. when the ABI mode is "sol" or "all").
-    /// - If provided, the name must be a valid Solidity identifier.
-    ///
-    /// Ref: <https://docs.soliditylang.org/en/latest/grammar.html#a4.SolidityLexer.Identifier>
-    sol_name: Option<String>,
+    /// - Useful for defining overloaded interfaces.
+    /// - If provided, the name must be a valid "identifier-like" string.
+    name: Option<String>,
 }
 
 impl TryFrom<ast::AttributeArgs> for EventConfig {
@@ -50,8 +46,7 @@ impl TryFrom<ast::AttributeArgs> for EventConfig {
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
         let mut anonymous: Option<syn::Path> = None;
         let mut signature_topic: Option<syn::LitStr> = None;
-        #[cfg_attr(not(any(ink_abi = "sol", ink_abi = "all")), allow(unused_mut))]
-        let mut sol_name: Option<syn::LitStr> = None;
+        let mut name: Option<syn::LitStr> = None;
         for arg in args.into_iter() {
             if arg.name().is_ident("anonymous") {
                 if let Some(lit_bool) = anonymous {
@@ -91,13 +86,19 @@ impl TryFrom<ast::AttributeArgs> for EventConfig {
                         "expected a string literal value for `signature_topic` ink! event item configuration argument",
                     ));
                 }
-            } else if arg.name().is_ident("sol_name") {
-                #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
-                if let Some(lit_str) = sol_name {
-                    return Err(duplicate_config_err(lit_str, arg, "sol_name", "event"));
+            } else if arg.name().is_ident("name") {
+                if let Some(lit_str) = name {
+                    return Err(duplicate_config_err(lit_str, arg, "name", "event"));
                 }
 
-                sol_name = Some(extract_sol_name(arg.value(), arg.span())?);
+                if let Some(value) = arg.value() {
+                    name = Some(extract_name_override(value, arg.span())?);
+                } else {
+                    return Err(format_err_spanned!(
+                        arg,
+                        "expected a string literal value for `name` attribute argument"
+                    ));
+                }
             } else {
                 return Err(format_err_spanned!(
                     arg,
@@ -109,7 +110,7 @@ impl TryFrom<ast::AttributeArgs> for EventConfig {
         Ok(EventConfig::new(
             anonymous.is_some(),
             signature_topic.map(|lit_str| lit_str.value()),
-            sol_name.map(|lit_str| lit_str.value()),
+            name.map(|lit_str| lit_str.value()),
         ))
     }
 }
@@ -119,12 +120,12 @@ impl EventConfig {
     pub fn new(
         anonymous: bool,
         signature_topic_hex: Option<String>,
-        sol_name: Option<String>,
+        name: Option<String>,
     ) -> Self {
         Self {
             anonymous,
             signature_topic_hex,
-            sol_name,
+            name,
         }
     }
 
@@ -138,9 +139,8 @@ impl EventConfig {
         self.signature_topic_hex.as_deref()
     }
 
-    /// Returns the event name override (if any) for computing the Solidity ABI selector
-    /// of the event.
-    pub fn sol_name(&self) -> Option<&str> {
-        self.sol_name.as_deref()
+    /// Returns the event name override (if any).
+    pub fn name(&self) -> Option<&str> {
+        self.name.as_deref()
     }
 }

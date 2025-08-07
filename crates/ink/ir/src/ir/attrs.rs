@@ -39,7 +39,7 @@ use crate::{
         chain_extension::FunctionId,
         Selector,
     },
-    utils::extract_sol_name,
+    utils::extract_name_override,
 };
 
 /// An extension trait for [`syn::Attribute`] in order to query for documentation.
@@ -332,11 +332,11 @@ impl InkAttribute {
             .any(|arg| matches!(arg.kind(), AttributeArg::HandleStatus(false)))
     }
 
-    /// Returns the Solidity identifier name of the ink! attribute if any.
-    pub fn sol_name(&self) -> Option<String> {
+    /// Returns the name override value if any.
+    pub fn name(&self) -> Option<String> {
         self.args().find_map(|arg| {
             match arg.kind() {
-                AttributeArg::SolName(name) => Some(name.clone()),
+                AttributeArg::Name(name) => Some(name.clone()),
                 _ => None,
             }
         })
@@ -394,8 +394,8 @@ pub enum AttributeArgKind {
     Implementation,
     /// `#[ink(handle_status = flag: bool)]`
     HandleStatus,
-    /// `#[ink(sol_name = "myName")]`
-    SolName,
+    /// `#[ink(name = "myName")]`
+    Name,
 }
 
 /// An ink! specific attribute flag.
@@ -476,19 +476,16 @@ pub enum AttributeArg {
     ///
     /// Default value: `true`
     HandleStatus(bool),
-    /// `#[ink(sol_name = "myName")]`
+    /// `#[ink(name = "myName")]`
     ///
-    /// Applied on ink! messages and events to provide the name for the item to use for
-    /// Solidity ABI encoding.
+    /// Applied on ink! messages, constructors and events to provide the name override
+    /// for the item.
     ///
     /// # Note
     ///
-    /// - Only allowed in Solidity ABI compatibility mode (i.e. when the ABI mode is
-    ///   "sol" or "all").
-    /// - The name must be a valid Solidity identifier.
-    ///
-    /// Ref: <https://docs.soliditylang.org/en/latest/grammar.html#a4.SolidityLexer.Identifier>
-    SolName(String),
+    /// - Useful for defining overloaded interfaces.
+    /// - If provided, the name must be a valid "identifier-like" string.
+    Name(String),
 }
 
 impl core::fmt::Display for AttributeArgKind {
@@ -515,7 +512,7 @@ impl core::fmt::Display for AttributeArgKind {
             Self::Implementation => write!(f, "impl"),
             Self::HandleStatus => write!(f, "handle_status"),
             Self::Default => write!(f, "default"),
-            Self::SolName => write!(f, "sol_name = N:string"),
+            Self::Name => write!(f, "sol_name = N:string"),
         }
     }
 }
@@ -537,7 +534,7 @@ impl AttributeArg {
             Self::Implementation => AttributeArgKind::Implementation,
             Self::HandleStatus(_) => AttributeArgKind::HandleStatus,
             Self::Default => AttributeArgKind::Default,
-            Self::SolName(_) => AttributeArgKind::SolName,
+            Self::Name(_) => AttributeArgKind::Name,
         }
     }
 }
@@ -564,7 +561,7 @@ impl core::fmt::Display for AttributeArg {
             Self::Implementation => write!(f, "impl"),
             Self::HandleStatus(value) => write!(f, "handle_status = {value:?}"),
             Self::Default => write!(f, "default"),
-            Self::SolName(name) => write!(f, "namespace = {name:?}"),
+            Self::Name(name) => write!(f, "name = {name:?}"),
         }
     }
 }
@@ -719,7 +716,7 @@ where
     let first = attrs.into_iter().find(|attr| attr.path().is_ident("ink"));
     match first {
         None => Ok(None),
-        Some(ink_attr) => InkAttribute::try_from(ink_attr.clone()).map(Some),
+        Some(ink_attr) => InkAttribute::try_from(ink_attr).map(Some),
     }
 }
 
@@ -871,7 +868,7 @@ impl TryFrom<syn::Attribute> for Attribute {
 
     fn try_from(attr: syn::Attribute) -> Result<Self, Self::Error> {
         if attr.path().is_ident("ink") {
-            return <InkAttribute as TryFrom<_>>::try_from(attr).map(Into::into);
+            return <InkAttribute as TryFrom<_>>::try_from(&attr).map(Into::into);
         }
         Ok(Attribute::Other(attr))
     }
@@ -883,10 +880,10 @@ impl From<InkAttribute> for Attribute {
     }
 }
 
-impl TryFrom<syn::Attribute> for InkAttribute {
+impl TryFrom<&syn::Attribute> for InkAttribute {
     type Error = syn::Error;
 
-    fn try_from(attr: syn::Attribute) -> Result<Self, Self::Error> {
+    fn try_from(attr: &syn::Attribute) -> Result<Self, Self::Error> {
         if !attr.path().is_ident("ink") {
             return Err(format_err_spanned!(attr, "unexpected non-ink! attribute"));
         }
@@ -1012,10 +1009,10 @@ impl Parse for AttributeFrag {
                             ))
                         }
                     }
-                    "sol_name" => {
-                        let sol_name =
-                            extract_sol_name(Some(&name_value.value), name_value.span())?;
-                        Ok(AttributeArg::SolName(sol_name.value().to_string()))
+                    "name" => {
+                        let name =
+                            extract_name_override(&name_value.value, name_value.span())?;
+                        Ok(AttributeArg::Name(name.value().to_string()))
                     }
                     _ => {
                         Err(format_err_spanned!(
@@ -1063,10 +1060,11 @@ impl Parse for AttributeFrag {
                            "encountered #[ink(selector)] that is missing its u32 parameter. \
                             Did you mean #[ink(selector = value: u32)] ?"
                         )),
-                        "sol_name" => {
-                            Err(extract_sol_name(None, path.span())
-                                .expect_err("Validating `sol_name` with no value should always error"))
-                        },
+                        "name" => Err(format_err_spanned!(
+                            path,
+                           "expected a string literal value for `name` \
+                            attribute argument"
+                        )),
                         _ => Err(format_err_spanned!(
                             path,
                             "encountered unknown ink! attribute argument: {}",
@@ -1587,6 +1585,79 @@ mod tests {
                 #[ink(signature_topic = #s)]
             },
             Ok(test::Attribute::Ink(vec![AttributeArg::SignatureTopic(s)])),
+        );
+    }
+
+    #[test]
+    fn name_works() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(name = "my_name1")]
+            },
+            Ok(test::Attribute::Ink(vec![AttributeArg::Name(
+                "my_name1".to_string(),
+            )])),
+        );
+        // Solidity-like identifier works
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(name = "$myName1")]
+            },
+            Ok(test::Attribute::Ink(vec![AttributeArg::Name(
+                "$myName1".to_string(),
+            )])),
+        );
+    }
+
+    #[test]
+    fn name_invalid_identifier() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(name = "::invalid_identifier")]
+            },
+            Err("`name` attribute argument value must begin with an \
+                alphabetic character, underscore or dollar sign"),
+        );
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(name = "1MyName")]
+            },
+            Err("`name` attribute argument value must begin with an \
+                alphabetic character, underscore or dollar sign"),
+        );
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(name = "invalid::identifier")]
+            },
+            Err("`name` attribute argument value can only contain \
+                alphanumeric characters, underscores and dollar signs"),
+        );
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(name = "My-Name")]
+            },
+            Err("`name` attribute argument value can only contain \
+                alphanumeric characters, underscores and dollar signs"),
+        );
+    }
+
+    #[test]
+    fn name_invalid_type() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(name = 42)]
+            },
+            Err("expected a string literal value for `name` attribute argument"),
+        );
+    }
+
+    #[test]
+    fn name_missing_value() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(name)]
+            },
+            Err("expected a string literal value for `name` attribute argument"),
         );
     }
 }

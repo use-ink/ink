@@ -74,7 +74,7 @@ impl Event<'_> {
         let ident = &item.ident;
         let name = self
             .item
-            .sol_name()
+            .name()
             .map(ToString::to_string)
             .unwrap_or_else(|| ident.to_string());
         let is_anonymous = self.item.anonymous();

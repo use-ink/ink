@@ -1,4 +1,4 @@
-#[ink::event(sol_name)]
+#[ink::event(name = "MyEvent")]
 pub struct Event {
     #[ink(topic)]
     pub topic: [u8; 32],

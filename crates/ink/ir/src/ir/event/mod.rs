@@ -112,10 +112,9 @@ impl Event {
         extract_cfg_attributes(&self.item.attrs, span)
     }
 
-    /// Returns the event name override (if any) for computing the Solidity ABI selector
-    /// of the event.
-    pub fn sol_name(&self) -> Option<&str> {
-        self.config.sol_name()
+    /// Returns the event name override (if any).
+    pub fn name(&self) -> Option<&str> {
+        self.config.name()
     }
 }
 
@@ -141,7 +140,7 @@ impl TryFrom<syn::ItemStruct> for Event {
                     ir::AttributeArg::Event
                     | ir::AttributeArg::SignatureTopic(_)
                     | ir::AttributeArg::Anonymous
-                    | ir::AttributeArg::SolName(_) => Ok(()),
+                    | ir::AttributeArg::Name(_) => Ok(()),
                     _ => Err(None),
                 }
             },
@@ -160,7 +159,7 @@ impl TryFrom<syn::ItemStruct> for Event {
             config: EventConfig::new(
                 ink_attrs.is_anonymous(),
                 ink_attrs.signature_topic_hex(),
-                ink_attrs.sol_name(),
+                ink_attrs.name(),
             ),
         })
     }

@@ -1,5 +1,0 @@
-error: Solidity identifiers can only contain alphanumeric characters, dollar signs and underscores
-  --> tests/ui/abi/sol/fail/message-sol-name-invalid2.rs:14:35
-   |
-14 |         #[ink(message, sol_name = "my-Message")]
-   |                                   ^^^^^^^^^^^^
