@@ -150,14 +150,17 @@ impl Metadata<'_> {
         let is_payable = constructor.is_payable();
         let is_default = constructor.is_default();
         let constructor = constructor.callable();
-        let ident = constructor.ident();
+        let name = constructor
+            .name()
+            .map(ToString::to_string)
+            .unwrap_or_else(|| constructor.ident().to_string());
         let args = constructor.inputs().map(Self::generate_dispatch_argument);
         let storage_ident = self.contract.module().storage().ident();
         let ret_ty = Self::generate_constructor_return_type(storage_ident, selector_id);
         let cfg_attrs = constructor.get_cfg_attrs(span);
         quote_spanned!(span=>
             #( #cfg_attrs )*
-            ::ink::metadata::ConstructorSpec::from_label(::core::stringify!(#ident))
+            ::ink::metadata::ConstructorSpec::from_label(#name)
                 .selector([
                     #( #selector_bytes ),*
                 ])
@@ -215,14 +218,17 @@ impl Metadata<'_> {
                 let is_default = message.is_default();
                 let message = message.callable();
                 let mutates = message.receiver().is_ref_mut();
-                let ident = message.ident();
+                let name = message
+                    .name()
+                    .map(ToString::to_string)
+                    .unwrap_or_else(|| message.ident().to_string());
                 let args = message.inputs().map(Self::generate_dispatch_argument);
                 let cfg_attrs = message.get_cfg_attrs(span);
                 let ret_ty =
                     Self::generate_message_return_type(&message.wrapped_output());
                 quote_spanned!(span =>
                     #( #cfg_attrs )*
-                    ::ink::metadata::MessageSpec::from_label(::core::stringify!(#ident))
+                    ::ink::metadata::MessageSpec::from_label(#name)
                         .selector([
                             #( #selector_bytes ),*
                         ])
@@ -261,7 +267,10 @@ impl Metadata<'_> {
             .flatten()
             .map(|((trait_ident, trait_path), message)| {
                 let message_span = message.span();
-                let message_ident = message.ident();
+                let message_name = message
+                    .name()
+                    .map(ToString::to_string)
+                    .unwrap_or_else(|| message.ident().to_string());
                 let message_docs = message
                     .attrs()
                     .iter()
@@ -283,7 +292,7 @@ impl Metadata<'_> {
                         as ::ink::reflect::TraitMessageInfo<#local_id>>::SELECTOR
                 }};
                 let ret_ty = Self::generate_message_return_type(&message.wrapped_output());
-                let label = [trait_ident.to_string(), message_ident.to_string()].join("::");
+                let label = [trait_ident.to_string(), message_name].join("::");
                 quote_spanned!(message_span=>
                     #( #cfg_attrs )*
                     ::ink::metadata::MessageSpec::from_label(#label)
