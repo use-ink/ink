@@ -199,7 +199,7 @@ mod tests {
     }
 
     #[test]
-    fn saturatiung_sub() {
+    fn saturating_sub() {
         assert_eq!(u64::MIN, Saturating::saturating_sub(u64::MIN, 1))
     }
 
