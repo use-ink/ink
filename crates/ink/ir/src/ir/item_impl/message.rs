@@ -231,11 +231,11 @@ impl TryFrom<syn::ImplItemFn> for Message {
             is_payable,
             is_default,
             selector,
+            name,
             item: syn::ImplItemFn {
                 attrs: other_attrs,
                 ..method_item
             },
-            name,
         })
     }
 }
@@ -290,6 +290,10 @@ impl Callable for Message {
 
     fn statements(&self) -> &[syn::Stmt] {
         &self.item.block.stmts
+    }
+
+    fn name(&self) -> Option<&str> {
+        self.name.as_deref()
     }
 }
 
@@ -550,6 +554,32 @@ mod tests {
                 .unwrap()
                 .is_default();
             assert_eq!(is_default, expect_default);
+        }
+    }
+
+    #[test]
+    fn name_override_works() {
+        let test_inputs: Vec<(Option<&str>, syn::ImplItemFn)> = vec![
+            // No name override.
+            (
+                None,
+                syn::parse_quote! {
+                    #[ink(message)]
+                    fn my_message(&self) {}
+                },
+            ),
+            // Name override.
+            (
+                Some("myMessage"),
+                syn::parse_quote! {
+                    #[ink(message, name = "myMessage")]
+                    pub fn my_message(&mut self) {}
+                },
+            ),
+        ];
+        for (expected_name, item_method) in test_inputs {
+            let message = <ir::Message as TryFrom<_>>::try_from(item_method).unwrap();
+            assert_eq!(message.name(), expected_name);
         }
     }
 

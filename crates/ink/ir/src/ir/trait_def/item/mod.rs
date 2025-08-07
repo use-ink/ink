@@ -372,7 +372,12 @@ impl InkItemTrait {
                 Some(SelectorOrWildcard::UserProvided(manual_selector)) => {
                     manual_selector
                 }
-                _ => Selector::compose(trait_prefix, ident),
+                _ => {
+                    let name = ink_attrs
+                        .name()
+                        .unwrap_or_else(|| callable.ident().to_string());
+                    Selector::compose(trait_prefix, name)
+                }
             };
             let (duplicate_selector, duplicate_ident) = match callable {
                 InkTraitItem::Message(_) => {
