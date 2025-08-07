@@ -911,6 +911,16 @@ checksum = "55248b47b0caf0546f7988906588779981c43bb1bc9d0c44087278f80cdb44ba"
 [[package]]
 name = "binary-merkle-tree"
 version = "13.0.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
+dependencies = [
+ "hash-db",
+ "log",
+ "parity-scale-codec",
+]
+
+[[package]]
+name = "binary-merkle-tree"
+version = "13.0.0"
 source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
 dependencies = [
  "hash-db",
@@ -2192,7 +2202,7 @@ dependencies = [
 [[package]]
 name = "ethereum-standards"
 version = "0.1.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "alloy-core",
 ]
@@ -2353,24 +2363,24 @@ dependencies = [
 [[package]]
 name = "frame-benchmarking"
 version = "28.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
- "frame-support 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "frame-support-procedural 23.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "frame-system 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "frame-support 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "frame-support-procedural 23.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "frame-system 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "linregress",
  "log",
  "parity-scale-codec",
  "paste",
  "scale-info",
  "serde",
- "sp-api 26.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-application-crypto 30.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-core 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-io 30.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-runtime 31.0.1 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-runtime-interface 24.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-storage 19.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-api 26.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-application-crypto 30.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-core 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-io 30.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-runtime 31.0.1 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-runtime-interface 24.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-storage 19.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "static_assertions",
 ]
 
@@ -2463,16 +2473,16 @@ dependencies = [
 [[package]]
 name = "frame-support"
 version = "28.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "aquamarine",
  "array-bytes",
- "binary-merkle-tree 13.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "binary-merkle-tree 13.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "bitflags 1.3.2",
  "docify",
  "environmental",
  "frame-metadata 23.0.0",
- "frame-support-procedural 23.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "frame-support-procedural 23.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "impl-trait-for-tuples",
  "k256",
  "log",
@@ -2482,22 +2492,22 @@ dependencies = [
  "scale-info",
  "serde",
  "serde_json",
- "sp-api 26.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-arithmetic 23.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-core 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-crypto-hashing-proc-macro 0.1.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-debug-derive 14.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-genesis-builder 0.8.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-inherents 26.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-io 30.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-metadata-ir 0.6.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-runtime 31.0.1 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-staking 26.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-state-machine 0.35.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-std 14.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-tracing 16.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-trie 29.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-weights 27.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-api 26.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-arithmetic 23.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-core 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-crypto-hashing-proc-macro 0.1.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-debug-derive 14.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-genesis-builder 0.8.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-inherents 26.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-io 30.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-metadata-ir 0.6.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-runtime 31.0.1 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-staking 26.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-state-machine 0.35.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-std 14.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-tracing 16.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-trie 29.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-weights 27.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "tt-call",
 ]
 
@@ -2545,20 +2555,20 @@ dependencies = [
 [[package]]
 name = "frame-support-procedural"
 version = "23.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "Inflector",
  "cfg-expr",
  "derive-syn-parse",
  "docify",
  "expander",
- "frame-support-procedural-tools 10.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "frame-support-procedural-tools 10.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "itertools 0.11.0",
  "macro_magic",
  "proc-macro-warning",
  "proc-macro2",
  "quote",
- "sp-crypto-hashing 0.1.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-crypto-hashing 0.1.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "syn 2.0.104",
 ]
 
@@ -2585,9 +2595,9 @@ dependencies = [
 [[package]]
 name = "frame-support-procedural-tools"
 version = "10.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
- "frame-support-procedural-tools-derive 11.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "frame-support-procedural-tools-derive 11.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "proc-macro-crate",
  "proc-macro2",
  "quote",
@@ -2609,7 +2619,7 @@ dependencies = [
 [[package]]
 name = "frame-support-procedural-tools-derive"
 version = "11.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2629,20 +2639,20 @@ dependencies = [
 [[package]]
 name = "frame-system"
 version = "28.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "cfg-if",
  "docify",
- "frame-support 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "frame-support 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "log",
  "parity-scale-codec",
  "scale-info",
  "serde",
- "sp-core 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-io 30.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-runtime 31.0.1 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-version 29.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-weights 27.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-core 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-io 30.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-runtime 31.0.1 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-version 29.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-weights 27.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
 ]
 
 [[package]]
@@ -3394,12 +3404,12 @@ dependencies = [
  "ink_storage",
  "keccak-const",
  "linkme",
- "pallet-revive-uapi 0.1.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "pallet-revive-uapi 0.1.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "parity-scale-codec",
  "polkavm-derive",
  "scale-info",
- "sp-io 30.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-runtime-interface 24.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-io 30.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-runtime-interface 24.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "staging-xcm",
  "tokio",
  "trybuild",
@@ -3442,7 +3452,7 @@ dependencies = [
  "cargo_metadata 0.21.0",
  "contract-build",
  "deranged",
- "frame-support 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "frame-support 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "funty",
  "impl-serde",
  "ink",
@@ -3452,19 +3462,19 @@ dependencies = [
  "ink_sandbox",
  "itertools 0.14.0",
  "jsonrpsee",
- "pallet-revive 0.1.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "pallet-revive 0.1.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "parity-scale-codec",
  "regex",
  "scale-info",
  "serde",
  "serde_json",
  "sha3",
- "sp-core 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-io 30.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-core 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-io 30.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "sp-keyring",
  "sp-runtime 31.0.1 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-runtime-interface 24.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-weights 27.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-runtime-interface 24.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-weights 27.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "subxt",
  "subxt-metadata 0.42.1",
  "subxt-signer 0.42.1",
@@ -3500,8 +3510,8 @@ dependencies = [
  "derive_more 2.0.1",
  "hex-literal 1.0.0",
  "ink_primitives 6.0.0-alpha.1",
- "pallet-revive 0.1.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "pallet-revive-uapi 0.1.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "pallet-revive 0.1.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "pallet-revive-uapi 0.1.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "parity-scale-codec",
  "secp256k1 0.30.0",
  "sha2 0.10.9",
@@ -3524,8 +3534,8 @@ dependencies = [
  "ink_primitives 6.0.0-alpha.1",
  "ink_storage_traits",
  "num-traits",
- "pallet-revive 0.1.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "pallet-revive-uapi 0.1.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "pallet-revive 0.1.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "pallet-revive-uapi 0.1.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "parity-scale-codec",
  "polkavm-derive",
  "scale-decode",
@@ -3535,8 +3545,8 @@ dependencies = [
  "secp256k1 0.30.0",
  "sha2 0.10.9",
  "sha3",
- "sp-io 30.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-runtime-interface 24.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-io 30.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-runtime-interface 24.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "staging-xcm",
  "static_assertions",
 ]
@@ -3663,8 +3673,8 @@ dependencies = [
  "ink_prelude 6.0.0-alpha.1",
  "itertools 0.14.0",
  "num-traits",
- "pallet-revive 0.1.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "pallet-revive-uapi 0.1.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "pallet-revive 0.1.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "pallet-revive-uapi 0.1.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "parity-scale-codec",
  "paste",
  "primitive-types 0.13.1",
@@ -3672,10 +3682,10 @@ dependencies = [
  "scale-encode",
  "scale-info",
  "serde",
- "sp-core 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-io 30.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-runtime-interface 24.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-weights 27.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-core 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-io 30.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-runtime-interface 24.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-weights 27.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "xxhash-rust",
 ]
 
@@ -3684,19 +3694,19 @@ name = "ink_sandbox"
 version = "6.0.0-alpha.1"
 dependencies = [
  "frame-metadata 23.0.0",
- "frame-support 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "frame-system 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "frame-support 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "frame-system 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "ink_primitives 6.0.0-alpha.1",
  "pallet-balances",
- "pallet-revive 0.1.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "pallet-revive 0.1.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "pallet-timestamp",
  "parity-scale-codec",
  "paste",
  "scale-info",
  "sha3",
- "sp-core 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-externalities 0.25.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-io 30.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-core 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-externalities 0.25.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-io 30.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
 ]
 
 [[package]]
@@ -3713,7 +3723,7 @@ dependencies = [
  "ink_primitives 6.0.0-alpha.1",
  "ink_storage_traits",
  "itertools 0.14.0",
- "pallet-revive-uapi 0.1.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "pallet-revive-uapi 0.1.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "parity-scale-codec",
  "quickcheck",
  "quickcheck_macros",
@@ -3730,8 +3740,8 @@ dependencies = [
  "parity-scale-codec",
  "paste",
  "scale-info",
- "sp-io 30.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-runtime-interface 24.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-io 30.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-runtime-interface 24.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
 ]
 
 [[package]]
@@ -4498,32 +4508,32 @@ checksum = "b15813163c1d831bf4a13c3610c05c0d03b39feb07f7e09fa234dac9b15aaf39"
 [[package]]
 name = "pallet-balances"
 version = "28.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "docify",
- "frame-benchmarking 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "frame-support 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "frame-system 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "frame-benchmarking 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "frame-support 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "frame-system 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "log",
  "parity-scale-codec",
  "scale-info",
- "sp-core 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-runtime 31.0.1 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-core 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-runtime 31.0.1 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
 ]
 
 [[package]]
 name = "pallet-revive"
 version = "0.1.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "alloy-core",
  "derive_more 0.99.20",
  "environmental",
- "ethereum-standards 0.1.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "ethereum-standards 0.1.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "ethereum-types",
- "frame-benchmarking 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "frame-support 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "frame-system 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "frame-benchmarking 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "frame-support 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "frame-system 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "hex-literal 0.4.1",
  "humantime-serde",
  "impl-trait-for-tuples",
@@ -4531,10 +4541,10 @@ dependencies = [
  "num-bigint",
  "num-integer",
  "num-traits",
- "pallet-revive-fixtures 0.1.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "pallet-revive-proc-macro 0.1.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "pallet-revive-uapi 0.1.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "pallet-transaction-payment 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "pallet-revive-fixtures 0.1.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "pallet-revive-proc-macro 0.1.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "pallet-revive-uapi 0.1.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "pallet-transaction-payment 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "parity-scale-codec",
  "paste",
  "polkavm",
@@ -4544,14 +4554,14 @@ dependencies = [
  "rlp 0.6.1",
  "scale-info",
  "serde",
- "sp-api 26.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-arithmetic 23.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-consensus-aura 0.32.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-consensus-babe 0.32.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-consensus-slots 0.32.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-core 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-io 30.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-runtime 31.0.1 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-api 26.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-arithmetic 23.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-consensus-aura 0.32.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-consensus-babe 0.32.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-consensus-slots 0.32.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-core 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-io 30.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-runtime 31.0.1 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "substrate-bn",
  "subxt-signer 0.41.0",
 ]
@@ -4604,14 +4614,14 @@ dependencies = [
 [[package]]
 name = "pallet-revive-fixtures"
 version = "0.1.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "anyhow",
  "cargo_metadata 0.15.4",
- "pallet-revive-uapi 0.1.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "pallet-revive-uapi 0.1.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "polkavm-linker 0.26.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "sp-core 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-io 30.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-core 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-io 30.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "toml 0.8.23",
 ]
 
@@ -4632,7 +4642,7 @@ dependencies = [
 [[package]]
 name = "pallet-revive-proc-macro"
 version = "0.1.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4652,10 +4662,10 @@ dependencies = [
 [[package]]
 name = "pallet-revive-uapi"
 version = "0.1.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "bitflags 1.3.2",
- "pallet-revive-proc-macro 0.1.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "pallet-revive-proc-macro 0.1.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "parity-scale-codec",
  "polkavm-derive",
  "scale-info",
@@ -4676,34 +4686,34 @@ dependencies = [
 [[package]]
 name = "pallet-timestamp"
 version = "27.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "docify",
- "frame-benchmarking 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "frame-support 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "frame-system 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "frame-benchmarking 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "frame-support 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "frame-system 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "log",
  "parity-scale-codec",
  "scale-info",
- "sp-inherents 26.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-runtime 31.0.1 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-storage 19.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-timestamp 26.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-inherents 26.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-runtime 31.0.1 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-storage 19.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-timestamp 26.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
 ]
 
 [[package]]
 name = "pallet-transaction-payment"
 version = "28.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
- "frame-benchmarking 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "frame-support 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "frame-system 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "frame-benchmarking 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "frame-support 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "frame-system 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "parity-scale-codec",
  "scale-info",
  "serde",
- "sp-io 30.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-runtime 31.0.1 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-io 30.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-runtime 31.0.1 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
 ]
 
 [[package]]
@@ -6550,22 +6560,22 @@ dependencies = [
 [[package]]
 name = "sp-api"
 version = "26.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "docify",
  "hash-db",
  "log",
  "parity-scale-codec",
  "scale-info",
- "sp-api-proc-macro 15.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-core 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-externalities 0.25.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-metadata-ir 0.6.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-runtime 31.0.1 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-runtime-interface 24.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-state-machine 0.35.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-trie 29.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-version 29.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-api-proc-macro 15.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-core 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-externalities 0.25.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-metadata-ir 0.6.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-runtime 31.0.1 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-runtime-interface 24.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-state-machine 0.35.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-trie 29.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-version 29.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "thiserror 1.0.69",
 ]
 
@@ -6594,7 +6604,7 @@ dependencies = [
 [[package]]
 name = "sp-api-proc-macro"
 version = "15.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "Inflector",
  "blake2",
@@ -6617,6 +6627,18 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.104",
+]
+
+[[package]]
+name = "sp-application-crypto"
+version = "30.0.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
+dependencies = [
+ "parity-scale-codec",
+ "scale-info",
+ "serde",
+ "sp-core 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-io 30.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
 ]
 
 [[package]]
@@ -6646,6 +6668,20 @@ dependencies = [
 [[package]]
 name = "sp-arithmetic"
 version = "23.0.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
+dependencies = [
+ "docify",
+ "integer-sqrt",
+ "num-traits",
+ "parity-scale-codec",
+ "scale-info",
+ "serde",
+ "static_assertions",
+]
+
+[[package]]
+name = "sp-arithmetic"
+version = "23.0.0"
 source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
 dependencies = [
  "docify",
@@ -6674,17 +6710,17 @@ dependencies = [
 [[package]]
 name = "sp-consensus-aura"
 version = "0.32.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "async-trait",
  "parity-scale-codec",
  "scale-info",
- "sp-api 26.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-application-crypto 30.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-consensus-slots 0.32.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-inherents 26.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-runtime 31.0.1 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-timestamp 26.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-api 26.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-application-crypto 30.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-consensus-slots 0.32.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-inherents 26.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-runtime 31.0.1 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-timestamp 26.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
 ]
 
 [[package]]
@@ -6706,19 +6742,19 @@ dependencies = [
 [[package]]
 name = "sp-consensus-babe"
 version = "0.32.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "async-trait",
  "parity-scale-codec",
  "scale-info",
  "serde",
- "sp-api 26.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-application-crypto 30.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-consensus-slots 0.32.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-core 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-inherents 26.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-runtime 31.0.1 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-timestamp 26.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-api 26.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-application-crypto 30.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-consensus-slots 0.32.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-core 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-inherents 26.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-runtime 31.0.1 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-timestamp 26.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
 ]
 
 [[package]]
@@ -6742,12 +6778,12 @@ dependencies = [
 [[package]]
 name = "sp-consensus-slots"
 version = "0.32.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "parity-scale-codec",
  "scale-info",
  "serde",
- "sp-timestamp 26.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-timestamp 26.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
 ]
 
 [[package]]
@@ -6759,6 +6795,53 @@ dependencies = [
  "scale-info",
  "serde",
  "sp-timestamp 26.0.0 (git+https://github.com/paritytech/polkadot-sdk.git)",
+]
+
+[[package]]
+name = "sp-core"
+version = "28.0.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
+dependencies = [
+ "ark-vrf",
+ "array-bytes",
+ "bitflags 1.3.2",
+ "blake2",
+ "bounded-collections",
+ "bs58",
+ "dyn-clone",
+ "ed25519-zebra",
+ "futures",
+ "hash-db",
+ "hash256-std-hasher",
+ "impl-serde",
+ "itertools 0.11.0",
+ "k256",
+ "libsecp256k1",
+ "log",
+ "merlin",
+ "parity-bip39",
+ "parity-scale-codec",
+ "parking_lot",
+ "paste",
+ "primitive-types 0.13.1",
+ "rand 0.8.5",
+ "scale-info",
+ "schnorrkel",
+ "secp256k1 0.28.2",
+ "secrecy 0.8.0",
+ "serde",
+ "sha2 0.10.9",
+ "sp-crypto-hashing 0.1.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-debug-derive 14.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-externalities 0.25.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-std 14.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-storage 19.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "ss58-registry",
+ "substrate-bip39 0.4.7 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "thiserror 1.0.69",
+ "tracing",
+ "w3f-bls",
+ "zeroize",
 ]
 
 [[package]]
@@ -6874,6 +6957,19 @@ dependencies = [
 [[package]]
 name = "sp-crypto-hashing"
 version = "0.1.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
+dependencies = [
+ "blake2b_simd",
+ "byteorder",
+ "digest 0.10.7",
+ "sha2 0.10.9",
+ "sha3",
+ "twox-hash 1.6.3",
+]
+
+[[package]]
+name = "sp-crypto-hashing"
+version = "0.1.0"
 source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
 dependencies = [
  "blake2b_simd",
@@ -6900,10 +6996,10 @@ dependencies = [
 [[package]]
 name = "sp-crypto-hashing-proc-macro"
 version = "0.1.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "quote",
- "sp-crypto-hashing 0.1.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-crypto-hashing 0.1.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "syn 2.0.104",
 ]
 
@@ -6920,6 +7016,16 @@ dependencies = [
 [[package]]
 name = "sp-debug-derive"
 version = "14.0.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.104",
+]
+
+[[package]]
+name = "sp-debug-derive"
+version = "14.0.0"
 source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
 dependencies = [
  "proc-macro2",
@@ -6935,6 +7041,16 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.104",
+]
+
+[[package]]
+name = "sp-externalities"
+version = "0.25.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
+dependencies = [
+ "environmental",
+ "parity-scale-codec",
+ "sp-storage 19.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
 ]
 
 [[package]]
@@ -6960,13 +7076,13 @@ dependencies = [
 [[package]]
 name = "sp-genesis-builder"
 version = "0.8.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "parity-scale-codec",
  "scale-info",
  "serde_json",
- "sp-api 26.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-runtime 31.0.1 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-api 26.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-runtime 31.0.1 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
 ]
 
 [[package]]
@@ -6984,13 +7100,13 @@ dependencies = [
 [[package]]
 name = "sp-inherents"
 version = "26.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "async-trait",
  "impl-trait-for-tuples",
  "parity-scale-codec",
  "scale-info",
- "sp-runtime 31.0.1 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-runtime 31.0.1 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "thiserror 1.0.69",
 ]
 
@@ -7005,6 +7121,32 @@ dependencies = [
  "scale-info",
  "sp-runtime 31.0.1 (git+https://github.com/paritytech/polkadot-sdk.git)",
  "thiserror 1.0.69",
+]
+
+[[package]]
+name = "sp-io"
+version = "30.0.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
+dependencies = [
+ "bytes",
+ "docify",
+ "ed25519-dalek",
+ "libsecp256k1",
+ "log",
+ "parity-scale-codec",
+ "polkavm-derive",
+ "rustversion",
+ "secp256k1 0.28.2",
+ "sp-core 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-crypto-hashing 0.1.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-externalities 0.25.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-keystore 0.34.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-runtime-interface 24.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-state-machine 0.35.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-tracing 16.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-trie 29.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "tracing",
+ "tracing-core",
 ]
 
 [[package]]
@@ -7062,11 +7204,22 @@ dependencies = [
 [[package]]
 name = "sp-keyring"
 version = "31.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
- "sp-core 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-runtime 31.0.1 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-core 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-runtime 31.0.1 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "strum",
+]
+
+[[package]]
+name = "sp-keystore"
+version = "0.34.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
+dependencies = [
+ "parity-scale-codec",
+ "parking_lot",
+ "sp-core 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-externalities 0.25.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
 ]
 
 [[package]]
@@ -7094,7 +7247,7 @@ dependencies = [
 [[package]]
 name = "sp-metadata-ir"
 version = "0.6.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "frame-metadata 23.0.0",
  "parity-scale-codec",
@@ -7114,6 +7267,15 @@ dependencies = [
 [[package]]
 name = "sp-panic-handler"
 version = "13.0.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
+dependencies = [
+ "backtrace",
+ "regex",
+]
+
+[[package]]
+name = "sp-panic-handler"
+version = "13.0.0"
 source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
 dependencies = [
  "backtrace",
@@ -7127,6 +7289,35 @@ source = "git+https://github.com/paritytech/polkadot-sdk.git#607a1b24b7902a65742
 dependencies = [
  "backtrace",
  "regex",
+]
+
+[[package]]
+name = "sp-runtime"
+version = "31.0.1"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
+dependencies = [
+ "binary-merkle-tree 13.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "docify",
+ "either",
+ "hash256-std-hasher",
+ "impl-trait-for-tuples",
+ "log",
+ "num-traits",
+ "parity-scale-codec",
+ "paste",
+ "rand 0.8.5",
+ "scale-info",
+ "serde",
+ "simple-mermaid",
+ "sp-application-crypto 30.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-arithmetic 23.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-core 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-io 30.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-std 14.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-trie 29.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-weights 27.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "tracing",
+ "tuplex",
 ]
 
 [[package]]
@@ -7190,6 +7381,24 @@ dependencies = [
 [[package]]
 name = "sp-runtime-interface"
 version = "24.0.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
+dependencies = [
+ "bytes",
+ "impl-trait-for-tuples",
+ "parity-scale-codec",
+ "polkavm-derive",
+ "sp-externalities 0.25.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-runtime-interface-proc-macro 17.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-std 14.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-storage 19.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-tracing 16.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-wasm-interface 20.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "static_assertions",
+]
+
+[[package]]
+name = "sp-runtime-interface"
+version = "24.0.0"
 source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
 dependencies = [
  "bytes",
@@ -7228,6 +7437,19 @@ dependencies = [
 [[package]]
 name = "sp-runtime-interface-proc-macro"
 version = "17.0.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
+dependencies = [
+ "Inflector",
+ "expander",
+ "proc-macro-crate",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.104",
+]
+
+[[package]]
+name = "sp-runtime-interface-proc-macro"
+version = "17.0.0"
 source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
 dependencies = [
  "Inflector",
@@ -7254,14 +7476,14 @@ dependencies = [
 [[package]]
 name = "sp-staking"
 version = "26.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "impl-trait-for-tuples",
  "parity-scale-codec",
  "scale-info",
  "serde",
- "sp-core 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-runtime 31.0.1 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-core 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-runtime 31.0.1 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
 ]
 
 [[package]]
@@ -7275,6 +7497,26 @@ dependencies = [
  "serde",
  "sp-core 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git)",
  "sp-runtime 31.0.1 (git+https://github.com/paritytech/polkadot-sdk.git)",
+]
+
+[[package]]
+name = "sp-state-machine"
+version = "0.35.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
+dependencies = [
+ "hash-db",
+ "log",
+ "parity-scale-codec",
+ "parking_lot",
+ "rand 0.8.5",
+ "smallvec",
+ "sp-core 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-externalities 0.25.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-panic-handler 13.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-trie 29.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "thiserror 1.0.69",
+ "tracing",
+ "trie-db",
 ]
 
 [[package]]
@@ -7320,12 +7562,29 @@ dependencies = [
 [[package]]
 name = "sp-std"
 version = "14.0.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
+
+[[package]]
+name = "sp-std"
+version = "14.0.0"
 source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
 
 [[package]]
 name = "sp-std"
 version = "14.0.0"
 source = "git+https://github.com/paritytech/polkadot-sdk.git#607a1b24b7902a657426ce2412e316a57b61894b"
+
+[[package]]
+name = "sp-storage"
+version = "19.0.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
+dependencies = [
+ "impl-serde",
+ "parity-scale-codec",
+ "ref-cast",
+ "serde",
+ "sp-debug-derive 14.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+]
 
 [[package]]
 name = "sp-storage"
@@ -7354,12 +7613,12 @@ dependencies = [
 [[package]]
 name = "sp-timestamp"
 version = "26.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "async-trait",
  "parity-scale-codec",
- "sp-inherents 26.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-runtime 31.0.1 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-inherents 26.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-runtime 31.0.1 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "thiserror 1.0.69",
 ]
 
@@ -7378,6 +7637,18 @@ dependencies = [
 [[package]]
 name = "sp-tracing"
 version = "16.0.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
+dependencies = [
+ "parity-scale-codec",
+ "regex",
+ "tracing",
+ "tracing-core",
+ "tracing-subscriber",
+]
+
+[[package]]
+name = "sp-tracing"
+version = "16.0.0"
 source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
 dependencies = [
  "parity-scale-codec",
@@ -7397,6 +7668,31 @@ dependencies = [
  "tracing",
  "tracing-core",
  "tracing-subscriber",
+]
+
+[[package]]
+name = "sp-trie"
+version = "29.0.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
+dependencies = [
+ "ahash",
+ "foldhash",
+ "hash-db",
+ "hashbrown 0.15.4",
+ "memory-db 0.34.0",
+ "nohash-hasher",
+ "parity-scale-codec",
+ "parking_lot",
+ "rand 0.8.5",
+ "scale-info",
+ "schnellru",
+ "sp-core 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-externalities 0.25.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "substrate-prometheus-endpoint 0.17.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "thiserror 1.0.69",
+ "tracing",
+ "trie-db",
+ "trie-root",
 ]
 
 [[package]]
@@ -7450,17 +7746,17 @@ dependencies = [
 [[package]]
 name = "sp-version"
 version = "29.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "impl-serde",
  "parity-scale-codec",
  "parity-wasm",
  "scale-info",
  "serde",
- "sp-crypto-hashing-proc-macro 0.1.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-runtime 31.0.1 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-std 14.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-version-proc-macro 13.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-crypto-hashing-proc-macro 0.1.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-runtime 31.0.1 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-std 14.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-version-proc-macro 13.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "thiserror 1.0.69",
 ]
 
@@ -7484,7 +7780,7 @@ dependencies = [
 [[package]]
 name = "sp-version-proc-macro"
 version = "13.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "parity-scale-codec",
  "proc-macro-warning",
@@ -7508,6 +7804,17 @@ dependencies = [
 [[package]]
 name = "sp-wasm-interface"
 version = "20.0.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
+dependencies = [
+ "anyhow",
+ "impl-trait-for-tuples",
+ "log",
+ "parity-scale-codec",
+]
+
+[[package]]
+name = "sp-wasm-interface"
+version = "20.0.0"
 source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
 dependencies = [
  "anyhow",
@@ -7525,6 +7832,20 @@ dependencies = [
  "impl-trait-for-tuples",
  "log",
  "parity-scale-codec",
+]
+
+[[package]]
+name = "sp-weights"
+version = "27.0.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
+dependencies = [
+ "bounded-collections",
+ "parity-scale-codec",
+ "scale-info",
+ "serde",
+ "smallvec",
+ "sp-arithmetic 23.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-debug-derive 14.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
 ]
 
 [[package]]
@@ -7595,21 +7916,21 @@ checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 [[package]]
 name = "staging-xcm"
 version = "7.0.1"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "array-bytes",
  "bounded-collections",
  "derive-where",
  "environmental",
- "frame-support 28.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "frame-support 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
  "hex-literal 0.4.1",
  "impl-trait-for-tuples",
- "log",
  "parity-scale-codec",
  "scale-info",
  "serde",
- "sp-runtime 31.0.1 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
- "sp-weights 27.0.0 (git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4)",
+ "sp-runtime 31.0.1 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "sp-weights 27.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b)",
+ "tracing",
  "xcm-procedural",
 ]
 
@@ -7650,6 +7971,18 @@ dependencies = [
 [[package]]
 name = "substrate-bip39"
 version = "0.4.7"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
+dependencies = [
+ "hmac 0.12.1",
+ "pbkdf2",
+ "schnorrkel",
+ "sha2 0.10.9",
+ "zeroize",
+]
+
+[[package]]
+name = "substrate-bip39"
+version = "0.4.7"
 source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
 dependencies = [
  "hmac 0.12.1",
@@ -7682,6 +8015,20 @@ dependencies = [
  "lazy_static",
  "rand 0.8.5",
  "rustc-hex",
+]
+
+[[package]]
+name = "substrate-prometheus-endpoint"
+version = "0.17.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
+dependencies = [
+ "http-body-util",
+ "hyper",
+ "hyper-util",
+ "log",
+ "prometheus",
+ "thiserror 1.0.69",
+ "tokio",
 ]
 
 [[package]]
@@ -9361,7 +9708,7 @@ dependencies = [
 [[package]]
 name = "xcm-procedural"
 version = "7.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?branch=cmichi-add-system-precompile-with-blake2b#f57cda9d9ccaf5f8f57714d5b35141c808e99db9"
 dependencies = [
  "Inflector",
  "proc-macro2",
