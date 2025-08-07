@@ -18,12 +18,10 @@ mod contract {
     }
 }
 
-fn generate_metadata() -> ink::metadata::sol::ContractMetadata {
-    extern "Rust" {
-        fn __ink_generate_solidity_metadata() -> ink::metadata::sol::ContractMetadata;
-    }
+extern "Rust" {
+    fn __ink_generate_metadata() -> ink::metadata::InkProject;
 
-    unsafe { __ink_generate_solidity_metadata() }
+    fn __ink_generate_solidity_metadata() -> ink::metadata::sol::ContractMetadata;
 }
 
 fn main() {
@@ -41,8 +39,14 @@ fn main() {
         [0x1b, 0x00, 0x8a, 0x9f],
     );
 
-    // Ensures `name` is used in Solidity metadata.
-    let metadata = generate_metadata();
+    // Ensures `name` override is used in ink! metadata.
+    let metadata = unsafe { __ink_generate_metadata() };
+    let message_specs = metadata.spec().messages();
+    assert_eq!(message_specs.len(), 1);
+    assert_eq!(*message_specs[0].label(), "myMessage");
+
+    // Ensures `name` override is used in Solidity metadata.
+    let metadata = unsafe { __ink_generate_solidity_metadata() };
     let message_specs = metadata.functions;
     assert_eq!(message_specs.len(), 1);
     assert_eq!(message_specs[0].name, "myMessage");

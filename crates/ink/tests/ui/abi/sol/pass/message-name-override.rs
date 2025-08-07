@@ -18,12 +18,8 @@ mod contract {
     }
 }
 
-fn generate_metadata() -> ink::metadata::sol::ContractMetadata {
-    extern "Rust" {
-        fn __ink_generate_solidity_metadata() -> ink::metadata::sol::ContractMetadata;
-    }
-
-    unsafe { __ink_generate_solidity_metadata() }
+extern "Rust" {
+    fn __ink_generate_solidity_metadata() -> ink::metadata::sol::ContractMetadata;
 }
 
 fn main() {
@@ -34,7 +30,7 @@ fn main() {
     );
 
     // Ensures `name` is used in Solidity metadata.
-    let metadata = generate_metadata();
+    let metadata = unsafe { __ink_generate_solidity_metadata() };
     let message_specs = metadata.functions;
     assert_eq!(message_specs.len(), 1);
     assert_eq!(message_specs[0].name, "myMessage");

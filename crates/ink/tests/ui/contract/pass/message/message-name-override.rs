@@ -18,6 +18,10 @@ mod contract {
     }
 }
 
+extern "Rust" {
+    fn __ink_generate_metadata() -> ink::metadata::InkProject;
+}
+
 fn main() {
     // Message selector and selector id both use the name override.
     // `blake2b("myMessage")` == `0x6fdbfc04`
@@ -26,4 +30,10 @@ fn main() {
         <Contract as ::ink::reflect::DispatchableMessageInfo<MESSAGE_ID>>::SELECTOR,
         [0x6f, 0xdb, 0xfc, 0x04],
     );
+
+    // Ensures `name` override is used in ink! metadata.
+    let metadata = unsafe { __ink_generate_metadata() };
+    let message_specs = metadata.spec().messages();
+    assert_eq!(message_specs.len(), 1);
+    assert_eq!(*message_specs[0].label(), "myMessage");
 }
