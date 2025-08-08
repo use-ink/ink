@@ -145,7 +145,7 @@ impl TryFrom<syn::ItemStruct> for Event {
                 }
             },
         )?;
-        if ink_attrs.is_anonymous() && ink_attrs.signature_topic_hex().is_some() {
+        if ink_attrs.is_anonymous() && ink_attrs.signature_topic().is_some() {
             return Err(format_err_spanned!(
                 item_struct,
                 "cannot use use `anonymous` with `signature_topic`",
@@ -158,7 +158,7 @@ impl TryFrom<syn::ItemStruct> for Event {
             },
             config: EventConfig::new(
                 ink_attrs.is_anonymous(),
-                ink_attrs.signature_topic_hex(),
+                ink_attrs.signature_topic(),
                 ink_attrs.name(),
             ),
         })

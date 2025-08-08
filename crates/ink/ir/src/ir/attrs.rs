@@ -286,7 +286,7 @@ impl InkAttribute {
     }
 
     /// Returns the signature topic of the ink! attribute if any.
-    pub fn signature_topic_hex(&self) -> Option<SignatureTopic> {
+    pub fn signature_topic(&self) -> Option<SignatureTopic> {
         self.args().find_map(|arg| {
             if let ir::AttributeArg::SignatureTopic(topic) = arg.kind() {
                 return Some(*topic);
