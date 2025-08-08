@@ -14,8 +14,11 @@
 
 use super::Selector;
 use crate::{
-    ast,
-    ast::MetaNameValue,
+    ast::{
+        self,
+        MetaNameValue,
+        MetaValue,
+    },
     error::ExtError as _,
     format_err,
 };
@@ -185,4 +188,48 @@ pub fn extract_cfg_syn_attributes(attrs: &[syn::Attribute]) -> Vec<syn::Attribut
         .filter(|a| a.path().is_ident(super::CFG_IDENT))
         .cloned()
         .collect()
+}
+
+/// Returns `syn::LitStr` value if it's an "identifier-like" string.
+///
+/// # Note
+///
+/// The string is considered to be "identifier-like" if:
+/// - It begins with an alphabetic character, underscore or dollar sign
+/// - It only contains alphanumeric characters, underscores and dollar signs
+pub fn extract_name_override(value: &MetaValue, span: Span) -> syn::Result<syn::LitStr> {
+    if let Some(lit_str) = value.as_lit_string() {
+        let name = lit_str.value();
+        if !name
+            .chars()
+            .next()
+            .map(|c| c.is_alphabetic() || c == '$' || c == '_')
+            .unwrap_or(false)
+        {
+            return Err(format_err_spanned!(
+                lit_str,
+                "`name` attribute argument value must begin with an \
+                alphabetic character, underscore or dollar sign",
+            ));
+        }
+
+        if !name
+            .chars()
+            .all(|c| c.is_alphanumeric() || c == '$' || c == '_')
+        {
+            return Err(format_err_spanned!(
+                lit_str,
+                "`name` attribute argument value can only contain \
+                alphanumeric characters, underscores and dollar signs",
+            ));
+        }
+
+        Ok(lit_str.clone())
+    } else {
+        Err(syn::Error::new(
+            span,
+            "expected a string literal value for `name` \
+            attribute argument",
+        ))
+    }
 }

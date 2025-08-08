@@ -37,8 +37,10 @@ use crate::{
     ir,
     ir::{
         chain_extension::FunctionId,
+        event::SignatureTopic,
         Selector,
     },
+    utils::extract_name_override,
 };
 
 /// An extension trait for [`syn::Attribute`] in order to query for documentation.
@@ -284,10 +286,10 @@ impl InkAttribute {
     }
 
     /// Returns the signature topic of the ink! attribute if any.
-    pub fn signature_topic_hex(&self) -> Option<String> {
+    pub fn signature_topic(&self) -> Option<SignatureTopic> {
         self.args().find_map(|arg| {
-            if let ir::AttributeArg::SignatureTopic(hash) = arg.kind() {
-                return Some(hash.clone());
+            if let ir::AttributeArg::SignatureTopic(topic) = arg.kind() {
+                return Some(*topic);
             }
             None
         })
@@ -329,6 +331,16 @@ impl InkAttribute {
         !self
             .args()
             .any(|arg| matches!(arg.kind(), AttributeArg::HandleStatus(false)))
+    }
+
+    /// Returns the name override value if any.
+    pub fn name(&self) -> Option<String> {
+        self.args().find_map(|arg| {
+            match arg.kind() {
+                AttributeArg::Name(name) => Some(name.clone()),
+                _ => None,
+            }
+        })
     }
 }
 
@@ -383,6 +395,8 @@ pub enum AttributeArgKind {
     Implementation,
     /// `#[ink(handle_status = flag: bool)]`
     HandleStatus,
+    /// `#[ink(name = "myName")]`
+    Name,
 }
 
 /// An ink! specific attribute flag.
@@ -432,7 +446,7 @@ pub enum AttributeArg {
     Selector(SelectorOrWildcard),
     /// `#[ink(signature_topic =
     /// "325c98ff66bd0d9d1c10789ae1f2a17bdfb2dcf6aa3d8092669afafdef1cb72d")]`
-    SignatureTopic(String),
+    SignatureTopic(SignatureTopic),
     /// `#[ink(namespace = "my_namespace")]`
     ///
     /// Applied on ink! trait implementation blocks to disambiguate other trait
@@ -463,6 +477,16 @@ pub enum AttributeArg {
     ///
     /// Default value: `true`
     HandleStatus(bool),
+    /// `#[ink(name = "myName")]`
+    ///
+    /// Applied on ink! messages, constructors and events to provide the name override
+    /// for the item.
+    ///
+    /// # Note
+    ///
+    /// - Useful for defining overloaded interfaces.
+    /// - If provided, the name must be a valid "identifier-like" string.
+    Name(String),
 }
 
 impl core::fmt::Display for AttributeArgKind {
@@ -489,6 +513,7 @@ impl core::fmt::Display for AttributeArgKind {
             Self::Implementation => write!(f, "impl"),
             Self::HandleStatus => write!(f, "handle_status"),
             Self::Default => write!(f, "default"),
+            Self::Name => write!(f, "name = N:string"),
         }
     }
 }
@@ -510,6 +535,7 @@ impl AttributeArg {
             Self::Implementation => AttributeArgKind::Implementation,
             Self::HandleStatus(_) => AttributeArgKind::HandleStatus,
             Self::Default => AttributeArgKind::Default,
+            Self::Name(_) => AttributeArgKind::Name,
         }
     }
 }
@@ -524,8 +550,8 @@ impl core::fmt::Display for AttributeArg {
             Self::Constructor => write!(f, "constructor"),
             Self::Payable => write!(f, "payable"),
             Self::Selector(selector) => core::fmt::Display::fmt(&selector, f),
-            Self::SignatureTopic(hash) => {
-                write!(f, "signature_topic = {hash:?}")
+            Self::SignatureTopic(topic) => {
+                write!(f, "signature_topic = {topic}")
             }
             Self::Function(function) => {
                 write!(f, "function = {:?}", function.into_u16())
@@ -536,6 +562,7 @@ impl core::fmt::Display for AttributeArg {
             Self::Implementation => write!(f, "impl"),
             Self::HandleStatus(value) => write!(f, "handle_status = {value:?}"),
             Self::Default => write!(f, "default"),
+            Self::Name(name) => write!(f, "name = {name:?}"),
         }
     }
 }
@@ -690,7 +717,7 @@ where
     let first = attrs.into_iter().find(|attr| attr.path().is_ident("ink"));
     match first {
         None => Ok(None),
-        Some(ink_attr) => InkAttribute::try_from(ink_attr.clone()).map(Some),
+        Some(ink_attr) => InkAttribute::try_from(ink_attr).map(Some),
     }
 }
 
@@ -842,7 +869,7 @@ impl TryFrom<syn::Attribute> for Attribute {
 
     fn try_from(attr: syn::Attribute) -> Result<Self, Self::Error> {
         if attr.path().is_ident("ink") {
-            return <InkAttribute as TryFrom<_>>::try_from(attr).map(Into::into);
+            return <InkAttribute as TryFrom<_>>::try_from(&attr).map(Into::into);
         }
         Ok(Attribute::Other(attr))
     }
@@ -854,10 +881,10 @@ impl From<InkAttribute> for Attribute {
     }
 }
 
-impl TryFrom<syn::Attribute> for InkAttribute {
+impl TryFrom<&syn::Attribute> for InkAttribute {
     type Error = syn::Error;
 
-    fn try_from(attr: syn::Attribute) -> Result<Self, Self::Error> {
+    fn try_from(attr: &syn::Attribute) -> Result<Self, Self::Error> {
         if !attr.path().is_ident("ink") {
             return Err(format_err_spanned!(attr, "unexpected non-ink! attribute"));
         }
@@ -948,8 +975,12 @@ impl Parse for AttributeFrag {
                             .map(AttributeArg::Namespace)
                     }
                     "signature_topic" => {
-                        if let Some(hash) = name_value.value.as_string() {
-                            Ok(AttributeArg::SignatureTopic(hash))
+                        if let Some(hex_str) = name_value.value.to_string() {
+                            let topic = SignatureTopic::try_from(hex_str.as_str())
+                                .map_err(|err| {
+                                    syn::Error::new_spanned(&name_value.value, err)
+                                })?;
+                            Ok(AttributeArg::SignatureTopic(topic))
                         } else {
                             Err(format_err_spanned!(
                                 name_value.value,
@@ -982,6 +1013,11 @@ impl Parse for AttributeFrag {
                                 "expected `bool` value type for `flag` in #[ink(handle_status = flag)]",
                             ))
                         }
+                    }
+                    "name" => {
+                        let name =
+                            extract_name_override(&name_value.value, name_value.span())?;
+                        Ok(AttributeArg::Name(name.value().to_string()))
                     }
                     _ => {
                         Err(format_err_spanned!(
@@ -1028,6 +1064,11 @@ impl Parse for AttributeFrag {
                             path,
                            "encountered #[ink(selector)] that is missing its u32 parameter. \
                             Did you mean #[ink(selector = value: u32)] ?"
+                        )),
+                        "name" => Err(format_err_spanned!(
+                            path,
+                           "expected a string literal value for `name` \
+                            attribute argument"
                         )),
                         _ => Err(format_err_spanned!(
                             path,
@@ -1541,14 +1582,114 @@ mod tests {
             Err("encountered duplicate ink! attribute"),
         )
     }
+
     #[test]
     fn signature_topic_works() {
         let s = "11".repeat(32);
+        let bytes = [0x11u8; 32];
         assert_attribute_try_from(
             syn::parse_quote! {
                 #[ink(signature_topic = #s)]
             },
-            Ok(test::Attribute::Ink(vec![AttributeArg::SignatureTopic(s)])),
+            Ok(test::Attribute::Ink(vec![AttributeArg::SignatureTopic(
+                SignatureTopic::from(bytes),
+            )])),
+        );
+    }
+
+    #[test]
+    fn signature_topic_invalid_length_fails() {
+        let s = "11".repeat(16);
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(signature_topic = #s)]
+            },
+            Err("`signature_topic` is expected to be 32-byte hex string. \
+                    Found 16 bytes"),
+        );
+    }
+
+    #[test]
+    fn signature_topic_invalid_hex_fails() {
+        let s = "XY".repeat(32);
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(signature_topic = #s)]
+            },
+            Err("`signature_topic` has invalid hex string"),
+        );
+    }
+
+    #[test]
+    fn name_works() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(name = "my_name1")]
+            },
+            Ok(test::Attribute::Ink(vec![AttributeArg::Name(
+                "my_name1".to_string(),
+            )])),
+        );
+        // Solidity-like identifier works
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(name = "$myName1")]
+            },
+            Ok(test::Attribute::Ink(vec![AttributeArg::Name(
+                "$myName1".to_string(),
+            )])),
+        );
+    }
+
+    #[test]
+    fn name_invalid_identifier() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(name = "::invalid_identifier")]
+            },
+            Err("`name` attribute argument value must begin with an \
+                alphabetic character, underscore or dollar sign"),
+        );
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(name = "1MyName")]
+            },
+            Err("`name` attribute argument value must begin with an \
+                alphabetic character, underscore or dollar sign"),
+        );
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(name = "invalid::identifier")]
+            },
+            Err("`name` attribute argument value can only contain \
+                alphanumeric characters, underscores and dollar signs"),
+        );
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(name = "My-Name")]
+            },
+            Err("`name` attribute argument value can only contain \
+                alphanumeric characters, underscores and dollar signs"),
+        );
+    }
+
+    #[test]
+    fn name_invalid_type() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(name = 42)]
+            },
+            Err("expected a string literal value for `name` attribute argument"),
+        );
+    }
+
+    #[test]
+    fn name_missing_value() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(name)]
+            },
+            Err("expected a string literal value for `name` attribute argument"),
         );
     }
 }

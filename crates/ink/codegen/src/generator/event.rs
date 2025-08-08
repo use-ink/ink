@@ -42,8 +42,14 @@ impl GenerateCode for Event<'_> {
             .then(|| quote::quote! { #[ink(anonymous)] });
         let signature_topic = self
             .item
-            .signature_topic_hex()
+            .signature_topic()
+            .as_ref()
+            .map(ToString::to_string)
             .map(|hex_s| quote::quote! { #[ink(signature_topic = #hex_s)] });
+        let name_override = self
+            .item
+            .name()
+            .map(|name| quote::quote! { #[ink(name = #name)] });
         let cfg_attrs = self.item.get_cfg_attrs(item.span());
 
         #[cfg(all(feature = "std", any(ink_abi = "sol", ink_abi = "all")))]
@@ -59,6 +65,7 @@ impl GenerateCode for Event<'_> {
             #[::ink::scale_derive(Encode, Decode)]
             #anonymous
             #signature_topic
+            #name_override
             #item
 
             #sol_event_metadata
@@ -72,7 +79,11 @@ impl Event<'_> {
     fn solidity_event_metadata(&self) -> TokenStream2 {
         let item = self.item.item();
         let ident = &item.ident;
-        let name = ident.to_string();
+        let name = self
+            .item
+            .name()
+            .map(ToString::to_string)
+            .unwrap_or_else(|| ident.to_string());
         let is_anonymous = self.item.anonymous();
 
         let fields = match &item.fields {

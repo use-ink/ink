@@ -1,0 +1,5 @@
+error: `name` attribute argument value must begin with an alphabetic character, underscore or dollar sign
+ --> tests/ui/event/fail/name-override-invalid-01.rs:1:21
+  |
+1 | #[ink::event(name = "1MyEvent")]
+  |                     ^^^^^^^^^^

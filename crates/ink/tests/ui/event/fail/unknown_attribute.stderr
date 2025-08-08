@@ -3,11 +3,3 @@ error: encountered unknown or unsupported ink! event item configuration argument
   |
 3 | #[ink(my_arg)]
   |       ^^^^^^
-
-error[E0277]: the trait bound `Event: ink::ink_env::Event` is not satisfied
- --> tests/ui/event/fail/unknown_attribute.rs:1:1
-  |
-1 | #[ink::event]
-  | ^^^^^^^^^^^^^ the trait `ink::ink_env::Event` is not implemented for `Event`
-  |
-  = note: this error originates in the attribute macro `ink::event` (in Nightly builds, run with -Z macro-backtrace for more info)

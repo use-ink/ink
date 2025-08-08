@@ -1,0 +1,5 @@
+error: expected a string literal value for `name` attribute argument
+ --> tests/ui/event/fail/name-override-missing.rs:1:14
+  |
+1 | #[ink::event(name)]
+  |              ^^^^

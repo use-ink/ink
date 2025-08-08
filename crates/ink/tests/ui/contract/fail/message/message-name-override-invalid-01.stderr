@@ -1,0 +1,5 @@
+error: `name` attribute argument value must begin with an alphabetic character, underscore or dollar sign
+  --> tests/ui/contract/fail/message/message-name-override-invalid-01.rs:14:31
+   |
+14 |         #[ink(message, name = "1MyMessage")]
+   |                               ^^^^^^^^^^^^

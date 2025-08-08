@@ -15,7 +15,9 @@
 mod config;
 mod signature_topic;
 
-use config::EventConfig;
+pub use config::EventConfig;
+pub use signature_topic::SignatureTopic;
+
 use proc_macro2::{
     Span,
     TokenStream as TokenStream2,
@@ -28,8 +30,6 @@ use crate::{
     ir,
     utils::extract_cfg_attributes,
 };
-
-pub use signature_topic::SignatureTopicArg;
 
 /// A checked ink! event with its configuration.
 #[derive(Debug, PartialEq, Eq)]
@@ -103,13 +103,18 @@ impl Event {
     /// # Note
     ///
     /// Conflicts with `anonymous`
-    pub fn signature_topic_hex(&self) -> Option<&str> {
-        self.config.signature_topic_hex()
+    pub fn signature_topic(&self) -> Option<SignatureTopic> {
+        self.config.signature_topic()
     }
 
     /// Returns a list of `cfg` attributes if any.
     pub fn get_cfg_attrs(&self, span: Span) -> Vec<TokenStream2> {
         extract_cfg_attributes(&self.item.attrs, span)
+    }
+
+    /// Returns the event name override (if any).
+    pub fn name(&self) -> Option<&str> {
+        self.config.name()
     }
 }
 
@@ -134,12 +139,13 @@ impl TryFrom<syn::ItemStruct> for Event {
                 match arg.kind() {
                     ir::AttributeArg::Event
                     | ir::AttributeArg::SignatureTopic(_)
-                    | ir::AttributeArg::Anonymous => Ok(()),
+                    | ir::AttributeArg::Anonymous
+                    | ir::AttributeArg::Name(_) => Ok(()),
                     _ => Err(None),
                 }
             },
         )?;
-        if ink_attrs.is_anonymous() && ink_attrs.signature_topic_hex().is_some() {
+        if ink_attrs.is_anonymous() && ink_attrs.signature_topic().is_some() {
             return Err(format_err_spanned!(
                 item_struct,
                 "cannot use use `anonymous` with `signature_topic`",
@@ -152,7 +158,8 @@ impl TryFrom<syn::ItemStruct> for Event {
             },
             config: EventConfig::new(
                 ink_attrs.is_anonymous(),
-                ink_attrs.signature_topic_hex(),
+                ink_attrs.signature_topic(),
+                ink_attrs.name(),
             ),
         })
     }
@@ -316,6 +323,41 @@ mod tests {
                 }
             },
             "cannot use use `anonymous` with `signature_topic`",
+        )
+    }
+
+    #[test]
+    fn signature_invalid_length_fails() {
+        let s = "11".repeat(16);
+        assert_try_from_fails(
+            syn::parse_quote! {
+                #[ink(event)]
+                #[ink(signature_topic = #s)]
+                pub struct MyEvent {
+                    #[ink(topic)]
+                    field_1: i32,
+                    field_2: bool,
+                }
+            },
+            "`signature_topic` is expected to be 32-byte hex string. \
+                    Found 16 bytes",
+        )
+    }
+
+    #[test]
+    fn signature_invalid_hex_fails() {
+        let s = "XY".repeat(32);
+        assert_try_from_fails(
+            syn::parse_quote! {
+                #[ink(event)]
+                #[ink(signature_topic = #s)]
+                pub struct MyEvent {
+                    #[ink(topic)]
+                    field_1: i32,
+                    field_2: bool,
+                }
+            },
+            "`signature_topic` has invalid hex string",
         )
     }
 }

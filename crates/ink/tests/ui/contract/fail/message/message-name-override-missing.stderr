@@ -1,0 +1,5 @@
+error: expected a string literal value for `name` attribute argument
+  --> tests/ui/contract/fail/message/message-name-override-missing.rs:14:24
+   |
+14 |         #[ink(message, name)]
+   |                        ^^^^
