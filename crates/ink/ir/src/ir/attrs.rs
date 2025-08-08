@@ -513,7 +513,7 @@ impl core::fmt::Display for AttributeArgKind {
             Self::Implementation => write!(f, "impl"),
             Self::HandleStatus => write!(f, "handle_status"),
             Self::Default => write!(f, "default"),
-            Self::Name => write!(f, "sol_name = N:string"),
+            Self::Name => write!(f, "name = N:string"),
         }
     }
 }
