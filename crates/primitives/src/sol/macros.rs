@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Calls a macro upto 12 times with an increasing number of identifiers for each call.
+/// Calls a macro up to 12 times with an increasing number of identifiers for each call.
 ///
 /// # Note
 ///

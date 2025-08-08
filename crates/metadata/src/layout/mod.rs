@@ -79,7 +79,7 @@ pub enum Layout<F: Form = MetaForm> {
     Array(ArrayLayout<F>),
     /// A struct layout with fields of different types.
     Struct(StructLayout<F>),
-    /// An enum layout with a discriminant telling which variant is layed out.
+    /// An enum layout with a discriminant telling which variant is laid out.
     Enum(EnumLayout<F>),
 }
 
