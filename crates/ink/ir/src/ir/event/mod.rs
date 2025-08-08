@@ -29,7 +29,7 @@ use crate::{
     utils::extract_cfg_attributes,
 };
 
-pub use signature_topic::SignatureTopicArg;
+pub use signature_topic::SignatureTopic;
 
 /// A checked ink! event with its configuration.
 #[derive(Debug, PartialEq, Eq)]
@@ -103,8 +103,8 @@ impl Event {
     /// # Note
     ///
     /// Conflicts with `anonymous`
-    pub fn signature_topic_hex(&self) -> Option<&str> {
-        self.config.signature_topic_hex()
+    pub fn signature_topic(&self) -> Option<SignatureTopic> {
+        self.config.signature_topic()
     }
 
     /// Returns a list of `cfg` attributes if any.
@@ -323,6 +323,41 @@ mod tests {
                 }
             },
             "cannot use use `anonymous` with `signature_topic`",
+        )
+    }
+
+    #[test]
+    fn signature_invalid_length_fails() {
+        let s = "11".repeat(16);
+        assert_try_from_fails(
+            syn::parse_quote! {
+                #[ink(event)]
+                #[ink(signature_topic = #s)]
+                pub struct MyEvent {
+                    #[ink(topic)]
+                    field_1: i32,
+                    field_2: bool,
+                }
+            },
+            "`signature_topic` is expected to be 32-byte hex string. \
+                    Found 16 bytes",
+        )
+    }
+
+    #[test]
+    fn signature_invalid_hex_fails() {
+        let s = "XY".repeat(32);
+        assert_try_from_fails(
+            syn::parse_quote! {
+                #[ink(event)]
+                #[ink(signature_topic = #s)]
+                pub struct MyEvent {
+                    #[ink(topic)]
+                    field_1: i32,
+                    field_2: bool,
+                }
+            },
+            "`signature_topic` has invalid hex string",
         )
     }
 }

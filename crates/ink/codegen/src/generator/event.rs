@@ -42,7 +42,9 @@ impl GenerateCode for Event<'_> {
             .then(|| quote::quote! { #[ink(anonymous)] });
         let signature_topic = self
             .item
-            .signature_topic_hex()
+            .signature_topic()
+            .as_ref()
+            .map(ToString::to_string)
             .map(|hex_s| quote::quote! { #[ink(signature_topic = #hex_s)] });
         let cfg_attrs = self.item.get_cfg_attrs(item.span());
 

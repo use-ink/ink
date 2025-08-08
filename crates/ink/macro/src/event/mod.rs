@@ -17,7 +17,7 @@ mod metadata;
 use ink_ir::{
     format_err_spanned,
     utils::duplicate_config_err,
-    SignatureTopicArg,
+    SignatureTopic,
 };
 pub use metadata::event_metadata_derive;
 
@@ -38,11 +38,11 @@ struct EventConfig {
     /// Event is anonymous.
     pub anonymous: bool,
     /// Event has a specified signature topic.
-    pub signature_topic: Option<SignatureTopicArg>,
+    pub signature_topic: Option<SignatureTopic>,
 }
 
 impl EventConfig {
-    pub fn new(anonymous: bool, signature_topic: Option<SignatureTopicArg>) -> Self {
+    pub fn new(anonymous: bool, signature_topic: Option<SignatureTopic>) -> Self {
         EventConfig {
             anonymous,
             signature_topic,
@@ -194,7 +194,7 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
     let signature_topic = if !anonymous {
         let event_ident = variant.ast().ident;
         if let Some(sig_arg) = config.signature_topic {
-            let bytes = sig_arg.signature_topic();
+            let bytes = sig_arg.to_bytes();
             quote_spanned!(span=> ::core::option::Option::Some([ #(#bytes),* ]))
         } else {
             let calculated_signature_topic =
@@ -318,9 +318,9 @@ fn parse_arg_attrs(attrs: &[syn::Attribute]) -> syn::Result<Vec<syn::Meta>> {
 /// - Name-value pair is not specified correctly.
 /// - Provided value is of wrong format.
 /// - Provided hash string is of wrong length.
-fn parse_signature_arg(meta: syn::Meta) -> syn::Result<SignatureTopicArg> {
+fn parse_signature_arg(meta: syn::Meta) -> syn::Result<SignatureTopic> {
     if let syn::Meta::NameValue(nv) = &meta {
-        Ok(SignatureTopicArg::try_from(nv)?)
+        Ok(SignatureTopic::try_from(nv)?)
     } else {
         Err(syn::Error::new(
             meta.span(),

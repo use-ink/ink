@@ -37,6 +37,7 @@ use crate::{
     ir,
     ir::{
         chain_extension::FunctionId,
+        event::SignatureTopic,
         Selector,
     },
     utils::extract_name_override,
@@ -285,10 +286,10 @@ impl InkAttribute {
     }
 
     /// Returns the signature topic of the ink! attribute if any.
-    pub fn signature_topic_hex(&self) -> Option<String> {
+    pub fn signature_topic_hex(&self) -> Option<SignatureTopic> {
         self.args().find_map(|arg| {
-            if let ir::AttributeArg::SignatureTopic(hash) = arg.kind() {
-                return Some(hash.clone());
+            if let ir::AttributeArg::SignatureTopic(topic) = arg.kind() {
+                return Some(*topic);
             }
             None
         })
@@ -445,7 +446,7 @@ pub enum AttributeArg {
     Selector(SelectorOrWildcard),
     /// `#[ink(signature_topic =
     /// "325c98ff66bd0d9d1c10789ae1f2a17bdfb2dcf6aa3d8092669afafdef1cb72d")]`
-    SignatureTopic(String),
+    SignatureTopic(SignatureTopic),
     /// `#[ink(namespace = "my_namespace")]`
     ///
     /// Applied on ink! trait implementation blocks to disambiguate other trait
@@ -549,8 +550,8 @@ impl core::fmt::Display for AttributeArg {
             Self::Constructor => write!(f, "constructor"),
             Self::Payable => write!(f, "payable"),
             Self::Selector(selector) => core::fmt::Display::fmt(&selector, f),
-            Self::SignatureTopic(hash) => {
-                write!(f, "signature_topic = {hash:?}")
+            Self::SignatureTopic(topic) => {
+                write!(f, "signature_topic = {topic}")
             }
             Self::Function(function) => {
                 write!(f, "function = {:?}", function.into_u16())
@@ -974,8 +975,12 @@ impl Parse for AttributeFrag {
                             .map(AttributeArg::Namespace)
                     }
                     "signature_topic" => {
-                        if let Some(hash) = name_value.value.as_string() {
-                            Ok(AttributeArg::SignatureTopic(hash))
+                        if let Some(hex_str) = name_value.value.to_string() {
+                            let topic = SignatureTopic::try_from(hex_str.as_str())
+                                .map_err(|err| {
+                                    syn::Error::new_spanned(&name_value.value, err)
+                                })?;
+                            Ok(AttributeArg::SignatureTopic(topic))
                         } else {
                             Err(format_err_spanned!(
                                 name_value.value,
@@ -1577,14 +1582,41 @@ mod tests {
             Err("encountered duplicate ink! attribute"),
         )
     }
+
     #[test]
     fn signature_topic_works() {
         let s = "11".repeat(32);
+        let bytes = [0x11u8; 32];
         assert_attribute_try_from(
             syn::parse_quote! {
                 #[ink(signature_topic = #s)]
             },
-            Ok(test::Attribute::Ink(vec![AttributeArg::SignatureTopic(s)])),
+            Ok(test::Attribute::Ink(vec![AttributeArg::SignatureTopic(
+                SignatureTopic::from(bytes),
+            )])),
+        );
+    }
+
+    #[test]
+    fn signature_topic_invalid_length_fails() {
+        let s = "11".repeat(16);
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(signature_topic = #s)]
+            },
+            Err("`signature_topic` is expected to be 32-byte hex string. \
+                    Found 16 bytes"),
+        );
+    }
+
+    #[test]
+    fn signature_topic_invalid_hex_fails() {
+        let s = "XY".repeat(32);
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(signature_topic = #s)]
+            },
+            Err("`signature_topic` has invalid hex string"),
         );
     }
 

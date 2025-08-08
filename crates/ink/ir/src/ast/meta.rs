@@ -178,7 +178,7 @@ impl MetaValue {
     }
 
     /// Returns the value of the literal if it is a string literal.
-    pub fn as_string(&self) -> Option<String> {
+    pub fn to_string(&self) -> Option<String> {
         match self {
             Self::Lit(syn::Lit::Str(lit_str)) => Some(lit_str.value()),
             _ => None,

@@ -14,6 +14,7 @@
 
 use syn::spanned::Spanned;
 
+use super::SignatureTopic;
 use crate::{
     ast,
     utils::{
@@ -30,7 +31,7 @@ pub struct EventConfig {
     /// This is the default value.
     anonymous: bool,
     /// Manually specified signature topic hash.
-    signature_topic_hex: Option<String>,
+    signature_topic: Option<SignatureTopic>,
     /// An optional event name override.
     ///
     /// # Note
@@ -109,7 +110,10 @@ impl TryFrom<ast::AttributeArgs> for EventConfig {
 
         Ok(EventConfig::new(
             anonymous.is_some(),
-            signature_topic.map(|lit_str| lit_str.value()),
+            signature_topic
+                .as_ref()
+                .map(SignatureTopic::try_from)
+                .transpose()?,
             name.map(|lit_str| lit_str.value()),
         ))
     }
@@ -119,12 +123,12 @@ impl EventConfig {
     /// Construct a new [`EventConfig`].
     pub fn new(
         anonymous: bool,
-        signature_topic_hex: Option<String>,
+        signature_topic: Option<SignatureTopic>,
         name: Option<String>,
     ) -> Self {
         Self {
             anonymous,
-            signature_topic_hex,
+            signature_topic,
             name,
         }
     }
@@ -135,8 +139,8 @@ impl EventConfig {
     }
 
     /// Returns the manually specified signature topic.
-    pub fn signature_topic_hex(&self) -> Option<&str> {
-        self.signature_topic_hex.as_deref()
+    pub fn signature_topic(&self) -> Option<SignatureTopic> {
+        self.signature_topic
     }
 
     /// Returns the event name override (if any).
