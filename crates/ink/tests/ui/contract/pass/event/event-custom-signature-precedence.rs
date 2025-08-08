@@ -6,6 +6,7 @@ mod contract {
     pub struct Contract {}
 
     #[ink(event, name = "MyEvent")]
+    #[ink(signature_topic = "1111111111111111111111111111111111111111111111111111111111111111")]
     pub struct Event {
         #[ink(topic)]
         pub topic: [u8; 32],
@@ -24,8 +25,7 @@ mod contract {
 }
 
 fn main() {
-    // Ensures `name` override is used in Solidity metadata.
-    let event_specs = ink::collect_events_sol();
-    assert_eq!(event_specs.len(), 1);
-    assert_eq!(event_specs[0].name, "MyEvent");
+    // Custom signature topic (i.e `signature_topic = "..."`) takes precedence over `name` override
+    const SIGNATURE_TOPIC: [u8; 32] = [0x11u8; 32];
+    assert_eq!(<contract::Event as ink::env::Event>::SIGNATURE_TOPIC, Some(SIGNATURE_TOPIC));
 }

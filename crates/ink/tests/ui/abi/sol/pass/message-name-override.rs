@@ -29,7 +29,7 @@ fn main() {
         [0x1b, 0x00, 0x8a, 0x9f],
     );
 
-    // Ensures `name` is used in Solidity metadata.
+    // Ensures `name` override is used in Solidity metadata.
     let metadata = unsafe { __ink_generate_solidity_metadata() };
     let message_specs = metadata.functions;
     assert_eq!(message_specs.len(), 1);

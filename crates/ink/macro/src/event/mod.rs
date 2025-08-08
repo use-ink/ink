@@ -112,13 +112,16 @@ fn event_derive_struct(mut s: synstructure::Structure) -> syn::Result<TokenStrea
     };
 
     let signature_topic = if !anonymous {
-        let event_ident = variant.ast().ident;
+        let event_name = config
+            .name()
+            .map(ToString::to_string)
+            .unwrap_or_else(|| variant.ast().ident.to_string());
         if let Some(sig_arg) = config.signature_topic() {
             let bytes = sig_arg.to_bytes();
             quote_spanned!(span=> ::core::option::Option::Some([ #(#bytes),* ]))
         } else {
             let calculated_signature_topic =
-                signature_topic(variant.ast().fields, event_ident);
+                signature_topic(variant.ast().fields, event_name);
             quote_spanned!(span=> ::core::option::Option::Some(#calculated_signature_topic))
         }
     } else {
@@ -235,7 +238,7 @@ fn parse_arg_attrs(attrs: &[syn::Attribute]) -> syn::Result<Vec<syn::Meta>> {
 /// The signature topic of an event variant.
 ///
 /// Calculated with `blake2b("Event(field1_type,field2_type)")`.
-fn signature_topic(fields: &syn::Fields, event_ident: &syn::Ident) -> TokenStream2 {
+fn signature_topic(fields: &syn::Fields, event_name: String) -> TokenStream2 {
     let fields = fields
         .iter()
         .map(|field| {
@@ -245,6 +248,6 @@ fn signature_topic(fields: &syn::Fields, event_ident: &syn::Ident) -> TokenStrea
         })
         .collect::<Vec<_>>()
         .join(",");
-    let topic_str = format!("{event_ident}({fields})");
+    let topic_str = format!("{event_name}({fields})");
     quote!(::ink::blake2x256!(#topic_str))
 }

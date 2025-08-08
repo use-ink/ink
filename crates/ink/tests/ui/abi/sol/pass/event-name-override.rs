@@ -6,7 +6,7 @@ pub struct Event {
 }
 
 fn main() {
-    // Ensures `name` is used in Solidity metadata.
+    // Ensures `name` override is used in Solidity metadata.
     let event_specs = ink::collect_events_sol();
     assert_eq!(event_specs.len(), 1);
     assert_eq!(event_specs[0].name, "MyEvent");

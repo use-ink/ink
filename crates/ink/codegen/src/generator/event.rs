@@ -46,6 +46,10 @@ impl GenerateCode for Event<'_> {
             .as_ref()
             .map(ToString::to_string)
             .map(|hex_s| quote::quote! { #[ink(signature_topic = #hex_s)] });
+        let name_override = self
+            .item
+            .name()
+            .map(|name| quote::quote! { #[ink(name = #name)] });
         let cfg_attrs = self.item.get_cfg_attrs(item.span());
 
         #[cfg(all(feature = "std", any(ink_abi = "sol", ink_abi = "all")))]
@@ -61,6 +65,7 @@ impl GenerateCode for Event<'_> {
             #[::ink::scale_derive(Encode, Decode)]
             #anonymous
             #signature_topic
+            #name_override
             #item
 
             #sol_event_metadata
