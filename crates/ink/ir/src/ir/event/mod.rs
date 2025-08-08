@@ -15,7 +15,9 @@
 mod config;
 mod signature_topic;
 
-use config::EventConfig;
+pub use config::EventConfig;
+pub use signature_topic::SignatureTopic;
+
 use proc_macro2::{
     Span,
     TokenStream as TokenStream2,
@@ -28,8 +30,6 @@ use crate::{
     ir,
     utils::extract_cfg_attributes,
 };
-
-pub use signature_topic::SignatureTopic;
 
 /// A checked ink! event with its configuration.
 #[derive(Debug, PartialEq, Eq)]

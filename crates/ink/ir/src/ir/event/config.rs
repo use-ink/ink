@@ -41,14 +41,16 @@ pub struct EventConfig {
     name: Option<String>,
 }
 
-impl TryFrom<ast::AttributeArgs> for EventConfig {
-    type Error = syn::Error;
-
-    fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
+impl EventConfig {
+    /// Parse a new [`EventConfig`] from a list of attribute meta items.
+    pub fn parse<I>(args: I) -> Result<Self, syn::Error>
+    where
+        I: Iterator<Item = ast::Meta>,
+    {
         let mut anonymous: Option<syn::Path> = None;
         let mut signature_topic: Option<syn::LitStr> = None;
         let mut name: Option<syn::LitStr> = None;
-        for arg in args.into_iter() {
+        for arg in args {
             if arg.name().is_ident("anonymous") {
                 if let Some(lit_bool) = anonymous {
                     return Err(duplicate_config_err(lit_bool, arg, "anonymous", "event"));
@@ -116,6 +118,32 @@ impl TryFrom<ast::AttributeArgs> for EventConfig {
                 .transpose()?,
             name.map(|lit_str| lit_str.value()),
         ))
+    }
+}
+
+impl TryFrom<ast::AttributeArgs> for EventConfig {
+    type Error = syn::Error;
+
+    fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
+        Self::parse(args.into_iter())
+    }
+}
+
+impl TryFrom<&[syn::Attribute]> for EventConfig {
+    type Error = syn::Error;
+
+    fn try_from(attrs: &[syn::Attribute]) -> Result<Self, Self::Error> {
+        let mut ink_attrs = Vec::new();
+        for attr in attrs {
+            if !attr.path().is_ident("ink") {
+                continue;
+            }
+            let nested = attr.parse_args_with(
+                syn::punctuated::Punctuated::<ast::Meta, syn::Token![,]>::parse_separated_nonempty,
+            )?;
+            ink_attrs.extend(nested);
+        }
+        Self::parse(ink_attrs.into_iter())
     }
 }
 

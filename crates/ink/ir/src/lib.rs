@@ -54,6 +54,7 @@ pub use self::{
         Constructor,
         Contract,
         Event,
+        EventConfig,
         ExtensionId,
         ImplItem,
         InkItem,
