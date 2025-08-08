@@ -18,12 +18,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improve handling of Solidity constructor return and revert data - [#2552](https://github.com/use-ink/ink/pull/2552)
 - Implement `SolEncode` and `SolDecode` for `Option<T>` - [#2545](https://github.com/use-ink/ink/pull/2545)
 - Allow writing E2E fuzz tests for contracts - [#2570](https://github.com/use-ink/ink/pull/2570)
+- Implements the API for the `pallet-revive` host function `to_account_id` - [#2578](https://github.com/use-ink/ink/pull/2578)
 
 ### Changed
 - Use marker trait for finding ink! storage `struct` during code analysis - [2499](https://github.com/use-ink/ink/pull/2499)
 - Solidity ABI compatibility metadata improvements - [#2511](https://github.com/use-ink/ink/pull/2511)
 - Share intermediate build artifacts across all contract builds in e2e tests - [#2531](https://github.com/use-ink/ink/pull/2531)
 - Refactor Solidity bytes wrapper(s) - [#2569](https://github.com/use-ink/ink/pull/2569)
+- Marks the `pallet-revive` host function `account_id` stable - [#2578](https://github.com/use-ink/ink/pull/2578)
 
 ### Fixed
 - Update metadata version to version 6 ‒ [#2507](https://github.com/use-ink/ink/pull/2507)

@@ -108,6 +108,21 @@ where
     })
 }
 
+/// Retrieves the account id for a specified address.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+#[cfg(feature = "unstable-hostfn")]
+pub fn to_account_id<E>(addr: Address) -> E::AccountId
+where
+    E: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::to_account_id::<E>(instance, addr)
+    })
+}
+
 /// Returns the account ID of the executed contract.
 ///
 /// # Note
@@ -117,7 +132,6 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-#[cfg(feature = "unstable-hostfn")]
 pub fn account_id<E>() -> E::AccountId
 where
     E: Environment,

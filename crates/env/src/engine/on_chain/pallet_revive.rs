@@ -443,7 +443,6 @@ impl TypedEnvBackend for EnvInstance {
         self.get_property_little_endian::<E::Timestamp>(ext::now)
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn account_id<E: Environment>(&mut self) -> E::AccountId {
         let mut scope = self.scoped_buffer();
 
@@ -452,6 +451,15 @@ impl TypedEnvBackend for EnvInstance {
 
         let account_id: &mut [u8; 32] = scope.take(32).try_into().unwrap();
         ext::to_account_id(h160, account_id);
+        scale::Decode::decode(&mut &account_id[..])
+            .expect("A contract being executed must have a valid account id.")
+    }
+
+    #[cfg(feature = "unstable-hostfn")]
+    fn to_account_id<E: Environment>(&mut self, addr: Address) -> E::AccountId {
+        let mut scope = self.scoped_buffer();
+        let account_id: &mut [u8; 32] = scope.take(32).try_into().unwrap();
+        ext::to_account_id(addr.as_fixed_bytes(), account_id);
         scale::Decode::decode(&mut &account_id[..])
             .expect("A contract being executed must have a valid account id.")
     }
