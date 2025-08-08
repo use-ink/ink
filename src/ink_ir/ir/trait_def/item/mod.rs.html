@@ -372,33 +372,38 @@
 <a href=#372 id=372 data-nosnippet>372</a>                <span class="prelude-val">Some</span>(SelectorOrWildcard::UserProvided(manual_selector)) =&gt; {
 <a href=#373 id=373 data-nosnippet>373</a>                    manual_selector
 <a href=#374 id=374 data-nosnippet>374</a>                }
-<a href=#375 id=375 data-nosnippet>375</a>                <span class="kw">_ </span>=&gt; Selector::compose(trait_prefix, ident),
-<a href=#376 id=376 data-nosnippet>376</a>            };
-<a href=#377 id=377 data-nosnippet>377</a>            <span class="kw">let </span>(duplicate_selector, duplicate_ident) = <span class="kw">match </span>callable {
-<a href=#378 id=378 data-nosnippet>378</a>                InkTraitItem::Message(<span class="kw">_</span>) =&gt; {
-<a href=#379 id=379 data-nosnippet>379</a>                    <span class="kw">let </span>duplicate_selector =
-<a href=#380 id=380 data-nosnippet>380</a>                        seen_message_selectors.insert(selector, ident.clone());
-<a href=#381 id=381 data-nosnippet>381</a>                    <span class="kw">let </span>duplicate_ident =
-<a href=#382 id=382 data-nosnippet>382</a>                        message_selectors.insert(ident.clone(), selector);
-<a href=#383 id=383 data-nosnippet>383</a>                    (duplicate_selector, duplicate_ident)
-<a href=#384 id=384 data-nosnippet>384</a>                }
-<a href=#385 id=385 data-nosnippet>385</a>            };
-<a href=#386 id=386 data-nosnippet>386</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(duplicate_selector) = duplicate_selector {
-<a href=#387 id=387 data-nosnippet>387</a>                <span class="kw">use </span><span class="kw">crate</span>::error::ExtError <span class="kw">as _</span>;
-<a href=#388 id=388 data-nosnippet>388</a>                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-<a href=#389 id=389 data-nosnippet>389</a>                    ident,
-<a href=#390 id=390 data-nosnippet>390</a>                    <span class="string">"encountered duplicate selector ({:x?}) in the same ink! trait definition"</span>,
-<a href=#391 id=391 data-nosnippet>391</a>                    selector.to_bytes(),
-<a href=#392 id=392 data-nosnippet>392</a>                ).into_combine(<span class="macro">format_err_spanned!</span>(
-<a href=#393 id=393 data-nosnippet>393</a>                    duplicate_selector,
-<a href=#394 id=394 data-nosnippet>394</a>                    <span class="string">"first ink! trait constructor or message with same selector found here"</span>,
-<a href=#395 id=395 data-nosnippet>395</a>                )));
-<a href=#396 id=396 data-nosnippet>396</a>            }
-<a href=#397 id=397 data-nosnippet>397</a>            <span class="macro">assert!</span>(
-<a href=#398 id=398 data-nosnippet>398</a>                duplicate_ident.is_none(),
-<a href=#399 id=399 data-nosnippet>399</a>                <span class="string">"encountered unexpected overlapping ink! trait constructor or message identifier"</span>,
-<a href=#400 id=400 data-nosnippet>400</a>            );
-<a href=#401 id=401 data-nosnippet>401</a>        }
-<a href=#402 id=402 data-nosnippet>402</a>        <span class="prelude-val">Ok</span>(())
-<a href=#403 id=403 data-nosnippet>403</a>    }
-<a href=#404 id=404 data-nosnippet>404</a>}</code></pre></div></section></main></body></html>
+<a href=#375 id=375 data-nosnippet>375</a>                <span class="kw">_ </span>=&gt; {
+<a href=#376 id=376 data-nosnippet>376</a>                    <span class="kw">let </span>name = ink_attrs
+<a href=#377 id=377 data-nosnippet>377</a>                        .name()
+<a href=#378 id=378 data-nosnippet>378</a>                        .unwrap_or_else(|| callable.ident().to_string());
+<a href=#379 id=379 data-nosnippet>379</a>                    Selector::compose(trait_prefix, name)
+<a href=#380 id=380 data-nosnippet>380</a>                }
+<a href=#381 id=381 data-nosnippet>381</a>            };
+<a href=#382 id=382 data-nosnippet>382</a>            <span class="kw">let </span>(duplicate_selector, duplicate_ident) = <span class="kw">match </span>callable {
+<a href=#383 id=383 data-nosnippet>383</a>                InkTraitItem::Message(<span class="kw">_</span>) =&gt; {
+<a href=#384 id=384 data-nosnippet>384</a>                    <span class="kw">let </span>duplicate_selector =
+<a href=#385 id=385 data-nosnippet>385</a>                        seen_message_selectors.insert(selector, ident.clone());
+<a href=#386 id=386 data-nosnippet>386</a>                    <span class="kw">let </span>duplicate_ident =
+<a href=#387 id=387 data-nosnippet>387</a>                        message_selectors.insert(ident.clone(), selector);
+<a href=#388 id=388 data-nosnippet>388</a>                    (duplicate_selector, duplicate_ident)
+<a href=#389 id=389 data-nosnippet>389</a>                }
+<a href=#390 id=390 data-nosnippet>390</a>            };
+<a href=#391 id=391 data-nosnippet>391</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(duplicate_selector) = duplicate_selector {
+<a href=#392 id=392 data-nosnippet>392</a>                <span class="kw">use </span><span class="kw">crate</span>::error::ExtError <span class="kw">as _</span>;
+<a href=#393 id=393 data-nosnippet>393</a>                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+<a href=#394 id=394 data-nosnippet>394</a>                    ident,
+<a href=#395 id=395 data-nosnippet>395</a>                    <span class="string">"encountered duplicate selector ({:x?}) in the same ink! trait definition"</span>,
+<a href=#396 id=396 data-nosnippet>396</a>                    selector.to_bytes(),
+<a href=#397 id=397 data-nosnippet>397</a>                ).into_combine(<span class="macro">format_err_spanned!</span>(
+<a href=#398 id=398 data-nosnippet>398</a>                    duplicate_selector,
+<a href=#399 id=399 data-nosnippet>399</a>                    <span class="string">"first ink! trait constructor or message with same selector found here"</span>,
+<a href=#400 id=400 data-nosnippet>400</a>                )));
+<a href=#401 id=401 data-nosnippet>401</a>            }
+<a href=#402 id=402 data-nosnippet>402</a>            <span class="macro">assert!</span>(
+<a href=#403 id=403 data-nosnippet>403</a>                duplicate_ident.is_none(),
+<a href=#404 id=404 data-nosnippet>404</a>                <span class="string">"encountered unexpected overlapping ink! trait constructor or message identifier"</span>,
+<a href=#405 id=405 data-nosnippet>405</a>            );
+<a href=#406 id=406 data-nosnippet>406</a>        }
+<a href=#407 id=407 data-nosnippet>407</a>        <span class="prelude-val">Ok</span>(())
+<a href=#408 id=408 data-nosnippet>408</a>    }
+<a href=#409 id=409 data-nosnippet>409</a>}</code></pre></div></section></main></body></html>

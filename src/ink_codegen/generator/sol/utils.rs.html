@@ -51,57 +51,61 @@
 <a href=#51 id=51 data-nosnippet>51</a>
 <a href=#52 id=52 data-nosnippet>52</a><span class="doccomment">/// Returns Solidity ABI compatible selector of an ink! message.
 <a href=#53 id=53 data-nosnippet>53</a></span><span class="kw">pub fn </span>selector(message: <span class="kw-2">&amp;</span>Message) -&gt; TokenStream2 {
-<a href=#54 id=54 data-nosnippet>54</a>    <span class="kw">let </span>signature = call_signature(message.ident().to_string(), message.inputs());
-<a href=#55 id=55 data-nosnippet>55</a>    <span class="macro">quote!</span> {
-<a href=#56 id=56 data-nosnippet>56</a>        <span class="kw">const </span>{
-<a href=#57 id=57 data-nosnippet>57</a>            ::ink::codegen::sol::selector_bytes(#signature)
-<a href=#58 id=58 data-nosnippet>58</a>        }
-<a href=#59 id=59 data-nosnippet>59</a>    }
-<a href=#60 id=60 data-nosnippet>60</a>}
-<a href=#61 id=61 data-nosnippet>61</a>
-<a href=#62 id=62 data-nosnippet>62</a><span class="doccomment">/// Returns a `u32` representation of the Solidity ABI compatible selector of an ink!
-<a href=#63 id=63 data-nosnippet>63</a>/// message.
-<a href=#64 id=64 data-nosnippet>64</a></span><span class="kw">pub fn </span>selector_id(message: <span class="kw-2">&amp;</span>Message) -&gt; TokenStream2 {
-<a href=#65 id=65 data-nosnippet>65</a>    <span class="kw">let </span>selector_bytes = selector(message);
-<a href=#66 id=66 data-nosnippet>66</a>    <span class="macro">quote!</span>(
-<a href=#67 id=67 data-nosnippet>67</a>        {
-<a href=#68 id=68 data-nosnippet>68</a>            <span class="kw">const </span>{
-<a href=#69 id=69 data-nosnippet>69</a>                ::core::primitive::u32::from_be_bytes(#selector_bytes)
-<a href=#70 id=70 data-nosnippet>70</a>            }
-<a href=#71 id=71 data-nosnippet>71</a>        }
-<a href=#72 id=72 data-nosnippet>72</a>    )
-<a href=#73 id=73 data-nosnippet>73</a>}
-<a href=#74 id=74 data-nosnippet>74</a>
-<a href=#75 id=75 data-nosnippet>75</a><span class="doccomment">/// Returns the Solidity ABI call signature for the given message name and inputs.
-<a href=#76 id=76 data-nosnippet>76</a></span><span class="kw">pub fn </span>call_signature(name: String, inputs: InputsIter) -&gt; TokenStream2 {
-<a href=#77 id=77 data-nosnippet>77</a>    <span class="kw">let </span><span class="kw-2">mut </span>input_types_len = <span class="number">0</span>;
-<a href=#78 id=78 data-nosnippet>78</a>    <span class="kw">let </span>sig_param_tys: Vec&lt;<span class="kw">_</span>&gt; = inputs
-<a href=#79 id=79 data-nosnippet>79</a>        .map(|input| {
-<a href=#80 id=80 data-nosnippet>80</a>            <span class="kw">let </span>ty = <span class="kw-2">&amp;*</span>input.ty;
-<a href=#81 id=81 data-nosnippet>81</a>            <span class="kw">let </span>sol_ty = sol_type(ty);
-<a href=#82 id=82 data-nosnippet>82</a>            <span class="kw">let </span>span = input.span();
-<a href=#83 id=83 data-nosnippet>83</a>            input_types_len += <span class="number">1</span>;
-<a href=#84 id=84 data-nosnippet>84</a>
-<a href=#85 id=85 data-nosnippet>85</a>            <span class="macro">quote_spanned!</span>(span=&gt;
-<a href=#86 id=86 data-nosnippet>86</a>                #sol_ty
-<a href=#87 id=87 data-nosnippet>87</a>            )
-<a href=#88 id=88 data-nosnippet>88</a>        })
-<a href=#89 id=89 data-nosnippet>89</a>        .collect();
-<a href=#90 id=90 data-nosnippet>90</a>    <span class="kw">let </span>sig_arg_fmt_params = (<span class="number">0</span>..input_types_len)
-<a href=#91 id=91 data-nosnippet>91</a>        .map(|<span class="kw">_</span>| <span class="string">"{}"</span>)
-<a href=#92 id=92 data-nosnippet>92</a>        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
-<a href=#93 id=93 data-nosnippet>93</a>        .join(<span class="string">","</span>);
-<a href=#94 id=94 data-nosnippet>94</a>    <span class="kw">let </span>sig_fmt_lit = <span class="macro">format!</span>(<span class="string">"{{}}({sig_arg_fmt_params})"</span>);
-<a href=#95 id=95 data-nosnippet>95</a>    <span class="macro">quote!</span> {
-<a href=#96 id=96 data-nosnippet>96</a>        <span class="macro">::ink::codegen::utils::const_format!</span>(#sig_fmt_lit, #name #(,#sig_param_tys)<span class="kw-2">*</span>)
-<a href=#97 id=97 data-nosnippet>97</a>    }
-<a href=#98 id=98 data-nosnippet>98</a>}
-<a href=#99 id=99 data-nosnippet>99</a>
-<a href=#100 id=100 data-nosnippet>100</a><span class="doccomment">/// Returns the rustdoc string from the given item attributes.
-<a href=#101 id=101 data-nosnippet>101</a></span><span class="kw">pub fn </span>extract_docs(attrs: <span class="kw-2">&amp;</span>[Attribute]) -&gt; String {
-<a href=#102 id=102 data-nosnippet>102</a>    attrs
-<a href=#103 id=103 data-nosnippet>103</a>        .iter()
-<a href=#104 id=104 data-nosnippet>104</a>        .filter_map(|attr| attr.extract_docs())
-<a href=#105 id=105 data-nosnippet>105</a>        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
-<a href=#106 id=106 data-nosnippet>106</a>        .join(<span class="string">"\n"</span>)
-<a href=#107 id=107 data-nosnippet>107</a>}</code></pre></div></section></main></body></html>
+<a href=#54 id=54 data-nosnippet>54</a>    <span class="kw">let </span>name = message
+<a href=#55 id=55 data-nosnippet>55</a>        .name()
+<a href=#56 id=56 data-nosnippet>56</a>        .map(ToString::to_string)
+<a href=#57 id=57 data-nosnippet>57</a>        .unwrap_or_else(|| message.ident().to_string());
+<a href=#58 id=58 data-nosnippet>58</a>    <span class="kw">let </span>signature = call_signature(name, message.inputs());
+<a href=#59 id=59 data-nosnippet>59</a>    <span class="macro">quote!</span> {
+<a href=#60 id=60 data-nosnippet>60</a>        <span class="kw">const </span>{
+<a href=#61 id=61 data-nosnippet>61</a>            ::ink::codegen::sol::selector_bytes(#signature)
+<a href=#62 id=62 data-nosnippet>62</a>        }
+<a href=#63 id=63 data-nosnippet>63</a>    }
+<a href=#64 id=64 data-nosnippet>64</a>}
+<a href=#65 id=65 data-nosnippet>65</a>
+<a href=#66 id=66 data-nosnippet>66</a><span class="doccomment">/// Returns a `u32` representation of the Solidity ABI compatible selector of an ink!
+<a href=#67 id=67 data-nosnippet>67</a>/// message.
+<a href=#68 id=68 data-nosnippet>68</a></span><span class="kw">pub fn </span>selector_id(message: <span class="kw-2">&amp;</span>Message) -&gt; TokenStream2 {
+<a href=#69 id=69 data-nosnippet>69</a>    <span class="kw">let </span>selector_bytes = selector(message);
+<a href=#70 id=70 data-nosnippet>70</a>    <span class="macro">quote!</span>(
+<a href=#71 id=71 data-nosnippet>71</a>        {
+<a href=#72 id=72 data-nosnippet>72</a>            <span class="kw">const </span>{
+<a href=#73 id=73 data-nosnippet>73</a>                ::core::primitive::u32::from_be_bytes(#selector_bytes)
+<a href=#74 id=74 data-nosnippet>74</a>            }
+<a href=#75 id=75 data-nosnippet>75</a>        }
+<a href=#76 id=76 data-nosnippet>76</a>    )
+<a href=#77 id=77 data-nosnippet>77</a>}
+<a href=#78 id=78 data-nosnippet>78</a>
+<a href=#79 id=79 data-nosnippet>79</a><span class="doccomment">/// Returns the Solidity ABI call signature for the given message name and inputs.
+<a href=#80 id=80 data-nosnippet>80</a></span><span class="kw">pub fn </span>call_signature(name: String, inputs: InputsIter) -&gt; TokenStream2 {
+<a href=#81 id=81 data-nosnippet>81</a>    <span class="kw">let </span><span class="kw-2">mut </span>input_types_len = <span class="number">0</span>;
+<a href=#82 id=82 data-nosnippet>82</a>    <span class="kw">let </span>sig_param_tys: Vec&lt;<span class="kw">_</span>&gt; = inputs
+<a href=#83 id=83 data-nosnippet>83</a>        .map(|input| {
+<a href=#84 id=84 data-nosnippet>84</a>            <span class="kw">let </span>ty = <span class="kw-2">&amp;*</span>input.ty;
+<a href=#85 id=85 data-nosnippet>85</a>            <span class="kw">let </span>sol_ty = sol_type(ty);
+<a href=#86 id=86 data-nosnippet>86</a>            <span class="kw">let </span>span = input.span();
+<a href=#87 id=87 data-nosnippet>87</a>            input_types_len += <span class="number">1</span>;
+<a href=#88 id=88 data-nosnippet>88</a>
+<a href=#89 id=89 data-nosnippet>89</a>            <span class="macro">quote_spanned!</span>(span=&gt;
+<a href=#90 id=90 data-nosnippet>90</a>                #sol_ty
+<a href=#91 id=91 data-nosnippet>91</a>            )
+<a href=#92 id=92 data-nosnippet>92</a>        })
+<a href=#93 id=93 data-nosnippet>93</a>        .collect();
+<a href=#94 id=94 data-nosnippet>94</a>    <span class="kw">let </span>sig_arg_fmt_params = (<span class="number">0</span>..input_types_len)
+<a href=#95 id=95 data-nosnippet>95</a>        .map(|<span class="kw">_</span>| <span class="string">"{}"</span>)
+<a href=#96 id=96 data-nosnippet>96</a>        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
+<a href=#97 id=97 data-nosnippet>97</a>        .join(<span class="string">","</span>);
+<a href=#98 id=98 data-nosnippet>98</a>    <span class="kw">let </span>sig_fmt_lit = <span class="macro">format!</span>(<span class="string">"{{}}({sig_arg_fmt_params})"</span>);
+<a href=#99 id=99 data-nosnippet>99</a>    <span class="macro">quote!</span> {
+<a href=#100 id=100 data-nosnippet>100</a>        <span class="macro">::ink::codegen::utils::const_format!</span>(#sig_fmt_lit, #name #(,#sig_param_tys)<span class="kw-2">*</span>)
+<a href=#101 id=101 data-nosnippet>101</a>    }
+<a href=#102 id=102 data-nosnippet>102</a>}
+<a href=#103 id=103 data-nosnippet>103</a>
+<a href=#104 id=104 data-nosnippet>104</a><span class="doccomment">/// Returns the rustdoc string from the given item attributes.
+<a href=#105 id=105 data-nosnippet>105</a></span><span class="kw">pub fn </span>extract_docs(attrs: <span class="kw-2">&amp;</span>[Attribute]) -&gt; String {
+<a href=#106 id=106 data-nosnippet>106</a>    attrs
+<a href=#107 id=107 data-nosnippet>107</a>        .iter()
+<a href=#108 id=108 data-nosnippet>108</a>        .filter_map(|attr| attr.extract_docs())
+<a href=#109 id=109 data-nosnippet>109</a>        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
+<a href=#110 id=110 data-nosnippet>110</a>        .join(<span class="string">"\n"</span>)
+<a href=#111 id=111 data-nosnippet>111</a>}</code></pre></div></section></main></body></html>

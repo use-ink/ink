@@ -104,11 +104,11 @@
 <a href=#104 id=104 data-nosnippet>104</a>    /// 1. Concatenate `N`, `T` and `F` using `::` as separator and call it `C`.
 <a href=#105 id=105 data-nosnippet>105</a>    /// 1. Apply the `BLAKE2` 256-bit hash `H` of `C`.
 <a href=#106 id=106 data-nosnippet>106</a>    /// 1. The first 4 bytes of `H` make up the selector.
-<a href=#107 id=107 data-nosnippet>107</a>    </span><span class="kw">pub fn </span>compose&lt;<span class="lifetime">'a</span>, T&gt;(trait_prefix: T, fn_ident: <span class="kw-2">&amp;</span>syn::Ident) -&gt; <span class="self">Self
+<a href=#107 id=107 data-nosnippet>107</a>    </span><span class="kw">pub fn </span>compose&lt;<span class="lifetime">'a</span>, T&gt;(trait_prefix: T, fn_name: String) -&gt; <span class="self">Self
 <a href=#108 id=108 data-nosnippet>108</a>    </span><span class="kw">where
 <a href=#109 id=109 data-nosnippet>109</a>        </span>T: Into&lt;<span class="prelude-ty">Option</span>&lt;TraitPrefix&lt;<span class="lifetime">'a</span>&gt;&gt;&gt;,
 <a href=#110 id=110 data-nosnippet>110</a>    {
-<a href=#111 id=111 data-nosnippet>111</a>        <span class="kw">let </span>fn_ident = fn_ident.to_string().into_bytes();
+<a href=#111 id=111 data-nosnippet>111</a>        <span class="kw">let </span>fn_ident = fn_name.into_bytes();
 <a href=#112 id=112 data-nosnippet>112</a>        <span class="kw">let </span>input_bytes: Vec&lt;u8&gt; = <span class="kw">match </span>trait_prefix.into() {
 <a href=#113 id=113 data-nosnippet>113</a>            <span class="prelude-val">Some</span>(trait_prefix) =&gt; {
 <a href=#114 id=114 data-nosnippet>114</a>                <span class="kw">let </span>namespace = trait_prefix.namespace_bytes();
