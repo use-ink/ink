@@ -2,7 +2,7 @@
 
 // NOTE: SCALE Codec traits are only implemented to make `cargo clippy` happy in CI,
 // otherwise, they're not necessary.
-#[derive(ink::SolErrorDecode, ink::SolErrorEncode)]
+#[derive(ink::SolErrorDecode, ink::SolErrorEncode, ink::SolErrorMetadata)]
 #[ink::scale_derive(Decode, Encode, TypeInfo)]
 pub struct SetFailed;
 
