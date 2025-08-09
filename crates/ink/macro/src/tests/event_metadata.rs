@@ -34,7 +34,7 @@ fn unit_struct_works() {
 
                         ::ink::metadata::EventSpec::new("UnitStruct")
                             .module_path(::core::module_path!())
-                            .signature_topic(<Self as ::ink::env::Event>::SIGNATURE_TOPIC)
+                            .signature_topic(<Self as ::ink::env::Event<::ink::abi::Ink>>::SIGNATURE_TOPIC)
                             .args([])
                             .docs([])
                             .done()
@@ -69,7 +69,7 @@ fn struct_with_fields_no_topics() {
 
                         ::ink::metadata::EventSpec::new("Event")
                             .module_path(::core::module_path!())
-                            .signature_topic(<Self as ::ink::env::Event>::SIGNATURE_TOPIC)
+                            .signature_topic(<Self as ::ink::env::Event<::ink::abi::Ink>>::SIGNATURE_TOPIC)
                             .args([
                                 ::ink::metadata::EventParamSpec::new(::core::stringify!(field_1))
                                     .of_type(::ink::metadata::TypeSpec::with_name_segs::<u32, _>(
@@ -137,7 +137,7 @@ fn struct_with_fields_and_some_topics() {
 
                         ::ink::metadata::EventSpec::new("Event")
                             .module_path(::core::module_path!())
-                            .signature_topic(<Self as ::ink::env::Event>::SIGNATURE_TOPIC)
+                            .signature_topic(<Self as ::ink::env::Event<::ink::abi::Ink>>::SIGNATURE_TOPIC)
                             .args([
                                 ::ink::metadata::EventParamSpec::new(::core::stringify!(field_1))
                                     .of_type(::ink::metadata::TypeSpec::with_name_segs::<u32, _>(
@@ -200,7 +200,7 @@ fn name_override_works() {
 
                         ::ink::metadata::EventSpec::new("MyUnitStruct")
                             .module_path(::core::module_path!())
-                            .signature_topic(<Self as ::ink::env::Event>::SIGNATURE_TOPIC)
+                            .signature_topic(<Self as ::ink::env::Event<::ink::abi::Ink>>::SIGNATURE_TOPIC)
                             .args([])
                             .docs([])
                             .done()
