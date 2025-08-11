@@ -3,18 +3,18 @@
 use ink::sol::{SolErrorEncode, SolErrorDecode};
 
 // Equivalent to a Solidity custom error with no params.
-#[derive(Debug, PartialEq, Eq, ink::SolErrorDecode, ink::SolErrorEncode)]
-#[cfg_attr(feature = "std", derive(ink::SolErrorMetadata))]
+#[derive(Debug, PartialEq, Eq)]
+#[ink::error]
 pub struct UnitError;
 
 // Equivalent to a Solidity custom error with params.
-#[derive(Debug, PartialEq, Eq, ink::SolErrorDecode, ink::SolErrorEncode)]
-#[cfg_attr(feature = "std", derive(ink::SolErrorMetadata))]
+#[derive(Debug, PartialEq, Eq)]
+#[ink::error]
 struct ErrorWithParams(bool);
 
 // Equivalent to multiple Solidity custom errors, one for each variant.
-#[derive(Debug, PartialEq, Eq, ink::SolErrorDecode, ink::SolErrorEncode)]
-#[cfg_attr(feature = "std", derive(ink::SolErrorMetadata))]
+#[derive(Debug, PartialEq, Eq)]
+#[ink::error]
 pub enum MultipleErrors {
     UnitError,
     ErrorWithParams(bool)
