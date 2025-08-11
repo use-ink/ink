@@ -22,6 +22,7 @@ extern crate proc_macro;
 mod blake2b;
 mod chain_extension;
 mod contract;
+mod error;
 mod event;
 mod ink_test;
 mod scale;
@@ -1928,6 +1929,43 @@ synstructure::decl_derive!(
     /// ```
     sol::sol_error_metadata_derive
 );
+
+/// Implements the necessary traits for ABI encoding/decoding this type as revert error
+/// data.
+///
+/// # Example
+///
+/// ```
+/// #[ink::error]
+/// pub enum Error {}
+/// ```
+///
+/// # Note
+///
+/// This is a convenience macro that expands to the necessary lower-level macros depending
+/// on the ink! project's specified ABI i.e.
+///
+/// - `ink::scale_derive` attribute macro for ABI mode "ink" or "all"
+/// - `ink::SolErrorEncode`, `ink::SolErrorDecode` and `ink::SolErrorMetadata` custom
+///   `Derive` macros for ABI mode "sol" or "all".
+///
+/// Using this macro is roughly equivalent to the following definition:
+/// ```
+/// #[cfg_attr(not(ink_abi = "sol"), ::ink::scale_derive(Encode, Decode, TypeInfo))]
+/// #[cfg_attr(
+///     any(ink_abi = "sol", ink_abi = "all"),
+///     derive(::ink::SolErrorDecode, ::ink::SolErrorEncode)
+/// )]
+/// #[cfg_attr(
+///     all(feature = "std", any(ink_abi = "sol", ink_abi = "all")),
+///     derive(::ink::SolErrorMetadata)
+/// )]
+/// pub enum Error {}
+/// ```
+#[proc_macro_attribute]
+pub fn error(attr: TokenStream, item: TokenStream) -> TokenStream {
+    error::derive(attr.into(), item.into()).into()
+}
 
 #[cfg(test)]
 pub use contract::generate_or_err;
