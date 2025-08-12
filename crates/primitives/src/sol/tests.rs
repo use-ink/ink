@@ -39,6 +39,8 @@ use primitive_types::{
 
 use crate::{
     sol::{
+        decode_sequence,
+        encode_sequence,
         DynBytes,
         Error,
         FixedBytes,
@@ -556,7 +558,9 @@ fn encode_refs_works() {
     );
 }
 
-macro_rules! test_case_params {
+#[test]
+fn params_works() {
+    macro_rules! test_case_params {
     ($ty: ty, $val: expr) => {
         test_case_params!($ty, $val, $ty, alloy_sol_types::SolValue, $val, [], [])
     };
@@ -564,20 +568,23 @@ macro_rules! test_case_params {
         test_case_params!($ty, $val, $sol_ty, $sol_trait, $val, [], [])
     };
     ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty, $sol_val: expr, [$($ty_cvt: tt)*], [$($sol_ty_cvt: tt)*]) => {
-        // `SolParamsEncode` test.
+        // `SolParamsEncode` and `encode_sequence` test.
         let encoded = <$ty as SolParamsEncode>::encode(&$val);
+        let encoded_sequence = encode_sequence::<$ty>(&$val);
         let encoded_alloy = <$sol_ty as $sol_trait>::abi_encode_params(&$sol_val);
         assert_eq!(encoded, encoded_alloy);
+        assert_eq!(encoded_sequence, encoded_alloy);
 
-        // `SolParamsDecode` test.
+        // `SolParamsDecode` and `decode_sequence` test.
         let decoded = <$ty as SolParamsDecode>::decode(&encoded);
+        let decoded_sequence = decode_sequence::<$ty>(&encoded);
         let decoded_alloy = <$sol_ty as $sol_trait>::abi_decode_params(&encoded).map_err(Error::from);
-        assert_eq!(decoded$($ty_cvt)*, decoded_alloy$($sol_ty_cvt)*);
+        let decoded_alloy_cvt = decoded_alloy$($sol_ty_cvt)*;
+        assert_eq!(decoded$($ty_cvt)*, decoded_alloy_cvt);
+        assert_eq!(decoded_sequence$($ty_cvt)*, decoded_alloy_cvt);
     };
 }
 
-#[test]
-fn params_works() {
     test_case_params!((), ());
     test_case_params!((bool,), (true,));
     // `SolValue` isn't implemented for `u8`.
