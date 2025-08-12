@@ -178,7 +178,7 @@ where
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_instantiate(
                 origin,
-                value,
+                value.into(),
                 gas_limit,
                 storage_deposit_limit,
                 Code::Upload(contract_bytes),
@@ -203,7 +203,7 @@ where
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_instantiate(
                 origin,
-                value,
+                value.into(),
                 gas_limit,
                 storage_deposit_limit,
                 Code::Existing(code_hash),
@@ -243,7 +243,7 @@ where
             pallet_revive::Pallet::<Self::T>::bare_call(
                 origin,
                 address,
-                value,
+                value.into(),
                 gas_limit,
                 storage_deposit_limit,
                 data,
