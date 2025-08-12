@@ -423,7 +423,7 @@ mod call_builder {
 
             assert!(
                 matches!(call_result, Some(Ok(_))),
-                "Call to falliable constructor failed, when it should have succeeded."
+                "Call to fallible constructor failed, when it should have succeeded."
             );
 
             Ok(())
