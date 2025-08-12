@@ -98,6 +98,7 @@ pub use ink_macro::{
     SolEncode,
     SolErrorDecode,
     SolErrorEncode,
+    SolErrorMetadata,
 };
 pub use ink_primitives::{
     Address,
@@ -147,5 +148,22 @@ pub fn collect_events_sol() -> Vec<ink_metadata::sol::EventMetadata> {
     crate::CONTRACT_EVENTS_SOL
         .iter()
         .map(|event| event())
+        .collect()
+}
+
+/// Any error which derives `#[derive(ink::SolErrorMetadata)]` and is used in the contract
+/// binary will have its implementation added to this distributed slice at linking time.
+#[cfg(feature = "std")]
+#[linkme::distributed_slice]
+#[linkme(crate = linkme)]
+pub static CONTRACT_ERRORS_SOL: [fn() -> Vec<ink_metadata::sol::ErrorMetadata>] = [..];
+
+/// Collect the Solidity ABI compatible metadata of all error definitions encoded as
+/// Solidity custom errors that are linked and used in the binary.
+#[cfg(feature = "std")]
+pub fn collect_errors_sol() -> Vec<ink_metadata::sol::ErrorMetadata> {
+    crate::CONTRACT_ERRORS_SOL
+        .iter()
+        .flat_map(|event| event())
         .collect()
 }

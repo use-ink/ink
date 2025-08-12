@@ -1783,19 +1783,27 @@ synstructure::decl_derive!(
     ///
     /// # Note
     ///
-    /// All field types (if any) must implement [`ink::SolDecode`].
+    /// - All field types (if any) must implement [`ink::SolDecode`].
+    /// - The error representation derived is a [Solidity custom error][sol-error]
+    ///   (or multiple Solidity custom error in the case of an enum,
+    ///   i.e. one for each enum variant).
+    ///
+    /// [sol-error]: https://soliditylang.org/blog/2021/04/21/custom-errors/
     ///
     /// # Example
     ///
     /// ```
     /// use ink_macro::SolErrorDecode;
     ///
+    /// // Represented as a Solidity custom error with no parameters
     /// #[derive(SolErrorDecode)]
     /// struct UnitError;
     ///
+    /// // Represented as a Solidity custom error with parameters
     /// #[derive(SolErrorDecode)]
     /// struct ErrorWithParams(bool, u8, String);
     ///
+    /// // Represented as a Solidity custom error with named parameters
     /// #[derive(SolErrorDecode)]
     /// struct ErrorWithNamedParams {
     ///     status: bool,
@@ -1803,6 +1811,8 @@ synstructure::decl_derive!(
     ///     reason: String,
     /// }
     ///
+    /// // Represented as multiple Solidity custom errors
+    /// // (i.e. each variant represents a Solidity custom error)
     /// #[derive(SolErrorDecode)]
     /// enum MultipleErrors {
     ///     UnitError,
@@ -1824,19 +1834,27 @@ synstructure::decl_derive!(
     ///
     /// # Note
     ///
-    /// All field types (if any) must implement [`ink::SolEncode`].
+    /// - All field types (if any) must implement [`ink::SolEncode`].
+    /// - The error representation derived is a [Solidity custom error][sol-error]
+    ///   (or multiple Solidity custom error in the case of an enum,
+    ///   i.e. one for each enum variant).
+    ///
+    /// [sol-error]: https://soliditylang.org/blog/2021/04/21/custom-errors/
     ///
     /// # Example
     ///
     /// ```
     /// use ink_macro::SolErrorEncode;
     ///
+    /// // Represented as a Solidity custom error with no parameters
     /// #[derive(SolErrorEncode)]
     /// struct UnitError;
     ///
+    /// // Represented as a Solidity custom error with parameters
     /// #[derive(SolErrorEncode)]
     /// struct ErrorWithParams(bool, u8, String);
     ///
+    /// // Represented as a Solidity custom error with named parameters
     /// #[derive(SolErrorEncode)]
     /// struct ErrorWithNamedParams {
     ///     status: bool,
@@ -1844,6 +1862,8 @@ synstructure::decl_derive!(
     ///     reason: String,
     /// }
     ///
+    /// // Represented as multiple Solidity custom errors
+    /// // (i.e. each variant represents a Solidity custom error)
     /// #[derive(SolErrorEncode)]
     /// enum MultipleErrors {
     ///     UnitError,
@@ -1856,6 +1876,57 @@ synstructure::decl_derive!(
     /// }
     /// ```
     sol::sol_error_encode_derive
+);
+
+synstructure::decl_derive!(
+    [SolErrorMetadata] =>
+    /// Derives an implementation of `ink::metadata::sol::SolErrorMetadata`
+    /// for the given `struct` or `enum`.
+    ///
+    /// # Note
+    ///
+    /// - All field types (if any) must implement [`ink::SolEncode`].
+    /// - The error representation derived is a [Solidity custom error][sol-error]
+    ///   (or multiple Solidity custom error in the case of an enum,
+    ///   i.e. one for each enum variant).
+    ///
+    /// [sol-error]: https://soliditylang.org/blog/2021/04/21/custom-errors/
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use ink_macro::SolErrorMetadata;
+    ///
+    /// // Represented as a Solidity custom error with no parameters
+    /// #[derive(SolErrorMetadata)]
+    /// struct UnitError;
+    ///
+    /// // Represented as a Solidity custom error with parameters
+    /// #[derive(SolErrorMetadata)]
+    /// struct ErrorWithParams(bool, u8, String);
+    ///
+    /// // Represented as a Solidity custom error with named parameters
+    /// #[derive(SolErrorMetadata)]
+    /// struct ErrorWithNamedParams {
+    ///     status: bool,
+    ///     count: u8,
+    ///     reason: String,
+    /// }
+    ///
+    /// // Represented as multiple Solidity custom errors
+    /// // (i.e. each variant represents a Solidity custom error)
+    /// #[derive(SolErrorMetadata)]
+    /// enum MultipleErrors {
+    ///     UnitError,
+    ///     ErrorWithParams(bool, u8, String),
+    ///     ErrorWithNamedParams {
+    ///         status: bool,
+    ///         count: u8,
+    ///         reason: String,
+    ///     }
+    /// }
+    /// ```
+    sol::sol_error_metadata_derive
 );
 
 #[cfg(test)]

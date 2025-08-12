@@ -56,6 +56,7 @@ impl GenerateCode for SolidityMetadata<'_> {
                         constructors: vec![ #( #ctors ),* ],
                         functions: vec![ #( #msgs ),* ],
                         events: ::ink::collect_events_sol(),
+                        errors: ::ink::collect_errors_sol(),
                         docs: #docs.into(),
                     }
                 }

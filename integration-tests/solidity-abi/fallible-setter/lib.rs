@@ -4,6 +4,7 @@
 // otherwise, they're not necessary.
 #[derive(ink::SolErrorDecode, ink::SolErrorEncode)]
 #[ink::scale_derive(Decode, Encode, TypeInfo)]
+#[cfg_attr(feature = "std", derive(ink::SolErrorMetadata))]
 pub struct SetFailed;
 
 #[ink::contract]
