@@ -59,7 +59,7 @@ jobs:
       cargo-contract-version: ${{ steps.environment.outputs.cargo-contract-version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -82,7 +82,7 @@ jobs:
     needs: ci-image
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -98,7 +98,7 @@ jobs:
     needs: ci-image
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -129,7 +129,7 @@ jobs:
         type: [ ALL, RISCV ]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -178,7 +178,7 @@ jobs:
       ALLOWED_LINTS: -A unexpected_cfgs
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -217,7 +217,7 @@ jobs:
         type: [STD, RISCV]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -256,7 +256,7 @@ jobs:
     needs: ci-image
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -282,7 +282,7 @@ jobs:
     needs: ci-image
     steps:
         - name: Checkout
-          uses: actions/checkout@v4
+          uses: actions/checkout@v5
           with:
               fetch-depth: 1
 
@@ -310,7 +310,7 @@ jobs:
         type: [STD, RISCV]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -353,7 +353,7 @@ jobs:
     needs: [check]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -387,7 +387,7 @@ jobs:
             workspace: [ink, linting]
     steps:
         - name: Checkout
-          uses: actions/checkout@v4
+          uses: actions/checkout@v5
           with:
               fetch-depth: 1
 
@@ -423,7 +423,7 @@ jobs:
             workspace: [ink, linting]
     steps:
         - name: Checkout
-          uses: actions/checkout@v4
+          uses: actions/checkout@v5
           with:
               fetch-depth: 1
 
@@ -454,7 +454,7 @@ jobs:
     needs: [check, fmt, clippy, clippy-examples, dylint-checks, dylint-testing, spellcheck]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -499,7 +499,7 @@ jobs:
 #      #image: ${{ needs.set-image.outputs.IMAGE }}
 #    steps:
 #      - name: Checkout
-#        uses: actions/checkout@v4
+#        uses: actions/checkout@v5
 #        with:
 #          fetch-depth: 0
 #
@@ -538,7 +538,7 @@ jobs:
         partition: [1, 2, 3, 4]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -580,7 +580,7 @@ jobs:
     needs: ci-image
     steps:
         - name: Checkout
-          uses: actions/checkout@v4
+          uses: actions/checkout@v5
           with:
               fetch-depth: 1
 
@@ -611,7 +611,7 @@ jobs:
     needs: ci-image
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -635,7 +635,7 @@ jobs:
     needs: ci-image
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -657,7 +657,7 @@ jobs:
     needs: [clippy, clippy-examples]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -711,7 +711,7 @@ jobs:
     needs: ci-image
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -734,7 +734,7 @@ jobs:
     needs: [build]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -828,7 +828,7 @@ jobs:
               type: [ sol, all ]
       steps:
           - name: Checkout
-            uses: actions/checkout@v4
+            uses: actions/checkout@v5
             with:
                 fetch-depth: 1
 
@@ -909,7 +909,7 @@ jobs:
     needs: [build]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -944,7 +944,7 @@ jobs:
       issues: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -1025,7 +1025,7 @@ jobs:
     if: github.ref != 'refs/heads/master'
     steps:
         - name: Checkout
-          uses: actions/checkout@v4
+          uses: actions/checkout@v5
           with:
               fetch-depth: 1
 
