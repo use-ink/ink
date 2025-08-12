@@ -199,8 +199,33 @@ pub trait SolEncode<'a> {
     fn to_sol_type(&'a self) -> Self::SolType;
 }
 
+/// Solidity ABI encode the given value as a parameter sequence.
+///
+/// # Note
+///
+/// - `T` must be a tuple type where each member implements [`SolEncode`].
+/// - The result can be different from [`SolEncode::encode`] for the given tuple because
+///   this function always returns the encoded data in place, even for tuples containing
+///   dynamic types (i.e. no offset is included for dynamic tuples).
+///
+/// This function is a convenience wrapper for [`SolParamsEncode::encode`].
+pub fn encode_sequence<T: for<'a> SolParamsEncode<'a>>(value: &T) -> Vec<u8> {
+    SolParamsEncode::encode(value)
+}
+
+/// Solidity ABI decode the given data as a parameter sequence.
+///
+/// # Note
+///
+/// - `T` must be a tuple type where each member implements [`SolDecode`].
+/// - See notes for [`encode_sequence`] for the difference between this function and
+///   [`SolDecode::decode`] for the given tuple.
+pub fn decode_sequence<T: SolParamsDecode>(data: &[u8]) -> Result<T, Error> {
+    SolParamsDecode::decode(data)
+}
+
 /// Solidity ABI encoding/decoding error.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Error;
 
 impl From<alloy_sol_types::Error> for Error {
