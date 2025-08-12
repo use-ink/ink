@@ -42,9 +42,14 @@ use crate::sol::{
         FixedSizeDefault,
     },
     types::SolTokenType,
+    utils::{
+        append_non_empty_member_topic_bytes,
+        non_zero_multiple_of_32,
+    },
     Error,
     SolDecode,
     SolEncode,
+    SolTopicEncode,
     SolTypeDecode,
     SolTypeEncode,
 };
@@ -104,6 +109,34 @@ where
         let mut word = [0; 32];
         word[..N].copy_from_slice(self.0.as_slice());
         WordToken::from(word)
+    }
+}
+
+impl<const N: usize> SolTopicEncode for FixedBytes<N>
+where
+    sol_data::ByteCount<N>: sol_data::SupportedFixedBytes,
+{
+    fn encode_topic<H>(&self, _: H) -> [u8; 32]
+    where
+        H: Fn(&[u8], &mut [u8; 32]),
+    {
+        self.tokenize().0 .0
+    }
+
+    fn topic_preimage(&self, buffer: &mut Vec<u8>) {
+        buffer.extend(self.tokenize().0 .0);
+    }
+
+    fn default_topic_preimage(buffer: &mut Vec<u8>) {
+        buffer.extend([0u8; 32]);
+    }
+
+    fn topic_preimage_size(&self) -> usize {
+        Self::default_topic_preimage_size()
+    }
+
+    fn default_topic_preimage_size() -> usize {
+        32
     }
 }
 
@@ -229,6 +262,33 @@ impl SolTypeEncode for DynBytes {
     }
 }
 
+impl SolTopicEncode for DynBytes {
+    fn encode_topic<H>(&self, hasher: H) -> [u8; 32]
+    where
+        H: Fn(&[u8], &mut [u8; 32]),
+    {
+        let mut output = [0u8; 32];
+        hasher(self.0.as_slice(), &mut output);
+        output
+    }
+
+    fn topic_preimage(&self, buffer: &mut Vec<u8>) {
+        append_non_empty_member_topic_bytes(self.0.as_slice(), buffer);
+    }
+
+    fn default_topic_preimage(buffer: &mut Vec<u8>) {
+        buffer.extend([0u8; 32]);
+    }
+
+    fn topic_preimage_size(&self) -> usize {
+        non_zero_multiple_of_32(self.0.len())
+    }
+
+    fn default_topic_preimage_size() -> usize {
+        32
+    }
+}
+
 impl SolTokenType for DynBytes {
     type TokenType<'enc> = PackedSeqToken<'enc>;
 
@@ -312,6 +372,33 @@ impl SolTypeEncode for ByteSlice<'_> {
         // Direct implementation simplifies generic implementations by removing
         // requirement for `SolTypeValue<Self::AlloyType>`.
         PackedSeqToken(self.0)
+    }
+}
+
+impl SolTopicEncode for ByteSlice<'_> {
+    fn encode_topic<H>(&self, hasher: H) -> [u8; 32]
+    where
+        H: Fn(&[u8], &mut [u8; 32]),
+    {
+        let mut output = [0u8; 32];
+        hasher(self.0, &mut output);
+        output
+    }
+
+    fn topic_preimage(&self, buffer: &mut Vec<u8>) {
+        append_non_empty_member_topic_bytes(self.0, buffer);
+    }
+
+    fn default_topic_preimage(buffer: &mut Vec<u8>) {
+        buffer.extend([0u8; 32]);
+    }
+
+    fn topic_preimage_size(&self) -> usize {
+        non_zero_multiple_of_32(self.0.len())
+    }
+
+    fn default_topic_preimage_size() -> usize {
+        32
     }
 }
 

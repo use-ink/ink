@@ -23,6 +23,7 @@ mod error;
 mod params;
 mod result;
 mod types;
+mod utils;
 
 #[cfg(test)]
 mod tests;
@@ -63,6 +64,7 @@ pub use self::{
         SolResultDecodeError,
     },
     types::{
+        SolTopicEncode,
         SolTypeDecode,
         SolTypeEncode,
     },
