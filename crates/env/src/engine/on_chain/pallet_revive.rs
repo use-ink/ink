@@ -81,9 +81,7 @@ use crate::{
         FromAddr,
         LimitParamsV2,
     },
-    hash::{
-        Blake2x128,
-    },
+    hash::Blake2x128,
     Clear,
 };
 
