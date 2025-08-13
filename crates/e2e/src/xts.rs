@@ -143,7 +143,7 @@ pub struct Call<E: Environment> {
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 pub struct MapAccount {}
 
-/// A raw call to `pallet-revive`'s `call`.
+/// A raw call to `pallet-balances`'s `transfer`.
 #[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 pub struct Transfer<E: Environment, C: subxt::Config> {
