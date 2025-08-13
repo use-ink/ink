@@ -34,13 +34,6 @@ use pallet_revive_uapi::{
 #[cfg(feature = "unstable-hostfn")]
 use xcm::VersionedXcm;
 
-#[cfg(feature = "unstable-hostfn")]
-use crate::call::{
-    ConstructorReturnType,
-    CreateParams,
-    FromAddr,
-    LimitParamsV2,
-};
 use crate::{
     call::{
         utils::DecodeMessageResult,
@@ -80,6 +73,7 @@ use crate::{
         CreateParams,
         FromAddr,
         LimitParamsV2,
+        ConstructorReturnType,
     },
     hash::Blake2x128,
     Clear,
