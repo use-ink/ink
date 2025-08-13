@@ -722,7 +722,7 @@ where
                 dest,
                 exec_input,
                 value,
-                deposit_limit_to_balance::<E>(storage_deposit_limit),
+                storage_deposit_limit,
                 caller,
             )
             .await;

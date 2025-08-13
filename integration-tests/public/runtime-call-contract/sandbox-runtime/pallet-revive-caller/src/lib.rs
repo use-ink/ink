@@ -60,9 +60,6 @@ pub mod pallet {
             origin: OriginFor<T>,
             contract: H160,
             gas_limit: Weight,
-            // todo remove
-            _storage_deposit_limit: u128,
-            //storage_deposit_limit: Option<BalanceOf<T>>,
         ) -> DispatchResult {
             let _who = ensure_signed(origin.clone())?;
 
@@ -72,7 +69,6 @@ pub mod pallet {
                     contract,
                     value: 0.into(),
                     gas_limit,
-                    //storage_deposit_limit,
                     marker: Default::default(),
                 };
 

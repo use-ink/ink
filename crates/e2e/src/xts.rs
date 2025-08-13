@@ -198,7 +198,7 @@ struct RpcCallRequest<C: subxt::Config, E: Environment> {
     dest: Address,
     value: E::Balance,
     gas_limit: Option<Weight>,
-    storage_deposit_limit: Option<E::Balance>,
+    storage_deposit_limit: DepositLimit<E::Balance>,
     input_data: Vec<u8>,
 }
 
@@ -557,7 +557,6 @@ where
         let call_request = RpcCodeUploadRequest::<C, E> {
             origin: Signer::<C>::account_id(signer),
             code,
-            //storage_deposit_limit,
             storage_deposit_limit: None,
         };
         let func = "ReviveApi_upload_code";
@@ -589,7 +588,6 @@ where
             UploadCode::<E> {
                 code,
                 storage_deposit_limit,
-                //storage_deposit_limit: None
             },
         )
         .unvalidated();
@@ -623,7 +621,7 @@ where
         dest: Address,
         input_data: Vec<u8>,
         value: E::Balance,
-        _storage_deposit_limit: E::Balance, // todo
+        storage_deposit_limit: DepositLimit<E::Balance>,
         signer: &Keypair,
     ) -> (ContractExecResultFor<E>, Option<CallTrace>) {
         let call_request = RpcCallRequest::<C, E> {
@@ -634,7 +632,7 @@ where
                 ref_time: u64::MAX,
                 proof_size: u64::MAX,
             }),
-            storage_deposit_limit: None,
+            storage_deposit_limit: storage_deposit_limit.clone(),
             input_data: input_data.clone(),
         };
         let func = "ReviveApi_call";
@@ -649,10 +647,16 @@ where
         let res: ContractExecResultFor<E> = scale::Decode::decode(&mut bytes.as_ref())
             .unwrap_or_else(|err| panic!("decoding ContractExecResult failed: {err}"));
 
-        // todo for gas_limit and storage_deposit_limit we should use the values returned
-        // by a successful call above, otherwise the max.
+        // todo for gas_limit we should use the value returned by a successful call above.
 
-        // and now collect the trace and put it in there as well.
+        // Even if the `storage_deposit_limit` to this function was set as `Unchecked`,
+        // we still take the return value of the dry run for submitting the extrinsic
+        // that will take effect.
+        let storage_deposit_limit = match storage_deposit_limit {
+            DepositLimit::UnsafeOnlyForDryRun => res.storage_deposit.charge_or_zero(),
+            DepositLimit::Balance(limit) => limit,
+        };
+
         let call = subxt::tx::DefaultPayload::new(
             "Revive",
             "call",
@@ -663,22 +667,19 @@ where
                     ref_time: u64::MAX,
                     proof_size: u64::MAX,
                 },
-                storage_deposit_limit: E::Balance::from(u32::MAX), // todo
+                storage_deposit_limit,
                 data: input_data,
             },
         )
         .unvalidated();
         let xt = self.create_extrinsic(&call, signer).await;
-
         let block_hash = self.best_block().await;
-
         let block_details = self
             .rpc
             .chain_get_block(Some(block_hash))
             .await
             .expect("no block found")
             .expect("no block details found");
-        // let header = block_details.block.header;
         let block_number: u64 = block_details.block.header.number().into();
         let parent_hash = self
             .rpc
