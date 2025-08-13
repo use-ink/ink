@@ -106,6 +106,8 @@ impl From<Weight> for sp_weights::Weight {
 }
 
 /// A raw call to `pallet-revive`'s `instantiate_with_code`.
+///
+/// See <https://github.com/use-ink/polkadot-sdk/blob/c40b36c3a7c208f9a6837b80812473af3d9ba7f7/substrate/frame/revive/src/lib.rs>.
 #[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 pub struct InstantiateWithCode<E: Environment> {
@@ -120,6 +122,8 @@ pub struct InstantiateWithCode<E: Environment> {
 }
 
 /// A raw call to `pallet-revive`'s `call`.
+///
+/// See <https://github.com/use-ink/polkadot-sdk/blob/c40b36c3a7c208f9a6837b80812473af3d9ba7f7/substrate/frame/revive/src/lib.rs>.
 #[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 pub struct Call<E: Environment> {
@@ -133,6 +137,8 @@ pub struct Call<E: Environment> {
 }
 
 /// A raw call to `pallet-revive`'s `map_account`.
+///
+/// See <https://github.com/use-ink/polkadot-sdk/blob/c40b36c3a7c208f9a6837b80812473af3d9ba7f7/substrate/frame/revive/src/lib.rs>.
 #[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 pub struct MapAccount {}
@@ -147,6 +153,8 @@ pub struct Transfer<E: Environment, C: subxt::Config> {
 }
 
 /// A raw call to `pallet-revive`'s `remove_code`.
+///
+/// See <https://github.com/use-ink/polkadot-sdk/blob/c40b36c3a7c208f9a6837b80812473af3d9ba7f7/substrate/frame/revive/src/lib.rs>.
 #[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 pub struct RemoveCode {
@@ -154,6 +162,8 @@ pub struct RemoveCode {
 }
 
 /// A raw call to `pallet-revive`'s `upload_code`.
+///
+/// See <https://github.com/use-ink/polkadot-sdk/blob/c40b36c3a7c208f9a6837b80812473af3d9ba7f7/substrate/frame/revive/src/lib.rs>.
 #[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 pub struct UploadCode<E: Environment> {
