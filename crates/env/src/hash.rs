@@ -40,10 +40,6 @@ pub enum Keccak256 {}
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Blake2x256 {}
 
-/// The BLAKE-2 crypto hash with 128-bit output.
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub enum Blake2x128 {}
-
 mod private {
     /// Seals the implementation of `CryptoHash` and `HashOutput`.
     pub trait Sealed {}
@@ -52,7 +48,6 @@ mod private {
 impl private::Sealed for Sha2x256 {}
 impl private::Sealed for Keccak256 {}
 impl private::Sealed for Blake2x256 {}
-impl private::Sealed for Blake2x128 {}
 
 impl HashOutput for Sha2x256 {
     type Type = [u8; 32];
@@ -64,8 +59,4 @@ impl HashOutput for Keccak256 {
 
 impl HashOutput for Blake2x256 {
     type Type = [u8; 32];
-}
-
-impl HashOutput for Blake2x128 {
-    type Type = [u8; 16];
 }
