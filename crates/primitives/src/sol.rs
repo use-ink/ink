@@ -170,7 +170,7 @@ pub trait SolEncode<'a> {
     /// # Note
     ///
     /// Prefer reference based representation for better performance.
-    type SolType: SolTypeEncode;
+    type SolType: SolTypeEncode + SolTopicEncode;
 
     /// Name of equivalent Solidity ABI type.
     const SOL_NAME: &'static str =
@@ -184,6 +184,14 @@ pub trait SolEncode<'a> {
     /// Solidity ABI encode the value.
     fn encode(&'a self) -> Vec<u8> {
         <Self::SolType as SolTypeEncode>::encode(&self.to_sol_type())
+    }
+
+    /// Solidity ABI encode the value as a topic (i.e. an indexed event parameter).
+    fn encode_topic<H>(&'a self, hasher: H) -> [u8; 32]
+    where
+        H: Fn(&[u8], &mut [u8; 32]),
+    {
+        <Self::SolType as SolTopicEncode>::encode_topic(&self.to_sol_type(), hasher)
     }
 
     /// Converts from `Self` to `Self::SolType` via either a borrow (if possible), or
