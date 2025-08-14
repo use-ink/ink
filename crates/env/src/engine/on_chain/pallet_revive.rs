@@ -73,10 +73,8 @@ use crate::{
         CreateParams,
         FromAddr,
         LimitParamsV2,
-        ConstructorReturnType,
     },
     hash::Blake2x128,
-    Clear,
 };
 
 #[cfg(feature = "unstable-hostfn")]
