@@ -769,6 +769,10 @@ fn option_works() {
 
 #[test]
 fn event_topic_works() {
+    fn hasher(preimage: &[u8]) -> [u8; 32] {
+        keccak256(preimage).0
+    }
+
     macro_rules! test_case {
         ($ty: ty, $val: expr) => {
             test_case!($ty, $val, $ty, $val)
@@ -778,9 +782,12 @@ fn event_topic_works() {
         };
         ($ty: ty, $val: expr, $sol_ty: ty, $sol_val: expr) => {
             // `SolTopicEncode` test.
-            let hasher = |preimage: &[u8]| keccak256(preimage).0;
             let encoded = <$ty as SolTopicEncode>::encode_topic(&$val, hasher);
             let encoded_alloy = <$sol_ty as EventTopic>::encode_topic(&$sol_val);
+            assert_eq!(encoded, encoded_alloy.0);
+
+            // `SolEncode` test.
+            let encoded = <$ty as SolEncode>::encode_topic(&$val, hasher);
             assert_eq!(encoded, encoded_alloy.0);
         };
     }
@@ -999,4 +1006,31 @@ fn event_topic_works() {
         ),
         (true, (true, 100u8, String::from("Hello, world!")))
     );
+
+    // Custom type.
+    struct MyType {
+        size: u8,
+        status: bool,
+        description: String,
+    }
+
+    impl<'a> SolEncode<'a> for MyType {
+        type SolType = (&'a u8, &'a bool, &'a str);
+
+        fn to_sol_type(&'a self) -> Self::SolType {
+            (&self.size, &self.status, &self.description)
+        }
+    }
+
+    let encoded = <MyType as SolEncode>::encode_topic(
+        &MyType {
+            size: 100,
+            status: true,
+            description: String::from("Hello, world!"),
+        },
+        hasher,
+    );
+    let encoded_alloy =
+        <(sol_data::Uint<8>, sol_data::Bool, sol_data::String) as EventTopic>::encode_topic(&(100u8, true, String::from("Hello, world!")));
+    assert_eq!(encoded, encoded_alloy.0 .0);
 }
