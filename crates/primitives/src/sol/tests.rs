@@ -17,11 +17,14 @@
 
 use alloy_sol_types::{
     private::{
+        keccak256,
         Address as AlloyAddress,
         Bytes as AlloyBytes,
         FixedBytes as AlloyFixedBytes,
+        U256 as AlloyU256,
     },
     sol_data,
+    EventTopic,
     SolType as AlloySolType,
     SolValue,
 };
@@ -44,6 +47,7 @@ use crate::{
         SolEncode,
         SolParamsDecode,
         SolParamsEncode,
+        SolTopicEncode,
         SolTypeDecode,
         SolTypeEncode,
     },
@@ -143,7 +147,6 @@ fn unsigned_int_works() {
     test_case!(i128, 1_000_000_000_000);
 
     // U256
-    use alloy_sol_types::private::U256 as AlloyU256;
     let value = 1_000_000_000_000_000u128;
     let bytes = value.to_be_bytes();
     test_case!(
@@ -498,7 +501,6 @@ fn encode_refs_works() {
     test_case_encode!(&i8, &-100i8);
     test_case_encode!(&u128, &1_000_000_000_000u128);
     // U256
-    use alloy_sol_types::private::U256 as AlloyU256;
     let value = 1_000_000_000_000_000u128;
     let bytes = value.to_be_bytes();
     test_case_encode!(
@@ -780,4 +782,241 @@ fn option_works() {
     test_case!(None::<Option<u8>>, (false, (false, 0u8)));
     test_case!(Some(Some(100u8)), (true, (true, 100u8)));
     test_case!(Some(None::<u8>), (true, (false, 0u8)));
+}
+
+#[test]
+fn event_topic_works() {
+    fn hasher(preimage: &[u8], output: &mut [u8; 32]) {
+        *output = keccak256(preimage).0
+    }
+
+    macro_rules! test_case {
+        ($ty: ty, $val: expr) => {
+            test_case!($ty, $val, $ty, $val)
+        };
+        ($ty: ty, $val: expr, $sol_ty: ty) => {
+            test_case!($ty, $val, $sol_ty, $val)
+        };
+        ($ty: ty, $val: expr, $sol_ty: ty, $sol_val: expr) => {
+            // `SolTopicEncode` test.
+            let encoded = <$ty as SolTopicEncode>::encode_topic(&$val, hasher);
+            let encoded_alloy = <$sol_ty as EventTopic>::encode_topic(&$sol_val);
+            assert_eq!(encoded, encoded_alloy.0);
+        };
+    }
+
+    // Primitive types.
+    test_case!(bool, true, sol_data::Bool);
+    test_case!(u8, 100u8, sol_data::Uint<8>);
+    test_case!(i128, 1_000_000_000_000i128, sol_data::Int<128>);
+    let value = 1_000_000_000_000_000u128;
+    let bytes = value.to_be_bytes();
+    test_case!(
+        U256,
+        U256::from(value),
+        sol_data::Uint<256>,
+        AlloyU256::try_from_be_slice(bytes.as_slice()).unwrap()
+    );
+    test_case!(String, String::new(), sol_data::String);
+    test_case!(String, String::from("Hello, world!"), sol_data::String);
+    test_case!(
+        Address,
+        Address::from([1; 20]),
+        sol_data::Address,
+        AlloyAddress::from([1; 20])
+    );
+
+    // Fixed size arrays.
+    test_case!([i8; 0], [], sol_data::FixedArray<sol_data::Int<8>, 0>);
+    test_case!(
+        [i8; 8],
+        [100i8; 8],
+        sol_data::FixedArray<sol_data::Int<8>, 8>
+    );
+    test_case!(
+        [u64; 64],
+        [1_000_000_000u64; 64],
+        sol_data::FixedArray<sol_data::Uint<64>, 64>
+    );
+    test_case!(
+        [i128; 128],
+        [1_000_000_000_000i128; 128],
+        sol_data::FixedArray<sol_data::Int<128>, 128>
+    );
+    test_case!(
+        [String; 3],
+        [String::from(""), String::from("Hello, world!"), String::from("")],
+        sol_data::FixedArray<sol_data::String, 3>
+    );
+
+    // Dynamic size arrays.
+    test_case!(Vec<i8>, Vec::new(), sol_data::Array<sol_data::Int<8>>);
+    test_case!(Vec<i8>, vec![100i8; 8], sol_data::Array<sol_data::Int<8>>);
+    test_case!(
+        Vec<u64>,
+        vec![1_000_000_000u64; 64],
+        sol_data::Array<sol_data::Uint<64>>
+    );
+    test_case!(
+        Vec<i128>,
+        vec![1_000_000_000_000i128; 128],
+        sol_data::Array<sol_data::Int<128>>
+    );
+    test_case!(
+        Vec<String>,
+        vec![
+            String::from(""),
+            String::from("Hello, world!"),
+            String::from("")
+        ],
+        sol_data::Array<sol_data::String>
+    );
+
+    // Fixed bytes.
+    test_case!(
+        FixedBytes<1>,
+        FixedBytes::from(100u8),
+        sol_data::FixedBytes<1>,
+        AlloyFixedBytes([100u8; 1])
+    );
+    test_case!(
+        FixedBytes<32>,
+        FixedBytes::from([100u8; 32]),
+        sol_data::FixedBytes<32>,
+        AlloyFixedBytes([100u8; 32])
+    );
+
+    // Dynamic bytes.
+    test_case!(
+        DynBytes,
+        DynBytes::new(),
+        sol_data::Bytes,
+        AlloyBytes::new()
+    );
+    test_case!(
+        DynBytes,
+        DynBytes::from(vec![100u8; 64]),
+        sol_data::Bytes,
+        AlloyBytes(vec![100u8; 64].into())
+    );
+
+    // Tuples.
+    test_case!((), ());
+    test_case!((bool,), (true,), (sol_data::Bool,));
+    test_case!((u8,), (100u8,), (sol_data::Uint<8>,));
+    test_case!(
+        (bool, u8, String),
+        (true, 100u8, String::from("Hello, world!")),
+        (sol_data::Bool, sol_data::Uint<8>, sol_data::String)
+    );
+    test_case!(
+        ((), String, DynBytes, [i8; 0], Vec<i8>),
+        ((), String::new(), DynBytes::new(), [], Vec::new()),
+        (
+            (),
+            sol_data::String,
+            sol_data::Bytes,
+            sol_data::FixedArray<sol_data::Int<8>, 0>,
+            sol_data::Array<sol_data::Int<8>>
+        ),
+        ((), String::new(), AlloyBytes::new(), [], Vec::new())
+    );
+
+    // `Option<T>` types.
+    test_case!(
+        Option<u8>,
+        None,
+        (sol_data::Bool, sol_data::Uint<8>),
+        (false, 0u8)
+    );
+    test_case!(
+        Option<u8>,
+        Some(100u8),
+        (sol_data::Bool, sol_data::Uint<8>),
+        (true, 100u8)
+    );
+    test_case!(
+        Option<String>,
+        None,
+        (sol_data::Bool, sol_data::String),
+        (false, String::new())
+    );
+    test_case!(
+        Option<String>,
+        Some(String::from("Hello, world!")),
+        (sol_data::Bool, sol_data::String),
+        (true, String::from("Hello, world!"))
+    );
+    test_case!(
+        Option<[u32; 4]>,
+        None,
+        (sol_data::Bool, sol_data::FixedArray<sol_data::Uint<32>, 4>),
+        (false, [0u32; 4])
+    );
+    test_case!(
+        Option<[u32; 4]>,
+        Some([100u32, 200, 300, 400]),
+        (sol_data::Bool, sol_data::FixedArray<sol_data::Uint<32>, 4>),
+        (true, [100u32, 200, 300, 400])
+    );
+    test_case!(
+        Option<Vec<u8>>,
+        None,
+        (sol_data::Bool, sol_data::Array<sol_data::Uint<8>>),
+        (false, Vec::<u8>::new())
+    );
+    test_case!(
+        Option<Vec<u8>>,
+        Some(vec![100u8; 64]),
+        (sol_data::Bool, sol_data::Array<sol_data::Uint<8>>),
+        (true, vec![100u8; 64])
+    );
+    test_case!(
+        Option<FixedBytes<32>>,
+        None,
+        (sol_data::Bool, sol_data::FixedBytes<32>),
+        (false, AlloyFixedBytes([0u8; 32]))
+    );
+    test_case!(
+        Option<FixedBytes<32>>,
+        Some(FixedBytes([100u8; 32])),
+        (sol_data::Bool, sol_data::FixedBytes<32>),
+        (true, AlloyFixedBytes([100u8; 32]))
+    );
+    test_case!(
+        Option<DynBytes>,
+        None,
+        (sol_data::Bool, sol_data::Bytes),
+        (false, AlloyBytes::new())
+    );
+    // TODO: (@davidsemakula) Enable after fixing padding bug in alloy.
+    // Ref: <https://github.com/alloy-rs/core/blob/10aed0012d59a571f35235a5f9c6ad03076bf62b/crates/sol-types/src/types/event/topic.rs#L209>
+    /*
+    test_case!(
+        Option<DynBytes>,
+        Some(DynBytes(vec![100u8; 64])),
+        (sol_data::Bool, sol_data::Bytes),
+        (true, AlloyBytes(vec![100u8; 64].into()))
+    );
+    */
+    test_case!(Option<()>, None, (sol_data::Bool, ()), (false, ()));
+    test_case!(Option<()>, Some(()), (sol_data::Bool, ()), (true, ()));
+    test_case!(
+        Option<(bool, u8, String)>,
+        None,
+        (
+            sol_data::Bool,
+            (sol_data::Bool, sol_data::Uint<8>, sol_data::String)
+        ),
+        (false, (false, 0u8, String::new()))
+    );
+    test_case!(
+        Option<(bool, u8, String)>,
+        Some((true, 100u8, String::from("Hello, world!"))),
+        (
+            sol_data::Bool,
+            (sol_data::Bool, sol_data::Uint<8>, sol_data::String)
+        ),
+        (true, (true, 100u8, String::from("Hello, world!")))
+    );
 }
