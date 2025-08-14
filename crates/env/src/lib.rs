@@ -109,7 +109,10 @@ pub use self::{
         Error,
         Result,
     },
-    event::Event,
+    event::{
+        Event,
+        TopicHasher,
+    },
     types::{
         AccountIdGuard,
         Balance,

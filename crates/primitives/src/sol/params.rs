@@ -63,7 +63,7 @@ pub trait SolParamsEncode<'a>: SolEncode<'a> + private::Sealed {
 // We follow the Rust standard library's convention of implementing traits for tuples up
 // to twelve items long.
 // Ref: <https://doc.rust-lang.org/std/primitive.tuple.html#trait-implementations>
-#[impl_for_tuples(12)]
+#[impl_for_tuples(1, 12)]
 #[tuple_types_custom_trait_bound(SolDecode)]
 impl SolParamsDecode for Tuple {
     fn decode(data: &[u8]) -> Result<Self, Error> {
@@ -88,7 +88,17 @@ impl<'a> SolParamsEncode<'a> for Tuple {
     }
 }
 
-// Optimized implementation for unit (i.e. `()`).
+// Optimized implementations for unit (i.e. `()`).
+impl SolParamsDecode for () {
+    fn decode(data: &[u8]) -> Result<Self, Error> {
+        if data.is_empty() {
+            Ok(())
+        } else {
+            Err(Error)
+        }
+    }
+}
+
 impl SolParamsEncode<'_> for () {
     fn encode(&self) -> Vec<u8> {
         Vec::new()
