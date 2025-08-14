@@ -51,12 +51,14 @@ use crate::{
         TopicsBuilderBackend,
     },
     hash::{
+        Blake2x256,
         CryptoHash,
         HashOutput,
         Keccak256,
         Sha2x256,
     },
     types::FromLittleEndian,
+    Clear,
     DecodeDispatch,
     DispatchError,
     EnvBackend,
@@ -72,11 +74,7 @@ use crate::{
         FromAddr,
         LimitParamsV2,
     },
-    hash::{
-        Blake2x128,
-        Blake2x256,
-    },
-    Clear,
+    hash::Blake2x128,
 };
 
 #[cfg(feature = "unstable-hostfn")]
@@ -92,7 +90,6 @@ impl CryptoHash for Blake2x128 {
     }
 }
 
-#[cfg(feature = "unstable-hostfn")]
 impl CryptoHash for Blake2x256 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
         type OutputType = [u8; 32];
@@ -101,7 +98,22 @@ impl CryptoHash for Blake2x256 {
             OutputType
         );
         let output: &mut OutputType = array_mut_ref!(output, 0, 32);
-        ext::hash_blake2_256(input, output);
+
+        const ADDR: [u8; 20] =
+            hex_literal::hex!("0000000000000000000000000000000000000009");
+        // todo return value?
+        let _ = ext::call(
+            CallFlags::empty(),
+            &ADDR,
+            u64::MAX, /* How much ref_time to devote for the execution. u64::MAX = use
+                       * all. */
+            u64::MAX, /* How much proof_size to devote for the execution. u64::MAX =
+                       * use all. */
+            &[u8::MAX; 32],                   // No deposit limit.
+            &U256::zero().to_little_endian(), // Value transferred to the contract.
+            input,
+            Some(&mut &mut output[..]),
+        );
     }
 }
 
@@ -167,7 +179,6 @@ where
 {
     type Output = (ScopedBuffer<'a>, &'a mut [u8]);
 
-    #[cfg(feature = "unstable-hostfn")]
     fn push_topic<T>(&mut self, topic_value: &T)
     where
         T: scale::Encode,

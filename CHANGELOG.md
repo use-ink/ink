@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Unreleased]
 
+### Changed
+- Synchronized with `polkadot-sdk/c40b36c3a7c208f9a6837b80812473af3d9ba7f7` ‒ [2589](https://github.com/use-ink/ink/pull/2589)
+
+### Fixed
+- E2E: Fixes around correct handling of storage deposit limit ‒ [#2589](https://github.com/use-ink/ink/pull/2589)
+
+## Version 6.0.0-alpha.1
+
 ### Added
 - Support ABI `cfg` flag in codegen - [#2501](https://github.com/use-ink/ink/pull/2501)
 - Generate Solidity ABI compatibility metadata - [#2510](https://github.com/use-ink/ink/pull/2510)

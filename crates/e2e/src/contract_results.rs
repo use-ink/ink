@@ -388,7 +388,7 @@ impl<E: Environment, Abi> From<ContractInstantiateResultFor<E>>
 impl<E: Environment, Abi> InstantiateDryRunResult<E, Abi> {
     /// Returns true if the dry-run execution resulted in an error.
     pub fn is_err(&self) -> bool {
-        self.contract_result.result.is_err()
+        self.contract_result.result.is_err() || self.did_revert()
     }
 
     /// Returns the [`InstantiateReturnValue`] resulting from the dry-run message call.
