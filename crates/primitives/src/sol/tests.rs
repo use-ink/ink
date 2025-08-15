@@ -516,15 +516,15 @@ fn encode_refs_works() {
 
     // fixed bytes refs
     test_case_encode!(
-        &FixedBytes<32>, &FixedBytes([100u8; 32]),
+        &FixedBytes<32>, FixedBytes::from_ref(&[100u8; 32]),
         AlloyFixedBytes<32>, SolValue, AlloyFixedBytes([100u8; 32]),
         [.unwrap().0], [.unwrap().0]
     );
 
     // dynamic bytes refs
     let data = Vec::from([100u8; 64]);
-    let bytes = DynBytes(data.clone());
-    let sol_bytes = AlloyBytes::from(data);
+    let bytes = DynBytes::from_ref(&data);
+    let sol_bytes = AlloyBytes::from(data.clone());
     test_case_encode!(
         &DynBytes, &bytes,
         AlloyBytes, SolValue, sol_bytes,

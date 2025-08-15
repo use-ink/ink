@@ -58,6 +58,16 @@ use crate::sol::{
 #[repr(transparent)]
 pub struct FixedBytes<const N: usize>(pub [u8; N]);
 
+impl<const N: usize> FixedBytes<N> {
+    /// Converts a reference to `[u8; N]` into a reference to `FixedBytes<N>` (without
+    /// copying).
+    pub fn from_ref(value: &[u8; N]) -> &Self {
+        // SAFETY: `FixedBytes<N>` is `#[repr(transparent)]` for `[u8; N]`,
+        // so converting from `&[u8; N]` to `&FixedBytes<N>` is sound.
+        unsafe { &*value.as_ptr().cast::<Self>() }
+    }
+}
+
 // Implements `SolTypeDecode` and `SolTypeEncode` for `FixedBytes<N>`.
 impl<const N: usize> SolTypeDecode for FixedBytes<N>
 where
@@ -180,6 +190,16 @@ impl DynBytes {
     /// Constructs new empty `DynBytes` without allocating.
     pub const fn new() -> Self {
         Self(Vec::new())
+    }
+}
+
+impl DynBytes {
+    /// Converts a reference to `Vec<u8>` into a reference to `DynBytes` (without
+    /// copying).
+    pub fn from_ref(value: &Vec<u8>) -> &Self {
+        // SAFETY: `DynBytes` is `#[repr(transparent)]` for `Vec<u8>`,
+        // so converting from `&Vec<u8>` to `&DynBytes` is sound.
+        unsafe { &*(value as *const Vec<u8>).cast::<Self>() }
     }
 }
 
