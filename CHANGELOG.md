@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow writing E2E fuzz tests for contracts - [#2570](https://github.com/use-ink/ink/pull/2570)
 - Item name/identifier overrides for overloading, selector computation and metadata - [#2577](https://github.com/use-ink/ink/pull/2577)
 - Add custom errors to Solidity compatible metadata - [#2583](https://github.com/use-ink/ink/pull/2583)
+- Efficient conversions and representations for byte sequence references for Solidity ABI encoding/decoding - [#2590](https://github.com/use-ink/ink/pull/2590)
 
 ### Changed
 - Use marker trait for finding ink! storage `struct` during code analysis - [2499](https://github.com/use-ink/ink/pull/2499)
