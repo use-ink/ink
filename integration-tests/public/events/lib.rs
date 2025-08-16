@@ -186,8 +186,7 @@ pub mod events {
 
             assert_eq!(event.topics.len(), 3);
             let signature_topic =
-                <event_def::ThirtyTwoByteTopics as ink::env::Event>::SIGNATURE_TOPIC
-                    .map(|topic| topic.to_vec());
+                <event_def::ThirtyTwoByteTopics as ink::env::Event>::SIGNATURE_TOPIC;
             assert_eq!(Some(&event.topics[0]), signature_topic.as_ref());
             assert_eq!(event.topics[1], [0x42; 32]);
             assert_eq!(
@@ -207,13 +206,12 @@ pub mod events {
 
             let signature_topic =
                 <event_def::ThirtyTwoByteTopics as ink::env::Event>::SIGNATURE_TOPIC
-                    .map(|topic| topic.to_vec())
                     .unwrap();
 
             let expected_topics = vec![
                 signature_topic,
-                [0x42; 32].to_vec(),
-                [0x00; 32].to_vec(), // None is encoded as 0x00
+                [0x42; 32],
+                [0x00; 32], // None is encoded as 0x00
             ];
             assert_eq!(expected_topics, event.topics);
         }

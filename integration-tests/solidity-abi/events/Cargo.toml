@@ -6,7 +6,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
+ink = { path = "../../../crates/ink", default-features = false }
 
 event-def = { path = "event-def", default-features = false }
 event-def2 = { path = "event-def2", default-features = false }
