@@ -6,9 +6,13 @@ pub struct Event {
 }
 
 fn main() {
-    // Event signature topic computation uses the `name` override.
-    const SIGNATURE_TOPIC: [u8; 32] = ::ink::blake2x256!("MyEvent([u8;32],u32)");
-    assert_eq!(<Event as ink::env::Event>::SIGNATURE_TOPIC, Some(SIGNATURE_TOPIC));
+    // ink! event signature topic computation uses the `name` override.
+    const SIGNATURE_TOPIC_INK: [u8; 32] = ::ink::blake2x256!("MyEvent([u8;32],u32)");
+    assert_eq!(<Event as ink::env::Event<ink::abi::Ink>>::SIGNATURE_TOPIC, Some(SIGNATURE_TOPIC_INK));
+
+    // Solidity event signature topic computation uses the `name` override.
+    const SIGNATURE_TOPIC_SOL: [u8; 32] = ::ink::keccak_256!("MyEvent(uint8[32],uint32)");
+    assert_eq!(<Event as ink::env::Event<ink::abi::Sol>>::SIGNATURE_TOPIC, Some(SIGNATURE_TOPIC_SOL));
 
     // Ensures `name` override is used in ink! metadata.
     let event_specs = ink::collect_events();
