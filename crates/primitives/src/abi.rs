@@ -44,6 +44,9 @@ pub struct Sol;
 
 /// Trait for ABI-specific encoding with support for both slice and vector buffers.
 pub trait AbiEncodeWith<Abi> {
+    /// Encodes the data into a new vector.
+    fn encode_with(&self) -> Vec<u8>;
+
     /// Encodes the data into a fixed-size buffer, returning the number of bytes written.
     fn encode_to_slice(&self, buffer: &mut [u8]) -> usize;
 
@@ -71,6 +74,10 @@ pub trait AbiDecodeWith<Abi>: Sized {
 }
 
 impl<T: scale::Encode> AbiEncodeWith<Ink> for T {
+    fn encode_with(&self) -> Vec<u8> {
+        scale::Encode::encode(self)
+    }
+
     fn encode_to_slice(&self, buffer: &mut [u8]) -> usize {
         let encoded = scale::Encode::encode(self);
         let len = encoded.len();
@@ -115,6 +122,10 @@ impl<T> AbiEncodeWith<Sol> for T
 where
     T: for<'a> SolEncode<'a>,
 {
+    fn encode_with(&self) -> Vec<u8> {
+        SolEncode::encode(self)
+    }
+
     fn encode_to_slice(&self, buffer: &mut [u8]) -> usize {
         let encoded = SolEncode::encode(self);
         let len = encoded.len();
