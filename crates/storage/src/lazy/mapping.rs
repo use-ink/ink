@@ -40,7 +40,7 @@ use scale::{
 /// # Important
 ///
 /// The mapping requires its own pre-defined storage key where to store values. By
-/// default, the is automatically calculated using [`AutoKey`](crate::traits::AutoKey)
+/// default, the key is automatically calculated using [`AutoKey`](crate::traits::AutoKey)
 /// during compilation. However, anyone can specify a storage key using
 /// [`ManualKey`](crate::traits::ManualKey). Specifying the storage key can be helpful for
 /// upgradeable contracts or you want to be resistant to future changes of storage key
@@ -183,7 +183,7 @@ where
     ///
     /// # Panics
     ///
-    /// Traps if the the encoded `key` or `value` doesn't fit into the static buffer.
+    /// Traps if the encoded `key` or `value` doesn't fit into the static buffer.
     #[inline]
     pub fn get<Q>(&self, key: Q) -> Option<V>
     where
