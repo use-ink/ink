@@ -256,7 +256,7 @@ where
     /// - `Some(Err(_))` if either (a) the encoded key doesn't fit into the static buffer
     ///   or (b) the value existed but its length exceeds the static buffer size.
     /// - `None` if there was no value under this mapping key.
-    ////
+    ///
     /// # Warning
     ///
     /// This method uses the
