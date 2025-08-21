@@ -57,7 +57,7 @@ impl Default for DebugInfo {
 }
 
 impl DebugInfo {
-    // Creates a new `RecInstance instance.
+    // Creates a new `RecInstance` instance.
     pub fn new() -> Self {
         Self {
             emitted_events: Vec::new(),
