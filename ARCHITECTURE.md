@@ -62,7 +62,7 @@ they are uploaded to a blockchain that runs PolkaVM, PolkaVM then
 interprets them.
 As contracts are executed in a sandbox execution environment on the
 blockchain itself we compile them to a `no_std` environment.
-More specifically they are executed by the [`pallet-revive`](https://github.com/paritytech/substrate/tree/master/frame/revive),
+More specifically they are executed by the [`pallet-revive`](https://github.com/paritytech/polkadot-sdk/tree/master/substrate/frame/revive),
 a module of the Polkadot SDK blockchain framework. This module takes ink!
 smart contracts and runs them in a PolkaVM sandbox environment.
 It also provides an API to smart contracts for anything a smart contract
