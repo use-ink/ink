@@ -62,7 +62,7 @@ where
             // <R as pallet_revive::Config>::AddressMapper::to_account_id(&self.
             // contract),
             self.contract,
-            self.value,
+            self.value.into(),
             self.gas_limit,
             // self.storage_deposit_limit,
             DepositLimit::UnsafeOnlyForDryRun, // todo
