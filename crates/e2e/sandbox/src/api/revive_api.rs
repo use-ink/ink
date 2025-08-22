@@ -177,7 +177,6 @@ where
         let storage_deposit_limit = storage_deposit_limit_fn(storage_deposit_limit);
 
         // todo make `NativeToEthRatio` part of  the `Environment`
-        #[allow(non_upper_case_globals)]
         let native_to_eth_ratio: U256 = 100_000_000.into();
         let native_to_eth_ratio: BalanceOf<Self::T> =
             TryFrom::try_from(native_to_eth_ratio)
@@ -211,7 +210,6 @@ where
         let storage_deposit_limit = storage_deposit_limit_fn(storage_deposit_limit);
 
         // todo make `NativeToEthRatio` part of  the `Environment`
-        #[allow(non_upper_case_globals)]
         let native_to_eth_ratio: U256 = 100_000_000.into();
         let native_to_eth_ratio: BalanceOf<Self::T> =
             TryFrom::try_from(native_to_eth_ratio)
@@ -259,7 +257,6 @@ where
         let storage_deposit_limit = storage_deposit_limit_fn(storage_deposit_limit);
 
         // todo make `NativeToEthRatio` part of  the `Environment`
-        #[allow(non_upper_case_globals)]
         let native_to_eth_ratio: U256 = 100_000_000.into();
         let native_to_eth_ratio: BalanceOf<Self::T> =
             TryFrom::try_from(native_to_eth_ratio)
