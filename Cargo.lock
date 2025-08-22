@@ -1513,7 +1513,7 @@ checksum = "7c74b8349d32d297c9134b8c88677813a227df8f779daa29bfc29c183fe3dca6"
 [[package]]
 name = "contract-build"
 version = "6.0.0-alpha.1"
-source = "git+https://github.com/use-ink/cargo-contract?branch=cmichi-sync-with-latest-polkadot-sdk-aug-7#22a4ed256b7e534a0be41957c4f6f0af743dffa1"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#6a66778abfe07ecc8446a880e175efc236cc3271"
 dependencies = [
  "alloy-json-abi",
  "anyhow",
@@ -1555,7 +1555,7 @@ dependencies = [
 [[package]]
 name = "contract-metadata"
 version = "6.0.0-alpha.1"
-source = "git+https://github.com/use-ink/cargo-contract?branch=cmichi-sync-with-latest-polkadot-sdk-aug-7#22a4ed256b7e534a0be41957c4f6f0af743dffa1"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#6a66778abfe07ecc8446a880e175efc236cc3271"
 dependencies = [
  "anyhow",
  "impl-serde",
