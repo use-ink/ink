@@ -81,7 +81,7 @@ impl Default for ChainSpec {
 }
 
 impl Engine {
-    // Creates a new `Engine instance.
+    // Creates a new `Engine` instance.
     pub fn new() -> Self {
         Self {
             database: Database::new(),
