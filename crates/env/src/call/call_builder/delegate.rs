@@ -174,8 +174,8 @@ where
     ///
     /// # Note
     ///
-    /// On failure this returns an [`ink::env::Error`][`crate::Error`] which can be handled by the
-    /// caller.
+    /// On failure this returns an [`ink::env::Error`][`crate::Error`] which can be
+    /// handled by the caller.
     pub fn try_invoke(self) -> Result<ink_primitives::MessageResult<()>, Error> {
         self.params().try_invoke()
     }
