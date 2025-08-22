@@ -249,6 +249,7 @@ mod debugging_strategies {
             // when
             let trace: ink_e2e::CallTrace = call_res.trace.expect("trace must exist");
             assert_eq!(trace.calls.len(), 2);
+            eprintln!("trace {:#?}", trace);
             // This is how the object looks:
             // ```
             // CallTrace {

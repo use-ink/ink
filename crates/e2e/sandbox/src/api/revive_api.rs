@@ -175,10 +175,19 @@ where
         storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
     ) -> ContractResultInstantiate<Self::T> {
         let storage_deposit_limit = storage_deposit_limit_fn(storage_deposit_limit);
+
+        // todo make `NativeToEthRatio` part of  the `Environment`
+        #[allow(non_upper_case_globals)]
+        let native_to_eth_ratio: U256 = 100_000_000.into();
+        let native_to_eth_ratio: BalanceOf<Self::T> =
+            TryFrom::try_from(native_to_eth_ratio)
+                .unwrap_or_else(|_| panic!("failed converting"));
+        let evm_value = value * native_to_eth_ratio;
+
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_instantiate(
                 origin,
-                value.into(),
+                evm_value.into(), // This is as `U256`, hence we have to convert above.
                 gas_limit,
                 storage_deposit_limit,
                 Code::Upload(contract_bytes),
@@ -200,10 +209,19 @@ where
         storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
     ) -> ContractResultInstantiate<Self::T> {
         let storage_deposit_limit = storage_deposit_limit_fn(storage_deposit_limit);
+
+        // todo make `NativeToEthRatio` part of  the `Environment`
+        #[allow(non_upper_case_globals)]
+        let native_to_eth_ratio: U256 = 100_000_000.into();
+        let native_to_eth_ratio: BalanceOf<Self::T> =
+            TryFrom::try_from(native_to_eth_ratio)
+                .unwrap_or_else(|_| panic!("failed converting"));
+        let evm_value = value * native_to_eth_ratio;
+
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_instantiate(
                 origin,
-                value.into(),
+                evm_value.into(), // This is as `U256`, hence we have to convert above.
                 gas_limit,
                 storage_deposit_limit,
                 Code::Existing(code_hash),
@@ -239,11 +257,20 @@ where
         storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
     ) -> ContractExecResultFor<Self::T> {
         let storage_deposit_limit = storage_deposit_limit_fn(storage_deposit_limit);
+
+        // todo make `NativeToEthRatio` part of  the `Environment`
+        #[allow(non_upper_case_globals)]
+        let native_to_eth_ratio: U256 = 100_000_000.into();
+        let native_to_eth_ratio: BalanceOf<Self::T> =
+            TryFrom::try_from(native_to_eth_ratio)
+                .unwrap_or_else(|_| panic!("failed converting"));
+        let evm_value = value * native_to_eth_ratio;
+
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_call(
                 origin,
                 address,
-                value.into(),
+                evm_value.into(), // This is as `U256`, hence we have to convert above.
                 gas_limit,
                 storage_deposit_limit,
                 data,

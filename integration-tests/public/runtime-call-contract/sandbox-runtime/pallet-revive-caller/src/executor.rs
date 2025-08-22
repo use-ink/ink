@@ -57,12 +57,16 @@ where
         Output: DecodeMessageResult<Abi>,
     {
         let data = input.encode();
+
+        // todo make `NativeToEthRatio` part of  the `Environment`
+        #[allow(non_upper_case_globals)]
+        const NativeToEthRatio: u128 = 100_000_000;
+        let evm_value = U256::from(self.value * NativeToEthRatio);
+
         let result = pallet_revive::Pallet::<R>::bare_call(
             self.origin.clone(),
-            // <R as pallet_revive::Config>::AddressMapper::to_account_id(&self.
-            // contract),
             self.contract,
-            self.value.into(),
+            evm_value,
             self.gas_limit,
             // self.storage_deposit_limit,
             DepositLimit::UnsafeOnlyForDryRun, // todo
