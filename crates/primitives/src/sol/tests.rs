@@ -36,6 +36,7 @@ use primitive_types::{
 
 use crate::{
     sol::{
+        ByteSlice,
         DynBytes,
         Error,
         FixedBytes,
@@ -94,6 +95,26 @@ macro_rules! test_case {
 
         // `SolEncode` and `SolDecode` test.
         test_case_codec!($ty, $val, $sol_ty, $sol_trait, $sol_val, [$($ty_cvt)*], [$($sol_ty_cvt)*]);
+    };
+}
+
+macro_rules! test_case_encode {
+    ($ty: ty, $val: expr) => {
+        test_case_encode!($ty, $val, $ty, alloy_sol_types::SolValue, $val, [], [])
+    };
+    ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty) => {
+        test_case_encode!($ty, $val, $sol_ty, $sol_trait, $val, [], [])
+    };
+    ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty, $sol_val: expr, [$($ty_cvt: tt)*], [$($sol_ty_cvt: tt)*]) => {
+        // `SolTypeEncode` test.
+        let encoded = <$ty as SolTypeEncode>::encode(&$val);
+        let encoded_alloy = <$sol_ty as $sol_trait>::abi_encode(&$sol_val);
+        assert_eq!(encoded, encoded_alloy);
+
+        // `SolEncode` test.
+        let encoded = <$ty as SolEncode>::encode(&$val);
+        let encoded_alloy = <$sol_ty as $sol_trait>::abi_encode(&$sol_val);
+        assert_eq!(encoded, encoded_alloy);
     };
 }
 
@@ -299,19 +320,29 @@ fn bytes_works() {
             $(
                 let data = Vec::from([100u8; $fixture_size]);
                 let vec_bytes = DynBytes(data.clone());
-                let sol_bytes = AlloyBytes::from(data);
+                let sol_bytes = AlloyBytes::from(data.clone());
 
+                // `Vec<u8>`
                 test_case!(
                     DynBytes, vec_bytes,
                     AlloyBytes, SolValue, sol_bytes,
                     [.unwrap().0.as_slice()], [.unwrap().as_ref()]
                 );
 
+                // `Box<[u8]>`
                 let box_bytes = DynBytes::from(Box::from([100u8; $fixture_size]));
                 test_case!(
                     DynBytes, box_bytes,
                     AlloyBytes, SolValue, sol_bytes,
                     [.unwrap().0.as_slice()], [.unwrap().as_ref()]
+                );
+
+                // `ByteSlice` from `&[u8]`
+                let byte_slice = ByteSlice(data.as_slice());
+                test_case_encode!(
+                    ByteSlice, byte_slice,
+                    AlloyBytes, SolValue, sol_bytes,
+                    [.unwrap().0], [.unwrap().as_ref()]
                 );
             )+
         };
@@ -460,26 +491,6 @@ fn custom_type_works() {
 
 #[test]
 fn encode_refs_works() {
-    macro_rules! test_case_encode {
-        ($ty: ty, $val: expr) => {
-            test_case_encode!($ty, $val, $ty, alloy_sol_types::SolValue, $val, [], [])
-        };
-        ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty) => {
-            test_case_encode!($ty, $val, $sol_ty, $sol_trait, $val, [], [])
-        };
-        ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty, $sol_val: expr, [$($ty_cvt: tt)*], [$($sol_ty_cvt: tt)*]) => {
-            // `SolTypeEncode` test.
-            let encoded = <$ty as SolTypeEncode>::encode(&$val);
-            let encoded_alloy = <$sol_ty as $sol_trait>::abi_encode(&$sol_val);
-            assert_eq!(encoded, encoded_alloy);
-
-            // `SolEncode` test.
-            let encoded = <$ty as SolEncode>::encode(&$val);
-            let encoded_alloy = <$sol_ty as $sol_trait>::abi_encode(&$sol_val);
-            assert_eq!(encoded, encoded_alloy);
-        };
-    }
-
     // bool
     test_case_encode!(&bool, &true, bool, SolValue, true, [], []);
 
@@ -516,19 +527,25 @@ fn encode_refs_works() {
 
     // fixed bytes refs
     test_case_encode!(
-        &FixedBytes<32>, &FixedBytes([100u8; 32]),
+        &FixedBytes<32>, FixedBytes::from_ref(&[100u8; 32]),
         AlloyFixedBytes<32>, SolValue, AlloyFixedBytes([100u8; 32]),
         [.unwrap().0], [.unwrap().0]
     );
 
     // dynamic bytes refs
     let data = Vec::from([100u8; 64]);
-    let bytes = DynBytes(data.clone());
-    let sol_bytes = AlloyBytes::from(data);
+    let bytes = DynBytes::from_ref(&data);
+    let sol_bytes = AlloyBytes::from(data.clone());
     test_case_encode!(
         &DynBytes, &bytes,
         AlloyBytes, SolValue, sol_bytes,
         [.unwrap().as_slice()], [.unwrap().as_ref()]
+    );
+    let byte_slice = ByteSlice(data.as_slice());
+    test_case_encode!(
+        ByteSlice, byte_slice,
+        AlloyBytes, SolValue, sol_bytes,
+        [.unwrap().0], [.unwrap().as_ref()]
     );
 
     // tuple refs

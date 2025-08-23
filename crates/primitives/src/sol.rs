@@ -29,10 +29,7 @@ mod tests;
 
 use core::ops::Deref;
 
-use alloy_sol_types::{
-    sol_data,
-    SolType as AlloySolType,
-};
+use alloy_sol_types::SolType as AlloySolType;
 use impl_trait_for_tuples::impl_for_tuples;
 use ink_prelude::{
     borrow::Cow,
@@ -49,6 +46,7 @@ use sp_weights::Weight;
 
 pub use self::{
     bytes::{
+        ByteSlice,
         DynBytes,
         FixedBytes,
     },
@@ -527,21 +525,11 @@ impl SolDecode for AccountId {
     }
 }
 
-impl SolEncode<'_> for AccountId {
-    type SolType = FixedBytes<32>;
+impl<'a> SolEncode<'a> for AccountId {
+    type SolType = &'a FixedBytes<32>;
 
-    fn encode(&self) -> Vec<u8> {
-        // Override for better performance.
-        sol_data::FixedBytes::abi_encode(self)
-    }
-
-    fn to_sol_type(&self) -> Self::SolType {
-        // NOTE: Not actually used for encoding because of `encode` override above (for
-        // better performance).
-        // Arbitrary newtype wrappers can achieve similar performance (without overriding
-        // `encode`) by using `FixedBytes<32>` as the inner type and returning
-        // `&self.0`.
-        FixedBytes(self.0)
+    fn to_sol_type(&'a self) -> Self::SolType {
+        FixedBytes::from_ref(self.as_ref())
     }
 }
 
@@ -554,21 +542,12 @@ impl SolDecode for Hash {
     }
 }
 
-impl SolEncode<'_> for Hash {
-    type SolType = FixedBytes<32>;
+impl<'a> SolEncode<'a> for Hash {
+    type SolType = &'a FixedBytes<32>;
 
-    fn encode(&self) -> Vec<u8> {
-        // Override for better performance.
-        sol_data::FixedBytes::abi_encode(self)
-    }
-
-    fn to_sol_type(&self) -> Self::SolType {
-        // NOTE: Not actually used for encoding because of `encode` override above (for
-        // better performance).
-        // Arbitrary newtype wrappers can achieve similar performance (without overriding
-        // `encode`) by using `FixedBytes<32>` as the inner type and returning
-        // `&self.0`.
-        FixedBytes((*self).into())
+    fn to_sol_type(&'a self) -> Self::SolType {
+        use core::borrow::Borrow;
+        FixedBytes::from_ref(self.borrow())
     }
 }
 
@@ -581,21 +560,11 @@ impl SolDecode for H256 {
     }
 }
 
-impl SolEncode<'_> for H256 {
-    type SolType = FixedBytes<32>;
+impl<'a> SolEncode<'a> for H256 {
+    type SolType = &'a FixedBytes<32>;
 
-    fn encode(&self) -> Vec<u8> {
-        // Override for better performance.
-        sol_data::FixedBytes::abi_encode(&self.0)
-    }
-
-    fn to_sol_type(&self) -> Self::SolType {
-        // NOTE: Not actually used for encoding because of `encode` override above (for
-        // better performance).
-        // Arbitrary newtype wrappers can achieve similar performance (without overriding
-        // `encode`) by using `FixedBytes<32>` as the inner type and returning
-        // `&self.0`.
-        FixedBytes(self.0)
+    fn to_sol_type(&'a self) -> Self::SolType {
+        FixedBytes::from_ref(self.as_fixed_bytes())
     }
 }
 
