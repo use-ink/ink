@@ -46,6 +46,7 @@ use sp_weights::Weight;
 
 pub use self::{
     bytes::{
+        ByteSlice,
         DynBytes,
         FixedBytes,
     },

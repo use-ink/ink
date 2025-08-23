@@ -287,3 +287,74 @@ impl AsRef<[u8]> for DynBytes {
         &self.0
     }
 }
+
+/// Newtype wrapper for Solidity ABI encoding a byte slice (i.e. `&[u8]`) as a
+/// dynamic sized byte sequence.
+///
+/// # Note
+///
+/// Only encoding is implemented for this type, see [`DynBytes`] for an equivalent "owned"
+/// representation that supports both encoding and decoding.
+///
+/// Ref: <https://docs.soliditylang.org/en/latest/types.html#bytes-and-string-as-arrays>
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Encode)]
+#[cfg_attr(feature = "std", derive(TypeInfo))]
+#[repr(transparent)]
+pub struct ByteSlice<'a>(pub &'a [u8]);
+
+// Implements `SolTypeEncode` for `ByteSlice`.
+impl SolTypeEncode for ByteSlice<'_> {
+    type AlloyType = sol_data::Bytes;
+
+    const DEFAULT_VALUE: Self::DefaultType = DynSizeDefault;
+
+    fn tokenize(&self) -> Self::TokenType<'_> {
+        // Direct implementation simplifies generic implementations by removing
+        // requirement for `SolTypeValue<Self::AlloyType>`.
+        PackedSeqToken(self.0)
+    }
+}
+
+impl SolTokenType for ByteSlice<'_> {
+    type TokenType<'enc> = PackedSeqToken<'enc>;
+
+    type DefaultType = DynSizeDefault;
+}
+
+impl crate::sol::types::private::Sealed for ByteSlice<'_> {}
+
+// Implements `SolEncode` for `ByteSlice`.
+impl<'a> SolEncode<'a> for ByteSlice<'a> {
+    type SolType = &'a ByteSlice<'a>;
+
+    fn to_sol_type(&'a self) -> Self::SolType {
+        self
+    }
+}
+
+// Implements core/standard traits for cheap representations as the inner type.
+impl<'a> From<&'a [u8]> for ByteSlice<'a> {
+    fn from(value: &'a [u8]) -> Self {
+        Self(value)
+    }
+}
+
+impl Deref for ByteSlice<'_> {
+    type Target = [u8];
+
+    fn deref(&self) -> &Self::Target {
+        self.0
+    }
+}
+
+impl Borrow<[u8]> for ByteSlice<'_> {
+    fn borrow(&self) -> &[u8] {
+        self.0
+    }
+}
+
+impl AsRef<[u8]> for ByteSlice<'_> {
+    fn as_ref(&self) -> &[u8] {
+        self.0
+    }
+}
