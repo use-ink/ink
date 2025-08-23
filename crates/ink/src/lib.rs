@@ -85,6 +85,7 @@ pub use ink_macro::chain_extension;
 pub use ink_macro::{
     blake2x256,
     contract,
+    error,
     event,
     scale_derive,
     selector_bytes,
