@@ -16,7 +16,7 @@
 ///
 /// # Note
 ///
-/// The callee is typical a macro that implements a trait for tuples.
+/// The callee is a typical macro that implements a trait for tuples.
 ///
 /// We follow the Rust standard library's convention of implementing traits for tuples up
 /// to twelve items long.

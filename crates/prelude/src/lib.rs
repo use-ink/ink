@@ -31,7 +31,7 @@ extern crate alloc;
 
 use cfg_if::cfg_if;
 
-/// A well know selector reserved for the message required to be defined
+/// A well known selector reserved for the message required to be defined
 /// alongside a wildcard selector. See [IIP-2](https://github.com/use-ink/ink/issues/1676).
 ///
 /// Calculated from `selector_bytes!("IIP2_WILDCARD_COMPLEMENT")`
