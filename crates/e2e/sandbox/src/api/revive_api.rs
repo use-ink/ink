@@ -176,7 +176,6 @@ where
         storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
     ) -> ContractResultInstantiate<Self::T> {
         let storage_deposit_limit = storage_deposit_limit_fn(storage_deposit_limit);
-
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_instantiate(
                 origin,
@@ -202,7 +201,6 @@ where
         storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
     ) -> ContractResultInstantiate<Self::T> {
         let storage_deposit_limit = storage_deposit_limit_fn(storage_deposit_limit);
-
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_instantiate(
                 origin,
@@ -242,7 +240,6 @@ where
         storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
     ) -> ContractExecResultFor<Self::T> {
         let storage_deposit_limit = storage_deposit_limit_fn(storage_deposit_limit);
-
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_call(
                 origin,
