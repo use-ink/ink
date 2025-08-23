@@ -58,16 +58,10 @@ where
     {
         let data = input.encode();
 
-        // todo make `NativeToEthRatio` part of  the `Environment`
-        let native_to_eth_ratio: U256 = 100_000_000.into();
-        let native_to_eth_ratio: BalanceOf<R> = TryFrom::try_from(native_to_eth_ratio)
-            .unwrap_or_else(|_| panic!("failed converting"));
-        let evm_value = self.value * native_to_eth_ratio;
-
         let result = pallet_revive::Pallet::<R>::bare_call(
             self.origin.clone(),
             self.contract,
-            evm_value.into(), // This is as `U256`, hence we have to convert above.
+            ink_sandbox::balance_to_evm_value::<BalanceOf<R>>(self.value),
             self.gas_limit,
             // self.storage_deposit_limit,
             DepositLimit::UnsafeOnlyForDryRun, // todo

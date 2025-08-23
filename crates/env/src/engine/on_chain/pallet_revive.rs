@@ -101,8 +101,7 @@ impl CryptoHash for Blake2x256 {
 
         const ADDR: [u8; 20] =
             hex_literal::hex!("0000000000000000000000000000000000000009");
-        // todo return value?
-        let _ = ext::call(
+        let call_result = ext::call(
             CallFlags::empty(),
             &ADDR,
             u64::MAX, /* How much ref_time to devote for the execution. u64::MAX = use
@@ -114,6 +113,7 @@ impl CryptoHash for Blake2x256 {
             input,
             Some(&mut &mut output[..]),
         );
+        call_result.expect("call host function failed");
     }
 }
 

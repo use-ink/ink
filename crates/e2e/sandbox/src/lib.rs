@@ -16,6 +16,7 @@ use frame_system::{
     },
     EventRecord,
 };
+use ink_primitives::U256;
 pub use macros::{
     BlockBuilder,
     DefaultSandbox,
@@ -146,4 +147,22 @@ pub trait Sandbox {
 
     /// Restore the storage from the given snapshot.
     fn restore_snapshot(&mut self, snapshot: Snapshot);
+}
+
+/// Converts from the generic `Balance` type to the Ethereum native `U256`.
+///
+/// # Developer Note
+///
+/// `pallet-revive` uses both types, hence we have to convert in between them
+/// for certain functions. Notice that precision loss might occur when converting
+/// the other way (from `U256` to `Balance`).
+///
+/// See <https://github.com/paritytech/polkadot-sdk/pull/9101> for more details.
+pub fn balance_to_evm_value<Balance>(value: Balance) -> U256
+where
+    Balance: Into<U256>,
+{
+    let native_to_eth_ratio: U256 = 100_000_000.into();
+    let evm_value: U256 = value.into();
+    native_to_eth_ratio * evm_value
 }
