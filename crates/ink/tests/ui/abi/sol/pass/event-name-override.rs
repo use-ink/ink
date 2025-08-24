@@ -6,6 +6,10 @@ pub struct Event {
 }
 
 fn main() {
+    // Event signature topic computation uses the `name` override.
+    const SIGNATURE_TOPIC: [u8; 32] = ::ink::keccak_256!("MyEvent(uint8[32],uint32)");
+    assert_eq!(<Event as ink::env::Event>::SIGNATURE_TOPIC, Some(SIGNATURE_TOPIC));
+
     // Ensures `name` override is used in Solidity metadata.
     let event_specs = ink::collect_events_sol();
     assert_eq!(event_specs.len(), 1);

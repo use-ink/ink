@@ -1,0 +1,15 @@
+error: Events can only have up to 3 fields annotated with an `#[ink(topic)]` attribute
+ --> tests/ui/event/fail/event-too-many-topics.rs:1:1
+  |
+1 | #[ink::event]
+  | ^^^^^^^^^^^^^
+  |
+  = note: this error originates in the attribute macro `ink::event` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `Event: ink::ink_env::Event` is not satisfied
+ --> tests/ui/event/fail/event-too-many-topics.rs:1:1
+  |
+1 | #[ink::event]
+  | ^^^^^^^^^^^^^ the trait `ink::ink_env::Event` is not implemented for `Event`
+  |
+  = note: this error originates in the attribute macro `ink::event` (in Nightly builds, run with -Z macro-backtrace for more info)

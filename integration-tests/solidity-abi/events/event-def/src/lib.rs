@@ -8,5 +8,7 @@ pub struct ForeignFlipped {
 #[ink::event]
 pub struct ThirtyTwoByteTopics {
     #[ink(topic)]
-    pub hash: [u8; 32],
+    pub hash: ink::sol::FixedBytes<32>,
+    #[ink(topic)]
+    pub maybe_hash: Option<ink::sol::FixedBytes<32>>,
 }

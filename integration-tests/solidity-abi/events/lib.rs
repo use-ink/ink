@@ -3,7 +3,7 @@
 #[ink::event(anonymous)]
 pub struct AnonymousEvent {
     #[ink(topic)]
-    pub topic: [u8; 32],
+    pub topic: ink::sol::FixedBytes<32>,
     pub field_1: u32,
 }
 
@@ -31,7 +31,7 @@ pub mod events {
     #[ink(anonymous)]
     pub struct InlineAnonymousEvent {
         #[ink(topic)]
-        pub topic: [u8; 32],
+        pub topic: ink::sol::FixedBytes<32>,
         pub field_1: u32,
     }
 
@@ -67,21 +67,28 @@ pub mod events {
 
         /// Emit an event with a 32 byte topic.
         #[ink(message)]
-        pub fn emit_32_byte_topic_event(&self) {
-            self.env()
-                .emit_event(event_def::ThirtyTwoByteTopics { hash: [0x42; 32] })
+        pub fn emit_32_byte_topic_event(
+            &self,
+            maybe_hash: Option<ink::sol::FixedBytes<32>>,
+        ) {
+            self.env().emit_event(event_def::ThirtyTwoByteTopics {
+                hash: ink::sol::FixedBytes([0x42; 32]),
+                maybe_hash,
+            })
         }
 
         /// Emit an event from a different crate.
         #[ink(message)]
-        pub fn emit_event_from_a_different_crate(&self) {
-            self.env()
-                .emit_event(event_def2::EventDefAnotherCrate { hash: [0x42; 32] })
+        pub fn emit_event_from_a_different_crate(&self, maybe_hash: Option<[u8; 32]>) {
+            self.env().emit_event(event_def2::EventDefAnotherCrate {
+                hash: [0x42; 32],
+                maybe_hash,
+            })
         }
 
-        /// Emit a inline and standalone anonymous events
+        /// Emit inline and standalone anonymous events
         #[ink(message)]
-        pub fn emit_anonymous_events(&self, topic: [u8; 32]) {
+        pub fn emit_anonymous_events(&self, topic: ink::sol::FixedBytes<32>) {
             self.env()
                 .emit_event(InlineAnonymousEvent { topic, field_1: 42 });
             self.env()
@@ -100,6 +107,16 @@ pub mod events {
 
     #[cfg(test)]
     mod tests {
+        use super::*;
+
+        /// Computes the Keccak-256 hash for the given input and stores it in output.
+        fn keccak_256(input: &[u8]) -> [u8; 32] {
+            use sha3::Digest as _;
+            let mut hasher = sha3::Keccak256::new();
+            hasher.update(input);
+            hasher.finalize().into()
+        }
+
         #[test]
         fn collects_solidity_info_for_all_linked_and_used_events() {
             let event_specs = ink::collect_events_sol();
@@ -130,6 +147,108 @@ pub mod events {
                         .iter()
                         .any(|param| param.name == "topic" && param.is_topic)
             }));
+        }
+
+        #[ink::test]
+        fn it_works() {
+            let mut events = Events::new(false);
+            events.flip_with_foreign_event();
+
+            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            assert_eq!(1, emitted_events.len());
+            let event = &emitted_events[0];
+
+            let decoded_data = ink::sol::decode_sequence::<(bool,)>(&event.data)
+                .expect("encountered invalid contract event data buffer");
+            assert!(decoded_data.0);
+        }
+
+        #[ink::test]
+        fn option_topic_some_has_topic() {
+            let events = Events::new(false);
+            events.emit_32_byte_topic_event(Some(ink::sol::FixedBytes([0xAA; 32])));
+
+            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            assert_eq!(1, emitted_events.len());
+            let event = &emitted_events[0];
+
+            assert_eq!(event.topics.len(), 3);
+            let signature_topic =
+                <event_def::ThirtyTwoByteTopics as ink::env::Event>::SIGNATURE_TOPIC;
+            assert_eq!(Some(&event.topics[0]), signature_topic.as_ref());
+            assert_eq!(event.topics[1], [0x42; 32]);
+            // `Some` is encoded as the `Keccak-256` of the encoding of
+            // `(true, FixedBytes<[0xAA; 32]>)`
+            let mut topic_preimage = vec![0x00; 31];
+            topic_preimage.push(0x01);
+            topic_preimage.extend([0xAA; 32]);
+            assert_eq!(
+                event.topics[2],
+                keccak_256(&topic_preimage),
+                "option topic should be published"
+            );
+        }
+
+        #[ink::test]
+        fn option_topic_none_encoded_as_tuple_with_defaults() {
+            let events = Events::new(false);
+            events.emit_32_byte_topic_event(None);
+
+            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            assert_eq!(1, emitted_events.len());
+            let event = &emitted_events[0];
+
+            let signature_topic =
+                <event_def::ThirtyTwoByteTopics as ink::env::Event>::SIGNATURE_TOPIC
+                    .unwrap();
+
+            let expected_topics = vec![
+                signature_topic,
+                [0x42; 32],
+                // `None` is encoded as the `Keccak-256` of the encoding of
+                // `(false, FixedBytes<[0u8; 32]>)`.
+                keccak_256(&[0x00; 64]),
+            ];
+            assert_eq!(expected_topics, event.topics);
+        }
+
+        #[ink::test]
+        fn custom_signature_topic_ignored() {
+            let mut events = Events::new(false);
+            events.flip_with_inline_custom_event();
+
+            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            assert_eq!(1, emitted_events.len());
+
+            let signature_topic =
+                <InlineCustomFlipped as ink::env::Event>::SIGNATURE_TOPIC;
+
+            assert_eq!(
+                Some(ink::keccak_256!("InlineCustomFlipped(bool)")),
+                signature_topic
+            );
+        }
+
+        #[ink::test]
+        fn anonymous_events_emit_no_signature_topics() {
+            let events = Events::new(false);
+            let topic = ink::sol::FixedBytes([0x42; 32]);
+            events.emit_anonymous_events(topic);
+
+            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            assert_eq!(2, emitted_events.len());
+
+            let event = &emitted_events[0];
+            assert_eq!(event.topics.len(), 1);
+            assert_eq!(event.topics[0], topic.0);
+
+            let event = &emitted_events[1];
+            assert_eq!(event.topics.len(), 1);
+            assert_eq!(event.topics[0], topic.0);
+
+            let signature_topic =
+                <InlineAnonymousEvent as ink::env::Event>::SIGNATURE_TOPIC;
+            assert_eq!(None, signature_topic);
         }
     }
 }
