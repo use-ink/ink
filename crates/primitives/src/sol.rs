@@ -525,15 +525,12 @@ where
 impl<T> SolDecode for core::marker::PhantomData<T> {
     type SolType = ();
 
-    fn decode(data: &[u8]) -> Result<Self, Error>
+    fn decode(_: &[u8]) -> Result<Self, Error>
     where
         Self: Sized,
     {
-        if data.is_empty() {
-            Ok(core::marker::PhantomData)
-        } else {
-            Err(Error)
-        }
+        // NOTE: Solidity ABI decoding doesn't validate input length.
+        Ok(core::marker::PhantomData)
     }
 
     fn from_sol_type(_: Self::SolType) -> Result<Self, Error> {
