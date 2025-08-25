@@ -164,5 +164,5 @@ where
 {
     let native_to_eth_ratio: U256 = 100_000_000.into();
     let evm_value: U256 = value.into();
-    native_to_eth_ratio * evm_value
+    native_to_eth_ratio.saturating_mul(evm_value)
 }
