@@ -30,6 +30,7 @@ static_assertions = { workspace = true }
 const_env = { workspace = true }
 xcm = { workspace = true }
 hex-literal = "1"
+const-crypto = "0.3.0"
 
 sp-io = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "c40b36c3a7c208f9a6837b80812473af3d9ba7f7", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
 sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "c40b36c3a7c208f9a6837b80812473af3d9ba7f7", default-features = false, features = ["disable_target_static_assertions"] }
