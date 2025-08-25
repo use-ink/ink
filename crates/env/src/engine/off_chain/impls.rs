@@ -50,11 +50,13 @@ use crate::{
         TopicsBuilderBackend,
     },
     hash::{
+        Blake2x256,
         CryptoHash,
         HashOutput,
         Keccak256,
         Sha2x256,
     },
+    Clear,
     DecodeDispatch,
     DispatchError,
     EnvBackend,
@@ -69,12 +71,8 @@ use crate::{
         FromAddr,
         LimitParamsV2,
     },
-    hash::{
-        Blake2x128,
-        Blake2x256,
-    },
+    hash::Blake2x128,
     test::callee,
-    Clear,
 };
 
 /// The capacity of the static buffer.
@@ -173,11 +171,20 @@ impl CryptoHash for Blake2x128 {
         let output: &mut OutputType = array_mut_ref!(output, 0, 16);
         Engine::hash_blake2_128(input, output);
     }
+
+    fn hash_with_buffer(
+        _input: &[u8],
+        _buffer: &mut [u8],
+        _output: &mut <Self as HashOutput>::Type,
+    ) {
+        unreachable!("not required, `hash` has been implemented.");
+    }
 }
 
-#[cfg(feature = "unstable-hostfn")]
 impl CryptoHash for Blake2x256 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
+        // For the engine (simulation of `pallet-revive` in `std`) we skip on the buffer
+        // in the implementation for simplicity.
         type OutputType = [u8; 32];
         static_assertions::assert_type_eq_all!(
             <Blake2x256 as HashOutput>::Type,
@@ -186,10 +193,20 @@ impl CryptoHash for Blake2x256 {
         let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         Engine::hash_blake2_256(input, output);
     }
+
+    fn hash_with_buffer(
+        _input: &[u8],
+        _buffer: &mut [u8],
+        _output: &mut <Self as HashOutput>::Type,
+    ) {
+        unreachable!("not required, `hash` has been implemented.");
+    }
 }
 
 impl CryptoHash for Sha2x256 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
+        // For the engine (simulation of `pallet-revive` in `std`) we skip on the buffer
+        // in the implementation for simplicity.
         type OutputType = [u8; 32];
         static_assertions::assert_type_eq_all!(
             <Sha2x256 as HashOutput>::Type,
@@ -197,6 +214,14 @@ impl CryptoHash for Sha2x256 {
         );
         let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         Engine::hash_sha2_256(input, output);
+    }
+
+    fn hash_with_buffer(
+        _input: &[u8],
+        _buffer: &mut [u8],
+        _output: &mut <Self as HashOutput>::Type,
+    ) {
+        unreachable!("not required, `hash` has been implemented.");
     }
 }
 
@@ -209,6 +234,14 @@ impl CryptoHash for Keccak256 {
         );
         let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         Engine::hash_keccak_256(input, output);
+    }
+
+    fn hash_with_buffer(
+        _input: &[u8],
+        _buffer: &mut [u8],
+        _output: &mut <Self as HashOutput>::Type,
+    ) {
+        unreachable!("not required, `hash` has been implemented.");
     }
 }
 
@@ -223,7 +256,6 @@ where
 {
     type Output = Vec<u8>;
 
-    #[cfg(feature = "unstable-hostfn")]
     fn push_topic<T>(&mut self, topic_value: &T)
     where
         T: scale::Encode,

@@ -27,7 +27,6 @@ where
     /// The type of the serialized event topics.
     type Output;
 
-    #[cfg(feature = "unstable-hostfn")]
     /// Pushes another topic for serialization to the backend.
     fn push_topic<T>(&mut self, topic_value: &T)
     where
@@ -99,7 +98,6 @@ where
     ///
     /// Returns a topics builder that expects one less event topic for serialization
     /// than before the call.
-    #[cfg(feature = "unstable-hostfn")]
     pub fn push_topic<T>(
         mut self,
         value: Option<&T>,

@@ -6,7 +6,9 @@ mod contract {
     pub struct Contract {}
 
     #[ink(event, name = "MyEvent")]
-    #[ink(signature_topic = "1111111111111111111111111111111111111111111111111111111111111111")]
+    #[ink(
+        signature_topic = "1111111111111111111111111111111111111111111111111111111111111111"
+    )]
     pub struct Event {
         #[ink(topic)]
         pub topic: [u8; 32],
@@ -25,7 +27,11 @@ mod contract {
 }
 
 fn main() {
-    // Custom signature topic (i.e `signature_topic = "..."`) takes precedence over `name` override
+    // Custom signature topic (i.e `signature_topic = "..."`) takes precedence over `name`
+    // override
     const SIGNATURE_TOPIC: [u8; 32] = [0x11u8; 32];
-    assert_eq!(<contract::Event as ink::env::Event>::SIGNATURE_TOPIC, Some(SIGNATURE_TOPIC));
+    assert_eq!(
+        <contract::Event as ink::env::Event>::SIGNATURE_TOPIC,
+        Some(SIGNATURE_TOPIC)
+    );
 }

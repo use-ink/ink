@@ -144,7 +144,7 @@ where
             ink_addr,
             data_sol,
             0,
-            0,
+            ink::primitives::DepositLimit::UnsafeOnlyForDryRun,
             &signer,
         )
         .await;

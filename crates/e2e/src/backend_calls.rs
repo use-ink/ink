@@ -26,6 +26,7 @@ use sp_weights::Weight;
 
 use super::{
     balance_to_deposit_limit,
+    balance_to_deposit_limit_dry_run,
     InstantiateDryRunResult,
     Keypair,
 };
@@ -56,7 +57,7 @@ where
     value: E::Balance,
     extra_gas_portion: Option<u64>,
     gas_limit: Option<Weight>,
-    storage_deposit_limit: E::Balance,
+    storage_deposit_limit: Option<E::Balance>,
 }
 
 impl<'a, E, Args, RetType, B, Abi> CallBuilder<'a, E, Args, RetType, B, Abi>
@@ -83,7 +84,7 @@ where
             value: 0u32.into(),
             extra_gas_portion: None,
             gas_limit: None,
-            storage_deposit_limit: 0u32.into(),
+            storage_deposit_limit: None,
         }
     }
 
@@ -130,7 +131,7 @@ where
         &mut self,
         storage_deposit_limit: E::Balance,
     ) -> &mut Self {
-        self.storage_deposit_limit = storage_deposit_limit;
+        self.storage_deposit_limit = Some(storage_deposit_limit);
         self
     }
 
@@ -151,7 +152,7 @@ where
             self.caller,
             self.message,
             self.value,
-            balance_to_deposit_limit::<E>(self.storage_deposit_limit),
+            balance_to_deposit_limit_dry_run::<E>(self.storage_deposit_limit),
         )
         .await?;
 
@@ -192,7 +193,7 @@ where
             self.caller,
             self.message,
             self.value,
-            balance_to_deposit_limit::<E>(self.storage_deposit_limit),
+            balance_to_deposit_limit_dry_run::<E>(self.storage_deposit_limit),
         )
         .await
     }
@@ -330,9 +331,9 @@ where
             self.constructor,
             self.value,
             gas_limit,
-            balance_to_deposit_limit::<E>(
+            balance_to_deposit_limit::<E>(Some(
                 dry_run.contract_result.storage_deposit.charge_or_zero(),
-            ),
+            )),
         )
         .await?;
 

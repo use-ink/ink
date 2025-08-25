@@ -26,7 +26,10 @@ mod contract {
 fn main() {
     // Event signature topic computation uses the `name` override.
     const SIGNATURE_TOPIC: [u8; 32] = ::ink::blake2x256!("MyEvent([u8;32],u32)");
-    assert_eq!(<contract::Event as ink::env::Event>::SIGNATURE_TOPIC, Some(SIGNATURE_TOPIC));
+    assert_eq!(
+        <contract::Event as ink::env::Event>::SIGNATURE_TOPIC,
+        Some(SIGNATURE_TOPIC)
+    );
 
     // Ensures `name` override is used in ink! metadata.
     let event_specs = ink::collect_events();

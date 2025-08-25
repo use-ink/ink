@@ -35,6 +35,14 @@ pub mod events {
         pub field_1: u32,
     }
 
+    #[ink(event)]
+    #[ink(anonymous)]
+    pub struct InlineAnonymousEventHashedTopic {
+        #[ink(topic)]
+        pub topic: [u8; 64],
+        pub field_1: u32,
+    }
+
     impl Events {
         /// Creates a new events smart contract initialized with the given value.
         #[ink(constructor)]
@@ -83,13 +91,21 @@ pub mod events {
             })
         }
 
-        /// Emit a inline and standalone anonymous events
+        /// Emit an inline and standalone anonymous events
         #[ink(message)]
         pub fn emit_anonymous_events(&self, topic: [u8; 32]) {
             self.env()
                 .emit_event(InlineAnonymousEvent { topic, field_1: 42 });
             self.env()
                 .emit_event(super::AnonymousEvent { topic, field_1: 42 });
+
+            let mut twotopics = [0u8; 64];
+            twotopics[..32].copy_from_slice(&topic[..32]);
+            twotopics[32..].copy_from_slice(&topic[..32]);
+            self.env().emit_event(InlineAnonymousEventHashedTopic {
+                topic: twotopics,
+                field_1: 42,
+            });
         }
     }
 
@@ -132,6 +148,9 @@ pub mod events {
             assert!(event_specs
                 .iter()
                 .any(|evt| evt.label() == &"InlineAnonymousEvent"));
+            assert!(event_specs
+                .iter()
+                .any(|evt| evt.label() == &"InlineAnonymousEventHashedTopic"));
 
             // The event is not used in the code by being included in the metadata,
             // byt because we implement the trait from the `event_def_unused` crate.
@@ -139,7 +158,7 @@ pub mod events {
                 .iter()
                 .any(|evt| evt.label() == &"EventDefUnused"));
 
-            assert_eq!(8, event_specs.len());
+            assert_eq!(9, event_specs.len());
         }
 
         #[ink::test]
@@ -220,7 +239,7 @@ pub mod events {
             events.emit_anonymous_events(topic);
 
             let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
-            assert_eq!(2, emitted_events.len());
+            assert_eq!(3, emitted_events.len());
 
             let event = &emitted_events[0];
             assert_eq!(event.topics.len(), 1);
@@ -325,6 +344,59 @@ pub mod events {
 
             let expected_topics = vec![signature_topic];
             assert_eq!(expected_topics, contract_event.topics);
+
+            Ok(())
+        }
+
+        #[ink_e2e::test()]
+        async fn emits_inline_anonymous_event<Client: E2EBackend>(
+            mut client: Client,
+        ) -> E2EResult<()> {
+            // given
+            let init_value = false;
+            let mut constructor = EventsRef::new(init_value);
+            let contract = client
+                .instantiate("events", &ink_e2e::alice(), &mut constructor)
+                .submit()
+                .await
+                .expect("instantiate failed");
+            let call_builder = contract.call_builder::<Events>();
+
+            // when
+            let topic = [1u8; 32];
+            let emit = call_builder.emit_anonymous_events(topic);
+            let flip_res = client
+                .call(&ink_e2e::bob(), &emit)
+                .submit()
+                .await
+                .expect("emit_anonymous_event failed");
+            let contract_events = flip_res.contract_emitted_events()?;
+
+            // then
+            assert_eq!(3, contract_events.len());
+
+            let contract_event = &contract_events[0];
+            let evt: InlineAnonymousEvent =
+                ink::scale::Decode::decode(&mut &contract_event.event.data[..])
+                    .expect("encountered invalid contract event data buffer");
+            assert_eq!(evt.topic, topic);
+            assert_eq!(evt.field_1, 42);
+
+            let contract_event = &contract_events[1];
+            let evt: crate::AnonymousEvent =
+                ink::scale::Decode::decode(&mut &contract_event.event.data[..])
+                    .expect("encountered invalid contract event data buffer");
+            assert_eq!(evt.topic, topic);
+            assert_eq!(evt.field_1, 42);
+
+            let contract_event = &contract_events[2];
+            let evt: InlineAnonymousEventHashedTopic =
+                ink::scale::Decode::decode(&mut &contract_event.event.data[..])
+                    .expect("encountered invalid contract event data buffer");
+            // Using 64 bytes here will trigger the `Blake2x_256` hashing for the topic.
+            let two_topics = [1u8; 64];
+            assert_eq!(evt.topic, two_topics);
+            assert_eq!(evt.field_1, 42);
 
             Ok(())
         }

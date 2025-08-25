@@ -195,6 +195,7 @@ impl Clear for Hash {
     }
 }
 
+// todo
 // impl Clear for H256 {
 // const CLEAR_HASH: Self = H256::CLEAR_HASH;
 //
@@ -469,7 +470,6 @@ pub enum Origin<E: Environment> {
 
 pub struct AccountIdMapper {}
 impl AccountIdMapper {
-    //pub fn to_address(account_id: &E::AccountId) -> Address {
     pub fn to_address(account_id: &[u8]) -> Address {
         let mut account_bytes: [u8; 32] = [0u8; 32];
         account_bytes.copy_from_slice(&account_id[..32]);
@@ -491,7 +491,6 @@ impl AccountIdMapper {
     /// it is theoretically possible to create an ed25519 keypair that passed this
     /// filter. However, this can't be used for an attack. It also won't happen by
     /// accident since everybody is using sr25519 where this is not a valid public key.
-    //fn is_eth_derived(account_id: &[u8]) -> bool {
     fn is_eth_derived(account_bytes: &[u8]) -> bool {
         account_bytes[20..] == [0xEE; 12]
     }

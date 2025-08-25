@@ -46,8 +46,6 @@ async fn instantiate_and_get<Client: E2EBackend>(mut client: Client) -> E2EResul
                     ),
                 )
                 .unwrap(),
-                // todo
-                ink_e2e::subxt::ext::scale_value::serde::to_value(0u128).unwrap(),
             ],
         )
         .await
