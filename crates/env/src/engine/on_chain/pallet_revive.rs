@@ -165,7 +165,7 @@ fn encode_bytes(input: &[u8], out: &mut [u8]) -> usize {
 }
 
 impl CryptoHash for Blake2x256 {
-    fn hash(input: &[u8], _output: &mut <Self as HashOutput>::Type) {
+    fn hash(_input: &[u8], _output: &mut <Self as HashOutput>::Type) {
         panic!("Hashing Blake2x256 requires calling a pre-compile and a buffer");
     }
 

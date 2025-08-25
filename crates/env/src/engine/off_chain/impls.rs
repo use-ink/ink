@@ -177,20 +177,12 @@ impl CryptoHash for Blake2x128 {
         _buffer: &mut [u8],
         _output: &mut <Self as HashOutput>::Type,
     ) {
-        panic!("blake2x128 is implemented as a host function in `pallet-revive`, we don't need a buffer for implementing it");
+        unreachable!("not required, `hash` has been implemented.");
     }
 }
 
 impl CryptoHash for Blake2x256 {
-    fn hash(_input: &[u8], _output: &mut <Self as HashOutput>::Type) {
-        panic!("blake2x256 is implemented as a pre-compile in `pallet-revive`, we typically need a buffer for implementing it");
-    }
-
-    fn hash_with_buffer(
-        input: &[u8],
-        _buffer: &mut [u8],
-        output: &mut <Self as HashOutput>::Type,
-    ) {
+    fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
         // For the engine (simulation of `pallet-revive` in `std`) we skip on the buffer
         // in the implementation for simplicity.
         type OutputType = [u8; 32];
@@ -201,18 +193,18 @@ impl CryptoHash for Blake2x256 {
         let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         Engine::hash_blake2_256(input, output);
     }
+
+    fn hash_with_buffer(
+        _input: &[u8],
+        _buffer: &mut [u8],
+        _output: &mut <Self as HashOutput>::Type,
+    ) {
+        unreachable!("not required, `hash` has been implemented.");
+    }
 }
 
 impl CryptoHash for Sha2x256 {
-    fn hash(_input: &[u8], _output: &mut <Self as HashOutput>::Type) {
-        panic!("sha256 is implemented as a pre-compile in `pallet-revive`, we typically need a buffer for implementing it");
-    }
-
-    fn hash_with_buffer(
-        input: &[u8],
-        _buffer: &mut [u8],
-        output: &mut <Self as HashOutput>::Type,
-    ) {
+    fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
         // For the engine (simulation of `pallet-revive` in `std`) we skip on the buffer
         // in the implementation for simplicity.
         type OutputType = [u8; 32];
@@ -222,6 +214,14 @@ impl CryptoHash for Sha2x256 {
         );
         let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         Engine::hash_sha2_256(input, output);
+    }
+
+    fn hash_with_buffer(
+        _input: &[u8],
+        _buffer: &mut [u8],
+        _output: &mut <Self as HashOutput>::Type,
+    ) {
+        unreachable!("not required, `hash` has been implemented.");
     }
 }
 
@@ -241,7 +241,7 @@ impl CryptoHash for Keccak256 {
         _buffer: &mut [u8],
         _output: &mut <Self as HashOutput>::Type,
     ) {
-        panic!("keccake256 is a native host function in `pallet-revive`, no buffer needed for implementation");
+        unreachable!("not required, `hash` has been implemented.");
     }
 }
 
