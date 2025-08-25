@@ -194,7 +194,7 @@ a function there is a new version of it introduced.
 
 ## `Environment` Trait
 
-You can use ink! on any blockchain that was built with the [Polkadot SDK](https://polkadot.com/platform/sdk)
+You can use ink! on any blockchain that was built with the [Polkadot SDK](https://docs.polkadot.com/develop/parachains/intro-polkadot-sdk/)
 framework and includes the [`pallet-revive`](https://github.com/paritytech/polkadot-sdk/tree/master/substrate/frame/revive)
 module.
 Polkadot SDK and `pallet-revive` only specifies some types as fixed,
