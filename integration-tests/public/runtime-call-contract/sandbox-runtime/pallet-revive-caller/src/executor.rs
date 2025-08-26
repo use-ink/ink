@@ -57,12 +57,11 @@ where
         Output: DecodeMessageResult<Abi>,
     {
         let data = input.encode();
+
         let result = pallet_revive::Pallet::<R>::bare_call(
             self.origin.clone(),
-            // <R as pallet_revive::Config>::AddressMapper::to_account_id(&self.
-            // contract),
             self.contract,
-            self.value,
+            ink_sandbox::balance_to_evm_value::<BalanceOf<R>>(self.value),
             self.gas_limit,
             // self.storage_deposit_limit,
             DepositLimit::UnsafeOnlyForDryRun, // todo

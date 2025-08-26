@@ -51,12 +51,14 @@ use crate::{
         TopicsBuilderBackend,
     },
     hash::{
+        Blake2x256,
         CryptoHash,
         HashOutput,
         Keccak256,
         Sha2x256,
     },
     types::FromLittleEndian,
+    Clear,
     DecodeDispatch,
     DispatchError,
     EnvBackend,
@@ -72,11 +74,7 @@ use crate::{
         FromAddr,
         LimitParamsV2,
     },
-    hash::{
-        Blake2x128,
-        Blake2x256,
-    },
-    Clear,
+    hash::Blake2x128,
 };
 
 #[cfg(feature = "unstable-hostfn")]
@@ -90,18 +88,133 @@ impl CryptoHash for Blake2x128 {
         let output: &mut OutputType = array_mut_ref!(output, 0, 16);
         ext::hash_blake2_128(input, output);
     }
+
+    fn hash_with_buffer(
+        _input: &[u8],
+        _buffer: &mut [u8],
+        _output: &mut <Self as HashOutput>::Type,
+    ) {
+        panic!(
+            "Hashing Blake2x128 can be done without a buffer, by calling a host function"
+        );
+    }
 }
 
-#[cfg(feature = "unstable-hostfn")]
+/// Returns the Solidity selector for `fn_sig`.
+///
+/// Note that this is a const function, it is evaluated at compile time.
+///
+/// # Usage
+///
+/// ```
+/// let sel = solidity_selector("ownCodeHash()");
+/// assert_eq!(sel, [219, 107, 220, 138]);
+/// ```
+pub const fn solidity_selector(fn_sig: &str) -> [u8; 4] {
+    let output: [u8; 32] = const_crypto::sha3::Keccak256::new()
+        .update(fn_sig.as_bytes())
+        .finalize();
+    [output[0], output[1], output[2], output[3]]
+}
+
+/// When encoding a Rust `[u8]` to Solidity `bytes`,
+/// a small amount of overhead space is required (for padding
+/// and the length word). This is the maximum additional space required.
+const SOLIDITY_BYTES_ENCODING_OVERHEAD: usize = 64;
+
+/// Maximum amount of bytes required to pad a value (of at least one byte)
+/// to a 32 byte word used for the Solidity ABI.
+const SOLIDITY_MAX_PADDING_OVERHEAD: usize = 31;
+
+/// Four bytes are required to encode a Solidity selector;
+const SOLIDITY_SELECTOR_ENCODING_OVERHEAD: usize = 4;
+
+/// Encodes the `bytes` argument for the Solidity ABI.
+/// The result is written to `out`.
+///
+/// Returns the number of bytes written.
+///
+/// # Developer Note
+///
+/// The returned layout will be
+///
+///     `[offset (32 bytes)] [len (32 bytes)] [data (padded to 32)]`
+///
+/// The `out` byte array need to be able to hold
+/// (in the worst case) 95 bytes more than `input.len()`.
+///
+/// This is because we write the following to `out`:
+///   * The offset word → always 32 bytes.
+///   * The length word → always 32 bytes.
+///   * The input itself → exactly `input.len()` bytes.
+///   * We pad the input to a multiple of 32 → between 0 and 31 extra bytes.
+fn encode_bytes(input: &[u8], out: &mut [u8]) -> usize {
+    let len = input.len();
+    let padded_len = ((len + 31) / 32) * 32;
+
+    // out_len = 32 + padded_len
+    //         = 32 + ceil(input_len / 32) * 32
+    assert!(out.len() >= padded_len + SOLIDITY_BYTES_ENCODING_OVERHEAD);
+
+    // Encode offset as a 32-byte big-endian word
+    // The offset is static for our case.
+    let offset: u32 = 32;
+    out[28..32].copy_from_slice(&offset.to_be_bytes()[..4]);
+    out[..28].copy_from_slice(&[0u8; 28]); // make sure the first bytes are zeroed
+
+    // Encode length as a 32-byte big-endian word
+    let mut len_word = [0u8; 32];
+    let len_bytes = (len as u128).to_be_bytes(); // 16 bytes
+    len_word[32 - len_bytes.len()..].copy_from_slice(&len_bytes);
+    out[32..64].copy_from_slice(&len_word);
+
+    // Write data
+    out[64..64 + len].copy_from_slice(input);
+
+    // Zero padding
+    for i in 64 + len..64 + padded_len - len {
+        out[i] = 0;
+    }
+
+    64 + padded_len
+}
+
 impl CryptoHash for Blake2x256 {
-    fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
+    fn hash(_input: &[u8], _output: &mut <Self as HashOutput>::Type) {
+        panic!("Hashing Blake2x256 requires calling a pre-compile and a buffer");
+    }
+
+    fn hash_with_buffer(
+        input: &[u8],
+        buffer: &mut [u8],
+        output: &mut <Self as HashOutput>::Type,
+    ) {
         type OutputType = [u8; 32];
         static_assertions::assert_type_eq_all!(
             <Blake2x256 as HashOutput>::Type,
             OutputType
         );
         let output: &mut OutputType = array_mut_ref!(output, 0, 32);
-        ext::hash_blake2_256(input, output);
+
+        let sel = solidity_selector("hashBlake256(bytes)");
+        buffer[..4].copy_from_slice(&sel[..4]);
+
+        let n = encode_bytes(input, &mut buffer[4..]);
+
+        const ADDR: [u8; 20] =
+            hex_literal::hex!("0000000000000000000000000000000000000900");
+        let call_result = ext::delegate_call(
+            CallFlags::empty(),
+            &ADDR,
+            u64::MAX, /* How much ref_time to devote for the execution. u64::MAX = use
+                       * all. */
+            u64::MAX, /* How much proof_size to devote for the execution. u64::MAX =
+                       * use all. */
+            &[u8::MAX; 32], // No deposit limit.
+            &buffer[..4 + n],
+            Some(&mut &mut output[..]),
+        );
+        call_result.expect("call host function failed");
     }
 }
 
@@ -130,6 +243,16 @@ impl CryptoHash for Sha2x256 {
             Some(&mut &mut output[..]),
         );
     }
+
+    fn hash_with_buffer(
+        _input: &[u8],
+        _buffer: &mut [u8],
+        _output: &mut <Self as HashOutput>::Type,
+    ) {
+        panic!(
+            "Hashing Sha2x256 can be done without a buffer, by calling a host function"
+        );
+    }
 }
 
 impl CryptoHash for Keccak256 {
@@ -141,6 +264,16 @@ impl CryptoHash for Keccak256 {
         );
         let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         ext::hash_keccak_256(input, output);
+    }
+
+    fn hash_with_buffer(
+        _input: &[u8],
+        _buffer: &mut [u8],
+        _output: &mut <Self as HashOutput>::Type,
+    ) {
+        panic!(
+            "Hashing Keccak256 can be done without a buffer, by calling a host function"
+        );
     }
 }
 
@@ -167,12 +300,14 @@ where
 {
     type Output = (ScopedBuffer<'a>, &'a mut [u8]);
 
-    #[cfg(feature = "unstable-hostfn")]
     fn push_topic<T>(&mut self, topic_value: &T)
     where
         T: scale::Encode,
     {
-        fn inner<E: Environment>(encoded: &mut [u8]) -> <E as Environment>::Hash {
+        fn inner<E: Environment>(
+            encoded: &mut [u8],
+            buffer: &mut [u8],
+        ) -> <E as Environment>::Hash {
             let len_encoded = encoded.len();
             let mut result = <E as Environment>::Hash::CLEAR_HASH;
             let len_result = result.as_ref().len();
@@ -180,7 +315,11 @@ where
                 result.as_mut()[..len_encoded].copy_from_slice(encoded);
             } else {
                 let mut hash_output = <Blake2x256 as HashOutput>::Type::default();
-                <Blake2x256 as CryptoHash>::hash(encoded, &mut hash_output);
+                <Blake2x256 as CryptoHash>::hash_with_buffer(
+                    encoded,
+                    &mut buffer[..],
+                    &mut hash_output,
+                );
                 let copy_len = core::cmp::min(hash_output.len(), len_result);
                 result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
             }
@@ -189,7 +328,13 @@ where
 
         let mut split = self.scoped_buffer.split();
         let encoded = split.take_encoded(topic_value);
-        let result = inner::<E>(encoded);
+        let solidity_encoding_buffer = split.take(
+            encoded.len()
+                + SOLIDITY_SELECTOR_ENCODING_OVERHEAD
+                + SOLIDITY_BYTES_ENCODING_OVERHEAD
+                + SOLIDITY_MAX_PADDING_OVERHEAD,
+        );
+        let result = inner::<E>(encoded, &mut solidity_encoding_buffer[..]);
         self.scoped_buffer.append_encoded(&result);
     }
 
