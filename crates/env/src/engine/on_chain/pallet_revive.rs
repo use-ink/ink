@@ -120,7 +120,11 @@ pub const fn solidity_selector(fn_sig: &str) -> [u8; 4] {
 /// When encoding a Rust `[u8]` to Solidity `bytes`,
 /// a small amount of overhead space is required (for padding
 /// and the length word). This is the maximum additional space required.
-const MAX_SOLIDITY_BYTE_ENCODING_OVERHEAD: usize = 95;
+const SOLIDITY_BYTES_ENCODING_OVERHEAD: usize = 64;
+
+/// Maximum amount of bytes required to pad a value (of at least one byte)
+/// to a 32 byte word used for the Solidity ABI.
+const SOLIDITY_MAX_PADDING_OVERHEAD: usize = 31;
 
 /// Four bytes are required to encode a Solidity selector;
 const SOLIDITY_SELECTOR_ENCODING_OVERHEAD: usize = 4;
@@ -145,9 +149,12 @@ const SOLIDITY_SELECTOR_ENCODING_OVERHEAD: usize = 4;
 ///   * The input itself → exactly `input.len()` bytes.
 ///   * We pad the input to a multiple of 32 → between 0 and 31 extra bytes.
 fn encode_bytes(input: &[u8], out: &mut [u8]) -> usize {
+    let len = input.len();
+    let padded_len = ((len + 31) / 32) * 32;
+
     // out_len = 32 + padded_len
     //         = 32 + ceil(input_len / 32) * 32
-    assert!(out.len() >= input.len() + MAX_SOLIDITY_BYTE_ENCODING_OVERHEAD);
+    assert!(out.len() >= padded_len + SOLIDITY_BYTES_ENCODING_OVERHEAD);
 
     // Encode offset as a 32-byte big-endian word
     // The offset is static for our case.
@@ -156,9 +163,6 @@ fn encode_bytes(input: &[u8], out: &mut [u8]) -> usize {
     out[..28].copy_from_slice(&[0u8; 28]); // make sure the first bytes are zeroed
 
     // Encode length as a 32-byte big-endian word
-    let len = input.len();
-    let padded_len = ((len + 31) / 32) * 32;
-
     let mut len_word = [0u8; 32];
     let len_bytes = (len as u128).to_be_bytes(); // 16 bytes
     len_word[32 - len_bytes.len()..].copy_from_slice(&len_bytes);
@@ -168,7 +172,7 @@ fn encode_bytes(input: &[u8], out: &mut [u8]) -> usize {
     out[64..64 + len].copy_from_slice(input);
 
     // Zero padding
-    for i in 64 + len..64 + padded_len {
+    for i in 64 + len..64 + padded_len - len {
         out[i] = 0;
     }
 
@@ -327,7 +331,8 @@ where
         let solidity_encoding_buffer = split.take(
             encoded.len()
                 + SOLIDITY_SELECTOR_ENCODING_OVERHEAD
-                + MAX_SOLIDITY_BYTE_ENCODING_OVERHEAD,
+                + SOLIDITY_BYTES_ENCODING_OVERHEAD
+                + SOLIDITY_MAX_PADDING_OVERHEAD,
         );
         let result = inner::<E>(encoded, &mut solidity_encoding_buffer[..]);
         self.scoped_buffer.append_encoded(&result);
