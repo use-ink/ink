@@ -120,22 +120,27 @@ pub const fn solidity_selector(fn_sig: &str) -> [u8; 4] {
 /// When encoding a Rust `[u8]` to Solidity `bytes`,
 /// a small amount of overhead space is required (for padding
 /// and the length word). This is the maximum additional space required.
-const MAX_SOLIDITY_BYTE_ENCODING_OVERHEAD: usize = 63;
+const MAX_SOLIDITY_BYTE_ENCODING_OVERHEAD: usize = 95;
 
 /// Four bytes are required to encode a Solidity selector;
 const SOLIDITY_SELECTOR_ENCODING_OVERHEAD: usize = 4;
 
-/// Encodes a Solidity `bytes` argument into `out`.
+/// Encodes the `bytes` argument for the Solidity ABI.
+/// The result is written to `out`.
+///
 /// Returns the number of bytes written.
 ///
 /// # Developer Note
+///
 /// The returned layout will be
-///     `[len (32 bytes)] [data (padded to 32)]`
+///
+///     `[offset (32 bytes)] [len (32 bytes)] [data (padded to 32)]`
 ///
 /// The `out` byte array need to be able to hold
-/// (in the worst case) 63 bytes more than `input.len()`.
+/// (in the worst case) 95 bytes more than `input.len()`.
 ///
 /// This is because we write the following to `out`:
+///   * The offset word → always 32 bytes.
 ///   * The length word → always 32 bytes.
 ///   * The input itself → exactly `input.len()` bytes.
 ///   * We pad the input to a multiple of 32 → between 0 and 31 extra bytes.
@@ -144,24 +149,30 @@ fn encode_bytes(input: &[u8], out: &mut [u8]) -> usize {
     //         = 32 + ceil(input_len / 32) * 32
     assert!(out.len() >= input.len() + MAX_SOLIDITY_BYTE_ENCODING_OVERHEAD);
 
+    // Encode offset as a 32-byte big-endian word
+    // The offset is static for our case.
+    let offset: u32 = 32;
+    out[28..32].copy_from_slice(&offset.to_be_bytes()[..4]);
+    out[..28].copy_from_slice(&[0u8; 28]); // make sure the first bytes are zeroed
+
+    // Encode length as a 32-byte big-endian word
     let len = input.len();
     let padded_len = ((len + 31) / 32) * 32;
 
-    // Encode length as a 32-byte big-endian word
     let mut len_word = [0u8; 32];
     let len_bytes = (len as u128).to_be_bytes(); // 16 bytes
     len_word[32 - len_bytes.len()..].copy_from_slice(&len_bytes);
-    out[..32].copy_from_slice(&len_word);
+    out[32..64].copy_from_slice(&len_word);
 
     // Write data
-    out[32..32 + len].copy_from_slice(input);
+    out[64..64 + len].copy_from_slice(input);
 
     // Zero padding
-    for i in 32 + len..32 + padded_len {
+    for i in 64 + len..64 + padded_len {
         out[i] = 0;
     }
 
-    32 + padded_len
+    64 + padded_len
 }
 
 impl CryptoHash for Blake2x256 {
