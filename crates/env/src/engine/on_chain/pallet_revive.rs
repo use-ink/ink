@@ -198,16 +198,15 @@ impl CryptoHash for Blake2x256 {
         let n = encode_bytes(input, &mut buffer[4..]);
 
         const ADDR: [u8; 20] =
-            hex_literal::hex!("9000000000000000000000000000000000000000");
-        let call_result = ext::call(
+            hex_literal::hex!("0000000000000000000000000000000000000900");
+        let call_result = ext::delegate_call(
             CallFlags::empty(),
             &ADDR,
             u64::MAX, /* How much ref_time to devote for the execution. u64::MAX = use
                        * all. */
             u64::MAX, /* How much proof_size to devote for the execution. u64::MAX =
                        * use all. */
-            &[u8::MAX; 32],                   // No deposit limit.
-            &U256::zero().to_little_endian(), // Value transferred to the contract.
+            &[u8::MAX; 32], // No deposit limit.
             &buffer[..4 + n],
             Some(&mut &mut output[..]),
         );
