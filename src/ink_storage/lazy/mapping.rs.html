@@ -40,7 +40,7 @@
 <a href=#40 id=40 data-nosnippet>40</a>/// # Important
 <a href=#41 id=41 data-nosnippet>41</a>///
 <a href=#42 id=42 data-nosnippet>42</a>/// The mapping requires its own pre-defined storage key where to store values. By
-<a href=#43 id=43 data-nosnippet>43</a>/// default, the is automatically calculated using [`AutoKey`](crate::traits::AutoKey)
+<a href=#43 id=43 data-nosnippet>43</a>/// default, the key is automatically calculated using [`AutoKey`](crate::traits::AutoKey)
 <a href=#44 id=44 data-nosnippet>44</a>/// during compilation. However, anyone can specify a storage key using
 <a href=#45 id=45 data-nosnippet>45</a>/// [`ManualKey`](crate::traits::ManualKey). Specifying the storage key can be helpful for
 <a href=#46 id=46 data-nosnippet>46</a>/// upgradeable contracts or you want to be resistant to future changes of storage key
@@ -183,7 +183,7 @@
 <a href=#183 id=183 data-nosnippet>183</a>    ///
 <a href=#184 id=184 data-nosnippet>184</a>    /// # Panics
 <a href=#185 id=185 data-nosnippet>185</a>    ///
-<a href=#186 id=186 data-nosnippet>186</a>    /// Traps if the the encoded `key` or `value` doesn't fit into the static buffer.
+<a href=#186 id=186 data-nosnippet>186</a>    /// Traps if the encoded `key` or `value` doesn't fit into the static buffer.
 <a href=#187 id=187 data-nosnippet>187</a>    </span><span class="attr">#[inline]
 <a href=#188 id=188 data-nosnippet>188</a>    </span><span class="kw">pub fn </span>get&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, key: Q) -&gt; <span class="prelude-ty">Option</span>&lt;V&gt;
 <a href=#189 id=189 data-nosnippet>189</a>    <span class="kw">where
@@ -256,8 +256,8 @@
 <a href=#256 id=256 data-nosnippet>256</a>    /// - `Some(Err(_))` if either (a) the encoded key doesn't fit into the static buffer
 <a href=#257 id=257 data-nosnippet>257</a>    ///   or (b) the value existed but its length exceeds the static buffer size.
 <a href=#258 id=258 data-nosnippet>258</a>    /// - `None` if there was no value under this mapping key.
-<a href=#259 id=259 data-nosnippet>259</a>    </span><span class="comment">////
-<a href=#260 id=260 data-nosnippet>260</a>    </span><span class="doccomment">/// # Warning
+<a href=#259 id=259 data-nosnippet>259</a>    ///
+<a href=#260 id=260 data-nosnippet>260</a>    /// # Warning
 <a href=#261 id=261 data-nosnippet>261</a>    ///
 <a href=#262 id=262 data-nosnippet>262</a>    /// This method uses the
 <a href=#263 id=263 data-nosnippet>263</a>    /// [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),

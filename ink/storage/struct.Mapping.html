@@ -3,7 +3,7 @@
     KeyType: <a class="trait" href="traits/trait.StorageKey.html" title="trait ink::storage::traits::StorageKey">StorageKey</a>,</div>{ <span class="comment">/* private fields */</span> }</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A mapping of key-value pairs directly into contract storage.</p>
 <h2 id="important"><a class="doc-anchor" href="#important">§</a>Important</h2>
 <p>The mapping requires its own pre-defined storage key where to store values. By
-default, the is automatically calculated using <a href="traits/struct.AutoKey.html" title="struct ink::storage::traits::AutoKey"><code>AutoKey</code></a>
+default, the key is automatically calculated using <a href="traits/struct.AutoKey.html" title="struct ink::storage::traits::AutoKey"><code>AutoKey</code></a>
 during compilation. However, anyone can specify a storage key using
 <a href="traits/struct.ManualKey.html" title="struct ink::storage::traits::ManualKey"><code>ManualKey</code></a>. Specifying the storage key can be helpful for
 upgradeable contracts or you want to be resistant to future changes of storage key
@@ -69,7 +69,7 @@ buffer size.</li>
     Q: EncodeLike&lt;K&gt;,</div></h4></section></summary><div class="docblock"><p>Get the <code>value</code> at <code>key</code> from the contract storage.</p>
 <p>Returns <code>None</code> if no <code>value</code> exists at the given <code>key</code>.</p>
 <h5 id="panics-1"><a class="doc-anchor" href="#panics-1">§</a>Panics</h5>
-<p>Traps if the the encoded <code>key</code> or <code>value</code> doesn’t fit into the static buffer.</p>
+<p>Traps if the encoded <code>key</code> or <code>value</code> doesn’t fit into the static buffer.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.try_get" class="method"><h4 class="code-header">pub fn <a href="#method.try_get" class="fn">try_get</a>&lt;Q&gt;(&amp;self, key: Q) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.87.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="enum" href="https://doc.rust-lang.org/1.87.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;V, Error&gt;&gt;<div class="where">where
     Q: EncodeLike&lt;K&gt;,</div></h4></section></summary><div class="docblock"><p>Try to get the <code>value</code> at the given <code>key</code>.</p>
 <p>Returns:</p>
