@@ -352,6 +352,11 @@ pub mod events {
         async fn emits_inline_anonymous_event<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
+            use ink::env::hash::{
+                Blake2x256,
+                CryptoHash,
+                HashOutput,
+            };
             // given
             let init_value = false;
             let mut constructor = EventsRef::new(init_value);
@@ -393,8 +398,16 @@ pub mod events {
             let evt: InlineAnonymousEventHashedTopic =
                 ink::scale::Decode::decode(&mut &contract_event.event.data[..])
                     .expect("encountered invalid contract event data buffer");
-            // Using 64 bytes here will trigger the `Blake2x_256` hashing for the topic.
+
+            // Using 64 bytes will trigger the `Blake2x_256` hashing for the topic
             let two_topics = [1u8; 64];
+            let mut hash_output =
+                <<Blake2x256 as HashOutput>::Type as Default>::default();
+            <Blake2x256 as CryptoHash>::hash(&two_topics, &mut hash_output);
+            // We need to check the `topics[0]` field, as it will contain the hash
+            // of `two_topics`
+            assert_eq!(contract_event.topics[0], ink::H256(hash_output));
+
             assert_eq!(evt.topic, two_topics);
             assert_eq!(evt.field_1, 42);
 
