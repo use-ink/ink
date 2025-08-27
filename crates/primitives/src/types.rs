@@ -326,6 +326,7 @@ pub trait Environment: Clone {
     ///
     /// The value must match the maximum number of supported event topics of the used
     /// runtime.
+    // TODO: (@davidsemakula) Remove, no longer configurable in `pallet-revive`.
     const MAX_EVENT_TOPICS: usize;
 
     /// The ratio between the decimal representation of the native `Balance` token
