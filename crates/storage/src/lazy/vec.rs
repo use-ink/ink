@@ -331,7 +331,7 @@ where
             return None;
         }
 
-        let slot = self.len().checked_sub(1).expect("unabled to checked_sub");
+        let slot = self.len().checked_sub(1).expect("unable to checked_sub");
         self.elements.get(slot)
     }
 
@@ -348,7 +348,7 @@ where
             return None;
         }
 
-        let slot = self.len().checked_sub(1).expect("unabled to checked_sub");
+        let slot = self.len().checked_sub(1).expect("unable to checked_sub");
         self.elements.try_get(slot)
     }
 
