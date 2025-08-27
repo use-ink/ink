@@ -122,10 +122,6 @@ pub const fn solidity_selector(fn_sig: &str) -> [u8; 4] {
 /// and the length word). This is the maximum additional space required.
 const SOLIDITY_BYTES_ENCODING_OVERHEAD: usize = 64;
 
-/// Maximum amount of bytes required to pad a value (of at least one byte)
-/// to a 32 byte word used for the Solidity ABI.
-const SOLIDITY_MAX_PADDING_OVERHEAD: usize = 31;
-
 /// Four bytes are required to encode a Solidity selector;
 const SOLIDITY_SELECTOR_ENCODING_OVERHEAD: usize = 4;
 
@@ -148,9 +144,9 @@ const SOLIDITY_SELECTOR_ENCODING_OVERHEAD: usize = 4;
 ///   * The length word → always 32 bytes.
 ///   * The input itself → exactly `input.len()` bytes.
 ///   * We pad the input to a multiple of 32 → between 0 and 31 extra bytes.
-fn encode_bytes(input: &[u8], out: &mut [u8]) -> usize {
+fn solidity_encode_bytes(input: &[u8], out: &mut [u8]) -> usize {
     let len = input.len();
-    let padded_len = ((len + 31) / 32) * 32;
+    let padded_len = solidity_padded_len(len);
 
     // out_len = 32 + padded_len
     //         = 32 + ceil(input_len / 32) * 32
@@ -179,6 +175,12 @@ fn encode_bytes(input: &[u8], out: &mut [u8]) -> usize {
     64 + padded_len
 }
 
+/// Returns the Solidity word padded length for the given input length (i.e. next multiple
+/// of 32 for the given number).
+fn solidity_padded_len(len: usize) -> usize {
+    ((len + 31) / 32) * 32
+}
+
 impl CryptoHash for Blake2x256 {
     fn hash(_input: &[u8], _output: &mut <Self as HashOutput>::Type) {
         panic!("Hashing Blake2x256 requires calling a pre-compile and a buffer");
@@ -199,7 +201,7 @@ impl CryptoHash for Blake2x256 {
         let sel = solidity_selector("hashBlake256(bytes)");
         buffer[..4].copy_from_slice(&sel[..4]);
 
-        let n = encode_bytes(input, &mut buffer[4..]);
+        let n = solidity_encode_bytes(input, &mut buffer[4..]);
 
         const ADDR: [u8; 20] =
             hex_literal::hex!("0000000000000000000000000000000000000900");
@@ -329,10 +331,9 @@ where
         let mut split = self.scoped_buffer.split();
         let encoded = split.take_encoded(topic_value);
         let solidity_encoding_buffer = split.take(
-            encoded.len()
-                + SOLIDITY_SELECTOR_ENCODING_OVERHEAD
+            SOLIDITY_SELECTOR_ENCODING_OVERHEAD
                 + SOLIDITY_BYTES_ENCODING_OVERHEAD
-                + SOLIDITY_MAX_PADDING_OVERHEAD,
+                + solidity_padded_len(encoded.len()),
         );
         let result = inner::<E>(encoded, &mut solidity_encoding_buffer[..]);
         self.scoped_buffer.append_encoded(&result);
