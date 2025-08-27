@@ -152,8 +152,8 @@ pub mod events {
                 .iter()
                 .any(|evt| evt.label() == &"InlineAnonymousEventHashedTopic"));
 
-            // The event is not used in the code by being included in the metadata,
-            // byt because we implement the trait from the `event_def_unused` crate.
+            // The event is not used directly in the code, but is included in the metadata
+            // because we implement the trait from the `event_def_unused` crate.
             assert!(event_specs
                 .iter()
                 .any(|evt| evt.label() == &"EventDefUnused"));
