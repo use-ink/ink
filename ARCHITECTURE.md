@@ -236,7 +236,7 @@ just call into the host, these functions now have the performance overhead of ca
 into another contract. Functions throughout ink! are affected by this.
 
 (2) The builtin pre-compiles don't support SCALE encoding, but instead expose only a
-Solidity interface. As ink! natively uses SCALE encoding and we are required to
+Solidity interface. As ink! natively uses SCALE encoding we are required to
 re-encode arguments into the bloated Solidity ABI encoding, as well as decode them.
 
 (3) `pallet-revive` uses two types for a contracts balance: the generic `Balance` (which
