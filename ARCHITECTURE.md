@@ -221,3 +221,24 @@ the contract macro ([documentation here](https://use-ink.github.io/ink/ink/attr.
 __Important:__ If a developer writes a contract for a chain that deviates
 from the default Polkadot SDK types, they have to make sure to use that
 chain's `Environment`.
+
+## Design decisions in `pallet-revive` that make it harder for ink!
+
+Parity made a couple changes when forking `pallet-revive` from `pallet-contracts`, which 
+make things harder/less performant for ink!. 
+
+We are tracking these changes here because they make it easier to understand the codebase.
+In the future, this list could also be used to improve the performance of ink! running
+on `pallet-revive`, if Parity is open to it.
+
+(1) Individual host functions were migrated to pre-compiles. Instead of being able to
+just call into the host, these functions now have the performance overhead of calling
+into another contract. Functions throughout ink! are affected by this.
+
+(2) The builtin pre-compiles don't support SCALE encoding, but instead expose only a
+Solidity interface. As ink! natively uses SCALE encoding we are required to
+re-encode arguments into the bloated Solidity ABI encoding, as well as decode them.
+
+(3) `pallet-revive` uses two types for a contracts balance: the generic `Balance` (which
+is set in the chain configuration) and the Ethereum-native `U256`. Currently users of
+ink! have to deal with both types as well. 
