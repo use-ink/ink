@@ -122,6 +122,7 @@ pub mod events {
         }
 
         #[test]
+        #[cfg(any(ink_abi = "sol", ink_abi = "all"))] // Appease clippy in CI.
         fn collects_solidity_info_for_all_linked_and_used_events() {
             let event_specs = ink::collect_events_sol();
 
