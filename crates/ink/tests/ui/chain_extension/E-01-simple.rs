@@ -111,6 +111,8 @@ pub enum CustomEnvironment {}
 impl Environment for CustomEnvironment {
     const MAX_EVENT_TOPICS: usize =
         <ink_env::DefaultEnvironment as Environment>::MAX_EVENT_TOPICS;
+    const NATIVE_TO_ETH_RATIO: u32 =
+        <ink_env::DefaultEnvironment as Environment>::NATIVE_TO_ETH_RATIO;
 
     type AccountId = <ink_env::DefaultEnvironment as Environment>::AccountId;
     type Balance = <ink_env::DefaultEnvironment as Environment>::Balance;

@@ -34,7 +34,10 @@ use {
     scale_info::TypeInfo,
 };
 
-use crate::arithmetic::AtLeast32BitUnsigned;
+use crate::arithmetic::{
+    AtLeast32BitUnsigned,
+    Saturating,
+};
 
 /// The default environment `AccountId` type.
 ///
@@ -325,6 +328,10 @@ pub trait Environment: Clone {
     /// runtime.
     const MAX_EVENT_TOPICS: usize;
 
+    /// The ratio between the decimal representation of the native `Balance` token
+    /// and the ETH token.
+    const NATIVE_TO_ETH_RATIO: u32;
+
     /// The account id type.
     type AccountId: 'static
         + scale::Codec
@@ -346,6 +353,7 @@ pub trait Environment: Clone {
         + PartialEq
         + Eq
         + AtLeast32BitUnsigned
+        + Into<U256>
         + FromLittleEndian;
 
     /// The type of hash.
@@ -395,6 +403,21 @@ pub trait Environment: Clone {
 
     /// TODO comment
     type EventRecord: 'static + scale::Codec;
+
+    /// Converts from the generic `Balance` type to the Ethereum native `U256`.
+    ///
+    /// # Developer Note
+    ///
+    /// `pallet-revive` uses both types, hence we have to convert in between them
+    /// for certain functions. Notice that precision loss might occur when converting
+    /// the other way (from `U256` to `Balance`).
+    ///
+    /// See <https://github.com/paritytech/polkadot-sdk/pull/9101> for more details.
+    fn native_to_eth(value: Self::Balance) -> U256 {
+        value
+            .saturating_mul(Self::NATIVE_TO_ETH_RATIO.into())
+            .into()
+    }
 }
 
 /// Placeholder for chains that have no defined chain extension.
@@ -408,6 +431,11 @@ pub enum DefaultEnvironment {}
 
 impl Environment for DefaultEnvironment {
     const MAX_EVENT_TOPICS: usize = 4;
+
+    // This number was chosen as it's also what `pallet-revive`
+    // chooses by default. It's also the number present in the
+    // `ink_sandbox` and the `ink-node`.
+    const NATIVE_TO_ETH_RATIO: u32 = 100_000_000;
 
     type AccountId = AccountId;
     type Balance = Balance;

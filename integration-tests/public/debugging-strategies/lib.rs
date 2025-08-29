@@ -109,6 +109,7 @@ mod debugging_strategies {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink::env::Environment;
         use ink_e2e::ContractsBackend;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -300,12 +301,9 @@ mod debugging_strategies {
             // ```
 
             // then
-            // todo make `NativeToEthRatio` part of  the `Environment`
-            #[allow(non_upper_case_globals)]
-            const NativeToEthRatio: u128 = 100_000_000;
             assert_eq!(
                 trace.value,
-                Some(ink::U256::from(1_337_000_000 * NativeToEthRatio))
+                Some(ink::env::DefaultEnvironment::native_to_eth(1_337_000_000))
             );
 
             Ok(())

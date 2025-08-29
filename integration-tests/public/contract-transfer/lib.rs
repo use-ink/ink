@@ -191,6 +191,7 @@ pub mod give_me {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink::env::Environment;
         use ink_e2e::{
             ChainBackend,
             ContractsBackend,
@@ -235,7 +236,6 @@ pub mod give_me {
             Ok(())
         }
 
-        //#[ink_e2e::test]
         #[ink_e2e::test(backend(runtime_only))]
         async fn e2e_contract_must_transfer_value_to_sender<Client: E2EBackend>(
             mut client: Client,
@@ -251,12 +251,9 @@ pub mod give_me {
                 .expect("instantiate failed");
             let contract_addr = contract.addr;
 
-            // todo make `NativeToEthRatio` part of  the `Environment`
-            #[allow(non_upper_case_globals)]
-            const NativeToEthRatio: u128 = 100_000_000;
             assert_eq!(
                 contract.trace.clone().unwrap().value,
-                Some(U256::from(1_337_000_000 * NativeToEthRatio))
+                Some(ink::env::DefaultEnvironment::native_to_eth(1_337_000_000))
             );
             let mut call_builder = contract.call_builder::<GiveMe>();
 

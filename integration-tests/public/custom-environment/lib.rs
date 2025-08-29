@@ -18,6 +18,9 @@ impl Environment for EnvironmentWithManyTopics {
     const MAX_EVENT_TOPICS: usize =
         <DefaultEnvironment as Environment>::MAX_EVENT_TOPICS - 1;
 
+    const NATIVE_TO_ETH_RATIO: u32 =
+        <DefaultEnvironment as Environment>::NATIVE_TO_ETH_RATIO;
+
     type AccountId = <DefaultEnvironment as Environment>::AccountId;
     type Balance = <DefaultEnvironment as Environment>::Balance;
     type Hash = <DefaultEnvironment as Environment>::Hash;

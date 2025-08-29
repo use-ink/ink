@@ -1,5 +1,4 @@
 use crate::{
-    balance_to_evm_value,
     AccountIdFor,
     ContractExecResultFor,
     ContractResultInstantiate,
@@ -29,7 +28,10 @@ use pallet_revive::{
     Code,
     CodeUploadResult,
 };
-use sp_core::U256;
+use sp_core::{
+    Get,
+    U256,
+};
 use std::ops::Not;
 
 type BalanceOf<R> =
@@ -179,7 +181,7 @@ where
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_instantiate(
                 origin,
-                balance_to_evm_value::<BalanceOf<Self::T>>(value),
+                balance_to_evm_value::<Self::T>(value),
                 gas_limit,
                 storage_deposit_limit,
                 Code::Upload(contract_bytes),
@@ -204,7 +206,7 @@ where
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_instantiate(
                 origin,
-                balance_to_evm_value::<BalanceOf<Self::T>>(value),
+                balance_to_evm_value::<Self::T>(value),
                 gas_limit,
                 storage_deposit_limit,
                 Code::Existing(code_hash),
@@ -244,7 +246,7 @@ where
             pallet_revive::Pallet::<Self::T>::bare_call(
                 origin,
                 address,
-                balance_to_evm_value::<BalanceOf<Self::T>>(value),
+                balance_to_evm_value::<Self::T>(value),
                 gas_limit,
                 storage_deposit_limit,
                 data,
@@ -277,6 +279,27 @@ pub fn decode_debug_buffer(buffer: &[u8]) -> Vec<String> {
         .split('\n')
         .filter_map(|s| s.is_empty().not().then_some(s.to_string()))
         .collect()
+}
+
+/// Converts from the generic `Balance` type to the Ethereum native `U256`.
+///
+/// # Developer Note
+///
+/// `pallet-revive` uses both types, hence we have to convert in between them
+/// for certain functions. Notice that precision loss might occur when converting
+/// the other way (from `U256` to `Balance`).
+///
+/// See <https://github.com/paritytech/polkadot-sdk/pull/9101> for more details.
+pub fn balance_to_evm_value<R>(value: BalanceOf<R>) -> U256
+where
+    R: pallet_revive::Config,
+    BalanceOf<R>: Into<U256>,
+    U256: From<u32>,
+{
+    let native_to_eth_ratio: U256 =
+        <R as pallet_revive::Config>::NativeToEthRatio::get().into();
+    let evm_value: U256 = value.into();
+    native_to_eth_ratio.saturating_mul(evm_value.into())
 }
 
 #[cfg(test)]

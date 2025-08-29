@@ -49,6 +49,7 @@ pub mod flipper {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink::env::Environment;
         use ink_e2e::{
             subxt::dynamic::Value,
             ChainBackend,
@@ -160,10 +161,8 @@ pub mod flipper {
                 .expect("get_contract_balance failed")
                 .return_value();
 
-            // todo make `NativeToEthRatio` part of  the `Environment`
-            #[allow(non_upper_case_globals)]
-            const NativeToEthRatio: u128 = 100_000_000;
-            assert_eq!(old_balance + (ENDOWMENT * NativeToEthRatio), new_balance);
+            let endowment_u256 = ink::env::DefaultEnvironment::native_to_eth(ENDOWMENT);
+            assert_eq!(old_balance + endowment_u256, new_balance);
             Ok(())
         }
 
