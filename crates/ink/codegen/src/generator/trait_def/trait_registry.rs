@@ -239,7 +239,7 @@ impl TraitRegistry<'_> {
 
     /// Returns a pair of input bindings `__ink_bindings_N` and types.
     fn input_bindings_and_types(
-        inputs: ir::InputsIter,
+        inputs: ir::InputsIter<'_>,
     ) -> (Vec<syn::Ident>, Vec<&syn::Type>) {
         inputs
             .enumerate()

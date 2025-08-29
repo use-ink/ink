@@ -128,7 +128,7 @@ impl<'a> ScopedBuffer<'a> {
     /// Splits the scoped buffer into yet another piece to operate on it temporarily.
     ///
     /// The split buffer will have an offset of 0 but be offset by `self`'s offset.
-    pub fn split(&mut self) -> ScopedBuffer {
+    pub fn split(&mut self) -> ScopedBuffer<'_> {
         ScopedBuffer {
             offset: 0,
             buffer: &mut self.buffer[self.offset..],
