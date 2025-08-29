@@ -167,6 +167,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///
 ///   impl ink_env::Environment for MyEnvironment {
 ///       const MAX_EVENT_TOPICS: usize = 3;
+///       const NATIVE_TO_ETH_RATIO: u32 = 100_000_000;
 ///       type AccountId = [u8; 16];
 ///       type Balance = u128;
 ///       type Hash = [u8; 32];
@@ -186,6 +187,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///       #
 ///       # impl ink_env::Environment for MyEnvironment {
 ///       #     const MAX_EVENT_TOPICS: usize = 3;
+///       #     const NATIVE_TO_ETH_RATIO: u32 = 100_000_000;
 ///       #     type AccountId = [u8; 16];
 ///       #     type Balance = u128;
 ///       #     type Hash = [u8; 32];
