@@ -99,9 +99,8 @@ pub mod e2e_call_runtime {
 
             assert_eq!(
                 get_balance_res.return_value(),
-                ink::env::DefaultEnvironment::native_to_eth(
-                    pre_balance + transfer_amount
-                )
+                pre_balance
+                    + ink::env::DefaultEnvironment::native_to_eth(transfer_amount)
             );
 
             Ok(())
