@@ -320,7 +320,50 @@ cfg_if::cfg_if! {
     }
 }
 
+/// Map between the native chain account id `T` and an Ethereum [`H160`].
+///
+/// This trait exists only to emulate specialization for different concrete
+/// native account ids. **Not** to make the mapping user configurable. Hence
+/// the trait is `Sealed` and depending on your runtime configuration you need
+/// to pick either [`AccountId32Mapper`] or [`H160Mapper`]. Picking the wrong
+/// one will result in a compilation error. No footguns here.
+///
+/// Please note that we assume that the native account is at least 20 bytes and
+/// only implement this type for a `T` where this is the case. Luckily, this is the
+/// case for all existing runtimes as of right now. Reasoning is that this will allow
+/// us to reverse an address -> account_id mapping by just stripping the prefix.
+///
+/// We require the mapping to be reversible. Since we are potentially dealing with types
+/// of different sizes one direction of the mapping is necessarily lossy. This requires
+/// the mapping to make use of the [`OriginalAccount`] storage item to reverse the
+/// mapping.
+pub trait AddressMapper<T: Environment> {
+    /// Convert an account id to an ethereum address.
+    fn to_address(account_id: &T::AccountId) -> H160;
+
+    /// Convert an ethereum address to a native account id.
+    fn to_account_id(address: &H160) -> T::AccountId;
+
+    /// Same as [`Self::to_account_id`] but always returns the fallback account.
+    ///
+    /// This skips the query into [`OriginalAccount`] and always returns the stateless
+    /// fallback account. This is useful when we know for a fact that the `address`
+    /// in question is originally a `H160`. This is usually only the case when we
+    /// generated a new contract address.
+    fn to_fallback_account_id(address: &H160) -> T::AccountId;
+
+    /// Returns true if the `account_id` is usable as an origin.
+    ///
+    /// This means either the `account_id` doesn't require a stateful mapping
+    /// or a stateful mapping exists.
+    fn is_mapped(account_id: &T::AccountId) -> bool;
+}
+
 /// The environmental types usable by contracts defined with ink!.
+///
+/// The types and consts in this trait must be the same as the chain to which
+/// the contract is deployed to. We have a mechanism in `cargo-contract` that
+/// attempts to check for type equality, but not everything can be compared.
 pub trait Environment: Clone {
     /// The ratio between the decimal representation of the native `Balance` token
     /// and the ETH token.

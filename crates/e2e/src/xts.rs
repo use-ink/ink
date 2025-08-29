@@ -28,6 +28,7 @@ use funty::Fundamental;
 use ink_primitives::{
     Address,
     DepositLimit,
+    H160,
 };
 use pallet_revive::{
     CodeUploadResult,
@@ -212,6 +213,13 @@ struct RpcCallRequest<C: subxt::Config, E: Environment> {
     input_data: Vec<u8>,
 }
 
+/// A struct that encodes RPC parameters required for calling the
+/// `pallet-revive` Runtime Api function `address()`.
+#[derive(scale::Encode)]
+struct RpcAddressRequest<C: subxt::Config> {
+    account_id: C::AccountId,
+}
+
 /// Reference to an existing code hash or a new contract binary.
 #[derive(serde::Serialize, scale::Encode)]
 #[serde(rename_all = "camelCase")]
@@ -239,7 +247,7 @@ where
     <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
     E: Environment,
-    E::Balance: scale::HasCompact + serde::Serialize,
+    E::Balance: scale::HasCompact + serde::Serialize + std::fmt::Debug,
 {
     /// Creates a new [`ReviveApi`] instance.
     pub async fn new(rpc: RpcClient) -> Result<Self, subxt::Error> {
@@ -256,7 +264,7 @@ where
     ///
     /// Returns `Ok` on success, and a [`subxt::Error`] if the extrinsic is
     /// invalid (e.g. out of date nonce)
-    pub async fn try_transfer_balance(
+    pub async fn transfer_allow_death(
         &self,
         origin: &Keypair,
         dest: C::AccountId,
@@ -543,7 +551,7 @@ where
             InstantiateWithCode::<E> {
                 value,
                 gas_limit,
-                storage_deposit_limit, // todo
+                storage_deposit_limit,
                 code,
                 data,
                 salt,
@@ -625,13 +633,13 @@ where
     /// Dry runs a call of the contract at `contract` with the given parameters.
     pub async fn call_dry_run(
         &self,
-        origin: C::AccountId,
         dest: Address,
         input_data: Vec<u8>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
         signer: &Keypair,
     ) -> (ContractExecResultFor<E>, Option<CallTrace>) {
+        let origin = Signer::<C>::account_id(signer);
         let call_request = RpcCallRequest::<C, E> {
             origin,
             dest,
@@ -650,7 +658,7 @@ where
             .state_call(func, Some(&params), None)
             .await
             .unwrap_or_else(|err| {
-                panic!("error on ws request `contracts_call`: {err:?}");
+                panic!("error on ws request `ReviveApi_call`: {err:?}");
             });
         let res: ContractExecResultFor<E> = scale::Decode::decode(&mut bytes.as_ref())
             .unwrap_or_else(|err| panic!("decoding ContractExecResult failed: {err}"));
@@ -729,7 +737,6 @@ where
             },
         )
         .unvalidated();
-
         self.submit_extrinsic(&call, signer).await
     }
 
@@ -759,7 +766,24 @@ where
         call_data: Vec<subxt::dynamic::Value>,
     ) -> ExtrinsicEvents<C> {
         let call = subxt::dynamic::tx(pallet_name, call_name, call_data);
-
         self.submit_extrinsic(&call, signer).await.0
+    }
+
+    /// Returns the `H160` for an account id.
+    ///
+    /// Queries the RPC server for the `pallet-revive` runtime api function `address`.
+    pub async fn address(&self, account_id: C::AccountId) -> H160 {
+        let call_request = RpcAddressRequest::<C> { account_id };
+        let func = "ReviveApi_address";
+        let params = scale::Encode::encode(&call_request);
+        let bytes = self
+            .rpc
+            .state_call(func, Some(&params), None)
+            .await
+            .unwrap_or_else(|err| {
+                panic!("error on ws request `ReviveApi_address`: {err:?}");
+            });
+        scale::Decode::decode(&mut bytes.as_ref())
+            .unwrap_or_else(|err| panic!("decoding `H160` failed: {err}"))
     }
 }

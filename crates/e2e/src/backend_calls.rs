@@ -326,7 +326,7 @@ where
 
         let instantiate_result = B::bare_instantiate(
             self.client,
-            self.contract_name,
+            B::load_code(self.client, self.contract_name),
             self.caller,
             self.constructor,
             self.value,
@@ -339,6 +339,7 @@ where
 
         Ok(InstantiationResult {
             addr: instantiate_result.addr,
+            account_id: instantiate_result.account_id,
             dry_run,
             events: instantiate_result.events,
             trace: instantiate_result.trace,
