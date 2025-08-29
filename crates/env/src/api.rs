@@ -183,7 +183,7 @@ where
 }
 
 /// Emits an event with the given event data.
-pub fn emit_event<E, Evt, Abi>(event: Evt)
+pub fn emit_event<E, Evt, Abi>(event: &Evt)
 where
     E: Environment,
     Evt: Event<Abi>,
