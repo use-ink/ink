@@ -26,6 +26,7 @@ use pallet_revive::{
     ExecReturnValue,
     InstantiateReturnValue,
 };
+use sp_core::Get;
 /// Export pallets that are used in [`crate::create_sandbox`]
 pub use {
     frame_support::sp_runtime::testing::H256,
@@ -158,11 +159,14 @@ pub trait Sandbox {
 /// the other way (from `U256` to `Balance`).
 ///
 /// See <https://github.com/paritytech/polkadot-sdk/pull/9101> for more details.
-pub fn balance_to_evm_value<Balance>(value: Balance) -> U256
+pub fn balance_to_evm_value<R>(value: BalanceOf<R>) -> U256
 where
-    Balance: Into<U256>,
+    R: pallet_revive::Config,
+    BalanceOf<R>: Into<U256>,
+    U256: From<u32>,
 {
-    let native_to_eth_ratio: U256 = 100_000_000.into();
+    let native_to_eth_ratio: U256 =
+        <R as pallet_revive::Config>::NativeToEthRatio::get().into();
     let evm_value: U256 = value.into();
-    native_to_eth_ratio.saturating_mul(evm_value)
+    native_to_eth_ratio.saturating_mul(evm_value.into())
 }

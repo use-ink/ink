@@ -179,7 +179,7 @@ where
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_instantiate(
                 origin,
-                balance_to_evm_value::<BalanceOf<Self::T>>(value),
+                balance_to_evm_value::<Self::T>(value),
                 gas_limit,
                 storage_deposit_limit,
                 Code::Upload(contract_bytes),
@@ -204,7 +204,7 @@ where
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_instantiate(
                 origin,
-                balance_to_evm_value::<BalanceOf<Self::T>>(value),
+                balance_to_evm_value::<Self::T>(value),
                 gas_limit,
                 storage_deposit_limit,
                 Code::Existing(code_hash),
@@ -244,7 +244,7 @@ where
             pallet_revive::Pallet::<Self::T>::bare_call(
                 origin,
                 address,
-                balance_to_evm_value::<BalanceOf<Self::T>>(value),
+                balance_to_evm_value::<Self::T>(value),
                 gas_limit,
                 storage_deposit_limit,
                 data,

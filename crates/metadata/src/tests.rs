@@ -593,6 +593,7 @@ fn spec_contract_json() {
                     "type": 10,
                 },
                 "maxEventTopics": 4,
+                "nativeToEthRatio": 100000000,
                 "timestamp":  {
                     "displayName":  [
                         "Timestamp",

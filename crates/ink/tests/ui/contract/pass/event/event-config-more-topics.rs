@@ -10,6 +10,7 @@ pub struct EnvironmentMoreTopics;
 
 impl ink_env::Environment for EnvironmentMoreTopics {
     const MAX_EVENT_TOPICS: usize = 10; // Default is 4.
+    const NATIVE_TO_ETH_RATIO: u32 = 100_000_000;
 
     type AccountId = <DefaultEnvironment as Environment>::AccountId;
     type Balance = <DefaultEnvironment as Environment>::Balance;

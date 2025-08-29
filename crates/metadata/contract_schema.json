@@ -241,6 +241,7 @@
         "chainExtension",
         "hash",
         "maxEventTopics",
+        "nativeToEthRatio",
         "timestamp"
       ],
       "properties": {
@@ -263,6 +264,11 @@
           "type": "integer",
           "format": "uint",
           "minimum": 0.0
+        },
+        "nativeToEthRatio": {
+           "type": "integer",
+           "format": "uint",
+           "minimum": 0.0
         },
         "timestamp": {
           "$ref": "#/definitions/TypeSpec_for_PortableForm"

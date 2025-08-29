@@ -167,6 +167,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///
 ///   impl ink_env::Environment for MyEnvironment {
 ///       const MAX_EVENT_TOPICS: usize = 3;
+///       const NATIVE_TO_ETH_RATIO: u32 = 100_000_000;
 ///       type AccountId = [u8; 16];
 ///       type Balance = u128;
 ///       type Hash = [u8; 32];
@@ -186,6 +187,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///       #
 ///       # impl ink_env::Environment for MyEnvironment {
 ///       #     const MAX_EVENT_TOPICS: usize = 3;
+///       #     const NATIVE_TO_ETH_RATIO: u32 = 100_000_000;
 ///       #     type AccountId = [u8; 16];
 ///       #     type Balance = u128;
 ///       #     type Hash = [u8; 32];
@@ -1180,6 +1182,8 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// impl Environment for CustomEnvironment {
 ///     const MAX_EVENT_TOPICS: usize =
 ///         <DefaultEnvironment as Environment>::MAX_EVENT_TOPICS;
+///     const NATIVE_TO_ETH_RATIO: u32 =
+///         <DefaultEnvironment as Environment>::NATIVE_TO_ETH_RATIO;
 ///
 ///     type AccountId = <DefaultEnvironment as Environment>::AccountId;
 ///     type Balance = <DefaultEnvironment as Environment>::Balance;
@@ -1322,6 +1326,8 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// # impl ink_env::Environment for CustomEnvironment {
 /// #     const MAX_EVENT_TOPICS: usize =
 /// #         <ink_env::DefaultEnvironment as ink_env::Environment>::MAX_EVENT_TOPICS;
+/// #     const NATIVE_TO_ETH_RATIO: u32 =
+/// #         <ink_env::DefaultEnvironment as ink_env::Environment>::NATIVE_TO_ETH_RATIO;
 /// #
 /// #     type AccountId = <ink_env::DefaultEnvironment as ink_env::Environment>::AccountId;
 /// #     type Balance = <ink_env::DefaultEnvironment as ink_env::Environment>::Balance;

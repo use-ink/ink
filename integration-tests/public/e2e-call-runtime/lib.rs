@@ -28,6 +28,7 @@ pub mod e2e_call_runtime {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink::env::Environment;
         use ink_e2e::{
             subxt::dynamic::Value,
             ChainBackend,
@@ -96,11 +97,10 @@ pub mod e2e_call_runtime {
                 .dry_run()
                 .await?;
 
-            // todo `NativeToEthRatio` should be part of `Environment`
-            let native_to_eth_ratio = ink::U256::from(100_000_000);
             assert_eq!(
-                get_balance_res.return_value() / native_to_eth_ratio,
-                pre_balance + transfer_amount
+                get_balance_res.return_value(),
+                pre_balance
+                    + ink::env::DefaultEnvironment::native_to_eth(transfer_amount)
             );
 
             Ok(())

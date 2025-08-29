@@ -61,7 +61,7 @@ where
         let result = pallet_revive::Pallet::<R>::bare_call(
             self.origin.clone(),
             self.contract,
-            ink_sandbox::balance_to_evm_value::<BalanceOf<R>>(self.value),
+            ink_sandbox::balance_to_evm_value::<R>(self.value),
             self.gas_limit,
             // self.storage_deposit_limit,
             DepositLimit::UnsafeOnlyForDryRun, // todo

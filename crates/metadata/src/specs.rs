@@ -1552,6 +1552,7 @@ where
     block_number: TypeSpec<F>,
     chain_extension: TypeSpec<F>,
     max_event_topics: usize,
+    native_to_eth_ratio: u32,
     static_buffer_size: usize,
 }
 
@@ -1569,6 +1570,7 @@ where
             block_number: Default::default(),
             chain_extension: Default::default(),
             max_event_topics: Default::default(),
+            native_to_eth_ratio: Default::default(),
             static_buffer_size: Default::default(),
         }
     }
@@ -1586,6 +1588,7 @@ impl IntoPortable for EnvironmentSpec {
             block_number: self.block_number.into_portable(registry),
             chain_extension: self.chain_extension.into_portable(registry),
             max_event_topics: self.max_event_topics,
+            native_to_eth_ratio: self.native_to_eth_ratio,
             static_buffer_size: self.static_buffer_size,
         }
     }
@@ -1623,6 +1626,10 @@ where
     /// Returns the `MAX_EVENT_TOPICS` value of the environment.
     pub fn max_event_topics(&self) -> usize {
         self.max_event_topics
+    }
+    /// Returns the `NATIVE_TO_ETH_RATIO` value of the environment.
+    pub fn native_to_eth_ratio(&self) -> u32 {
+        self.native_to_eth_ratio
     }
 }
 
