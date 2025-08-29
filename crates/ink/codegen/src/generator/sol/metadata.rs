@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#![cfg_attr(feature = "std", allow(dead_code))]
+#![cfg_attr(feature = "std", allow(unused))]
+
 use derive_more::From;
 use ir::{
     Callable as _,
