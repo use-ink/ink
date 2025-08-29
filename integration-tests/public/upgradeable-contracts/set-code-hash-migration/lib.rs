@@ -14,7 +14,7 @@ pub mod incrementer {
     ///
     /// # Note
     ///
-    /// Is is important to realize that after the call to `set_code_hash` the contract's
+    /// It is important to realize that after the call to `set_code_hash` the contract's
     /// storage remains the same.
     ///
     /// If you change the storage layout in your storage struct you may introduce
