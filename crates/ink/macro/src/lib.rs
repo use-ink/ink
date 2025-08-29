@@ -1326,6 +1326,8 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// # impl ink_env::Environment for CustomEnvironment {
 /// #     const MAX_EVENT_TOPICS: usize =
 /// #         <ink_env::DefaultEnvironment as ink_env::Environment>::MAX_EVENT_TOPICS;
+/// #     const NATIVE_TO_ETH_RATIO: u32 =
+/// #         <ink_env::DefaultEnvironment as ink_env::Environment>::NATIVE_TO_ETH_RATIO;
 /// #
 /// #     type AccountId = <ink_env::DefaultEnvironment as ink_env::Environment>::AccountId;
 /// #     type Balance = <ink_env::DefaultEnvironment as ink_env::Environment>::Balance;
