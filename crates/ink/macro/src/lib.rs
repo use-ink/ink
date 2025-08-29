@@ -1180,6 +1180,8 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// impl Environment for CustomEnvironment {
 ///     const MAX_EVENT_TOPICS: usize =
 ///         <DefaultEnvironment as Environment>::MAX_EVENT_TOPICS;
+///     const NATIVE_TO_ETH_RATIO: u32 =
+///         <DefaultEnvironment as Environment>::NATIVE_TO_ETH_RATIO;
 ///
 ///     type AccountId = <DefaultEnvironment as Environment>::AccountId;
 ///     type Balance = <DefaultEnvironment as Environment>::Balance;
