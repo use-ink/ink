@@ -52,12 +52,14 @@ impl Node {
     ///
     /// Returns `None` if [`Self::Auto`] and `CONTRACTS_NODE_URL` not specified.
     pub fn url(&self) -> Option<String> {
-        std::env::var("CONTRACTS_NODE_URL").ok().or_else(|| {
+        let url = std::env::var("CONTRACTS_NODE_URL").ok().or_else(|| {
             match self {
                 Node::Auto => None,
                 Node::Url(url) => Some(url.clone()),
             }
-        })
+        });
+        tracing::debug!("[E2E] Using node url {:?}", url);
+        url
     }
 }
 
