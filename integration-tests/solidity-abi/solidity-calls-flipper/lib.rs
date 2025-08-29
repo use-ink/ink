@@ -19,7 +19,8 @@ pub mod flipper {
         /// Creates a new flipper smart contract initialized with the given value.
         #[ink(constructor)]
         pub fn new(init_value: bool) -> Self {
-            Self { value: init_value }
+            assert!(init_value == false);
+            Self { value: false }
         }
 
         // solidity compatible selector (`keccack256("flip()")`)
