@@ -1,13 +1,19 @@
 use crate::{
     AccountIdFor,
+    OriginFor,
     Sandbox,
 };
 use frame_support::{
     sp_runtime::DispatchError,
     traits::fungible::Mutate,
 };
+use pallet_revive::sp_runtime::MultiAddress;
+use pallet_revive::sp_runtime::traits::StaticLookup;
+use sp_runtime::traits::Lookup;
 
 type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
+type AccountIdLookupOf<T> = <<T as frame_system::Config>::Lookup as StaticLookup>::Source;
+type LookupFor<R> = <R as frame_system::Config>::Lookup;
 
 /// Balance API for the sandbox.
 pub trait BalanceAPI<T: Sandbox>
@@ -36,12 +42,24 @@ where
         &mut self,
         account_id: &AccountIdFor<T::Runtime>,
     ) -> BalanceOf<T::Runtime>;
+
+    fn transfer_allow_death(
+        &mut self,
+        //account_id: &AccountIdFor<T::Runtime>,
+        //origin: &Keypair,
+        origin: &OriginFor<T::Runtime>,
+        //dest: Self::AccountId,
+        //value: Self::Balance,
+        dest: &AccountIdFor<T::Runtime>,
+        value: BalanceOf<T::Runtime>,
+    ) -> Result<(), DispatchError>;
 }
 
 impl<T> BalanceAPI<T> for T
 where
     T: Sandbox,
     T::Runtime: pallet_balances::Config,
+    //T::Runtime: pallet_balances::Config,
 {
     fn mint_into(
         &mut self,
@@ -59,6 +77,31 @@ where
     ) -> BalanceOf<T::Runtime> {
         self.execute_with(|| {
             pallet_balances::Pallet::<T::Runtime>::free_balance(account_id)
+        })
+    }
+
+    fn transfer_allow_death(
+        &mut self,
+        origin: &OriginFor<T::Runtime>,
+        dest: &AccountIdFor<T::Runtime>,
+        value: BalanceOf<T::Runtime>,
+    ) -> Result<(), DispatchError> {
+        //T::Lookup::unlookup(input.spender.clone()),
+        //let dest = <<T as Sandbox>::Runtime>::Lookup::lookup(dest).expect("lookup failed");
+        //let dest = LookupFor::<T::Runtime>::lookup(*dest).expect("lookup failed");
+        //let dest = MultiAddress::Id(dest.clone());
+
+        // Convert AccountId into the proper Lookup::Source
+        let dest = <<T::Runtime as frame_system::Config>::Lookup as StaticLookup>::unlookup(dest.clone());
+
+        self.execute_with(|| {
+            pallet_balances::Pallet::<T::Runtime>::transfer_allow_death(
+            //pallet_balances::Pallet::<T::Runtime>::try_mutate_account(
+                origin.clone(),
+                dest,
+                value
+                //account_id
+            )
         })
     }
 }

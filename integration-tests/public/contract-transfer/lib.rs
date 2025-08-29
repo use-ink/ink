@@ -61,13 +61,6 @@ pub mod give_me {
                 "payment was not ten"
             );
         }
-
-        /// todo
-        /// Returns the `AccountId` of this contract.
-        #[ink(message)]
-        pub fn account_id(&mut self) -> AccountId {
-            self.env().account_id()
-        }
     }
 
     #[cfg(test)]
@@ -175,16 +168,13 @@ pub mod give_me {
             ink::env::test::default_accounts()
         }
 
-        // todo change all to addr
-        fn set_balance(account_id: Address, balance: U256) {
-            ink::env::test::set_account_balance(account_id, balance)
+        fn set_balance(addr: Address, balance: U256) {
+            ink::env::test::set_contract_balance(addr, balance)
         }
 
-        fn get_balance(account_id: Address) -> U256 {
-            ink::env::test::get_account_balance::<ink::env::DefaultEnvironment>(
-                account_id,
-            )
-            .expect("Cannot get contract balance")
+        fn get_balance(addr: Address) -> U256 {
+            ink::env::test::get_contract_balance::<ink::env::DefaultEnvironment>(addr)
+                .expect("Cannot get contract balance")
         }
     }
 
@@ -236,7 +226,8 @@ pub mod give_me {
             Ok(())
         }
 
-        #[ink_e2e::test(backend(runtime_only))]
+        #[ink_e2e::test]
+        //#[ink_e2e::test(backend(runtime_only))]
         async fn e2e_contract_must_transfer_value_to_sender<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
@@ -257,17 +248,8 @@ pub mod give_me {
             );
             let mut call_builder = contract.call_builder::<GiveMe>();
 
-            // todo extract account id from something else
-            let acc = call_builder.account_id();
-            let call_res = client
-                .call(&ink_e2e::eve(), &acc)
-                .submit()
-                .await
-                .expect("call failed");
-            let account_id: AccountId = call_res.return_value();
-
             let balance_before: Balance = client
-                .free_balance(account_id) // todo can't we take a ref here?
+                .free_balance(contract.account_id)
                 .await
                 .expect("getting balance failed");
 
@@ -284,12 +266,13 @@ pub mod give_me {
             let outgoing_trace = &call_res.trace.unwrap().calls[0];
             assert_eq!(outgoing_trace.value, Some(U256::from(120_000_000_0)));
             assert_eq!(outgoing_trace.from, contract_addr);
-            // todo
-            // let eve = AccountId32Mapper::to_address(&ink_e2e::eve().account_id().
-            // encode()[..20]); assert_eq!(trace.to, eve);
+            assert_eq!(outgoing_trace.to, ink_e2e::address_from_keypair::<AccountId>(&ink_e2e::eve()));
+            //let account_id: AccountId = ink_e2e::keypair_to_account(&ink_e2e::eve());
+            //assert_eq!(outgoing_trace.to, client.api.address(account_id).await);
+            //assert_eq!(outgoing_trace.to, ink_e2e::address_from_account_id::<AccountId>(account_id));
 
             let balance_after: Balance = client
-                .free_balance(account_id)
+                .free_balance(contract.account_id)
                 .await
                 .expect("getting balance failed");
             assert_eq!(balance_before - balance_after, 12);

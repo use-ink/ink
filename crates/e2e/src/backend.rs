@@ -12,25 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use std::path::PathBuf;
 use ink_env::{
     call::utils::DecodeMessageResult,
     DefaultEnvironment,
     Environment,
 };
-use ink_primitives::{
-    abi::AbiEncodeWith,
-    DepositLimit,
-};
+use ink_primitives::{abi::AbiEncodeWith, Address, DepositLimit, H160};
 use jsonrpsee::core::async_trait;
 use pallet_revive::evm::CallTrace;
 use sp_weights::Weight;
 use subxt::dynamic::Value;
-
-use super::{
-    InstantiateDryRunResult,
-    Keypair,
-    H256,
-};
+use ink_sandbox::{pallet_balances, AccountIdFor, Sandbox};
+use super::{ContractsRegistry, Error, InstantiateDryRunResult, Keypair, H256};
 use crate::{
     backend_calls::{
         InstantiateBuilder,
@@ -44,13 +38,54 @@ use crate::{
     CallDryRunResult,
     UploadResult,
 };
+use crate::sandbox_client::Client;
+use crate::xts::{ReviveApi, Transfer};
 
 /// Full E2E testing backend: combines general chain API and contract-specific operations.
 #[async_trait]
-pub trait E2EBackend<E: Environment = DefaultEnvironment>:
+pub trait E2EBackend<E: Environment, Client>:
     ChainBackend + BuilderClient<E>
 {
+    /*
+    type Error;
+
+    fn new<P: Into<PathBuf>>(
+        contracts: impl IntoIterator<Item=P>
+        //client: subxt::backend::rpc::RpcClient,
+        client: Option<Client>,
+        url: Option<String>,
+    ) -> Result<Self, Self::Error>
+     */
 }
+
+
+/*
+pub trait ClientFoo<AccountId, SorE>
+/*
+where
+    S: Default,
+    S::Runtime: pallet_balances::Config + pallet_revive::Config,
+    AccountIdFor<S::Runtime>: From<[u8; 32]>,
+    crate::sandbox_client::BalanceOf<S::Runtime>: From<u128>,
+ */
+{
+ {
+    /*
+    /// Creates a new [`crate::Client`] instance using a `subxt` client.
+    pub async fn new<P: Into<PathBuf>>(
+        client: subxt::backend::rpc::RpcClient,
+        contracts: impl IntoIterator<Item = P>,
+        url: String,
+    ) -> Result<Self, subxt::Error> {
+        Ok(Self {
+            api: ReviveApi::new(client).await?,
+            contracts: ContractsRegistry::new(contracts),
+            url,
+        })
+    }
+     */
+}
+ */
 
 /// General chain operations useful in contract testing.
 #[async_trait]
@@ -58,7 +93,7 @@ pub trait ChainBackend {
     /// Account type.
     type AccountId;
     /// Balance type.
-    type Balance: Send + From<u32>;
+    type Balance: Send + From<u32> + std::fmt::Debug;
     /// Error type.
     type Error;
     /// Event log type.
@@ -99,11 +134,24 @@ pub trait ChainBackend {
         call_name: &'a str,
         call_data: Vec<Value>,
     ) -> Result<Self::EventLog, Self::Error>;
+
+    /// Attempt to transfer the `value` from `origin` to `dest`.
+    ///
+    /// Returns `Ok` on success, and a [`subxt::Error`] if the extrinsic is
+    /// invalid (e.g. out of date nonce)
+    async fn try_transfer_balance(
+        &mut self,
+        origin: &Keypair,
+        dest: Self::AccountId,
+        value: Self::Balance,
+    ) -> Result<(), Self::Error>;
 }
 
 /// Contract-specific operations.
 #[async_trait]
-pub trait ContractsBackend<E: Environment> {
+pub trait ContractsBackend<E: Environment>
+//where E::Balance: std::fmt::Debug
+{
     /// Error type.
     type Error;
     /// Event log type.
@@ -274,73 +322,147 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone;
 
-    /// Uploads the contract call.
+    /// Executes a dry-run `call`.
     ///
-    /// This function extracts the binary of the contract for the specified contract.
-    ///
-    /// Calling this function multiple times should be idempotent, the contract is
-    /// newly instantiated each time using a unique salt. No existing contract
-    /// instance is reused!
-    async fn bare_upload(
-        &mut self,
-        contract_name: &str,
-        caller: &Keypair,
-        storage_deposit_limit: E::Balance,
-    ) -> Result<UploadResult<E, Self::EventLog>, Self::Error>;
-
-    /// Removes the code of the contract at `code_hash`.
-    async fn bare_remove_code(
-        &mut self,
-        caller: &Keypair,
-        code_hash: crate::H256,
-    ) -> Result<Self::EventLog, Self::Error>;
-
-    /// Bare instantiate call. This function does not perform a dry-run,
-    /// and user is expected to provide the gas limit.
-    ///
-    /// Use it when you want to have a more precise control over submitting extrinsic.
-    ///
-    /// The function subsequently uploads and instantiates an instance of the contract.
-    ///
-    /// This function extracts the metadata of the contract at the file path
-    /// `target/ink/$contract_name.contract`.
-    ///
-    /// Calling this function multiple times should be idempotent, the contract is
-    /// newly instantiated each time using a unique salt. No existing contract
-    /// instance is reused!
-    async fn bare_instantiate<
-        Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
-        R,
-        Abi: Send + Sync + Clone,
+    /// Returns the result of the dry run, together with the decoded return value of the
+    /// invoked message.
+    async fn raw_call_dry_run<
+        //Args: Sync + AbiEncodeWith<Abi> + Clone,
+        RetType: Send + DecodeMessageResult<Abi>,
+        Abi: Sync + Clone,
     >(
         &mut self,
-        contract_name: &str,
-        caller: &Keypair,
-        constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
+        //origin: E::AccountId,
+        dest: H160,
+        input_data: Vec<u8>,
+        value: E::Balance,
+        storage_deposit_limit: DepositLimit<E::Balance>,
+        signer: &Keypair,
+    ) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error>;
+
+    /// Executes a dry-run `call`.
+    ///
+    /// Returns the result of the dry run, together with the decoded return value of the
+    /// invoked message.
+    async fn raw_call
+        //Args: Sync + AbiEncodeWith<Abi> + Clone,
+        //RetType: Send + DecodeMessageResult<Abi>,
+        //Abi: Sync + Clone,
+    (
+        &mut self,
+        //origin: E::AccountId,
+        dest: H160,
+        input_data: Vec<u8>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<BareInstantiationResult<Self::EventLog>, Self::Error>;
+        signer: &Keypair,
+    //) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error>;
+    ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error>;
+
+
+/*
+/// Dry runs a call of the contract at `contract` with the given parameters.
+pub async fn call_dry_run(
+&self,
+) -> (ContractExecResultFor<E>, Option<CallTrace>) {
+*/
+
+
+
+/// Uploads the contract call.
+///
+/// This function extracts the binary of the contract for the specified contract.
+///
+/// Calling this function multiple times should be idempotent, the contract is
+/// newly instantiated each time using a unique salt. No existing contract
+/// instance is reused!
+async fn bare_upload(
+    &mut self,
+    contract_name: &str,
+    caller: &Keypair,
+    storage_deposit_limit: E::Balance,
+) -> Result<UploadResult<E, Self::EventLog>, Self::Error>;
+
+/// Removes the code of the contract at `code_hash`.
+async fn bare_remove_code(
+    &mut self,
+    caller: &Keypair,
+    code_hash: crate::H256,
+) -> Result<Self::EventLog, Self::Error>;
+
+/// Bare instantiate call. This function does not perform a dry-run,
+/// and user is expected to provide the gas limit.
+///
+/// Use it when you want to have a more precise control over submitting extrinsic.
+///
+/// The function subsequently uploads and instantiates an instance of the contract.
+///
+/// This function extracts the metadata of the contract at the file path
+/// `target/ink/$contract_name.contract`.
+///
+/// Calling this function multiple times should be idempotent, the contract is
+/// newly instantiated each time using a unique salt. No existing contract
+/// instance is reused!
+async fn bare_instantiate<
+    Contract: Clone,
+    Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
+    R,
+    Abi: Send + Sync + Clone,
+>(
+    &mut self,
+    //contract_name: &str,
+    code: Vec<u8>,
+    caller: &Keypair,
+    constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
+    value: E::Balance,
+    gas_limit: Weight,
+    storage_deposit_limit: DepositLimit<E::Balance>,
+) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error>;
+
+async fn raw_instantiate(
+    &mut self,
+    code: Vec<u8>,
+    caller: &Keypair,
+    constructor: Vec<u8>,
+    value: E::Balance,
+    gas_limit: Weight,
+    storage_deposit_limit: DepositLimit<E::Balance>,
+) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error>;
+
+    async fn exec_instantiate(
+        &mut self,
+        signer: &Keypair,
+        contract_name: &str,
+        data: Vec<u8>,
+        value: E::Balance,
+        gas_limit: Weight,
+        storage_deposit_limit: E::Balance,
+    ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error>;
+
 
     /// Dry run contract instantiation.
-    async fn bare_instantiate_dry_run<
-        Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
-        R,
-        Abi: Send + Sync + Clone,
-    >(
-        &mut self,
-        contract_name: &str,
-        caller: &Keypair,
-        constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
-        value: E::Balance,
-        storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error>;
+async fn bare_instantiate_dry_run<
+    Contract: Clone,
+    Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
+    R,
+    Abi: Send + Sync + Clone,
+>(
+    &mut self,
+    contract_name: &str,
+    caller: &Keypair,
+    constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
+    value: E::Balance,
+    storage_deposit_limit: DepositLimit<E::Balance>,
+) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error>;
 
-    /// todo
-    async fn map_account(&mut self, caller: &Keypair) -> Result<(), Self::Error>;
+/// todo
+async fn map_account(&mut self, caller: &Keypair) -> Result<(), Self::Error>;
 
-    /// todo
-    async fn map_account_dry_run(&mut self, caller: &Keypair) -> Result<(), Self::Error>;
+/// todo
+async fn map_account_dry_run(&mut self, caller: &Keypair) -> Result<(), Self::Error>;
+
+/// Returns the `Environment::AccountId` for an `H160` address.
+async fn to_account_id(&mut self, addr: &H160) -> Result<E::AccountId, Self::Error>;
+    fn load_code(&self, contract_name: &str) -> Vec<u8>;
 }

@@ -223,6 +223,8 @@ where
     /// The raw encoded input data.
     #[inline]
     pub fn exec_input(&self) -> &ExecutionInput<Args, Abi> {
+        #[cfg(std)]
+        eprintln!("========");
         &self.exec_input
     }
 
@@ -643,6 +645,8 @@ where
         exec_input: ExecutionInput<Args, Abi>,
     ) -> CreateBuilder<E, ContractRef, Limits, Set<ExecutionInput<Args, Abi>>, RetType, Abi>
     {
+        #[cfg(std)]
+        panic!("----123");
         CreateBuilder {
             code_hash: self.code_hash,
             limits: self.limits,

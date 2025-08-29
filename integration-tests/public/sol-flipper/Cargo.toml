@@ -1,16 +1,16 @@
 [package]
-name = "e2e_call_runtime"
+name = "flipper"
 version = "6.0.0-alpha.1"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
-static_assertions = "1"
+ink = { path = "../../../crates/ink", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
+hex = { version = "0.4.3" }
 
 [lib]
 path = "lib.rs"
@@ -24,4 +24,4 @@ ink-as-dependency = []
 e2e-tests = []
 
 [package.metadata.ink-lang]
-abi = "ink"
+abi = "sol"

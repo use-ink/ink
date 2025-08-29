@@ -347,7 +347,7 @@ where
 impl EnvInstance {
     #[inline(always)]
     /// Returns a new scoped buffer for the entire scope of the static 16 kB buffer.
-    fn scoped_buffer(&mut self) -> ScopedBuffer {
+    fn scoped_buffer(&mut self) -> ScopedBuffer<'_> {
         ScopedBuffer::from(&mut self.buffer[..])
     }
 

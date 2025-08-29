@@ -136,6 +136,7 @@ fn build_full_client(
 ) -> TokenStream2 {
     match node_config.url() {
         Some(url) => {
+            tracing::info!("using full client node url {:?}", url);
             quote! {
                 let contracts = #contracts;
                 let rpc = ::ink_e2e::RpcClient::from_url(#url)
@@ -151,6 +152,7 @@ fn build_full_client(
             }
         }
         None => {
+            tracing::info!("NOT using full client node url");
             quote! {
                 let contracts = #contracts;
                 let node_rpc = ::ink_e2e::TestNodeProcess::<::ink_e2e::PolkadotConfig>

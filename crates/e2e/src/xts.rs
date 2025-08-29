@@ -26,6 +26,7 @@ use crate::contract_results::{
 use core::marker::PhantomData;
 use funty::Fundamental;
 use ink_primitives::{
+    H160,
     Address,
     DepositLimit,
 };
@@ -212,6 +213,13 @@ struct RpcCallRequest<C: subxt::Config, E: Environment> {
     input_data: Vec<u8>,
 }
 
+/// A struct that encodes RPC parameters required for calling the
+/// `pallet-revive` Runtime Api function `address()`.
+#[derive(scale::Encode)]
+struct RpcAddressRequest<C: subxt::Config> {
+    account_id: C::AccountId,
+}
+
 /// Reference to an existing code hash or a new contract binary.
 #[derive(serde::Serialize, scale::Encode)]
 #[serde(rename_all = "camelCase")]
@@ -240,7 +248,7 @@ where
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
 
     E: Environment,
-    E::Balance: scale::HasCompact + serde::Serialize,
+    E::Balance: scale::HasCompact + serde::Serialize + std::fmt::Debug,
 {
     /// Creates a new [`ReviveApi`] instance.
     pub async fn new(rpc: RpcClient) -> Result<Self, subxt::Error> {
@@ -485,9 +493,11 @@ where
                     format!("{err}").trim_start_matches("RPC error: ")
                 );
             });
+        //eprintln!("---1trace bytes {:?}", bytes);
 
         let trace: Option<Trace> = scale::Decode::decode(&mut bytes.as_ref())
             .unwrap_or_else(|err| panic!("decoding `trace_tx` result failed: {err}"));
+        eprintln!("---1trace decoded {:?}", trace);
 
         match trace {
             Some(Trace::Call(trace)) => Some(trace),
@@ -539,13 +549,14 @@ where
         salt: Option<[u8; 32]>,
         signer: &Keypair,
     ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
+        eprintln!("storage deposit_limit {:?}", storage_deposit_limit);
         let call = subxt::tx::DefaultPayload::new(
             "Revive",
             "instantiate_with_code",
             InstantiateWithCode::<E> {
                 value,
                 gas_limit,
-                storage_deposit_limit, // todo
+                storage_deposit_limit,
                 code,
                 data,
                 salt,
@@ -627,13 +638,14 @@ where
     /// Dry runs a call of the contract at `contract` with the given parameters.
     pub async fn call_dry_run(
         &self,
-        origin: C::AccountId,
+        //origin: C::AccountId,
         dest: Address,
         input_data: Vec<u8>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
         signer: &Keypair,
     ) -> (ContractExecResultFor<E>, Option<CallTrace>) {
+        let origin = Signer::<C>::account_id(signer);
         let call_request = RpcCallRequest::<C, E> {
             origin,
             dest,
@@ -652,10 +664,12 @@ where
             .state_call(func, Some(&params), None)
             .await
             .unwrap_or_else(|err| {
-                panic!("error on ws request `contracts_call`: {err:?}");
+                panic!("error on ws request `ReviveApi_call`: {err:?}");
             });
         let res: ContractExecResultFor<E> = scale::Decode::decode(&mut bytes.as_ref())
             .unwrap_or_else(|err| panic!("decoding ContractExecResult failed: {err}"));
+
+        eprintln!("res {:?}", res.result);
 
         // todo for gas_limit we should use the value returned by a successful call above.
 
@@ -701,6 +715,7 @@ where
         let trace = self
             .trace(block_hash, None, parent_hash, Some(xt.into_encoded()))
             .await;
+        eprintln!("---trace {:?}", trace);
 
         (res, trace)
     }
@@ -731,7 +746,6 @@ where
             },
         )
         .unvalidated();
-
         self.submit_extrinsic(&call, signer).await
     }
 
@@ -761,7 +775,30 @@ where
         call_data: Vec<subxt::dynamic::Value>,
     ) -> ExtrinsicEvents<C> {
         let call = subxt::dynamic::tx(pallet_name, call_name, call_data);
-
         self.submit_extrinsic(&call, signer).await.0
     }
+
+    /// todo
+    pub async fn address(
+        &self,
+        account_id: C::AccountId,
+    ) -> H160 {
+        let call_request = RpcAddressRequest::<C> {
+            account_id,
+        };
+        let func = "ReviveApi_address";
+        let params = scale::Encode::encode(&call_request);
+        let bytes = self
+            .rpc
+            .state_call(func, Some(&params), None)
+            .await
+            .unwrap_or_else(|err| {
+                panic!("error on ws request `ReviveApi_address`: {err:?}");
+            });
+        let res = scale::Decode::decode(&mut bytes.as_ref())
+            .unwrap_or_else(|err| panic!("decoding `ContractExecResult` failed: {err}"));
+        res
+
+    }
+
 }

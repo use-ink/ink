@@ -1,19 +1,24 @@
 use crate::flipper::FlipperRef;
+use ink_e2e::E2EBackend;
 use ink::{
     env::{
         Balance,
         DefaultEnvironment,
     },
+    primitives::DepositLimit,
     Address,
     SolDecode,
     SolEncode,
 };
+use ink_e2e::ContractsBackend;
 use ink_e2e::{
     subxt::tx::Signer,
     subxt_signer,
     PolkadotConfig,
     Weight,
+    BuilderClient,
 };
+use ink_e2e::ChainBackend;
 use std::{
     error::Error,
     process::{
@@ -23,25 +28,22 @@ use std::{
 };
 
 const DEFAULT_GAS: Weight = Weight::from_parts(100_000_000_000, 1024 * 1024);
-const DEFAULT_STORAGE_DEPOSIT_LIMIT: u128 = 10_000_000_000_000;
+//const DEFAULT_STORAGE_DEPOSIT_LIMIT: u128 = 10_000_000_000_000;
 type E2EResult<T> = Result<T, Box<dyn Error>>;
 
-#[ink_e2e::test]
-// TODO: (@davidsemakula) Re-enable when "no space left" CI issue is fixed
-// See https://github.com/use-ink/ink/issues/2458 for details.
-// This test consistently triggers the issue in CI when running `npm install` for hardhat
-// scripts.
-#[ignore]
+//#[ink_e2e::test]
+#[ink_e2e::test(backend(runtime_only))]
 async fn solidity_calls_ink_works<Client: E2EBackend>(
     mut client: Client,
 ) -> E2EResult<()> {
-    let constructor = FlipperRef::new(false);
+    let constructor = FlipperRef::<ink::abi::Sol>::new(false);
     let params = constructor
         .endowment(0u32.into())
         .code_hash(ink::primitives::H256::zero())
         .salt_bytes(None)
         .params();
     let exec_input = params.exec_input();
+    //eprintln!("exec_input: {:?}", exec_input);
 
     // fund alith
     let alith = subxt_signer::eth::dev::alith();
@@ -50,29 +52,50 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
     acc_bytes[..20].copy_from_slice(acc_id.as_ref());
 
     client
-        .api
+        //.api
         .try_transfer_balance(
             &ink_e2e::alice(),
-            ink_e2e::subxt::utils::AccountId32::from(acc_bytes),
-            1_000_000_000_000_000,
+            //ink_e2e::subxt::utils::AccountId32::from(acc_bytes),
+            <ink::env::DefaultEnvironment as ink::env::Environment>::AccountId::from(acc_bytes),
+            10_000_000_000_000_000,
         )
         .await?;
+
 
     let signer = ink_e2e::alice();
 
     // deploy ink! flipper (Sol encoded)
-    client.api.map_account(&signer).await;
+    //client.api.map_account(&signer).await;
+    eprintln!("------0");
+    let _ = client.map_account(&signer).await;
+    eprintln!("------0.5");
+    let input = exec_input.encode();
+    eprintln!("------0.5 input {:?}", input);
+    let storage_deposit_limit: Balance = 10_00_000_000_000_000_000;
     let ink_addr = client
         .exec_instantiate(
             &signer,
-            client.contracts.load_code("flipper"),
-            exec_input.encode(),
+            //client.contracts.load_code("flipper"),
+            "flipper",
+            input,
             0,
             DEFAULT_GAS,
-            DEFAULT_STORAGE_DEPOSIT_LIMIT,
+            storage_deposit_limit,
         )
         .await?
         .addr;
+    eprintln!("------0.8");
+
+
+    /*
+            &mut self,
+        code: Vec<u8>,
+        caller: &Keypair,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
+        value: E::Balance,
+        gas_limit: Weight,
+        storage_deposit_limit: DepositLimit<E::Balance>,
+     */
 
     let get_selector = keccak_selector(b"get()");
     let value: bool = call_ink(&mut client, ink_addr, get_selector.clone()).await;
@@ -87,6 +110,7 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
     let value: bool = call_ink(&mut client, ink_addr, get_selector.clone()).await;
     assert!(value);
 
+    /*
     let output = sol_handler.call(&sol_addr, "callGet")?;
     assert_eq!(output, Some("true".to_string()));
 
@@ -125,31 +149,51 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
         77
     );
 
+     */
+
     Ok(())
 }
 
-async fn call_ink<Ret>(
-    client: &mut ink_e2e::Client<PolkadotConfig, DefaultEnvironment>,
+use ink::env::Environment;
+async fn call_ink<Ret, Backend,E, Cliente>(
+    //client: &mut ink_e2e::Client<PolkadotConfig, DefaultEnvironment>,
+    client: &mut Backend,
     ink_addr: Address,
     data_sol: Vec<u8>,
 ) -> Ret
 where
     Ret: SolDecode,
+    Backend: E2EBackend<E, Cliente>,
+    E: Environment
 {
     let signer = ink_e2e::alice();
-    let (exec_result, _trace) = client
-        .api
-        .call_dry_run(
-            <ink_e2e::Keypair as Signer<PolkadotConfig>>::account_id(&signer),
+    //let call_builder = ink::env::call::CallBuilder::new();
+    //let get = call_builder.get();
+    //let call_builder = client.call(&signer, &get);
+
+    eprintln!("------1");
+
+    //let (exec_result, _trace) = client
+    let exec_result = client
+        //.api
+        //.call_dry_run(
+        .raw_call_dry_run::<Vec<u8>, ink::abi::Sol>(
+            //<ink_e2e::Keypair as Signer<PolkadotConfig>>::account_id(&signer),
+            //&signer,
             ink_addr,
             data_sol,
-            0,
+            //ink::env::call::CallBuilder<>
+            //call_builder,
+            //E::Balance::zero(),
+            0.into(),
             ink::primitives::DepositLimit::UnsafeOnlyForDryRun,
             &signer,
         )
-        .await;
+        .await.unwrap();
+    //eprintln!("exec {:?}\n", exec_result);
+    //eprintln!("trace {:?}", _trace);
 
-    <Ret>::decode(&exec_result.result.unwrap().data[..]).expect("decode failed")
+    <Ret>::decode(&exec_result.exec_result.result.unwrap().data[..]).expect("decode failed")
 }
 
 async fn call_ink_no_return(
@@ -158,14 +202,15 @@ async fn call_ink_no_return(
     data_sol: Vec<u8>,
 ) {
     let signer = ink_e2e::alice();
+    let storage_deposit_limit: Balance = 10_000_000_000_000;;
     let _ = client
-        .api
-        .call(
+        //.api
+        .raw_call(
             ink_addr,
+            data_sol,
             Balance::from(0u128),
             DEFAULT_GAS.into(),
-            DEFAULT_STORAGE_DEPOSIT_LIMIT,
-            data_sol,
+            DepositLimit::Balance(storage_deposit_limit),
             &signer,
         )
         .await;

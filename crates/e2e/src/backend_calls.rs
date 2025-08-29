@@ -81,7 +81,7 @@ where
             client,
             caller,
             message,
-            value: 0u32.into(),
+            value: 0u32.into(), // todo shouldn't this be `Balance` or `U256`
             extra_gas_portion: None,
             gas_limit: None,
             storage_deposit_limit: None,
@@ -326,7 +326,8 @@ where
 
         let instantiate_result = B::bare_instantiate(
             self.client,
-            self.contract_name,
+            //self.contract_name,
+            B::load_code(self.client, self.contract_name),
             self.caller,
             self.constructor,
             self.value,
@@ -339,6 +340,8 @@ where
 
         Ok(InstantiationResult {
             addr: instantiate_result.addr,
+            account_id: instantiate_result.account_id,
+            //addr: dry_run.clone().contract_result.result.unwrap().addr,
             dry_run,
             events: instantiate_result.events,
             trace: instantiate_result.trace,
