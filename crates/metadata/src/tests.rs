@@ -189,6 +189,7 @@ fn spec_contract_only_one_default_constructor_allowed() {
 fn spec_contract_event_definition_exceeds_environment_topics_limit() {
     const MAX_EVENT_TOPICS: usize = 2;
     const BUFFER_SIZE: usize = 1 << 14;
+    const NATIVE_TO_ETH_RATIO: u32 = 100000000;
 
     ContractSpec::new()
         .constructors(vec![ConstructorSpec::from_label("new")
@@ -278,6 +279,7 @@ fn spec_contract_event_definition_exceeds_environment_topics_limit() {
                 .block_number(TypeSpec::of_type::<u128>())
                 .chain_extension(TypeSpec::of_type::<()>())
                 .max_event_topics(MAX_EVENT_TOPICS)
+                .native_to_eth_ratio(NATIVE_TO_ETH_RATIO)
                 .static_buffer_size(BUFFER_SIZE)
                 .done(),
         )
@@ -291,6 +293,7 @@ fn spec_contract_event_definition_exceeds_environment_topics_limit() {
 fn spec_contract_event_definition_signature_topic_collision() {
     const SIGNATURE_TOPIC: Option<[u8; 32]> = Some([42u8; 32]);
     const BUFFER_SIZE: usize = 1 << 14;
+    const NATIVE_TO_ETH_RATIO: u32 = 100000000;
 
     ContractSpec::new()
         .constructors(vec![ConstructorSpec::from_label("new")
@@ -353,6 +356,7 @@ fn spec_contract_event_definition_signature_topic_collision() {
                 .block_number(TypeSpec::of_type::<u128>())
                 .chain_extension(TypeSpec::of_type::<()>())
                 .max_event_topics(2)
+                .native_to_eth_ratio(NATIVE_TO_ETH_RATIO)
                 .static_buffer_size(BUFFER_SIZE)
                 .done(),
         )
@@ -371,6 +375,7 @@ fn spec_contract_json() {
     type BlockNumber = u128;
     type ChainExtension = NoChainExtension;
     const MAX_EVENT_TOPICS: usize = 4;
+    const NATIVE_TO_ETH_RATIO: u32 = 100000000;
     const BUFFER_SIZE: usize = 1 << 14;
 
     // given
@@ -488,6 +493,7 @@ fn spec_contract_json() {
                     ),
                 ))
                 .max_event_topics(MAX_EVENT_TOPICS)
+                .native_to_eth_ratio(NATIVE_TO_ETH_RATIO)
                 .static_buffer_size(BUFFER_SIZE)
                 .done(),
         )
@@ -819,6 +825,7 @@ fn environment_spec() -> EnvironmentSpec<PortableForm> {
         .chain_extension(Default::default())
         .max_event_topics(4)
         .static_buffer_size(16384)
+        .native_to_eth_ratio(100_000_000)
         .done()
 }
 
