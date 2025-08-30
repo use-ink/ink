@@ -141,10 +141,10 @@ fn event_derive_struct(s: synstructure::Structure) -> syn::Result<TokenStream2> 
             let value = match abi {
                 Abi::Ink => quote!(<Self as ::ink::env::Event<::ink::abi::Ink>>::SIGNATURE_TOPIC.as_ref()),
                 Abi::Sol => {
-                    // TODO: (@davidsemakula) Change to `from_ref` after https://github.com/use-ink/ink/pull/2590
                     quote! {
-                        &::ink::sol::FixedBytes(
+                        ::ink::sol::FixedBytes::from_ref(
                             <Self as ::ink::env::Event<::ink::abi::Sol>>::SIGNATURE_TOPIC
+                                .as_ref()
                                 .expect("Expected a signature topic")
                         )
                     }
