@@ -122,6 +122,7 @@ pub mod events {
     }
 
     #[cfg(test)]
+    #[cfg(ink_abi = "all")] // Appease clippy in CI.
     mod tests {
         use super::*;
 
@@ -188,7 +189,6 @@ pub mod events {
         }
 
         #[test]
-        #[cfg(any(ink_abi = "sol", ink_abi = "all"))] // Appease clippy in CI.
         fn collects_solidity_info_for_all_linked_and_used_events() {
             let event_specs = ink::collect_events_sol();
 
@@ -403,6 +403,7 @@ pub mod events {
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
+    #[cfg(ink_abi = "all")] // Appease clippy in CI.
     mod e2e_tests {
         use super::{
             tests::{
