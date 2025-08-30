@@ -181,7 +181,8 @@ fn solidity_encode_bytes(input: &[u8], out: &mut [u8]) -> usize {
 
 /// Returns the Solidity word padded length for the given input length (i.e. next multiple
 /// of 32 for the given number).
-fn solidity_padded_len(len: usize) -> usize {
+#[inline(always)]
+const fn solidity_padded_len(len: usize) -> usize {
     ((len + 31) / 32) * 32
 }
 
@@ -202,7 +203,7 @@ impl CryptoHash for Blake2x256 {
         );
         let output: &mut OutputType = array_mut_ref!(output, 0, 32);
 
-        let sel = solidity_selector("hashBlake256(bytes)");
+        let sel = const { solidity_selector("hashBlake256(bytes)") };
         buffer[..4].copy_from_slice(&sel[..4]);
 
         let n = solidity_encode_bytes(input, &mut buffer[4..]);
