@@ -78,92 +78,93 @@
 <a href=#78 id=78 data-nosnippet>78</a>///
 <a href=#79 id=79 data-nosnippet>79</a>/// impl ink_env::Environment for CustomEnv {
 <a href=#80 id=80 data-nosnippet>80</a>///     const MAX_EVENT_TOPICS: usize = 3;
-<a href=#81 id=81 data-nosnippet>81</a>///     type AccountId = [u8; 32];
-<a href=#82 id=82 data-nosnippet>82</a>///     type Balance = u64;
-<a href=#83 id=83 data-nosnippet>83</a>///     type Hash = [u8; 32];
-<a href=#84 id=84 data-nosnippet>84</a>///     type Timestamp = u64;
-<a href=#85 id=85 data-nosnippet>85</a>///     type BlockNumber = u64;
-<a href=#86 id=86 data-nosnippet>86</a>///     type ChainExtension = ();
-<a href=#87 id=87 data-nosnippet>87</a>///     type EventRecord = ();
-<a href=#88 id=88 data-nosnippet>88</a>/// }
-<a href=#89 id=89 data-nosnippet>89</a>///
-<a href=#90 id=90 data-nosnippet>90</a>/// /// To demonstrate implementing an execution environment agnostic executor
-<a href=#91 id=91 data-nosnippet>91</a>/// pub struct ExampleExecutor&lt;E&gt; {
-<a href=#92 id=92 data-nosnippet>92</a>///     marker: core::marker::PhantomData&lt;E&gt;,
-<a href=#93 id=93 data-nosnippet>93</a>/// }
-<a href=#94 id=94 data-nosnippet>94</a>///
-<a href=#95 id=95 data-nosnippet>95</a>/// impl&lt;E&gt; ExampleExecutor&lt;E&gt; {
-<a href=#96 id=96 data-nosnippet>96</a>///     pub fn new() -&gt; Self {
-<a href=#97 id=97 data-nosnippet>97</a>///         Self {
-<a href=#98 id=98 data-nosnippet>98</a>///             marker: core::marker::PhantomData,
-<a href=#99 id=99 data-nosnippet>99</a>///         }
-<a href=#100 id=100 data-nosnippet>100</a>///     }
-<a href=#101 id=101 data-nosnippet>101</a>/// }
-<a href=#102 id=102 data-nosnippet>102</a>///
-<a href=#103 id=103 data-nosnippet>103</a>/// impl&lt;E&gt; Executor&lt;E&gt; for ExampleExecutor&lt;E&gt;
-<a href=#104 id=104 data-nosnippet>104</a>/// where
-<a href=#105 id=105 data-nosnippet>105</a>///     E: ink_env::Environment,
-<a href=#106 id=106 data-nosnippet>106</a>/// {
-<a href=#107 id=107 data-nosnippet>107</a>///     type Error = ();
-<a href=#108 id=108 data-nosnippet>108</a>///     fn exec&lt;Args, Output, Abi&gt;(
-<a href=#109 id=109 data-nosnippet>109</a>///         &amp;self,
-<a href=#110 id=110 data-nosnippet>110</a>///         input: &amp;ExecutionInput&lt;Args, Abi&gt;,
-<a href=#111 id=111 data-nosnippet>111</a>///     ) -&gt; Result&lt;MessageResult&lt;Output&gt;, Self::Error&gt;
-<a href=#112 id=112 data-nosnippet>112</a>///     where
-<a href=#113 id=113 data-nosnippet>113</a>///         Args: ink::abi::AbiEncodeWith&lt;Abi&gt;,
-<a href=#114 id=114 data-nosnippet>114</a>///         Output: ink::env::call::utils::DecodeMessageResult&lt;Abi&gt;,
-<a href=#115 id=115 data-nosnippet>115</a>///     {
-<a href=#116 id=116 data-nosnippet>116</a>///         println!("Executing contract with input: {:?}", input.encode());
-<a href=#117 id=117 data-nosnippet>117</a>///         unimplemented!("Decode contract execution output")
-<a href=#118 id=118 data-nosnippet>118</a>///     }
-<a href=#119 id=119 data-nosnippet>119</a>/// }
-<a href=#120 id=120 data-nosnippet>120</a>///
-<a href=#121 id=121 data-nosnippet>121</a>/// fn default(to: Address) {
-<a href=#122 id=122 data-nosnippet>122</a>///     let executor = ExampleExecutor::&lt;DefaultEnvironment&gt;::new();
-<a href=#123 id=123 data-nosnippet>123</a>///     let mut contract = message_builder!(Erc20);
-<a href=#124 id=124 data-nosnippet>124</a>///     let total_supply = contract.total_supply().exec(&amp;executor).unwrap().unwrap();
-<a href=#125 id=125 data-nosnippet>125</a>///     contract.transfer(total_supply, to).exec(&amp;executor).unwrap();
-<a href=#126 id=126 data-nosnippet>126</a>/// }
-<a href=#127 id=127 data-nosnippet>127</a>///
-<a href=#128 id=128 data-nosnippet>128</a>/// fn custom(to: Address) {
-<a href=#129 id=129 data-nosnippet>129</a>///     let executor = ExampleExecutor::&lt;CustomEnv&gt;::new();
-<a href=#130 id=130 data-nosnippet>130</a>///     let mut contract = message_builder!(Erc20, CustomEnv);
-<a href=#131 id=131 data-nosnippet>131</a>///     let total_supply = contract.total_supply().exec(&amp;executor).unwrap().unwrap();
-<a href=#132 id=132 data-nosnippet>132</a>///     contract.transfer(total_supply, to).exec(&amp;executor).unwrap();
-<a href=#133 id=133 data-nosnippet>133</a>/// }
-<a href=#134 id=134 data-nosnippet>134</a>///
-<a href=#135 id=135 data-nosnippet>135</a>/// fn custom_abi(to: Address) {
-<a href=#136 id=136 data-nosnippet>136</a>///     let executor = ExampleExecutor::&lt;DefaultEnvironment&gt;::new();
-<a href=#137 id=137 data-nosnippet>137</a>///     let mut contract = message_builder!(Erc20, DefaultEnvironment, ink::abi::Ink);
-<a href=#138 id=138 data-nosnippet>138</a>///     let total_supply = contract.total_supply().exec(&amp;executor).unwrap().unwrap();
-<a href=#139 id=139 data-nosnippet>139</a>///     contract.transfer(total_supply, to).exec(&amp;executor).unwrap();
-<a href=#140 id=140 data-nosnippet>140</a>/// }
-<a href=#141 id=141 data-nosnippet>141</a>///
-<a href=#142 id=142 data-nosnippet>142</a>/// fn generic&lt;E&gt;(to: Address)
-<a href=#143 id=143 data-nosnippet>143</a>/// where
-<a href=#144 id=144 data-nosnippet>144</a>///     E: ink_env::Environment,
-<a href=#145 id=145 data-nosnippet>145</a>/// {
-<a href=#146 id=146 data-nosnippet>146</a>///     let executor = ExampleExecutor::&lt;E&gt;::new();
-<a href=#147 id=147 data-nosnippet>147</a>///     let mut contract = message_builder!(Erc20, E);
-<a href=#148 id=148 data-nosnippet>148</a>///     let total_supply = contract.total_supply().exec(&amp;executor).unwrap().unwrap();
-<a href=#149 id=149 data-nosnippet>149</a>///     contract.transfer(total_supply, to).exec(&amp;executor).unwrap();
-<a href=#150 id=150 data-nosnippet>150</a>/// }
-<a href=#151 id=151 data-nosnippet>151</a>/// ```
-<a href=#152 id=152 data-nosnippet>152</a></span><span class="attr">#[macro_export]
-<a href=#153 id=153 data-nosnippet>153</a></span><span class="macro">macro_rules!</span> message_builder {
-<a href=#154 id=154 data-nosnippet>154</a>    <span class="comment">// The case of the default `Environment` and ABI
-<a href=#155 id=155 data-nosnippet>155</a>    </span>( <span class="macro-nonterminal">$trait_path</span>:path ) =&gt; {
-<a href=#156 id=156 data-nosnippet>156</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::message_builder!</span>(<span class="macro-nonterminal">$trait_path</span>, <span class="macro-nonterminal">$crate::env::DefaultEnvironment</span>)
-<a href=#157 id=157 data-nosnippet>157</a>    };
-<a href=#158 id=158 data-nosnippet>158</a>    <span class="comment">// The case of the custom `Environment` and default ABI
-<a href=#159 id=159 data-nosnippet>159</a>    </span>( <span class="macro-nonterminal">$trait_path</span>:path, <span class="macro-nonterminal">$env</span>:ty ) =&gt; {
-<a href=#160 id=160 data-nosnippet>160</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::message_builder!</span>(<span class="macro-nonterminal">$trait_path</span>, <span class="macro-nonterminal">$env</span>, <span class="macro-nonterminal">$crate::env::DefaultAbi</span>)
-<a href=#161 id=161 data-nosnippet>161</a>    };
-<a href=#162 id=162 data-nosnippet>162</a>    <span class="comment">// The case of the custom `Environment` and ABI
-<a href=#163 id=163 data-nosnippet>163</a>    </span>( <span class="macro-nonterminal">$trait_path</span>:path, <span class="macro-nonterminal">$env</span>:ty, <span class="macro-nonterminal">$abi</span>:ty ) =&gt; {
-<a href=#164 id=164 data-nosnippet>164</a>        &lt;&lt;&lt;<span class="macro-nonterminal">$crate::reflect::TraitDefinitionRegistry</span>&lt;<span class="macro-nonterminal">$env</span>&gt;
-<a href=#165 id=165 data-nosnippet>165</a>                            <span class="kw">as </span><span class="macro-nonterminal">$trait_path</span>&gt;::__ink_TraitInfo
-<a href=#166 id=166 data-nosnippet>166</a>                            <span class="kw">as </span><span class="macro-nonterminal">$crate::codegen::TraitMessageBuilder</span>&gt;::MessageBuilder&lt;<span class="macro-nonterminal">$abi</span>&gt;
-<a href=#167 id=167 data-nosnippet>167</a>                            <span class="kw">as </span>::core::default::Default&gt;::default()
-<a href=#168 id=168 data-nosnippet>168</a>    };
-<a href=#169 id=169 data-nosnippet>169</a>}</code></pre></div></section></main></body></html>
+<a href=#81 id=81 data-nosnippet>81</a>///     const NATIVE_TO_ETH_RATIO: u32 = 100_000_000;
+<a href=#82 id=82 data-nosnippet>82</a>///     type AccountId = [u8; 32];
+<a href=#83 id=83 data-nosnippet>83</a>///     type Balance = u64;
+<a href=#84 id=84 data-nosnippet>84</a>///     type Hash = [u8; 32];
+<a href=#85 id=85 data-nosnippet>85</a>///     type Timestamp = u64;
+<a href=#86 id=86 data-nosnippet>86</a>///     type BlockNumber = u64;
+<a href=#87 id=87 data-nosnippet>87</a>///     type ChainExtension = ();
+<a href=#88 id=88 data-nosnippet>88</a>///     type EventRecord = ();
+<a href=#89 id=89 data-nosnippet>89</a>/// }
+<a href=#90 id=90 data-nosnippet>90</a>///
+<a href=#91 id=91 data-nosnippet>91</a>/// /// To demonstrate implementing an execution environment agnostic executor
+<a href=#92 id=92 data-nosnippet>92</a>/// pub struct ExampleExecutor&lt;E&gt; {
+<a href=#93 id=93 data-nosnippet>93</a>///     marker: core::marker::PhantomData&lt;E&gt;,
+<a href=#94 id=94 data-nosnippet>94</a>/// }
+<a href=#95 id=95 data-nosnippet>95</a>///
+<a href=#96 id=96 data-nosnippet>96</a>/// impl&lt;E&gt; ExampleExecutor&lt;E&gt; {
+<a href=#97 id=97 data-nosnippet>97</a>///     pub fn new() -&gt; Self {
+<a href=#98 id=98 data-nosnippet>98</a>///         Self {
+<a href=#99 id=99 data-nosnippet>99</a>///             marker: core::marker::PhantomData,
+<a href=#100 id=100 data-nosnippet>100</a>///         }
+<a href=#101 id=101 data-nosnippet>101</a>///     }
+<a href=#102 id=102 data-nosnippet>102</a>/// }
+<a href=#103 id=103 data-nosnippet>103</a>///
+<a href=#104 id=104 data-nosnippet>104</a>/// impl&lt;E&gt; Executor&lt;E&gt; for ExampleExecutor&lt;E&gt;
+<a href=#105 id=105 data-nosnippet>105</a>/// where
+<a href=#106 id=106 data-nosnippet>106</a>///     E: ink_env::Environment,
+<a href=#107 id=107 data-nosnippet>107</a>/// {
+<a href=#108 id=108 data-nosnippet>108</a>///     type Error = ();
+<a href=#109 id=109 data-nosnippet>109</a>///     fn exec&lt;Args, Output, Abi&gt;(
+<a href=#110 id=110 data-nosnippet>110</a>///         &amp;self,
+<a href=#111 id=111 data-nosnippet>111</a>///         input: &amp;ExecutionInput&lt;Args, Abi&gt;,
+<a href=#112 id=112 data-nosnippet>112</a>///     ) -&gt; Result&lt;MessageResult&lt;Output&gt;, Self::Error&gt;
+<a href=#113 id=113 data-nosnippet>113</a>///     where
+<a href=#114 id=114 data-nosnippet>114</a>///         Args: ink::abi::AbiEncodeWith&lt;Abi&gt;,
+<a href=#115 id=115 data-nosnippet>115</a>///         Output: ink::env::call::utils::DecodeMessageResult&lt;Abi&gt;,
+<a href=#116 id=116 data-nosnippet>116</a>///     {
+<a href=#117 id=117 data-nosnippet>117</a>///         println!("Executing contract with input: {:?}", input.encode());
+<a href=#118 id=118 data-nosnippet>118</a>///         unimplemented!("Decode contract execution output")
+<a href=#119 id=119 data-nosnippet>119</a>///     }
+<a href=#120 id=120 data-nosnippet>120</a>/// }
+<a href=#121 id=121 data-nosnippet>121</a>///
+<a href=#122 id=122 data-nosnippet>122</a>/// fn default(to: Address) {
+<a href=#123 id=123 data-nosnippet>123</a>///     let executor = ExampleExecutor::&lt;DefaultEnvironment&gt;::new();
+<a href=#124 id=124 data-nosnippet>124</a>///     let mut contract = message_builder!(Erc20);
+<a href=#125 id=125 data-nosnippet>125</a>///     let total_supply = contract.total_supply().exec(&amp;executor).unwrap().unwrap();
+<a href=#126 id=126 data-nosnippet>126</a>///     contract.transfer(total_supply, to).exec(&amp;executor).unwrap();
+<a href=#127 id=127 data-nosnippet>127</a>/// }
+<a href=#128 id=128 data-nosnippet>128</a>///
+<a href=#129 id=129 data-nosnippet>129</a>/// fn custom(to: Address) {
+<a href=#130 id=130 data-nosnippet>130</a>///     let executor = ExampleExecutor::&lt;CustomEnv&gt;::new();
+<a href=#131 id=131 data-nosnippet>131</a>///     let mut contract = message_builder!(Erc20, CustomEnv);
+<a href=#132 id=132 data-nosnippet>132</a>///     let total_supply = contract.total_supply().exec(&amp;executor).unwrap().unwrap();
+<a href=#133 id=133 data-nosnippet>133</a>///     contract.transfer(total_supply, to).exec(&amp;executor).unwrap();
+<a href=#134 id=134 data-nosnippet>134</a>/// }
+<a href=#135 id=135 data-nosnippet>135</a>///
+<a href=#136 id=136 data-nosnippet>136</a>/// fn custom_abi(to: Address) {
+<a href=#137 id=137 data-nosnippet>137</a>///     let executor = ExampleExecutor::&lt;DefaultEnvironment&gt;::new();
+<a href=#138 id=138 data-nosnippet>138</a>///     let mut contract = message_builder!(Erc20, DefaultEnvironment, ink::abi::Ink);
+<a href=#139 id=139 data-nosnippet>139</a>///     let total_supply = contract.total_supply().exec(&amp;executor).unwrap().unwrap();
+<a href=#140 id=140 data-nosnippet>140</a>///     contract.transfer(total_supply, to).exec(&amp;executor).unwrap();
+<a href=#141 id=141 data-nosnippet>141</a>/// }
+<a href=#142 id=142 data-nosnippet>142</a>///
+<a href=#143 id=143 data-nosnippet>143</a>/// fn generic&lt;E&gt;(to: Address)
+<a href=#144 id=144 data-nosnippet>144</a>/// where
+<a href=#145 id=145 data-nosnippet>145</a>///     E: ink_env::Environment,
+<a href=#146 id=146 data-nosnippet>146</a>/// {
+<a href=#147 id=147 data-nosnippet>147</a>///     let executor = ExampleExecutor::&lt;E&gt;::new();
+<a href=#148 id=148 data-nosnippet>148</a>///     let mut contract = message_builder!(Erc20, E);
+<a href=#149 id=149 data-nosnippet>149</a>///     let total_supply = contract.total_supply().exec(&amp;executor).unwrap().unwrap();
+<a href=#150 id=150 data-nosnippet>150</a>///     contract.transfer(total_supply, to).exec(&amp;executor).unwrap();
+<a href=#151 id=151 data-nosnippet>151</a>/// }
+<a href=#152 id=152 data-nosnippet>152</a>/// ```
+<a href=#153 id=153 data-nosnippet>153</a></span><span class="attr">#[macro_export]
+<a href=#154 id=154 data-nosnippet>154</a></span><span class="macro">macro_rules!</span> message_builder {
+<a href=#155 id=155 data-nosnippet>155</a>    <span class="comment">// The case of the default `Environment` and ABI
+<a href=#156 id=156 data-nosnippet>156</a>    </span>( <span class="macro-nonterminal">$trait_path</span>:path ) =&gt; {
+<a href=#157 id=157 data-nosnippet>157</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::message_builder!</span>(<span class="macro-nonterminal">$trait_path</span>, <span class="macro-nonterminal">$crate::env::DefaultEnvironment</span>)
+<a href=#158 id=158 data-nosnippet>158</a>    };
+<a href=#159 id=159 data-nosnippet>159</a>    <span class="comment">// The case of the custom `Environment` and default ABI
+<a href=#160 id=160 data-nosnippet>160</a>    </span>( <span class="macro-nonterminal">$trait_path</span>:path, <span class="macro-nonterminal">$env</span>:ty ) =&gt; {
+<a href=#161 id=161 data-nosnippet>161</a>        <span class="macro-nonterminal">$</span><span class="macro">crate::message_builder!</span>(<span class="macro-nonterminal">$trait_path</span>, <span class="macro-nonterminal">$env</span>, <span class="macro-nonterminal">$crate::env::DefaultAbi</span>)
+<a href=#162 id=162 data-nosnippet>162</a>    };
+<a href=#163 id=163 data-nosnippet>163</a>    <span class="comment">// The case of the custom `Environment` and ABI
+<a href=#164 id=164 data-nosnippet>164</a>    </span>( <span class="macro-nonterminal">$trait_path</span>:path, <span class="macro-nonterminal">$env</span>:ty, <span class="macro-nonterminal">$abi</span>:ty ) =&gt; {
+<a href=#165 id=165 data-nosnippet>165</a>        &lt;&lt;&lt;<span class="macro-nonterminal">$crate::reflect::TraitDefinitionRegistry</span>&lt;<span class="macro-nonterminal">$env</span>&gt;
+<a href=#166 id=166 data-nosnippet>166</a>                            <span class="kw">as </span><span class="macro-nonterminal">$trait_path</span>&gt;::__ink_TraitInfo
+<a href=#167 id=167 data-nosnippet>167</a>                            <span class="kw">as </span><span class="macro-nonterminal">$crate::codegen::TraitMessageBuilder</span>&gt;::MessageBuilder&lt;<span class="macro-nonterminal">$abi</span>&gt;
+<a href=#168 id=168 data-nosnippet>168</a>                            <span class="kw">as </span>::core::default::Default&gt;::default()
+<a href=#169 id=169 data-nosnippet>169</a>    };
+<a href=#170 id=170 data-nosnippet>170</a>}</code></pre></div></section></main></body></html>

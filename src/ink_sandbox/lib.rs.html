@@ -26,143 +26,147 @@
 <a href=#26 id=26 data-nosnippet>26</a>    ExecReturnValue,
 <a href=#27 id=27 data-nosnippet>27</a>    InstantiateReturnValue,
 <a href=#28 id=28 data-nosnippet>28</a>};
-<a href=#29 id=29 data-nosnippet>29</a><span class="doccomment">/// Export pallets that are used in [`crate::create_sandbox`]
-<a href=#30 id=30 data-nosnippet>30</a></span><span class="kw">pub use </span>{
-<a href=#31 id=31 data-nosnippet>31</a>    frame_support::sp_runtime::testing::H256,
-<a href=#32 id=32 data-nosnippet>32</a>    frame_support::{
-<a href=#33 id=33 data-nosnippet>33</a>        <span class="self">self</span>,
-<a href=#34 id=34 data-nosnippet>34</a>        sp_runtime::{
-<a href=#35 id=35 data-nosnippet>35</a>            AccountId32,
-<a href=#36 id=36 data-nosnippet>36</a>            DispatchError,
-<a href=#37 id=37 data-nosnippet>37</a>        },
-<a href=#38 id=38 data-nosnippet>38</a>    },
-<a href=#39 id=39 data-nosnippet>39</a>    frame_system,
-<a href=#40 id=40 data-nosnippet>40</a>    pallet_balances,
-<a href=#41 id=41 data-nosnippet>41</a>    pallet_revive,
-<a href=#42 id=42 data-nosnippet>42</a>    pallet_timestamp,
-<a href=#43 id=43 data-nosnippet>43</a>    paste,
-<a href=#44 id=44 data-nosnippet>44</a>    sp_core::crypto::Ss58Codec,
-<a href=#45 id=45 data-nosnippet>45</a>    sp_externalities::{
-<a href=#46 id=46 data-nosnippet>46</a>        <span class="self">self</span>,
-<a href=#47 id=47 data-nosnippet>47</a>        Extension,
-<a href=#48 id=48 data-nosnippet>48</a>    },
-<a href=#49 id=49 data-nosnippet>49</a>    sp_io::TestExternalities,
-<a href=#50 id=50 data-nosnippet>50</a>};
-<a href=#51 id=51 data-nosnippet>51</a>
-<a href=#52 id=52 data-nosnippet>52</a><span class="doccomment">/// A snapshot of the storage.
-<a href=#53 id=53 data-nosnippet>53</a></span><span class="attr">#[derive(Clone, Debug)]
-<a href=#54 id=54 data-nosnippet>54</a></span><span class="kw">pub struct </span>Snapshot {
-<a href=#55 id=55 data-nosnippet>55</a>    <span class="doccomment">/// The storage raw key-value pairs.
-<a href=#56 id=56 data-nosnippet>56</a>    </span><span class="kw">pub </span>storage: RawStorage,
-<a href=#57 id=57 data-nosnippet>57</a>    <span class="doccomment">/// The storage root hash.
-<a href=#58 id=58 data-nosnippet>58</a>    </span><span class="kw">pub </span>storage_root: StorageRoot,
-<a href=#59 id=59 data-nosnippet>59</a>}
-<a href=#60 id=60 data-nosnippet>60</a>
-<a href=#61 id=61 data-nosnippet>61</a><span class="kw">pub type </span>RawStorage = Vec&lt;(Vec&lt;u8&gt;, (Vec&lt;u8&gt;, i32))&gt;;
-<a href=#62 id=62 data-nosnippet>62</a><span class="kw">pub type </span>StorageRoot = H256;
-<a href=#63 id=63 data-nosnippet>63</a>
-<a href=#64 id=64 data-nosnippet>64</a><span class="doccomment">/// Alias for the balance type.
-<a href=#65 id=65 data-nosnippet>65</a></span><span class="kw">type </span>BalanceOf&lt;R&gt; =
-<a href=#66 id=66 data-nosnippet>66</a>    &lt;&lt;R <span class="kw">as </span>pallet_revive::Config&gt;::Currency <span class="kw">as </span>Inspect&lt;AccountIdFor&lt;R&gt;&gt;&gt;::Balance;
-<a href=#67 id=67 data-nosnippet>67</a>
-<a href=#68 id=68 data-nosnippet>68</a><span class="doccomment">/// Alias for the account ID type.
-<a href=#69 id=69 data-nosnippet>69</a></span><span class="kw">pub type </span>AccountIdFor&lt;R&gt; = &lt;R <span class="kw">as </span>frame_system::Config&gt;::AccountId;
-<a href=#70 id=70 data-nosnippet>70</a>
-<a href=#71 id=71 data-nosnippet>71</a><span class="doccomment">/// Alias for the runtime call type.
-<a href=#72 id=72 data-nosnippet>72</a></span><span class="kw">pub type </span>RuntimeCall&lt;R&gt; = &lt;R <span class="kw">as </span>frame_system::Config&gt;::RuntimeCall;
-<a href=#73 id=73 data-nosnippet>73</a>
-<a href=#74 id=74 data-nosnippet>74</a><span class="doccomment">/// Alias for the event record type.
-<a href=#75 id=75 data-nosnippet>75</a></span><span class="kw">pub type </span>EventRecordOf&lt;Runtime&gt; = EventRecord&lt;
-<a href=#76 id=76 data-nosnippet>76</a>    &lt;Runtime <span class="kw">as </span>frame_system::Config&gt;::RuntimeEvent,
-<a href=#77 id=77 data-nosnippet>77</a>    &lt;Runtime <span class="kw">as </span>frame_system::Config&gt;::Hash,
-<a href=#78 id=78 data-nosnippet>78</a>&gt;;
-<a href=#79 id=79 data-nosnippet>79</a>
-<a href=#80 id=80 data-nosnippet>80</a><span class="doccomment">/// Alias for the contract instantiate result.
-<a href=#81 id=81 data-nosnippet>81</a></span><span class="kw">pub type </span>ContractInstantiateResultFor&lt;Runtime&gt; =
-<a href=#82 id=82 data-nosnippet>82</a>    ContractResult&lt;OriginFor&lt;Runtime&gt;, BalanceOf&lt;Runtime&gt;&gt;;
-<a href=#83 id=83 data-nosnippet>83</a>
-<a href=#84 id=84 data-nosnippet>84</a><span class="kw">pub type </span>ContractResultFor&lt;Runtime&gt; = ContractResult&lt;Runtime, BalanceOf&lt;Runtime&gt;&gt;;
-<a href=#85 id=85 data-nosnippet>85</a>
-<a href=#86 id=86 data-nosnippet>86</a><span class="kw">pub type </span>ContractResultInstantiate&lt;Runtime&gt; =
-<a href=#87 id=87 data-nosnippet>87</a>    ContractResult&lt;InstantiateReturnValue, BalanceOf&lt;Runtime&gt;&gt;;
-<a href=#88 id=88 data-nosnippet>88</a>
-<a href=#89 id=89 data-nosnippet>89</a><span class="doccomment">/// Alias for the contract exec result.
-<a href=#90 id=90 data-nosnippet>90</a></span><span class="kw">pub type </span>ContractExecResultFor&lt;Runtime&gt; =
-<a href=#91 id=91 data-nosnippet>91</a>    ContractResult&lt;ExecReturnValue, BalanceOf&lt;Runtime&gt;&gt;;
-<a href=#92 id=92 data-nosnippet>92</a>
-<a href=#93 id=93 data-nosnippet>93</a><span class="doccomment">/// Alias for the `map_account` result.
-<a href=#94 id=94 data-nosnippet>94</a></span><span class="kw">pub type </span>MapAccountResultFor = <span class="prelude-ty">Result</span>&lt;(), DispatchError&gt;;
-<a href=#95 id=95 data-nosnippet>95</a>
-<a href=#96 id=96 data-nosnippet>96</a><span class="doccomment">/// Alias for the runtime of a sandbox.
-<a href=#97 id=97 data-nosnippet>97</a></span><span class="kw">pub type </span>RuntimeOf&lt;S&gt; = &lt;S <span class="kw">as </span>Sandbox&gt;::Runtime;
-<a href=#98 id=98 data-nosnippet>98</a>
-<a href=#99 id=99 data-nosnippet>99</a><span class="doccomment">/// Alias for the runtime event of a sandbox.
-<a href=#100 id=100 data-nosnippet>100</a></span><span class="kw">pub type </span>RuntimeEventOf&lt;S&gt; = &lt;RuntimeOf&lt;S&gt; <span class="kw">as </span>frame_system::Config&gt;::RuntimeEvent;
-<a href=#101 id=101 data-nosnippet>101</a>
-<a href=#102 id=102 data-nosnippet>102</a><span class="doccomment">/// Sandbox defines the API of a sandboxed runtime.
-<a href=#103 id=103 data-nosnippet>103</a></span><span class="kw">pub trait </span>Sandbox {
-<a href=#104 id=104 data-nosnippet>104</a>    <span class="doccomment">/// The runtime associated with the sandbox.
-<a href=#105 id=105 data-nosnippet>105</a>    </span><span class="kw">type </span>Runtime: frame_system::Config;
-<a href=#106 id=106 data-nosnippet>106</a>
-<a href=#107 id=107 data-nosnippet>107</a>    <span class="doccomment">/// Execute the given externalities.
-<a href=#108 id=108 data-nosnippet>108</a>    </span><span class="kw">fn </span>execute_with&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, execute: <span class="kw">impl </span>FnOnce() -&gt; T) -&gt; T;
-<a href=#109 id=109 data-nosnippet>109</a>
-<a href=#110 id=110 data-nosnippet>110</a>    <span class="doccomment">/// Dry run an action without modifying the storage.
-<a href=#111 id=111 data-nosnippet>111</a>    </span><span class="kw">fn </span>dry_run&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, action: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span><span class="self">Self</span>) -&gt; T) -&gt; T;
-<a href=#112 id=112 data-nosnippet>112</a>
-<a href=#113 id=113 data-nosnippet>113</a>    <span class="doccomment">/// Register an extension.
-<a href=#114 id=114 data-nosnippet>114</a>    </span><span class="kw">fn </span>register_extension&lt;E: Any + Extension&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ext: E);
-<a href=#115 id=115 data-nosnippet>115</a>
-<a href=#116 id=116 data-nosnippet>116</a>    <span class="doccomment">/// Initialize a new block at particular height.
-<a href=#117 id=117 data-nosnippet>117</a>    </span><span class="kw">fn </span>initialize_block(
-<a href=#118 id=118 data-nosnippet>118</a>        _height: BlockNumberFor&lt;<span class="self">Self</span>::Runtime&gt;,
-<a href=#119 id=119 data-nosnippet>119</a>        _parent_hash: &lt;<span class="self">Self</span>::Runtime <span class="kw">as </span>frame_system::Config&gt;::Hash,
-<a href=#120 id=120 data-nosnippet>120</a>    ) {
-<a href=#121 id=121 data-nosnippet>121</a>    }
-<a href=#122 id=122 data-nosnippet>122</a>
-<a href=#123 id=123 data-nosnippet>123</a>    <span class="doccomment">/// Finalize a block at particular height.
-<a href=#124 id=124 data-nosnippet>124</a>    </span><span class="kw">fn </span>finalize_block(
-<a href=#125 id=125 data-nosnippet>125</a>        _height: BlockNumberFor&lt;<span class="self">Self</span>::Runtime&gt;,
-<a href=#126 id=126 data-nosnippet>126</a>    ) -&gt; &lt;<span class="self">Self</span>::Runtime <span class="kw">as </span>frame_system::Config&gt;::Hash {
-<a href=#127 id=127 data-nosnippet>127</a>        Default::default()
-<a href=#128 id=128 data-nosnippet>128</a>    }
-<a href=#129 id=129 data-nosnippet>129</a>
-<a href=#130 id=130 data-nosnippet>130</a>    <span class="doccomment">/// Default actor for the sandbox.
-<a href=#131 id=131 data-nosnippet>131</a>    </span><span class="kw">fn </span>default_actor() -&gt; AccountIdFor&lt;<span class="self">Self</span>::Runtime&gt;;
-<a href=#132 id=132 data-nosnippet>132</a>
-<a href=#133 id=133 data-nosnippet>133</a>    <span class="kw">fn </span>default_gas_limit() -&gt; Weight {
-<a href=#134 id=134 data-nosnippet>134</a>        Weight::from_parts(<span class="number">100_000_000_000_000</span>, <span class="number">6 </span>* <span class="number">1024 </span>* <span class="number">1024</span>)
-<a href=#135 id=135 data-nosnippet>135</a>    }
-<a href=#136 id=136 data-nosnippet>136</a>
-<a href=#137 id=137 data-nosnippet>137</a>    <span class="doccomment">/// Metadata of the runtime.
-<a href=#138 id=138 data-nosnippet>138</a>    </span><span class="kw">fn </span>get_metadata() -&gt; RuntimeMetadataPrefixed;
-<a href=#139 id=139 data-nosnippet>139</a>
-<a href=#140 id=140 data-nosnippet>140</a>    <span class="doccomment">/// Convert an account to a call origin.
-<a href=#141 id=141 data-nosnippet>141</a>    </span><span class="kw">fn </span>convert_account_to_origin(
-<a href=#142 id=142 data-nosnippet>142</a>        account: AccountIdFor&lt;<span class="self">Self</span>::Runtime&gt;,
-<a href=#143 id=143 data-nosnippet>143</a>    ) -&gt; &lt;&lt;<span class="self">Self</span>::Runtime <span class="kw">as </span>frame_system::Config&gt;::RuntimeCall <span class="kw">as </span>Dispatchable&gt;::RuntimeOrigin;
-<a href=#144 id=144 data-nosnippet>144</a>
-<a href=#145 id=145 data-nosnippet>145</a>    <span class="doccomment">/// Take a snapshot of the storage.
-<a href=#146 id=146 data-nosnippet>146</a>    </span><span class="kw">fn </span>take_snapshot(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Snapshot;
-<a href=#147 id=147 data-nosnippet>147</a>
-<a href=#148 id=148 data-nosnippet>148</a>    <span class="doccomment">/// Restore the storage from the given snapshot.
-<a href=#149 id=149 data-nosnippet>149</a>    </span><span class="kw">fn </span>restore_snapshot(<span class="kw-2">&amp;mut </span><span class="self">self</span>, snapshot: Snapshot);
-<a href=#150 id=150 data-nosnippet>150</a>}
-<a href=#151 id=151 data-nosnippet>151</a>
-<a href=#152 id=152 data-nosnippet>152</a><span class="doccomment">/// Converts from the generic `Balance` type to the Ethereum native `U256`.
-<a href=#153 id=153 data-nosnippet>153</a>///
-<a href=#154 id=154 data-nosnippet>154</a>/// # Developer Note
-<a href=#155 id=155 data-nosnippet>155</a>///
-<a href=#156 id=156 data-nosnippet>156</a>/// `pallet-revive` uses both types, hence we have to convert in between them
-<a href=#157 id=157 data-nosnippet>157</a>/// for certain functions. Notice that precision loss might occur when converting
-<a href=#158 id=158 data-nosnippet>158</a>/// the other way (from `U256` to `Balance`).
-<a href=#159 id=159 data-nosnippet>159</a>///
-<a href=#160 id=160 data-nosnippet>160</a>/// See &lt;https://github.com/paritytech/polkadot-sdk/pull/9101&gt; for more details.
-<a href=#161 id=161 data-nosnippet>161</a></span><span class="kw">pub fn </span>balance_to_evm_value&lt;Balance&gt;(value: Balance) -&gt; U256
-<a href=#162 id=162 data-nosnippet>162</a><span class="kw">where
-<a href=#163 id=163 data-nosnippet>163</a>    </span>Balance: Into&lt;U256&gt;,
-<a href=#164 id=164 data-nosnippet>164</a>{
-<a href=#165 id=165 data-nosnippet>165</a>    <span class="kw">let </span>native_to_eth_ratio: U256 = <span class="number">100_000_000</span>.into();
-<a href=#166 id=166 data-nosnippet>166</a>    <span class="kw">let </span>evm_value: U256 = value.into();
-<a href=#167 id=167 data-nosnippet>167</a>    native_to_eth_ratio.saturating_mul(evm_value)
-<a href=#168 id=168 data-nosnippet>168</a>}</code></pre></div></section></main></body></html>
+<a href=#29 id=29 data-nosnippet>29</a><span class="kw">use </span>sp_core::Get;
+<a href=#30 id=30 data-nosnippet>30</a><span class="doccomment">/// Export pallets that are used in [`crate::create_sandbox`]
+<a href=#31 id=31 data-nosnippet>31</a></span><span class="kw">pub use </span>{
+<a href=#32 id=32 data-nosnippet>32</a>    frame_support::sp_runtime::testing::H256,
+<a href=#33 id=33 data-nosnippet>33</a>    frame_support::{
+<a href=#34 id=34 data-nosnippet>34</a>        <span class="self">self</span>,
+<a href=#35 id=35 data-nosnippet>35</a>        sp_runtime::{
+<a href=#36 id=36 data-nosnippet>36</a>            AccountId32,
+<a href=#37 id=37 data-nosnippet>37</a>            DispatchError,
+<a href=#38 id=38 data-nosnippet>38</a>        },
+<a href=#39 id=39 data-nosnippet>39</a>    },
+<a href=#40 id=40 data-nosnippet>40</a>    frame_system,
+<a href=#41 id=41 data-nosnippet>41</a>    pallet_balances,
+<a href=#42 id=42 data-nosnippet>42</a>    pallet_revive,
+<a href=#43 id=43 data-nosnippet>43</a>    pallet_timestamp,
+<a href=#44 id=44 data-nosnippet>44</a>    paste,
+<a href=#45 id=45 data-nosnippet>45</a>    sp_core::crypto::Ss58Codec,
+<a href=#46 id=46 data-nosnippet>46</a>    sp_externalities::{
+<a href=#47 id=47 data-nosnippet>47</a>        <span class="self">self</span>,
+<a href=#48 id=48 data-nosnippet>48</a>        Extension,
+<a href=#49 id=49 data-nosnippet>49</a>    },
+<a href=#50 id=50 data-nosnippet>50</a>    sp_io::TestExternalities,
+<a href=#51 id=51 data-nosnippet>51</a>};
+<a href=#52 id=52 data-nosnippet>52</a>
+<a href=#53 id=53 data-nosnippet>53</a><span class="doccomment">/// A snapshot of the storage.
+<a href=#54 id=54 data-nosnippet>54</a></span><span class="attr">#[derive(Clone, Debug)]
+<a href=#55 id=55 data-nosnippet>55</a></span><span class="kw">pub struct </span>Snapshot {
+<a href=#56 id=56 data-nosnippet>56</a>    <span class="doccomment">/// The storage raw key-value pairs.
+<a href=#57 id=57 data-nosnippet>57</a>    </span><span class="kw">pub </span>storage: RawStorage,
+<a href=#58 id=58 data-nosnippet>58</a>    <span class="doccomment">/// The storage root hash.
+<a href=#59 id=59 data-nosnippet>59</a>    </span><span class="kw">pub </span>storage_root: StorageRoot,
+<a href=#60 id=60 data-nosnippet>60</a>}
+<a href=#61 id=61 data-nosnippet>61</a>
+<a href=#62 id=62 data-nosnippet>62</a><span class="kw">pub type </span>RawStorage = Vec&lt;(Vec&lt;u8&gt;, (Vec&lt;u8&gt;, i32))&gt;;
+<a href=#63 id=63 data-nosnippet>63</a><span class="kw">pub type </span>StorageRoot = H256;
+<a href=#64 id=64 data-nosnippet>64</a>
+<a href=#65 id=65 data-nosnippet>65</a><span class="doccomment">/// Alias for the balance type.
+<a href=#66 id=66 data-nosnippet>66</a></span><span class="kw">type </span>BalanceOf&lt;R&gt; =
+<a href=#67 id=67 data-nosnippet>67</a>    &lt;&lt;R <span class="kw">as </span>pallet_revive::Config&gt;::Currency <span class="kw">as </span>Inspect&lt;AccountIdFor&lt;R&gt;&gt;&gt;::Balance;
+<a href=#68 id=68 data-nosnippet>68</a>
+<a href=#69 id=69 data-nosnippet>69</a><span class="doccomment">/// Alias for the account ID type.
+<a href=#70 id=70 data-nosnippet>70</a></span><span class="kw">pub type </span>AccountIdFor&lt;R&gt; = &lt;R <span class="kw">as </span>frame_system::Config&gt;::AccountId;
+<a href=#71 id=71 data-nosnippet>71</a>
+<a href=#72 id=72 data-nosnippet>72</a><span class="doccomment">/// Alias for the runtime call type.
+<a href=#73 id=73 data-nosnippet>73</a></span><span class="kw">pub type </span>RuntimeCall&lt;R&gt; = &lt;R <span class="kw">as </span>frame_system::Config&gt;::RuntimeCall;
+<a href=#74 id=74 data-nosnippet>74</a>
+<a href=#75 id=75 data-nosnippet>75</a><span class="doccomment">/// Alias for the event record type.
+<a href=#76 id=76 data-nosnippet>76</a></span><span class="kw">pub type </span>EventRecordOf&lt;Runtime&gt; = EventRecord&lt;
+<a href=#77 id=77 data-nosnippet>77</a>    &lt;Runtime <span class="kw">as </span>frame_system::Config&gt;::RuntimeEvent,
+<a href=#78 id=78 data-nosnippet>78</a>    &lt;Runtime <span class="kw">as </span>frame_system::Config&gt;::Hash,
+<a href=#79 id=79 data-nosnippet>79</a>&gt;;
+<a href=#80 id=80 data-nosnippet>80</a>
+<a href=#81 id=81 data-nosnippet>81</a><span class="doccomment">/// Alias for the contract instantiate result.
+<a href=#82 id=82 data-nosnippet>82</a></span><span class="kw">pub type </span>ContractInstantiateResultFor&lt;Runtime&gt; =
+<a href=#83 id=83 data-nosnippet>83</a>    ContractResult&lt;OriginFor&lt;Runtime&gt;, BalanceOf&lt;Runtime&gt;&gt;;
+<a href=#84 id=84 data-nosnippet>84</a>
+<a href=#85 id=85 data-nosnippet>85</a><span class="kw">pub type </span>ContractResultFor&lt;Runtime&gt; = ContractResult&lt;Runtime, BalanceOf&lt;Runtime&gt;&gt;;
+<a href=#86 id=86 data-nosnippet>86</a>
+<a href=#87 id=87 data-nosnippet>87</a><span class="kw">pub type </span>ContractResultInstantiate&lt;Runtime&gt; =
+<a href=#88 id=88 data-nosnippet>88</a>    ContractResult&lt;InstantiateReturnValue, BalanceOf&lt;Runtime&gt;&gt;;
+<a href=#89 id=89 data-nosnippet>89</a>
+<a href=#90 id=90 data-nosnippet>90</a><span class="doccomment">/// Alias for the contract exec result.
+<a href=#91 id=91 data-nosnippet>91</a></span><span class="kw">pub type </span>ContractExecResultFor&lt;Runtime&gt; =
+<a href=#92 id=92 data-nosnippet>92</a>    ContractResult&lt;ExecReturnValue, BalanceOf&lt;Runtime&gt;&gt;;
+<a href=#93 id=93 data-nosnippet>93</a>
+<a href=#94 id=94 data-nosnippet>94</a><span class="doccomment">/// Alias for the `map_account` result.
+<a href=#95 id=95 data-nosnippet>95</a></span><span class="kw">pub type </span>MapAccountResultFor = <span class="prelude-ty">Result</span>&lt;(), DispatchError&gt;;
+<a href=#96 id=96 data-nosnippet>96</a>
+<a href=#97 id=97 data-nosnippet>97</a><span class="doccomment">/// Alias for the runtime of a sandbox.
+<a href=#98 id=98 data-nosnippet>98</a></span><span class="kw">pub type </span>RuntimeOf&lt;S&gt; = &lt;S <span class="kw">as </span>Sandbox&gt;::Runtime;
+<a href=#99 id=99 data-nosnippet>99</a>
+<a href=#100 id=100 data-nosnippet>100</a><span class="doccomment">/// Alias for the runtime event of a sandbox.
+<a href=#101 id=101 data-nosnippet>101</a></span><span class="kw">pub type </span>RuntimeEventOf&lt;S&gt; = &lt;RuntimeOf&lt;S&gt; <span class="kw">as </span>frame_system::Config&gt;::RuntimeEvent;
+<a href=#102 id=102 data-nosnippet>102</a>
+<a href=#103 id=103 data-nosnippet>103</a><span class="doccomment">/// Sandbox defines the API of a sandboxed runtime.
+<a href=#104 id=104 data-nosnippet>104</a></span><span class="kw">pub trait </span>Sandbox {
+<a href=#105 id=105 data-nosnippet>105</a>    <span class="doccomment">/// The runtime associated with the sandbox.
+<a href=#106 id=106 data-nosnippet>106</a>    </span><span class="kw">type </span>Runtime: frame_system::Config;
+<a href=#107 id=107 data-nosnippet>107</a>
+<a href=#108 id=108 data-nosnippet>108</a>    <span class="doccomment">/// Execute the given externalities.
+<a href=#109 id=109 data-nosnippet>109</a>    </span><span class="kw">fn </span>execute_with&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, execute: <span class="kw">impl </span>FnOnce() -&gt; T) -&gt; T;
+<a href=#110 id=110 data-nosnippet>110</a>
+<a href=#111 id=111 data-nosnippet>111</a>    <span class="doccomment">/// Dry run an action without modifying the storage.
+<a href=#112 id=112 data-nosnippet>112</a>    </span><span class="kw">fn </span>dry_run&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, action: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span><span class="self">Self</span>) -&gt; T) -&gt; T;
+<a href=#113 id=113 data-nosnippet>113</a>
+<a href=#114 id=114 data-nosnippet>114</a>    <span class="doccomment">/// Register an extension.
+<a href=#115 id=115 data-nosnippet>115</a>    </span><span class="kw">fn </span>register_extension&lt;E: Any + Extension&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ext: E);
+<a href=#116 id=116 data-nosnippet>116</a>
+<a href=#117 id=117 data-nosnippet>117</a>    <span class="doccomment">/// Initialize a new block at particular height.
+<a href=#118 id=118 data-nosnippet>118</a>    </span><span class="kw">fn </span>initialize_block(
+<a href=#119 id=119 data-nosnippet>119</a>        _height: BlockNumberFor&lt;<span class="self">Self</span>::Runtime&gt;,
+<a href=#120 id=120 data-nosnippet>120</a>        _parent_hash: &lt;<span class="self">Self</span>::Runtime <span class="kw">as </span>frame_system::Config&gt;::Hash,
+<a href=#121 id=121 data-nosnippet>121</a>    ) {
+<a href=#122 id=122 data-nosnippet>122</a>    }
+<a href=#123 id=123 data-nosnippet>123</a>
+<a href=#124 id=124 data-nosnippet>124</a>    <span class="doccomment">/// Finalize a block at particular height.
+<a href=#125 id=125 data-nosnippet>125</a>    </span><span class="kw">fn </span>finalize_block(
+<a href=#126 id=126 data-nosnippet>126</a>        _height: BlockNumberFor&lt;<span class="self">Self</span>::Runtime&gt;,
+<a href=#127 id=127 data-nosnippet>127</a>    ) -&gt; &lt;<span class="self">Self</span>::Runtime <span class="kw">as </span>frame_system::Config&gt;::Hash {
+<a href=#128 id=128 data-nosnippet>128</a>        Default::default()
+<a href=#129 id=129 data-nosnippet>129</a>    }
+<a href=#130 id=130 data-nosnippet>130</a>
+<a href=#131 id=131 data-nosnippet>131</a>    <span class="doccomment">/// Default actor for the sandbox.
+<a href=#132 id=132 data-nosnippet>132</a>    </span><span class="kw">fn </span>default_actor() -&gt; AccountIdFor&lt;<span class="self">Self</span>::Runtime&gt;;
+<a href=#133 id=133 data-nosnippet>133</a>
+<a href=#134 id=134 data-nosnippet>134</a>    <span class="kw">fn </span>default_gas_limit() -&gt; Weight {
+<a href=#135 id=135 data-nosnippet>135</a>        Weight::from_parts(<span class="number">100_000_000_000_000</span>, <span class="number">6 </span>* <span class="number">1024 </span>* <span class="number">1024</span>)
+<a href=#136 id=136 data-nosnippet>136</a>    }
+<a href=#137 id=137 data-nosnippet>137</a>
+<a href=#138 id=138 data-nosnippet>138</a>    <span class="doccomment">/// Metadata of the runtime.
+<a href=#139 id=139 data-nosnippet>139</a>    </span><span class="kw">fn </span>get_metadata() -&gt; RuntimeMetadataPrefixed;
+<a href=#140 id=140 data-nosnippet>140</a>
+<a href=#141 id=141 data-nosnippet>141</a>    <span class="doccomment">/// Convert an account to a call origin.
+<a href=#142 id=142 data-nosnippet>142</a>    </span><span class="kw">fn </span>convert_account_to_origin(
+<a href=#143 id=143 data-nosnippet>143</a>        account: AccountIdFor&lt;<span class="self">Self</span>::Runtime&gt;,
+<a href=#144 id=144 data-nosnippet>144</a>    ) -&gt; &lt;&lt;<span class="self">Self</span>::Runtime <span class="kw">as </span>frame_system::Config&gt;::RuntimeCall <span class="kw">as </span>Dispatchable&gt;::RuntimeOrigin;
+<a href=#145 id=145 data-nosnippet>145</a>
+<a href=#146 id=146 data-nosnippet>146</a>    <span class="doccomment">/// Take a snapshot of the storage.
+<a href=#147 id=147 data-nosnippet>147</a>    </span><span class="kw">fn </span>take_snapshot(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Snapshot;
+<a href=#148 id=148 data-nosnippet>148</a>
+<a href=#149 id=149 data-nosnippet>149</a>    <span class="doccomment">/// Restore the storage from the given snapshot.
+<a href=#150 id=150 data-nosnippet>150</a>    </span><span class="kw">fn </span>restore_snapshot(<span class="kw-2">&amp;mut </span><span class="self">self</span>, snapshot: Snapshot);
+<a href=#151 id=151 data-nosnippet>151</a>}
+<a href=#152 id=152 data-nosnippet>152</a>
+<a href=#153 id=153 data-nosnippet>153</a><span class="doccomment">/// Converts from the generic `Balance` type to the Ethereum native `U256`.
+<a href=#154 id=154 data-nosnippet>154</a>///
+<a href=#155 id=155 data-nosnippet>155</a>/// # Developer Note
+<a href=#156 id=156 data-nosnippet>156</a>///
+<a href=#157 id=157 data-nosnippet>157</a>/// `pallet-revive` uses both types, hence we have to convert in between them
+<a href=#158 id=158 data-nosnippet>158</a>/// for certain functions. Notice that precision loss might occur when converting
+<a href=#159 id=159 data-nosnippet>159</a>/// the other way (from `U256` to `Balance`).
+<a href=#160 id=160 data-nosnippet>160</a>///
+<a href=#161 id=161 data-nosnippet>161</a>/// See &lt;https://github.com/paritytech/polkadot-sdk/pull/9101&gt; for more details.
+<a href=#162 id=162 data-nosnippet>162</a></span><span class="kw">pub fn </span>balance_to_evm_value&lt;R&gt;(value: BalanceOf&lt;R&gt;) -&gt; U256
+<a href=#163 id=163 data-nosnippet>163</a><span class="kw">where
+<a href=#164 id=164 data-nosnippet>164</a>    </span>R: pallet_revive::Config,
+<a href=#165 id=165 data-nosnippet>165</a>    BalanceOf&lt;R&gt;: Into&lt;U256&gt;,
+<a href=#166 id=166 data-nosnippet>166</a>    U256: From&lt;u32&gt;,
+<a href=#167 id=167 data-nosnippet>167</a>{
+<a href=#168 id=168 data-nosnippet>168</a>    <span class="kw">let </span>native_to_eth_ratio: U256 =
+<a href=#169 id=169 data-nosnippet>169</a>        &lt;R <span class="kw">as </span>pallet_revive::Config&gt;::NativeToEthRatio::get().into();
+<a href=#170 id=170 data-nosnippet>170</a>    <span class="kw">let </span>evm_value: U256 = value.into();
+<a href=#171 id=171 data-nosnippet>171</a>    native_to_eth_ratio.saturating_mul(evm_value.into())
+<a href=#172 id=172 data-nosnippet>172</a>}</code></pre></div></section></main></body></html>
