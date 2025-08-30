@@ -31,7 +31,7 @@ tokio = { workspace = true, features = ["net"] }
 dylint_testing = "4.1.0"
 
 # The ink! dependencies used to build the `ui` tests and to compile the linting
-# library with `--default-features=std` (see the `features` section bellow).
+# library with `--default-features=std` (see the `features` section below).
 #
 # These cannot be moved to the workspace level because `cargo` does not provide
 # the `[[workspace.dev-dependencies]]` directive.
