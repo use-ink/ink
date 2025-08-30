@@ -23,6 +23,7 @@ mod error;
 mod params;
 mod result;
 mod types;
+mod utils;
 
 #[cfg(test)]
 mod tests;
@@ -63,6 +64,7 @@ pub use self::{
         SolResultDecodeError,
     },
     types::{
+        SolTopicEncode,
         SolTypeDecode,
         SolTypeEncode,
     },
@@ -168,7 +170,7 @@ pub trait SolEncode<'a> {
     /// # Note
     ///
     /// Prefer reference based representation for better performance.
-    type SolType: SolTypeEncode;
+    type SolType: SolTypeEncode + SolTopicEncode;
 
     /// Name of equivalent Solidity ABI type.
     const SOL_NAME: &'static str =
@@ -184,13 +186,46 @@ pub trait SolEncode<'a> {
         <Self::SolType as SolTypeEncode>::encode(&self.to_sol_type())
     }
 
+    /// Solidity ABI encode the value as a topic (i.e. an indexed event parameter).
+    fn encode_topic<H>(&'a self, hasher: H) -> [u8; 32]
+    where
+        H: Fn(&[u8], &mut [u8; 32]),
+    {
+        <Self::SolType as SolTopicEncode>::encode_topic(&self.to_sol_type(), hasher)
+    }
+
     /// Converts from `Self` to `Self::SolType` via either a borrow (if possible), or
     /// a possibly expensive conversion otherwise.
     fn to_sol_type(&'a self) -> Self::SolType;
 }
 
+/// Solidity ABI encode the given value as a parameter sequence.
+///
+/// # Note
+///
+/// - `T` must be a tuple type where each member implements [`SolEncode`].
+/// - The result can be different from [`SolEncode::encode`] for the given tuple because
+///   this function always returns the encoded data in place, even for tuples containing
+///   dynamic types (i.e. no offset is included for dynamic tuples).
+///
+/// This function is a convenience wrapper for [`SolParamsEncode::encode`].
+pub fn encode_sequence<T: for<'a> SolParamsEncode<'a>>(value: &T) -> Vec<u8> {
+    SolParamsEncode::encode(value)
+}
+
+/// Solidity ABI decode the given data as a parameter sequence.
+///
+/// # Note
+///
+/// - `T` must be a tuple type where each member implements [`SolDecode`].
+/// - See notes for [`encode_sequence`] for the difference between this function and
+///   [`SolDecode::decode`] for the given tuple.
+pub fn decode_sequence<T: SolParamsDecode>(data: &[u8]) -> Result<T, Error> {
+    SolParamsDecode::decode(data)
+}
+
 /// Solidity ABI encoding/decoding error.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Error;
 
 impl From<alloy_sol_types::Error> for Error {
@@ -490,15 +525,12 @@ where
 impl<T> SolDecode for core::marker::PhantomData<T> {
     type SolType = ();
 
-    fn decode(data: &[u8]) -> Result<Self, Error>
+    fn decode(_: &[u8]) -> Result<Self, Error>
     where
         Self: Sized,
     {
-        if data.is_empty() {
-            Ok(core::marker::PhantomData)
-        } else {
-            Err(Error)
-        }
+        // NOTE: Solidity ABI decoding doesn't validate input length.
+        Ok(core::marker::PhantomData)
     }
 
     fn from_sol_type(_: Self::SolType) -> Result<Self, Error> {

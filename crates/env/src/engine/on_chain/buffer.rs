@@ -202,23 +202,18 @@ impl<'a> ScopedBuffer<'a> {
         self.take(encode_len)
     }
 
-    /// Appends the encoding of `value` to the scoped buffer.
+    /// Appends the given bytes to the scoped buffer.
     ///
     /// Does not return the buffer immediately so that other values can be appended
     /// afterwards. The [`take_appended`] method shall be used to return the buffer
     /// that includes all appended encodings as a single buffer.
     #[inline(always)]
-    pub fn append_encoded<T>(&mut self, value: &T)
-    where
-        T: scale::Encode,
-    {
+    pub fn append_bytes(&mut self, bytes: &[u8]) {
         let offset = self.offset;
-        let buffer = core::mem::take(&mut self.buffer);
-        let mut encode_scope = EncodeScope::from(&mut buffer[offset..]);
-        scale::Encode::encode_to(&value, &mut encode_scope);
-        let encode_len = encode_scope.len();
-        self.offset = self.offset.checked_add(encode_len).unwrap();
-        let _ = core::mem::replace(&mut self.buffer, buffer);
+        let len = bytes.len();
+        let end_offset = offset.checked_add(len).unwrap();
+        self.buffer[offset..end_offset].copy_from_slice(bytes);
+        self.offset = end_offset;
     }
 
     /// Returns the buffer containing all encodings appended via [`append_encoded`]

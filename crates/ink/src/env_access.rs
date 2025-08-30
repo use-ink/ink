@@ -34,6 +34,7 @@ use ink_env::{
     },
     Environment,
     Result,
+    TopicEncoder,
 };
 use ink_primitives::{
     abi::AbiEncodeWith,
@@ -397,11 +398,43 @@ where
     }
 
     /// Emits an event.
+    ///
+    /// # Note
+    ///
+    /// In "all" ABI mode, both an in ink! and Solidity ABI event are emitted.
+    #[cfg(not(ink_abi = "all"))]
     pub fn emit_event<Evt>(self, event: Evt)
     where
-        Evt: ink_env::Event,
+        Evt: ink_env::Event<crate::env::DefaultAbi>,
     {
-        ink_env::emit_event::<E, Evt>(event)
+        ink_env::emit_event::<E, Evt, crate::env::DefaultAbi>(&event)
+    }
+
+    /// Emits an event.
+    ///
+    /// # Note
+    ///
+    /// In "all" ABI mode, both an in ink! and Solidity ABI event are emitted by this
+    /// method.
+    #[cfg(ink_abi = "all")]
+    pub fn emit_event<Evt>(self, event: Evt)
+    where
+        Evt: ink_env::Event<crate::abi::Ink> + ink_env::Event<crate::abi::Sol>,
+    {
+        // Emits ink! ABI encoded event.
+        ink_env::emit_event::<E, Evt, crate::abi::Ink>(&event);
+
+        // Emits Solidity ABI encoded event.
+        ink_env::emit_event::<E, Evt, crate::abi::Sol>(&event);
+    }
+
+    /// Emits an event using the specified ABI.
+    pub fn emit_event_abi<Evt, Abi>(self, event: Evt)
+    where
+        Evt: ink_env::Event<Abi>,
+        Abi: TopicEncoder,
+    {
+        ink_env::emit_event::<E, Evt, Abi>(&event)
     }
 
     /// Instantiates another contract using the supplied code hash.

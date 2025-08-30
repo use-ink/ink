@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Solidity ABI compatibility metadata improvements - [#2511](https://github.com/use-ink/ink/pull/2511)
 - Share intermediate build artifacts across all contract builds in e2e tests - [#2531](https://github.com/use-ink/ink/pull/2531)
 - Refactor Solidity bytes wrapper(s) - [#2569](https://github.com/use-ink/ink/pull/2569)
+- Refactor events for `pallet-revive` and multiple ABI support - [#2580](https://github.com/use-ink/ink/pull/2580)
 
 ### Fixed
 - Update metadata version to version 6 ‒ [#2507](https://github.com/use-ink/ink/pull/2507)

@@ -1,0 +1,7 @@
+error: Events with an `anonymous` attribute argument can only have up to 4 fields annotated with an `#[ink(topic)]` attribute
+ --> tests/ui/abi/sol/fail/event-anonymous-too-many-topics.rs:1:1
+  |
+1 | #[ink::event(anonymous)]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the attribute macro `ink::event` (in Nightly builds, run with -Z macro-backtrace for more info)

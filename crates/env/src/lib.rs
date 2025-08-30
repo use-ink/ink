@@ -109,7 +109,10 @@ pub use self::{
         Error,
         Result,
     },
-    event::Event,
+    event::{
+        Event,
+        TopicEncoder,
+    },
     types::{
         AccountIdGuard,
         Balance,
@@ -123,7 +126,6 @@ pub use self::{
         Timestamp,
     },
 };
-use ink_primitives::Clear;
 pub use ink_primitives::{
     contract::{
         ContractEnv,

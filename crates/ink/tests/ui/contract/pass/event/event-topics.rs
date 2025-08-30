@@ -40,7 +40,7 @@ mod contract {
         arg_2: i16,
         #[ink(topic)]
         arg_3: i32,
-        #[ink(topic)]
+        // #[ink(topic)] <- Cannot have more than 4 topics by default (i.e. event signature + 3 indexed fields).
         arg_4: i64,
     }
 
@@ -52,9 +52,9 @@ mod contract {
         arg_2: i16,
         #[ink(topic)]
         arg_3: i32,
-        #[ink(topic)]
+        // #[ink(topic)] <- Cannot have more than 4 topics by default (i.e. event signature + 3 indexed fields).
         arg_4: i64,
-        // #[ink(topic)] <- Cannot have more than 4 topics by default.
+        // #[ink(topic)]
         arg_5: i128,
     }
 

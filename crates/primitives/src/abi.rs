@@ -44,11 +44,25 @@ pub struct Sol;
 
 /// Trait for ABI-specific encoding with support for both slice and vector buffers.
 pub trait AbiEncodeWith<Abi> {
+    /// Encodes the data into a new vector.
+    fn encode_with(&self) -> Vec<u8>;
+
     /// Encodes the data into a fixed-size buffer, returning the number of bytes written.
     fn encode_to_slice(&self, buffer: &mut [u8]) -> usize;
 
     /// Encodes the data into a dynamically resizing vector.
     fn encode_to_vec(&self, buffer: &mut Vec<u8>);
+
+    /// Encodes the value as a topic (i.e. an indexed event parameter).
+    ///
+    /// # Note
+    ///
+    /// The provided hashing function depends on the ABI i.e.
+    /// - BLAKE2b for ink! ABI
+    /// - Keccak-256 for Solidity ABI
+    fn encode_topic<H>(&self, hasher: H) -> [u8; 32]
+    where
+        H: Fn(&[u8], &mut [u8; 32]);
 }
 
 /// Trait for ABI-specific decoding.
@@ -60,6 +74,10 @@ pub trait AbiDecodeWith<Abi>: Sized {
 }
 
 impl<T: scale::Encode> AbiEncodeWith<Ink> for T {
+    fn encode_with(&self) -> Vec<u8> {
+        scale::Encode::encode(self)
+    }
+
     fn encode_to_slice(&self, buffer: &mut [u8]) -> usize {
         let encoded = scale::Encode::encode(self);
         let len = encoded.len();
@@ -76,6 +94,21 @@ impl<T: scale::Encode> AbiEncodeWith<Ink> for T {
     fn encode_to_vec(&self, buffer: &mut Vec<u8>) {
         scale::Encode::encode_to(self, buffer);
     }
+
+    fn encode_topic<H>(&self, hasher: H) -> [u8; 32]
+    where
+        H: Fn(&[u8], &mut [u8; 32]),
+    {
+        let encoded = scale::Encode::encode(self);
+        let len = encoded.len();
+        let mut output = [0u8; 32];
+        if encoded.len() <= 32 {
+            output.as_mut()[0..len].copy_from_slice(&encoded);
+        } else {
+            hasher(&encoded, &mut output);
+        }
+        output
+    }
 }
 
 impl<T: scale::Decode> AbiDecodeWith<Ink> for T {
@@ -89,8 +122,12 @@ impl<T> AbiEncodeWith<Sol> for T
 where
     T: for<'a> SolEncode<'a>,
 {
+    fn encode_with(&self) -> Vec<u8> {
+        SolEncode::encode(self)
+    }
+
     fn encode_to_slice(&self, buffer: &mut [u8]) -> usize {
-        let encoded = T::encode(self);
+        let encoded = SolEncode::encode(self);
         let len = encoded.len();
         debug_assert!(
             len <= buffer.len(),
@@ -104,6 +141,13 @@ where
 
     fn encode_to_vec(&self, buffer: &mut Vec<u8>) {
         buffer.extend_from_slice(&T::encode(self));
+    }
+
+    fn encode_topic<H>(&self, hasher: H) -> [u8; 32]
+    where
+        H: Fn(&[u8], &mut [u8; 32]),
+    {
+        SolEncode::encode_topic(self, hasher)
     }
 }
 
