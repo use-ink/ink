@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["generate_code","generate_type_spec"],"mod":["reflect"],"trait":["CodeGenerator"]};
+window.SIDEBAR_ITEMS = {"fn":["generate_code","generate_type_spec"],"macro":["for_each_abi","generate_abi_impls"],"mod":["reflect"],"trait":["CodeGenerator"]};

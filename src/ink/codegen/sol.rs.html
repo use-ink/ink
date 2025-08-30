@@ -19,6 +19,11 @@
 <a href=#19 id=19 data-nosnippet>19</a>/// Takes function signature as a string and returns a 4 byte representation of the
 <a href=#20 id=20 data-nosnippet>20</a>/// selector.
 <a href=#21 id=21 data-nosnippet>21</a></span><span class="kw">pub const fn </span>selector_bytes(sig: <span class="kw-2">&amp;</span>str) -&gt; [u8; <span class="number">4</span>] {
-<a href=#22 id=22 data-nosnippet>22</a>    <span class="kw">let </span>hash = Keccak256::new().update(sig.as_bytes()).finalize();
+<a href=#22 id=22 data-nosnippet>22</a>    <span class="kw">let </span>hash = keccak_256(sig.as_bytes());
 <a href=#23 id=23 data-nosnippet>23</a>    [hash[<span class="number">0</span>], hash[<span class="number">1</span>], hash[<span class="number">2</span>], hash[<span class="number">3</span>]]
-<a href=#24 id=24 data-nosnippet>24</a>}</code></pre></div></section></main></body></html>
+<a href=#24 id=24 data-nosnippet>24</a>}
+<a href=#25 id=25 data-nosnippet>25</a>
+<a href=#26 id=26 data-nosnippet>26</a><span class="doccomment">/// Compile-time Keccak-256 hash computation.
+<a href=#27 id=27 data-nosnippet>27</a></span><span class="kw">pub const fn </span>keccak_256(bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; [u8; <span class="number">32</span>] {
+<a href=#28 id=28 data-nosnippet>28</a>    Keccak256::new().update(bytes).finalize()
+<a href=#29 id=29 data-nosnippet>29</a>}</code></pre></div></section></main></body></html>
