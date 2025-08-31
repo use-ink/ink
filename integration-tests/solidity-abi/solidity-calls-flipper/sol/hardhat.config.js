@@ -1,6 +1,5 @@
-require("hardhat-resolc")
-require("hardhat-revive-node")
 require("@nomicfoundation/hardhat-ethers");
+require("@parity/hardhat-polkadot");
 
 const config = {
     solidity: "0.8.28",
@@ -16,12 +15,7 @@ const config = {
         },
     },
     resolc: {
-        compilerSource: 'binary',
-        settings: {
-            evmVersion: "cancun",
-            compilerPath: "resolc",
-            standardJson: true,
-        },
+        compilerSource: 'npm',
     },
     paths: {
         cache: "./cache-pvm",
