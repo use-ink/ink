@@ -140,7 +140,7 @@ mod debugging_strategies {
                 .expect("calling `get` message failed");
 
             // then
-            // the contract wil have emitted an event
+            // the contract will have emitted an event
             assert!(call_res.contains_event("Revive", "ContractEmitted"));
             let contract_events = call_res.contract_emitted_events()?;
             assert_eq!(1, contract_events.len());

@@ -132,7 +132,7 @@ struct NonPackedComplex<KEY: StorageKey> {
 
 Every non-packed type also has `StorageKey` trait implemented for them. This trait is used for calculating storage key types.
 
-There also exists way to use `StorageKey` for types that are packed - you can just use `Lazy`, a wrapper around type
+There also exists a way to use `StorageKey` for types that are packed - you can just use `Lazy`, a wrapper around type
 which allows to store it in [separate storage cell under it's own storage key](https://use.ink/datastructures/storage-layout#eager-loading-vs-lazy-loading). You can use it like this:
 
 ```rust
