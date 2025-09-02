@@ -797,7 +797,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download reports' artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
             path: downloaded_artifacts
 
@@ -882,7 +882,7 @@ jobs:
               type: [ sol, all ]
       steps:
           - name: Download reports' artifacts
-            uses: actions/download-artifact@v4
+            uses: actions/download-artifact@v5
             with:
                 path: downloaded_artifacts
 
