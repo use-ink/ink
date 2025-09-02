@@ -223,8 +223,6 @@ where
     /// The raw encoded input data.
     #[inline]
     pub fn exec_input(&self) -> &ExecutionInput<Args, Abi> {
-        #[cfg(std)]
-        eprintln!("========");
         &self.exec_input
     }
 

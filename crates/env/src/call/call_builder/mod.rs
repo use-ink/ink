@@ -62,8 +62,6 @@ where
     /// Returns the execution input.
     #[inline]
     pub fn exec_input(&self) -> &ExecutionInput<Args, Abi> {
-        #[cfg(std)]
-        eprintln!("----98999999");
         &self.exec_input
     }
 }
@@ -360,8 +358,6 @@ where
         self,
         exec_input: ExecutionInput<Args, Abi>,
     ) -> CallBuilder<E, CallType, Set<ExecutionInput<Args, Abi>>, RetType> {
-        #[cfg(std)]
-        eprintln!("----0000000000");
         CallBuilder {
             call_type: self.call_type,
             exec_input: Set(exec_input),

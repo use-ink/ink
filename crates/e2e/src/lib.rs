@@ -88,6 +88,7 @@ pub use tracing_subscriber;
 #[cfg(feature = "sandbox")]
 pub use ink_sandbox::DefaultSandbox;
 
+use frame_support::dispatch::RawOrigin;
 use ink::codegen::ContractCallBuilder;
 use ink_env::{
     call::FromAddr,
@@ -104,13 +105,16 @@ use std::{
     cell::RefCell,
     sync::Once,
 };
-use frame_support::dispatch::RawOrigin;
 use xts::ReviveApi;
 
 use ink_primitives::types::AccountIdMapper;
+use ink_sandbox::{
+    frame_system::pallet_prelude::OriginFor,
+    pallet_balances,
+    AccountIdFor,
+    Sandbox,
+};
 pub use subxt::PolkadotConfig;
-use ink_sandbox::frame_system::pallet_prelude::OriginFor;
-use ink_sandbox::{pallet_balances, AccountIdFor, Sandbox};
 
 /// We use this to only initialize `env_logger` once.
 pub static INIT: Once = Once::new();
@@ -167,7 +171,9 @@ pub fn address_from_account_id<AccountId: AsRef<[u8]>>(account_id: AccountId) ->
 }
 
 /// todo
-pub fn address_from_keypair<AccountId: From<[u8; 32]> + AsRef<[u8]>>(keypair: &Keypair) -> Address {
+pub fn address_from_keypair<AccountId: From<[u8; 32]> + AsRef<[u8]>>(
+    keypair: &Keypair,
+) -> Address {
     let account_id: AccountId = keypair_to_account(keypair);
     address_from_account_id(account_id)
 }

@@ -99,13 +99,11 @@ where
             buffer.len()
         );
         buffer[..len].copy_from_slice(&encoded);
-        //eprintln!("encode_to_slice solidity {:?}", buffer);
         len
     }
 
     fn encode_to_vec(&self, buffer: &mut Vec<u8>) {
         buffer.extend_from_slice(&T::encode(self));
-        //eprintln!("encode_to_vec solidity {:?}", buffer);
     }
 }
 

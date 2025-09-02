@@ -266,10 +266,10 @@ pub mod give_me {
             let outgoing_trace = &call_res.trace.unwrap().calls[0];
             assert_eq!(outgoing_trace.value, Some(U256::from(120_000_000_0)));
             assert_eq!(outgoing_trace.from, contract_addr);
-            assert_eq!(outgoing_trace.to, ink_e2e::address_from_keypair::<AccountId>(&ink_e2e::eve()));
-            //let account_id: AccountId = ink_e2e::keypair_to_account(&ink_e2e::eve());
-            //assert_eq!(outgoing_trace.to, client.api.address(account_id).await);
-            //assert_eq!(outgoing_trace.to, ink_e2e::address_from_account_id::<AccountId>(account_id));
+            assert_eq!(
+                outgoing_trace.to,
+                ink_e2e::address_from_keypair::<AccountId>(&ink_e2e::eve())
+            );
 
             let balance_after: Balance = client
                 .free_balance(contract.account_id)

@@ -17,17 +17,35 @@ use std::{
     path::PathBuf,
 };
 
-use crate::{backend::BuilderClient, builders::{
-    constructor_exec_input,
-    CreateBuilderPartial,
-}, caller_to_origin, client_utils::{
-    salt,
-    ContractsRegistry,
-}, contract_results::{
-    BareInstantiationResult,
-    ContractExecResultFor,
-    ContractResult,
-}, error::SandboxErr, keypair_to_account, log_error, CallBuilderFinal, CallDryRunResult, ChainBackend, ContractsBackend, E2EBackend, Error, InstantiateDryRunResult, UploadResult, H256};
+use crate::{
+    backend::BuilderClient,
+    builders::{
+        constructor_exec_input,
+        CreateBuilderPartial,
+    },
+    caller_to_origin,
+    client_utils::{
+        salt,
+        ContractsRegistry,
+    },
+    contract_results::{
+        BareInstantiationResult,
+        ContractExecResultFor,
+        ContractResult,
+    },
+    error::SandboxErr,
+    keypair_to_account,
+    log_error,
+    CallBuilderFinal,
+    CallDryRunResult,
+    ChainBackend,
+    ContractsBackend,
+    E2EBackend,
+    Error,
+    InstantiateDryRunResult,
+    UploadResult,
+    H256,
+};
 use frame_support::{
     dispatch::RawOrigin,
     pallet_prelude::DispatchError,
@@ -77,9 +95,11 @@ use sp_core::{
 use sp_runtime::traits::Bounded;
 use subxt::{
     dynamic::Value,
-    tx::Payload,
+    tx::{
+        Payload,
+        Signer,
+    },
 };
-use subxt::tx::Signer;
 use subxt_signer::sr25519::Keypair;
 
 type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
@@ -238,9 +258,6 @@ where
         dest: Self::AccountId,
         value: Self::Balance,
     ) -> Result<(), Self::Error> {
-        //self.api.try_transfer_balance(origin, dest, value).await
-        //let account: Self::AccountId = origin.account_id();
-        //let origin = RawOrigin::Signed(account); //.into();
         let caller = keypair_to_account(origin);
         let origin = RawOrigin::Signed(caller);
         let origin = OriginFor::<S::Runtime>::from(origin);
@@ -248,14 +265,9 @@ where
         let dest = dest.as_ref();
         let dest = Decode::decode(&mut dest.as_slice()).unwrap();
 
-        self.sandbox.transfer_allow_death(
-            &origin,
-            &dest,
-            value
-        ).map_err(|err| SandboxErr::new(format!("try_transfer_balance: {err:?}")))
-        // todo
-        //unreachable!("todo");
-        //Ok(())
+        self.sandbox
+            .transfer_allow_death(&origin, &dest, value)
+            .map_err(|err| SandboxErr::new(format!("try_transfer_balance: {err:?}")))
     }
 }
 
@@ -279,9 +291,7 @@ where
     // todo
     <<S as Sandbox>::Runtime as frame_system::Config>::Hash:
         frame_support::traits::IsType<sp_core::H256>,
-    //S: ink_sandbox::api::revive_api::ContractAPI,
 {
-
     fn load_code(&self, contract_name: &str) -> Vec<u8> {
         self.contracts.load_code(contract_name)
     }
@@ -295,55 +305,16 @@ where
         gas_limit: Weight,
         storage_deposit_limit: E::Balance,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
-        //self.sandbox.bare
-        //<Self as BuilderClient<>>::raw_instantiate(self, signer, code , data, value, gas_limit, storage_deposit_limit)
         let code = self.contracts.load_code(contract_name);
-        self.raw_instantiate(code, signer, data, value, gas_limit, DepositLimit::Balance(storage_deposit_limit)).await
-            //.map_err(|err| SandboxErr::new(format!("instantiate: {err:?}")))
-        //code_hash = Some(H256(crate::client_utils::code_hash(&code[..])));
-        //let data = constructor_exec_input(constructor.clone());
-        /*
-        let result = self.sandbox.deploy_contract(
+        self.raw_instantiate(
             code,
-            value,
+            signer,
             data,
-            salt(),
-            caller_to_origin::<S>(signer),
+            value,
             gas_limit,
-            storage_deposit_limit,
-        );
-
-
-        let addr_raw = match &result.result {
-            Err(err) => {
-                log_error(&format!("Instantiation failed: {err:?}"));
-                return Err(SandboxErr::new(format!("bare_instantiate: {err:?}")));
-            }
-            Ok(res) => res.addr,
-        };
-
-        let trace = match tracer.collect_trace() {
-            Some(Trace::Call(call_trace)) => Some(call_trace),
-            _ => None,
-        };
-
-        fn to_fallback_account_id(address: &H160) -> [u8; 32] {
-            let mut account_id = [0xEE; 32];
-            account_id[..20].copy_from_slice(address.as_bytes());
-            account_id
-        }
-        //let account_id = AccountId::decode(&mut &addr_raw[..]).unwrap();
-        //let account_id = AccountId::decode(&mut &addr_raw[..]).unwrap();
-        let account_id = to_fallback_account_id(&addr_raw);
-
-        Ok(BareInstantiationResult {
-            addr: addr_raw,
-            account_id: account_id.into(),
-            events: (), // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
-            trace,
-            code_hash: code_hash.expect("code_hash must have been calculated"),
-        })
-         */
+            DepositLimit::Balance(storage_deposit_limit),
+        )
+        .await
     }
 
     async fn bare_instantiate<
@@ -361,14 +332,8 @@ where
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
         let data = constructor_exec_input(constructor.clone());
-        self.raw_instantiate(
-            code,
-            caller,
-            data,
-            value,
-            gas_limit,
-            storage_deposit_limit
-        ).await
+        self.raw_instantiate(code, caller, data, value, gas_limit, storage_deposit_limit)
+            .await
     }
 
     async fn raw_instantiate(
@@ -391,7 +356,6 @@ where
 
         let mut code_hash: Option<H256> = None;
         let result = pallet_revive::tracing::trace(tracer.as_tracing(), || {
-            //let code = self.contracts.load_code(contract_name);
             code_hash = Some(H256(crate::client_utils::code_hash(&code[..])));
             self.sandbox.deploy_contract(
                 code,
@@ -422,8 +386,6 @@ where
             account_id[..20].copy_from_slice(address.as_bytes());
             account_id
         }
-        //let account_id = AccountId::decode(&mut &addr_raw[..]).unwrap();
-        //let account_id = AccountId::decode(&mut &addr_raw[..]).unwrap();
         let account_id = to_fallback_account_id(&addr_raw);
 
         Ok(BareInstantiationResult {
@@ -448,8 +410,6 @@ where
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error> {
-        // todo has to be: let _ = <Client<AccountId, S> as
-        // BuilderClient<E>>::map_account_dry_run(self, &caller).await;
         let _ =
             <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 
@@ -540,28 +500,32 @@ where
     ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error>
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone,
-        //E: Environment<Balance = ContractsBalanceOf<S::Runtime>>
     {
         let _ =
             <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 
-        // todo rename any account_id coming back from callee
         let addr = *message.clone().params().callee();
         let exec_input = message.clone().params().exec_input().encode();
-        //self.raw_call(addr, exec_input, value, gas_limit, storage_deposit_limit, caller).await
-        <Client<AccountId, S> as BuilderClient<E>>::raw_call::<'_, '_, '_>(self, addr, exec_input, value, gas_limit, storage_deposit_limit, caller).await
+        <Client<AccountId, S> as BuilderClient<E>>::raw_call::<'_, '_, '_>(
+            self,
+            addr,
+            exec_input,
+            value,
+            gas_limit,
+            storage_deposit_limit,
+            caller,
+        )
+        .await
     }
 
     async fn raw_call(
         &mut self,
-        //origin: E::AccountId,
         dest: H160,
         input_data: Vec<u8>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
         signer: &Keypair,
-        //) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error>;
     ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error> {
         // todo
         let tracer_type = TracerType::CallTracer(Some(CallTracerConfig::default()));
@@ -608,30 +572,26 @@ where
         let addr = *message.clone().params().callee();
         let exec_input = message.clone().params().exec_input().encode();
         self.raw_call_dry_run(
-            //caller_to_origin::<S>(caller),
             addr,
             exec_input,
             value,
             storage_deposit_limit,
-            //signer
-            caller
-        ).await
+            caller,
+        )
+        .await
     }
 
     async fn raw_call_dry_run<
-        //Args: Sync + AbiEncodeWith<Abi> + Clone,
         RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(
         &mut self,
-        //origin: E::AccountId,
         dest: H160,
         input_data: Vec<u8>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
         signer: &Keypair,
     ) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error> {
-        //let origin = Signer::<E>::account_id(signer);
         let result = self.sandbox.dry_run(|sandbox| {
             sandbox.call_contract(
                 dest,
@@ -704,7 +664,7 @@ impl<
                 AccountId = AccountId,
                 Balance = ContractsBalanceOf<Config::Runtime>,
             > + 'static,
-        Cliente: E2EBackend<E, Cliente>
+        Cliente: E2EBackend<E, Cliente>,
     > E2EBackend<E, Cliente> for Client<AccountId, Config>
 where
     Config::Runtime: pallet_balances::Config + pallet_revive::Config,

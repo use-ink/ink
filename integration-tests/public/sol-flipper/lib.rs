@@ -34,10 +34,10 @@ pub mod flipper {
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-#[ink_e2e::test]
-async fn it_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
-    let mut constructor = FlipperRef::new(false);
-    panic!("constructor {:#?}", constructor.params().exec_input());
-}
+        #[ink_e2e::test]
+        async fn it_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+            let mut constructor = FlipperRef::new(false);
+            panic!("constructor {:#?}", constructor.params().exec_input());
+        }
     }
 }

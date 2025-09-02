@@ -7,8 +7,10 @@ use frame_support::{
     sp_runtime::DispatchError,
     traits::fungible::Mutate,
 };
-use pallet_revive::sp_runtime::MultiAddress;
-use pallet_revive::sp_runtime::traits::StaticLookup;
+use pallet_revive::sp_runtime::{
+    traits::StaticLookup,
+    MultiAddress,
+};
 use sp_runtime::traits::Lookup;
 
 type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
@@ -86,21 +88,17 @@ where
         dest: &AccountIdFor<T::Runtime>,
         value: BalanceOf<T::Runtime>,
     ) -> Result<(), DispatchError> {
-        //T::Lookup::unlookup(input.spender.clone()),
-        //let dest = <<T as Sandbox>::Runtime>::Lookup::lookup(dest).expect("lookup failed");
-        //let dest = LookupFor::<T::Runtime>::lookup(*dest).expect("lookup failed");
-        //let dest = MultiAddress::Id(dest.clone());
-
         // Convert AccountId into the proper Lookup::Source
-        let dest = <<T::Runtime as frame_system::Config>::Lookup as StaticLookup>::unlookup(dest.clone());
+        let dest =
+            <<T::Runtime as frame_system::Config>::Lookup as StaticLookup>::unlookup(
+                dest.clone(),
+            );
 
         self.execute_with(|| {
             pallet_balances::Pallet::<T::Runtime>::transfer_allow_death(
-            //pallet_balances::Pallet::<T::Runtime>::try_mutate_account(
                 origin.clone(),
                 dest,
-                value
-                //account_id
+                value,
             )
         })
     }

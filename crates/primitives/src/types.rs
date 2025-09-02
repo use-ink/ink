@@ -333,9 +333,10 @@ cfg_if::cfg_if! {
 /// case for all existing runtimes as of right now. Reasoning is that this will allow
 /// us to reverse an address -> account_id mapping by just stripping the prefix.
 ///
-/// We require the mapping to be reversible. Since we are potentially dealing with types of
-/// different sizes one direction of the mapping is necessarily lossy. This requires the mapping to
-/// make use of the [`OriginalAccount`] storage item to reverse the mapping.
+/// We require the mapping to be reversible. Since we are potentially dealing with types
+/// of different sizes one direction of the mapping is necessarily lossy. This requires
+/// the mapping to make use of the [`OriginalAccount`] storage item to reverse the
+/// mapping.
 pub trait AddressMapper<T: Environment> {
     /// Convert an account id to an ethereum address.
     fn to_address(account_id: &T::AccountId) -> H160;

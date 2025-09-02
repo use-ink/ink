@@ -26,9 +26,9 @@ use crate::contract_results::{
 use core::marker::PhantomData;
 use funty::Fundamental;
 use ink_primitives::{
-    H160,
     Address,
     DepositLimit,
+    H160,
 };
 use pallet_revive::{
     evm::{
@@ -493,11 +493,9 @@ where
                     format!("{err}").trim_start_matches("RPC error: ")
                 );
             });
-        //eprintln!("---1trace bytes {:?}", bytes);
 
         let trace: Option<Trace> = scale::Decode::decode(&mut bytes.as_ref())
             .unwrap_or_else(|err| panic!("decoding `trace_tx` result failed: {err}"));
-        eprintln!("---1trace decoded {:?}", trace);
 
         match trace {
             Some(Trace::Call(trace)) => Some(trace),
@@ -549,7 +547,6 @@ where
         salt: Option<[u8; 32]>,
         signer: &Keypair,
     ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
-        eprintln!("storage deposit_limit {:?}", storage_deposit_limit);
         let call = subxt::tx::DefaultPayload::new(
             "Revive",
             "instantiate_with_code",
@@ -669,8 +666,6 @@ where
         let res: ContractExecResultFor<E> = scale::Decode::decode(&mut bytes.as_ref())
             .unwrap_or_else(|err| panic!("decoding ContractExecResult failed: {err}"));
 
-        eprintln!("res {:?}", res.result);
-
         // todo for gas_limit we should use the value returned by a successful call above.
 
         // Even if the `storage_deposit_limit` to this function was set as `Unchecked`,
@@ -715,7 +710,6 @@ where
         let trace = self
             .trace(block_hash, None, parent_hash, Some(xt.into_encoded()))
             .await;
-        eprintln!("---trace {:?}", trace);
 
         (res, trace)
     }
@@ -779,13 +773,8 @@ where
     }
 
     /// todo
-    pub async fn address(
-        &self,
-        account_id: C::AccountId,
-    ) -> H160 {
-        let call_request = RpcAddressRequest::<C> {
-            account_id,
-        };
+    pub async fn address(&self, account_id: C::AccountId) -> H160 {
+        let call_request = RpcAddressRequest::<C> { account_id };
         let func = "ReviveApi_address";
         let params = scale::Encode::encode(&call_request);
         let bytes = self
@@ -798,7 +787,5 @@ where
         let res = scale::Decode::decode(&mut bytes.as_ref())
             .unwrap_or_else(|err| panic!("decoding `ContractExecResult` failed: {err}"));
         res
-
     }
-
 }

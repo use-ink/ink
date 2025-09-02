@@ -16,6 +16,46 @@
 use std::fmt::Debug;
 use std::path::PathBuf;
 
+use super::{
+    builders::{
+        constructor_exec_input,
+        CreateBuilderPartial,
+    },
+    deposit_limit_to_balance,
+    events::{
+        CodeStoredEvent,
+        EventWithTopics,
+    },
+    log_error,
+    log_info,
+    sr25519,
+    InstantiateDryRunResult,
+    Keypair,
+    ReviveApi,
+    H256,
+};
+use crate::{
+    backend::{
+        BuilderClient,
+        ChainBackend,
+    },
+    client_utils::{
+        salt,
+        ContractsRegistry,
+    },
+    contract_results::{
+        BareInstantiationResult,
+        CallDryRunResult,
+        CallResult,
+        ContractResult,
+        UploadResult,
+    },
+    error::DryRunError,
+    events,
+    events::ContractInstantiatedEvent,
+    ContractsBackend,
+    E2EBackend,
+};
 use ink::H160;
 use ink_env::{
     call::{
@@ -55,49 +95,9 @@ use subxt::{
         Value,
         ValueDef,
     },
+    storage::dynamic,
     tx::Signer,
 };
-use subxt::storage::dynamic;
-use super::{
-    builders::{
-        constructor_exec_input,
-        CreateBuilderPartial,
-    },
-    deposit_limit_to_balance,
-    events::{
-        CodeStoredEvent,
-        EventWithTopics,
-    },
-    log_error,
-    log_info,
-    sr25519,
-    InstantiateDryRunResult,
-    Keypair,
-    ReviveApi,
-    H256,
-};
-use crate::{
-    backend::{
-        BuilderClient,
-        ChainBackend,
-    },
-    client_utils::{
-        salt,
-        ContractsRegistry,
-    },
-    contract_results::{
-        BareInstantiationResult,
-        CallDryRunResult,
-        CallResult,
-        ContractResult,
-        UploadResult,
-    },
-    error::DryRunError,
-    events,
-    ContractsBackend,
-    E2EBackend,
-};
-use crate::events::ContractInstantiatedEvent;
 
 pub type Error = crate::error::Error<DispatchError>;
 
@@ -142,8 +142,6 @@ trait FooClient {
         storage_deposit_limit: E::Balance,
     ) -> Result<BareInstantiationResult<E, ExtrinsicEvents<C>>, Error>
     */
-
-
 
 impl<C, E> Client<C, E>
 where
@@ -258,7 +256,6 @@ where
     }
 
      */
-
 
     /*
     /// Executes an `instantiate_with_code` call and captures the resulting events.
@@ -453,7 +450,6 @@ where
         &self,
         addr: &H160,
     ) -> Result<Option<E::AccountId>, Error> {
-        eprintln!("querying for {:?}", addr);
         let original_account_entry = subxt::dynamic::storage(
             "Revive",
             "OriginalAccount",
@@ -468,13 +464,10 @@ where
             .fetch(&original_account_entry)
             .await
             .map_err(|err| {
-                eprintln!("unable");
                 Error::Other(format!("Unable to fetch original account: {err:?}"))
             })?;
-        eprintln!("ok");
         Ok(match raw_value {
             Some(value) => {
-                eprintln!("some");
                 let raw_account_id = value.as_type::<[u8; 32]>().map_err(|err| {
                     Error::Decoding(format!("unable to deserialize AccountId: {err}"))
                 })?;
@@ -485,18 +478,14 @@ where
                 Some(account)
             }
             None => {
-                eprintln!("none");
                 None
-            },
+            }
         })
     }
 
     /// Returns the `AccountId` for a `H160`.
     /// Queries runtime, fallsback if no result.
-    pub async fn to_account_id(
-        &self,
-        addr: &H160,
-    ) -> Result<E::AccountId, Error> {
+    pub async fn to_account_id(&self, addr: &H160) -> Result<E::AccountId, Error> {
         fn to_fallback_account_id(address: &H160) -> [u8; 32] {
             let mut account_id = [0xEE; 32];
             account_id[..20].copy_from_slice(address.as_bytes());
@@ -509,7 +498,7 @@ where
                 let fallback = to_fallback_account_id(addr);
                 let account_id = E::AccountId::decode(&mut &fallback[..]).unwrap();
                 Ok(account_id)
-            },
+            }
         }
     }
 }
@@ -661,7 +650,9 @@ where
         //self.api.try_transfer_balance(origin, dest, value).await
         let dest = dest.encode();
         let dest: C::AccountId = Decode::decode(&mut &dest[..]).unwrap();
-        self.api.try_transfer_balance(origin, dest, value).await
+        self.api
+            .try_transfer_balance(origin, dest, value)
+            .await
             .map_err(|err| Error::Balance(format!("{err:?}")))
     }
 }
@@ -702,7 +693,6 @@ where
         Abi: Send + Sync + Clone,
     >(
         &mut self,
-        //contract_name: &str,
         code: Vec<u8>,
         caller: &Keypair,
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
@@ -711,18 +701,14 @@ where
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
         let data = constructor_exec_input(constructor.clone());
-        //let storage_deposit_limit = deposit_limit_to_balance::<E>(storage_deposit_limit);
         let ret = self
             .raw_instantiate(code, caller, data, value, gas_limit, storage_deposit_limit)
             .await?;
-        //log_info(&format!("instantiated contract at {:?}", ret.addr));
         Ok(ret)
     }
 
-
     async fn raw_instantiate(
         &mut self,
-        //contract_name: &str,
         code: Vec<u8>,
         caller: &Keypair,
         constructor: Vec<u8>,
@@ -731,13 +717,6 @@ where
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
         let storage_deposit_limit = deposit_limit_to_balance::<E>(storage_deposit_limit);
-        /*
-        let ret = self
-            .exec_instantiate(caller, code, constructor, value, gas_limit, storage_deposit_limit)
-            .await?;
-         */
-        //log_info(&format!("instantiated contract at {:?}", ret.addr));
-        //Ok(ret)
         let salt = salt();
         // todo remove assert once salt() returns no more option
         assert!(salt.is_some());
@@ -820,7 +799,15 @@ where
         storage_deposit_limit: E::Balance,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
-        self.raw_instantiate(code, signer, data, value, gas_limit, DepositLimit::Balance(storage_deposit_limit)).await
+        self.raw_instantiate(
+            code,
+            signer,
+            data,
+            value,
+            gas_limit,
+            DepositLimit::Balance(storage_deposit_limit),
+        )
+        .await
     }
 
     async fn bare_instantiate_dry_run<
@@ -929,14 +916,18 @@ where
         let addr = *message.clone().params().callee();
         let exec_input = message.clone().params().exec_input().encode();
         log_info(&format!("call: {exec_input:02X?}"));
-        self.raw_call(addr, exec_input, value, gas_limit, storage_deposit_limit, caller).await
+        self.raw_call(
+            addr,
+            exec_input,
+            value,
+            gas_limit,
+            storage_deposit_limit,
+            caller,
+        )
+        .await
     }
 
-    async fn raw_call
-        //Args: Sync + AbiEncodeWith<Abi> + Clone,
-        //RetType: Send + DecodeMessageResult<Abi>,
-        //Abi: Sync + Clone,
-    (
+    async fn raw_call(
         &mut self,
         //origin: E::AccountId,
         dest: H160,
@@ -945,9 +936,8 @@ where
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
         signer: &Keypair,
-    //) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error> {
+        //) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error> {
     ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error> {
-
         let (tx_events, trace) = self
             .api
             .call(
@@ -976,25 +966,7 @@ where
         }
 
         Ok((tx_events, trace))
-
-        //let mut foo = origin.encode();
-        /*
-        let (exec_result, trace) = self.api.call_dry_run(
-            //Decode::decode(&mut &foo[..]).unwrap(),
-            dest,
-            input_data,
-            value,
-            storage_deposit_limit,
-            signer
-        ).await;
-        Ok(CallDryRunResult {
-            exec_result,
-            trace,
-            _marker: Default::default(),
-        })
-         */
     }
-
 
     // todo is not really a `bare_call`
     async fn bare_call_dry_run<
@@ -1060,15 +1032,17 @@ where
         storage_deposit_limit: DepositLimit<E::Balance>,
         signer: &Keypair,
     ) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error> {
-        //let mut foo = origin.encode();
-        let (exec_result, trace) = self.api.call_dry_run(
-            //Decode::decode(&mut &foo[..]).unwrap(),
-            dest,
-            input_data,
-            value,
-            storage_deposit_limit,
-            signer
-        ).await;
+        let (exec_result, trace) = self
+            .api
+            .call_dry_run(
+                //Decode::decode(&mut &foo[..]).unwrap(),
+                dest,
+                input_data,
+                value,
+                storage_deposit_limit,
+                signer,
+            )
+            .await;
         Ok(CallDryRunResult {
             exec_result,
             trace,
@@ -1126,7 +1100,6 @@ where
     }
 
     async fn to_account_id(&mut self, addr: &H160) -> Result<E::AccountId, Self::Error> {
-        //let best_block = self.api.client.get_best_block(rpc).await?;
         let contract_info_address =
             dynamic("Revive", "OriginalAccount", vec![Value::from_bytes(addr)]);
         let raw_value = self.api.client
@@ -1147,8 +1120,7 @@ where
                 }
                 let fallback = to_fallback_account_id(addr);
                 tracing::debug!("No address suffix was found in the node for H160 address {:?}, using fallback {:?}", addr, fallback);
-                let account_id =
-                    E::AccountId::decode(&mut &fallback[..]).unwrap();
+                let account_id = E::AccountId::decode(&mut &fallback[..]).unwrap();
                 Ok(account_id)
             }
             Some(raw_value) => {
@@ -1212,7 +1184,7 @@ where
         Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
     H256: Debug + Send + Sync + scale::Encode,
 
-    Cliente: E2EBackend<E, Cliente>
+    Cliente: E2EBackend<E, Cliente>,
 {
 }
 
@@ -1250,11 +1222,6 @@ impl<E: Environment, V, C: subxt::Config, Abi> CallResult<E, V, ExtrinsicEvents<
     pub fn contains_event(&self, pallet_name: &str, variant_name: &str) -> bool {
         self.events.iter().any(|event| {
             let event = event.unwrap();
-            eprintln!(
-                "pallet: {:?}, variant: {:?}",
-                event.pallet_name(),
-                event.variant_name()
-            );
             event.pallet_name() == pallet_name && event.variant_name() == variant_name
         })
     }
