@@ -7,7 +7,7 @@ publish = false
 
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
-sp-core = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "c40b36c3a7c208f9a6837b80812473af3d9ba7f7", default-features = false }
+sp-core = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
 
 [dev-dependencies]
 hex-literal = "1"

@@ -218,6 +218,7 @@ mod construct_runtime {
             //ERC20<Self, InlineIdConfig<0x320>, PoolAssetsInstance>,
             //XcmPrecompile<Self>,
         );
+        type AllowEVMBytecode = ConstBool<false>;
     }
 
     // Implement `crate::Sandbox` trait
