@@ -929,14 +929,12 @@ where
 
     async fn raw_call(
         &mut self,
-        //origin: E::AccountId,
         dest: H160,
         input_data: Vec<u8>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
         signer: &Keypair,
-        //) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error> {
     ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error> {
         let (tx_events, trace) = self
             .api
@@ -1020,12 +1018,10 @@ where
     }
 
     async fn raw_call_dry_run<
-        //Args: Sync + AbiEncodeWith<Abi> + Clone,
         RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(
         &mut self,
-        //origin: E::AccountId,
         dest: H160,
         input_data: Vec<u8>,
         value: E::Balance,
@@ -1035,7 +1031,6 @@ where
         let (exec_result, trace) = self
             .api
             .call_dry_run(
-                //Decode::decode(&mut &foo[..]).unwrap(),
                 dest,
                 input_data,
                 value,

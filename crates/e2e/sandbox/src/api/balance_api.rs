@@ -47,11 +47,7 @@ where
 
     fn transfer_allow_death(
         &mut self,
-        //account_id: &AccountIdFor<T::Runtime>,
-        //origin: &Keypair,
         origin: &OriginFor<T::Runtime>,
-        //dest: Self::AccountId,
-        //value: Self::Balance,
         dest: &AccountIdFor<T::Runtime>,
         value: BalanceOf<T::Runtime>,
     ) -> Result<(), DispatchError>;
@@ -61,7 +57,6 @@ impl<T> BalanceAPI<T> for T
 where
     T: Sandbox,
     T::Runtime: pallet_balances::Config,
-    //T::Runtime: pallet_balances::Config,
 {
     fn mint_into(
         &mut self,

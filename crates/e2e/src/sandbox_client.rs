@@ -597,7 +597,6 @@ where
                 dest,
                 value,
                 input_data,
-                //origin,
                 caller_to_origin::<S>(signer),
                 S::default_gas_limit(),
                 storage_deposit_limit,

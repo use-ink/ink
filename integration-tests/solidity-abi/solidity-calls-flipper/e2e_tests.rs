@@ -31,8 +31,9 @@ const DEFAULT_GAS: Weight = Weight::from_parts(100_000_000_000, 1024 * 1024);
 //const DEFAULT_STORAGE_DEPOSIT_LIMIT: u128 = 10_000_000_000_000;
 type E2EResult<T> = Result<T, Box<dyn Error>>;
 
-//#[ink_e2e::test]
-#[ink_e2e::test(backend(runtime_only))]
+type Foo = ink_e2e::Client<PolkadotConfig, DefaultEnvironment>;
+
+#[ink_e2e::test]
 async fn solidity_calls_ink_works<Client: E2EBackend>(
     mut client: Client,
 ) -> E2EResult<()> {
@@ -91,7 +92,6 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
     let value: bool = call_ink(&mut client, ink_addr, get_selector.clone()).await;
     assert!(value);
 
-    /*
     let output = sol_handler.call(&sol_addr, "callGet")?;
     assert_eq!(output, Some("true".to_string()));
 
@@ -119,18 +119,18 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
 
     let encoded = encode_ink_call("call_solidity_set(address)", sol_addr_encoded.clone());
     let encoded_get = encode_ink_call("call_solidity_get(address)", sol_addr_encoded);
+    let ret: u16 = call_ink(&mut client, ink_addr, encoded_get.clone()).await;
     assert_eq!(
-        call_ink::<u16>(&mut client, ink_addr, encoded_get.clone()).await,
+        ret,
         42
     );
     call_ink_no_return(&mut client, ink_addr, encoded).await;
     // set_value uses hardcoded 77 for simplicity.
+    let ret: u16 = call_ink(&mut client, ink_addr, encoded_get.clone()).await;
     assert_eq!(
-        call_ink::<u16>(&mut client, ink_addr, encoded_get.clone()).await,
+        ret,
         77
     );
-
-     */
 
     Ok(())
 }
@@ -152,11 +152,12 @@ where
         .raw_call_dry_run::<Vec<u8>, ink::abi::Sol>(
             ink_addr,
             data_sol,
-            0.into(),
+            0u32.into(),
             ink::primitives::DepositLimit::UnsafeOnlyForDryRun,
             &signer,
         )
-        .await.unwrap();
+        .await
+        .map_err(|_| "foo").unwrap();
     <Ret>::decode(&exec_result.exec_result.result.unwrap().data[..])
         .expect("decode failed")
 }

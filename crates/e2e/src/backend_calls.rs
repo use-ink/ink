@@ -341,7 +341,6 @@ where
         Ok(InstantiationResult {
             addr: instantiate_result.addr,
             account_id: instantiate_result.account_id,
-            //addr: dry_run.clone().contract_result.result.unwrap().addr,
             dry_run,
             events: instantiate_result.events,
             trace: instantiate_result.trace,

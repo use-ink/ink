@@ -27,7 +27,7 @@ use crate::{
     },
     builders::CreateBuilderPartial,
     contract_results::BareInstantiationResult,
-    sandbox_client::Client,
+    // sandbox_client::Client,
     xts::{
         ReviveApi,
         Transfer,
@@ -73,34 +73,6 @@ pub trait E2EBackend<E: Environment, Client>: ChainBackend + BuilderClient<E> {
     ) -> Result<Self, Self::Error>
      */
 }
-
-/*
-pub trait ClientFoo<AccountId, SorE>
-/*
-where
-    S: Default,
-    S::Runtime: pallet_balances::Config + pallet_revive::Config,
-    AccountIdFor<S::Runtime>: From<[u8; 32]>,
-    crate::sandbox_client::BalanceOf<S::Runtime>: From<u128>,
- */
-{
- {
-    /*
-    /// Creates a new [`crate::Client`] instance using a `subxt` client.
-    pub async fn new<P: Into<PathBuf>>(
-        client: subxt::backend::rpc::RpcClient,
-        contracts: impl IntoIterator<Item = P>,
-        url: String,
-    ) -> Result<Self, subxt::Error> {
-        Ok(Self {
-            api: ReviveApi::new(client).await?,
-            contracts: ContractsRegistry::new(contracts),
-            url,
-        })
-    }
-     */
-}
- */
 
 /// General chain operations useful in contract testing.
 #[async_trait]
@@ -340,12 +312,10 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     /// Returns the result of the dry run, together with the decoded return value of the
     /// invoked message.
     async fn raw_call_dry_run<
-        //Args: Sync + AbiEncodeWith<Abi> + Clone,
         RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(
         &mut self,
-        //origin: E::AccountId,
         dest: H160,
         input_data: Vec<u8>,
         value: E::Balance,
@@ -359,22 +329,13 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     /// invoked message.
     async fn raw_call(
         &mut self,
-        //origin: E::AccountId,
         dest: H160,
         input_data: Vec<u8>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
         signer: &Keypair,
-        //) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error>;
     ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error>;
-
-    /*
-    /// Dry runs a call of the contract at `contract` with the given parameters.
-    pub async fn call_dry_run(
-    &self,
-    ) -> (ContractExecResultFor<E>, Option<CallTrace>) {
-    */
 
     /// Uploads the contract call.
     ///
@@ -417,7 +378,6 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         Abi: Send + Sync + Clone,
     >(
         &mut self,
-        //contract_name: &str,
         code: Vec<u8>,
         caller: &Keypair,
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
