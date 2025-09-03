@@ -165,12 +165,6 @@ fn ui_tests_trait_def_fail() {
 }
 
 #[test]
-fn ui_tests_chain_extension_pass() {
-    let t = trybuild::TestCases::new();
-    t.pass("tests/ui/chain_extension/E-01-simple.rs");
-}
-
-#[test]
 fn ui_tests_pay_with_call_pass() {
     let t = trybuild::TestCases::new();
     t.pass("tests/ui/pay_with_call/pass/multiple_args.rs");

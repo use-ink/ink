@@ -393,15 +393,6 @@ pub trait Environment: Clone {
         + AtLeast32BitUnsigned
         + FromLittleEndian;
 
-    /// The chain extension for the environment.
-    ///
-    /// This is a type that is defined through the `#[ink::chain_extension]` procedural
-    /// macro. For more information about usage and definition click
-    /// [this][chain_extension] link.
-    ///
-    /// [chain_extension]: https://use-ink.github.io/ink/ink/attr.chain_extension.html
-    type ChainExtension;
-
     /// TODO comment
     type EventRecord: 'static + scale::Codec;
 
@@ -421,10 +412,6 @@ pub trait Environment: Clone {
     }
 }
 
-/// Placeholder for chains that have no defined chain extension.
-#[cfg_attr(feature = "std", derive(TypeInfo))]
-pub enum NoChainExtension {}
-
 /// The fundamental types of the default configuration.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(TypeInfo))]
@@ -443,7 +430,6 @@ impl Environment for DefaultEnvironment {
     type Hash = Hash;
     type Timestamp = Timestamp;
     type BlockNumber = BlockNumber;
-    type ChainExtension = NoChainExtension;
     type EventRecord = EventRecord;
 }
 

@@ -351,7 +351,6 @@ impl Metadata<'_> {
         let hash: syn::Type = parse_quote!(Hash);
         let timestamp: syn::Type = parse_quote!(Timestamp);
         let block_number: syn::Type = parse_quote!(BlockNumber);
-        let chain_extension: syn::Type = parse_quote!(ChainExtension);
 
         let account_id = generate_type_spec(&account_id);
         let balance = generate_type_spec(&balance);

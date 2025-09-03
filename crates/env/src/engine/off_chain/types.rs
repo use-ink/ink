@@ -39,9 +39,6 @@ impl From<ink_engine::Error> for Error {
             ink_engine::Error::UninitializedExecutionContext => {
                 OffChainError::UninitializedExecutionContext
             }
-            ink_engine::Error::UnregisteredChainExtension => {
-                OffChainError::UnregisteredChainExtension
-            }
         };
         Error::OffChain(e)
     }

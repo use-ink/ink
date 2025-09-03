@@ -31,7 +31,6 @@ pub mod codegen;
 
 pub use ink_env::reflect;
 
-mod chain_extension;
 mod contract_ref;
 mod env_access;
 mod message_builder;
@@ -70,18 +69,10 @@ pub mod storage {
 }
 
 pub use self::{
-    chain_extension::{
-        ChainExtensionInstance,
-        IsResultType,
-        Output,
-        ValueReturned,
-    },
     contract_ref::ToAddr,
     env_access::EnvAccess,
     prelude::IIP2_WILDCARD_COMPLEMENT_SELECTOR,
 };
-#[allow(unused)]
-pub use ink_macro::chain_extension;
 pub use ink_macro::{
     blake2x256,
     contract,

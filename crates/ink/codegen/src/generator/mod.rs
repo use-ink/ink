@@ -32,7 +32,6 @@ mod macros;
 mod arg_list;
 mod as_dependency;
 mod blake2b;
-mod chain_extension;
 mod contract;
 mod dispatch;
 mod env;
@@ -61,7 +60,6 @@ pub use self::{
     },
     as_dependency::ContractReference,
     blake2b::Blake2x256,
-    chain_extension::ChainExtension,
     contract::Contract,
     dispatch::Dispatch,
     env::Env,

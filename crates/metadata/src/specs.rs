@@ -655,8 +655,6 @@ mod state {
     pub struct Timestamp;
     /// Type state for the `BlockNumber` type of the environment.
     pub struct BlockNumber;
-    /// Type state for the `ChainExtension` type of the environment.
-    pub struct ChainExtension;
     /// Type state for the max number of topics specified in the environment.
     pub struct MaxEventTopics;
     /// Type state for the native to eth ratio specified in the environment.
@@ -1621,10 +1619,6 @@ where
     pub fn block_number(&self) -> &TypeSpec<F> {
         &self.block_number
     }
-    /// Returns the `ChainExtension` type of the environment.
-    pub fn chain_extension(&self) -> &TypeSpec<F> {
-        &self.chain_extension
-    }
     /// Returns the `MAX_EVENT_TOPICS` value of the environment.
     pub fn max_event_topics(&self) -> usize {
         self.max_event_topics
@@ -1649,7 +1643,6 @@ where
         Missing<state::Hash>,
         Missing<state::Timestamp>,
         Missing<state::BlockNumber>,
-        Missing<state::ChainExtension>,
         Missing<state::MaxEventTopics>,
         Missing<state::NativeToEthRatio>,
         Missing<state::BufferSize>,
@@ -1781,29 +1774,6 @@ where
     }
 }
 
-impl<F, A, B, H, T, BN, M, NTER, BS>
-    EnvironmentSpecBuilder<F, A, B, H, T, BN, Missing<state::ChainExtension>, M, NTER, BS>
-where
-    F: Form,
-    TypeSpec<F>: Default,
-    EnvironmentSpec<F>: Default,
-{
-    /// Sets the `ChainExtension` type of the environment.
-    pub fn chain_extension(
-        self,
-        chain_extension: TypeSpec<F>,
-    ) -> EnvironmentSpecBuilder<F, A, B, H, T, BN, state::ChainExtension, M, NTER, BS>
-    {
-        EnvironmentSpecBuilder {
-            spec: EnvironmentSpec {
-                chain_extension,
-                ..self.spec
-            },
-            marker: PhantomData,
-        }
-    }
-}
-
 impl<F, A, B, H, T, BN, C, NTER, BS>
     EnvironmentSpecBuilder<F, A, B, H, T, BN, C, Missing<state::MaxEventTopics>, NTER, BS>
 where
@@ -1880,7 +1850,6 @@ impl<F>
         state::Hash,
         state::Timestamp,
         state::BlockNumber,
-        state::ChainExtension,
         state::MaxEventTopics,
         state::NativeToEthRatio,
         state::BufferSize,

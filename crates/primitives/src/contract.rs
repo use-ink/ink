@@ -75,7 +75,6 @@ use crate::types::Environment;
 ///     type Hash = <DefaultEnvironment as Environment>::Hash;
 ///     type BlockNumber = u32;
 ///     type Timestamp = u64;
-///     type ChainExtension = <DefaultEnvironment as Environment>::ChainExtension;
 ///     type EventRecord = <DefaultEnvironment as Environment>::EventRecord;
 /// }
 ///

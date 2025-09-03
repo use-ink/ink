@@ -20,7 +20,6 @@
 pub mod ext;
 pub mod test_api;
 
-mod chain_extension;
 mod database;
 mod exec_context;
 pub mod hashing;
@@ -29,7 +28,6 @@ mod types;
 #[cfg(test)]
 mod tests;
 
-pub use chain_extension::ChainExtension;
 pub use types::{
     AccountError,
     // Origin,
@@ -45,6 +43,4 @@ pub enum Error {
     UninitializedBlocks,
     #[from(ignore)]
     UninitializedExecutionContext,
-    #[from(ignore)]
-    UnregisteredChainExtension,
 }

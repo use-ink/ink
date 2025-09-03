@@ -85,7 +85,6 @@ extern crate ink_allocator;
 mod api;
 mod backend;
 pub mod call;
-pub mod chain_extension;
 mod engine;
 mod error;
 #[doc(hidden)]
@@ -122,7 +121,6 @@ pub use self::{
         Environment,
         FromLittleEndian,
         Gas,
-        NoChainExtension,
         Timestamp,
     },
 };

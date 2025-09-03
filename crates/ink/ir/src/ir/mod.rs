@@ -16,7 +16,6 @@
 
 mod attrs;
 mod blake2;
-mod chain_extension;
 mod config;
 mod contract;
 mod event;
@@ -63,11 +62,6 @@ pub use self::{
     blake2::{
         blake2b_256,
         Blake2x256Macro,
-    },
-    chain_extension::{
-        ChainExtension,
-        ChainExtensionMethod,
-        ExtensionId,
     },
     config::Config,
     contract::Contract,
