@@ -587,7 +587,6 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn account_id<E: Environment>(&mut self) -> E::AccountId {
         // todo should not use `Engine::account_id`
         self.get_property::<E::AccountId>(Engine::address)
@@ -849,9 +848,5 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         unimplemented!("off-chain environment does not support `xcm_send`")
-    }
-
-    fn account_id<E: Environment>(&mut self) -> E::AccountId {
-        unimplemented!("off-chain environment does not support `account_id`")
     }
 }
