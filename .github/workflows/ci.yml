@@ -118,7 +118,8 @@ jobs:
           command: |
             scripts/for_all_contracts_exec.sh --path integration-tests -- cargo +nightly fmt --manifest-path {} -- --check
             # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
-            rustfmt +nightly --check ./integration-tests/public/psp22-extension/runtime/psp22-extension-example.rs
+            # todo @cmichi re-enable for pre-compile example
+            # rustfmt +nightly --check ./integration-tests/public/psp22-extension/runtime/psp22-extension-example.rs
 
   clippy:
     runs-on: ubuntu-latest
