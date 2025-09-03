@@ -1170,11 +1170,6 @@ where
     }
 
     #[cfg(feature = "unstable-hostfn")]
-    pub fn call_runtime<Call: scale::Encode>(self, call: &Call) -> Result<()> {
-        ink_env::call_runtime::<E, _>(call)
-    }
-
-    #[cfg(feature = "unstable-hostfn")]
     pub fn xcm_execute<Call: scale::Encode>(
         self,
         msg: &xcm::VersionedXcm<Call>,

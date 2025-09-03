@@ -827,14 +827,6 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     #[cfg(feature = "unstable-hostfn")]
-    fn call_runtime<E, Call>(&mut self, _call: &Call) -> Result<()>
-    where
-        E: Environment,
-    {
-        unimplemented!("off-chain environment does not support `call_runtime`")
-    }
-
-    #[cfg(feature = "unstable-hostfn")]
     fn xcm_execute<E, Call>(&mut self, _msg: &xcm::VersionedXcm<Call>) -> Result<()>
     where
         E: Environment,

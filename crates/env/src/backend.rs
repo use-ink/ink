@@ -434,12 +434,6 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`own_code_hash`][`crate::own_code_hash`]
     fn own_code_hash(&mut self) -> Result<H256>;
 
-    #[cfg(feature = "unstable-hostfn")]
-    fn call_runtime<E, Call>(&mut self, call: &Call) -> Result<()>
-    where
-        E: Environment,
-        Call: scale::Encode;
-
     /// Execute an XCM message locally, using the contract's address as the origin.
     ///
     /// # Note
