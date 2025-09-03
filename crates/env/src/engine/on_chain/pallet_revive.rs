@@ -818,24 +818,6 @@ impl EnvBackend for EnvInstance {
     }
 
     #[cfg(feature = "unstable-hostfn")]
-    fn call_chain_extension<I, T, E, ErrorCode, F, D>(
-        &mut self,
-        _id: u32,
-        _input: &I,
-        _status_to_result: F,
-        _decode_to_result: D,
-    ) -> ::core::result::Result<T, E>
-    where
-        I: scale::Encode,
-        T: scale::Decode,
-        E: From<ErrorCode>,
-        F: FnOnce(u32) -> ::core::result::Result<(), ErrorCode>,
-        D: FnOnce(&[u8]) -> ::core::result::Result<T, E>,
-    {
-        panic!("not implemented");
-    }
-
-    #[cfg(feature = "unstable-hostfn")]
     fn set_code_hash(&mut self, code_hash: &H256) -> Result<()> {
         ext::set_code_hash(code_hash.as_fixed_bytes());
         Ok(()) // todo

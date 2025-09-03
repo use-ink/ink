@@ -36,7 +36,6 @@ use crate::{
     error::ExtError as _,
     ir,
     ir::{
-        chain_extension::FunctionId,
         event::SignatureTopic,
         Selector,
     },
@@ -323,16 +322,6 @@ impl InkAttribute {
             .any(|arg| matches!(arg.kind(), AttributeArg::Anonymous))
     }
 
-    /// Returns `false` if the ink! attribute contains the `handle_status = false`
-    /// argument.
-    ///
-    /// Otherwise returns `true`.
-    pub fn is_handle_status(&self) -> bool {
-        !self
-            .args()
-            .any(|arg| matches!(arg.kind(), AttributeArg::HandleStatus(false)))
-    }
-
     /// Returns the name override value if any.
     pub fn name(&self) -> Option<String> {
         self.args().find_map(|arg| {
@@ -387,14 +376,10 @@ pub enum AttributeArgKind {
     /// `#[ink(signature_topic =
     /// "325c98ff66bd0d9d1c10789ae1f2a17bdfb2dcf6aa3d8092669afafdef1cb72d")]`
     SignatureTopicArg,
-    /// `#[ink(function = N: u16)]`
-    Function,
     /// `#[ink(namespace = "my_namespace")]`
     Namespace,
     /// `#[ink(impl)]`
     Implementation,
-    /// `#[ink(handle_status = flag: bool)]`
-    HandleStatus,
     /// `#[ink(name = "myName")]`
     Name,
 }
@@ -464,19 +449,6 @@ pub enum AttributeArg {
     /// Note that ink! messages and constructors still need to be explicitly
     /// flagged as such.
     Implementation,
-    /// `#[ink(function = N: u16)]`
-    ///
-    /// Applies on ink! chain extension method to set their `func_id` parameter.
-    /// Every chain extension method must have exactly one ink! `function` attribute.
-    ///
-    /// Used by the `#[ink::chain_extension]` procedural macro.
-    Function(FunctionId),
-    /// `#[ink(handle_status = flag: bool)]`
-    ///
-    /// Used by the `#[ink::chain_extension]` procedural macro.
-    ///
-    /// Default value: `true`
-    HandleStatus(bool),
     /// `#[ink(name = "myName")]`
     ///
     /// Applied on ink! messages, constructors and events to provide the name override
@@ -504,14 +476,10 @@ impl core::fmt::Display for AttributeArgKind {
             Self::SignatureTopicArg => {
                 write!(f, "signature_topic = S:[u8; 32]")
             }
-            Self::Function => {
-                write!(f, "function = N:u16)")
-            }
             Self::Namespace => {
                 write!(f, "namespace = N:string")
             }
             Self::Implementation => write!(f, "impl"),
-            Self::HandleStatus => write!(f, "handle_status"),
             Self::Default => write!(f, "default"),
             Self::Name => write!(f, "name = N:string"),
         }
@@ -530,10 +498,8 @@ impl AttributeArg {
             Self::Payable => AttributeArgKind::Payable,
             Self::Selector(_) => AttributeArgKind::Selector,
             Self::SignatureTopic(_) => AttributeArgKind::SignatureTopicArg,
-            Self::Function(_) => AttributeArgKind::Function,
             Self::Namespace(_) => AttributeArgKind::Namespace,
             Self::Implementation => AttributeArgKind::Implementation,
-            Self::HandleStatus(_) => AttributeArgKind::HandleStatus,
             Self::Default => AttributeArgKind::Default,
             Self::Name(_) => AttributeArgKind::Name,
         }
@@ -553,14 +519,10 @@ impl core::fmt::Display for AttributeArg {
             Self::SignatureTopic(topic) => {
                 write!(f, "signature_topic = {topic}")
             }
-            Self::Function(function) => {
-                write!(f, "function = {:?}", function.into_u16())
-            }
             Self::Namespace(namespace) => {
                 write!(f, "namespace = {:?}", namespace.as_bytes())
             }
             Self::Implementation => write!(f, "impl"),
-            Self::HandleStatus(value) => write!(f, "handle_status = {value:?}"),
             Self::Default => write!(f, "default"),
             Self::Name(name) => write!(f, "name = {name:?}"),
         }
@@ -988,32 +950,6 @@ impl Parse for AttributeFrag {
                             ))
                         }
                     }
-                    "function" => {
-                        if let Some(lit_int) = name_value.value.as_lit_int() {
-                            let id = lit_int.base10_parse::<u16>()
-                                .map_err(|error| {
-                                    format_err_spanned!(
-                                        lit_int,
-                                        "could not parse `N` in `#[ink(function = N)]` into a `u16` integer: {}", error)
-                                })?;
-                            Ok(AttributeArg::Function(FunctionId::from_u16(id)))
-                        } else {
-                            Err(format_err_spanned!(
-                                name_value.value,
-                                "expected `u16` integer type for `N` in #[ink(function = N)]",
-                            ))
-                        }
-                    }
-                    "handle_status" => {
-                        if let Some(value) = name_value.value.as_bool() {
-                            Ok(AttributeArg::HandleStatus(value))
-                        } else {
-                            Err(format_err_spanned!(
-                                name_value.value,
-                                "expected `bool` value type for `flag` in #[ink(handle_status = flag)]",
-                            ))
-                        }
-                    }
                     "name" => {
                         let name =
                             extract_name_override(&name_value.value, name_value.span())?;
@@ -1049,11 +985,6 @@ impl Parse for AttributeFrag {
                             path,
                             "encountered #[ink(function)] that is missing its `id` parameter. \
                             Did you mean #[ink(function = id: u16)] ?"
-                        )),
-                        "handle_status" => Err(format_err_spanned!(
-                            path,
-                           "encountered #[ink(handle_status)] that is missing its `flag: bool` parameter. \
-                            Did you mean #[ink(handle_status = flag: bool)] ?"
                         )),
                         "namespace" => Err(format_err_spanned!(
                             path,
@@ -1359,106 +1290,6 @@ mod tests {
                 "encountered #[ink(namespace)] that is missing its string parameter. \
                 Did you mean #[ink(namespace = name: str)] ?",
             ),
-        );
-    }
-
-    #[test]
-    fn extension_works() {
-        assert_attribute_try_from(
-            syn::parse_quote! {
-                #[ink(function = 42)]
-            },
-            Ok(test::Attribute::Ink(vec![AttributeArg::Function(
-                FunctionId::from_u16(42),
-            )])),
-        );
-    }
-
-    #[test]
-    fn extension_invalid_value_type() {
-        assert_attribute_try_from(
-            syn::parse_quote! {
-                #[ink(function = "string")]
-            },
-            Err("expected `u16` integer type for `N` in #[ink(function = N)]"),
-        );
-    }
-
-    #[test]
-    fn extension_negative_integer() {
-        assert_attribute_try_from(
-            syn::parse_quote! {
-                #[ink(function = -1)]
-            },
-            Err("could not parse `N` in `#[ink(function = N)]` into a `u16` integer: invalid digit found in string")
-        );
-    }
-
-    #[test]
-    fn extension_too_big_integer() {
-        let max_u32_plus_1 = (u32::MAX as u64) + 1;
-        assert_attribute_try_from(
-            syn::parse_quote! {
-                #[ink(function = #max_u32_plus_1)]
-            },
-            Err("could not parse `N` in `#[ink(function = N)]` into a `u16` integer: number too large to fit in target type"),
-        );
-    }
-
-    #[test]
-    fn extension_missing_parameter() {
-        assert_attribute_try_from(
-            syn::parse_quote! {
-                #[ink(function)]
-            },
-            Err(
-                "encountered #[ink(function)] that is missing its `id` parameter. \
-                Did you mean #[ink(function = id: u16)] ?",
-            ),
-        );
-    }
-
-    #[test]
-    fn handle_status_works() {
-        fn expected_ok(value: bool) -> Result<test::Attribute, &'static str> {
-            Ok(test::Attribute::Ink(vec![AttributeArg::HandleStatus(
-                value,
-            )]))
-        }
-        assert_attribute_try_from(
-            syn::parse_quote! {
-                #[ink(handle_status = true)]
-            },
-            expected_ok(true),
-        );
-        assert_attribute_try_from(
-            syn::parse_quote! {
-                #[ink(handle_status = false)]
-            },
-            expected_ok(false),
-        );
-    }
-
-    #[test]
-    fn handle_status_missing_parameter() {
-        assert_attribute_try_from(
-            syn::parse_quote! {
-                #[ink(handle_status)]
-            },
-            Err(
-                "encountered #[ink(handle_status)] that is missing its `flag: bool` parameter. \
-                Did you mean #[ink(handle_status = flag: bool)] ?",
-            ),
-        );
-    }
-
-    #[test]
-    fn handle_status_invalid_parameter_type() {
-        assert_attribute_try_from(
-            syn::parse_quote! {
-                #[ink(handle_status = "string")]
-            },
-            Err("expected `bool` value type for `flag` in #[ink(handle_status = flag)]"),
         );
     }
 

@@ -26,10 +26,7 @@ use core::fmt::Debug;
 use std::panic::UnwindSafe;
 
 pub use super::call_data::CallData;
-pub use ink_engine::{
-    ext::ChainSpec,
-    ChainExtension,
-};
+pub use ink_engine::ext::ChainSpec;
 use ink_primitives::{
     AccountIdMapper,
     Address,
@@ -88,19 +85,6 @@ pub fn set_account_balance(addr: Address, new_balance: U256) {
 pub fn get_account_balance<T>(addr: Address) -> Result<U256> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.get_balance(addr).map_err(Into::into)
-    })
-}
-
-/// Registers a new chain extension.
-pub fn register_chain_extension<E>(extension: E)
-where
-    E: ink_engine::ChainExtension + 'static,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance
-            .engine
-            .chain_extension_handler
-            .register(Box::new(extension));
     })
 }
 

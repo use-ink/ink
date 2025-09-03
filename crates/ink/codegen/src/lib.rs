@@ -77,10 +77,6 @@ impl<'a> CodeGenerator for &'a ir::InkTest {
     type Generator = generator::InkTest<'a>;
 }
 
-impl<'a> CodeGenerator for &'a ir::ChainExtension {
-    type Generator = generator::ChainExtension<'a>;
-}
-
 impl<'a> CodeGenerator for &'a ir::SelectorMacro<ir::marker::SelectorId> {
     type Generator = generator::SelectorId<'a>;
 }

@@ -201,8 +201,6 @@ mod construct_runtime {
         type DepositPerByte = ConstU128<1>;
         type WeightPrice = Self;
         type WeightInfo = ();
-        // todo remove this + the $chain_extension variable
-        // type ChainExtension = $chain_extension;
         type RuntimeMemory = ConstU32<{ 128 * 1024 * 1024 }>;
         type PVFMemory = ConstU32<{ 512 * 1024 * 1024 }>;
         type UnsafeUnstableInterface = ConstBool<true>;

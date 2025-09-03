@@ -197,41 +197,6 @@ pub trait EnvBackend {
         pub_key: &[u8; 32],
     ) -> Result<()>;
 
-    /// Low-level interface to call a chain extension method.
-    ///
-    /// Returns the output of the chain extension of the specified type.
-    ///
-    /// # Errors
-    ///
-    /// - If the chain extension with the given ID does not exist.
-    /// - If the inputs had an unexpected encoding.
-    /// - If the output could not be properly decoded.
-    /// - If some extension specific condition has not been met.
-    ///
-    /// # Developer Note
-    ///
-    /// A valid implementation applies the `status_to_result` closure on
-    /// the status code returned by the actual call to the chain extension
-    /// method.
-    /// Only if the closure finds that the given status code indicates a
-    /// successful call to the chain extension method is the resulting
-    /// output buffer passed to the `decode_to_result` closure, in order to
-    /// drive the decoding and error management process from the outside.
-    #[cfg(feature = "unstable-hostfn")]
-    fn call_chain_extension<I, T, E, ErrorCode, F, D>(
-        &mut self,
-        id: u32,
-        input: &I,
-        status_to_result: F,
-        decode_to_result: D,
-    ) -> ::core::result::Result<T, E>
-    where
-        I: scale::Encode,
-        T: scale::Decode,
-        E: From<ErrorCode>,
-        F: FnOnce(u32) -> ::core::result::Result<(), ErrorCode>,
-        D: FnOnce(&[u8]) -> ::core::result::Result<T, E>;
-
     /// Sets a new code hash for the current contract.
     ///
     /// This effectively replaces the code which is executed for this contract address.
