@@ -79,33 +79,31 @@ impl<
     }
 }
 
-/// Macro creating a minimal runtime with the given name. Optionally can take a chain
-/// extension type as a second argument.
+/// Macro creating a minimal runtime with the given name.
 ///
 /// The new macro will automatically implement `crate::Sandbox`.
 #[macro_export]
 macro_rules! create_sandbox {
     ($name:ident) => {
         $crate::paste::paste! {
-            $crate::create_sandbox!($name, [<$name Runtime>], (), (), {});
+            $crate::create_sandbox!($name, [<$name Runtime>], (), {});
         }
     };
-    ($name:ident, $chain_extension: ty, $debug: ty) => {
+    ($name:ident, $debug: ty) => {
         $crate::paste::paste! {
-            $crate::create_sandbox!($name, [<$name Runtime>], $chain_extension, $debug, {});
+            $crate::create_sandbox!($name, [<$name Runtime>], $debug, {});
         }
     };
-    ($name:ident, $chain_extension: ty, $debug: ty, { $( $pallet_name:tt : $pallet:ident ),* $(,)? }) => {
+    ($name:ident, $debug: ty, { $( $pallet_name:tt : $pallet:ident ),* $(,)? }) => {
         $crate::paste::paste! {
-            $crate::create_sandbox!($name, [<$name Runtime>], $chain_extension, $debug, {
+            $crate::create_sandbox!($name, [<$name Runtime>], $debug, {
                 $(
                     $pallet_name : $pallet,
                 )*
             });
         }
     };
-    ($sandbox:ident, $runtime:ident, $chain_extension: ty, $debug: ty, { $( $pallet_name:tt : $pallet:ident ),* $(,)? }) => {
-
+    ($sandbox:ident, $runtime:ident, $debug: ty, { $( $pallet_name:tt : $pallet:ident ),* $(,)? }) => {
 
 // Put all the boilerplate into an auxiliary module
 mod construct_runtime {
