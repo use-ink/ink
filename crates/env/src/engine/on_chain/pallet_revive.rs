@@ -43,7 +43,11 @@ use crate::{
         utils::DecodeMessageResult,
         Call,
         CallParams,
+        ConstructorReturnType,
+        CreateParams,
         DelegateCall,
+        FromAddr,
+        LimitParamsV2,
     },
     engine::on_chain::{
         EncodeScope,
@@ -56,6 +60,7 @@ use crate::{
         TopicsBuilderBackend,
     },
     hash::{
+        Blake2x128,
         Blake2x256,
         CryptoHash,
         HashOutput,
@@ -70,18 +75,7 @@ use crate::{
     Result,
     TypedEnvBackend,
 };
-#[cfg(feature = "unstable-hostfn")]
-use crate::{
-    call::{
-        ConstructorReturnType,
-        CreateParams,
-        FromAddr,
-        LimitParamsV2,
-    },
-    hash::Blake2x128,
-};
 
-#[cfg(feature = "unstable-hostfn")]
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
         type OutputType = [u8; 16];
@@ -90,7 +84,31 @@ impl CryptoHash for Blake2x128 {
             OutputType
         );
         let output: &mut OutputType = array_mut_ref!(output, 0, 16);
-        ext::hash_blake2_128(input, output);
+        //ext::hash_blake2_128(input, output);
+
+        let mut buffer = [0u8; 32];
+        let mut output_buffer = [0u8; 32];
+
+        let sel = const { solidity_selector("hashBlake128(bytes)") };
+        buffer[..4].copy_from_slice(&sel[..4]);
+
+        let n = solidity_encode_bytes(input, 64, &mut buffer[4..]);
+
+        const ADDR: [u8; 20] =
+            hex_literal::hex!("0000000000000000000000000000000000000900");
+        let call_result = ext::delegate_call(
+            CallFlags::empty(),
+            &ADDR,
+            u64::MAX, /* How much ref_time to devote for the execution. u64::MAX = use
+                       * all. */
+            u64::MAX, /* How much proof_size to devote for the execution. u64::MAX =
+                       * use all. */
+            &[u8::MAX; 32], // No deposit limit.
+            &buffer[..4 + n],
+            Some(&mut &mut output_buffer[..]),
+        );
+        call_result.expect("call host function failed");
+        output[..].copy_from_slice(&output_buffer[16..]);
     }
 
     fn hash_with_buffer(
@@ -121,6 +139,20 @@ pub const fn solidity_selector(fn_sig: &str) -> [u8; 4] {
     [output[0], output[1], output[2], output[3]]
 }
 
+/// Encodes a `u32` to big-endian `[u8; 32]` with padded zeros.
+fn encode_u32(value: u32, out: &mut [u8]) {
+    debug_assert_eq!(out.len(), 32);
+    out[28..].copy_from_slice(&value.to_be_bytes()); // last 4 bytes
+}
+
+/// Encodes a `bool` to big-endian `[u8; 32]` with padded zeros.
+fn encode_bool(value: bool, out: &mut [u8]) {
+    debug_assert_eq!(out.len(), 32);
+    if value {
+        out[31] = 1;
+    }
+}
+
 /// When encoding a Rust `[u8]` to Solidity `bytes`,
 /// a small amount of overhead space is required (for padding
 /// and the length word). This is the maximum additional space required.
@@ -148,7 +180,7 @@ const SOLIDITY_SELECTOR_ENCODING_OVERHEAD: usize = 4;
 ///   * The length word → always 32 bytes.
 ///   * The input itself → exactly `input.len()` bytes.
 ///   * We pad the input to a multiple of 32 → between 0 and 31 extra bytes.
-fn solidity_encode_bytes(input: &[u8], out: &mut [u8]) -> usize {
+fn solidity_encode_bytes(input: &[u8], offset: u32, out: &mut [u8]) -> usize {
     let len = input.len();
     let padded_len = solidity_padded_len(len);
 
@@ -158,7 +190,7 @@ fn solidity_encode_bytes(input: &[u8], out: &mut [u8]) -> usize {
 
     // Encode offset as a 32-byte big-endian word
     // The offset is static for our case.
-    let offset: u32 = 32;
+    //let offset: u32 = 32;
     out[28..32].copy_from_slice(&offset.to_be_bytes()[..4]);
     out[..28].copy_from_slice(&[0u8; 28]); // make sure the first bytes are zeroed
 
@@ -206,7 +238,7 @@ impl CryptoHash for Blake2x256 {
         let sel = const { solidity_selector("hashBlake256(bytes)") };
         buffer[..4].copy_from_slice(&sel[..4]);
 
-        let n = solidity_encode_bytes(input, &mut buffer[4..]);
+        let n = solidity_encode_bytes(input, 32, &mut buffer[4..]);
 
         const ADDR: [u8; 20] =
             hex_literal::hex!("0000000000000000000000000000000000000900");
@@ -425,6 +457,64 @@ impl EnvInstance {
     }
 }
 
+fn call_bool_precompile(selector: [u8; 4], output: &mut [u8]) -> bool {
+    debug_assert_eq!(output.len(), 32);
+    const ADDR: [u8; 20] = hex_literal::hex!("0000000000000000000000000000000000000900");
+    let _ = ext::delegate_call(
+        CallFlags::empty(),
+        &ADDR,
+        u64::MAX, /* How much ref_time to devote for the execution. u64::MAX = use
+                   * all. */
+        u64::MAX, /* How much proof_size to devote for the execution. u64::MAX =
+                   * use all. */
+        &[u8::MAX; 32], // No deposit limit.
+        &selector[..],
+        Some(&mut &mut output[..]),
+    )
+    .expect("call host function failed");
+    if output[31] == 1 {
+        debug_assert_eq!(&output[..31], [0u8; 31]);
+        return true;
+    }
+    debug_assert_eq!(&output[..32], [0u8; 32]);
+    return false;
+}
+
+fn call_storage_precompile(
+    input_buf: &mut &mut [u8],
+    selector: [u8; 4],
+    key: &[u8],
+    output: &mut [u8],
+) -> core::result::Result<(), ReturnErrorCode> {
+    /*
+    let input_buf: &mut [u8; 32] = buffer
+        .take(4 + 32 + 32 + 64 + key.len())
+        .try_into()
+        .unwrap();
+
+     */
+    debug_assert_eq!(4 + 32 + 32 + 64 + key.len(), input_buf.len());
+
+    input_buf[..4].copy_from_slice(&selector[..]);
+    encode_u32(STORAGE_FLAGS.bits(), &mut input_buf[4..36]); // todo make const
+    encode_bool(false, &mut input_buf[36..68]); // const too?
+    let n = solidity_encode_bytes(key, 96, &mut input_buf[4..]);
+    debug_assert_eq!(4 + 32 + 32 + 64 + n, input_buf.len());
+
+    const ADDR: [u8; 20] = hex_literal::hex!("0000000000000000000000000000000000000901");
+    ext::delegate_call(
+        CallFlags::empty(),
+        &ADDR,
+        u64::MAX, /* How much ref_time to devote for the execution. u64::MAX = use
+                   * all. */
+        u64::MAX, /* How much proof_size to devote for the execution. u64::MAX =
+                   * use all. */
+        &[u8::MAX; 32], // No deposit limit.
+        &input_buf[..],
+        Some(&mut &mut output[..]),
+    )
+}
+
 const STORAGE_FLAGS: StorageFlags = StorageFlags::empty();
 
 impl EnvBackend for EnvInstance {
@@ -456,7 +546,6 @@ impl EnvBackend for EnvInstance {
         Ok(Some(decoded))
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn take_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
         K: scale::Encode,
@@ -464,34 +553,79 @@ impl EnvBackend for EnvInstance {
     {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
+
+        let buf: &mut [u8; 32] = buffer
+            .take(4 + 32 + 32 + 64 + key.len())
+            .try_into()
+            .unwrap();
         let output = &mut buffer.take_rest();
-        match ext::take_storage(STORAGE_FLAGS, key, output) {
-            Ok(_) => (),
-            Err(ReturnErrorCode::KeyNotFound) => return Ok(None),
-            Err(_) => panic!("encountered unexpected error"),
-        }
+
+        // function takeStorage(uint32 flags, bool isFixedKey, bytes memory key)
+        //      external returns (bytes memory)
+        let sel = const { solidity_selector("takeStorage(uint32,bool,bytes)") };
+        call_storage_precompile(&mut &mut buf[..], sel, key, output).expect("failed");
+
         let decoded = decode_all(&mut &output[..])?;
         Ok(Some(decoded))
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,
     {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
-        ext::contains_storage(STORAGE_FLAGS, key)
+
+        let buf: &mut [u8; 32] = buffer
+            .take(4 + 32 + 32 + 64 + key.len())
+            .try_into()
+            .unwrap();
+        let output = buffer.take(32);
+        //		function containsStorage(uint32 flags, bool isFixedKey, bytes memory key)
+        // 			external returns (bool containedKey, uint valueLen)
+        let sel = const { solidity_selector("containsStorage(uint32,bool,bytes)") };
+        call_storage_precompile(&mut &mut buf[..], sel, key, &mut output[..])
+            .expect("failed");
+
+        if output[31] == 0 {
+            return None;
+        }
+
+        let mut value_len_buf = [0u8; 4];
+        value_len_buf[..4].copy_from_slice(&output[60..]);
+        Some(u32::from_be_bytes(value_len_buf))
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,
     {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
-        ext::clear_storage(STORAGE_FLAGS, key)
+
+        let buf: &mut [u8; 32] = buffer
+            .take(4 + 32 + 32 + 64 + key.len())
+            .try_into()
+            .unwrap();
+        let output = buffer.take(32);
+        // 	function clearStorage(uint32 flags, bool isFixedKey, bytes memory key)
+        // 			external returns (bool containedKey, uint valueLen);
+        let sel = const { solidity_selector("clearStorage(uint32,bool,bytes)") };
+        let ret = call_storage_precompile(&mut &mut buf[..], sel, key, &mut output[..]);
+        if let Err(code) = ret {
+            // We encode the error code into the revert buffer, as some fixtures rely on
+            // detecting `OutOfResources`.
+            ext::return_value(ReturnFlags::REVERT, &(code as u32).to_le_bytes());
+        };
+
+        // check the returned `containedKey` boolean
+        if output[31] == 0 {
+            return None;
+        }
+
+        let mut value_len_buf = [0u8; 4];
+        value_len_buf[..4].copy_from_slice(&output[60..]);
+        Some(u32::from_be_bytes(value_len_buf))
     }
 
     fn decode_input<T>(&mut self) -> core::result::Result<T, DispatchError>
@@ -589,10 +723,10 @@ impl EnvBackend for EnvInstance {
     #[cfg(feature = "unstable-hostfn")]
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
         &mut self,
-        id: u32,
-        input: &I,
-        status_to_result: F,
-        decode_to_result: D,
+        _id: u32,
+        _input: &I,
+        _status_to_result: F,
+        _decode_to_result: D,
     ) -> ::core::result::Result<T, E>
     where
         I: scale::Encode,
@@ -601,12 +735,7 @@ impl EnvBackend for EnvInstance {
         F: FnOnce(u32) -> ::core::result::Result<(), ErrorCode>,
         D: FnOnce(&[u8]) -> ::core::result::Result<T, E>,
     {
-        let mut scope = self.scoped_buffer();
-        let enc_input = scope.take_encoded(input);
-        let output = &mut scope.take_rest();
-        status_to_result(ext::call_chain_extension(id, enc_input, Some(output)))?;
-        let decoded = decode_to_result(output)?;
-        Ok(decoded)
+        panic!("not implemented");
     }
 
     #[cfg(feature = "unstable-hostfn")]
@@ -640,7 +769,6 @@ impl TypedEnvBackend for EnvInstance {
         self.get_property_little_endian::<E::Timestamp>(ext::now)
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn account_id<E: Environment>(&mut self) -> E::AccountId {
         let mut scope = self.scoped_buffer();
 
@@ -648,9 +776,29 @@ impl TypedEnvBackend for EnvInstance {
         ext::address(h160);
 
         let account_id: &mut [u8; 32] = scope.take(32).try_into().unwrap();
-        ext::to_account_id(h160, account_id);
-        scale::Decode::decode(&mut &account_id[..])
-            .expect("A contract being executed must have a valid account id.")
+
+        let selector = const { solidity_selector("toAccountId(address)") };
+        let input: &mut [u8; 36] = &mut scope.take(4 + 32).try_into().unwrap();
+
+        input[..4].copy_from_slice(&selector[..]);
+        input[16..36].copy_from_slice(&h160[..]);
+
+        const ADDR: [u8; 20] =
+            hex_literal::hex!("0000000000000000000000000000000000000900");
+        let _ = ext::delegate_call(
+            CallFlags::empty(),
+            &ADDR,
+            u64::MAX, /* How much ref_time to devote for the execution. u64::MAX = use
+                       * all. */
+            u64::MAX, /* How much proof_size to devote for the execution. u64::MAX =
+                       * use all. */
+            &[u8::MAX; 32], // No deposit limit.
+            &input[..],
+            Some(&mut &mut account_id[..]),
+        )
+        .expect("call host function failed");
+
+        scale::Decode::decode(&mut &account_id[..]).expect("unable to decode account id")
     }
 
     fn address(&mut self) -> Address {
@@ -671,9 +819,31 @@ impl TypedEnvBackend for EnvInstance {
         self.get_property_little_endian::<E::BlockNumber>(ext::block_number)
     }
 
-    #[cfg(feature = "unstable-hostfn")]
-    fn minimum_balance<E: Environment>(&mut self) -> E::Balance {
-        self.get_property_little_endian::<E::Balance>(ext::minimum_balance)
+    fn minimum_balance(&mut self) -> U256 {
+        let selector = const { solidity_selector("minimumBalance()") };
+        let output: &mut [u8; 32] = &mut self
+            .scoped_buffer()
+            .take_max_encoded_len::<U256>()
+            .try_into()
+            .unwrap();
+
+        const ADDR: [u8; 20] =
+            hex_literal::hex!("0000000000000000000000000000000000000900");
+        let _ = ext::delegate_call(
+            CallFlags::empty(),
+            &ADDR,
+            u64::MAX, /* How much ref_time to devote for the execution. u64::MAX = use
+                       * all. */
+            u64::MAX, /* How much proof_size to devote for the execution. u64::MAX =
+                       * use all. */
+            &[u8::MAX; 32], // No deposit limit.
+            &selector[..],
+            Some(&mut &mut output[..]),
+        )
+        .expect("call host function failed");
+
+        U256::from_little_endian(&output[..])
+        //evm_value_to_balance(output)
     }
 
     fn emit_event<E, Evt, Abi>(&mut self, event: &Evt)
@@ -799,7 +969,7 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
-    #[cfg(feature = "unstable-hostfn")]
+    //#[cfg(feature = "unstable-hostfn")]
     fn instantiate_contract<E, ContractRef, Args, RetType, Abi>(
         &mut self,
         params: &CreateParams<E, ContractRef, LimitParamsV2, Args, RetType, Abi>,
@@ -948,20 +1118,25 @@ impl TypedEnvBackend for EnvInstance {
         */
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn caller_is_origin<E>(&mut self) -> bool
     where
         E: Environment,
     {
-        ext::caller_is_origin()
+        // ext::caller_is_origin()
+        let sel = const { solidity_selector("callerIsOrigin()") };
+        let output: &mut [u8; 32] =
+            &mut self.scoped_buffer().take(32).try_into().unwrap();
+        call_bool_precompile(sel, output)
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn caller_is_root<E>(&mut self) -> bool
     where
         E: Environment,
     {
-        ext::caller_is_root()
+        let sel = const { solidity_selector("callerIsRoot()") };
+        let output: &mut [u8; 32] =
+            &mut self.scoped_buffer().take(32).try_into().unwrap();
+        call_bool_precompile(sel, output)
     }
 
     fn code_hash(&mut self, addr: &Address) -> Result<H256> {
@@ -976,19 +1151,34 @@ impl TypedEnvBackend for EnvInstance {
         Ok(hash)
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn own_code_hash(&mut self) -> Result<H256> {
+        let sel = const { solidity_selector("ownCodeHash()") };
         let output: &mut [u8; 32] = &mut self
             .scoped_buffer()
             .take_max_encoded_len::<H256>()
             .try_into()
             .unwrap();
-        ext::own_code_hash(output);
+
+        const ADDR: [u8; 20] =
+            hex_literal::hex!("0000000000000000000000000000000000000900");
+        let call_result = ext::delegate_call(
+            CallFlags::empty(),
+            &ADDR,
+            u64::MAX, /* How much ref_time to devote for the execution. u64::MAX = use
+                       * all. */
+            u64::MAX, /* How much proof_size to devote for the execution. u64::MAX =
+                       * use all. */
+            &[u8::MAX; 32], // No deposit limit.
+            &sel[..],
+            Some(&mut &mut output[..]),
+        );
+        call_result.expect("call host function failed");
         let hash = scale::Decode::decode(&mut &output[..])?;
         Ok(hash)
     }
 
     #[cfg(feature = "unstable-hostfn")]
+    // todo
     fn call_runtime<E, Call>(&mut self, _call: &Call) -> Result<()>
     where
         E: Environment,
@@ -1003,6 +1193,7 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     #[cfg(feature = "unstable-hostfn")]
+    // todo
     fn xcm_execute<E, Call>(&mut self, _msg: &VersionedXcm<Call>) -> Result<()>
     where
         E: Environment,
@@ -1020,6 +1211,7 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     #[cfg(feature = "unstable-hostfn")]
+    // todo
     fn xcm_send<E, Call>(
         &mut self,
         _dest: &xcm::VersionedLocation,
@@ -1071,3 +1263,26 @@ fn remove_option(scope: &mut ScopedBuffer, opt: Option<[u8; 32]>) -> [u8; 32] {
         Some(bytes) => bytes,
     }
 }
+
+/*
+/// Converts from the generic `Balance` type to the Ethereum native `U256`.
+///
+/// # Developer Note
+///
+/// `pallet-revive` uses both types, hence we have to convert in between them
+/// for certain functions. Notice that precision loss might occur when converting
+/// the other way (from `U256` to `Balance`).
+///
+/// See <https://github.com/paritytech/polkadot-sdk/pull/9101> for more details.
+pub fn evm_value_to_balance<E: Environment>(value: U256) -> E::Balance
+where
+    R: pallet_revive::Config,
+    BalanceOf<R>: Into<U256>,
+    U256: From<u32>,
+{
+    let native_to_eth_ratio: U256 =
+        <R as pallet_revive::Config>::NativeToEthRatio::get().into();
+    let v = value / native_to_eth_ratio;
+    v.into()
+}
+ */

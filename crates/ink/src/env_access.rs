@@ -381,7 +381,7 @@ where
     /// #         }
     /// #
     /// #[ink(message)]
-    /// pub fn minimum_balance(&self) -> Balance {
+    /// pub fn minimum_balance(&self) -> ink::U256 {
     ///     self.env().minimum_balance()
     /// }
     /// #
@@ -392,9 +392,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::minimum_balance`]
-    #[cfg(feature = "unstable-hostfn")]
-    pub fn minimum_balance(self) -> E::Balance {
-        ink_env::minimum_balance::<E>()
+    pub fn minimum_balance(self) -> U256 {
+        ink_env::minimum_balance()
     }
 
     /// Emits an event.

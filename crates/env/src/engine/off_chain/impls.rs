@@ -625,9 +625,8 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
-    #[cfg(feature = "unstable-hostfn")]
-    fn minimum_balance<E: Environment>(&mut self) -> E::Balance {
-        self.get_property::<E::Balance>(Engine::minimum_balance)
+    fn minimum_balance(&mut self) -> U256 {
+        self.get_property::<U256>(Engine::minimum_balance)
             .unwrap_or_else(|error| {
                 panic!("could not read `minimum_balance` property: {error:?}")
             })

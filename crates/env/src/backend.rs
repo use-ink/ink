@@ -314,8 +314,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`minimum_balance`][`crate::minimum_balance`]
-    #[cfg(feature = "unstable-hostfn")]
-    fn minimum_balance<E: Environment>(&mut self) -> E::Balance;
+    fn minimum_balance(&mut self) -> U256;
 
     /// Emits an event with the given event data.
     ///

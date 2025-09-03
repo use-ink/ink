@@ -172,13 +172,9 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-#[cfg(feature = "unstable-hostfn")]
-pub fn minimum_balance<E>() -> E::Balance
-where
-    E: Environment,
-{
+pub fn minimum_balance() -> U256 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::minimum_balance::<E>(instance)
+        TypedEnvBackend::minimum_balance(instance)
     })
 }
 
