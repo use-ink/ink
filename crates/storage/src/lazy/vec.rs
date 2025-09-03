@@ -287,7 +287,6 @@ where
     /// # Panics
     ///
     /// * If the value overgrows the static buffer size.
-    #[cfg(feature = "unstable-hostfn")]
     pub fn pop(&mut self) -> Option<V> {
         if self.is_empty() {
             return None;
@@ -309,7 +308,6 @@ where
     /// `Some(Ok(_))` containing the value if it existed and was decoded successfully.
     /// `Some(Err(_))` if the value existed but its length exceeds the static buffer size.
     /// `None` if the vector is empty.
-    #[cfg(feature = "unstable-hostfn")]
     pub fn try_pop(&mut self) -> Option<Result<V, ink_env::Error>> {
         if self.is_empty() {
             return None;
@@ -342,7 +340,6 @@ where
     /// `Some(Ok(_))` containing the value if it existed and was decoded successfully.
     /// `Some(Err(_))` if the value existed but its length exceeds the static buffer size.
     /// `None` if the vector is empty.
-    #[cfg(feature = "unstable-hostfn")]
     pub fn try_peek(&self) -> Option<Result<V, ink_env::Error>> {
         if self.is_empty() {
             return None;
@@ -371,7 +368,6 @@ where
     /// * `Some(Err(_))` if the value existed but its length exceeds the static buffer
     ///   size.
     /// * `None` if there was no value at `index`.
-    #[cfg(feature = "unstable-hostfn")]
     pub fn try_get(&self, index: u32) -> Option<ink_env::Result<V>> {
         self.elements.try_get(index)
     }
@@ -427,7 +423,6 @@ where
     ///
     /// This iterates through all elements in the vector; complexity is O(n).
     /// It might not be possible to clear large vectors within a single block!
-    #[cfg(feature = "unstable-hostfn")]
     pub fn clear(&mut self) {
         for i in 0..self.len() {
             self.elements.remove(i);
@@ -441,7 +436,6 @@ where
     /// # Panics
     ///
     /// Panics if `index` exceeds the length of the vector.
-    #[cfg(feature = "unstable-hostfn")]
     pub fn clear_at(&mut self, index: u32) {
         assert!(index < self.len());
 

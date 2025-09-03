@@ -13,15 +13,16 @@
 // limitations under the License.
 
 use ink_engine::ext::Engine;
-#[cfg(feature = "unstable-hostfn")]
-use ink_primitives::types::AccountIdMapper;
 use ink_primitives::{
     abi::{
         AbiEncodeWith,
         Ink,
         Sol,
     },
-    types::Environment,
+    types::{
+        AccountIdMapper,
+        Environment,
+    },
     Address,
     SolEncode,
     H256,
@@ -47,7 +48,11 @@ use crate::{
         utils::DecodeMessageResult,
         Call,
         CallParams,
+        ConstructorReturnType,
+        CreateParams,
         DelegateCall,
+        FromAddr,
+        LimitParamsV2,
     },
     event::{
         Event,
@@ -55,28 +60,19 @@ use crate::{
         TopicsBuilderBackend,
     },
     hash::{
+        Blake2x128,
         Blake2x256,
         CryptoHash,
         HashOutput,
         Keccak256,
         Sha2x256,
     },
+    test::callee,
     DecodeDispatch,
     DispatchError,
     EnvBackend,
     Result,
     TypedEnvBackend,
-};
-#[cfg(feature = "unstable-hostfn")]
-use crate::{
-    call::{
-        ConstructorReturnType,
-        CreateParams,
-        FromAddr,
-        LimitParamsV2,
-    },
-    hash::Blake2x128,
-    test::callee,
 };
 
 /// The capacity of the static buffer.
@@ -164,7 +160,6 @@ where
     R::decode_output(&result, false)
 }
 
-#[cfg(feature = "unstable-hostfn")]
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
         type OutputType = [u8; 16];
@@ -748,7 +743,9 @@ impl TypedEnvBackend for EnvInstance {
         crate::reflect::ExecuteDispatchable::execute_dispatchable(dispatch)
             .unwrap_or_else(|e| panic!("Constructor call failed: {e:?}"));
 
-        self.set_code_hash(code_hash)?;
+        self.engine
+            .database
+            .set_code_hash(&self.engine.get_callee(), code_hash);
         self.engine.set_contract(callee());
         self.engine
             .database
@@ -852,5 +849,9 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         unimplemented!("off-chain environment does not support `xcm_send`")
+    }
+
+    fn account_id<E: Environment>(&mut self) -> E::AccountId {
+        unimplemented!("off-chain environment does not support `account_id`")
     }
 }

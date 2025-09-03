@@ -13,17 +13,14 @@
 // limitations under the License.
 
 use cfg_if::cfg_if;
-#[cfg(feature = "unstable-hostfn")]
 use ink_primitives::ConstructorResult;
-#[cfg(feature = "unstable-hostfn")]
 use pallet_revive_uapi::ReturnErrorCode;
 
-use crate::backend::{
-    EnvBackend,
-    TypedEnvBackend,
-};
-#[cfg(feature = "unstable-hostfn")]
 use crate::{
+    backend::{
+        EnvBackend,
+        TypedEnvBackend,
+    },
     call::{
         utils::{
             ConstructorError,

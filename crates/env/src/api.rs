@@ -24,13 +24,6 @@ use ink_primitives::{
 use ink_storage_traits::Storable;
 use pallet_revive_uapi::ReturnFlags;
 
-#[cfg(feature = "unstable-hostfn")]
-use crate::call::{
-    ConstructorReturnType,
-    CreateParams,
-    FromAddr,
-    LimitParamsV2,
-};
 use crate::{
     backend::{
         EnvBackend,
@@ -40,7 +33,11 @@ use crate::{
         utils::DecodeMessageResult,
         Call,
         CallParams,
+        ConstructorReturnType,
+        CreateParams,
         DelegateCall,
+        FromAddr,
+        LimitParamsV2,
     },
     engine::{
         EnvInstance,
@@ -120,7 +117,6 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-#[cfg(feature = "unstable-hostfn")]
 pub fn account_id<E>() -> E::AccountId
 where
     E: Environment,

@@ -14,19 +14,16 @@
 
 use core::marker::PhantomData;
 
-#[cfg(feature = "unstable-hostfn")]
-use ink_env::call::{
-    ConstructorReturnType,
-    CreateParams,
-    FromAddr,
-    LimitParamsV2,
-};
 use ink_env::{
     call::{
         utils::DecodeMessageResult,
         Call,
         CallParams,
+        ConstructorReturnType,
+        CreateParams,
         DelegateCall,
+        FromAddr,
+        LimitParamsV2,
     },
     hash::{
         CryptoHash,
@@ -280,7 +277,6 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::account_id`]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn account_id(self) -> E::AccountId {
         ink_env::account_id::<E>()
     }
@@ -1040,7 +1036,6 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::caller_is_origin`]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn caller_is_origin(self) -> bool {
         ink_env::caller_is_origin::<E>()
     }
@@ -1072,7 +1067,6 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::caller_is_root`]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn caller_is_root(self) -> bool {
         ink_env::caller_is_root::<E>()
     }
@@ -1138,7 +1132,6 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::own_code_hash`]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn own_code_hash(self) -> Result<H256> {
         ink_env::own_code_hash()
     }

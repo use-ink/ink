@@ -23,19 +23,16 @@ use ink_primitives::{
 use ink_storage_traits::Storable;
 pub use pallet_revive_uapi::ReturnFlags;
 
-#[cfg(feature = "unstable-hostfn")]
-use crate::call::{
-    ConstructorReturnType,
-    CreateParams,
-    FromAddr,
-    LimitParamsV2,
-};
 use crate::{
     call::{
         utils::DecodeMessageResult,
         Call,
         CallParams,
+        ConstructorReturnType,
+        CreateParams,
         DelegateCall,
+        FromAddr,
+        LimitParamsV2,
     },
     event::{
         Event,
@@ -281,7 +278,6 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`account_id`][`crate::account_id`]
-    #[cfg(feature = "unstable-hostfn")]
     fn account_id<E: Environment>(&mut self) -> E::AccountId;
 
     /// Returns the address of the executed contract.

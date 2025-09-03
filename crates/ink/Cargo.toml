@@ -88,7 +88,7 @@ no-allocator = ["ink_env/no-allocator"]
 # Disable the ink! provided panic handler.
 no-panic-handler = ["ink_env/no-panic-handler"]
 
-unstable-hostfn = ["ink_env/unstable-hostfn", "ink_storage/unstable-hostfn"]
+unstable-hostfn = ["ink_env/unstable-hostfn"]
 
 # For the ui tests, which use this `Cargo.toml`
 [lints.rust.unexpected_cfgs]

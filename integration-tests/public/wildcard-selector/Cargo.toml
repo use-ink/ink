@@ -21,7 +21,7 @@ std = [
 ]
 ink-as-dependency = []
 e2e-tests = []
-emit-event = ["ink/unstable-hostfn"]
+emit-event = []
 
 [package.metadata.ink-lang]
 abi = "ink"
