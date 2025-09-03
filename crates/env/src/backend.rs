@@ -363,7 +363,6 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
-    #[cfg(feature = "unstable-hostfn")]
     fn instantiate_contract<E, ContractRef, Args, R, Abi>(
         &mut self,
         params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,

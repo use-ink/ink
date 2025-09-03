@@ -75,7 +75,6 @@ cfg_if! {
 
 // We only use this function when 1) compiling for PolkaVM 2) compiling for tests.
 #[cfg_attr(all(feature = "std", not(test)), allow(dead_code))]
-#[cfg(feature = "unstable-hostfn")] // only usages are when unstable-hostfn is enabled
 pub(crate) fn decode_instantiate_result<I, ContractRef, R, Abi>(
     instantiate_result: EnvResult<()>,
     out_address: &mut I,
@@ -101,7 +100,6 @@ where
 }
 
 #[cfg_attr(all(feature = "std", not(test)), allow(dead_code))]
-#[cfg(feature = "unstable-hostfn")] // only usages are when unstable-hostfn is enabled
 fn decode_instantiate_err<ContractRef, R, Abi>(
     out_return_value: &[u8],
 ) -> EnvResult<ConstructorResult<<R as ConstructorReturnType<ContractRef, Abi>>::Output>>

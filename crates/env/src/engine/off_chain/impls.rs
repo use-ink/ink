@@ -692,7 +692,6 @@ impl TypedEnvBackend for EnvInstance {
         )
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn instantiate_contract<E, ContractRef, Args, R, Abi>(
         &mut self,
         params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
