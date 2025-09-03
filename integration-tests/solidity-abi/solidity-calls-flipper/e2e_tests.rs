@@ -136,16 +136,17 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
 }
 
 use ink::env::Environment;
-async fn call_ink<Ret, Backend, E, Cliente>(
-    //client: &mut ink_e2e::Client<PolkadotConfig, DefaultEnvironment>,
-    client: &mut Backend,
+//async fn call_ink<Ret, Backend, E, Cliente>(
+async fn call_ink<Ret>(
+    client: &mut ink_e2e::Client<PolkadotConfig, DefaultEnvironment>,
+    //client: &mut Backend,
     ink_addr: Address,
     data_sol: Vec<u8>,
 ) -> Ret
 where
     Ret: SolDecode,
-    Backend: E2EBackend<E, Cliente>,
-    E: Environment,
+    //Backend: E2EBackend<E, Cliente>,
+    //E: Environment,
 {
     let signer = ink_e2e::alice();
     let exec_result = client
