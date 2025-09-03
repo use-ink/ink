@@ -989,20 +989,6 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     #[cfg(feature = "unstable-hostfn")]
-    fn call_runtime<E, Call>(&mut self, _call: &Call) -> Result<()>
-    where
-        E: Environment,
-        Call: scale::Encode,
-    {
-        panic!("todo call_runtiem() not supported yet, see removeal in https://github.com/paritytech/polkadot-sdk/pull/8584");
-        /*
-        let mut scope = self.scoped_buffer();
-        let enc_call = scope.take_encoded(call);
-        ext::call_runtime(enc_call).map_err(Into::into)
-        */
-    }
-
-    #[cfg(feature = "unstable-hostfn")]
     fn xcm_execute<E, Call>(&mut self, _msg: &VersionedXcm<Call>) -> Result<()>
     where
         E: Environment,
