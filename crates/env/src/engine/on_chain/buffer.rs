@@ -205,7 +205,7 @@ impl<'a> ScopedBuffer<'a> {
     /// Appends the given bytes to the scoped buffer.
     ///
     /// Does not return the buffer immediately so that other values can be appended
-    /// afterwards. The [`take_appended`] method shall be used to return the buffer
+    /// afterward. The [`take_appended`] method shall be used to return the buffer
     /// that includes all appended encodings as a single buffer.
     #[inline(always)]
     pub fn append_bytes(&mut self, bytes: &[u8]) {
@@ -225,7 +225,7 @@ impl<'a> ScopedBuffer<'a> {
         self.take(offset)
     }
 
-    /// Returns all of the remaining bytes of the buffer as mutable slice.
+    /// Returns all remaining bytes of the buffer as a mutable slice.
     pub fn take_rest(self) -> &'a mut [u8] {
         debug_assert_eq!(self.offset, 0);
         debug_assert!(!self.buffer.is_empty());

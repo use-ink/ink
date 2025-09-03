@@ -204,9 +204,11 @@ fn solidity_encode_bytes(input: &[u8], offset: u32, out: &mut [u8]) -> usize {
     out[64..64 + len].copy_from_slice(input);
 
     // Zero padding
+    /*
     for i in 64 + len..64 + padded_len - len {
         out[i] = 0;
     }
+    */
 
     64 + padded_len
 }
@@ -493,15 +495,16 @@ fn call_storage_precompile(
         .unwrap();
 
      */
-    debug_assert_eq!(4 + 32 + 32 + 64 + key.len(), input_buf.len());
+    //debug_assert_eq!(4 + 32 + 32 + 64 + key.len(), input_buf.len());
 
     input_buf[..4].copy_from_slice(&selector[..]);
     encode_u32(STORAGE_FLAGS.bits(), &mut input_buf[4..36]); // todo make const
     encode_bool(false, &mut input_buf[36..68]); // const too?
-    let n = solidity_encode_bytes(key, 96, &mut input_buf[4..]);
-    debug_assert_eq!(4 + 32 + 32 + 64 + n, input_buf.len());
+    let n = solidity_encode_bytes(key, 96, &mut input_buf[68..]);
+    debug_assert!(4 + 32 + 32 + 64 + n <= input_buf.len());
 
     const ADDR: [u8; 20] = hex_literal::hex!("0000000000000000000000000000000000000901");
+    //return Ok(());
     ext::delegate_call(
         CallFlags::empty(),
         &ADDR,
@@ -554,18 +557,64 @@ impl EnvBackend for EnvInstance {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
 
+        /*
         let buf: &mut [u8; 32] = buffer
-            .take(4 + 32 + 32 + 64 + key.len())
+            .take(4 + 32 + 32 + 64 + key.len() + 32)
             .try_into()
             .unwrap();
+         */
+        let padded_len = solidity_padded_len(key.len());
+        let buf: &mut [u8] = buffer.take(4 + 32 + 32 + 64 + padded_len);
+
         let output = &mut buffer.take_rest();
+        //let output = buffer
+        //.take_max_decoded_len::<R>();
 
         // function takeStorage(uint32 flags, bool isFixedKey, bytes memory key)
         //      external returns (bytes memory)
         let sel = const { solidity_selector("takeStorage(uint32,bool,bytes)") };
         call_storage_precompile(&mut &mut buf[..], sel, key, output).expect("failed");
 
-        let decoded = decode_all(&mut &output[..])?;
+        debug_assert!(
+            !output.is_empty(),
+            "output must always contain at least the len and offset of `bytes`"
+        );
+        /*
+        if output.is_empty() || output.iter().all(|&x| x == 0u8) {
+            return Ok(None);
+        }
+        */
+        //assert!(output.len() >= 64);
+        //output[]
+
+        /*
+        let decoded = scope.take(output.len());
+        let n = decode_bytes(&output[..], &mut decoded[..]);
+
+         */
+
+        /*
+        let mut buf = [0u8; 4];
+        buf[..].copy_from_slice(&input[28..32]);
+        let offset = u32::from_be_bytes(buf) as usize;
+         */
+
+        let mut buf = [0u8; 4];
+        buf[..].copy_from_slice(&output[60..64]);
+        let bytes_len = u32::from_be_bytes(buf) as usize;
+
+        if bytes_len == 0 {
+            return Ok(None);
+        }
+
+        // we start decoding at the start of the payload.
+        // the payload starts at the `len` word here:
+        // `bytes = offset (32 bytes) | len (32 bytes) | data`
+        //out[..bytes_len].copy_from_slice(&input[32 + offset..32 + offset + bytes_len]);
+        //bytes_len
+
+        let decoded = decode_all(&mut &output[64..bytes_len + 64])?;
+        //let decoded = Decode::decode(&mut &output[..]);
         Ok(Some(decoded))
     }
 
@@ -576,23 +625,25 @@ impl EnvBackend for EnvInstance {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
 
-        let buf: &mut [u8; 32] = buffer
-            .take(4 + 32 + 32 + 64 + key.len())
-            .try_into()
-            .unwrap();
+        //let buf: &mut [u8; 4 + 32 + 32 + 64] = buffer
+        let padded_len = solidity_padded_len(key.len());
+        let buf: &mut [u8] = buffer.take(4 + 32 + 32 + 64 + padded_len);
+        //.try_into()
+        //.unwrap();
         let output = buffer.take(32);
         //		function containsStorage(uint32 flags, bool isFixedKey, bytes memory key)
         // 			external returns (bool containedKey, uint valueLen)
         let sel = const { solidity_selector("containsStorage(uint32,bool,bytes)") };
-        call_storage_precompile(&mut &mut buf[..], sel, key, &mut output[..])
+        call_storage_precompile(&mut &mut buf[..], sel, key, &mut &mut output[..])
             .expect("failed");
 
         if output[31] == 0 {
+            // todo debug assert
             return None;
         }
 
         let mut value_len_buf = [0u8; 4];
-        value_len_buf[..4].copy_from_slice(&output[60..]);
+        value_len_buf[..4].copy_from_slice(&output[28..]);
         Some(u32::from_be_bytes(value_len_buf))
     }
 
@@ -603,11 +654,16 @@ impl EnvBackend for EnvInstance {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
 
+        /*
         let buf: &mut [u8; 32] = buffer
-            .take(4 + 32 + 32 + 64 + key.len())
+            .take(4 + 32 + 32 + 64 + key.len() + 32)
             .try_into()
             .unwrap();
-        let output = buffer.take(32);
+
+         */
+        let padded_len = solidity_padded_len(key.len());
+        let buf: &mut [u8] = buffer.take(4 + 32 + 32 + 64 + padded_len);
+        let output = buffer.take(64);
         // 	function clearStorage(uint32 flags, bool isFixedKey, bytes memory key)
         // 			external returns (bool containedKey, uint valueLen);
         let sel = const { solidity_selector("clearStorage(uint32,bool,bytes)") };
@@ -624,7 +680,7 @@ impl EnvBackend for EnvInstance {
         }
 
         let mut value_len_buf = [0u8; 4];
-        value_len_buf[..4].copy_from_slice(&output[60..]);
+        value_len_buf[..4].copy_from_slice(&output[60..64]);
         Some(u32::from_be_bytes(value_len_buf))
     }
 

@@ -148,6 +148,12 @@ where
                 .mint_into(account, TOKENS.into())
                 .unwrap_or_else(|_| panic!("Failed to mint {TOKENS} tokens"));
         }
+
+        let acc = pallet_revive::Pallet::<S::Runtime>::account_id();
+        let ed = pallet_balances::Pallet::<S::Runtime>::minimum_balance();
+        sandbox
+            .mint_into(&acc, ed)
+            .unwrap_or_else(|_| panic!("Failed to mint {TOKENS} tokens"));
     }
 }
 
@@ -265,6 +271,10 @@ where
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<BareInstantiationResult<Self::EventLog>, Self::Error> {
+        eprintln!(
+            "-------------------bare instantiate {:?}",
+            storage_deposit_limit
+        );
         let _ =
             <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 

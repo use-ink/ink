@@ -175,7 +175,9 @@ where
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
     ) -> ContractResultInstantiate<Self::T> {
+        eprintln!("0----------- attempt {:?}", storage_deposit_limit);
         let storage_deposit_limit = storage_deposit_limit_fn(storage_deposit_limit);
+        eprintln!("1----------- attempt {:?}", storage_deposit_limit);
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_instantiate(
                 origin,

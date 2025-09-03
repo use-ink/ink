@@ -272,7 +272,7 @@ mod instantiate_contract {
                     )
                 })
                 .unwrap_or_else(|error| {
-                    panic!("Received a `LangError` while instantiating: {:?}", error)
+                    panic!("Received a `LangError` while instantiating: {error:?}")
                 });
 
             use ink::ToAddr;
@@ -295,7 +295,7 @@ mod instantiate_contract {
                     )
                 })
                 .unwrap_or_else(|error| {
-                    panic!("Received a `LangError` while instantiating: {:?}", error)
+                    panic!("Received a `LangError` while instantiating: {error:?}")
                 });
             let addr3: Address = addr3.to_addr();
 
@@ -325,7 +325,7 @@ mod instantiate_contract {
                         )
                     })
                     .unwrap_or_else(|error| {
-                        panic!("Received a `LangError` while instantiating: {:?}", error)
+                        panic!("Received a `LangError` while instantiating: {error:?}")
                     })
             };
 
