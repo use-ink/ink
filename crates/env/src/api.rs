@@ -227,7 +227,6 @@ where
 /// # Errors
 ///
 /// - If the decoding of the typed value failed (`KeyNotFound`)
-#[cfg(feature = "unstable-hostfn")]
 pub fn take_contract_storage<K, R>(key: &K) -> Result<Option<R>>
 where
     K: scale::Encode,
@@ -242,7 +241,6 @@ where
 /// storage.
 ///
 /// If a value is stored under the specified key, the size of the value is returned.
-#[cfg(feature = "unstable-hostfn")]
 pub fn contains_contract_storage<K>(key: &K) -> Option<u32>
 where
     K: scale::Encode,
@@ -256,7 +254,6 @@ where
 ///
 /// If a value was stored under the specified storage key, the size of the value is
 /// returned.
-#[cfg(feature = "unstable-hostfn")]
 pub fn clear_contract_storage<K>(key: &K) -> Option<u32>
 where
     K: scale::Encode,
@@ -656,7 +653,6 @@ pub fn code_hash(addr: &Address) -> Result<H256> {
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-#[cfg(feature = "unstable-hostfn")]
 pub fn own_code_hash() -> Result<H256> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::own_code_hash(instance)
@@ -676,7 +672,6 @@ pub fn own_code_hash() -> Result<H256> {
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-#[cfg(feature = "unstable-hostfn")]
 pub fn caller_is_origin<E>() -> bool
 where
     E: Environment,
@@ -697,7 +692,6 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-#[cfg(feature = "unstable-hostfn")]
 pub fn caller_is_root<E>() -> bool
 where
     E: Environment,
