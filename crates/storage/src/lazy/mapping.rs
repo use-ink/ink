@@ -255,7 +255,9 @@ where
     {
         let key_size = <Q as Encode>::encoded_size(&key);
 
-        if key_size > ink_env::BUFFER_SIZE {
+        if key_size.saturating_add(4 + 32 + 32 + 64 + key_size + 32 + 32)
+            > ink_env::remaining_buffer()
+        {
             return Some(Err(ink_env::Error::BufferTooSmall))
         }
 
@@ -264,7 +266,12 @@ where
                 .try_into()
                 .expect("targets of less than 32bit pointer size are not supported; qed");
 
-        if key_size.saturating_add(value_size) > ink_env::BUFFER_SIZE {
+        if key_size
+            .saturating_add(4 + 32 + 32 + 64 + key_size + 32 + 32)
+            .saturating_add(value_size)
+            .saturating_add(4 + 32 + 32 + 64 + key_size + 64 + value_size)
+            > ink_env::remaining_buffer()
+        {
             return Some(Err(ink_env::Error::BufferTooSmall))
         }
 

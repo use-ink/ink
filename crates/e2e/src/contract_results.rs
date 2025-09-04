@@ -346,8 +346,9 @@ impl<E: Environment, V: DecodeMessageResult<Abi>, Abi> CallDryRunResult<E, V, Ab
         let data = &self.exec_return_value().data;
         DecodeMessageResult::decode_output(data.as_ref(), self.did_revert()).unwrap_or_else(|env_err| {
             panic!(
-                "Decoding dry run result to ink! message return type failed: {env_err:?} {:?}",
-                self.exec_return_value()
+                "Decoding dry run result to ink! message return type failed: {env_err:?} {:?}\n\nAttempt to stringify returned data: {:?}",
+                self.exec_return_value(),
+                String::from_utf8_lossy(&self.exec_return_value().data[..])
             )
         })
     }

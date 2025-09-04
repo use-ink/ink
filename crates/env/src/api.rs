@@ -886,3 +886,10 @@ where
         TypedEnvBackend::xcm_send::<E, _>(instance, dest, msg)
     })
 }
+
+/// Returns the size of the buffer that is remaining in the backend.
+pub fn remaining_buffer() -> usize {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        EnvBackend::remaining_buffer(instance)
+    })
+}

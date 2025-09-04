@@ -55,6 +55,7 @@ pub const BUFFER_SIZE: usize = 16384;
 #[cfg(target_arch = "riscv64")]
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
+    // todo
     //#[cfg(any(feature = "ink-debug", feature = "std"))]
     self::return_value(
         ReturnFlags::REVERT,

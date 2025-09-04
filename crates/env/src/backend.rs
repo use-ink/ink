@@ -241,6 +241,9 @@ pub trait EnvBackend {
     /// - If the supplied `code_hash` cannot be found on-chain.
     #[cfg(feature = "unstable-hostfn")]
     fn set_code_hash(&mut self, code_hash: &H256) -> Result<()>;
+
+    /// Returns the size of the buffer that is remaining in the backend.
+    fn remaining_buffer(&mut self) -> usize;
 }
 
 /// Environmental contract functionality.

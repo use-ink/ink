@@ -231,4 +231,16 @@ impl<'a> ScopedBuffer<'a> {
         debug_assert!(!self.buffer.is_empty());
         self.buffer
     }
+
+    /// Returns the size of all remaining bytes in the buffer.
+    ///
+    /// # Developer Note
+    ///
+    /// The function requires `&mut self` because `self.buffer` is
+    /// already a mutable reference in the struct.
+    ///
+    /// _The function does not actually mutate state._
+    pub fn remaining_buffer(&mut self) -> usize {
+        self.buffer.len()
+    }
 }
