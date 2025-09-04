@@ -66,9 +66,9 @@ serde_json = { version = "1.0.137" }
 sha2 = { version = "0.10" }
 sha3 = { version = "0.10" }
 static_assertions = { version = "1.1" }
-subxt = { version = "0.42.1" }
-subxt-metadata = { version = "0.42.1" }
-subxt-signer = { version = "0.42.1" }
+subxt = { version = "0.44.0" }
+subxt-metadata = { version = "0.44.0" }
+subxt-signer = { version = "0.44.0" }
 syn = { version = "2" }
 synstructure = { version = "0.13.1" }
 thiserror = { version = "2.0.11" }
@@ -76,7 +76,7 @@ tokio = { version = "1.47.1" }
 tracing = { version = "0.1.41" }
 tracing-subscriber = { version = "0.3.20" }
 trybuild = { version = "1.0.110" }
-which = { version = "7.0.0" }
+which = { version = "8.0.0" }
 xxhash-rust = { version = "0.8" }
 const_env = { version = "0.1" }
 
