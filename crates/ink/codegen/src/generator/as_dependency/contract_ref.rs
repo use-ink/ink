@@ -103,6 +103,7 @@ impl ContractRef<'_> {
             };
             let ref_ident_abi_alias = format_ident!("{ref_ident_default_abi}{suffix}");
             quote! {
+                #[allow(dead_code)]
                 pub type #ref_ident_abi_alias = #ref_ident::<#abi_ty>;
             }
         });
@@ -149,7 +150,8 @@ impl ContractRef<'_> {
                 _marker: core::marker::PhantomData<Abi>,
             }
 
-            // Default type alias (i.e. `ContractRef` for a contract named `Contract`)
+            // Default type alias (i.e. `ContractRef` for a contract named `Contract`).
+            #[allow(dead_code)]
             pub type #ref_ident_default_abi = #ref_ident::<#abi>;
             // ABI specific type aliases (i.e. `ContractRefInk` and `ContractRefSol`) as appropriate.
             #ref_ident_abi_aliases
