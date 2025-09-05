@@ -192,7 +192,7 @@ const SOL_BYTES_ENCODING_OVERHEAD: usize = 64;
 ///   * The length word → always 32 bytes.
 ///   * The input itself → exactly `input.len()` bytes.
 ///   * We pad the input to a multiple of 32 → between 0 and 31 extra bytes.
-fn solidity_encode_bytes(input: &[u8], offset: usize, out: &mut [u8]) -> usize {
+fn solidity_encode_bytes(input: &[u8], offset: u32, out: &mut [u8]) -> usize {
     let len = input.len();
     let padded_len = solidity_padded_len(len);
 
@@ -526,7 +526,8 @@ fn call_storage_precompile(
         // 32 bytes for `flags` + 32 bytes for `isFixedKey` + 32 bytes for the `offset`
         // word that comes first when encoding `bytes`.
         // 96 then points to the `len|data` segment of `bytes`
-        SOL_ENCODED_FLAGS_LEN + SOL_ENCODED_IS_FIXED_KEY_LEN + SOL_BYTES_OFFSET_WORD_LEN,
+        (SOL_ENCODED_FLAGS_LEN + SOL_ENCODED_IS_FIXED_KEY_LEN + SOL_BYTES_OFFSET_WORD_LEN)
+            as u32,
         // encode the `bytes` starting at the appropriate position in the slice
         &mut input_buf[SOL_ENCODED_SELECTOR_LEN
             + SOL_ENCODED_FLAGS_LEN
@@ -676,7 +677,7 @@ impl EnvBackend for EnvInstance {
         // Check the returned `containedKey` boolean value
         if output[31] == 0 {
             debug_assert!(
-                !output.iter().any(|&x| x != 0),
+                output.iter().all(|x| *x == 0),
                 "both `containedKey` and `valueLen` need to be zero"
             );
             return None;
@@ -715,7 +716,7 @@ impl EnvBackend for EnvInstance {
         // Check the returned `containedKey` boolean value
         if output[31] == 0 {
             debug_assert!(
-                !output.iter().any(|&x| x != 0),
+                output.iter().all(|x| *x == 0),
                 "both `containedKey` and `valueLen` need to be zero"
             );
             return None;
