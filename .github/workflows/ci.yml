@@ -601,7 +601,7 @@ jobs:
               QUICKCHECK_TESTS: 2
           with:
             command: |
-                cargo contract test --all-features --manifest-path integration-tests/internal/mapping/Cargo.toml;
+                cargo contract test --all-features --manifest-path integration-tests/internal/mapping/Cargo.toml
 
                 INK_STATIC_BUFFER_SIZE=256 cargo test --all-features --manifest-path integration-tests/internal/mapping/Cargo.toml -- --ignored fallible_storage_methods_work
 

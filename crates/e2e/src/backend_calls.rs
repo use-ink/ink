@@ -333,7 +333,6 @@ where
             gas_limit,
             balance_to_deposit_limit::<E>(Some(
                 dry_run.contract_result.storage_deposit.charge_or_zero(),
-                // * 100_000_000u32.into(), // todo
             )),
         )
         .await?;

@@ -214,13 +214,6 @@ fn solidity_encode_bytes(input: &[u8], offset: u32, out: &mut [u8]) -> usize {
     // Write data after `offset` and `len` word
     out[64..64 + len].copy_from_slice(input);
 
-    /*
-    // Zero padding
-    for i in 64 + len..64 + padded_len {
-        out[i] = 0;
-    }
-    */
-
     64 + padded_len
 }
 
@@ -543,9 +536,10 @@ fn call_storage_precompile(
     // todo @cmichi check if we might better return `None` in this situation. perhaps a
     // zero sized key is legal?
     debug_assert_ne!(encoded_bytes_len < SOL_BYTES_ENCODING_OVERHEAD + 32,
-                  "the `bytes` encoding length was < 96, meaning we didn't encode a 32 byte `key`. calling this function without `key` does not make sense and is unexpected.");
+        "the `bytes` encoding length was < 96, meaning we didn't encode a 32 byte `key`. \
+        calling this function without `key` does not make sense and is unexpected.");
 
-    // output needs to hold at least 32 bytes, for the len field of `bytes`.
+    // `output` needs to hold at least 32 bytes, for the len field of `bytes`.
     // if no `bytes` are returned from the delegate call we will at the minimum
     // have the `len` field.
     assert!(output.len() >= 32);
@@ -644,8 +638,8 @@ impl EnvBackend for EnvInstance {
             return Err(crate::Error::BufferTooSmall);
         }
 
-        // we start decoding at the start of the payload.
-        // the payload starts at the `len` word here:
+        // We start decoding at the start of the payload.
+        // The payload starts at the `len` word here:
         // `bytes = offset (32 bytes) | len (32 bytes) | data`
         let decoded = decode_all(
             &mut &output
@@ -679,7 +673,7 @@ impl EnvBackend for EnvInstance {
         call_storage_precompile(&mut &mut buf[..], sel, key, &mut &mut output[..])
             .expect("failed calling Storage pre-compile (contains)");
 
-        // check the returned `containedKey` boolean value
+        // Check the returned `containedKey` boolean value
         if output[31] == 0 {
             debug_assert!(
                 !output.iter().any(|&x| x != 0),
@@ -718,7 +712,7 @@ impl EnvBackend for EnvInstance {
         let _ = call_storage_precompile(&mut &mut buf[..], sel, key, &mut output[..])
             .expect("failed calling Storage pre-compile (clear)");
 
-        // check the returned `containedKey` boolean value
+        // Check the returned `containedKey` boolean value
         if output[31] == 0 {
             debug_assert!(
                 !output.iter().any(|&x| x != 0),
@@ -899,30 +893,10 @@ impl TypedEnvBackend for EnvInstance {
         )
         .expect("call host function failed");
 
-        /*
-        //scale::Decode::decode(&mut &account_id[..]).expect("unable to decode account id")
-        let mut buf = [0u8; 4];
-        buf[..].copy_from_slice(&output[60..64]);
-        let bytes_len = u32::from_be_bytes(buf) as usize;
-
-        if bytes_len == 0 {
-            return Ok(None);
-        }
-
-         */
-
-        let decoded = scale::Decode::decode(&mut &output[64..96]).expect("must exist");
-        decoded
-
-        // we start decoding at the start of the payload.
-        // the payload starts at the `len` word here:
+        // We start decoding at the start of the payload.
+        // The payload starts at the `len` word here:
         // `bytes = offset (32 bytes) | len (32 bytes) | data`
-        //out[..bytes_len].copy_from_slice(&input[32 + offset..32 + offset + bytes_len]);
-        //bytes_len
-
-        //let decoded = decode_all(&mut &output[64..bytes_len + 64])?;
-        //let decoded = Decode::decode(&mut &output[..]);
-        //Ok(Some(decoded))
+        scale::Decode::decode(&mut &output[64..96]).expect("must exist")
     }
 
     fn address(&mut self) -> Address {
@@ -1352,26 +1326,3 @@ fn remove_option(scope: &mut ScopedBuffer, opt: Option<[u8; 32]>) -> [u8; 32] {
         Some(bytes) => bytes,
     }
 }
-
-/*
-/// Converts from the generic `Balance` type to the Ethereum native `U256`.
-///
-/// # Developer Note
-///
-/// `pallet-revive` uses both types, hence we have to convert in between them
-/// for certain functions. Notice that precision loss might occur when converting
-/// the other way (from `U256` to `Balance`).
-///
-/// See <https://github.com/paritytech/polkadot-sdk/pull/9101> for more details.
-pub fn evm_value_to_balance<E: Environment>(value: U256) -> E::Balance
-where
-    R: pallet_revive::Config,
-    BalanceOf<R>: Into<U256>,
-    U256: From<u32>,
-{
-    let native_to_eth_ratio: U256 =
-        <R as pallet_revive::Config>::NativeToEthRatio::get().into();
-    let v = value / native_to_eth_ratio;
-    v.into()
-}
- */
