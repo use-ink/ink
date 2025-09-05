@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Synchronized with `polkadot-sdk/c40b36c3a7c208f9a6837b80812473af3d9ba7f7` ‒ [2589](https://github.com/use-ink/ink/pull/2589)
+- Refactor multi ABI interfaces - [#2618](https://github.com/use-ink/ink/pull/2618)
 
 ### Fixed
 - E2E: Fixes around correct handling of storage deposit limit ‒ [#2589](https://github.com/use-ink/ink/pull/2589)
