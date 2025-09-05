@@ -18,11 +18,11 @@ error[E0276]: impl has stricter requirements than trait
 18 | |         }
    | |_________^ impl has extra requirement `ConstructorOutputValue<Result<u8, contract::Error>>: ConstructorOutput<contract::Contract>`
 
-error[E0277]: the trait bound `Result<u8, contract::Error>: ConstructorReturnType<ContractRef, ink::abi::Ink>` is not satisfied
+error[E0277]: the trait bound `Result<u8, contract::Error>: ConstructorReturnType<ContractRefFor, ink::abi::Ink>` is not satisfied
   --> tests/ui/contract/fail/constructor/constructor-return-result-invalid.rs:16:33
    |
 16 |           pub fn constructor() -> Result<u8, Error> {
-   |           -                       ^^^^^^^^^^^^^^^^^ the trait `ConstructorReturnType<ContractRef, ink::abi::Ink>` is not implemented for `Result<u8, contract::Error>`
+   |           -                       ^^^^^^^^^^^^^^^^^ the trait `ConstructorReturnType<ContractRefFor, ink::abi::Ink>` is not implemented for `Result<u8, contract::Error>`
    |  _________|
    | |
 17 | |             Ok(5_u8)
@@ -31,7 +31,7 @@ error[E0277]: the trait bound `Result<u8, contract::Error>: ConstructorReturnTyp
    |
    = help: the following other types implement trait `ConstructorReturnType<C, Abi>`:
              `Result<C, E>` implements `ConstructorReturnType<C, Abi>`
-             `Result<contract::Contract, E>` implements `ConstructorReturnType<ContractRef, Abi>`
+             `Result<contract::Contract, E>` implements `ConstructorReturnType<ContractRefFor, Abi>`
 note: required by a bound in `CreateBuilder::<E, ContractRef, Limits, Args, Unset<ReturnType<()>>, Abi>::returns`
   --> $WORKSPACE/crates/env/src/call/create_builder.rs
    |
