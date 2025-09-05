@@ -585,7 +585,7 @@ impl ContractRef<'_> {
             .map(quote::ToTokens::to_token_stream)
             .unwrap_or_else(|| quote::quote! { Self });
 
-        let (abi_ty, exec_input_init) = match abi {
+        let (abi_ty, exec_input_init, build_create_fn) = match abi {
             Abi::Ink => {
                 let selector_bytes = constructor.composed_selector().hex_lits();
                 (
@@ -595,6 +595,7 @@ impl ContractRef<'_> {
                             ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
                         )
                     },
+                    quote!(build_create_ink),
                 )
             }
             Abi::Sol => {
@@ -603,6 +604,7 @@ impl ContractRef<'_> {
                     quote! {
                         ::ink::env::call::ExecutionInput::no_selector()
                     },
+                    quote!(build_create_sol),
                 )
             }
         };
@@ -625,7 +627,7 @@ impl ContractRef<'_> {
                 ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#ret_type>>,
                 #abi_ty
             > {
-                ::ink::env::call::build_create_abi::<Self, #abi_ty>()
+                ::ink::env::call::#build_create_fn::<Self>()
                     .exec_input(
                         #exec_input_init
                         #(
