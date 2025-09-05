@@ -34,7 +34,7 @@ error[E0277]: the trait bound `contract::Error: WrapperTypeDecode` is not satisf
              sp_core::Bytes
    = note: required for `contract::Error` to implement `ink::parity_scale_codec::Decode`
    = note: required for `contract::Error` to implement `DecodeConstructorError<ink::abi::Ink>`
-   = note: required for `Result<ContractRef, contract::Error>` to implement `ConstructorReturnType<ContractRef, ink::abi::Ink>`
+   = note: required for `Result<ContractRefFor, contract::Error>` to implement `ConstructorReturnType<ContractRefFor, ink::abi::Ink>`
 note: required by a bound in `CreateBuilder::<E, ContractRef, Limits, Args, Unset<ReturnType<()>>, Abi>::returns`
   --> $WORKSPACE/crates/env/src/call/create_builder.rs
    |
