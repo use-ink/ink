@@ -192,7 +192,7 @@ const SOL_BYTES_ENCODING_OVERHEAD: usize = 64;
 ///   * The length word → always 32 bytes.
 ///   * The input itself → exactly `input.len()` bytes.
 ///   * We pad the input to a multiple of 32 → between 0 and 31 extra bytes.
-fn solidity_encode_bytes(input: &[u8], offset: u32, out: &mut [u8]) -> usize {
+fn solidity_encode_bytes(input: &[u8], offset: usize, out: &mut [u8]) -> usize {
     let len = input.len();
     let padded_len = solidity_padded_len(len);
 
@@ -535,7 +535,7 @@ fn call_storage_precompile(
 
     // todo @cmichi check if we might better return `None` in this situation. perhaps a
     // zero sized key is legal?
-    debug_assert_ne!(encoded_bytes_len < SOL_BYTES_ENCODING_OVERHEAD + 32,
+    debug_assert!(encoded_bytes_len >= SOL_BYTES_ENCODING_OVERHEAD + 32,
         "the `bytes` encoding length was < 96, meaning we didn't encode a 32 byte `key`. \
         calling this function without `key` does not make sense and is unexpected.");
 
