@@ -253,19 +253,25 @@ where
     where
         Q: scale::EncodeLike<K>,
     {
+        #[allow(unused_variables)]
         let key_size = <Q as Encode>::encoded_size(&key);
 
+        // todo @cmichi explain calculation, move it into `contains_contract_storage
+        #[cfg(not(feature = "std"))]
         if key_size.saturating_add(4 + 32 + 32 + 64 + key_size + 32 + 32)
             > ink_env::remaining_buffer()
         {
             return Some(Err(ink_env::Error::BufferTooSmall))
         }
 
+        #[allow(unused_variables)]
         let value_size: usize =
             ink_env::contains_contract_storage(&(&KeyType::KEY, &key))?
                 .try_into()
                 .expect("targets of less than 32bit pointer size are not supported; qed");
 
+        // todo @cmichi explain calculation, move it into `contains_contract_storage
+        #[cfg(not(feature = "std"))]
         if key_size
             .saturating_add(4 + 32 + 32 + 64 + key_size + 32 + 32)
             .saturating_add(value_size)
