@@ -17,7 +17,7 @@
 //! # Note
 //!
 //! This mapping doesn't actually "own" any data.
-//! Instead it is just a simple wrapper around the contract storage facilities.
+//! Instead, it is just a simple wrapper around the contract storage facilities.
 
 use crate::traits::{
     AutoKey,
