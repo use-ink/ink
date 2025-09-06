@@ -81,12 +81,12 @@ std = [
     "sp-runtime-interface/std",
 	"sp-weights/std",
 	"ink_e2e_macro/std",
-	"ink_sandbox/std",
+	"ink_sandbox?/std",
 	"frame-support/std",
 ]
 
 sandbox = [
     "dep:ink_sandbox",
-    "subxt-metadata",
+    "dep:subxt-metadata",
     "ink_e2e_macro/sandbox",
 ]
