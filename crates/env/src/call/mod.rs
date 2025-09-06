@@ -45,8 +45,8 @@ pub mod utils {
 pub use self::{
     call_builder::{
         build_call,
-        build_call_abi,
-        build_call_solidity,
+        build_call_ink,
+        build_call_sol,
         Call,
         CallBuilder,
         CallParams,
@@ -54,8 +54,8 @@ pub use self::{
     },
     create_builder::{
         build_create,
-        build_create_abi,
-        build_create_solidity,
+        build_create_ink,
+        build_create_sol,
         state,
         ConstructorReturnType,
         CreateBuilder,

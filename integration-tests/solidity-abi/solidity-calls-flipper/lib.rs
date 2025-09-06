@@ -5,7 +5,7 @@ pub mod flipper {
     use crate::keccak_selector;
     use ink::env::{
         call::{
-            build_call_solidity,
+            build_call_sol,
             ExecutionInput,
         },
         CallFlags,
@@ -54,7 +54,7 @@ pub mod flipper {
         pub fn call_solidity_set(&mut self, callee: Address) {
             let selector = keccak_selector(b"set_value(uint16)");
 
-            let result = build_call_solidity::<<Self as ::ink::env::ContractEnv>::Env>()
+            let result = build_call_sol::<<Self as ::ink::env::ContractEnv>::Env>()
                 .call(callee)
                 .ref_time_limit(1000000000)
                 .transferred_value(ink::U256::zero())
@@ -70,7 +70,7 @@ pub mod flipper {
         pub fn call_solidity_get(&mut self, callee: Address) -> u16 {
             let selector = crate::keccak_selector(b"get_value()");
 
-            build_call_solidity::<<Self as ::ink::env::ContractEnv>::Env>()
+            build_call_sol::<<Self as ::ink::env::ContractEnv>::Env>()
                 .call(callee)
                 .ref_time_limit(1000000000)
                 .transferred_value(ink::U256::zero())
