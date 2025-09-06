@@ -128,7 +128,7 @@ impl<'a> ScopedBuffer<'a> {
     /// Splits the scoped buffer into yet another piece to operate on it temporarily.
     ///
     /// The split buffer will have an offset of 0 but be offset by `self`'s offset.
-    pub fn split(&mut self) -> ScopedBuffer {
+    pub fn split(&mut self) -> ScopedBuffer<'_> {
         ScopedBuffer {
             offset: 0,
             buffer: &mut self.buffer[self.offset..],
@@ -205,7 +205,7 @@ impl<'a> ScopedBuffer<'a> {
     /// Appends the given bytes to the scoped buffer.
     ///
     /// Does not return the buffer immediately so that other values can be appended
-    /// afterwards. The [`take_appended`] method shall be used to return the buffer
+    /// afterward. The [`take_appended`] method shall be used to return the buffer
     /// that includes all appended encodings as a single buffer.
     #[inline(always)]
     pub fn append_bytes(&mut self, bytes: &[u8]) {
@@ -225,10 +225,22 @@ impl<'a> ScopedBuffer<'a> {
         self.take(offset)
     }
 
-    /// Returns all of the remaining bytes of the buffer as mutable slice.
+    /// Returns all remaining bytes of the buffer as a mutable slice.
     pub fn take_rest(self) -> &'a mut [u8] {
         debug_assert_eq!(self.offset, 0);
         debug_assert!(!self.buffer.is_empty());
         self.buffer
+    }
+
+    /// Returns the size of all remaining bytes in the buffer.
+    ///
+    /// # Developer Note
+    ///
+    /// The function requires `&mut self` because `self.buffer` is
+    /// already a mutable reference in the struct.
+    ///
+    /// _The function does not actually mutate state._
+    pub fn remaining_buffer(&mut self) -> usize {
+        self.buffer.len()
     }
 }

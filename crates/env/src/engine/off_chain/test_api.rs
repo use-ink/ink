@@ -62,7 +62,6 @@ pub struct EmittedEvent {
 /// - If the underlying `account` type does not match.
 /// - If the underlying `new_balance` type does not match.
 /// - If the `new_balance` is less than the existential minimum.
-#[cfg(feature = "unstable-hostfn")] // todo check this is needed here
 pub fn set_account_balance(addr: Address, new_balance: U256) {
     let min = ChainSpec::default().minimum_balance;
     if new_balance < min && new_balance != U256::zero() {

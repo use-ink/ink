@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [Unreleased]
 
 ### Changed
-- Synchronized with `polkadot-sdk/c40b36c3a7c208f9a6837b80812473af3d9ba7f7` ‒ [2589](https://github.com/use-ink/ink/pull/2589)
+- Support functions of the `Storage` and `System` pre-compiles ‒ [2619](https://github.com/use-ink/ink/pull/2619)
+
+### Changed
+- Synchronize with `polkadot-sdk/c40b36c3a7c208f9a6837b80812473af3d9ba7f7` ‒ [2589](https://github.com/use-ink/ink/pull/2589)
+- Synchronize with `polkadot-sdk/a71ec19a94702ea71767ba5ac97603ea6c6305c1` ‒ [2619](https://github.com/use-ink/ink/pull/2619)
 
 ### Fixed
 - E2E: Fixes around correct handling of storage deposit limit ‒ [#2589](https://github.com/use-ink/ink/pull/2589)

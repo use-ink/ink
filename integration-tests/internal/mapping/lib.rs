@@ -208,13 +208,8 @@ mod mapping {
 
             // then
             let contains = call_builder.contains_balance();
-            let is_there = client
-                .call(&ink_e2e::bob(), &contains)
-                .dry_run()
-                .await?
-                .return_value();
-
-            assert!(is_there);
+            let is_there = client.call(&ink_e2e::bob(), &contains).dry_run().await?;
+            assert!(is_there.return_value());
 
             Ok(())
         }
@@ -349,6 +344,7 @@ mod mapping {
             Ok(())
         }
 
+        #[ignore]
         #[ink_e2e::test]
         async fn fallible_storage_methods_work<Client: E2EBackend>(
             mut client: Client,

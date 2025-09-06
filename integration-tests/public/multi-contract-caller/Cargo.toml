@@ -6,7 +6,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
+ink = { path = "../../../crates/ink", default-features = false }
 
 adder = { path = "adder", default-features = false, features = ["ink-as-dependency"] }
 subber = { path = "subber", default-features = false, features = ["ink-as-dependency"] }

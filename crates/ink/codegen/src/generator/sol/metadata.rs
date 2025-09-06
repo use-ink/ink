@@ -136,7 +136,7 @@ impl SolidityMetadata<'_> {
 }
 
 /// Returns the Solidity ABI compatible parameter type and name for the given inputs.
-fn params_info(inputs: InputsIter) -> impl Iterator<Item = TokenStream2> + '_ {
+fn params_info(inputs: InputsIter<'_>) -> impl Iterator<Item = TokenStream2> + '_ {
     inputs.map(|input| {
         let ty = &*input.ty;
         let sol_ty = sol_type(ty);

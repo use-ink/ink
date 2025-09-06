@@ -13,15 +13,16 @@
 // limitations under the License.
 
 use ink_engine::ext::Engine;
-#[cfg(feature = "unstable-hostfn")]
-use ink_primitives::types::AccountIdMapper;
 use ink_primitives::{
     abi::{
         AbiEncodeWith,
         Ink,
         Sol,
     },
-    types::Environment,
+    types::{
+        AccountIdMapper,
+        Environment,
+    },
     Address,
     SolEncode,
     H256,
@@ -47,7 +48,11 @@ use crate::{
         utils::DecodeMessageResult,
         Call,
         CallParams,
+        ConstructorReturnType,
+        CreateParams,
         DelegateCall,
+        FromAddr,
+        LimitParamsV2,
     },
     event::{
         Event,
@@ -55,28 +60,19 @@ use crate::{
         TopicsBuilderBackend,
     },
     hash::{
+        Blake2x128,
         Blake2x256,
         CryptoHash,
         HashOutput,
         Keccak256,
         Sha2x256,
     },
+    test::callee,
     DecodeDispatch,
     DispatchError,
     EnvBackend,
     Result,
     TypedEnvBackend,
-};
-#[cfg(feature = "unstable-hostfn")]
-use crate::{
-    call::{
-        ConstructorReturnType,
-        CreateParams,
-        FromAddr,
-        LimitParamsV2,
-    },
-    hash::Blake2x128,
-    test::callee,
 };
 
 /// The capacity of the static buffer.
@@ -164,7 +160,6 @@ where
     R::decode_output(&result, false)
 }
 
-#[cfg(feature = "unstable-hostfn")]
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
         type OutputType = [u8; 16];
@@ -375,7 +370,6 @@ impl EnvBackend for EnvInstance {
         }
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn take_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
         K: scale::Encode,
@@ -391,7 +385,10 @@ impl EnvBackend for EnvInstance {
         }
     }
 
-    #[cfg(feature = "unstable-hostfn")]
+    fn remaining_buffer(&mut self) -> usize {
+        BUFFER_SIZE
+    }
+
     fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,
@@ -399,7 +396,6 @@ impl EnvBackend for EnvInstance {
         self.engine.contains_storage(&key.encode())
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,
@@ -595,7 +591,6 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn account_id<E: Environment>(&mut self) -> E::AccountId {
         // todo should not use `Engine::account_id`
         self.get_property::<E::AccountId>(Engine::address)
@@ -625,9 +620,8 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
-    #[cfg(feature = "unstable-hostfn")]
-    fn minimum_balance<E: Environment>(&mut self) -> E::Balance {
-        self.get_property::<E::Balance>(Engine::minimum_balance)
+    fn minimum_balance(&mut self) -> U256 {
+        self.get_property::<U256>(Engine::minimum_balance)
             .unwrap_or_else(|error| {
                 panic!("could not read `minimum_balance` property: {error:?}")
             })
@@ -693,7 +687,6 @@ impl TypedEnvBackend for EnvInstance {
         )
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn instantiate_contract<E, ContractRef, Args, R, Abi>(
         &mut self,
         params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
@@ -753,7 +746,9 @@ impl TypedEnvBackend for EnvInstance {
         crate::reflect::ExecuteDispatchable::execute_dispatchable(dispatch)
             .unwrap_or_else(|e| panic!("Constructor call failed: {e:?}"));
 
-        self.set_code_hash(code_hash)?;
+        self.engine
+            .database
+            .set_code_hash(&self.engine.get_callee(), code_hash);
         self.engine.set_contract(callee());
         self.engine
             .database
@@ -796,7 +791,6 @@ impl TypedEnvBackend for EnvInstance {
         self.engine.is_contract(account)
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn caller_is_origin<E>(&mut self) -> bool
     where
         E: Environment,
@@ -804,7 +798,6 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support cross-contract calls")
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn caller_is_root<E>(&mut self) -> bool
     where
         E: Environment,
@@ -823,7 +816,6 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn own_code_hash(&mut self) -> Result<H256> {
         let callee = &self.engine.get_callee();
         let code_hash = self.engine.database.get_code_hash(callee);

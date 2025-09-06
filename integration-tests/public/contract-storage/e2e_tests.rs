@@ -39,7 +39,7 @@ async fn get_contract_storage_fails_when_extra_data<Client: E2EBackend>(
     // given
     let mut constructor = ContractStorageRef::new();
     let contract = client
-        .instantiate("contract-storage", &ink_e2e::alice(), &mut constructor)
+        .instantiate("contract-storage", &ink_e2e::bob(), &mut constructor)
         .submit()
         .await
         .expect("instantiate failed");
@@ -48,7 +48,7 @@ async fn get_contract_storage_fails_when_extra_data<Client: E2EBackend>(
     // when
     let result = client
         .call(
-            &ink_e2e::alice(),
+            &ink_e2e::bob(),
             &call_builder.set_and_get_storage_partial_data_consumed(),
         )
         .submit()
@@ -69,7 +69,7 @@ async fn take_contract_storage_consumes_entire_buffer<Client: E2EBackend>(
     // given
     let mut constructor = ContractStorageRef::new();
     let contract = client
-        .instantiate("contract-storage", &ink_e2e::alice(), &mut constructor)
+        .instantiate("contract-storage", &ink_e2e::eve(), &mut constructor)
         .submit()
         .await
         .expect("instantiate failed");
@@ -78,7 +78,7 @@ async fn take_contract_storage_consumes_entire_buffer<Client: E2EBackend>(
     // when
     let result = client
         .call(
-            &ink_e2e::alice(),
+            &ink_e2e::eve(),
             &call_builder.set_and_take_storage_all_data_consumed(),
         )
         .submit()
@@ -98,7 +98,7 @@ async fn take_contract_storage_fails_when_extra_data<Client: E2EBackend>(
     // given
     let mut constructor = ContractStorageRef::new();
     let contract = client
-        .instantiate("contract-storage", &ink_e2e::alice(), &mut constructor)
+        .instantiate("contract-storage", &ink_e2e::ferdie(), &mut constructor)
         .submit()
         .await
         .expect("instantiate failed");
@@ -107,7 +107,7 @@ async fn take_contract_storage_fails_when_extra_data<Client: E2EBackend>(
     // when
     let result = client
         .call(
-            &ink_e2e::alice(),
+            &ink_e2e::ferdie(),
             &call_builder.set_and_take_storage_partial_data_consumed(),
         )
         .submit()

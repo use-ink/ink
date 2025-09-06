@@ -6,7 +6,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
+ink = { path = "../../../../crates/ink", default-features = false }
 
 constructors_return_value = { path = "../constructors-return-value", default-features = false, features = ["ink-as-dependency"] }
 integration_flipper = { path = "../integration-flipper", default-features = false, features = ["ink-as-dependency"] }
