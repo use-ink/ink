@@ -628,7 +628,7 @@ impl EnvBackend for EnvInstance {
 
         // extract the `len` from the returned Solidity `bytes`
         let mut buf = [0u8; 4];
-        buf[..].copy_from_slice(&output[28..32]);
+        buf[..].copy_from_slice(&output[60..64]);
         let bytes_len = u32::from_be_bytes(buf) as usize;
 
         if bytes_len == 0 {
