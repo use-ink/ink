@@ -185,7 +185,7 @@ mod mother {
         /// Mutates the input string to return "Hello, { name }"
         #[ink(message)]
         pub fn mut_hello_world(&self, mut message: String) -> String {
-            message = format!("Hello, {}", message);
+            message = format!("Hello, {message}");
             message
         }
     }

@@ -23,19 +23,16 @@ use ink_primitives::{
 use ink_storage_traits::Storable;
 pub use pallet_revive_uapi::ReturnFlags;
 
-#[cfg(feature = "unstable-hostfn")]
-use crate::call::{
-    ConstructorReturnType,
-    CreateParams,
-    FromAddr,
-    LimitParamsV2,
-};
 use crate::{
     call::{
         utils::DecodeMessageResult,
         Call,
         CallParams,
+        ConstructorReturnType,
+        CreateParams,
         DelegateCall,
+        FromAddr,
+        LimitParamsV2,
     },
     event::{
         Event,
@@ -77,14 +74,12 @@ pub trait EnvBackend {
     /// # Errors
     ///
     /// - If the decoding of the typed value failed
-    #[cfg(feature = "unstable-hostfn")]
     fn take_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
         K: scale::Encode,
         R: Storable;
 
     /// Returns the size of a value stored under the given storage key is returned if any.
-    #[cfg(feature = "unstable-hostfn")]
     fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode;
@@ -92,7 +87,6 @@ pub trait EnvBackend {
     /// Clears the contract's storage key entry under the given storage key.
     ///
     /// Returns the size of the previously stored value at the specified key if any.
-    #[cfg(feature = "unstable-hostfn")]
     fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode;
@@ -247,6 +241,9 @@ pub trait EnvBackend {
     /// - If the supplied `code_hash` cannot be found on-chain.
     #[cfg(feature = "unstable-hostfn")]
     fn set_code_hash(&mut self, code_hash: &H256) -> Result<()>;
+
+    /// Returns the size of the buffer that is remaining in the backend.
+    fn remaining_buffer(&mut self) -> usize;
 }
 
 /// Environmental contract functionality.
@@ -284,7 +281,6 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`account_id`][`crate::account_id`]
-    #[cfg(feature = "unstable-hostfn")]
     fn account_id<E: Environment>(&mut self) -> E::AccountId;
 
     /// Returns the address of the executed contract.
@@ -314,8 +310,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`minimum_balance`][`crate::minimum_balance`]
-    #[cfg(feature = "unstable-hostfn")]
-    fn minimum_balance<E: Environment>(&mut self) -> E::Balance;
+    fn minimum_balance(&mut self) -> U256;
 
     /// Emits an event with the given event data.
     ///
@@ -364,7 +359,6 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
-    #[cfg(feature = "unstable-hostfn")]
     fn instantiate_contract<E, ContractRef, Args, R, Abi>(
         &mut self,
         params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
@@ -413,7 +407,6 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`caller_is_origin`][`crate::caller_is_origin`]
-    #[cfg(feature = "unstable-hostfn")]
     fn caller_is_origin<E>(&mut self) -> bool
     where
         E: Environment;
@@ -423,7 +416,6 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`caller_is_root`][`crate::caller_is_root`]
-    #[cfg(feature = "unstable-hostfn")]
     fn caller_is_root<E>(&mut self) -> bool
     where
         E: Environment;
@@ -440,7 +432,6 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`own_code_hash`][`crate::own_code_hash`]
-    #[cfg(feature = "unstable-hostfn")]
     fn own_code_hash(&mut self) -> Result<H256>;
 
     #[cfg(feature = "unstable-hostfn")]

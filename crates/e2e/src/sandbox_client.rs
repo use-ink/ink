@@ -148,6 +148,12 @@ where
                 .mint_into(account, TOKENS.into())
                 .unwrap_or_else(|_| panic!("Failed to mint {TOKENS} tokens"));
         }
+
+        let acc = pallet_revive::Pallet::<S::Runtime>::account_id();
+        let ed = pallet_balances::Pallet::<S::Runtime>::minimum_balance();
+        sandbox.mint_into(&acc, ed).unwrap_or_else(|_| {
+            panic!("Failed to mint existential deposit into `pallet-revive` account")
+        });
     }
 }
 

@@ -66,9 +66,9 @@ mod call_builder {
 
             match result {
                 Ok(Ok(value)) => Ok(value),
-                Ok(Err(err)) => Err(format!("LangError: {:?}", err)),
+                Ok(Err(err)) => Err(format!("LangError: {err:?}")),
                 Err(ink::env::Error::Decode(_)) => Err("Decode Error".to_string()),
-                Err(err) => Err(format!("Env Error: {:?}", err)),
+                Err(err) => Err(format!("Env Error: {err:?}")),
             }
         }
 
@@ -102,9 +102,9 @@ mod call_builder {
 
             match result {
                 Ok(Ok(value)) => Ok(value),
-                Ok(Err(err)) => Err(format!("LangError: {:?}", err)),
+                Ok(Err(err)) => Err(format!("LangError: {err:?}")),
                 Err(ink::env::Error::Decode(_)) => Err("Decode Error".to_string()),
-                Err(err) => Err(format!("Env Error: {:?}", err)),
+                Err(err) => Err(format!("Env Error: {err:?}")),
             }
         }
     }

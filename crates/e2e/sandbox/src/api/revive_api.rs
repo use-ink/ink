@@ -302,10 +302,29 @@ mod tests {
         std::fs::read(std::path::Path::new(&path)).unwrap()
     }
 
+    /// `pallet-revive` uses a dedicated "pallet" account for tracking
+    /// storage deposits. The static account is returned by the
+    /// `pallet_revive::Pallet::account_id()` function.
+    ///
+    /// This function funds the account with the existential deposit
+    /// (i.e. minimum balance).
+    fn warm_up<T: Sandbox>(sandbox: &mut T)
+    where
+        <T as Sandbox>::Runtime: pallet_revive::Config + pallet_balances::Config,
+        T: BalanceAPI<T>,
+    {
+        let acc = pallet_revive::Pallet::<<T as Sandbox>::Runtime>::account_id();
+        let ed = pallet_balances::Pallet::<<T as Sandbox>::Runtime>::minimum_balance();
+        sandbox.mint_into(&acc, ed).unwrap_or_else(|_| {
+            panic!("Failed to mint existential balance into `pallet-revive` account")
+        });
+    }
+
     #[test]
     fn can_upload_code() {
         let mut sandbox = DefaultSandbox::default();
         let contract_binary = compile_module("dummy");
+        warm_up::<DefaultSandbox>(&mut sandbox);
 
         use sha3::{
             Digest,
@@ -329,6 +348,8 @@ mod tests {
 
         let events_before = sandbox.events();
         assert!(events_before.is_empty());
+
+        warm_up::<DefaultSandbox>(&mut sandbox);
 
         let origin =
             DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
@@ -365,6 +386,7 @@ mod tests {
         let mut sandbox = DefaultSandbox::default();
         let _actor = DefaultSandbox::default_actor();
         let contract_binary = compile_module("dummy");
+        warm_up::<DefaultSandbox>(&mut sandbox);
 
         let origin =
             DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());

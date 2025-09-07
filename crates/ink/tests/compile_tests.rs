@@ -289,10 +289,7 @@ fn trybuild_wrapper_test(
     cmd.env("TRYBUILD_WRAPPER_ENCODED_FLAGS", abi_cfg);
 
     // Enable `std` and `unstable-hostfn` features (needed by events and metadata tests).
-    cmd.env(
-        "TRYBUILD_WRAPPER_CARGO_ARGS",
-        "--features std,unstable-hostfn",
-    );
+    cmd.env("TRYBUILD_WRAPPER_CARGO_ARGS", "--features std");
 
     let exit_status = cmd.status().unwrap();
     if !exit_status.success() {

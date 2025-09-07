@@ -14,19 +14,16 @@
 
 use core::marker::PhantomData;
 
-#[cfg(feature = "unstable-hostfn")]
-use ink_env::call::{
-    ConstructorReturnType,
-    CreateParams,
-    FromAddr,
-    LimitParamsV2,
-};
 use ink_env::{
     call::{
         utils::DecodeMessageResult,
         Call,
         CallParams,
+        ConstructorReturnType,
+        CreateParams,
         DelegateCall,
+        FromAddr,
+        LimitParamsV2,
     },
     hash::{
         CryptoHash,
@@ -280,7 +277,6 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::account_id`]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn account_id(self) -> E::AccountId {
         ink_env::account_id::<E>()
     }
@@ -381,7 +377,7 @@ where
     /// #         }
     /// #
     /// #[ink(message)]
-    /// pub fn minimum_balance(&self) -> Balance {
+    /// pub fn minimum_balance(&self) -> ink::U256 {
     ///     self.env().minimum_balance()
     /// }
     /// #
@@ -392,9 +388,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::minimum_balance`]
-    #[cfg(feature = "unstable-hostfn")]
-    pub fn minimum_balance(self) -> E::Balance {
-        ink_env::minimum_balance::<E>()
+    pub fn minimum_balance(self) -> U256 {
+        ink_env::minimum_balance()
     }
 
     /// Emits an event.
@@ -498,12 +493,11 @@ where
     ///         .instantiate_contract(&create_params)
     ///         .unwrap_or_else(|error| {
     ///             panic!(
-    ///                 "Received an error from `pallet-revive` while instantiating: {:?}",
-    ///                 error
+    ///                 "Received an error from `pallet-revive` while instantiating: {error:?}"
     ///             )
     ///         })
     ///         .unwrap_or_else(|error| {
-    ///             panic!("Received a `LangError` while instantiating: {:?}", error)
+    ///             panic!("Received a `LangError` while instantiating: {error:?}")
     ///         })
     /// }
     /// #
@@ -517,7 +511,6 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::instantiate_contract`]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn instantiate_contract<ContractRef, Args, R, Abi>(
         self,
         params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
@@ -1042,7 +1035,6 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::caller_is_origin`]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn caller_is_origin(self) -> bool {
         ink_env::caller_is_origin::<E>()
     }
@@ -1074,7 +1066,6 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::caller_is_root`]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn caller_is_root(self) -> bool {
         ink_env::caller_is_root::<E>()
     }
@@ -1140,7 +1131,6 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::own_code_hash`]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn own_code_hash(self) -> Result<H256> {
         ink_env::own_code_hash()
     }

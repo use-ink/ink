@@ -24,13 +24,6 @@ use ink_primitives::{
 use ink_storage_traits::Storable;
 use pallet_revive_uapi::ReturnFlags;
 
-#[cfg(feature = "unstable-hostfn")]
-use crate::call::{
-    ConstructorReturnType,
-    CreateParams,
-    FromAddr,
-    LimitParamsV2,
-};
 use crate::{
     backend::{
         EnvBackend,
@@ -40,7 +33,11 @@ use crate::{
         utils::DecodeMessageResult,
         Call,
         CallParams,
+        ConstructorReturnType,
+        CreateParams,
         DelegateCall,
+        FromAddr,
+        LimitParamsV2,
     },
     engine::{
         EnvInstance,
@@ -120,7 +117,6 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-#[cfg(feature = "unstable-hostfn")]
 pub fn account_id<E>() -> E::AccountId
 where
     E: Environment,
@@ -172,13 +168,9 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-#[cfg(feature = "unstable-hostfn")]
-pub fn minimum_balance<E>() -> E::Balance
-where
-    E: Environment,
-{
+pub fn minimum_balance() -> U256 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::minimum_balance::<E>(instance)
+        TypedEnvBackend::minimum_balance(instance)
     })
 }
 
@@ -231,7 +223,6 @@ where
 /// # Errors
 ///
 /// - If the decoding of the typed value failed (`KeyNotFound`)
-#[cfg(feature = "unstable-hostfn")]
 pub fn take_contract_storage<K, R>(key: &K) -> Result<Option<R>>
 where
     K: scale::Encode,
@@ -246,7 +237,6 @@ where
 /// storage.
 ///
 /// If a value is stored under the specified key, the size of the value is returned.
-#[cfg(feature = "unstable-hostfn")]
 pub fn contains_contract_storage<K>(key: &K) -> Option<u32>
 where
     K: scale::Encode,
@@ -260,7 +250,6 @@ where
 ///
 /// If a value was stored under the specified storage key, the size of the value is
 /// returned.
-#[cfg(feature = "unstable-hostfn")]
 pub fn clear_contract_storage<K>(key: &K) -> Option<u32>
 where
     K: scale::Encode,
@@ -346,7 +335,6 @@ where
 /// - If the instantiation process runs out of gas.
 /// - If given insufficient endowment.
 /// - If the returned account ID failed to decode properly.
-#[cfg(feature = "unstable-hostfn")]
 pub fn instantiate_contract<E, ContractRef, Args, R, Abi>(
     params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
 ) -> Result<
@@ -661,7 +649,6 @@ pub fn code_hash(addr: &Address) -> Result<H256> {
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-#[cfg(feature = "unstable-hostfn")]
 pub fn own_code_hash() -> Result<H256> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::own_code_hash(instance)
@@ -681,7 +668,6 @@ pub fn own_code_hash() -> Result<H256> {
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-#[cfg(feature = "unstable-hostfn")]
 pub fn caller_is_origin<E>() -> bool
 where
     E: Environment,
@@ -702,7 +688,6 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-#[cfg(feature = "unstable-hostfn")]
 pub fn caller_is_root<E>() -> bool
 where
     E: Environment,
@@ -899,5 +884,12 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::xcm_send::<E, _>(instance, dest, msg)
+    })
+}
+
+/// Returns the size of the buffer that is remaining in the backend.
+pub fn remaining_buffer() -> usize {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        EnvBackend::remaining_buffer(instance)
     })
 }
