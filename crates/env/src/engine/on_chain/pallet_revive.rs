@@ -318,26 +318,18 @@ impl CryptoHash for Keccak256 {
     }
 }
 
-pub struct TopicsBuilder<'a, E> {
+pub struct TopicsBuilder<'a> {
     scoped_buffer: ScopedBuffer<'a>,
-    marker: core::marker::PhantomData<fn() -> E>,
 }
 
-impl<'a, E> From<ScopedBuffer<'a>> for TopicsBuilder<'a, E>
-where
-    E: Environment,
-{
+impl<'a> From<ScopedBuffer<'a>> for TopicsBuilder<'a> {
     fn from(scoped_buffer: ScopedBuffer<'a>) -> Self {
-        Self {
-            scoped_buffer,
-            marker: Default::default(),
-        }
+        Self { scoped_buffer }
     }
 }
 
-impl<'a, E, Abi> TopicsBuilderBackend<E, Abi> for TopicsBuilder<'a, E>
+impl<'a, Abi> TopicsBuilderBackend<Abi> for TopicsBuilder<'a>
 where
-    E: Environment,
     Abi: TopicEncoder,
 {
     type Output = (ScopedBuffer<'a>, &'a mut [u8]);
@@ -924,14 +916,13 @@ impl TypedEnvBackend for EnvInstance {
         U256::from_little_endian(&output[..])
     }
 
-    fn emit_event<E, Evt, Abi>(&mut self, event: &Evt)
+    fn emit_event<Evt, Abi>(&mut self, event: &Evt)
     where
-        E: Environment,
         Evt: Event<Abi>,
         Abi: TopicEncoder,
     {
         let (mut scope, enc_topics) =
-            event.topics::<E, _>(TopicsBuilder::from(self.scoped_buffer()).into());
+            event.topics(TopicsBuilder::from(self.scoped_buffer()).into());
         // TODO: improve
         let enc_topics = enc_topics
             .chunks_exact(32)

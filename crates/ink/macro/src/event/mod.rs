@@ -233,13 +233,12 @@ fn event_derive_struct(s: synstructure::Structure) -> syn::Result<TokenStream2> 
             type RemainingTopics = #remaining_topics_ty;
             const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> = #signature_topic;
 
-            fn topics<E, B>(
+            fn topics<B>(
                 &self,
-                builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, E, B, #abi_ty>,
-            ) -> <B as ::ink::env::event::TopicsBuilderBackend<E, #abi_ty>>::Output
+                builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, B, #abi_ty>,
+            ) -> <B as ::ink::env::event::TopicsBuilderBackend<#abi_ty>>::Output
             where
-                E: ::ink::env::Environment,
-                B: ::ink::env::event::TopicsBuilderBackend<E, #abi_ty>,
+                B: ::ink::env::event::TopicsBuilderBackend<#abi_ty>,
             {
                 match self {
                     #topics_builder

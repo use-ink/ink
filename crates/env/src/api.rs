@@ -175,14 +175,13 @@ pub fn minimum_balance() -> U256 {
 }
 
 /// Emits an event with the given event data.
-pub fn emit_event<E, Evt, Abi>(event: &Evt)
+pub fn emit_event<Evt, Abi>(event: &Evt)
 where
-    E: Environment,
     Evt: Event<Abi>,
     Abi: TopicEncoder,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::emit_event::<E, Evt, Abi>(instance, event)
+        TypedEnvBackend::emit_event::<Evt, Abi>(instance, event)
     })
 }
 
