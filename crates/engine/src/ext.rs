@@ -32,7 +32,6 @@ use ink_primitives::{
     U256,
 };
 pub use pallet_revive_uapi::ReturnErrorCode as Error;
-use scale::Encode;
 use std::panic::panic_any;
 
 /// The off-chain engine.
