@@ -184,109 +184,6 @@ fn spec_contract_only_one_default_constructor_allowed() {
 
 #[test]
 #[should_panic(
-    expected = "maximum of 2 event topics exceeded: `path::to::Event` (3 topics), `path::to::Event2` (3 topics)"
-)]
-fn spec_contract_event_definition_exceeds_environment_topics_limit() {
-    const MAX_EVENT_TOPICS: usize = 2;
-    const BUFFER_SIZE: usize = 1 << 14;
-    const NATIVE_TO_ETH_RATIO: u32 = 100000000;
-
-    ContractSpec::new()
-        .constructors(vec![ConstructorSpec::from_label("new")
-            .selector([94u8, 189u8, 136u8, 214u8])
-            .payable(true)
-            .args(vec![MessageParamSpec::new("init_value")
-                .of_type(TypeSpec::with_name_segs::<i32, _>(
-                    vec!["i32"].into_iter().map(AsRef::as_ref),
-                ))
-                .done()])
-            .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
-                ink_primitives::ConstructorResult<()>,
-            >(
-                "ink_primitives::ConstructorResult"
-            )))
-            .docs(Vec::new())
-            .default(true)
-            .done()])
-        .messages(vec![MessageSpec::from_label("inc")
-            .selector([231u8, 208u8, 89u8, 15u8])
-            .mutates(true)
-            .payable(true)
-            .args(vec![MessageParamSpec::new("by")
-                .of_type(TypeSpec::with_name_segs::<i32, _>(
-                    vec!["i32"].into_iter().map(AsRef::as_ref),
-                ))
-                .done()])
-            .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
-                ink_primitives::MessageResult<()>,
-            >(
-                "ink_primitives::MessageResult"
-            )))
-            .default(true)
-            .done()])
-        .events(vec![
-            EventSpec::new("Event")
-                .module_path("path::to")
-                // has a signature topic which counts towards the limit
-                .signature_topic(Some([0u8; 32]))
-                .args([
-                    EventParamSpec::new("field1_no_topic")
-                        .of_type(TypeSpec::of_type::<u32>())
-                        .indexed(false)
-                        .done(),
-                    EventParamSpec::new("field2_topic")
-                        .of_type(TypeSpec::of_type::<u64>())
-                        .indexed(true)
-                        .done(),
-                    EventParamSpec::new("field3_topic")
-                        .of_type(TypeSpec::of_type::<u128>())
-                        .indexed(true)
-                        .done(),
-                ])
-                .done(),
-            EventSpec::new("Event2")
-                .module_path("path::to")
-                // is an anonymous event with no signature topic
-                .signature_topic::<[u8; 32]>(None)
-                .args([
-                    EventParamSpec::new("field1_topic")
-                        .of_type(TypeSpec::of_type::<u32>())
-                        .indexed(true)
-                        .done(),
-                    EventParamSpec::new("field2_topic")
-                        .of_type(TypeSpec::of_type::<u64>())
-                        .indexed(true)
-                        .done(),
-                    EventParamSpec::new("field3_topic")
-                        .of_type(TypeSpec::of_type::<u128>())
-                        .indexed(true)
-                        .done(),
-                ])
-                .done(),
-        ])
-        .lang_error(TypeSpec::with_name_segs::<ink_primitives::LangError, _>(
-            ::core::iter::Iterator::map(
-                ::core::iter::IntoIterator::into_iter(["ink", "LangError"]),
-                ::core::convert::AsRef::as_ref,
-            ),
-        ))
-        .environment(
-            EnvironmentSpec::new()
-                .account_id(TypeSpec::of_type::<ink_primitives::AccountId>())
-                .balance(TypeSpec::of_type::<u128>())
-                .hash(TypeSpec::of_type::<ink_primitives::Hash>())
-                .timestamp(TypeSpec::of_type::<u64>())
-                .block_number(TypeSpec::of_type::<u128>())
-                .max_event_topics(MAX_EVENT_TOPICS)
-                .native_to_eth_ratio(NATIVE_TO_ETH_RATIO)
-                .static_buffer_size(BUFFER_SIZE)
-                .done(),
-        )
-        .done();
-}
-
-#[test]
-#[should_panic(
     expected = "event signature topic collision: `path::to::Event`, `path::to::Event2`"
 )]
 fn spec_contract_event_definition_signature_topic_collision() {
@@ -353,7 +250,6 @@ fn spec_contract_event_definition_signature_topic_collision() {
                 .hash(TypeSpec::of_type::<ink_primitives::Hash>())
                 .timestamp(TypeSpec::of_type::<u64>())
                 .block_number(TypeSpec::of_type::<u128>())
-                .max_event_topics(2)
                 .native_to_eth_ratio(NATIVE_TO_ETH_RATIO)
                 .static_buffer_size(BUFFER_SIZE)
                 .done(),
@@ -368,7 +264,6 @@ fn spec_contract_json() {
     type Hash = ink_primitives::Hash;
     type Timestamp = u64;
     type BlockNumber = u128;
-    const MAX_EVENT_TOPICS: usize = 4;
     const NATIVE_TO_ETH_RATIO: u32 = 100000000;
     const BUFFER_SIZE: usize = 1 << 14;
 
@@ -480,7 +375,6 @@ fn spec_contract_json() {
                         ::core::convert::AsRef::as_ref,
                     ),
                 ))
-                .max_event_topics(MAX_EVENT_TOPICS)
                 .native_to_eth_ratio(NATIVE_TO_ETH_RATIO)
                 .static_buffer_size(BUFFER_SIZE)
                 .done(),
@@ -580,7 +474,6 @@ fn spec_contract_json() {
                     ],
                     "type": 10,
                 },
-                "maxEventTopics": 4,
                 "nativeToEthRatio": 100000000,
                 "timestamp":  {
                     "displayName":  [
@@ -804,7 +697,6 @@ fn environment_spec() -> EnvironmentSpec<PortableForm> {
         .hash(Default::default())
         .timestamp(Default::default())
         .block_number(Default::default())
-        .max_event_topics(4)
         .static_buffer_size(16384)
         .native_to_eth_ratio(100_000_000)
         .done()

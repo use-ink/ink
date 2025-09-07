@@ -37,13 +37,12 @@ fn unit_struct_works() {
                     const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
                         ::core::option::Option::Some( ::ink::blake2x256!("UnitStruct()") );
 
-                    fn topics<E, B>(
+                    fn topics<B>(
                         &self,
-                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, E, B, ::ink::abi::Ink>,
-                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<E, ::ink::abi::Ink>>::Output
+                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, B, ::ink::abi::Ink>,
+                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>>::Output
                     where
-                        E: ::ink::env::Environment,
-                        B: ::ink::env::event::TopicsBuilderBackend<E, ::ink::abi::Ink>,
+                        B: ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>,
                     {
                         match self {
                             UnitStruct => {
@@ -80,13 +79,12 @@ fn unit_struct_anonymous_has_no_topics() {
                     const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
                         ::core::option::Option::None;
 
-                    fn topics<E, B>(
+                    fn topics<B>(
                         &self,
-                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, E, B, ::ink::abi::Ink>,
-                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<E, ::ink::abi::Ink>>::Output
+                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, B, ::ink::abi::Ink>,
+                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>>::Output
                     where
-                        E: ::ink::env::Environment,
-                        B: ::ink::env::event::TopicsBuilderBackend<E, ::ink::abi::Ink>,
+                        B: ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>,
                     {
                         match self {
                             UnitStruct => {
@@ -125,13 +123,12 @@ fn struct_with_fields_no_topics() {
                     const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
                         ::core::option::Option::Some( ::ink::blake2x256!("Event(u32,u64,u128)") );
 
-                    fn topics<E, B>(
+                    fn topics<B>(
                         &self,
-                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, E, B, ::ink::abi::Ink>,
-                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<E, ::ink::abi::Ink>>::Output
+                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, B, ::ink::abi::Ink>,
+                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>>::Output
                     where
-                        E: ::ink::env::Environment,
-                        B: ::ink::env::event::TopicsBuilderBackend<E, ::ink::abi::Ink>,
+                        B: ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>,
                     {
                         match self {
                             Event { field_1 : __binding_0 , field_2 : __binding_1 , field_3 : __binding_2 , } => {
@@ -173,13 +170,12 @@ fn struct_with_fields_and_some_topics() {
                     const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
                         ::core::option::Option::Some( ::ink::blake2x256!("Event(u32,u64,u128)") );
 
-                    fn topics<E, B>(
+                    fn topics<B>(
                         &self,
-                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, E, B, ::ink::abi::Ink>,
-                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<E, ::ink::abi::Ink>>::Output
+                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, B, ::ink::abi::Ink>,
+                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>>::Output
                     where
-                        E: ::ink::env::Environment,
-                        B: ::ink::env::event::TopicsBuilderBackend<E, ::ink::abi::Ink>,
+                        B: ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>,
                     {
                         match self {
                             Event { field_1 : __binding_0 , field_2 : __binding_1 , field_3 : __binding_2 , } => {
@@ -218,13 +214,12 @@ fn custom_signature_topic() {
                     const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
                         ::core::option::Option::Some( [17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8] );
 
-                    fn topics<E, B>(
+                    fn topics<B>(
                         &self,
-                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, E, B, ::ink::abi::Ink>,
-                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<E, ::ink::abi::Ink>>::Output
+                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, B, ::ink::abi::Ink>,
+                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>>::Output
                     where
-                        E: ::ink::env::Environment,
-                        B: ::ink::env::event::TopicsBuilderBackend<E, ::ink::abi::Ink>,
+                        B: ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>,
                     {
                         match self {
                             UnitStruct => {
@@ -261,13 +256,12 @@ fn name_override_works() {
                     const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
                         ::core::option::Option::Some( ::ink::blake2x256!("MyUnitStruct()") );
 
-                    fn topics<E, B>(
+                    fn topics<B>(
                         &self,
-                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, E, B, ::ink::abi::Ink>,
-                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<E, ::ink::abi::Ink>>::Output
+                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, B, ::ink::abi::Ink>,
+                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>>::Output
                     where
-                        E: ::ink::env::Environment,
-                        B: ::ink::env::event::TopicsBuilderBackend<E, ::ink::abi::Ink>,
+                        B: ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>,
                     {
                         match self {
                             UnitStruct => {
@@ -305,13 +299,12 @@ fn custom_signature_topic_precedence() {
                     const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
                         ::core::option::Option::Some( [17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8] );
 
-                    fn topics<E, B>(
+                    fn topics<B>(
                         &self,
-                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, E, B, ::ink::abi::Ink>,
-                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<E, ::ink::abi::Ink>>::Output
+                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, B, ::ink::abi::Ink>,
+                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>>::Output
                     where
-                        E: ::ink::env::Environment,
-                        B: ::ink::env::event::TopicsBuilderBackend<E, ::ink::abi::Ink>,
+                        B: ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>,
                     {
                         match self {
                             UnitStruct => {
