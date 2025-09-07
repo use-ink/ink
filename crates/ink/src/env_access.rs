@@ -41,8 +41,6 @@ use ink_primitives::{
 };
 use pallet_revive_uapi::ReturnErrorCode;
 
-use crate::ChainExtensionInstance;
-
 /// The API behind the `self.env()` and `Self::env()` syntax in ink!.
 ///
 /// This allows ink! messages to make use of the environment efficiently
@@ -65,19 +63,6 @@ impl<E> Default for EnvAccess<'_, E> {
 impl<E> core::fmt::Debug for EnvAccess<'_, E> {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("EnvAccess").finish()
-    }
-}
-
-impl<E> EnvAccess<'_, E>
-where
-    E: Environment,
-    <E as Environment>::ChainExtension: ChainExtensionInstance,
-{
-    /// Allows to call one of the available defined chain extension methods.
-    pub fn extension(
-        self,
-    ) -> <<E as Environment>::ChainExtension as ChainExtensionInstance>::Instance {
-        <<E as Environment>::ChainExtension as ChainExtensionInstance>::instantiate()
     }
 }
 
@@ -1167,11 +1152,6 @@ where
     #[cfg(feature = "unstable-hostfn")]
     pub fn set_code_hash(self, code_hash: &H256) -> Result<()> {
         ink_env::set_code_hash::<E>(code_hash)
-    }
-
-    #[cfg(feature = "unstable-hostfn")]
-    pub fn call_runtime<Call: scale::Encode>(self, call: &Call) -> Result<()> {
-        ink_env::call_runtime::<E, _>(call)
     }
 
     #[cfg(feature = "unstable-hostfn")]

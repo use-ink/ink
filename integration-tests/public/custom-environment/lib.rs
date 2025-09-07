@@ -27,8 +27,6 @@ impl Environment for EnvironmentWithManyTopics {
     type BlockNumber = <DefaultEnvironment as Environment>::BlockNumber;
     type Timestamp = <DefaultEnvironment as Environment>::Timestamp;
     type EventRecord = <DefaultEnvironment as Environment>::EventRecord;
-
-    type ChainExtension = <DefaultEnvironment as Environment>::ChainExtension;
 }
 
 #[ink::contract(env = crate::EnvironmentWithManyTopics)]

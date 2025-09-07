@@ -806,34 +806,6 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| instance.set_code_hash(code_hash))
 }
 
-/// Tries to trigger a runtime dispatchable, i.e. an extrinsic from a pallet.
-///
-/// `call` (after SCALE encoding) should be decodable to a valid instance of `RuntimeCall`
-/// enum.
-///
-/// For more details consult
-/// [host function documentation](https://paritytech.github.io/substrate/master/pallet_contracts/api_doc/trait.Current.html#tymethod.call_runtime).
-///
-/// # Errors
-///
-/// - If the call cannot be properly decoded on the pallet contracts side.
-/// - If the runtime doesn't allow for the contract unstable feature.
-/// - If the runtime doesn't allow for dispatching this call from a contract.
-///
-/// # Panics
-///
-/// Panics in the off-chain environment.
-#[cfg(feature = "unstable-hostfn")]
-pub fn call_runtime<E, Call>(call: &Call) -> Result<()>
-where
-    E: Environment,
-    Call: scale::Encode,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::call_runtime::<E, _>(instance, call)
-    })
-}
-
 /// Execute an XCM message locally, using the contract's address as the origin.
 ///
 /// For more details consult the

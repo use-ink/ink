@@ -533,36 +533,6 @@ impl EnvBackend for EnvInstance {
     }
 
     #[cfg(feature = "unstable-hostfn")]
-    fn call_chain_extension<I, T, E, ErrorCode, F, D>(
-        &mut self,
-        id: u32,
-        input: &I,
-        status_to_result: F,
-        decode_to_result: D,
-    ) -> ::core::result::Result<T, E>
-    where
-        I: scale::Encode,
-        T: scale::Decode,
-        E: From<ErrorCode>,
-        F: FnOnce(u32) -> ::core::result::Result<(), ErrorCode>,
-        D: FnOnce(&[u8]) -> ::core::result::Result<T, E>,
-    {
-        let enc_input = &scale::Encode::encode(input)[..];
-        let mut output: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
-
-        self.engine
-            .call_chain_extension(id, enc_input, &mut &mut output[..]);
-        let (status, out): (u32, Vec<u8>) = scale::Decode::decode(&mut &output[..])
-            .unwrap_or_else(|error| {
-                panic!("could not decode `call_chain_extension` output: {error:?}")
-            });
-
-        status_to_result(status)?;
-        let decoded = decode_to_result(&out[..])?;
-        Ok(decoded)
-    }
-
-    #[cfg(feature = "unstable-hostfn")]
     fn set_code_hash(&mut self, code_hash: &H256) -> Result<()> {
         self.engine
             .database
@@ -824,14 +794,6 @@ impl TypedEnvBackend for EnvInstance {
         } else {
             Err(ReturnErrorCode::KeyNotFound.into())
         }
-    }
-
-    #[cfg(feature = "unstable-hostfn")]
-    fn call_runtime<E, Call>(&mut self, _call: &Call) -> Result<()>
-    where
-        E: Environment,
-    {
-        unimplemented!("off-chain environment does not support `call_runtime`")
     }
 
     #[cfg(feature = "unstable-hostfn")]

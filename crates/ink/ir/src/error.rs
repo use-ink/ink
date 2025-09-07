@@ -53,21 +53,6 @@ macro_rules! format_err_spanned {
 }
 
 /// Creates a [`syn::Error`] with the format message and infers the
-/// [`Span`](`proc_macro2::Span`) using the [`ToTokens`](`quote::ToTokens`) implementation
-/// for the [`MetaValue`][crate::ast::MetaValue] (if possible).
-///
-/// See [`format_err_spanned`] for more details.
-macro_rules! format_err_spanned_value {
-    ($arg:expr, $($msg:tt)*) => {
-        if let Some(value) = $arg.value() {
-            format_err_spanned!(value, $($msg)*)
-        } else {
-            format_err_spanned!($arg, $($msg)*)
-        }
-    };
-}
-
-/// Creates a [`syn::Error`] with the format message and infers the
 /// [`Span`](`proc_macro2::Span`) using [`Spanned`](`syn::spanned::Spanned`).
 ///
 /// # Parameters
