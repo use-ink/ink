@@ -91,7 +91,7 @@ impl CryptoHash for Blake2x128 {
         let sel = const { solidity_selector("hashBlake128(bytes)") };
         buffer[..4].copy_from_slice(&sel[..4]);
 
-        let n = solidity_encode_bytes(input, 64, &mut buffer[4..]);
+        let n = solidity_encode_bytes(input, 32, &mut buffer[4..]);
 
         const ADDR: [u8; 20] =
             hex_literal::hex!("0000000000000000000000000000000000000900");
