@@ -12,12 +12,6 @@ use ink::env::{
 pub enum EnvironmentWithManyTopics {}
 
 impl Environment for EnvironmentWithManyTopics {
-    // We allow for 3 topics in the event, including the implicit topic for the event
-    // signature. Therefore, the contract pallet's schedule must also allow for at
-    // least 3 of them.
-    const MAX_EVENT_TOPICS: usize =
-        <DefaultEnvironment as Environment>::MAX_EVENT_TOPICS - 1;
-
     const NATIVE_TO_ETH_RATIO: u32 =
         <DefaultEnvironment as Environment>::NATIVE_TO_ETH_RATIO;
 
