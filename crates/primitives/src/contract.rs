@@ -66,7 +66,6 @@ use crate::types::Environment;
 /// pub struct CustomEnvironment {}
 ///
 /// impl Environment for CustomEnvironment {
-///     const MAX_EVENT_TOPICS: usize = 4;
 ///     const NATIVE_TO_ETH_RATIO: u32 =
 ///         <DefaultEnvironment as Environment>::NATIVE_TO_ETH_RATIO;
 ///
