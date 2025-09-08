@@ -421,7 +421,7 @@ mod erc721 {
             // Create token Id 1.
             assert_eq!(erc721.mint(1), Ok(()));
             // The first Transfer event takes place
-            assert_eq!(1, ink::env::test::recorded_events().count());
+            assert_eq!(1, ink::env::test::recorded_events().len());
             // Alice owns 1 token.
             assert_eq!(erc721.balance_of(accounts.alice), 1);
             // Alice owns token Id 1.
@@ -444,11 +444,11 @@ mod erc721 {
             // Bob does not owns any token
             assert_eq!(erc721.balance_of(accounts.bob), 0);
             // The first Transfer event takes place
-            assert_eq!(1, ink::env::test::recorded_events().count());
+            assert_eq!(1, ink::env::test::recorded_events().len());
             // Alice transfers token 1 to Bob
             assert_eq!(erc721.transfer(accounts.bob, 1), Ok(()));
             // The second Transfer event takes place
-            assert_eq!(2, ink::env::test::recorded_events().count());
+            assert_eq!(2, ink::env::test::recorded_events().len());
             // Bob owns token 1
             assert_eq!(erc721.balance_of(accounts.bob), 1);
         }

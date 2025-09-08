@@ -228,7 +228,7 @@ pub mod events {
             let mut events = Events::new(false);
             events.flip_with_foreign_event();
 
-            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events = ink::env::test::recorded_events();
             // 2 events, one each per ABI.
             assert_eq!(2, emitted_events.len());
 
@@ -253,7 +253,7 @@ pub mod events {
             let events = Events::new(false);
             events.emit_32_byte_topic_event(Some(ink::sol::FixedBytes([0xAA; 32])));
 
-            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events = ink::env::test::recorded_events();
             // 2 events, one each per ABI.
             assert_eq!(2, emitted_events.len());
 
@@ -295,7 +295,7 @@ pub mod events {
             let events = Events::new(false);
             events.emit_32_byte_topic_event(None);
 
-            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events = ink::env::test::recorded_events();
             // 2 events, one each per ABI.
             assert_eq!(2, emitted_events.len());
 
@@ -335,7 +335,7 @@ pub mod events {
             let mut events = Events::new(false);
             events.flip_with_inline_custom_event();
 
-            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events = ink::env::test::recorded_events();
             // 2 events, one each per ABI.
             assert_eq!(2, emitted_events.len());
 
@@ -359,7 +359,7 @@ pub mod events {
             let topic = ink::sol::FixedBytes([0x42; 32]);
             events.emit_anonymous_events(topic);
 
-            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events = ink::env::test::recorded_events();
             // 6 events, each event is emitted twice, i.e. a separate event for each ABI.
             assert_eq!(6, emitted_events.len());
 

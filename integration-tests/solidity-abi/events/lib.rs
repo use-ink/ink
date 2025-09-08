@@ -159,7 +159,7 @@ pub mod events {
             let mut events = Events::new(false);
             events.flip_with_foreign_event();
 
-            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events = ink::env::test::recorded_events();
             assert_eq!(1, emitted_events.len());
             let event = &emitted_events[0];
 
@@ -173,7 +173,7 @@ pub mod events {
             let events = Events::new(false);
             events.emit_32_byte_topic_event(Some(ink::sol::FixedBytes([0xAA; 32])));
 
-            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events = ink::env::test::recorded_events();
             assert_eq!(1, emitted_events.len());
             let event = &emitted_events[0];
 
@@ -199,7 +199,7 @@ pub mod events {
             let events = Events::new(false);
             events.emit_32_byte_topic_event(None);
 
-            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events = ink::env::test::recorded_events();
             assert_eq!(1, emitted_events.len());
             let event = &emitted_events[0];
 
@@ -222,7 +222,7 @@ pub mod events {
             let mut events = Events::new(false);
             events.flip_with_inline_custom_event();
 
-            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events = ink::env::test::recorded_events();
             assert_eq!(1, emitted_events.len());
 
             let signature_topic =
@@ -240,7 +240,7 @@ pub mod events {
             let topic = ink::sol::FixedBytes([0x42; 32]);
             events.emit_anonymous_events(topic);
 
-            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events = ink::env::test::recorded_events();
             assert_eq!(2, emitted_events.len());
 
             let event = &emitted_events[0];

@@ -63,7 +63,7 @@ mod runtime_call {
             let mut contract = Topics::new();
             contract.trigger();
 
-            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events = ink::env::test::recorded_events();
             assert_eq!(emitted_events.len(), 1);
 
             let emitted_event = <EventWithTopics as ink::scale::Decode>::decode(
