@@ -298,11 +298,10 @@ impl ItemMod {
         fn verify_attr(a: &syn::Attribute) -> Result<(), syn::Error> {
             match &a.meta {
                 syn::Meta::List(list) => {
-                    if let Some(ident) = list.path.get_ident() {
-                        if ident.eq("cfg") {
+                    if let Some(ident) = list.path.get_ident()
+                        && ident.eq("cfg") {
                             return list.parse_nested_meta(verify_cfg_attrs);
                         }
-                    }
                     unreachable!("`verify_attr` can only be called for `#[cfg(…)]`, not for other `List`");
                 }
                 syn::Meta::Path(_) => {

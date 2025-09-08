@@ -124,10 +124,10 @@ impl TraitRegistry<'_> {
     fn generate_registry_messages(&self) -> TokenStream2 {
         let messages = self.trait_def.trait_def.item().iter_items().filter_map(
             |(item, selector)| {
-                let ret = item.filter_map_message().map(|message| {
+                
+                item.filter_map_message().map(|message| {
                     self.generate_registry_for_message(&message, selector)
-                });
-                ret
+                })
             },
         );
         quote! {

@@ -442,7 +442,8 @@ where
         // todo
         let tx_index: usize = match (extrinsic_hash, extrinsic) {
             (Some(hash), None) => {
-                let index = block_details
+                
+                block_details
                     .block
                     .extrinsics
                     .iter()
@@ -456,8 +457,7 @@ where
                         }
                         None
                     })
-                    .expect("the extrinsic hash was not found in the block");
-                index
+                    .expect("the extrinsic hash was not found in the block")
             }
             (None, Some(extrinsic)) => {
                 exts.push(

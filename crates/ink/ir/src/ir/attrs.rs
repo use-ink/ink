@@ -62,11 +62,10 @@ impl IsDocAttribute for syn::Attribute {
         }
         match &self.meta {
             syn::Meta::NameValue(nv) => {
-                if let syn::Expr::Lit(l) = &nv.value {
-                    if let syn::Lit::Str(s) = &l.lit {
+                if let syn::Expr::Lit(l) = &nv.value
+                    && let syn::Lit::Str(s) = &l.lit {
                         return Some(s.value());
                     }
-                }
             }
             _ => return None,
         }

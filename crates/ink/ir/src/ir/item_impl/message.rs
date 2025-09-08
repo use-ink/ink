@@ -169,14 +169,13 @@ impl Message {
         match &method_item.sig.output {
             syn::ReturnType::Default => (),
             syn::ReturnType::Type(_arrow, ret_type) => {
-                if let syn::Type::Path(type_path) = &**ret_type {
-                    if type_path.path.is_ident("Self") {
+                if let syn::Type::Path(type_path) = &**ret_type
+                    && type_path.path.is_ident("Self") {
                         return Err(format_err!(
                             ret_type,
                             "ink! messages must not return `Self`"
                         ))
                     }
-                }
             }
         }
         Ok(())

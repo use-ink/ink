@@ -487,15 +487,11 @@ where
         });
         if result.result.is_err() {
             let res = result.result.clone().unwrap_err();
-            if let DispatchError::Module(m) = res {
-                let msg = m.message;
-                if msg.is_some() {
-                    let s = msg.unwrap();
-                    if s.contains("AccountUnmapped") {
+            if let DispatchError::Module(m) = res
+                && let Some(s) = m.message
+                    && s.contains("AccountUnmapped") {
                         panic!("something is wrong, we mapped the account before")
                     }
-                }
-            }
         }
         // todo error when `AccountUnmapped`
         Ok(CallDryRunResult {

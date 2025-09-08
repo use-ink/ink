@@ -308,10 +308,10 @@ mod tests {
     ///
     /// This function funds the account with the existential deposit
     /// (i.e. minimum balance).
-    fn warm_up<T: Sandbox>(sandbox: &mut T)
+    fn warm_up<T>(sandbox: &mut T)
     where
         <T as Sandbox>::Runtime: pallet_revive::Config + pallet_balances::Config,
-        T: BalanceAPI<T>,
+        T: BalanceAPI<T> + Sandbox,
     {
         let acc = pallet_revive::Pallet::<<T as Sandbox>::Runtime>::account_id();
         let ed = pallet_balances::Pallet::<<T as Sandbox>::Runtime>::minimum_balance();
