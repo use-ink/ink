@@ -51,7 +51,7 @@ impl GenerateCode for Metadata<'_> {
             #[cfg(not(feature = "ink-as-dependency"))]
             #[cfg(not(ink_abi = "sol"))]
             const _: () = {
-                #[no_mangle]
+                #[unsafe(no_mangle)]
                 pub fn __ink_generate_metadata() -> ::ink::metadata::InkProject  {
                     let layout = #layout;
                     ::ink::metadata::layout::ValidateLayout::validate(&layout).unwrap_or_else(|error| {
