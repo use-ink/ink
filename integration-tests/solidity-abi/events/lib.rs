@@ -130,19 +130,27 @@ pub mod events {
 
             assert!(event_specs.iter().any(|evt| evt.name == "ForeignFlipped"));
             assert!(event_specs.iter().any(|evt| evt.name == "InlineFlipped"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.name == "InlineCustomFlipped"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.name == "ThirtyTwoByteTopics"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.name == "EventDefAnotherCrate"));
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.name == "InlineCustomFlipped")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.name == "ThirtyTwoByteTopics")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.name == "EventDefAnotherCrate")
+            );
             assert!(event_specs.iter().any(|evt| evt.name == "AnonymousEvent"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.name == "InlineAnonymousEvent"));
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.name == "InlineAnonymousEvent")
+            );
             assert!(event_specs.iter().any(|evt| evt.name == "EventDefUnused"));
 
             assert!(event_specs.iter().any(|evt| {

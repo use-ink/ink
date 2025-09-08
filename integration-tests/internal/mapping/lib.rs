@@ -5,12 +5,12 @@
 #[ink::contract]
 mod mapping {
     use ink::{
+        U256,
         prelude::{
             string::String,
             vec::Vec,
         },
         storage::Mapping,
-        U256,
     };
 
     #[derive(Debug, PartialEq)]

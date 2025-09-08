@@ -1,16 +1,16 @@
 use crate::sol_encoding::SolEncodingRef;
 use ink::{
-    primitives::DepositLimit,
     Address,
     SolDecode,
     SolEncode,
+    primitives::DepositLimit,
 };
 use ink_e2e::ContractsRegistry;
 use ink_sandbox::{
-    api::prelude::*,
-    frame_system::pallet_prelude::OriginFor,
     DefaultSandbox,
     Sandbox,
+    api::prelude::*,
+    frame_system::pallet_prelude::OriginFor,
 };
 use pallet_revive::ExecReturnValue;
 
@@ -131,8 +131,8 @@ impl ContractSandbox {
 fn keccak_selector(input: &[u8]) -> Vec<u8> {
     let mut output = [0; 32];
     use sha3::{
-        digest::generic_array::GenericArray,
         Digest as _,
+        digest::generic_array::GenericArray,
     };
     let mut hasher = sha3::Keccak256::new();
     hasher.update(input);

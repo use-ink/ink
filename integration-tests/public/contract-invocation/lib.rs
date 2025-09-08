@@ -5,13 +5,13 @@ mod instantiate_contract {
     use contract1::Contract1Ref;
     use contract2::Contract2Ref;
     use ink::{
+        H256,
         env::call::{
-            build_call,
-            build_create,
             ExecutionInput,
             Selector,
+            build_call,
+            build_create,
         },
-        H256,
     };
 
     #[ink(storage)]
@@ -362,8 +362,8 @@ mod instantiate_contract {
             InstantiationResult,
         };
         use virtual_contract::{
-            virtual_contract::VirtualContract,
             VirtualContractRef,
+            virtual_contract::VirtualContract,
         };
         use virtual_contract_ver1::VirtualContractVer1Ref;
         use virtual_contract_ver2::VirtualContractVer2Ref;

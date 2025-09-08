@@ -12,10 +12,10 @@
 #[ink::contract]
 mod debugging_strategies {
     use ink::env::call::{
-        build_call,
-        build_create,
         ExecutionInput,
         Selector,
+        build_call,
+        build_create,
     };
     #[cfg(feature = "debug")]
     use ink::prelude::{
@@ -222,8 +222,11 @@ mod debugging_strategies {
             let return_data = call_res.return_data();
             assert!(call_res.did_revert());
             let revert_msg = String::from_utf8_lossy(return_data);
-            assert!(revert_msg
-                .contains("dispatching ink! message failed: paid an unpayable message"));
+            assert!(
+                revert_msg.contains(
+                    "dispatching ink! message failed: paid an unpayable message"
+                )
+            );
 
             Ok(())
         }

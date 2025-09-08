@@ -3,8 +3,8 @@
 #[ink::contract]
 mod erc20 {
     use ink::{
-        storage::Mapping,
         U256,
+        storage::Mapping,
     };
 
     /// The ERC-20 error types.

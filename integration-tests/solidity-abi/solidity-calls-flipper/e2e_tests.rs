@@ -1,18 +1,18 @@
 use crate::flipper::FlipperRef;
 use ink::{
+    Address,
+    SolDecode,
+    SolEncode,
     env::{
         Balance,
         DefaultEnvironment,
     },
-    Address,
-    SolDecode,
-    SolEncode,
 };
 use ink_e2e::{
-    subxt::tx::Signer,
-    subxt_signer,
     PolkadotConfig,
     Weight,
+    subxt::tx::Signer,
+    subxt_signer,
 };
 use std::{
     error::Error,
@@ -324,8 +324,8 @@ impl Drop for SolidityHandler {
 fn keccak_selector(input: &[u8]) -> Vec<u8> {
     let mut output = [0; 32];
     use sha3::{
-        digest::generic_array::GenericArray,
         Digest as _,
+        digest::generic_array::GenericArray,
     };
     let mut hasher = sha3::Keccak256::new();
     hasher.update(input);

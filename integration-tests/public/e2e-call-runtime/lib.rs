@@ -30,9 +30,9 @@ pub mod e2e_call_runtime {
         use super::*;
         use ink::env::Environment;
         use ink_e2e::{
-            subxt::dynamic::Value,
             ChainBackend,
             ContractsBackend,
+            subxt::dynamic::Value,
         };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;

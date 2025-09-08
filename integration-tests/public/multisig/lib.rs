@@ -64,17 +64,17 @@ pub use self::multisig::{
 #[ink::contract]
 mod multisig {
     use ink::{
+        U256,
         env::{
-            call::{
-                build_call,
-                ExecutionInput,
-            },
             CallFlags,
+            call::{
+                ExecutionInput,
+                build_call,
+            },
         },
         prelude::vec::Vec,
         scale::Output,
         storage::Mapping,
-        U256,
     };
 
     /// Tune this to your liking but be wary that allowing too many owners will not
@@ -304,15 +304,15 @@ mod multisig {
         /// ```should_panic
         /// use ink::{
         ///     env::{
+        ///         DefaultEnvironment as Env,
+        ///         Environment,
         ///         call::{
-        ///             utils::ArgumentList,
         ///             Call,
         ///             CallParams,
         ///             ExecutionInput,
         ///             Selector,
+        ///             utils::ArgumentList,
         ///         },
-        ///         DefaultEnvironment as Env,
-        ///         Environment,
         ///     },
         ///     scale::Encode,
         ///     selector_bytes,

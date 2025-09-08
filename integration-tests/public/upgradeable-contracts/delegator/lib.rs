@@ -4,19 +4,19 @@
 pub mod delegator {
     use ink::{
         env::{
-            call::{
-                build_call,
-                ExecutionInput,
-                Selector,
-            },
             CallFlags,
             DefaultEnvironment,
+            call::{
+                ExecutionInput,
+                Selector,
+                build_call,
+            },
         },
         primitives::H256,
         storage::{
-            traits::ManualKey,
             Lazy,
             Mapping,
+            traits::ManualKey,
         },
     };
 

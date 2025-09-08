@@ -156,36 +156,54 @@ pub mod events {
 
             assert_eq!(9, event_specs.len());
 
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"ForeignFlipped"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"InlineFlipped"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"InlineCustomFlipped"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"ThirtyTwoByteTopics"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"EventDefAnotherCrate"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"AnonymousEvent"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"InlineAnonymousEvent"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"InlineAnonymousEventHashedTopic"));
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"ForeignFlipped")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"InlineFlipped")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"InlineCustomFlipped")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"ThirtyTwoByteTopics")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"EventDefAnotherCrate")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"AnonymousEvent")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"InlineAnonymousEvent")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"InlineAnonymousEventHashedTopic")
+            );
 
             // The event is not used directly in the code, but is included in the metadata
             // because we implement the trait from the `event_def_unused` crate.
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"EventDefUnused"));
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"EventDefUnused")
+            );
         }
 
         #[test]
@@ -196,22 +214,32 @@ pub mod events {
 
             assert!(event_specs.iter().any(|evt| evt.name == "ForeignFlipped"));
             assert!(event_specs.iter().any(|evt| evt.name == "InlineFlipped"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.name == "InlineCustomFlipped"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.name == "ThirtyTwoByteTopics"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.name == "EventDefAnotherCrate"));
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.name == "InlineCustomFlipped")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.name == "ThirtyTwoByteTopics")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.name == "EventDefAnotherCrate")
+            );
             assert!(event_specs.iter().any(|evt| evt.name == "AnonymousEvent"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.name == "InlineAnonymousEvent"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.name == "InlineAnonymousEventHashedTopic"));
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.name == "InlineAnonymousEvent")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.name == "InlineAnonymousEventHashedTopic")
+            );
             assert!(event_specs.iter().any(|evt| evt.name == "EventDefUnused"));
 
             assert!(event_specs.iter().any(|evt| {

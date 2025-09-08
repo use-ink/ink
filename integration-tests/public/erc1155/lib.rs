@@ -1,9 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 use ink::{
-    prelude::vec::Vec,
     Address,
     U256,
+    prelude::vec::Vec,
 };
 
 // This is the return value that we expect if a smart contract supports receiving ERC-1155
@@ -192,8 +192,8 @@ mod erc1155 {
     use super::*;
 
     use ink::{
-        storage::Mapping,
         U256,
+        storage::Mapping,
     };
 
     type Owner = Address;
@@ -380,9 +380,9 @@ mod erc1155 {
             #[cfg(not(test))]
             {
                 use ink::env::call::{
-                    build_call,
                     ExecutionInput,
                     Selector,
+                    build_call,
                 };
 
                 // If our recipient is a smart contract we need to see if they accept or
@@ -707,15 +707,17 @@ mod erc1155 {
         fn can_send_tokens_between_accounts() {
             let mut erc = init_contract();
 
-            assert!(erc
-                .safe_transfer_from(alice(), bob(), 1, 5.into(), vec![])
-                .is_ok());
+            assert!(
+                erc.safe_transfer_from(alice(), bob(), 1, 5.into(), vec![])
+                    .is_ok()
+            );
             assert_eq!(erc.balance_of(alice(), 1), U256::from(5));
             assert_eq!(erc.balance_of(bob(), 1), U256::from(15));
 
-            assert!(erc
-                .safe_transfer_from(alice(), bob(), 2, 5.into(), vec![])
-                .is_ok());
+            assert!(
+                erc.safe_transfer_from(alice(), bob(), 2, 5.into(), vec![])
+                    .is_ok()
+            );
             assert_eq!(erc.balance_of(alice(), 2), U256::from(15));
             assert_eq!(erc.balance_of(bob(), 2), U256::from(5));
         }
@@ -739,15 +741,16 @@ mod erc1155 {
         #[ink::test]
         fn can_send_batch_tokens() {
             let mut erc = init_contract();
-            assert!(erc
-                .safe_batch_transfer_from(
+            assert!(
+                erc.safe_batch_transfer_from(
                     alice(),
                     bob(),
                     vec![1, 2],
                     vec![U256::from(5), U256::from(10)],
                     vec![]
                 )
-                .is_ok());
+                .is_ok()
+            );
 
             let balances = erc.balance_of_batch(vec![alice(), bob()], vec![1, 2]);
             assert_eq!(
@@ -788,9 +791,10 @@ mod erc1155 {
             assert!(erc.set_approval_for_all(operator, true).is_ok());
 
             set_sender(operator);
-            assert!(erc
-                .safe_transfer_from(owner, charlie(), 1, 5.into(), vec![])
-                .is_ok());
+            assert!(
+                erc.safe_transfer_from(owner, charlie(), 1, 5.into(), vec![])
+                    .is_ok()
+            );
             assert_eq!(erc.balance_of(alice(), 1), U256::from(5));
             assert_eq!(erc.balance_of(charlie(), 1), U256::from(5));
         }
