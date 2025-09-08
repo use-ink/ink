@@ -25,7 +25,7 @@ exclude = [
 [workspace.package]
 authors = ["Use Ink <ink@use.ink>"]
 categories = ["no-std", "embedded"]
-edition = "2021"
+edition = "2024"
 homepage = "https://use.ink"
 keywords = ["polkavm", "ink", "riscv", "blockchain", "edsl"]
 license = "Apache-2.0"
