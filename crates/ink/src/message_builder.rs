@@ -46,11 +46,11 @@
 /// ```rust
 /// use ink::message_builder;
 /// use ink_env::{
+///     DefaultEnvironment,
 ///     call::{
 ///         ExecutionInput,
 ///         Executor,
 ///     },
-///     DefaultEnvironment,
 /// };
 /// use ink_primitives::{
 ///     AccountId,

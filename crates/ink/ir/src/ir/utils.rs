@@ -156,13 +156,14 @@ pub fn find_storage_key_salt(input: &syn::DeriveInput) -> Option<syn::TypeParam>
         if let syn::GenericParam::Type(type_param) = param
             && let Some(syn::TypeParamBound::Trait(trait_bound)) =
                 type_param.bounds.first()
+        {
+            let segments = &trait_bound.path.segments;
+            if let Some(last) = segments.last()
+                && last.ident == "StorageKey"
             {
-                let segments = &trait_bound.path.segments;
-                if let Some(last) = segments.last()
-                    && last.ident == "StorageKey" {
-                        return Some(type_param.clone())
-                    }
+                return Some(type_param.clone())
             }
+        }
         None
     })
 }

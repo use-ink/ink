@@ -22,10 +22,10 @@ use quote::{
     quote,
 };
 use syn::{
-    spanned::Spanned,
     Attribute,
     Field,
     Fields,
+    spanned::Spanned,
 };
 
 use super::utils;
@@ -286,7 +286,6 @@ fn sol_error_encode_derive_enum(s: synstructure::Structure) -> syn::Result<Token
             variant.bindings().iter().map(|info| {
                 // var is either a field name, or generated "binding_*" name for tuple
                 // elements.
-                
                 info
                     .ast()
                     .ident

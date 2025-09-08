@@ -18,12 +18,12 @@ use core::{
 };
 
 use alloy_sol_types::{
+    SolType as AlloySolType,
     abi::token::{
         PackedSeqToken,
         WordToken,
     },
     sol_data,
-    SolType as AlloySolType,
 };
 use ink_prelude::{
     boxed::Box,
@@ -37,6 +37,12 @@ use scale::{
 use scale_info::TypeInfo;
 
 use crate::sol::{
+    Error,
+    SolDecode,
+    SolEncode,
+    SolTopicEncode,
+    SolTypeDecode,
+    SolTypeEncode,
     encodable::{
         DynSizeDefault,
         FixedSizeDefault,
@@ -46,12 +52,6 @@ use crate::sol::{
         append_non_empty_member_topic_bytes,
         non_zero_multiple_of_32,
     },
-    Error,
-    SolDecode,
-    SolEncode,
-    SolTopicEncode,
-    SolTypeDecode,
-    SolTypeEncode,
 };
 
 /// Newtype wrapper for Solidity ABI encoding/decoding `[u8; N]` for `1 <= N <= 32` as
@@ -88,7 +88,7 @@ where
         // unpacked to `[u8; N]`.
         // Ref: <https://github.com/alloy-rs/core/blob/5ae4fe0b246239602c97cc5a2f2e4bc780e2024a/crates/sol-types/src/types/data_type.rs#L204-L206>
         Ok(Self(
-            token.0 .0[..N]
+            token.0.0[..N]
                 .try_into()
                 .expect("Expected a slice of N bytes"),
         ))
@@ -120,11 +120,11 @@ where
     where
         H: Fn(&[u8], &mut [u8; 32]),
     {
-        self.tokenize().0 .0
+        self.tokenize().0.0
     }
 
     fn topic_preimage(&self, buffer: &mut Vec<u8>) {
-        buffer.extend(self.tokenize().0 .0);
+        buffer.extend(self.tokenize().0.0);
     }
 
     fn default_topic_preimage(buffer: &mut Vec<u8>) {

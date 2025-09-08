@@ -28,8 +28,8 @@ use quote::{
 use syn::spanned::Spanned as _;
 
 use crate::{
-    generator,
     GenerateCode,
+    generator,
 };
 
 /// Generates code for the contract reference of the ink! smart contract.

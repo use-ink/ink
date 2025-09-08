@@ -16,10 +16,10 @@
 //! of this crate.
 
 use super::{
-    test_api::EmittedEvent,
     AccountError,
     Error,
     OffChainError,
+    test_api::EmittedEvent,
 };
 
 impl From<ink_engine::test_api::EmittedEvent> for EmittedEvent {

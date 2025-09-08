@@ -69,31 +69,37 @@ fn spec_constructor_selector_must_serialize_to_hex() {
 #[should_panic(expected = "only one default message is allowed")]
 fn spec_contract_only_one_default_message_allowed() {
     ContractSpec::new()
-        .constructors(vec![ConstructorSpec::from_label("new")
-            .selector([94u8, 189u8, 136u8, 214u8])
-            .payable(true)
-            .args(vec![MessageParamSpec::new("init_value")
-                .of_type(TypeSpec::with_name_segs::<i32, _>(
-                    vec!["i32"].into_iter().map(AsRef::as_ref),
-                ))
-                .done()])
-            .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
-                ink_primitives::ConstructorResult<()>,
-            >(
-                "ink_primitives::ConstructorResult"
-            )))
-            .docs(Vec::new())
-            .done()])
+        .constructors(vec![
+            ConstructorSpec::from_label("new")
+                .selector([94u8, 189u8, 136u8, 214u8])
+                .payable(true)
+                .args(vec![
+                    MessageParamSpec::new("init_value")
+                        .of_type(TypeSpec::with_name_segs::<i32, _>(
+                            vec!["i32"].into_iter().map(AsRef::as_ref),
+                        ))
+                        .done(),
+                ])
+                .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
+                    ink_primitives::ConstructorResult<()>,
+                >(
+                    "ink_primitives::ConstructorResult"
+                )))
+                .docs(Vec::new())
+                .done(),
+        ])
         .messages(vec![
             MessageSpec::from_label("inc")
                 .selector([231u8, 208u8, 89u8, 15u8])
                 .mutates(true)
                 .payable(true)
-                .args(vec![MessageParamSpec::new("by")
-                    .of_type(TypeSpec::with_name_segs::<i32, _>(
-                        vec!["i32"].into_iter().map(AsRef::as_ref),
-                    ))
-                    .done()])
+                .args(vec![
+                    MessageParamSpec::new("by")
+                        .of_type(TypeSpec::with_name_segs::<i32, _>(
+                            vec!["i32"].into_iter().map(AsRef::as_ref),
+                        ))
+                        .done(),
+                ])
                 .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
                     ink_primitives::MessageResult<()>,
                 >(
@@ -130,11 +136,13 @@ fn spec_contract_only_one_default_constructor_allowed() {
             ConstructorSpec::from_label("new")
                 .selector([94u8, 189u8, 136u8, 214u8])
                 .payable(true)
-                .args(vec![MessageParamSpec::new("init_value")
-                    .of_type(TypeSpec::with_name_segs::<i32, _>(
-                        vec!["i32"].into_iter().map(AsRef::as_ref),
-                    ))
-                    .done()])
+                .args(vec![
+                    MessageParamSpec::new("init_value")
+                        .of_type(TypeSpec::with_name_segs::<i32, _>(
+                            vec!["i32"].into_iter().map(AsRef::as_ref),
+                        ))
+                        .done(),
+                ])
                 .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
                     ink_primitives::ConstructorResult<()>,
                 >(
@@ -156,22 +164,26 @@ fn spec_contract_only_one_default_constructor_allowed() {
                 .default(true)
                 .done(),
         ])
-        .messages(vec![MessageSpec::from_label("inc")
-            .selector([231u8, 208u8, 89u8, 15u8])
-            .mutates(true)
-            .payable(true)
-            .args(vec![MessageParamSpec::new("by")
-                .of_type(TypeSpec::with_name_segs::<i32, _>(
-                    vec!["i32"].into_iter().map(AsRef::as_ref),
-                ))
-                .done()])
-            .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
-                ink_primitives::MessageResult<()>,
-            >(
-                "ink_primitives::MessageResult"
-            )))
-            .default(true)
-            .done()])
+        .messages(vec![
+            MessageSpec::from_label("inc")
+                .selector([231u8, 208u8, 89u8, 15u8])
+                .mutates(true)
+                .payable(true)
+                .args(vec![
+                    MessageParamSpec::new("by")
+                        .of_type(TypeSpec::with_name_segs::<i32, _>(
+                            vec!["i32"].into_iter().map(AsRef::as_ref),
+                        ))
+                        .done(),
+                ])
+                .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
+                    ink_primitives::MessageResult<()>,
+                >(
+                    "ink_primitives::MessageResult"
+                )))
+                .default(true)
+                .done(),
+        ])
         .events(Vec::new())
         .lang_error(TypeSpec::with_name_segs::<ink_primitives::LangError, _>(
             ::core::iter::Iterator::map(
@@ -192,38 +204,46 @@ fn spec_contract_event_definition_signature_topic_collision() {
     const NATIVE_TO_ETH_RATIO: u32 = 100000000;
 
     ContractSpec::new()
-        .constructors(vec![ConstructorSpec::from_label("new")
-            .selector([94u8, 189u8, 136u8, 214u8])
-            .payable(true)
-            .args(vec![MessageParamSpec::new("init_value")
-                .of_type(TypeSpec::with_name_segs::<i32, _>(
-                    vec!["i32"].into_iter().map(AsRef::as_ref),
-                ))
-                .done()])
-            .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
-                ink_primitives::ConstructorResult<()>,
-            >(
-                "ink_primitives::ConstructorResult"
-            )))
-            .docs(Vec::new())
-            .default(true)
-            .done()])
-        .messages(vec![MessageSpec::from_label("inc")
-            .selector([231u8, 208u8, 89u8, 15u8])
-            .mutates(true)
-            .payable(true)
-            .args(vec![MessageParamSpec::new("by")
-                .of_type(TypeSpec::with_name_segs::<i32, _>(
-                    vec!["i32"].into_iter().map(AsRef::as_ref),
-                ))
-                .done()])
-            .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
-                ink_primitives::MessageResult<()>,
-            >(
-                "ink_primitives::MessageResult"
-            )))
-            .default(true)
-            .done()])
+        .constructors(vec![
+            ConstructorSpec::from_label("new")
+                .selector([94u8, 189u8, 136u8, 214u8])
+                .payable(true)
+                .args(vec![
+                    MessageParamSpec::new("init_value")
+                        .of_type(TypeSpec::with_name_segs::<i32, _>(
+                            vec!["i32"].into_iter().map(AsRef::as_ref),
+                        ))
+                        .done(),
+                ])
+                .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
+                    ink_primitives::ConstructorResult<()>,
+                >(
+                    "ink_primitives::ConstructorResult"
+                )))
+                .docs(Vec::new())
+                .default(true)
+                .done(),
+        ])
+        .messages(vec![
+            MessageSpec::from_label("inc")
+                .selector([231u8, 208u8, 89u8, 15u8])
+                .mutates(true)
+                .payable(true)
+                .args(vec![
+                    MessageParamSpec::new("by")
+                        .of_type(TypeSpec::with_name_segs::<i32, _>(
+                            vec!["i32"].into_iter().map(AsRef::as_ref),
+                        ))
+                        .done(),
+                ])
+                .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
+                    ink_primitives::MessageResult<()>,
+                >(
+                    "ink_primitives::MessageResult"
+                )))
+                .default(true)
+                .done(),
+        ])
         .events(vec![
             EventSpec::new("Event")
                 .module_path("path::to")
@@ -273,11 +293,13 @@ fn spec_contract_json() {
             ConstructorSpec::from_label("new")
                 .selector([94u8, 189u8, 136u8, 214u8])
                 .payable(true)
-                .args(vec![MessageParamSpec::new("init_value")
-                    .of_type(TypeSpec::with_name_segs::<i32, _>(
-                        vec!["i32"].into_iter().map(AsRef::as_ref),
-                    ))
-                    .done()])
+                .args(vec![
+                    MessageParamSpec::new("init_value")
+                        .of_type(TypeSpec::with_name_segs::<i32, _>(
+                            vec!["i32"].into_iter().map(AsRef::as_ref),
+                        ))
+                        .done(),
+                ])
                 .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
                     ink_primitives::ConstructorResult<()>,
                 >(
@@ -314,11 +336,13 @@ fn spec_contract_json() {
                 .selector([231u8, 208u8, 89u8, 15u8])
                 .mutates(true)
                 .payable(true)
-                .args(vec![MessageParamSpec::new("by")
-                    .of_type(TypeSpec::with_name_segs::<i32, _>(
-                        vec!["i32"].into_iter().map(AsRef::as_ref),
-                    ))
-                    .done()])
+                .args(vec![
+                    MessageParamSpec::new("by")
+                        .of_type(TypeSpec::with_name_segs::<i32, _>(
+                            vec!["i32"].into_iter().map(AsRef::as_ref),
+                        ))
+                        .done(),
+                ])
                 .returns(ReturnTypeSpec::new(TypeSpec::with_name_str::<
                     ink_primitives::MessageResult<()>,
                 >(

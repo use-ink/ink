@@ -21,11 +21,11 @@ use ink_primitives::{
     U256,
 };
 use secp256k1::{
-    ecdsa::RecoverableSignature,
     Message,
     PublicKey,
-    SecretKey,
     SECP256K1,
+    SecretKey,
+    ecdsa::RecoverableSignature,
 };
 
 /// The public methods of the `contracts` pallet write their result into an

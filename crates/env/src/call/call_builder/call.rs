@@ -13,14 +13,18 @@
 // limitations under the License.
 
 use ink_primitives::{
-    abi::AbiEncodeWith,
     Address,
     U256,
+    abi::AbiEncodeWith,
 };
 use pallet_revive_uapi::CallFlags;
 
 use crate::{
+    Error,
     call::{
+        CallBuilder,
+        CallParams,
+        ExecutionInput,
         common::{
             ReturnType,
             Set,
@@ -28,15 +32,11 @@ use crate::{
         },
         execution::EmptyArgumentList,
         utils::DecodeMessageResult,
-        CallBuilder,
-        CallParams,
-        ExecutionInput,
     },
     types::{
         Environment,
         Gas,
     },
-    Error,
 };
 
 /// The default call type for cross-contract calls, for calling into the latest `call`

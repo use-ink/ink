@@ -44,15 +44,15 @@ pub mod marker {
 use self::attrs::Attribute;
 
 use self::attrs::{
+    AttributeArg,
+    AttributeArgKind,
+    AttributeFrag,
+    InkAttribute,
     contains_ink_attributes,
     first_ink_attribute,
     partition_attributes,
     sanitize_attributes,
     sanitize_optional_attributes,
-    AttributeArg,
-    AttributeArgKind,
-    AttributeFrag,
-    InkAttribute,
 };
 pub use self::{
     attrs::{
@@ -60,8 +60,8 @@ pub use self::{
         Namespace,
     },
     blake2::{
-        blake2b_256,
         Blake2x256Macro,
+        blake2b_256,
     },
     config::Config,
     contract::Contract,

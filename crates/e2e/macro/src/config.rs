@@ -135,8 +135,8 @@ impl E2EConfig {
 mod tests {
     use super::*;
     use darling::{
-        ast::NestedMeta,
         FromMeta,
+        ast::NestedMeta,
     };
     use quote::quote;
 

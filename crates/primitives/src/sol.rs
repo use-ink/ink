@@ -92,8 +92,8 @@ use crate::types::{
 ///
 /// ```
 /// use ink_primitives::{
-///     sol::Error,
 ///     SolDecode,
+///     sol::Error,
 /// };
 ///
 /// // Example arbitrary type.

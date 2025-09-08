@@ -13,13 +13,13 @@
 // limitations under the License.
 
 use ink_env::{
-    call::utils::DecodeMessageResult,
     DefaultEnvironment,
     Environment,
+    call::utils::DecodeMessageResult,
 };
 use ink_primitives::{
-    abi::AbiEncodeWith,
     DepositLimit,
+    abi::AbiEncodeWith,
 };
 use jsonrpsee::core::async_trait;
 use pallet_revive::evm::CallTrace;
@@ -27,11 +27,15 @@ use sp_weights::Weight;
 use subxt::dynamic::Value;
 
 use super::{
+    H256,
     InstantiateDryRunResult,
     Keypair,
-    H256,
 };
 use crate::{
+    CallBuilder,
+    CallBuilderFinal,
+    CallDryRunResult,
+    UploadResult,
     backend_calls::{
         InstantiateBuilder,
         RemoveCodeBuilder,
@@ -39,10 +43,6 @@ use crate::{
     },
     builders::CreateBuilderPartial,
     contract_results::BareInstantiationResult,
-    CallBuilder,
-    CallBuilderFinal,
-    CallDryRunResult,
-    UploadResult,
 };
 
 /// Full E2E testing backend: combines general chain API and contract-specific operations.

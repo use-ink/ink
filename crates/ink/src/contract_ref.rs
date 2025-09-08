@@ -31,8 +31,8 @@ use ink_primitives::Address;
 /// #[ink::contract]
 /// mod trait_caller {
 ///     use ink::{
-///         contract_ref,
 ///         U256,
+///         contract_ref,
 ///     };
 ///
 ///     #[ink::trait_definition]

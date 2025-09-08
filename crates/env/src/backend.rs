@@ -13,19 +13,21 @@
 // limitations under the License.
 
 use ink_primitives::{
+    Address,
+    H256,
+    SolEncode,
+    U256,
     abi::AbiEncodeWith,
     types::Environment,
-    Address,
-    SolEncode,
-    H256,
-    U256,
 };
 use ink_storage_traits::Storable;
 pub use pallet_revive_uapi::ReturnFlags;
 
 use crate::{
+    DecodeDispatch,
+    DispatchError,
+    Result,
     call::{
-        utils::DecodeMessageResult,
         Call,
         CallParams,
         ConstructorReturnType,
@@ -33,6 +35,7 @@ use crate::{
         DelegateCall,
         FromAddr,
         LimitParamsV2,
+        utils::DecodeMessageResult,
     },
     event::{
         Event,
@@ -42,9 +45,6 @@ use crate::{
         CryptoHash,
         HashOutput,
     },
-    DecodeDispatch,
-    DispatchError,
-    Result,
 };
 
 /// Environmental contract functionality that does not require `Environment`.

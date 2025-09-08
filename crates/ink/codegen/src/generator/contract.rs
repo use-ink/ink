@@ -13,9 +13,9 @@
 // limitations under the License.
 
 use crate::{
-    generator,
     GenerateCode,
     GenerateCodeUsing,
+    generator,
 };
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;

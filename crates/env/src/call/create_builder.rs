@@ -15,18 +15,22 @@
 use core::marker::PhantomData;
 
 use ink_primitives::{
+    Address,
+    H256,
+    U256,
     abi::{
         AbiEncodeWith,
         Ink,
         Sol,
     },
-    Address,
-    H256,
-    U256,
 };
 
 use crate::{
+    ContractEnv,
+    Error,
     call::{
+        ExecutionInput,
+        Selector,
         utils::{
             DecodeConstructorError,
             EmptyArgumentList,
@@ -34,12 +38,8 @@ use crate::{
             Set,
             Unset,
         },
-        ExecutionInput,
-        Selector,
     },
     types::Environment,
-    ContractEnv,
-    Error,
 };
 
 pub mod state {

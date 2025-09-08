@@ -13,9 +13,9 @@
 // limitations under the License.
 
 use super::{
+    Keypair,
     log_info,
     sr25519,
-    Keypair,
 };
 use ink_env::Environment;
 
@@ -30,17 +30,18 @@ use ink_primitives::{
     DepositLimit,
 };
 use pallet_revive::{
+    CodeUploadResult,
     evm::{
         CallTrace,
         CallTracerConfig,
         Trace,
         TracerType,
     },
-    CodeUploadResult,
 };
 use sp_core::H256;
 use sp_runtime::OpaqueExtrinsic;
 use subxt::{
+    OnlineClient,
     backend::{
         legacy::LegacyRpcMethods,
         rpc::RpcClient,
@@ -62,7 +63,6 @@ use subxt::{
         SubmittableTransaction,
         TxStatus,
     },
-    OnlineClient,
 };
 
 /// Copied from `sp_weight` to additionally implement `scale_encode::EncodeAsType`.
@@ -238,7 +238,6 @@ where
     C::Signature: From<sr25519::Signature>,
     <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
-
     E: Environment,
     E::Balance: scale::HasCompact + serde::Serialize,
 {
@@ -442,7 +441,6 @@ where
         // todo
         let tx_index: usize = match (extrinsic_hash, extrinsic) {
             (Some(hash), None) => {
-                
                 block_details
                     .block
                     .extrinsics

@@ -18,21 +18,21 @@ use std::path::PathBuf;
 
 use ink::H160;
 use ink_env::{
+    Environment,
     call::{
+        Call,
+        ExecutionInput,
         utils::{
             DecodeMessageResult,
             ReturnType,
             Set,
         },
-        Call,
-        ExecutionInput,
     },
-    Environment,
 };
 use ink_primitives::{
+    DepositLimit,
     abi::AbiEncodeWith,
     types::AccountIdMapper,
-    DepositLimit,
 };
 use jsonrpsee::core::async_trait;
 use pallet_revive::evm::CallTrace;
@@ -59,9 +59,13 @@ use subxt::{
 };
 
 use super::{
+    H256,
+    InstantiateDryRunResult,
+    Keypair,
+    ReviveApi,
     builders::{
-        constructor_exec_input,
         CreateBuilderPartial,
+        constructor_exec_input,
     },
     deposit_limit_to_balance,
     events::{
@@ -71,19 +75,17 @@ use super::{
     log_error,
     log_info,
     sr25519,
-    InstantiateDryRunResult,
-    Keypair,
-    ReviveApi,
-    H256,
 };
 use crate::{
+    ContractsBackend,
+    E2EBackend,
     backend::{
         BuilderClient,
         ChainBackend,
     },
     client_utils::{
-        salt,
         ContractsRegistry,
+        salt,
     },
     contract_results::{
         BareInstantiationResult,
@@ -94,8 +96,6 @@ use crate::{
     },
     error::DryRunError,
     events,
-    ContractsBackend,
-    E2EBackend,
 };
 
 pub type Error = crate::error::Error<DispatchError>;
@@ -382,7 +382,6 @@ where
     C::Address: Send + Sync,
     <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
-
     E: Environment,
     E::AccountId: Debug + Send + Sync,
     E::Balance: Clone
@@ -521,7 +520,6 @@ where
     C::Address: Send + Sync,
     <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
-
     E: Environment,
     E::AccountId: Debug + Send + Sync,
     E::EventRecord: Debug,
@@ -803,7 +801,6 @@ where
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
-
     E: Environment,
     E::AccountId: Debug + Send + Sync,
     E::Balance:
@@ -830,7 +827,6 @@ where
     C::Address: Send + Sync,
     <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
-
     E: Environment,
     E::AccountId: Debug + Send + Sync,
     E::EventRecord: Debug,

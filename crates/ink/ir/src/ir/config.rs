@@ -15,8 +15,8 @@
 use crate::{
     ast,
     utils::{
-        duplicate_config_err,
         WhitelistedAttributes,
+        duplicate_config_err,
     },
 };
 
@@ -212,7 +212,9 @@ mod tests {
     fn keep_attr_missing_value_fails() {
         assert_try_from(
             syn::parse_quote! { keep_attr },
-            Err("expected a string literal value for `keep_attr` ink! configuration argument"),
+            Err(
+                "expected a string literal value for `keep_attr` ink! configuration argument",
+            ),
         );
     }
 }

@@ -13,16 +13,16 @@
 // limitations under the License.
 
 use ink_env::{
+    Environment,
     call::{
+        CallBuilder,
+        Execution,
+        ExecutionInput,
         utils::{
             ReturnType,
             Set,
         },
-        CallBuilder,
-        Execution,
-        ExecutionInput,
     },
-    Environment,
 };
 
 /// Trait used as bound for the outputs of ink! trait definition messages.

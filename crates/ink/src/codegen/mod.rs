@@ -23,12 +23,12 @@ pub mod utils;
 
 pub use self::{
     dispatch::{
-        deny_payment,
         ContractCallBuilder,
         DispatchInput,
         DispatchInputSol,
         DispatchOutput,
         DispatchOutputSol,
+        deny_payment,
     },
     env::{
         Env,

@@ -15,16 +15,16 @@
 use core::clone::Clone;
 
 use alloy_sol_types::{
+    SolType as AlloySolType,
     abi::{
         self,
+        Encoder,
         token::{
             PackedSeqToken,
             WordToken,
         },
-        Encoder,
     },
     sol_data,
-    SolType as AlloySolType,
 };
 use impl_trait_for_tuples::impl_for_tuples;
 use ink_prelude::{
@@ -42,6 +42,7 @@ use primitive_types::U256;
 
 use crate::{
     sol::{
+        Error,
         encodable::{
             DynSizeDefault,
             Encodable,
@@ -52,7 +53,6 @@ use crate::{
             append_non_empty_member_topic_bytes,
             non_zero_multiple_of_32,
         },
-        Error,
     },
     types::Address,
 };
@@ -471,7 +471,7 @@ impl SolTypeDecode for Address {
         // just taking the last 20 bytes of `alloy_sol_types::abi::token::WordToken` as
         // well anyway.
         // Ref: <https://github.com/alloy-rs/core/blob/5ae4fe0b246239602c97cc5a2f2e4bc780e2024a/crates/primitives/src/bits/address.rs#L132-L134>
-        Ok(Address::from_slice(&token.0 .0[12..]))
+        Ok(Address::from_slice(&token.0.0[12..]))
     }
 }
 
@@ -507,7 +507,7 @@ impl SolTypeDecode for U256 {
     fn detokenize(
         token: <Self::AlloyType as AlloySolType>::Token<'_>,
     ) -> Result<Self, Error> {
-        Ok(U256::from_big_endian(token.0 .0.as_slice()))
+        Ok(U256::from_big_endian(token.0.0.as_slice()))
     }
 }
 
@@ -866,7 +866,7 @@ impl<T: SolTypeEncode> SolTypeEncode for Option<T> {
 impl<T: SolTopicEncode> SolTopicEncode for Option<T> {
     fn topic_preimage(&self, buffer: &mut Vec<u8>) {
         // `bool` variant encoded bytes.
-        buffer.extend(self.is_some().tokenize().0 .0);
+        buffer.extend(self.is_some().tokenize().0.0);
         // "Actual value" encoded bytes.
         match self {
             None => T::default_topic_preimage(buffer),

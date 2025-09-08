@@ -39,9 +39,9 @@ use ink_prelude::{
 use ink_primitives::{
     AccountId,
     Address,
+    H256,
     Hash,
     Key,
-    H256,
     U256,
 };
 use scale_info::TypeInfo;

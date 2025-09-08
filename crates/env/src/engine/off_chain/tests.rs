@@ -13,13 +13,13 @@
 // limitations under the License.
 
 use crate::{
+    DefaultEnvironment,
+    Result,
     engine::off_chain::{
         impls::TopicsBuilder,
         test_api::set_account_balance,
     },
     event::TopicsBuilderBackend,
-    DefaultEnvironment,
-    Result,
 };
 use ink::{
     Address,

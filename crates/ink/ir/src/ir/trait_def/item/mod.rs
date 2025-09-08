@@ -25,12 +25,12 @@ pub use self::{
 };
 use super::TraitDefinitionConfig;
 use crate::{
+    Selector,
     ir,
     ir::{
         attrs::SelectorOrWildcard,
         idents_lint,
     },
-    Selector,
 };
 use ir::TraitPrefix;
 use proc_macro2::{
@@ -39,8 +39,8 @@ use proc_macro2::{
 };
 use std::collections::HashMap;
 use syn::{
-    spanned::Spanned as _,
     Result,
+    spanned::Spanned as _,
 };
 
 /// A checked ink! trait definition without its configuration.
@@ -183,9 +183,9 @@ impl InkItemTrait {
                 }
                 syn::TraitItem::Type(type_trait_item) => {
                     return Err(format_err_spanned!(
-                    type_trait_item,
-                    "associated types in ink! trait definitions are not supported, yet"
-                ))
+                        type_trait_item,
+                        "associated types in ink! trait definitions are not supported, yet"
+                    ))
                 }
                 syn::TraitItem::Verbatim(verbatim) => {
                     return Err(format_err_spanned!(

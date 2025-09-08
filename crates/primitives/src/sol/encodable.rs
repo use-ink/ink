@@ -13,7 +13,9 @@
 // limitations under the License.
 
 use alloy_sol_types::{
+    Word,
     abi::{
+        Encoder,
         token::{
             DynSeqToken,
             FixedSeqToken,
@@ -21,9 +23,7 @@ use alloy_sol_types::{
             Token,
             WordToken,
         },
-        Encoder,
     },
-    Word,
 };
 use ink_prelude::vec::Vec;
 

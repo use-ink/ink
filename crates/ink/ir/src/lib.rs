@@ -41,9 +41,6 @@ mod literal;
 
 pub use self::{
     ir::{
-        blake2b_256,
-        marker,
-        utils,
         Blake2x256Macro,
         Callable,
         CallableKind,
@@ -79,6 +76,9 @@ pub use self::{
         Storage,
         StorageItem,
         Visibility,
+        blake2b_256,
+        marker,
+        utils,
     },
     literal::HexLiteral,
 };

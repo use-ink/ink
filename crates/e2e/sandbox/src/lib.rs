@@ -10,11 +10,11 @@ use frame_support::{
     traits::fungible::Inspect,
 };
 use frame_system::{
+    EventRecord,
     pallet_prelude::{
         BlockNumberFor,
         OriginFor,
     },
-    EventRecord,
 };
 use ink_primitives::U256;
 pub use macros::{

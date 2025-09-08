@@ -330,8 +330,8 @@ mod tests {
 mod fuzz_tests {
     use super::*;
     use quickcheck::{
-        quickcheck,
         TestResult,
+        quickcheck,
     };
     use std::mem::size_of;
 

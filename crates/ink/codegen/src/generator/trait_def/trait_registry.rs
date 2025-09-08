@@ -37,10 +37,10 @@ use syn::{
 
 use super::TraitDefinition;
 use crate::{
+    EnforcedErrors,
     generator,
     generator::sol,
     traits::GenerateCode,
-    EnforcedErrors,
 };
 
 impl TraitDefinition<'_> {
@@ -124,10 +124,8 @@ impl TraitRegistry<'_> {
     fn generate_registry_messages(&self) -> TokenStream2 {
         let messages = self.trait_def.trait_def.item().iter_items().filter_map(
             |(item, selector)| {
-                
-                item.filter_map_message().map(|message| {
-                    self.generate_registry_for_message(&message, selector)
-                })
+                item.filter_map_message()
+                    .map(|message| self.generate_registry_for_message(&message, selector))
             },
         );
         quote! {

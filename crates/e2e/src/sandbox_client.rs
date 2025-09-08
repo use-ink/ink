@@ -21,31 +21,34 @@ use frame_support::{
     dispatch::RawOrigin,
     pallet_prelude::DispatchError,
     traits::{
-        fungible::Inspect,
         IsType,
+        fungible::Inspect,
     },
 };
 use ink_env::{
-    call::utils::DecodeMessageResult,
     Environment,
+    call::utils::DecodeMessageResult,
 };
 use ink_primitives::{
-    abi::AbiEncodeWith,
     DepositLimit,
+    abi::AbiEncodeWith,
 };
 use ink_sandbox::{
+    AccountIdFor,
+    RuntimeCall,
+    Sandbox,
+    Weight,
     api::prelude::*,
     frame_system,
     frame_system::pallet_prelude::OriginFor,
     pallet_balances,
     pallet_revive,
-    AccountIdFor,
-    RuntimeCall,
-    Sandbox,
-    Weight,
 };
 use jsonrpsee::core::async_trait;
 use pallet_revive::{
+    CodeUploadReturnValue,
+    InstantiateReturnValue,
+    MomentOf,
     evm::{
         CallTrace,
         CallTracerConfig,
@@ -53,14 +56,11 @@ use pallet_revive::{
         TracerType,
         U256,
     },
-    CodeUploadReturnValue,
-    InstantiateReturnValue,
-    MomentOf,
 };
 use scale::Decode;
 use sp_core::{
-    sr25519::Pair,
     Pair as _,
+    sr25519::Pair,
 };
 use sp_runtime::traits::Bounded;
 use subxt::{
@@ -70,14 +70,22 @@ use subxt::{
 use subxt_signer::sr25519::Keypair;
 
 use crate::{
+    CallBuilderFinal,
+    CallDryRunResult,
+    ChainBackend,
+    ContractsBackend,
+    E2EBackend,
+    H256,
+    InstantiateDryRunResult,
+    UploadResult,
     backend::BuilderClient,
     builders::{
-        constructor_exec_input,
         CreateBuilderPartial,
+        constructor_exec_input,
     },
     client_utils::{
-        salt,
         ContractsRegistry,
+        salt,
     },
     contract_results::{
         BareInstantiationResult,
@@ -86,14 +94,6 @@ use crate::{
     },
     error::SandboxErr,
     log_error,
-    CallBuilderFinal,
-    CallDryRunResult,
-    ChainBackend,
-    ContractsBackend,
-    E2EBackend,
-    InstantiateDryRunResult,
-    UploadResult,
-    H256,
 };
 
 type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
@@ -237,21 +237,18 @@ where
 
 #[async_trait]
 impl<
-        AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-        S: Sandbox,
-        E: Environment<AccountId = AccountId, Balance = ContractsBalanceOf<S::Runtime>>
-            + 'static,
-    > BuilderClient<E> for Client<AccountId, S>
+    AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
+    S: Sandbox,
+    E: Environment<AccountId = AccountId, Balance = ContractsBalanceOf<S::Runtime>>
+        + 'static,
+> BuilderClient<E> for Client<AccountId, S>
 where
     S::Runtime: pallet_balances::Config + pallet_revive::Config,
     AccountIdFor<S::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
     ContractsBalanceOf<S::Runtime>: Send + Sync,
-
     ContractsBalanceOf<S::Runtime>: Into<U256> + TryFrom<U256> + Bounded,
     MomentOf<S::Runtime>: Into<U256>,
-
     <<S as Sandbox>::Runtime as frame_system::Config>::Nonce: Into<u32>,
-
     // todo
     <<S as Sandbox>::Runtime as frame_system::Config>::Hash:
         frame_support::traits::IsType<sp_core::H256>,
@@ -489,9 +486,10 @@ where
             let res = result.result.clone().unwrap_err();
             if let DispatchError::Module(m) = res
                 && let Some(s) = m.message
-                    && s.contains("AccountUnmapped") {
-                        panic!("something is wrong, we mapped the account before")
-                    }
+                && s.contains("AccountUnmapped")
+            {
+                panic!("something is wrong, we mapped the account before")
+            }
         }
         // todo error when `AccountUnmapped`
         Ok(CallDryRunResult {
@@ -530,22 +528,18 @@ where
 }
 
 impl<
-        AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-        Config: Sandbox,
-        E: Environment<
-                AccountId = AccountId,
-                Balance = ContractsBalanceOf<Config::Runtime>,
-            > + 'static,
-    > E2EBackend<E> for Client<AccountId, Config>
+    AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
+    Config: Sandbox,
+    E: Environment<AccountId = AccountId, Balance = ContractsBalanceOf<Config::Runtime>>
+        + 'static,
+> E2EBackend<E> for Client<AccountId, Config>
 where
     Config::Runtime: pallet_balances::Config + pallet_revive::Config,
     AccountIdFor<Config::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
     ContractsBalanceOf<Config::Runtime>: Send + Sync,
     ContractsBalanceOf<Config::Runtime>: Into<U256> + TryFrom<U256> + Bounded,
     MomentOf<Config::Runtime>: Into<U256>,
-
     <Config::Runtime as frame_system::Config>::Nonce: Into<u32>,
-
     // todo
     <Config::Runtime as frame_system::Config>::Hash: IsType<sp_core::H256>,
 {
@@ -568,11 +562,11 @@ where
 
 #[async_trait]
 impl<
-        AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-        S: Sandbox,
-        E: Environment<AccountId = AccountId, Balance = ContractsBalanceOf<S::Runtime>>
-            + 'static,
-    > ContractsBackend<E> for Client<AccountId, S>
+    AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
+    S: Sandbox,
+    E: Environment<AccountId = AccountId, Balance = ContractsBalanceOf<S::Runtime>>
+        + 'static,
+> ContractsBackend<E> for Client<AccountId, S>
 where
     S::Runtime: pallet_balances::Config + pallet_revive::Config,
     AccountIdFor<S::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,

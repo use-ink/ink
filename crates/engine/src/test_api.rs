@@ -13,14 +13,14 @@
 // limitations under the License.
 
 use crate::{
+    AccountError,
+    Error,
     ext::Engine,
     types::{
         Balance,
         BlockNumber,
         BlockTimestamp,
     },
-    AccountError,
-    Error,
 };
 use ink_primitives::{
     AccountId,

@@ -14,6 +14,10 @@
 
 use ink_engine::ext::Engine;
 use ink_primitives::{
+    Address,
+    H256,
+    SolEncode,
+    U256,
     abi::{
         AbiEncodeWith,
         Ink,
@@ -23,14 +27,10 @@ use ink_primitives::{
         AccountIdMapper,
         Environment,
     },
-    Address,
-    SolEncode,
-    H256,
-    U256,
 };
 use ink_storage_traits::{
-    decode_all,
     Storable,
+    decode_all,
 };
 use pallet_revive_uapi::{
     ReturnErrorCode,
@@ -44,8 +44,12 @@ use schnorrkel::{
 
 use super::EnvInstance;
 use crate::{
+    DecodeDispatch,
+    DispatchError,
+    EnvBackend,
+    Result,
+    TypedEnvBackend,
     call::{
-        utils::DecodeMessageResult,
         Call,
         CallParams,
         ConstructorReturnType,
@@ -53,6 +57,7 @@ use crate::{
         DelegateCall,
         FromAddr,
         LimitParamsV2,
+        utils::DecodeMessageResult,
     },
     event::{
         Event,
@@ -68,11 +73,6 @@ use crate::{
         Sha2x256,
     },
     test::callee,
-    DecodeDispatch,
-    DispatchError,
-    EnvBackend,
-    Result,
-    TypedEnvBackend,
 };
 
 /// The capacity of the static buffer.
@@ -458,12 +458,12 @@ impl EnvBackend for EnvInstance {
         output: &mut [u8; 33],
     ) -> Result<()> {
         use secp256k1::{
+            Message,
+            SECP256K1,
             ecdsa::{
                 RecoverableSignature,
                 RecoveryId,
             },
-            Message,
-            SECP256K1,
         };
 
         // In most implementations, the v is just 0 or 1 internally, but 27 was added

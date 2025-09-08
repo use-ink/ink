@@ -17,13 +17,13 @@ use derive_more::From;
 use ir::IsDocAttribute;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use syn::spanned::Spanned;
 #[cfg(all(feature = "std", any(ink_abi = "sol", ink_abi = "all")))]
 use syn::Fields;
+use syn::spanned::Spanned;
 
+use crate::GenerateCode;
 #[cfg(all(feature = "std", any(ink_abi = "sol", ink_abi = "all")))]
 use crate::generator::sol;
-use crate::GenerateCode;
 
 /// Generates code for the event item.
 #[derive(From, Copy, Clone)]

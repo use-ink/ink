@@ -17,6 +17,8 @@
 use core::marker::PhantomData;
 
 use ink_primitives::{
+    LangError,
+    MessageResult,
     abi::{
         Ink,
         Sol,
@@ -26,8 +28,6 @@ use ink_primitives::{
         SolResultDecode,
         SolResultDecodeError,
     },
-    LangError,
-    MessageResult,
 };
 use pallet_revive_uapi::ReturnErrorCode;
 use scale::{
