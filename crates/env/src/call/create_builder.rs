@@ -475,7 +475,7 @@ where
 
 /// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract
 /// instantiation that uses ink! ABI Encoding (i.e. with SCALE codec for input/output
-/// encode/decode)
+/// encode/decode).
 ///
 /// See [`build_create`] for more details on usage.
 #[allow(clippy::type_complexity)]
