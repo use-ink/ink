@@ -18,7 +18,7 @@ mod contract {
     }
 }
 
-extern "Rust" {
+unsafe extern "Rust" {
     fn __ink_generate_metadata() -> ink::metadata::InkProject;
 
     fn __ink_generate_solidity_metadata() -> ink::metadata::sol::ContractMetadata;
