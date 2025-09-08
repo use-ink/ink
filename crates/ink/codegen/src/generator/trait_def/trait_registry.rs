@@ -214,7 +214,7 @@ impl TraitRegistry<'_> {
                 quote! {
                     /// We enforce linking errors in case this is ever actually called.
                     /// These linker errors are properly resolved by the cargo-contract tool.
-                    extern {
+                    unsafe extern {
                         fn #linker_error_ident() -> !;
                     }
                     unsafe { #linker_error_ident() }
