@@ -17,6 +17,7 @@ use core::marker::PhantomData;
 use ink_primitives::{
     abi::{
         AbiEncodeWith,
+        Ink,
         Sol,
     },
     Address,
@@ -472,17 +473,19 @@ where
     }
 }
 
-/// Returns a new [`CreateBuilder`] for the specified ABI to build up the parameters to a
-/// cross-contract instantiation.
+/// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract
+/// instantiation that uses ink! ABI Encoding (i.e. with SCALE codec for input/output
+/// encode/decode).
+///
 /// See [`build_create`] for more details on usage.
 #[allow(clippy::type_complexity)]
-pub fn build_create_abi<ContractRef, Abi>() -> CreateBuilder<
+pub fn build_create_ink<ContractRef>() -> CreateBuilder<
     <ContractRef as ContractEnv>::Env,
     ContractRef,
     Set<LimitParamsV2>,
-    Unset<ExecutionInput<EmptyArgumentList<Abi>, Abi>>,
+    Unset<ExecutionInput<EmptyArgumentList<Ink>, Ink>>,
     Unset<ReturnType<()>>,
-    Abi,
+    Ink,
 >
 where
     ContractRef: ContractEnv,
@@ -504,9 +507,10 @@ where
 
 /// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract
 /// instantiation that uses Solidity ABI Encoding.
+///
 /// See [`build_create`] for more details on usage.
 #[allow(clippy::type_complexity)]
-pub fn build_create_solidity<ContractRef>() -> CreateBuilder<
+pub fn build_create_sol<ContractRef>() -> CreateBuilder<
     <ContractRef as ContractEnv>::Env,
     ContractRef,
     Set<LimitParamsV2>,

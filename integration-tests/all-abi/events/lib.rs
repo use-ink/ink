@@ -424,7 +424,7 @@ pub mod events {
         ) -> E2EResult<()> {
             // given
             let init_value = false;
-            let mut constructor = EventsRef::<ink::abi::Ink>::new(init_value);
+            let mut constructor = EventsRef::new(init_value);
             let contract = client
                 .instantiate("events", &ink_e2e::alice(), &mut constructor)
                 .submit()
@@ -487,7 +487,7 @@ pub mod events {
         ) -> E2EResult<()> {
             // given
             let init_value = false;
-            let mut constructor = EventsRef::<ink::abi::Ink>::new(init_value);
+            let mut constructor = EventsRef::new(init_value);
             let contract = client
                 .instantiate("events", &ink_e2e::alice(), &mut constructor)
                 .submit()
@@ -574,7 +574,7 @@ pub mod events {
         ) -> E2EResult<()> {
             // given
             let init_value = false;
-            let mut constructor = EventsRef::<ink::abi::Ink>::new(init_value);
+            let mut constructor = EventsRef::new(init_value);
             let contract = client
                 .instantiate("events", &ink_e2e::alice(), &mut constructor)
                 .submit()
@@ -649,7 +649,7 @@ pub mod events {
         ) -> E2EResult<()> {
             // given
             let init_value = false;
-            let mut constructor = EventsRef::<ink::abi::Ink>::new(init_value);
+            let mut constructor = EventsRef::new(init_value);
             let contract = client
                 .instantiate("events", &ink_e2e::alice(), &mut constructor)
                 .submit()

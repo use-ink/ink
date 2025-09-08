@@ -31,10 +31,13 @@ use ink_env::{
     },
     Environment,
     Result,
-    TopicEncoder,
 };
 use ink_primitives::{
-    abi::AbiEncodeWith,
+    abi::{
+        AbiEncodeWith,
+        Ink,
+        Sol,
+    },
     Address,
     H256,
     U256,
@@ -408,13 +411,21 @@ where
         ink_env::emit_event::<E, Evt, crate::abi::Sol>(&event);
     }
 
-    /// Emits an event using the specified ABI.
-    pub fn emit_event_abi<Evt, Abi>(self, event: Evt)
+    /// Emits an event using the ink! ABI encoding (i.e. with SCALE codec for event data
+    /// encode/decode).
+    pub fn emit_event_ink<Evt>(self, event: Evt)
     where
-        Evt: ink_env::Event<Abi>,
-        Abi: TopicEncoder,
+        Evt: ink_env::Event<Ink>,
     {
-        ink_env::emit_event::<E, Evt, Abi>(&event)
+        ink_env::emit_event::<E, Evt, Ink>(&event)
+    }
+
+    /// Emits an event using the Solidity ABI encoding.
+    pub fn emit_event_sol<Evt>(self, event: Evt)
+    where
+        Evt: ink_env::Event<Sol>,
+    {
+        ink_env::emit_event::<E, Evt, Sol>(&event)
     }
 
     /// Instantiates another contract using the supplied code hash.
