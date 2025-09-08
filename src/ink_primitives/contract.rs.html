@@ -75,93 +75,92 @@
 <a href=#75 id=75 data-nosnippet>75</a>///     type Hash = &lt;DefaultEnvironment as Environment&gt;::Hash;
 <a href=#76 id=76 data-nosnippet>76</a>///     type BlockNumber = u32;
 <a href=#77 id=77 data-nosnippet>77</a>///     type Timestamp = u64;
-<a href=#78 id=78 data-nosnippet>78</a>///     type ChainExtension = &lt;DefaultEnvironment as Environment&gt;::ChainExtension;
-<a href=#79 id=79 data-nosnippet>79</a>///     type EventRecord = &lt;DefaultEnvironment as Environment&gt;::EventRecord;
-<a href=#80 id=80 data-nosnippet>80</a>/// }
-<a href=#81 id=81 data-nosnippet>81</a>///
-<a href=#82 id=82 data-nosnippet>82</a>/// #[ink::contract(env = super::CustomEnvironment)]
-<a href=#83 id=83 data-nosnippet>83</a>/// pub mod contract {
-<a href=#84 id=84 data-nosnippet>84</a>///     #[ink(storage)]
-<a href=#85 id=85 data-nosnippet>85</a>///     pub struct Contract {}
-<a href=#86 id=86 data-nosnippet>86</a>///
-<a href=#87 id=87 data-nosnippet>87</a>///     impl Contract {
-<a href=#88 id=88 data-nosnippet>88</a>///         #[ink(constructor)]
-<a href=#89 id=89 data-nosnippet>89</a>///         pub fn constructor() -&gt; Self {
-<a href=#90 id=90 data-nosnippet>90</a>///             Self {}
-<a href=#91 id=91 data-nosnippet>91</a>///         }
-<a href=#92 id=92 data-nosnippet>92</a>///
-<a href=#93 id=93 data-nosnippet>93</a>///         #[ink(message)]
-<a href=#94 id=94 data-nosnippet>94</a>///         pub fn message(&amp;self) {}
-<a href=#95 id=95 data-nosnippet>95</a>///     }
-<a href=#96 id=96 data-nosnippet>96</a>/// }
-<a href=#97 id=97 data-nosnippet>97</a>///
-<a href=#98 id=98 data-nosnippet>98</a>/// use contract::Contract;
-<a href=#99 id=99 data-nosnippet>99</a>/// # use ink::env::ContractEnv;
-<a href=#100 id=100 data-nosnippet>100</a>/// # use ink::codegen::utils::IsSameType;
-<a href=#101 id=101 data-nosnippet>101</a>///
-<a href=#102 id=102 data-nosnippet>102</a>/// // The following line only compiles successfully if both
-<a href=#103 id=103 data-nosnippet>103</a>/// // `CustomEnvironment` and `&lt;Contract as ContractEnv&gt;::Env`
-<a href=#104 id=104 data-nosnippet>104</a>/// // are of the same type.
-<a href=#105 id=105 data-nosnippet>105</a>/// const _: IsSameType&lt;&lt;Contract as ContractEnv&gt;::Env&gt; =
-<a href=#106 id=106 data-nosnippet>106</a>///     &lt;IsSameType&lt;CustomEnvironment&gt;&gt;::new();
-<a href=#107 id=107 data-nosnippet>107</a>///
-<a href=#108 id=108 data-nosnippet>108</a>/// fn main() {}
-<a href=#109 id=109 data-nosnippet>109</a>/// ```
-<a href=#110 id=110 data-nosnippet>110</a></span><span class="kw">pub trait </span>ContractEnv {
-<a href=#111 id=111 data-nosnippet>111</a>    <span class="doccomment">/// The environment type.
-<a href=#112 id=112 data-nosnippet>112</a>    </span><span class="kw">type </span>Env: Environment;
-<a href=#113 id=113 data-nosnippet>113</a>}
-<a href=#114 id=114 data-nosnippet>114</a>
-<a href=#115 id=115 data-nosnippet>115</a><span class="doccomment">/// Refers to the generated ink! smart contract reference type.
-<a href=#116 id=116 data-nosnippet>116</a>///
-<a href=#117 id=117 data-nosnippet>117</a>/// # Note
-<a href=#118 id=118 data-nosnippet>118</a>///
-<a href=#119 id=119 data-nosnippet>119</a>/// Given an ink! storage struct with identifier `Contract` the ink! codegen produces
-<a href=#120 id=120 data-nosnippet>120</a>/// the ink! root type `Contract` and the ink! reference type `ContractRef`.
-<a href=#121 id=121 data-nosnippet>121</a>///
-<a href=#122 id=122 data-nosnippet>122</a>/// This trait exists so that users can avoid using a generated identifier to refer to
-<a href=#123 id=123 data-nosnippet>123</a>/// the generated reference type of the ink! smart contract.
-<a href=#124 id=124 data-nosnippet>124</a>///
-<a href=#125 id=125 data-nosnippet>125</a>/// # Usage
-<a href=#126 id=126 data-nosnippet>126</a>///
-<a href=#127 id=127 data-nosnippet>127</a>/// ```
-<a href=#128 id=128 data-nosnippet>128</a>/// #[ink::contract]
-<a href=#129 id=129 data-nosnippet>129</a>/// pub mod contract {
-<a href=#130 id=130 data-nosnippet>130</a>///     #[ink(storage)]
-<a href=#131 id=131 data-nosnippet>131</a>///     pub struct Contract {}
-<a href=#132 id=132 data-nosnippet>132</a>///
-<a href=#133 id=133 data-nosnippet>133</a>///     impl Contract {
-<a href=#134 id=134 data-nosnippet>134</a>///         #[ink(constructor)]
-<a href=#135 id=135 data-nosnippet>135</a>///         pub fn constructor() -&gt; Self {
-<a href=#136 id=136 data-nosnippet>136</a>///             Self {}
-<a href=#137 id=137 data-nosnippet>137</a>///         }
-<a href=#138 id=138 data-nosnippet>138</a>///
-<a href=#139 id=139 data-nosnippet>139</a>///         #[ink(message)]
-<a href=#140 id=140 data-nosnippet>140</a>///         pub fn message(&amp;self) {}
-<a href=#141 id=141 data-nosnippet>141</a>///     }
-<a href=#142 id=142 data-nosnippet>142</a>/// }
-<a href=#143 id=143 data-nosnippet>143</a>///
-<a href=#144 id=144 data-nosnippet>144</a>/// use contract::{
-<a href=#145 id=145 data-nosnippet>145</a>///     Contract,
-<a href=#146 id=146 data-nosnippet>146</a>///     ContractRef,
-<a href=#147 id=147 data-nosnippet>147</a>/// };
-<a href=#148 id=148 data-nosnippet>148</a>/// # use ink::codegen::utils::IsSameType;
-<a href=#149 id=149 data-nosnippet>149</a>/// # use ink::env::ContractReference;
-<a href=#150 id=150 data-nosnippet>150</a>///
-<a href=#151 id=151 data-nosnippet>151</a>/// // The following line only compiles successfully if both
-<a href=#152 id=152 data-nosnippet>152</a>/// // `ContractReference` and `&lt;Contract as ContractReference&gt;::Type`
-<a href=#153 id=153 data-nosnippet>153</a>/// // are of the same type.
-<a href=#154 id=154 data-nosnippet>154</a>/// const _: IsSameType&lt;&lt;Contract as ContractReference&gt;::Type&gt; =
-<a href=#155 id=155 data-nosnippet>155</a>///     &lt;IsSameType&lt;ContractRef&gt;&gt;::new();
-<a href=#156 id=156 data-nosnippet>156</a>/// ```
-<a href=#157 id=157 data-nosnippet>157</a></span><span class="kw">pub trait </span>ContractReference {
-<a href=#158 id=158 data-nosnippet>158</a>    <span class="doccomment">/// The generated contract reference type.
-<a href=#159 id=159 data-nosnippet>159</a>    </span><span class="kw">type </span>Type;
-<a href=#160 id=160 data-nosnippet>160</a>}
-<a href=#161 id=161 data-nosnippet>161</a>
-<a href=#162 id=162 data-nosnippet>162</a><span class="doccomment">/// Refers back to the original contract from the generated ink! smart contract
-<a href=#163 id=163 data-nosnippet>163</a>/// reference type.
-<a href=#164 id=164 data-nosnippet>164</a></span><span class="kw">pub trait </span>ContractReverseReference {
-<a href=#165 id=165 data-nosnippet>165</a>    <span class="doccomment">/// The original contract type.
-<a href=#166 id=166 data-nosnippet>166</a>    </span><span class="kw">type </span>Type;
-<a href=#167 id=167 data-nosnippet>167</a>}</code></pre></div></section></main></body></html>
+<a href=#78 id=78 data-nosnippet>78</a>///     type EventRecord = &lt;DefaultEnvironment as Environment&gt;::EventRecord;
+<a href=#79 id=79 data-nosnippet>79</a>/// }
+<a href=#80 id=80 data-nosnippet>80</a>///
+<a href=#81 id=81 data-nosnippet>81</a>/// #[ink::contract(env = super::CustomEnvironment)]
+<a href=#82 id=82 data-nosnippet>82</a>/// pub mod contract {
+<a href=#83 id=83 data-nosnippet>83</a>///     #[ink(storage)]
+<a href=#84 id=84 data-nosnippet>84</a>///     pub struct Contract {}
+<a href=#85 id=85 data-nosnippet>85</a>///
+<a href=#86 id=86 data-nosnippet>86</a>///     impl Contract {
+<a href=#87 id=87 data-nosnippet>87</a>///         #[ink(constructor)]
+<a href=#88 id=88 data-nosnippet>88</a>///         pub fn constructor() -&gt; Self {
+<a href=#89 id=89 data-nosnippet>89</a>///             Self {}
+<a href=#90 id=90 data-nosnippet>90</a>///         }
+<a href=#91 id=91 data-nosnippet>91</a>///
+<a href=#92 id=92 data-nosnippet>92</a>///         #[ink(message)]
+<a href=#93 id=93 data-nosnippet>93</a>///         pub fn message(&amp;self) {}
+<a href=#94 id=94 data-nosnippet>94</a>///     }
+<a href=#95 id=95 data-nosnippet>95</a>/// }
+<a href=#96 id=96 data-nosnippet>96</a>///
+<a href=#97 id=97 data-nosnippet>97</a>/// use contract::Contract;
+<a href=#98 id=98 data-nosnippet>98</a>/// # use ink::env::ContractEnv;
+<a href=#99 id=99 data-nosnippet>99</a>/// # use ink::codegen::utils::IsSameType;
+<a href=#100 id=100 data-nosnippet>100</a>///
+<a href=#101 id=101 data-nosnippet>101</a>/// // The following line only compiles successfully if both
+<a href=#102 id=102 data-nosnippet>102</a>/// // `CustomEnvironment` and `&lt;Contract as ContractEnv&gt;::Env`
+<a href=#103 id=103 data-nosnippet>103</a>/// // are of the same type.
+<a href=#104 id=104 data-nosnippet>104</a>/// const _: IsSameType&lt;&lt;Contract as ContractEnv&gt;::Env&gt; =
+<a href=#105 id=105 data-nosnippet>105</a>///     &lt;IsSameType&lt;CustomEnvironment&gt;&gt;::new();
+<a href=#106 id=106 data-nosnippet>106</a>///
+<a href=#107 id=107 data-nosnippet>107</a>/// fn main() {}
+<a href=#108 id=108 data-nosnippet>108</a>/// ```
+<a href=#109 id=109 data-nosnippet>109</a></span><span class="kw">pub trait </span>ContractEnv {
+<a href=#110 id=110 data-nosnippet>110</a>    <span class="doccomment">/// The environment type.
+<a href=#111 id=111 data-nosnippet>111</a>    </span><span class="kw">type </span>Env: Environment;
+<a href=#112 id=112 data-nosnippet>112</a>}
+<a href=#113 id=113 data-nosnippet>113</a>
+<a href=#114 id=114 data-nosnippet>114</a><span class="doccomment">/// Refers to the generated ink! smart contract reference type.
+<a href=#115 id=115 data-nosnippet>115</a>///
+<a href=#116 id=116 data-nosnippet>116</a>/// # Note
+<a href=#117 id=117 data-nosnippet>117</a>///
+<a href=#118 id=118 data-nosnippet>118</a>/// Given an ink! storage struct with identifier `Contract` the ink! codegen produces
+<a href=#119 id=119 data-nosnippet>119</a>/// the ink! root type `Contract` and the ink! reference type `ContractRef`.
+<a href=#120 id=120 data-nosnippet>120</a>///
+<a href=#121 id=121 data-nosnippet>121</a>/// This trait exists so that users can avoid using a generated identifier to refer to
+<a href=#122 id=122 data-nosnippet>122</a>/// the generated reference type of the ink! smart contract.
+<a href=#123 id=123 data-nosnippet>123</a>///
+<a href=#124 id=124 data-nosnippet>124</a>/// # Usage
+<a href=#125 id=125 data-nosnippet>125</a>///
+<a href=#126 id=126 data-nosnippet>126</a>/// ```
+<a href=#127 id=127 data-nosnippet>127</a>/// #[ink::contract]
+<a href=#128 id=128 data-nosnippet>128</a>/// pub mod contract {
+<a href=#129 id=129 data-nosnippet>129</a>///     #[ink(storage)]
+<a href=#130 id=130 data-nosnippet>130</a>///     pub struct Contract {}
+<a href=#131 id=131 data-nosnippet>131</a>///
+<a href=#132 id=132 data-nosnippet>132</a>///     impl Contract {
+<a href=#133 id=133 data-nosnippet>133</a>///         #[ink(constructor)]
+<a href=#134 id=134 data-nosnippet>134</a>///         pub fn constructor() -&gt; Self {
+<a href=#135 id=135 data-nosnippet>135</a>///             Self {}
+<a href=#136 id=136 data-nosnippet>136</a>///         }
+<a href=#137 id=137 data-nosnippet>137</a>///
+<a href=#138 id=138 data-nosnippet>138</a>///         #[ink(message)]
+<a href=#139 id=139 data-nosnippet>139</a>///         pub fn message(&amp;self) {}
+<a href=#140 id=140 data-nosnippet>140</a>///     }
+<a href=#141 id=141 data-nosnippet>141</a>/// }
+<a href=#142 id=142 data-nosnippet>142</a>///
+<a href=#143 id=143 data-nosnippet>143</a>/// use contract::{
+<a href=#144 id=144 data-nosnippet>144</a>///     Contract,
+<a href=#145 id=145 data-nosnippet>145</a>///     ContractRef,
+<a href=#146 id=146 data-nosnippet>146</a>/// };
+<a href=#147 id=147 data-nosnippet>147</a>/// # use ink::codegen::utils::IsSameType;
+<a href=#148 id=148 data-nosnippet>148</a>/// # use ink::env::ContractReference;
+<a href=#149 id=149 data-nosnippet>149</a>///
+<a href=#150 id=150 data-nosnippet>150</a>/// // The following line only compiles successfully if both
+<a href=#151 id=151 data-nosnippet>151</a>/// // `ContractReference` and `&lt;Contract as ContractReference&gt;::Type`
+<a href=#152 id=152 data-nosnippet>152</a>/// // are of the same type.
+<a href=#153 id=153 data-nosnippet>153</a>/// const _: IsSameType&lt;&lt;Contract as ContractReference&gt;::Type&gt; =
+<a href=#154 id=154 data-nosnippet>154</a>///     &lt;IsSameType&lt;ContractRef&gt;&gt;::new();
+<a href=#155 id=155 data-nosnippet>155</a>/// ```
+<a href=#156 id=156 data-nosnippet>156</a></span><span class="kw">pub trait </span>ContractReference {
+<a href=#157 id=157 data-nosnippet>157</a>    <span class="doccomment">/// The generated contract reference type.
+<a href=#158 id=158 data-nosnippet>158</a>    </span><span class="kw">type </span>Type;
+<a href=#159 id=159 data-nosnippet>159</a>}
+<a href=#160 id=160 data-nosnippet>160</a>
+<a href=#161 id=161 data-nosnippet>161</a><span class="doccomment">/// Refers back to the original contract from the generated ink! smart contract
+<a href=#162 id=162 data-nosnippet>162</a>/// reference type.
+<a href=#163 id=163 data-nosnippet>163</a></span><span class="kw">pub trait </span>ContractReverseReference {
+<a href=#164 id=164 data-nosnippet>164</a>    <span class="doccomment">/// The original contract type.
+<a href=#165 id=165 data-nosnippet>165</a>    </span><span class="kw">type </span>Type;
+<a href=#166 id=166 data-nosnippet>166</a>}</code></pre></div></section></main></body></html>

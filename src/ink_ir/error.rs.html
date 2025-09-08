@@ -53,41 +53,26 @@
 <a href=#53 id=53 data-nosnippet>53</a>}
 <a href=#54 id=54 data-nosnippet>54</a>
 <a href=#55 id=55 data-nosnippet>55</a><span class="doccomment">/// Creates a [`syn::Error`] with the format message and infers the
-<a href=#56 id=56 data-nosnippet>56</a>/// [`Span`](`proc_macro2::Span`) using the [`ToTokens`](`quote::ToTokens`) implementation
-<a href=#57 id=57 data-nosnippet>57</a>/// for the [`MetaValue`][crate::ast::MetaValue] (if possible).
-<a href=#58 id=58 data-nosnippet>58</a>///
-<a href=#59 id=59 data-nosnippet>59</a>/// See [`format_err_spanned`] for more details.
-<a href=#60 id=60 data-nosnippet>60</a></span><span class="macro">macro_rules!</span> format_err_spanned_value {
-<a href=#61 id=61 data-nosnippet>61</a>    (<span class="macro-nonterminal">$arg</span>:expr, $(<span class="macro-nonterminal">$msg</span>:tt)<span class="kw-2">*</span>) =&gt; {
-<a href=#62 id=62 data-nosnippet>62</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = <span class="macro-nonterminal">$arg</span>.value() {
-<a href=#63 id=63 data-nosnippet>63</a>            <span class="macro">format_err_spanned!</span>(value, $(<span class="macro-nonterminal">$msg</span>)<span class="kw-2">*</span>)
-<a href=#64 id=64 data-nosnippet>64</a>        } <span class="kw">else </span>{
-<a href=#65 id=65 data-nosnippet>65</a>            <span class="macro">format_err_spanned!</span>(<span class="macro-nonterminal">$arg</span>, $(<span class="macro-nonterminal">$msg</span>)<span class="kw-2">*</span>)
-<a href=#66 id=66 data-nosnippet>66</a>        }
-<a href=#67 id=67 data-nosnippet>67</a>    };
-<a href=#68 id=68 data-nosnippet>68</a>}
-<a href=#69 id=69 data-nosnippet>69</a>
-<a href=#70 id=70 data-nosnippet>70</a><span class="doccomment">/// Creates a [`syn::Error`] with the format message and infers the
-<a href=#71 id=71 data-nosnippet>71</a>/// [`Span`](`proc_macro2::Span`) using [`Spanned`](`syn::spanned::Spanned`).
-<a href=#72 id=72 data-nosnippet>72</a>///
-<a href=#73 id=73 data-nosnippet>73</a>/// # Parameters
-<a href=#74 id=74 data-nosnippet>74</a>///
-<a href=#75 id=75 data-nosnippet>75</a>/// - The first argument must be a type that implements [`syn::spanned::Spanned`].
-<a href=#76 id=76 data-nosnippet>76</a>/// - The second argument is a format string.
-<a href=#77 id=77 data-nosnippet>77</a>/// - The rest are format string arguments.
-<a href=#78 id=78 data-nosnippet>78</a>///
-<a href=#79 id=79 data-nosnippet>79</a>/// # Note
-<a href=#80 id=80 data-nosnippet>80</a>///
-<a href=#81 id=81 data-nosnippet>81</a>/// On stable Rust this might yield worse error span information to the user
-<a href=#82 id=82 data-nosnippet>82</a>/// than [`format_err_spanned`].
-<a href=#83 id=83 data-nosnippet>83</a>/// - Source: [`syn::Error::new_spanned`](https://docs.rs/syn/1.0.33/syn/struct.Error.html#method.new_spanned)
-<a href=#84 id=84 data-nosnippet>84</a>/// - Tracking issue: [`#54725`](https://github.com/rust-lang/rust/issues/54725)
-<a href=#85 id=85 data-nosnippet>85</a></span><span class="attr">#[macro_export]
-<a href=#86 id=86 data-nosnippet>86</a></span><span class="macro">macro_rules!</span> format_err {
-<a href=#87 id=87 data-nosnippet>87</a>    (<span class="macro-nonterminal">$spanned</span>:expr, $(<span class="macro-nonterminal">$msg</span>:tt)<span class="kw-2">*</span>) =&gt; {
-<a href=#88 id=88 data-nosnippet>88</a>        ::syn::Error::new(
-<a href=#89 id=89 data-nosnippet>89</a>            &lt;<span class="kw">_ as </span>::syn::spanned::Spanned&gt;::span(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$spanned</span>),
-<a href=#90 id=90 data-nosnippet>90</a>            <span class="macro">format_args!</span>($(<span class="macro-nonterminal">$msg</span>)<span class="kw-2">*</span>)
-<a href=#91 id=91 data-nosnippet>91</a>        )
-<a href=#92 id=92 data-nosnippet>92</a>    }
-<a href=#93 id=93 data-nosnippet>93</a>}</code></pre></div></section></main></body></html>
+<a href=#56 id=56 data-nosnippet>56</a>/// [`Span`](`proc_macro2::Span`) using [`Spanned`](`syn::spanned::Spanned`).
+<a href=#57 id=57 data-nosnippet>57</a>///
+<a href=#58 id=58 data-nosnippet>58</a>/// # Parameters
+<a href=#59 id=59 data-nosnippet>59</a>///
+<a href=#60 id=60 data-nosnippet>60</a>/// - The first argument must be a type that implements [`syn::spanned::Spanned`].
+<a href=#61 id=61 data-nosnippet>61</a>/// - The second argument is a format string.
+<a href=#62 id=62 data-nosnippet>62</a>/// - The rest are format string arguments.
+<a href=#63 id=63 data-nosnippet>63</a>///
+<a href=#64 id=64 data-nosnippet>64</a>/// # Note
+<a href=#65 id=65 data-nosnippet>65</a>///
+<a href=#66 id=66 data-nosnippet>66</a>/// On stable Rust this might yield worse error span information to the user
+<a href=#67 id=67 data-nosnippet>67</a>/// than [`format_err_spanned`].
+<a href=#68 id=68 data-nosnippet>68</a>/// - Source: [`syn::Error::new_spanned`](https://docs.rs/syn/1.0.33/syn/struct.Error.html#method.new_spanned)
+<a href=#69 id=69 data-nosnippet>69</a>/// - Tracking issue: [`#54725`](https://github.com/rust-lang/rust/issues/54725)
+<a href=#70 id=70 data-nosnippet>70</a></span><span class="attr">#[macro_export]
+<a href=#71 id=71 data-nosnippet>71</a></span><span class="macro">macro_rules!</span> format_err {
+<a href=#72 id=72 data-nosnippet>72</a>    (<span class="macro-nonterminal">$spanned</span>:expr, $(<span class="macro-nonterminal">$msg</span>:tt)<span class="kw-2">*</span>) =&gt; {
+<a href=#73 id=73 data-nosnippet>73</a>        ::syn::Error::new(
+<a href=#74 id=74 data-nosnippet>74</a>            &lt;<span class="kw">_ as </span>::syn::spanned::Spanned&gt;::span(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$spanned</span>),
+<a href=#75 id=75 data-nosnippet>75</a>            <span class="macro">format_args!</span>($(<span class="macro-nonterminal">$msg</span>)<span class="kw-2">*</span>)
+<a href=#76 id=76 data-nosnippet>76</a>        )
+<a href=#77 id=77 data-nosnippet>77</a>    }
+<a href=#78 id=78 data-nosnippet>78</a>}</code></pre></div></section></main></body></html>

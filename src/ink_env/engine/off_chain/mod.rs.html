@@ -66,18 +66,16 @@
 <a href=#66 id=66 data-nosnippet>66</a>    </span>UninitializedBlocks,
 <a href=#67 id=67 data-nosnippet>67</a>    <span class="attr">#[from(ignore)]
 <a href=#68 id=68 data-nosnippet>68</a>    </span>UninitializedExecutionContext,
-<a href=#69 id=69 data-nosnippet>69</a>    <span class="attr">#[from(ignore)]
-<a href=#70 id=70 data-nosnippet>70</a>    </span>UnregisteredChainExtension,
-<a href=#71 id=71 data-nosnippet>71</a>}
-<a href=#72 id=72 data-nosnippet>72</a>
-<a href=#73 id=73 data-nosnippet>73</a><span class="comment">// todo rename
-<a href=#74 id=74 data-nosnippet>74</a></span><span class="doccomment">/// Errors encountered upon interacting with the accounts database.
-<a href=#75 id=75 data-nosnippet>75</a></span><span class="attr">#[derive(Debug, From, PartialEq, Eq)]
-<a href=#76 id=76 data-nosnippet>76</a></span><span class="kw">pub enum </span>AccountError {
-<a href=#77 id=77 data-nosnippet>77</a>    Decoding(scale::Error),
+<a href=#69 id=69 data-nosnippet>69</a>}
+<a href=#70 id=70 data-nosnippet>70</a>
+<a href=#71 id=71 data-nosnippet>71</a><span class="comment">// todo rename
+<a href=#72 id=72 data-nosnippet>72</a></span><span class="doccomment">/// Errors encountered upon interacting with the accounts database.
+<a href=#73 id=73 data-nosnippet>73</a></span><span class="attr">#[derive(Debug, From, PartialEq, Eq)]
+<a href=#74 id=74 data-nosnippet>74</a></span><span class="kw">pub enum </span>AccountError {
+<a href=#75 id=75 data-nosnippet>75</a>    Decoding(scale::Error),
+<a href=#76 id=76 data-nosnippet>76</a>    <span class="attr">#[from(ignore)]
+<a href=#77 id=77 data-nosnippet>77</a>    </span>UnexpectedUserAccount,
 <a href=#78 id=78 data-nosnippet>78</a>    <span class="attr">#[from(ignore)]
-<a href=#79 id=79 data-nosnippet>79</a>    </span>UnexpectedUserAccount,
-<a href=#80 id=80 data-nosnippet>80</a>    <span class="attr">#[from(ignore)]
-<a href=#81 id=81 data-nosnippet>81</a>    </span>NoAccountForId(AccountId),
-<a href=#82 id=82 data-nosnippet>82</a>    NoContractForId(Address),
-<a href=#83 id=83 data-nosnippet>83</a>}</code></pre></div></section></main></body></html>
+<a href=#79 id=79 data-nosnippet>79</a>    </span>NoAccountForId(AccountId),
+<a href=#80 id=80 data-nosnippet>80</a>    NoContractForId(Address),
+<a href=#81 id=81 data-nosnippet>81</a>}</code></pre></div></section></main></body></html>
