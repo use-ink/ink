@@ -249,9 +249,8 @@ pub struct TopicsBuilder {
     pub topics: Vec<[u8; 32]>,
 }
 
-impl<E, Abi> TopicsBuilderBackend<E, Abi> for TopicsBuilder
+impl<Abi> TopicsBuilderBackend<Abi> for TopicsBuilder
 where
-    E: Environment,
     Abi: TopicEncoder,
 {
     type Output = Vec<[u8; 32]>;
@@ -597,14 +596,13 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
-    fn emit_event<E, Evt, Abi>(&mut self, event: &Evt)
+    fn emit_event<Evt, Abi>(&mut self, event: &Evt)
     where
-        E: Environment,
         Evt: Event<Abi>,
         Abi: TopicEncoder,
     {
         let builder = TopicsBuilder::default();
-        let enc_topics = event.topics::<E, _>(builder.into());
+        let enc_topics = event.topics(builder.into());
         let enc_data = event.encode_data();
         self.engine
             .deposit_event(&enc_topics[..], enc_data.as_slice());

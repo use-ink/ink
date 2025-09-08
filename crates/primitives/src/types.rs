@@ -322,13 +322,6 @@ cfg_if::cfg_if! {
 
 /// The environmental types usable by contracts defined with ink!.
 pub trait Environment: Clone {
-    /// The maximum number of supported event topics provided by the runtime.
-    ///
-    /// The value must match the maximum number of supported event topics of the used
-    /// runtime.
-    // TODO: (@davidsemakula) Remove, no longer configurable in `pallet-revive`.
-    const MAX_EVENT_TOPICS: usize;
-
     /// The ratio between the decimal representation of the native `Balance` token
     /// and the ETH token.
     const NATIVE_TO_ETH_RATIO: u32;
@@ -418,8 +411,6 @@ pub trait Environment: Clone {
 pub enum DefaultEnvironment {}
 
 impl Environment for DefaultEnvironment {
-    const MAX_EVENT_TOPICS: usize = 4;
-
     // This number was chosen as it's also what `pallet-revive`
     // chooses by default. It's also the number present in the
     // `ink_sandbox` and the `ink-node`.

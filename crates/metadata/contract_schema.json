@@ -240,7 +240,6 @@
         "blockNumber",
         "chainExtension",
         "hash",
-        "maxEventTopics",
         "nativeToEthRatio",
         "timestamp"
       ],
@@ -259,11 +258,6 @@
         },
         "hash": {
           "$ref": "#/definitions/TypeSpec_for_PortableForm"
-        },
-        "maxEventTopics": {
-          "type": "integer",
-          "format": "uint",
-          "minimum": 0.0
         },
         "nativeToEthRatio": {
            "type": "integer",

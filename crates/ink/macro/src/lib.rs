@@ -167,7 +167,6 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///   pub struct MyEnvironment;
 ///
 ///   impl ink_env::Environment for MyEnvironment {
-///       const MAX_EVENT_TOPICS: usize = 3;
 ///       const NATIVE_TO_ETH_RATIO: u32 = 100_000_000;
 ///       type AccountId = [u8; 16];
 ///       type Balance = u128;
@@ -186,7 +185,6 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///       # pub struct MyEnvironment;
 ///       #
 ///       # impl ink_env::Environment for MyEnvironment {
-///       #     const MAX_EVENT_TOPICS: usize = 3;
 ///       #     const NATIVE_TO_ETH_RATIO: u32 = 100_000_000;
 ///       #     type AccountId = [u8; 16];
 ///       #     type Balance = u128;
@@ -936,8 +934,8 @@ synstructure::decl_derive!(
     ///     b: [u8; 32],
     /// }
     ///
-    /// ink_env::emit_event::<DefaultEnvironment, _, ink::abi::Ink>(&MyEvent { a: 42, b: [0x42; 32] });
-    /// ink_env::emit_event::<DefaultEnvironment, _, ink::abi::Ink>(&MyAnonEvent { a: 42, b: [0x42; 32] });
+    /// ink_env::emit_event::<_, ink::abi::Ink>(&MyEvent { a: 42, b: [0x42; 32] });
+    /// ink_env::emit_event::<_, ink::abi::Ink>(&MyAnonEvent { a: 42, b: [0x42; 32] });
     /// ```
     ///
     /// # The Signature Topic

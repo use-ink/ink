@@ -390,7 +390,7 @@ where
     where
         Evt: ink_env::Event<crate::env::DefaultAbi>,
     {
-        ink_env::emit_event::<E, Evt, crate::env::DefaultAbi>(&event)
+        ink_env::emit_event::<Evt, crate::env::DefaultAbi>(&event)
     }
 
     /// Emits an event.
@@ -405,10 +405,10 @@ where
         Evt: ink_env::Event<crate::abi::Ink> + ink_env::Event<crate::abi::Sol>,
     {
         // Emits ink! ABI encoded event.
-        ink_env::emit_event::<E, Evt, crate::abi::Ink>(&event);
+        ink_env::emit_event::<Evt, crate::abi::Ink>(&event);
 
         // Emits Solidity ABI encoded event.
-        ink_env::emit_event::<E, Evt, crate::abi::Sol>(&event);
+        ink_env::emit_event::<Evt, crate::abi::Sol>(&event);
     }
 
     /// Emits an event using the ink! ABI encoding (i.e. with SCALE codec for event data
@@ -417,7 +417,7 @@ where
     where
         Evt: ink_env::Event<Ink>,
     {
-        ink_env::emit_event::<E, Evt, Ink>(&event)
+        ink_env::emit_event::<Evt, Ink>(&event)
     }
 
     /// Emits an event using the Solidity ABI encoding.
@@ -425,7 +425,7 @@ where
     where
         Evt: ink_env::Event<Sol>,
     {
-        ink_env::emit_event::<E, Evt, Sol>(&event)
+        ink_env::emit_event::<Evt, Sol>(&event)
     }
 
     /// Instantiates another contract using the supplied code hash.

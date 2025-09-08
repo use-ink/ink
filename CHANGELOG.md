@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - Removed functionalities around calling into the runtime and chain extensions ‒ [2621](https://github.com/use-ink/ink/pull/2621)
+- Remove `Environment::MAX_EVENT_TOPICS` and remove `Environment` generic type from event abstractions - [#2622](https://github.com/use-ink/ink/pull/2622)
 
 ### Fixed
 - E2E: Fixes around correct handling of storage deposit limit ‒ [#2589](https://github.com/use-ink/ink/pull/2589)

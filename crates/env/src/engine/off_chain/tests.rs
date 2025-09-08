@@ -33,13 +33,13 @@ fn topics_builder() -> Result<()> {
         let mut builder = TopicsBuilder::default();
 
         // when
-        TopicsBuilderBackend::<crate::DefaultEnvironment>::push_topic(&mut builder, &13);
-        TopicsBuilderBackend::<crate::DefaultEnvironment>::push_topic(&mut builder, &17);
+        TopicsBuilderBackend::<ink::abi::Ink>::push_topic(&mut builder, &13);
+        TopicsBuilderBackend::<ink::abi::Ink>::push_topic(&mut builder, &17);
 
         // then
         assert_eq!(builder.topics.len(), 2);
 
-        let output = TopicsBuilderBackend::<crate::DefaultEnvironment>::output(builder);
+        let output = TopicsBuilderBackend::<ink::abi::Ink>::output(builder);
         #[rustfmt::skip]
         let expected = vec![
             [13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
