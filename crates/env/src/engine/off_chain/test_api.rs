@@ -291,12 +291,12 @@ pub struct DefaultAccounts {
 }
 
 /// Returns the recorded emitted events in order.
-pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
+pub fn recorded_events() -> Vec<EmittedEvent> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
             .engine
             .get_emitted_events()
-            .map(|evt: ink_engine::test_api::EmittedEvent| evt.into())
+            .map(|evt: ink_engine::test_api::EmittedEvent| evt.into()).collect()
     })
 }
 
