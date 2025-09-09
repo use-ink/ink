@@ -368,10 +368,8 @@ impl<T: SolDecode> SolDecode for Box<[T]> {
     type SolType = Box<[T::SolType]>;
 
     fn from_sol_type(value: Self::SolType) -> Result<Self, Error> {
-        // TODO: (@davidsemakula) Switch to method call syntax when edition is 2024
-        // (i.e. `value.into_iter()`).
-        // See <https://doc.rust-lang.org/edition-guide/rust-2024/intoiterator-box-slice.html> for details.
-        core::iter::IntoIterator::into_iter(value)
+        value
+            .into_iter()
             .map(<T as SolDecode>::from_sol_type)
             .process_results(|iter| iter.collect())
     }
