@@ -40,7 +40,6 @@ polkavm-derive = { workspace = true, default-features = false }
 
 [target.'cfg(not(target_arch = "riscv64"))'.dependencies]
 ink_engine = { workspace = true, default-features = true, optional = true }
-pallet-revive = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
 
 # Hashes for the off-chain environment.
 sha2 = { workspace = true, optional = true }
