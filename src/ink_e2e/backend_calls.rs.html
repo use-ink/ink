@@ -15,31 +15,31 @@
 <a href=#15 id=15 data-nosnippet>15</a></span><span class="kw">use </span>std::marker::PhantomData;
 <a href=#16 id=16 data-nosnippet>16</a>
 <a href=#17 id=17 data-nosnippet>17</a><span class="kw">use </span>ink_env::{
-<a href=#18 id=18 data-nosnippet>18</a>    call::utils::DecodeMessageResult,
-<a href=#19 id=19 data-nosnippet>19</a>    Environment,
+<a href=#18 id=18 data-nosnippet>18</a>    Environment,
+<a href=#19 id=19 data-nosnippet>19</a>    call::utils::DecodeMessageResult,
 <a href=#20 id=20 data-nosnippet>20</a>};
 <a href=#21 id=21 data-nosnippet>21</a><span class="kw">use </span>ink_primitives::{
-<a href=#22 id=22 data-nosnippet>22</a>    abi::AbiEncodeWith,
-<a href=#23 id=23 data-nosnippet>23</a>    DepositLimit,
+<a href=#22 id=22 data-nosnippet>22</a>    DepositLimit,
+<a href=#23 id=23 data-nosnippet>23</a>    abi::AbiEncodeWith,
 <a href=#24 id=24 data-nosnippet>24</a>};
 <a href=#25 id=25 data-nosnippet>25</a><span class="kw">use </span>sp_weights::Weight;
 <a href=#26 id=26 data-nosnippet>26</a>
 <a href=#27 id=27 data-nosnippet>27</a><span class="kw">use super</span>::{
-<a href=#28 id=28 data-nosnippet>28</a>    balance_to_deposit_limit,
-<a href=#29 id=29 data-nosnippet>29</a>    balance_to_deposit_limit_dry_run,
-<a href=#30 id=30 data-nosnippet>30</a>    InstantiateDryRunResult,
-<a href=#31 id=31 data-nosnippet>31</a>    Keypair,
+<a href=#28 id=28 data-nosnippet>28</a>    InstantiateDryRunResult,
+<a href=#29 id=29 data-nosnippet>29</a>    Keypair,
+<a href=#30 id=30 data-nosnippet>30</a>    balance_to_deposit_limit,
+<a href=#31 id=31 data-nosnippet>31</a>    balance_to_deposit_limit_dry_run,
 <a href=#32 id=32 data-nosnippet>32</a>};
 <a href=#33 id=33 data-nosnippet>33</a><span class="kw">use crate</span>::{
-<a href=#34 id=34 data-nosnippet>34</a>    backend::BuilderClient,
-<a href=#35 id=35 data-nosnippet>35</a>    builders::CreateBuilderPartial,
-<a href=#36 id=36 data-nosnippet>36</a>    CallBuilderFinal,
-<a href=#37 id=37 data-nosnippet>37</a>    CallDryRunResult,
-<a href=#38 id=38 data-nosnippet>38</a>    CallResult,
-<a href=#39 id=39 data-nosnippet>39</a>    ContractsBackend,
-<a href=#40 id=40 data-nosnippet>40</a>    InstantiationResult,
-<a href=#41 id=41 data-nosnippet>41</a>    UploadResult,
-<a href=#42 id=42 data-nosnippet>42</a>    H256,
+<a href=#34 id=34 data-nosnippet>34</a>    CallBuilderFinal,
+<a href=#35 id=35 data-nosnippet>35</a>    CallDryRunResult,
+<a href=#36 id=36 data-nosnippet>36</a>    CallResult,
+<a href=#37 id=37 data-nosnippet>37</a>    ContractsBackend,
+<a href=#38 id=38 data-nosnippet>38</a>    H256,
+<a href=#39 id=39 data-nosnippet>39</a>    InstantiationResult,
+<a href=#40 id=40 data-nosnippet>40</a>    UploadResult,
+<a href=#41 id=41 data-nosnippet>41</a>    backend::BuilderClient,
+<a href=#42 id=42 data-nosnippet>42</a>    builders::CreateBuilderPartial,
 <a href=#43 id=43 data-nosnippet>43</a>};
 <a href=#44 id=44 data-nosnippet>44</a>
 <a href=#45 id=45 data-nosnippet>45</a><span class="doccomment">/// Allows to build an end-to-end call using a builder pattern.

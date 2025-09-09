@@ -18,8 +18,8 @@
 <a href=#18 id=18 data-nosnippet>18</a><span class="doccomment">/// Computes the BLAKE-2b 256-bit hash for the given input and stores it in output.
 <a href=#19 id=19 data-nosnippet>19</a></span><span class="kw">pub fn </span>blake2b_256(input: <span class="kw-2">&amp;</span>[u8], output: <span class="kw-2">&amp;mut </span>[u8; <span class="number">32</span>]) {
 <a href=#20 id=20 data-nosnippet>20</a>    <span class="kw">use </span>::blake2::digest::{
-<a href=#21 id=21 data-nosnippet>21</a>        consts::U32,
-<a href=#22 id=22 data-nosnippet>22</a>        Digest <span class="kw">as _</span>,
+<a href=#21 id=21 data-nosnippet>21</a>        Digest <span class="kw">as _</span>,
+<a href=#22 id=22 data-nosnippet>22</a>        consts::U32,
 <a href=#23 id=23 data-nosnippet>23</a>    };
 <a href=#24 id=24 data-nosnippet>24</a>
 <a href=#25 id=25 data-nosnippet>25</a>    <span class="kw">type </span>Blake2b256 = ::blake2::Blake2b&lt;U32&gt;;

@@ -36,7 +36,6 @@ issue the ink! smart contract as follows:</p>
 </span><span class="kw">pub struct </span>CustomEnvironment {}
 
 <span class="kw">impl </span>Environment <span class="kw">for </span>CustomEnvironment {
-    <span class="kw">const </span>MAX_EVENT_TOPICS: usize = <span class="number">4</span>;
     <span class="kw">const </span>NATIVE_TO_ETH_RATIO: u32 =
         &lt;DefaultEnvironment <span class="kw">as </span>Environment&gt;::NATIVE_TO_ETH_RATIO;
 

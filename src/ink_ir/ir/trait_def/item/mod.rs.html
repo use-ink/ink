@@ -25,12 +25,12 @@
 <a href=#25 id=25 data-nosnippet>25</a>};
 <a href=#26 id=26 data-nosnippet>26</a><span class="kw">use </span><span class="kw">super</span>::TraitDefinitionConfig;
 <a href=#27 id=27 data-nosnippet>27</a><span class="kw">use crate</span>::{
-<a href=#28 id=28 data-nosnippet>28</a>    ir,
-<a href=#29 id=29 data-nosnippet>29</a>    ir::{
-<a href=#30 id=30 data-nosnippet>30</a>        attrs::SelectorOrWildcard,
-<a href=#31 id=31 data-nosnippet>31</a>        idents_lint,
-<a href=#32 id=32 data-nosnippet>32</a>    },
-<a href=#33 id=33 data-nosnippet>33</a>    Selector,
+<a href=#28 id=28 data-nosnippet>28</a>    Selector,
+<a href=#29 id=29 data-nosnippet>29</a>    ir,
+<a href=#30 id=30 data-nosnippet>30</a>    ir::{
+<a href=#31 id=31 data-nosnippet>31</a>        attrs::SelectorOrWildcard,
+<a href=#32 id=32 data-nosnippet>32</a>        idents_lint,
+<a href=#33 id=33 data-nosnippet>33</a>    },
 <a href=#34 id=34 data-nosnippet>34</a>};
 <a href=#35 id=35 data-nosnippet>35</a><span class="kw">use </span>ir::TraitPrefix;
 <a href=#36 id=36 data-nosnippet>36</a><span class="kw">use </span>proc_macro2::{
@@ -39,8 +39,8 @@
 <a href=#39 id=39 data-nosnippet>39</a>};
 <a href=#40 id=40 data-nosnippet>40</a><span class="kw">use </span>std::collections::HashMap;
 <a href=#41 id=41 data-nosnippet>41</a><span class="kw">use </span>syn::{
-<a href=#42 id=42 data-nosnippet>42</a>    spanned::Spanned <span class="kw">as _</span>,
-<a href=#43 id=43 data-nosnippet>43</a>    <span class="prelude-ty">Result</span>,
+<a href=#42 id=42 data-nosnippet>42</a>    <span class="prelude-ty">Result</span>,
+<a href=#43 id=43 data-nosnippet>43</a>    spanned::Spanned <span class="kw">as _</span>,
 <a href=#44 id=44 data-nosnippet>44</a>};
 <a href=#45 id=45 data-nosnippet>45</a>
 <a href=#46 id=46 data-nosnippet>46</a><span class="doccomment">/// A checked ink! trait definition without its configuration.
@@ -183,9 +183,9 @@
 <a href=#183 id=183 data-nosnippet>183</a>                }
 <a href=#184 id=184 data-nosnippet>184</a>                syn::TraitItem::Type(type_trait_item) =&gt; {
 <a href=#185 id=185 data-nosnippet>185</a>                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-<a href=#186 id=186 data-nosnippet>186</a>                    type_trait_item,
-<a href=#187 id=187 data-nosnippet>187</a>                    <span class="string">"associated types in ink! trait definitions are not supported, yet"
-<a href=#188 id=188 data-nosnippet>188</a>                </span>))
+<a href=#186 id=186 data-nosnippet>186</a>                        type_trait_item,
+<a href=#187 id=187 data-nosnippet>187</a>                        <span class="string">"associated types in ink! trait definitions are not supported, yet"
+<a href=#188 id=188 data-nosnippet>188</a>                    </span>))
 <a href=#189 id=189 data-nosnippet>189</a>                }
 <a href=#190 id=190 data-nosnippet>190</a>                syn::TraitItem::Verbatim(verbatim) =&gt; {
 <a href=#191 id=191 data-nosnippet>191</a>                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(

@@ -15,12 +15,12 @@
 <a href=#15 id=15 data-nosnippet>15</a></span><span class="kw">use </span>core::marker::PhantomData;
 <a href=#16 id=16 data-nosnippet>16</a><span class="kw">use </span>ink_prelude::vec::Vec;
 <a href=#17 id=17 data-nosnippet>17</a><span class="kw">use </span>ink_primitives::{
-<a href=#18 id=18 data-nosnippet>18</a>    abi::{
-<a href=#19 id=19 data-nosnippet>19</a>        AbiEncodeWith,
-<a href=#20 id=20 data-nosnippet>20</a>        Ink,
-<a href=#21 id=21 data-nosnippet>21</a>        Sol,
-<a href=#22 id=22 data-nosnippet>22</a>    },
-<a href=#23 id=23 data-nosnippet>23</a>    SolEncode,
+<a href=#18 id=18 data-nosnippet>18</a>    SolEncode,
+<a href=#19 id=19 data-nosnippet>19</a>    abi::{
+<a href=#20 id=20 data-nosnippet>20</a>        AbiEncodeWith,
+<a href=#21 id=21 data-nosnippet>21</a>        Ink,
+<a href=#22 id=22 data-nosnippet>22</a>        Sol,
+<a href=#23 id=23 data-nosnippet>23</a>    },
 <a href=#24 id=24 data-nosnippet>24</a>};
 <a href=#25 id=25 data-nosnippet>25</a>
 <a href=#26 id=26 data-nosnippet>26</a><span class="kw">use super</span>::{
@@ -414,7 +414,7 @@
 <a href=#414 id=414 data-nosnippet>414</a>    ///
 <a href=#415 id=415 data-nosnippet>415</a>    /// Ref: &lt;https://docs.soliditylang.org/en/latest/abi-spec.html#function-selector-and-argument-encoding&gt;
 <a href=#416 id=416 data-nosnippet>416</a>    </span><span class="kw">fn </span>encode_args(<span class="kw-2">&amp;</span><span class="self">self</span>, head: <span class="kw-2">&amp;mut </span>Vec&lt;SolEncodeHeadInfo&gt;, tail: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;)
-<a href=#417 id=417 data-nosnippet>417</a>        -&gt; usize;
+<a href=#417 id=417 data-nosnippet>417</a>    -&gt; usize;
 <a href=#418 id=418 data-nosnippet>418</a>}
 <a href=#419 id=419 data-nosnippet>419</a>
 <a href=#420 id=420 data-nosnippet>420</a><span class="doccomment">/// Head info for Solidity ABI encoding `ArgumentList`.

@@ -10,11 +10,11 @@
 <a href=#10 id=10 data-nosnippet>10</a>    traits::fungible::Inspect,
 <a href=#11 id=11 data-nosnippet>11</a>};
 <a href=#12 id=12 data-nosnippet>12</a><span class="kw">use </span>frame_system::{
-<a href=#13 id=13 data-nosnippet>13</a>    pallet_prelude::{
-<a href=#14 id=14 data-nosnippet>14</a>        BlockNumberFor,
-<a href=#15 id=15 data-nosnippet>15</a>        OriginFor,
-<a href=#16 id=16 data-nosnippet>16</a>    },
-<a href=#17 id=17 data-nosnippet>17</a>    EventRecord,
+<a href=#13 id=13 data-nosnippet>13</a>    EventRecord,
+<a href=#14 id=14 data-nosnippet>14</a>    pallet_prelude::{
+<a href=#15 id=15 data-nosnippet>15</a>        BlockNumberFor,
+<a href=#16 id=16 data-nosnippet>16</a>        OriginFor,
+<a href=#17 id=17 data-nosnippet>17</a>    },
 <a href=#18 id=18 data-nosnippet>18</a>};
 <a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>ink_primitives::U256;
 <a href=#20 id=20 data-nosnippet>20</a><span class="kw">pub use </span>macros::{
@@ -168,5 +168,5 @@
 <a href=#168 id=168 data-nosnippet>168</a>    <span class="kw">let </span>native_to_eth_ratio: U256 =
 <a href=#169 id=169 data-nosnippet>169</a>        &lt;R <span class="kw">as </span>pallet_revive::Config&gt;::NativeToEthRatio::get().into();
 <a href=#170 id=170 data-nosnippet>170</a>    <span class="kw">let </span>evm_value: U256 = value.into();
-<a href=#171 id=171 data-nosnippet>171</a>    native_to_eth_ratio.saturating_mul(evm_value.into())
+<a href=#171 id=171 data-nosnippet>171</a>    native_to_eth_ratio.saturating_mul(evm_value)
 <a href=#172 id=172 data-nosnippet>172</a>}</code></pre></div></section></main></body></html>

@@ -26,9 +26,9 @@
 <a href=#26 id=26 data-nosnippet>26</a>    process,
 <a href=#27 id=27 data-nosnippet>27</a>};
 <a href=#28 id=28 data-nosnippet>28</a><span class="kw">use </span>subxt::{
-<a href=#29 id=29 data-nosnippet>29</a>    backend::rpc::RpcClient,
-<a href=#30 id=30 data-nosnippet>30</a>    Config,
-<a href=#31 id=31 data-nosnippet>31</a>    OnlineClient,
+<a href=#29 id=29 data-nosnippet>29</a>    Config,
+<a href=#30 id=30 data-nosnippet>30</a>    OnlineClient,
+<a href=#31 id=31 data-nosnippet>31</a>    backend::rpc::RpcClient,
 <a href=#32 id=32 data-nosnippet>32</a>};
 <a href=#33 id=33 data-nosnippet>33</a>
 <a href=#34 id=34 data-nosnippet>34</a><span class="doccomment">/// Spawn a local substrate node for testing.
@@ -246,8 +246,8 @@
 <a href=#246 id=246 data-nosnippet>246</a></span><span class="kw">mod </span>tests {
 <a href=#247 id=247 data-nosnippet>247</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 <a href=#248 id=248 data-nosnippet>248</a>    <span class="kw">use </span>subxt::{
-<a href=#249 id=249 data-nosnippet>249</a>        backend::legacy::LegacyRpcMethods,
-<a href=#250 id=250 data-nosnippet>250</a>        PolkadotConfig <span class="kw">as </span>SubxtConfig,
+<a href=#249 id=249 data-nosnippet>249</a>        PolkadotConfig <span class="kw">as </span>SubxtConfig,
+<a href=#250 id=250 data-nosnippet>250</a>        backend::legacy::LegacyRpcMethods,
 <a href=#251 id=251 data-nosnippet>251</a>    };
 <a href=#252 id=252 data-nosnippet>252</a>
 <a href=#253 id=253 data-nosnippet>253</a>    <span class="attr">#[tokio::test]

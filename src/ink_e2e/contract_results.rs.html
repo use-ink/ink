@@ -24,24 +24,24 @@
 <a href=#24 id=24 data-nosnippet>24</a>};
 <a href=#25 id=25 data-nosnippet>25</a><span class="kw">use </span>ink::codegen::ContractCallBuilder;
 <a href=#26 id=26 data-nosnippet>26</a><span class="kw">use </span>ink_env::{
-<a href=#27 id=27 data-nosnippet>27</a>    call::{
-<a href=#28 id=28 data-nosnippet>28</a>        utils::DecodeMessageResult,
+<a href=#27 id=27 data-nosnippet>27</a>    Environment,
+<a href=#28 id=28 data-nosnippet>28</a>    call::{
 <a href=#29 id=29 data-nosnippet>29</a>        FromAddr,
-<a href=#30 id=30 data-nosnippet>30</a>    },
-<a href=#31 id=31 data-nosnippet>31</a>    Environment,
+<a href=#30 id=30 data-nosnippet>30</a>        utils::DecodeMessageResult,
+<a href=#31 id=31 data-nosnippet>31</a>    },
 <a href=#32 id=32 data-nosnippet>32</a>};
 <a href=#33 id=33 data-nosnippet>33</a><span class="kw">use </span>ink_primitives::{
 <a href=#34 id=34 data-nosnippet>34</a>    Address,
 <a href=#35 id=35 data-nosnippet>35</a>    ConstructorResult,
-<a href=#36 id=36 data-nosnippet>36</a>    MessageResult,
-<a href=#37 id=37 data-nosnippet>37</a>    H256,
+<a href=#36 id=36 data-nosnippet>36</a>    H256,
+<a href=#37 id=37 data-nosnippet>37</a>    MessageResult,
 <a href=#38 id=38 data-nosnippet>38</a>};
 <a href=#39 id=39 data-nosnippet>39</a><span class="kw">use </span>pallet_revive::{
-<a href=#40 id=40 data-nosnippet>40</a>    evm::CallTrace,
-<a href=#41 id=41 data-nosnippet>41</a>    CodeUploadResult,
-<a href=#42 id=42 data-nosnippet>42</a>    ExecReturnValue,
-<a href=#43 id=43 data-nosnippet>43</a>    InstantiateReturnValue,
-<a href=#44 id=44 data-nosnippet>44</a>    StorageDeposit,
+<a href=#40 id=40 data-nosnippet>40</a>    CodeUploadResult,
+<a href=#41 id=41 data-nosnippet>41</a>    ExecReturnValue,
+<a href=#42 id=42 data-nosnippet>42</a>    InstantiateReturnValue,
+<a href=#43 id=43 data-nosnippet>43</a>    StorageDeposit,
+<a href=#44 id=44 data-nosnippet>44</a>    evm::CallTrace,
 <a href=#45 id=45 data-nosnippet>45</a>};
 <a href=#46 id=46 data-nosnippet>46</a><span class="kw">use </span>sp_runtime::{
 <a href=#47 id=47 data-nosnippet>47</a>    DispatchError,

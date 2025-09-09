@@ -2,11 +2,11 @@
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span>frame_support::{
 <a href=#4 id=4 data-nosnippet>4</a>    sp_runtime::{
-<a href=#5 id=5 data-nosnippet>5</a>        traits::{
-<a href=#6 id=6 data-nosnippet>6</a>            Header,
-<a href=#7 id=7 data-nosnippet>7</a>            One,
-<a href=#8 id=8 data-nosnippet>8</a>        },
-<a href=#9 id=9 data-nosnippet>9</a>        BuildStorage,
+<a href=#5 id=5 data-nosnippet>5</a>        BuildStorage,
+<a href=#6 id=6 data-nosnippet>6</a>        traits::{
+<a href=#7 id=7 data-nosnippet>7</a>            Header,
+<a href=#8 id=8 data-nosnippet>8</a>            One,
+<a href=#9 id=9 data-nosnippet>9</a>        },
 <a href=#10 id=10 data-nosnippet>10</a>    },
 <a href=#11 id=11 data-nosnippet>11</a>    traits::Hooks,
 <a href=#12 id=12 data-nosnippet>12</a>};
@@ -17,10 +17,10 @@
 <a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">pub struct </span>BlockBuilder&lt;T&gt;(std::marker::PhantomData&lt;T&gt;);
 <a href=#18 id=18 data-nosnippet>18</a>
 <a href=#19 id=19 data-nosnippet>19</a><span class="kw">impl</span>&lt;
-<a href=#20 id=20 data-nosnippet>20</a>        T: pallet_balances::Config
-<a href=#21 id=21 data-nosnippet>21</a>            + pallet_timestamp::Config&lt;Moment = u64&gt;
-<a href=#22 id=22 data-nosnippet>22</a>            + pallet_revive::Config,
-<a href=#23 id=23 data-nosnippet>23</a>    &gt; BlockBuilder&lt;T&gt;
+<a href=#20 id=20 data-nosnippet>20</a>    T: pallet_balances::Config
+<a href=#21 id=21 data-nosnippet>21</a>        + pallet_timestamp::Config&lt;Moment = u64&gt;
+<a href=#22 id=22 data-nosnippet>22</a>        + pallet_revive::Config,
+<a href=#23 id=23 data-nosnippet>23</a>&gt; BlockBuilder&lt;T&gt;
 <a href=#24 id=24 data-nosnippet>24</a>{
 <a href=#25 id=25 data-nosnippet>25</a>    <span class="doccomment">/// Create a new externalities with the given balances.
 <a href=#26 id=26 data-nosnippet>26</a>    </span><span class="kw">pub fn </span>new_ext(balances: Vec&lt;(T::AccountId, T::Balance)&gt;) -&gt; TestExternalities {

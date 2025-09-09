@@ -13,26 +13,26 @@
 <a href=#13 id=13 data-nosnippet>13</a>// limitations under the License.
 <a href=#14 id=14 data-nosnippet>14</a>
 <a href=#15 id=15 data-nosnippet>15</a></span><span class="kw">use </span>ink_primitives::{
-<a href=#16 id=16 data-nosnippet>16</a>    abi::AbiEncodeWith,
-<a href=#17 id=17 data-nosnippet>17</a>    Address,
+<a href=#16 id=16 data-nosnippet>16</a>    Address,
+<a href=#17 id=17 data-nosnippet>17</a>    abi::AbiEncodeWith,
 <a href=#18 id=18 data-nosnippet>18</a>};
 <a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>pallet_revive_uapi::CallFlags;
 <a href=#20 id=20 data-nosnippet>20</a>
 <a href=#21 id=21 data-nosnippet>21</a><span class="kw">use crate</span>::{
-<a href=#22 id=22 data-nosnippet>22</a>    call::{
-<a href=#23 id=23 data-nosnippet>23</a>        common::{
-<a href=#24 id=24 data-nosnippet>24</a>            ReturnType,
-<a href=#25 id=25 data-nosnippet>25</a>            Set,
-<a href=#26 id=26 data-nosnippet>26</a>            Unset,
-<a href=#27 id=27 data-nosnippet>27</a>        },
-<a href=#28 id=28 data-nosnippet>28</a>        execution::EmptyArgumentList,
-<a href=#29 id=29 data-nosnippet>29</a>        utils::DecodeMessageResult,
-<a href=#30 id=30 data-nosnippet>30</a>        CallBuilder,
-<a href=#31 id=31 data-nosnippet>31</a>        CallParams,
-<a href=#32 id=32 data-nosnippet>32</a>        ExecutionInput,
-<a href=#33 id=33 data-nosnippet>33</a>    },
-<a href=#34 id=34 data-nosnippet>34</a>    types::Environment,
-<a href=#35 id=35 data-nosnippet>35</a>    Error,
+<a href=#22 id=22 data-nosnippet>22</a>    Error,
+<a href=#23 id=23 data-nosnippet>23</a>    call::{
+<a href=#24 id=24 data-nosnippet>24</a>        CallBuilder,
+<a href=#25 id=25 data-nosnippet>25</a>        CallParams,
+<a href=#26 id=26 data-nosnippet>26</a>        ExecutionInput,
+<a href=#27 id=27 data-nosnippet>27</a>        common::{
+<a href=#28 id=28 data-nosnippet>28</a>            ReturnType,
+<a href=#29 id=29 data-nosnippet>29</a>            Set,
+<a href=#30 id=30 data-nosnippet>30</a>            Unset,
+<a href=#31 id=31 data-nosnippet>31</a>        },
+<a href=#32 id=32 data-nosnippet>32</a>        execution::EmptyArgumentList,
+<a href=#33 id=33 data-nosnippet>33</a>        utils::DecodeMessageResult,
+<a href=#34 id=34 data-nosnippet>34</a>    },
+<a href=#35 id=35 data-nosnippet>35</a>    types::Environment,
 <a href=#36 id=36 data-nosnippet>36</a>};
 <a href=#37 id=37 data-nosnippet>37</a>
 <a href=#38 id=38 data-nosnippet>38</a><span class="doccomment">/// The `delegatecall` call type. Performs a call with the given code hash.

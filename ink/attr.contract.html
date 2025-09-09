@@ -49,7 +49,6 @@ runtime must be aligned with respect to SCALE encoding and semantics.</p>
 </span><span class="kw">pub struct </span>MyEnvironment;
 
 <span class="kw">impl </span>ink_env::Environment <span class="kw">for </span>MyEnvironment {
-    <span class="kw">const </span>MAX_EVENT_TOPICS: usize = <span class="number">3</span>;
     <span class="kw">const </span>NATIVE_TO_ETH_RATIO: u32 = <span class="number">100_000_000</span>;
     <span class="kw">type </span>AccountId = [u8; <span class="number">16</span>];
     <span class="kw">type </span>Balance = u128;

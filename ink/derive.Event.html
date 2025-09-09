@@ -30,8 +30,8 @@ derives for an event implementation, including this one.</p>
     </span>b: [u8; <span class="number">32</span>],
 }
 
-ink_env::emit_event::&lt;DefaultEnvironment, <span class="kw">_</span>, ink::abi::Ink&gt;(<span class="kw-2">&amp;</span>MyEvent { a: <span class="number">42</span>, b: [<span class="number">0x42</span>; <span class="number">32</span>] });
-ink_env::emit_event::&lt;DefaultEnvironment, <span class="kw">_</span>, ink::abi::Ink&gt;(<span class="kw-2">&amp;</span>MyAnonEvent { a: <span class="number">42</span>, b: [<span class="number">0x42</span>; <span class="number">32</span>] });</code></pre></div>
+ink_env::emit_event::&lt;<span class="kw">_</span>, ink::abi::Ink&gt;(<span class="kw-2">&amp;</span>MyEvent { a: <span class="number">42</span>, b: [<span class="number">0x42</span>; <span class="number">32</span>] });
+ink_env::emit_event::&lt;<span class="kw">_</span>, ink::abi::Ink&gt;(<span class="kw-2">&amp;</span>MyAnonEvent { a: <span class="number">42</span>, b: [<span class="number">0x42</span>; <span class="number">32</span>] });</code></pre></div>
 <h2 id="the-signature-topic"><a class="doc-anchor" href="#the-signature-topic">§</a>The Signature Topic</h2>
 <p>By default, the [<code>ink::Event::SIGNATURE_TOPIC</code>] is calculated as follows:</p>
 <p><code>blake2b("EventStructName(field1_type_name,field2_type_name)")</code></p>

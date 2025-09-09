@@ -11,11 +11,11 @@ calculation strategy.</p>
 <p>This is an example of how you can do this:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>ink::{
-    storage::{
-        traits::ManualKey,
-        Mapping,
-    },
     U256,
+    storage::{
+        Mapping,
+        traits::ManualKey,
+    },
 };
 
 <span class="attr">#[ink(storage)]
