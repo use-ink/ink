@@ -25,12 +25,12 @@ use core::ops::{
     SubAssign,
 };
 use num_traits::{
-    checked_pow,
     Bounded,
     CheckedMul,
     One,
     Unsigned,
     Zero,
+    checked_pow,
 };
 
 /// Types that allow for simple arithmetic operations.

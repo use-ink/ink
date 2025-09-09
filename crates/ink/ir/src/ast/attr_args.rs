@@ -14,12 +14,12 @@
 
 use super::Meta;
 use syn::{
+    Token,
     parse::{
         Parse,
         ParseStream,
     },
     punctuated::Punctuated,
-    Token,
 };
 
 /// The attribute arguments for the configuration of an ink! smart contract.

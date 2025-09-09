@@ -35,21 +35,21 @@ use core::{
     marker::PhantomData,
 };
 use scale_info::{
+    IntoPortable,
+    Registry,
+    TypeInfo,
     form::{
         Form,
         MetaForm,
         PortableForm,
     },
     meta_type,
-    IntoPortable,
-    Registry,
-    TypeInfo,
 };
 use schemars::JsonSchema;
 use serde::{
-    de::DeserializeOwned,
     Deserialize,
     Serialize,
+    de::DeserializeOwned,
 };
 #[cfg(feature = "std")]
 use std::{

@@ -20,13 +20,12 @@ use proc_macro2::{
     TokenStream,
 };
 use quote::{
+    ToTokens,
     format_ident,
     quote,
     quote_spanned,
-    ToTokens,
 };
 use syn::{
-    spanned::Spanned,
     Data,
     DataEnum,
     DataStruct,
@@ -34,6 +33,7 @@ use syn::{
     Field,
     Fields,
     Type,
+    spanned::Spanned,
 };
 
 /// Generates code for the storage item.

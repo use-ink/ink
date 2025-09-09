@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Synchronize with `polkadot-sdk/c40b36c3a7c208f9a6837b80812473af3d9ba7f7` ‒ [2589](https://github.com/use-ink/ink/pull/2589)
 - Synchronize with `polkadot-sdk/a71ec19a94702ea71767ba5ac97603ea6c6305c1` ‒ [2619](https://github.com/use-ink/ink/pull/2619)
 - Refactor multi ABI interfaces - [#2618](https://github.com/use-ink/ink/pull/2618)
+- Upgrade to Rust edition 2024 - [#2624](https://github.com/use-ink/ink/pull/2624)
 
 ### Removed
 - Removed functionalities around calling into the runtime and chain extensions ‒ [2621](https://github.com/use-ink/ink/pull/2621)

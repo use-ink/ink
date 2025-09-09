@@ -21,23 +21,23 @@ pub use delegate::DelegateCall;
 use core::marker::PhantomData;
 
 use ink_primitives::{
+    Address,
     abi::{
         Ink,
         Sol,
     },
-    Address,
 };
 
 use crate::{
     call::{
+        Execution,
+        ExecutionInput,
         utils::{
             EmptyArgumentList,
             ReturnType,
             Set,
             Unset,
         },
-        Execution,
-        ExecutionInput,
     },
     types::Environment,
 };

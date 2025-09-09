@@ -10,11 +10,11 @@ use frame_support::{
     traits::fungible::Inspect,
 };
 use frame_system::{
+    EventRecord,
     pallet_prelude::{
         BlockNumberFor,
         OriginFor,
     },
-    EventRecord,
 };
 use ink_primitives::U256;
 pub use macros::{
@@ -168,5 +168,5 @@ where
     let native_to_eth_ratio: U256 =
         <R as pallet_revive::Config>::NativeToEthRatio::get().into();
     let evm_value: U256 = value.into();
-    native_to_eth_ratio.saturating_mul(evm_value.into())
+    native_to_eth_ratio.saturating_mul(evm_value)
 }

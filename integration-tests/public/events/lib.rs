@@ -127,36 +127,54 @@ pub mod events {
         fn collects_specs_for_all_linked_and_used_events() {
             let event_specs = ink::collect_events();
 
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"ForeignFlipped"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"InlineFlipped"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"InlineCustomFlipped"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"ThirtyTwoByteTopics"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"EventDefAnotherCrate"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"AnonymousEvent"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"InlineAnonymousEvent"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"InlineAnonymousEventHashedTopic"));
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"ForeignFlipped")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"InlineFlipped")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"InlineCustomFlipped")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"ThirtyTwoByteTopics")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"EventDefAnotherCrate")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"AnonymousEvent")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"InlineAnonymousEvent")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"InlineAnonymousEventHashedTopic")
+            );
 
             // The event is not used directly in the code, but is included in the metadata
             // because we implement the trait from the `event_def_unused` crate.
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"EventDefUnused"));
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"EventDefUnused")
+            );
 
             assert_eq!(9, event_specs.len());
         }
@@ -166,7 +184,7 @@ pub mod events {
             let mut events = Events::new(false);
             events.flip_with_foreign_event();
 
-            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events = ink::env::test::recorded_events();
             assert_eq!(1, emitted_events.len());
             let event = &emitted_events[0];
 
@@ -180,7 +198,7 @@ pub mod events {
             let events = Events::new(false);
             events.emit_32_byte_topic_event(Some([0xAA; 32]));
 
-            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events = ink::env::test::recorded_events();
             assert_eq!(1, emitted_events.len());
             let event = &emitted_events[0];
 
@@ -200,7 +218,7 @@ pub mod events {
             let events = Events::new(false);
             events.emit_32_byte_topic_event(None);
 
-            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events = ink::env::test::recorded_events();
             assert_eq!(1, emitted_events.len());
             let event = &emitted_events[0];
 
@@ -221,7 +239,7 @@ pub mod events {
             let mut events = Events::new(false);
             events.flip_with_inline_custom_event();
 
-            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events = ink::env::test::recorded_events();
             assert_eq!(1, emitted_events.len());
 
             let signature_topic =
@@ -236,7 +254,7 @@ pub mod events {
             let topic = [0x42; 32];
             events.emit_anonymous_events(topic);
 
-            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events = ink::env::test::recorded_events();
             assert_eq!(3, emitted_events.len());
 
             let event = &emitted_events[0];

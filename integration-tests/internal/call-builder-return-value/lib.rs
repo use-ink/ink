@@ -7,11 +7,11 @@
 mod call_builder {
     use ink::{
         env::{
+            DefaultEnvironment,
             call::{
                 ExecutionInput,
                 Selector,
             },
-            DefaultEnvironment,
         },
         prelude::{
             format,

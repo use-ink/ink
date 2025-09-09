@@ -68,8 +68,8 @@ use scale::{
 /// # #[ink::contract]
 /// # mod my_module {
 /// use ink::storage::{
-///     traits::ManualKey,
 ///     Lazy,
+///     traits::ManualKey,
 /// };
 ///
 /// #[ink(storage)]

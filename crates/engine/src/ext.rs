@@ -350,12 +350,12 @@ impl Engine {
         output: &mut [u8; 33],
     ) -> Result<(), Error> {
         use secp256k1::{
+            Message,
+            SECP256K1,
             ecdsa::{
                 RecoverableSignature,
                 RecoveryId,
             },
-            Message,
-            SECP256K1,
         };
 
         // In most implementations, the v is just 0 or 1 internally, but 27 was added

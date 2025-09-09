@@ -59,10 +59,10 @@ pub use scale_info::TypeInfo;
 
 #[cfg(feature = "derive")]
 use scale_info::{
-    form::PortableForm,
     IntoPortable as _,
     PortableRegistry,
     Registry,
+    form::PortableForm,
 };
 use schemars::JsonSchema;
 use serde::{

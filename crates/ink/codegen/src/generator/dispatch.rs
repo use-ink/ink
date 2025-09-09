@@ -36,9 +36,9 @@ use quote::{
 use syn::spanned::Spanned as _;
 
 use crate::{
+    GenerateCode,
     generator,
     generator::sol,
-    GenerateCode,
 };
 
 /// A message to be dispatched.

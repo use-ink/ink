@@ -3,7 +3,7 @@ members = ["sandbox-runtime", "traits"]
 
 [workspace.package]
 authors = ["Use Ink <ink@use.ink>"]
-edition = "2021"
+edition = "2024"
 homepage = "https://use.ink"
 license = "Apache-2.0"
 repository = "https://github.com/use-ink/ink"
@@ -25,7 +25,7 @@ scale-info = { version = "2.11.1", default-features = false }
 name = "runtime-call-contract"
 version = "6.0.0-alpha.1"
 authors = ["Use Ink <ink@use.ink>"]
-edition = "2021"
+edition = "2024"
 publish = false
 
 [dependencies]

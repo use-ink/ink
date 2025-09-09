@@ -39,7 +39,7 @@ mod storage_never_freed;
 mod strict_balance_equality;
 
 #[doc(hidden)]
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub fn register_lints(
     _sess: &rustc_session::Session,
     lint_store: &mut rustc_lint::LintStore,

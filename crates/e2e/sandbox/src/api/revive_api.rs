@@ -1,17 +1,17 @@
 use crate::{
-    balance_to_evm_value,
     AccountIdFor,
     ContractExecResultFor,
     ContractResultInstantiate,
-    Sandbox,
     H256,
+    Sandbox,
+    balance_to_evm_value,
 };
 use frame_support::{
     pallet_prelude::DispatchError,
     sp_runtime::traits::Bounded,
     traits::{
-        fungible::Inspect,
         Time,
+        fungible::Inspect,
     },
     weights::Weight,
 };
@@ -21,13 +21,13 @@ use ink_primitives::{
     DepositLimit,
 };
 use pallet_revive::{
+    BumpNonce,
+    Code,
+    CodeUploadResult,
     evm::{
         Tracer,
         TracerType,
     },
-    BumpNonce,
-    Code,
-    CodeUploadResult,
 };
 use sp_core::U256;
 use std::ops::Not;
@@ -147,11 +147,9 @@ impl<T> ContractAPI for T
 where
     T: Sandbox,
     T::Runtime: pallet_revive::Config,
-
     BalanceOf<T::Runtime>: Into<U256> + TryFrom<U256> + Bounded,
     MomentOf<T::Runtime>: Into<U256>,
     <<T as Sandbox>::Runtime as frame_system::Config>::Nonce: Into<u32>,
-
     // todo
     <<T as Sandbox>::Runtime as frame_system::Config>::Hash:
         frame_support::traits::IsType<sp_core::H256>,
@@ -283,9 +281,9 @@ pub fn decode_debug_buffer(buffer: &[u8]) -> Vec<String> {
 mod tests {
     use super::*;
     use crate::{
-        api::prelude::*,
         DefaultSandbox,
         RuntimeEventOf,
+        api::prelude::*,
     };
 
     const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::UnsafeOnlyForDryRun;
@@ -308,10 +306,10 @@ mod tests {
     ///
     /// This function funds the account with the existential deposit
     /// (i.e. minimum balance).
-    fn warm_up<T: Sandbox>(sandbox: &mut T)
+    fn warm_up<T>(sandbox: &mut T)
     where
         <T as Sandbox>::Runtime: pallet_revive::Config + pallet_balances::Config,
-        T: BalanceAPI<T>,
+        T: BalanceAPI<T> + Sandbox,
     {
         let acc = pallet_revive::Pallet::<<T as Sandbox>::Runtime>::account_id();
         let ed = pallet_balances::Pallet::<<T as Sandbox>::Runtime>::minimum_balance();

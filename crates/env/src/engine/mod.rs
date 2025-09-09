@@ -17,20 +17,20 @@ use ink_primitives::ConstructorResult;
 use pallet_revive_uapi::ReturnErrorCode;
 
 use crate::{
+    Error,
+    Result as EnvResult,
     backend::{
         EnvBackend,
         TypedEnvBackend,
     },
     call::{
+        ConstructorReturnType,
+        FromAddr,
         utils::{
             ConstructorError,
             DecodeConstructorError,
         },
-        ConstructorReturnType,
-        FromAddr,
     },
-    Error,
-    Result as EnvResult,
 };
 
 /// Convert a slice into an array reference.

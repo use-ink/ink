@@ -13,25 +13,25 @@
 // limitations under the License.
 
 use alloy_sol_types::{
+    SolType as AlloySolType,
     abi::{
         self,
         Encoder,
     },
-    SolType as AlloySolType,
 };
 use impl_trait_for_tuples::impl_for_tuples;
 use ink_prelude::vec::Vec;
 
 use super::{
-    encodable::{
-        Encodable,
-        EncodableParams,
-    },
     Error,
     SolDecode,
     SolEncode,
     SolTypeDecode,
     SolTypeEncode,
+    encodable::{
+        Encodable,
+        EncodableParams,
+    },
 };
 
 /// Solidity ABI decode from parameter data (e.g. function, event or error parameters).

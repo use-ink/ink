@@ -15,8 +15,9 @@
 use core::marker::PhantomData;
 
 use ink_env::{
+    Environment,
+    Result,
     call::{
-        utils::DecodeMessageResult,
         Call,
         CallParams,
         ConstructorReturnType,
@@ -24,23 +25,22 @@ use ink_env::{
         DelegateCall,
         FromAddr,
         LimitParamsV2,
+        utils::DecodeMessageResult,
     },
     hash::{
         CryptoHash,
         HashOutput,
     },
-    Environment,
-    Result,
 };
 use ink_primitives::{
+    Address,
+    H256,
+    U256,
     abi::{
         AbiEncodeWith,
         Ink,
         Sol,
     },
-    Address,
-    H256,
-    U256,
 };
 use pallet_revive_uapi::ReturnErrorCode;
 
@@ -519,7 +519,6 @@ where
         ContractRef: FromAddr + ink_env::ContractReverseReference,
         <ContractRef as ink_env::ContractReverseReference>::Type:
             ink_env::reflect::ContractConstructorDecoder,
-
         Args: AbiEncodeWith<Abi>,
         R: ConstructorReturnType<ContractRef, Abi>,
     {
@@ -534,12 +533,12 @@ where
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// use ink::env::{
+    ///     DefaultEnvironment,
     ///     call::{
-    ///         build_call,
     ///         ExecutionInput,
     ///         Selector,
+    ///         build_call,
     ///     },
-    ///     DefaultEnvironment,
     /// };
     ///
     /// #
@@ -603,14 +602,14 @@ where
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// use ink::env::{
+    ///     DefaultEnvironment,
     ///     call::{
-    ///         build_call,
-    ///         utils::ReturnType,
     ///         DelegateCall,
     ///         ExecutionInput,
     ///         Selector,
+    ///         build_call,
+    ///         utils::ReturnType,
     ///     },
-    ///     DefaultEnvironment,
     /// };
     /// use ink_primitives::Clear;
     ///
@@ -879,17 +878,22 @@ where
     /// #[ink(message)]
     /// pub fn ecdsa_to_eth_address(&self) {
     ///     let pub_key = [
-    ///         3, 110, 192, 35, 209, 24, 189, 55, 218, 250, 100, 89, 40, 76, 222, 208, 202, 127,
-    ///         31, 13, 58, 51, 242, 179, 13, 63, 19, 22, 252, 164, 226, 248, 98,
+    ///         3, 110, 192, 35, 209, 24, 189, 55, 218, 250, 100, 89, 40, 76, 222, 208, 202,
+    ///         127, 31, 13, 58, 51, 242, 179, 13, 63, 19, 22, 252, 164, 226, 248, 98,
     ///     ];
     ///     let EXPECTED_ETH_ADDRESS = [
-    ///         253, 240, 181, 194, 143, 66, 163, 109, 18, 211, 78, 49, 177, 94, 159, 79, 207,
-    ///         37, 21, 191,
+    ///         253, 240, 181, 194, 143, 66, 163, 109, 18, 211, 78, 49, 177, 94, 159, 79,
+    ///         207, 37, 21, 191,
     ///     ];
     ///     let output = self
     ///         .env()
     ///         .ecdsa_to_eth_address(&pub_key)
-    ///         .unwrap_or_else(|err| panic!("must return an Ethereum address for the compressed public key: {:?}", err));
+    ///         .unwrap_or_else(|err| {
+    ///             panic!(
+    ///                 "must return an Ethereum address for the compressed public key: {:?}",
+    ///                 err
+    ///             )
+    ///         });
     ///     assert_eq!(output, EXPECTED_ETH_ADDRESS);
     /// }
     /// #

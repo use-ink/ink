@@ -60,8 +60,8 @@ pub use node_proc::{
 pub use pallet_revive::evm::CallTrace;
 #[cfg(feature = "sandbox")]
 pub use sandbox_client::{
-    preset,
     Client as SandboxClient,
+    preset,
 };
 pub use sp_keyring::Sr25519Keyring;
 pub use subxt::{
@@ -77,8 +77,8 @@ pub use subxt_signer::{
     self,
     sr25519::{
         self,
-        dev::*,
         Keypair,
+        dev::*,
     },
 };
 pub use tokio;
@@ -90,9 +90,9 @@ pub use ink_sandbox::DefaultSandbox;
 
 use ink::codegen::ContractCallBuilder;
 use ink_env::{
-    call::FromAddr,
     ContractEnv,
     Environment,
+    call::FromAddr,
 };
 use ink_primitives::{
     Address,

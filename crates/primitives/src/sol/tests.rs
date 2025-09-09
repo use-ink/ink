@@ -16,17 +16,17 @@
 //! `SolEncode` implementations match alloy's `SolValue` equivalents.
 
 use alloy_sol_types::{
+    EventTopic,
+    SolType as AlloySolType,
+    SolValue,
     private::{
-        keccak256,
         Address as AlloyAddress,
         Bytes as AlloyBytes,
         FixedBytes as AlloyFixedBytes,
         U256 as AlloyU256,
+        keccak256,
     },
     sol_data,
-    EventTopic,
-    SolType as AlloySolType,
-    SolValue,
 };
 use ink_prelude::{
     string::String,
@@ -38,9 +38,8 @@ use primitive_types::{
 };
 
 use crate::{
+    Weight,
     sol::{
-        decode_sequence,
-        encode_sequence,
         ByteSlice,
         DynBytes,
         Error,
@@ -52,13 +51,14 @@ use crate::{
         SolTopicEncode,
         SolTypeDecode,
         SolTypeEncode,
+        decode_sequence,
+        encode_sequence,
     },
     types::{
         AccountId,
         Address,
         Hash,
     },
-    Weight,
 };
 
 macro_rules! test_case_codec {
@@ -1056,5 +1056,5 @@ fn event_topic_works() {
     );
     let encoded_alloy =
         <(sol_data::Uint<8>, sol_data::Bool, sol_data::String) as EventTopic>::encode_topic(&(100u8, true, String::from("Hello, world!")));
-    assert_eq!(encoded, encoded_alloy.0 .0);
+    assert_eq!(encoded, encoded_alloy.0.0);
 }

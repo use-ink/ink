@@ -15,12 +15,12 @@
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use syn::{
-    spanned::Spanned,
     Expr,
     Field,
     Fields,
     GenericParam,
     Lit,
+    spanned::Spanned,
 };
 use synstructure::VariantInfo;
 

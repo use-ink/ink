@@ -13,19 +13,19 @@
 // limitations under the License.
 
 use ink_primitives::{
+    Address,
+    H256,
+    SolEncode,
+    U256,
     abi::{
         AbiEncodeWith,
         Ink,
         Sol,
     },
-    Address,
-    SolEncode,
-    H256,
-    U256,
 };
 use ink_storage_traits::{
-    decode_all,
     Storable,
+    decode_all,
 };
 use pallet_revive_uapi::{
     CallFlags,
@@ -39,8 +39,13 @@ use pallet_revive_uapi::{
 use xcm::VersionedXcm;
 
 use crate::{
+    DecodeDispatch,
+    DispatchError,
+    EnvBackend,
+    Environment,
+    Result,
+    TypedEnvBackend,
     call::{
-        utils::DecodeMessageResult,
         Call,
         CallParams,
         ConstructorReturnType,
@@ -48,6 +53,7 @@ use crate::{
         DelegateCall,
         FromAddr,
         LimitParamsV2,
+        utils::DecodeMessageResult,
     },
     engine::on_chain::{
         EncodeScope,
@@ -68,12 +74,6 @@ use crate::{
         Sha2x256,
     },
     types::FromLittleEndian,
-    DecodeDispatch,
-    DispatchError,
-    EnvBackend,
-    Environment,
-    Result,
-    TypedEnvBackend,
 };
 
 impl CryptoHash for Blake2x128 {
@@ -528,9 +528,11 @@ fn call_storage_precompile(
 
     // todo @cmichi check if we might better return `None` in this situation. perhaps a
     // zero sized key is legal?
-    debug_assert!(encoded_bytes_len >= SOL_BYTES_ENCODING_OVERHEAD + 32,
+    debug_assert!(
+        encoded_bytes_len >= SOL_BYTES_ENCODING_OVERHEAD + 32,
         "the `bytes` encoding length was < 96, meaning we didn't encode a 32 byte `key`. \
-        calling this function without `key` does not make sense and is unexpected.");
+        calling this function without `key` does not make sense and is unexpected."
+    );
 
     // `output` needs to hold at least 32 bytes, for the len field of `bytes`.
     // if no `bytes` are returned from the delegate call we will at the minimum
@@ -1155,7 +1157,9 @@ impl TypedEnvBackend for EnvInstance {
 
     #[cfg(feature = "unstable-hostfn")]
     fn is_contract(&mut self, _addr: &Address) -> bool {
-        panic!("todo call code() precompile, see https://github.com/paritytech/polkadot-sdk/pull/9001");
+        panic!(
+            "todo call code() precompile, see https://github.com/paritytech/polkadot-sdk/pull/9001"
+        );
     }
 
     fn caller_is_origin<E>(&mut self) -> bool
@@ -1220,7 +1224,9 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
         Call: scale::Encode,
     {
-        panic!("todo Native ink! XCM functions are not supported yet, you have to call the pre-compile contracts for XCM directly until then.");
+        panic!(
+            "todo Native ink! XCM functions are not supported yet, you have to call the pre-compile contracts for XCM directly until then."
+        );
         /*
         let mut scope = self.scoped_buffer();
 
@@ -1242,7 +1248,9 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
         Call: scale::Encode,
     {
-        panic!("todo Native ink! XCM functions are not supported yet, you have to call the pre-compile contracts for XCM directly until then.");
+        panic!(
+            "todo Native ink! XCM functions are not supported yet, you have to call the pre-compile contracts for XCM directly until then."
+        );
         /*
         let mut scope = self.scoped_buffer();
         let output = scope.take(32);

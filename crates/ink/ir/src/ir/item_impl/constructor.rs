@@ -13,11 +13,11 @@
 // limitations under the License.
 
 use super::{
-    ensure_callable_invariants,
     Callable,
     CallableKind,
     InputsIter,
     Visibility,
+    ensure_callable_invariants,
 };
 use crate::{
     ir,

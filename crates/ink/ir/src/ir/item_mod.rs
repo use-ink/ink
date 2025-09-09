@@ -13,10 +13,10 @@
 // limitations under the License.
 
 use crate::{
+    Callable,
     error::ExtError as _,
     ir,
     ir::idents_lint,
-    Callable,
 };
 use proc_macro2::{
     Ident,
@@ -298,20 +298,26 @@ impl ItemMod {
         fn verify_attr(a: &syn::Attribute) -> Result<(), syn::Error> {
             match &a.meta {
                 syn::Meta::List(list) => {
-                    if let Some(ident) = list.path.get_ident() {
-                        if ident.eq("cfg") {
-                            return list.parse_nested_meta(verify_cfg_attrs);
-                        }
+                    if let Some(ident) = list.path.get_ident()
+                        && ident.eq("cfg")
+                    {
+                        return list.parse_nested_meta(verify_cfg_attrs);
                     }
-                    unreachable!("`verify_attr` can only be called for `#[cfg(…)]`, not for other `List`");
+                    unreachable!(
+                        "`verify_attr` can only be called for `#[cfg(…)]`, not for other `List`"
+                    );
                 }
                 syn::Meta::Path(_) => {
                     // not relevant, we are only looking at `#[cfg(…)]`
-                    unreachable!("`verify_attr` can only be called for `#[cfg(…)]`, not for `Path`");
+                    unreachable!(
+                        "`verify_attr` can only be called for `#[cfg(…)]`, not for `Path`"
+                    );
                 }
                 syn::Meta::NameValue(_) => {
                     // not relevant, we are only looking at `#[cfg(…)]`
-                    unreachable!("`verify_attr` can only be called for `#[cfg(…)]`, not for `NameValue`");
+                    unreachable!(
+                        "`verify_attr` can only be called for `#[cfg(…)]`, not for `NameValue`"
+                    );
                 }
             }
         }
@@ -402,13 +408,18 @@ impl ItemMod {
 
             if let Some(wildcard) = wildcard_selector {
                 match other_messages.len() as u32 {
-                    0 => return Err(format_err!(
-                        wildcard.span(),
-                        "missing definition of another message with TODO in tandem with a wildcard \
+                    0 => {
+                        return Err(format_err!(
+                            wildcard.span(),
+                            "missing definition of another message with TODO in tandem with a wildcard \
                         selector",
-                    )),
+                        ))
+                    }
                     1 => {
-                        if !other_messages[0].callable().has_wildcard_complement_selector() {
+                        if !other_messages[0]
+                            .callable()
+                            .has_wildcard_complement_selector()
+                        {
                             return Err(format_err!(
                                 other_messages[0].callable().span(),
                                 "when using a wildcard selector `selector = _` for an ink! message \
@@ -1151,7 +1162,8 @@ mod tests {
 
     #[test]
     fn wildcard_selector_without_other_message_fails() {
-        assert_fail(syn::parse_quote! {
+        assert_fail(
+            syn::parse_quote! {
                 mod my_module {
                     #[ink(storage)]
                     pub struct MyStorage {}
@@ -1165,13 +1177,14 @@ mod tests {
                     }
                 }
             },
-            "missing definition of another message with TODO in tandem with a wildcard selector"
+            "missing definition of another message with TODO in tandem with a wildcard selector",
         )
     }
 
     #[test]
     fn wildcard_selector_and_one_other_message_without_well_known_selector_fails() {
-        assert_fail(syn::parse_quote! {
+        assert_fail(
+            syn::parse_quote! {
                 mod my_module {
                     #[ink(storage)]
                     pub struct MyStorage {}
@@ -1188,8 +1201,8 @@ mod tests {
                     }
                 }
             },
-"when using a wildcard selector `selector = _` for an ink! message then the other \
-            message must use the wildcard complement `selector = @`"
+            "when using a wildcard selector `selector = _` for an ink! message then the other \
+            message must use the wildcard complement `selector = @`",
         );
     }
 
@@ -1317,9 +1330,10 @@ mod tests {
         let res = <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(item_mod)
             .map_err(|err| err.to_string());
         assert!(res.is_err());
-        assert!(res
-            .unwrap_err()
-            .starts_with("The feature `std` is not allowed in `cfg`."));
+        assert!(
+            res.unwrap_err()
+                .starts_with("The feature `std` is not allowed in `cfg`.")
+        );
     }
 
     #[test]
@@ -1385,8 +1399,9 @@ mod tests {
         let res = <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(item_mod)
             .map_err(|err| err.to_string());
         assert!(res.is_err());
-        assert!(res
-            .unwrap_err()
-            .starts_with("This `cfg` attribute is not allowed."));
+        assert!(
+            res.unwrap_err()
+                .starts_with("This `cfg` attribute is not allowed.")
+        );
     }
 }

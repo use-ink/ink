@@ -47,11 +47,11 @@ pub use self::{
         ResolverKey,
     },
     storage::{
-        decode_all,
         AutoStorableHint,
         Packed,
         Storable,
         StorableHint,
         StorageKey,
+        decode_all,
     },
 };

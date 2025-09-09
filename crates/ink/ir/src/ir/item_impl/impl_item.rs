@@ -69,18 +69,19 @@ impl TryFrom<syn::ImplItem> for ImplItem {
                     .expect("missing expected ink! attribute for fn");
                 match attr.first().kind() {
                     ir::AttributeArg::Message => {
-                        <Message as TryFrom<_>>::try_from(fn_item)
-                            .map(Self::Message)
+                        <Message as TryFrom<_>>::try_from(fn_item).map(Self::Message)
                     }
                     ir::AttributeArg::Constructor => {
                         <Constructor as TryFrom<_>>::try_from(fn_item)
                             .map(Self::Constructor)
                     }
-                    _ => Err(format_err_spanned!(
-                        fn_item,
-                        "encountered invalid ink! attribute at this point, expected either \
+                    _ => {
+                        Err(format_err_spanned!(
+                            fn_item,
+                            "encountered invalid ink! attribute at this point, expected either \
                         #[ink(message)] or #[ink(constructor) attributes"
-                    )),
+                        ))
+                    }
                 }
             }
             other_item => {

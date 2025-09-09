@@ -1,5 +1,5 @@
 [workspace]
-resolver = "2"
+resolver = "3"
 members = [
     "crates/allocator",
     "crates/e2e",
@@ -25,12 +25,13 @@ exclude = [
 [workspace.package]
 authors = ["Use Ink <ink@use.ink>"]
 categories = ["no-std", "embedded"]
-edition = "2021"
+edition = "2024"
 homepage = "https://use.ink"
 keywords = ["polkavm", "ink", "riscv", "blockchain", "edsl"]
 license = "Apache-2.0"
 repository = "https://github.com/use-ink/ink"
 version = "6.0.0-alpha.1"
+rust-version = "1.88"
 
 [workspace.dependencies]
 arrayref = { version = "0.3" }

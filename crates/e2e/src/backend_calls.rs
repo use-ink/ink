@@ -15,31 +15,31 @@
 use std::marker::PhantomData;
 
 use ink_env::{
-    call::utils::DecodeMessageResult,
     Environment,
+    call::utils::DecodeMessageResult,
 };
 use ink_primitives::{
-    abi::AbiEncodeWith,
     DepositLimit,
+    abi::AbiEncodeWith,
 };
 use sp_weights::Weight;
 
 use super::{
-    balance_to_deposit_limit,
-    balance_to_deposit_limit_dry_run,
     InstantiateDryRunResult,
     Keypair,
+    balance_to_deposit_limit,
+    balance_to_deposit_limit_dry_run,
 };
 use crate::{
-    backend::BuilderClient,
-    builders::CreateBuilderPartial,
     CallBuilderFinal,
     CallDryRunResult,
     CallResult,
     ContractsBackend,
+    H256,
     InstantiationResult,
     UploadResult,
-    H256,
+    backend::BuilderClient,
+    builders::CreateBuilderPartial,
 };
 
 /// Allows to build an end-to-end call using a builder pattern.

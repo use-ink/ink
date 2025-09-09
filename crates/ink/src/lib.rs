@@ -74,6 +74,13 @@ pub use self::{
     prelude::IIP2_WILDCARD_COMPLEMENT_SELECTOR,
 };
 pub use ink_macro::{
+    Event,
+    EventMetadata,
+    SolDecode,
+    SolEncode,
+    SolErrorDecode,
+    SolErrorEncode,
+    SolErrorMetadata,
     blake2x256,
     contract,
     error,
@@ -84,23 +91,16 @@ pub use ink_macro::{
     storage_item,
     test,
     trait_definition,
-    Event,
-    EventMetadata,
-    SolDecode,
-    SolEncode,
-    SolErrorDecode,
-    SolErrorEncode,
-    SolErrorMetadata,
 };
 pub use ink_primitives::{
     Address,
     ConstructorResult,
+    H160,
+    H256,
     LangError,
     MessageResult,
     SolDecode,
     SolEncode,
-    H160,
-    H256,
     U256,
 };
 

@@ -3,8 +3,8 @@
 #[ink::contract]
 pub mod delegatee {
     use ink::storage::{
-        traits::ManualKey,
         Mapping,
+        traits::ManualKey,
     };
     #[ink(storage)]
     pub struct Delegatee {

@@ -15,12 +15,12 @@
 use core::marker::PhantomData;
 use ink_prelude::vec::Vec;
 use ink_primitives::{
+    SolEncode,
     abi::{
         AbiEncodeWith,
         Ink,
         Sol,
     },
-    SolEncode,
 };
 
 use super::{
@@ -414,7 +414,7 @@ trait SolEncodeArgsList {
     ///
     /// Ref: <https://docs.soliditylang.org/en/latest/abi-spec.html#function-selector-and-argument-encoding>
     fn encode_args(&self, head: &mut Vec<SolEncodeHeadInfo>, tail: &mut Vec<u8>)
-        -> usize;
+    -> usize;
 }
 
 /// Head info for Solidity ABI encoding `ArgumentList`.

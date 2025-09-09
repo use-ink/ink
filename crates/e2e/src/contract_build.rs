@@ -14,8 +14,8 @@
 
 use std::{
     collections::{
-        hash_map::Entry,
         HashMap,
+        hash_map::Entry,
     },
     env,
     path::{

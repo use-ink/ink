@@ -25,9 +25,9 @@ use quote::{
     quote_spanned,
 };
 use syn::{
+    Token,
     punctuated::Punctuated,
     spanned::Spanned,
-    Token,
 };
 
 /// Generate code from the `#[ink::event]` attribute. This expands to the required

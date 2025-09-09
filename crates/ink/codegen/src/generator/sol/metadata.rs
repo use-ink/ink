@@ -49,7 +49,7 @@ impl GenerateCode for SolidityMetadata<'_> {
             #[cfg(not(feature = "ink-as-dependency"))]
             #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
             const _: () = {
-                #[no_mangle]
+                #[unsafe(no_mangle)]
                 pub fn __ink_generate_solidity_metadata() -> ::ink::metadata::sol::ContractMetadata  {
                     ::ink::metadata::sol::ContractMetadata {
                         name: #name.into(),

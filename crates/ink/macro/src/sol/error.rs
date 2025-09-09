@@ -22,10 +22,10 @@ use quote::{
     quote,
 };
 use syn::{
-    spanned::Spanned,
     Attribute,
     Field,
     Fields,
+    spanned::Spanned,
 };
 
 use super::utils;
@@ -286,7 +286,7 @@ fn sol_error_encode_derive_enum(s: synstructure::Structure) -> syn::Result<Token
             variant.bindings().iter().map(|info| {
                 // var is either a field name, or generated "binding_*" name for tuple
                 // elements.
-                let var_name = info
+                info
                     .ast()
                     .ident
                     .as_ref()
@@ -294,8 +294,7 @@ fn sol_error_encode_derive_enum(s: synstructure::Structure) -> syn::Result<Token
                     .unwrap_or_else(|| {
                         let binding = &info.binding;
                         quote!(#binding)
-                    });
-                var_name
+                    })
             })
         };
         let (variant_bindings, params_elems) = match fields {

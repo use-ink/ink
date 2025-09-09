@@ -22,13 +22,13 @@ use proc_macro2::{
 };
 use quote::ToTokens;
 use syn::{
+    Token,
     parse::{
         Parse,
         ParseStream,
     },
     punctuated::Punctuated,
     spanned::Spanned,
-    Token,
 };
 
 use crate::{
@@ -36,8 +36,8 @@ use crate::{
     error::ExtError as _,
     ir,
     ir::{
-        event::SignatureTopic,
         Selector,
+        event::SignatureTopic,
     },
     utils::extract_name_override,
 };
@@ -62,10 +62,10 @@ impl IsDocAttribute for syn::Attribute {
         }
         match &self.meta {
             syn::Meta::NameValue(nv) => {
-                if let syn::Expr::Lit(l) = &nv.value {
-                    if let syn::Lit::Str(s) = &l.lit {
-                        return Some(s.value());
-                    }
+                if let syn::Expr::Lit(l) = &nv.value
+                    && let syn::Lit::Str(s) = &l.lit
+                {
+                    return Some(s.value());
                 }
             }
             _ => return None,
@@ -584,7 +584,9 @@ impl TryFrom<&ast::MetaValue> for SelectorOrWildcard {
             ast::MetaValue::Symbol(symbol) => {
                 match symbol {
                     ast::Symbol::Underscore(_) => Ok(SelectorOrWildcard::Wildcard),
-                    ast::Symbol::AtSign(_) => Ok(SelectorOrWildcard::wildcard_complement()),
+                    ast::Symbol::AtSign(_) => {
+                        Ok(SelectorOrWildcard::wildcard_complement())
+                    }
                 }
             }
             ast::MetaValue::Path(path) => {
@@ -980,33 +982,45 @@ impl Parse for AttributeFrag {
                     "payable" => Ok(AttributeArg::Payable),
                     "default" => Ok(AttributeArg::Default),
                     "impl" => Ok(AttributeArg::Implementation),
-                    _ => match ident.to_string().as_str() {
-                        "function" => Err(format_err_spanned!(
-                            path,
-                            "encountered #[ink(function)] that is missing its `id` parameter. \
+                    _ => {
+                        match ident.to_string().as_str() {
+                            "function" => {
+                                Err(format_err_spanned!(
+                                    path,
+                                    "encountered #[ink(function)] that is missing its `id` parameter. \
                             Did you mean #[ink(function = id: u16)] ?"
-                        )),
-                        "namespace" => Err(format_err_spanned!(
-                            path,
-                           "encountered #[ink(namespace)] that is missing its string parameter. \
+                                ))
+                            }
+                            "namespace" => {
+                                Err(format_err_spanned!(
+                                    path,
+                                    "encountered #[ink(namespace)] that is missing its string parameter. \
                             Did you mean #[ink(namespace = name: str)] ?"
-                        )),
-                        "selector" => Err(format_err_spanned!(
-                            path,
-                           "encountered #[ink(selector)] that is missing its u32 parameter. \
+                                ))
+                            }
+                            "selector" => {
+                                Err(format_err_spanned!(
+                                    path,
+                                    "encountered #[ink(selector)] that is missing its u32 parameter. \
                             Did you mean #[ink(selector = value: u32)] ?"
-                        )),
-                        "name" => Err(format_err_spanned!(
-                            path,
-                           "expected a string literal value for `name` \
+                                ))
+                            }
+                            "name" => {
+                                Err(format_err_spanned!(
+                                    path,
+                                    "expected a string literal value for `name` \
                             attribute argument"
-                        )),
-                        _ => Err(format_err_spanned!(
-                            path,
-                            "encountered unknown ink! attribute argument: {}",
-                            ident
-                        )),
-                    },
+                                ))
+                            }
+                            _ => {
+                                Err(format_err_spanned!(
+                                    path,
+                                    "encountered unknown ink! attribute argument: {}",
+                                    ident
+                                ))
+                            }
+                        }
+                    }
                 }
             }
         }?;
@@ -1221,10 +1235,8 @@ mod tests {
             syn::parse_quote! {
                 #[ink(selector = 0xFFFF_FFFF_FFFF_FFFF)]
             },
-            Err(
-                "selector value out of range. \
-                selector must be a valid `u32` integer: number too large to fit in target type"
-            ),
+            Err("selector value out of range. \
+                selector must be a valid `u32` integer: number too large to fit in target type"),
         );
     }
 
@@ -1234,7 +1246,9 @@ mod tests {
             syn::parse_quote! {
                 #[ink(selector = true)]
             },
-            Err("expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"),
+            Err(
+                "expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]",
+            ),
         );
     }
 
@@ -1276,7 +1290,9 @@ mod tests {
             syn::parse_quote! {
                 #[ink(namespace = 42)]
             },
-            Err("expected string type for `namespace` argument, e.g. #[ink(namespace = \"hello\")]"),
+            Err(
+                "expected string type for `namespace` argument, e.g. #[ink(namespace = \"hello\")]",
+            ),
         );
     }
 

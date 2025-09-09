@@ -67,8 +67,8 @@ pub use self::{
     ink_test::InkTest,
     item_impls::ItemImpls,
     metadata::{
-        generate_type_spec,
         Metadata,
+        generate_type_spec,
     },
     selector::{
         SelectorBytes,

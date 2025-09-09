@@ -51,11 +51,11 @@ use scale::{
 /// # #[ink::contract]
 /// # mod my_module {
 /// use ink::{
-///     storage::{
-///         traits::ManualKey,
-///         Mapping,
-///     },
 ///     U256,
+///     storage::{
+///         Mapping,
+///         traits::ManualKey,
+///     },
 /// };
 ///
 /// #[ink(storage)]

@@ -24,9 +24,9 @@ use quote::{
 use syn::spanned::Spanned as _;
 
 use crate::{
+    GenerateCode,
     generator,
     generator::sol,
-    GenerateCode,
 };
 
 /// Generates code for the call builder of the ink! smart contract.

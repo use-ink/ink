@@ -15,8 +15,8 @@
 use crate::{
     ast,
     utils::{
-        duplicate_config_err,
         WhitelistedAttributes,
+        duplicate_config_err,
     },
 };
 

@@ -19,8 +19,8 @@ use super::{
     OnInstance,
 };
 use crate::{
-    types::Environment,
     Result,
+    types::Environment,
 };
 use core::fmt::Debug;
 use std::panic::UnwindSafe;
@@ -291,12 +291,13 @@ pub struct DefaultAccounts {
 }
 
 /// Returns the recorded emitted events in order.
-pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
+pub fn recorded_events() -> Vec<EmittedEvent> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
             .engine
             .get_emitted_events()
             .map(|evt: ink_engine::test_api::EmittedEvent| evt.into())
+            .collect()
     })
 }
 

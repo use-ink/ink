@@ -13,11 +13,11 @@
 // limitations under the License.
 
 use crate::{
-    ir,
     InkItemTrait,
     InkTraitItem,
     InkTraitMessage,
     Selector,
+    ir,
 };
 use std::collections::HashMap;
 

@@ -24,24 +24,24 @@ use frame_support::pallet_prelude::{
 };
 use ink::codegen::ContractCallBuilder;
 use ink_env::{
-    call::{
-        utils::DecodeMessageResult,
-        FromAddr,
-    },
     Environment,
+    call::{
+        FromAddr,
+        utils::DecodeMessageResult,
+    },
 };
 use ink_primitives::{
     Address,
     ConstructorResult,
-    MessageResult,
     H256,
+    MessageResult,
 };
 use pallet_revive::{
-    evm::CallTrace,
     CodeUploadResult,
     ExecReturnValue,
     InstantiateReturnValue,
     StorageDeposit,
+    evm::CallTrace,
 };
 use sp_runtime::{
     DispatchError,

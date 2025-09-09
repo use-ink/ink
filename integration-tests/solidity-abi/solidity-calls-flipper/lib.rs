@@ -4,11 +4,11 @@
 pub mod flipper {
     use crate::keccak_selector;
     use ink::env::{
-        call::{
-            build_call_sol,
-            ExecutionInput,
-        },
         CallFlags,
+        call::{
+            ExecutionInput,
+            build_call_sol,
+        },
     };
     #[ink(storage)]
     pub struct Flipper {
@@ -85,8 +85,8 @@ pub mod flipper {
 fn keccak_selector(input: &[u8]) -> [u8; 4] {
     let mut output = [0; 32];
     use sha3::{
-        digest::generic_array::GenericArray,
         Digest as _,
+        digest::generic_array::GenericArray,
     };
     let mut hasher = sha3::Keccak256::new();
     hasher.update(input);

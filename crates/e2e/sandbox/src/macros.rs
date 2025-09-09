@@ -2,11 +2,11 @@ use std::time::SystemTime;
 
 use frame_support::{
     sp_runtime::{
+        BuildStorage,
         traits::{
             Header,
             One,
         },
-        BuildStorage,
     },
     traits::Hooks,
 };
@@ -17,10 +17,10 @@ use sp_io::TestExternalities;
 pub struct BlockBuilder<T>(std::marker::PhantomData<T>);
 
 impl<
-        T: pallet_balances::Config
-            + pallet_timestamp::Config<Moment = u64>
-            + pallet_revive::Config,
-    > BlockBuilder<T>
+    T: pallet_balances::Config
+        + pallet_timestamp::Config<Moment = u64>
+        + pallet_revive::Config,
+> BlockBuilder<T>
 {
     /// Create a new externalities with the given balances.
     pub fn new_ext(balances: Vec<(T::AccountId, T::Balance)>) -> TestExternalities {

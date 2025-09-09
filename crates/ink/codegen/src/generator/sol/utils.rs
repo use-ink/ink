@@ -24,9 +24,9 @@ use quote::{
     quote_spanned,
 };
 use syn::{
-    spanned::Spanned,
     Attribute,
     Type,
+    spanned::Spanned,
 };
 
 /// Returns the equivalent Solidity ABI type for the given Rust/ink! type.
