@@ -368,7 +368,8 @@ impl<T: SolDecode> SolDecode for Box<[T]> {
     type SolType = Box<[T::SolType]>;
 
     fn from_sol_type(value: Self::SolType) -> Result<Self, Error> {
-        value.into_iter()
+        value
+            .into_iter()
             .map(<T as SolDecode>::from_sol_type)
             .process_results(|iter| iter.collect())
     }
