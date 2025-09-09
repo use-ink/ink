@@ -1000,8 +1000,10 @@ fn event_topic_works() {
         (sol_data::Bool, sol_data::Bytes),
         (false, AlloyBytes::new())
     );
-    // TODO: (@davidsemakula) Enable after fixing padding bug in alloy.
-    // Ref: <https://github.com/alloy-rs/core/blob/10aed0012d59a571f35235a5f9c6ad03076bf62b/crates/sol-types/src/types/event/topic.rs#L209>
+    // TODO: (@davidsemakula) Enable after padding fix in `alloy` is released.
+    // References:
+    // - https://github.com/alloy-rs/core/issues/998
+    // - https://github.com/alloy-rs/core/pull/1000
     /*
     test_case!(
         Option<DynBytes>,
