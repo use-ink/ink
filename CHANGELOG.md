@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - E2E: Fixes around correct handling of storage deposit limit ‒ [#2589](https://github.com/use-ink/ink/pull/2589)
 - Make `NativeToEthRatio` part of the `Environment` ‒ [#2604](https://github.com/use-ink/ink/pull/2604)
+- E2E: Fix `ink_sandbox` gating - [#2626](https://github.com/use-ink/ink/pull/2626)
 
 ## Version 6.0.0-alpha.1
 
