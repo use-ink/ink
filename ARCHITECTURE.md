@@ -235,10 +235,18 @@ on `pallet-revive`, if Parity is open to it.
 just call into the host, these functions now have the performance overhead of calling
 into another contract. Functions throughout ink! are affected by this.
 
-(2) The builtin pre-compiles don't support SCALE encoding, but instead expose only a
-Solidity interface. As ink! natively uses SCALE encoding we are required to
+(2) The `pallet-revive` pre-compiles don't support SCALE encoding, but instead expose 
+only a Solidity interface. As ink! natively uses SCALE encoding we are required to
 re-encode arguments into the bloated Solidity ABI encoding, as well as decode them.
 
 (3) `pallet-revive` uses two types for a contracts balance: the generic `Balance` (which
-is set in the chain configuration) and the Ethereum-native `U256`. Currently users of
+is set in the chain configuration) and the Ethereum-native `U256`. Users of
 ink! have to deal with both types as well. 
+
+(4) In [#7164](https://github.com/paritytech/polkadot-sdk/pull/7164), Parity removed
+most smart-contract-specific events: `Called`, `ContractCodeUpdated, CodeStored`,
+`CodeRemoved`, `Terminated`, `DelegateCalled`,
+`StorageDepositTransferredAndHeld`, `StorageDepositTransferredAndReleased`. The `Instantiated` event was brought back in a latter PR.
+
+
+(5) `pallet-revive` included `revm` as a non-optional dependency. As ink! has to depend on `pallet-revive` for some features (e.g. sandboxed E2E testing), this results in over 75 more child dependencies having to be build now. This increased build times for sandboxed E2E tests significantly. [We proposed](https://github.com/paritytech/polkadot-sdk/pull/9689) putting anything `revm` behind a feature flag, but Parity is not open to it.
