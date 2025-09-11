@@ -6,20 +6,28 @@ pub mod overflow_safety {
     pub struct OverflowSafety {}
 
     impl OverflowSafety {
-        /// Creates a new smart contract initialized with the given value.
+        /// Creates a new smart contract.
         #[ink(constructor)]
         #[allow(clippy::new_without_default)]
         pub fn new() -> Self {
             Self {}
         }
 
-        /// Flips the current value of the OverflowSafety's boolean.
+        /// Adds the given values.
+        ///
+        /// # Note
+        ///
+        /// Should panic on overflow.
         #[ink(message)]
         pub fn add(&self, a: u8, b: u8) -> u8 {
             a + b
         }
 
-        /// Returns the current value of the OverflowSafety's boolean.
+        /// Subtracts the given values.
+        ///
+        /// # Note
+        ///
+        /// Should panic on overflow.
         #[ink(message)]
         pub fn sub(&self, a: u8, b: u8) -> u8 {
             a - b
