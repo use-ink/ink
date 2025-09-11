@@ -8,6 +8,7 @@ pub mod overflow_safety {
     impl OverflowSafety {
         /// Creates a new smart contract initialized with the given value.
         #[ink(constructor)]
+        #[allow(clippy::new_without_default)]
         pub fn new() -> Self {
             Self {}
         }
