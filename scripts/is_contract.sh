@@ -46,5 +46,5 @@ fi
 if grep -qE '^#\[(::)?ink::contract([^]]*)\]' "$SOURCE_PATH"; then
     exit 0
 else
-    exit 1
+    exit 3
 fi
