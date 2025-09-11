@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Unreleased]
 
+## Version 6.0.0-alpha.3
+
 ### Added
 - Support functions of the `Storage` and `System` pre-compiles ‒ [2619](https://github.com/use-ink/ink/pull/2619)
 
