@@ -1,6 +1,6 @@
 [package]
 name = "fuzz_testing"
-version = "6.0.0-alpha.1"
+version = "6.0.0-alpha.3"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2024"
 publish = false
