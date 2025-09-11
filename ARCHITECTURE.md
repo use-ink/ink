@@ -255,3 +255,11 @@ results in over 75 more child dependencies having to be build now. This increase
 build times for sandboxed E2E tests significantly. 
 [We proposed](https://github.com/paritytech/polkadot-sdk/pull/9689) putting anything 
 `revm` behind a feature flag, but Parity is not open to it.
+
+(6) The removal of host functions in favor of pre-compiles results in a loss of semantic
+information why a contract call failed. Previously, if a contract call involving one of
+the affected host functions (e.g. `take_storage`) contained too little Gas, the contract
+would error with `OutOfGas`. As those functions are pre-compiles now and called like
+other contracts, the contract call will now fail with `ContractTrapped` if too little
+Gas is supplied. This makes it harder for users to debug and understand what caused the
+call failure.
