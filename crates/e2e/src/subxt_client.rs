@@ -16,24 +16,13 @@
 use std::fmt::Debug;
 use std::path::PathBuf;
 
-use super::{
-    H256,
-    InstantiateDryRunResult,
-    Keypair,
-    ReviveApi,
-    builders::{
-        CreateBuilderPartial,
-        constructor_exec_input,
-    },
-    deposit_limit_to_balance,
-    events::{
-        CodeStoredEvent,
-        EventWithTopics,
-    },
-    log_error,
-    log_info,
-    sr25519,
-};
+use super::{H256, InstantiateDryRunResult, Keypair, ReviveApi, builders::{
+    CreateBuilderPartial,
+    constructor_exec_input,
+}, deposit_limit_to_balance, events::{
+    CodeStoredEvent,
+    EventWithTopics,
+}, log_error, log_info, sr25519, address_from_keypair};
 use crate::{
     ContractsBackend,
     E2EBackend,
@@ -414,14 +403,6 @@ where
         &self.url
     }
 
-    /// Derives the Ethereum address from a keypair.
-    // copied from `pallet-revive`
-    fn derive_keypair_address(&self, signer: &Keypair) -> H160 {
-        let account_id = <Keypair as subxt::tx::Signer<C>>::account_id(signer);
-        let account_bytes = account_id.encode();
-        AccountIdMapper::to_address(account_bytes.as_ref())
-    }
-
     /// Returns the original mapped `AccountId32` for a `H160`.
     ///
     /// Returns `None` if no mapping is found in the `pallet-revive` runtime
@@ -462,14 +443,9 @@ where
     }
 
     /// Returns the `AccountId` for a `H160`.
-    /// Queries runtime, fallsback if no result.
+    ///
+    /// Queries runtime, returns fallback account if no result.
     pub async fn to_account_id(&self, addr: &H160) -> Result<E::AccountId, Error> {
-        fn to_fallback_account_id(address: &H160) -> [u8; 32] {
-            let mut account_id = [0xEE; 32];
-            account_id[..20].copy_from_slice(address.as_bytes());
-            account_id
-        }
-
         match self.fetch_original_account(addr).await? {
             Some(v) => Ok(v),
             None => {
@@ -479,6 +455,13 @@ where
             }
         }
     }
+}
+
+/// Returns the fallback accountfor an `H160`.
+fn to_fallback_account_id(address: &H160) -> [u8; 32] {
+    let mut account_id = [0xEE; 32];
+    account_id[..20].copy_from_slice(address.as_bytes());
+    account_id
 }
 
 #[async_trait]
@@ -1015,7 +998,7 @@ where
     }
 
     async fn map_account(&mut self, caller: &Keypair) -> Result<(), Self::Error> {
-        let addr = self.derive_keypair_address(caller);
+        let addr = address_from_keypair(caller);
         if self.fetch_original_account(&addr).await?.is_some() {
             return Ok(());
         }
@@ -1082,11 +1065,6 @@ where
             None => {
                 // This typically happens when calling this function with a contract, for
                 // which there is no `AccountId`.
-                fn to_fallback_account_id(address: &H160) -> [u8; 32] {
-                    let mut account_id = [0xEE; 32];
-                    account_id[..20].copy_from_slice(address.as_bytes());
-                    account_id
-                }
                 let fallback = to_fallback_account_id(addr);
                 tracing::debug!(
                     "No address suffix was found in the node for H160 address {:?}, using fallback {:?}",

@@ -250,7 +250,9 @@ where
 
         self.sandbox
             .transfer_allow_death(&origin, &dest, value)
-            .map_err(|err| SandboxErr::new(format!("transfer_allow_death: {err:?}")))
+            .map_err(|err| {
+                SandboxErr::new(format!("transfer_allow_death failed: {err:?}"))
+            })
     }
 }
 
@@ -361,12 +363,8 @@ where
             _ => None,
         };
 
-        fn to_fallback_account_id(address: &H160) -> [u8; 32] {
-            let mut account_id = [0xEE; 32];
-            account_id[..20].copy_from_slice(address.as_bytes());
-            account_id
-        }
-        let account_id = to_fallback_account_id(&addr_raw);
+        let account_id =
+            <S::Runtime as pallet_revive::Config>::AddressMapper::to_account_id(addr_raw);
 
         Ok(BareInstantiationResult {
             addr: addr_raw,
