@@ -772,6 +772,7 @@ where
     /// Returns the `H160` for an account id.
     ///
     /// Queries the RPC server for the `pallet-revive` runtime api function `address`.
+    #[allow(dead_code)]
     pub async fn address(&self, account_id: C::AccountId) -> H160 {
         let call_request = RpcAddressRequest::<C> { account_id };
         let func = "ReviveApi_address";

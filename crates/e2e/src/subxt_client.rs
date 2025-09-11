@@ -119,29 +119,9 @@ where
     E: Environment,
 {
     api: ReviveApi<C, E>,
-    pub contracts: ContractsRegistry,
+    contracts: ContractsRegistry,
     url: String,
 }
-
-/*
-trait FooClient {
-    /// Creates a new [`Client`] instance using a `subxt` client.
-    pub async fn new<P: Into<PathBuf>>(
-        client: subxt::backend::rpc::RpcClient,
-        contracts: impl IntoIterator<Item = P>,
-        url: String,
-    ) -> Result<Self, subxt::Error>;
-
-    pub async fn exec_instantiate(
-        &mut self,
-        signer: &Keypair,
-        code: Vec<u8>,
-        data: Vec<u8>,
-        value: E::Balance,
-        gas_limit: Weight,
-        storage_deposit_limit: E::Balance,
-    ) -> Result<BareInstantiationResult<E, ExtrinsicEvents<C>>, Error>
-    */
 
 impl<C, E> Client<C, E>
 where
@@ -1152,7 +1132,7 @@ where
     type EventLog = ExtrinsicEvents<C>;
 }
 
-impl<C, E, Cliente> E2EBackend<E, Cliente> for Client<C, E>
+impl<C, E> E2EBackend<E> for Client<C, E>
 where
     C: subxt::Config + Send + Sync,
     C::AccountId: Clone
@@ -1174,7 +1154,6 @@ where
     E::Balance:
         Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
     H256: Debug + Send + Sync + scale::Encode,
-    Cliente: E2EBackend<E, Cliente>,
 {
 }
 

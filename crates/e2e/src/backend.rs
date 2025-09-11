@@ -12,6 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use ink_env::{
+    Environment,
+    call::utils::DecodeMessageResult,
+};
+use ink_primitives::{
+    DepositLimit,
+    H160,
+    abi::AbiEncodeWith,
+};
+use jsonrpsee::core::async_trait;
+use pallet_revive::evm::CallTrace;
+use sp_weights::Weight;
+use subxt::dynamic::Value;
+
 use super::{
     H256,
     InstantiateDryRunResult,
@@ -30,26 +44,10 @@ use crate::{
     builders::CreateBuilderPartial,
     contract_results::BareInstantiationResult,
 };
-use ink_env::{
-    Environment,
-    call::utils::DecodeMessageResult,
-};
-use ink_primitives::{
-    DepositLimit,
-    H160,
-    abi::AbiEncodeWith,
-};
-use jsonrpsee::core::async_trait;
-use pallet_revive::evm::CallTrace;
-use sp_weights::Weight;
-use subxt::dynamic::Value;
 
 /// Full E2E testing backend: combines general chain API and contract-specific operations.
 #[async_trait]
-pub trait E2EBackend<E: Environment, Client>:
-    ChainBackend + BuilderClient<E>
-{
-}
+pub trait E2EBackend<E: Environment>: ChainBackend + BuilderClient<E> {}
 
 /// General chain operations useful in contract testing.
 #[async_trait]

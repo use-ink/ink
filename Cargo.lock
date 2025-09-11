@@ -1670,8 +1670,8 @@ checksum = "7c74b8349d32d297c9134b8c88677813a227df8f779daa29bfc29c183fe3dca6"
 
 [[package]]
 name = "contract-build"
-version = "6.0.0-alpha.1"
-source = "git+https://github.com/use-ink/cargo-contract?branch=master#db7ade0e3e72338fc1e8c5b29b3cc8a530211c46"
+version = "6.0.0-alpha.3"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#226c0e61f7f4fdefa7f1e21eed711ced287dc3ac"
 dependencies = [
  "alloy-json-abi",
  "anyhow",
@@ -1686,7 +1686,7 @@ dependencies = [
  "heck",
  "hex",
  "impl-serde",
- "ink_metadata 6.0.0-alpha.1",
+ "ink_metadata 6.0.0-alpha.3 (git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.3)",
  "itertools 0.14.0",
  "parity-scale-codec",
  "polkavm-linker 0.29.0",
@@ -1712,8 +1712,8 @@ dependencies = [
 
 [[package]]
 name = "contract-metadata"
-version = "6.0.0-alpha.1"
-source = "git+https://github.com/use-ink/cargo-contract?branch=master#db7ade0e3e72338fc1e8c5b29b3cc8a530211c46"
+version = "6.0.0-alpha.3"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#226c0e61f7f4fdefa7f1e21eed711ced287dc3ac"
 dependencies = [
  "anyhow",
  "impl-serde",
@@ -3093,9 +3093,9 @@ checksum = "df3b46402a9d5adb4c86a0cf463f42e19994e3ee891101b1841f30a545cb49a9"
 
 [[package]]
 name = "humantime"
-version = "2.2.0"
+version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9b112acc8b3adf4b107a8ec20977da0273a8c386765a3ec0229bd500a1443f9f"
+checksum = "135b12329e5e3ce057a9f972339ea52bc954fe1e9358ef27f95e89716fbc5424"
 
 [[package]]
 name = "humantime-serde"
@@ -3614,21 +3614,6 @@ dependencies = [
 
 [[package]]
 name = "ink_metadata"
-version = "6.0.0-alpha.1"
-source = "git+https://github.com/use-ink/ink?branch=master#aa8c0cabef2b11b512446264b7c12fd5fd72f709"
-dependencies = [
- "derive_more 2.0.1",
- "impl-serde",
- "ink_prelude 6.0.0-alpha.1",
- "ink_primitives 6.0.0-alpha.1",
- "parity-scale-codec",
- "scale-info",
- "schemars 0.8.22",
- "serde",
-]
-
-[[package]]
-name = "ink_metadata"
 version = "6.0.0-alpha.3"
 dependencies = [
  "derive_more 2.0.1",
@@ -3644,16 +3629,14 @@ dependencies = [
 ]
 
 [[package]]
-<<<<<<< HEAD
-=======
 name = "ink_metadata"
-version = "6.0.0-alpha.1"
-source = "git+https://github.com/use-ink/ink?branch=master#60ec015922fda0261ce710b934690a7877212614"
+version = "6.0.0-alpha.3"
+source = "git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.3#5dee03ccdc5bf3d26a53dfd287385eedb3d3a695"
 dependencies = [
  "derive_more 2.0.1",
  "impl-serde",
- "ink_prelude 6.0.0-alpha.1 (git+https://github.com/use-ink/ink?branch=master)",
- "ink_primitives 6.0.0-alpha.1 (git+https://github.com/use-ink/ink?branch=master)",
+ "ink_prelude 6.0.0-alpha.3 (git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.3)",
+ "ink_primitives 6.0.0-alpha.3 (git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.3)",
  "parity-scale-codec",
  "scale-info",
  "schemars 0.8.22",
@@ -3661,39 +3644,33 @@ dependencies = [
 ]
 
 [[package]]
->>>>>>> 24ce2ca995 (Misc cleanups and naming fixes)
 name = "ink_prelude"
-version = "6.0.0-alpha.1"
-source = "git+https://github.com/use-ink/ink?branch=master#aa8c0cabef2b11b512446264b7c12fd5fd72f709"
+version = "6.0.0-alpha.3"
 dependencies = [
  "cfg-if",
 ]
 
 [[package]]
 name = "ink_prelude"
-<<<<<<< HEAD
 version = "6.0.0-alpha.3"
-=======
-version = "6.0.0-alpha.1"
-source = "git+https://github.com/use-ink/ink?branch=master#60ec015922fda0261ce710b934690a7877212614"
->>>>>>> 24ce2ca995 (Misc cleanups and naming fixes)
+source = "git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.3#5dee03ccdc5bf3d26a53dfd287385eedb3d3a695"
 dependencies = [
  "cfg-if",
 ]
 
 [[package]]
 name = "ink_primitives"
-version = "6.0.0-alpha.1"
-source = "git+https://github.com/use-ink/ink?branch=master#aa8c0cabef2b11b512446264b7c12fd5fd72f709"
+version = "6.0.0-alpha.3"
 dependencies = [
  "alloy-sol-types",
  "cfg-if",
  "derive_more 2.0.1",
  "impl-trait-for-tuples",
- "ink_prelude 6.0.0-alpha.1",
+ "ink",
+ "ink_env",
+ "ink_prelude 6.0.0-alpha.3",
  "itertools 0.14.0",
  "num-traits",
- "pallet-revive",
  "pallet-revive-uapi",
  "parity-scale-codec",
  "paste",
@@ -3711,20 +3688,14 @@ dependencies = [
 
 [[package]]
 name = "ink_primitives"
-<<<<<<< HEAD
 version = "6.0.0-alpha.3"
-=======
-version = "6.0.0-alpha.1"
-source = "git+https://github.com/use-ink/ink?branch=master#60ec015922fda0261ce710b934690a7877212614"
->>>>>>> 24ce2ca995 (Misc cleanups and naming fixes)
+source = "git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.3#5dee03ccdc5bf3d26a53dfd287385eedb3d3a695"
 dependencies = [
  "alloy-sol-types",
  "cfg-if",
  "derive_more 2.0.1",
  "impl-trait-for-tuples",
- "ink",
- "ink_env",
- "ink_prelude 6.0.0-alpha.3",
+ "ink_prelude 6.0.0-alpha.3 (git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.3)",
  "itertools 0.14.0",
  "num-traits",
  "pallet-revive-uapi",
@@ -5933,9 +5904,9 @@ checksum = "f87165f0995f63a9fbeea62b64d10b4d9d8e78ec6d7d51fb2125fda7bb36788f"
 
 [[package]]
 name = "rustls-webpki"
-version = "0.103.4"
+version = "0.103.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0a17884ae0c1b773f1ccd2bd4a8c72f16da897310a98b0e84bf349ad5ead92fc"
+checksum = "b5a37813727b78798e53c2bec3f5e8fe12a6d6f8389bf9ca7802add4c9905ad8"
 dependencies = [
  "ring",
  "rustls-pki-types",

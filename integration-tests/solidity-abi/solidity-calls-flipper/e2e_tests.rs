@@ -7,18 +7,15 @@ use ink::{
         Balance,
         DefaultEnvironment,
     },
+    primitives::DepositLimit,
 };
 use ink_e2e::{
-    Address,
     BuilderClient,
     ChainBackend,
     ContractsBackend,
     E2EBackend,
     PolkadotConfig,
-    SolDecode,
-    SolEncode,
     Weight,
-    primitives::DepositLimit,
     subxt::tx::Signer,
     subxt_signer,
 };

@@ -88,7 +88,6 @@ pub use tracing_subscriber;
 #[cfg(feature = "sandbox")]
 pub use ink_sandbox::DefaultSandbox;
 
-use frame_support::dispatch::RawOrigin;
 use ink::codegen::ContractCallBuilder;
 use ink_env::{
     ContractEnv,
@@ -99,6 +98,7 @@ use ink_primitives::{
     Address,
     DepositLimit,
     H256,
+    types::AccountIdMapper,
 };
 pub use sp_weights::Weight;
 use std::{
@@ -107,13 +107,6 @@ use std::{
 };
 use xts::ReviveApi;
 
-use ink_primitives::types::AccountIdMapper;
-use ink_sandbox::{
-    AccountIdFor,
-    Sandbox,
-    frame_system::pallet_prelude::OriginFor,
-    pallet_balances,
-};
 pub use subxt::PolkadotConfig;
 
 /// We use this to only initialize `env_logger` once.
@@ -186,18 +179,6 @@ pub fn address_from_keypair<AccountId: From<[u8; 32]> + AsRef<[u8]>>(
 /// Transforms a `Keypair` into an account id.
 pub fn keypair_to_account<AccountId: From<[u8; 32]>>(keypair: &Keypair) -> AccountId {
     AccountId::from(keypair.public_key().0)
-}
-
-/// Transforms a `Keypair` into an origin.
-pub fn caller_to_origin<S>(caller: &Keypair) -> OriginFor<S::Runtime>
-where
-    S: Sandbox,
-    S::Runtime: pallet_balances::Config + pallet_revive::Config,
-    AccountIdFor<S::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
-{
-    let caller = keypair_to_account(caller);
-    let origin = RawOrigin::Signed(caller);
-    OriginFor::<S::Runtime>::from(origin)
 }
 
 /// Creates a call builder for `Contract`, based on an account id.

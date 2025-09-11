@@ -77,7 +77,7 @@ where
         dest: &AccountIdFor<T::Runtime>,
         value: BalanceOf<T::Runtime>,
     ) -> Result<(), DispatchError> {
-        // Convert AccountId into the proper Lookup::Source
+        // Convert AccountId into the proper `Lookup::Source`
         let dest =
             <<T::Runtime as frame_system::Config>::Lookup as StaticLookup>::unlookup(
                 dest.clone(),

@@ -31,7 +31,6 @@ use crate::{
         CreateBuilderPartial,
         constructor_exec_input,
     },
-    caller_to_origin,
     client_utils::{
         ContractsRegistry,
         salt,
@@ -53,13 +52,13 @@ use frame_support::{
         fungible::Inspect,
     },
 };
-use ink::H160;
 use ink_env::{
     Environment,
     call::utils::DecodeMessageResult,
 };
 use ink_primitives::{
     DepositLimit,
+    H160,
     abi::AbiEncodeWith,
 };
 use ink_sandbox::{
@@ -94,10 +93,7 @@ use sp_core::{
 use sp_runtime::traits::Bounded;
 use subxt::{
     dynamic::Value,
-    tx::{
-        Payload,
-        Signer,
-    },
+    tx::Payload,
 };
 use subxt_signer::sr25519::Keypair;
 
@@ -107,7 +103,7 @@ type ContractsBalanceOf<R> =
 
 pub struct Client<AccountId, S: Sandbox> {
     sandbox: S,
-    pub contracts: ContractsRegistry,
+    contracts: ContractsRegistry,
     _phantom: PhantomData<AccountId>,
 }
 
@@ -262,9 +258,7 @@ where
 impl<
     AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
     S: Sandbox,
-    E: Environment<
-        AccountId = AccountId,
-        Balance = ContractsBalanceOf<S::Runtime>>
+    E: Environment<AccountId = AccountId, Balance = ContractsBalanceOf<S::Runtime>>
         + 'static,
 > BuilderClient<E> for Client<AccountId, S>
 where
@@ -628,7 +622,8 @@ where
 
     async fn to_account_id(&mut self, addr: &H160) -> Result<E::AccountId, Self::Error> {
         use pallet_revive::AddressMapper;
-        let account_id = <S::Runtime as pallet_revive::Config>::AddressMapper::to_account_id(addr);
+        let account_id =
+            <S::Runtime as pallet_revive::Config>::AddressMapper::to_account_id(addr);
         Ok(E::AccountId::from(*account_id.as_ref()))
     }
 }
@@ -638,8 +633,7 @@ impl<
     Config: Sandbox,
     E: Environment<AccountId = AccountId, Balance = ContractsBalanceOf<Config::Runtime>>
         + 'static,
-    Cliente: E2EBackend<E, Cliente>,
-> E2EBackend<E, Cliente> for Client<AccountId, Config>
+> E2EBackend<E> for Client<AccountId, Config>
 where
     Config::Runtime: pallet_balances::Config + pallet_revive::Config,
     AccountIdFor<Config::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
@@ -788,4 +782,16 @@ pub mod preset {
         }
     }
      */
+}
+
+/// Transforms a `Keypair` into an origin.
+pub fn caller_to_origin<S>(caller: &Keypair) -> OriginFor<S::Runtime>
+where
+    S: Sandbox,
+    S::Runtime: pallet_balances::Config + pallet_revive::Config,
+    AccountIdFor<S::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+{
+    let caller = keypair_to_account(caller);
+    let origin = RawOrigin::Signed(caller);
+    OriginFor::<S::Runtime>::from(origin)
 }
