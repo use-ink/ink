@@ -60,7 +60,6 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
             <ink::env::DefaultEnvironment as ink::env::Environment>::AccountId::from(
                 acc_bytes,
             ),
-            // 10_000_000_000_000_000,
             1_000_000_000_000_000,
         )
         .await?;

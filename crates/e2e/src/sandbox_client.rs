@@ -74,6 +74,7 @@ use ink_sandbox::{
 };
 use jsonrpsee::core::async_trait;
 use pallet_revive::{
+    AddressMapper,
     CodeUploadReturnValue,
     InstantiateReturnValue,
     MomentOf,
@@ -364,7 +365,11 @@ where
         };
 
         let account_id =
-            <S::Runtime as pallet_revive::Config>::AddressMapper::to_account_id(addr_raw);
+            <S::Runtime as pallet_revive::Config>::AddressMapper::to_fallback_account_id(
+                &addr_raw,
+            )
+            .as_ref()
+            .to_owned();
 
         Ok(BareInstantiationResult {
             addr: addr_raw,

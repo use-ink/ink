@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use pallet_revive::evm::CallTrace;
 use std::fmt;
 
 /// An error occurred while interacting with the E2E backend.
@@ -27,8 +28,8 @@ pub enum Error<DispatchError: fmt::Debug + fmt::Display> {
     /// The `instantiate_with_code` dry run failed.
     #[error("Instantiate dry-run error: {0}")]
     InstantiateDryRun(DryRunError<DispatchError>),
-    #[error("Instantiate extrinsic error: {0}")]
-    InstantiateExtrinsic(DispatchError),
+    #[error("Instantiate extrinsic error: {0} {1:?}")]
+    InstantiateExtrinsic(DispatchError, Option<CallTrace>),
     /// The `upload` dry run failed.
     #[error("Upload dry-run error: {0}")]
     UploadDryRun(DispatchError),

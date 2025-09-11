@@ -16,13 +16,24 @@
 use std::fmt::Debug;
 use std::path::PathBuf;
 
-use super::{H256, InstantiateDryRunResult, Keypair, ReviveApi, builders::{
-    CreateBuilderPartial,
-    constructor_exec_input,
-}, deposit_limit_to_balance, events::{
-    CodeStoredEvent,
-    EventWithTopics,
-}, log_error, log_info, sr25519, address_from_keypair};
+use super::{
+    H256,
+    InstantiateDryRunResult,
+    Keypair,
+    ReviveApi,
+    builders::{
+        CreateBuilderPartial,
+        constructor_exec_input,
+    },
+    deposit_limit_to_balance,
+    events::{
+        CodeStoredEvent,
+        EventWithTopics,
+    },
+    log_error,
+    log_info,
+    sr25519,
+};
 use crate::{
     ContractsBackend,
     E2EBackend,
@@ -61,7 +72,6 @@ use ink_env::{
 use ink_primitives::{
     DepositLimit,
     abi::AbiEncodeWith,
-    types::AccountIdMapper,
 };
 use jsonrpsee::core::async_trait;
 use pallet_revive::evm::CallTrace;
@@ -139,161 +149,6 @@ where
             url,
         })
     }
-
-    /*
-    // TODO (@peterwht): private after call builder supports RLP
-    /// Executes an `instantiate_with_code` call and captures the resulting events.
-    pub async fn exec_instantiate(
-        &mut self,
-        signer: &Keypair,
-        code: Vec<u8>,
-        data: Vec<u8>,
-        value: E::Balance,
-        gas_limit: Weight,
-        storage_deposit_limit: E::Balance,
-    ) -> Result<BareInstantiationResult<E, ExtrinsicEvents<C>>, Error> {
-        let salt = salt();
-        // todo remove assert once salt() returns no more option
-        assert!(salt.is_some());
-        let (events, trace) = self
-            .api
-            .instantiate_with_code(
-                value,
-                gas_limit.into(),
-                storage_deposit_limit,
-                code.clone(),
-                data.clone(),
-                salt,
-                signer,
-            )
-            .await;
-
-        let mut addr = None;
-        for evt in events.iter() {
-            let evt = evt.unwrap_or_else(|err| {
-                panic!("unable to unwrap event: {err:?}");
-            });
-            if let Some(instantiated) = evt
-                .as_event::<ContractInstantiatedEvent>()
-                .unwrap_or_else(|err| {
-                    panic!("event conversion to `Instantiated` failed: {err:?}");
-                })
-            {
-                log_info(&format!(
-                    "contract was instantiated at {:?}",
-                    instantiated.contract
-                ));
-                addr = Some(instantiated.contract);
-
-                // We can't `break` here, we need to assign the account id from the
-                // last `ContractInstantiatedEvent`, in case the contract instantiates
-                // multiple accounts as part of its constructor!
-            } else if is_extrinsic_failed_event(&evt) {
-                let metadata = self.api.client.metadata();
-                let dispatch_error =
-                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
-                        .map_err(|e| Error::Decoding(e.to_string()))?;
-                log_error(&format!(
-                    "extrinsic for instantiate failed: {dispatch_error}"
-                ));
-                return Err(Error::InstantiateExtrinsic(dispatch_error))
-            }
-        }
-        let addr = addr.expect("cannot extract contract address from events");
-        let mut account_id = [0xEE; 32];
-        account_id[..20].copy_from_slice(addr.as_bytes());
-
-        /*
-        let deployer = self.derive_keypair_address(signer);
-        let addr = pallet_revive::create2(
-            &deployer,
-            &code[..],
-            &data[..],
-            &salt.expect("todo make salt() return no option, but value"),
-        );
-        */
-
-        Ok(BareInstantiationResult {
-            // The `account_id` must exist at this point. If the instantiation fails
-            // the dry-run must already return that.
-            addr,
-            account_id: E::AccountId::decode(&mut &account_id[..]).unwrap(),
-            events,
-            trace,
-            code_hash: H256(crate::client_utils::code_hash(&code[..])),
-        })
-    }
-
-     */
-
-    /*
-    /// Executes an `instantiate_with_code` call and captures the resulting events.
-    async fn exec_instantiate(
-        &mut self,
-        signer: &Keypair,
-        code: Vec<u8>,
-        data: Vec<u8>,
-        value: E::Balance,
-        gas_limit: Weight,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<BareInstantiationResult<E, ExtrinsicEvents<C>>, Error> {
-        let salt = salt();
-
-        let tx_events = self
-            .api
-            .instantiate_with_code(
-                value,
-                gas_limit.into(),
-                storage_deposit_limit,
-                code,
-                data.clone(),
-                salt,
-                signer,
-            )
-            .await;
-
-        let mut account_id = None;
-        for evt in tx_events.iter() {
-            let evt = evt.unwrap_or_else(|err| {
-                panic!("unable to unwrap event: {err:?}");
-            });
-
-            if let Some(instantiated) = evt
-                .as_event::<ContractInstantiatedEvent<E>>()
-                .unwrap_or_else(|err| {
-                    panic!("event conversion to `Instantiated` failed: {err:?}");
-                })
-            {
-                log_info(&format!(
-                    "contract was instantiated at {:?}",
-                    instantiated.contract
-                ));
-                account_id = Some(instantiated.contract);
-
-                // We can't `break` here, we need to assign the account id from the
-                // last `ContractInstantiatedEvent`, in case the contract instantiates
-                // multiple accounts as part of its constructor!
-            } else if is_extrinsic_failed_event(&evt) {
-                let metadata = self.api.client.metadata();
-                let dispatch_error =
-                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
-                        .map_err(|e| Error::Decoding(e.to_string()))?;
-                log_error(&format!(
-                    "extrinsic for instantiate failed: {dispatch_error}"
-                ));
-                return Err(Error::InstantiateExtrinsic(dispatch_error))
-            }
-        }
-        let account_id = account_id.expect("cannot extract `account_id` from events");
-
-        Ok(BareInstantiationResult {
-            // The `account_id` must exist at this point. If the instantiation fails
-            // the dry-run must already return that.
-            account_id,
-            events: tx_events,
-        })
-    }
-     */
 
     /// Executes an `upload` call and captures the resulting events.
     async fn exec_upload(
@@ -401,6 +256,14 @@ where
     /// Returns the URL of the running node.
     pub fn url(&self) -> &str {
         &self.url
+    }
+
+    /// Derives the Ethereum address from a keypair.
+    // copied from `pallet-revive`
+    fn derive_keypair_address(&self, signer: &Keypair) -> H160 {
+        let account_id = <Keypair as subxt::tx::Signer<C>>::account_id(signer);
+        let account_bytes = account_id.encode();
+        crate::AccountIdMapper::to_address(account_bytes.as_ref())
     }
 
     /// Returns the original mapped `AccountId32` for a `H160`.
@@ -627,6 +490,7 @@ where
         + core::fmt::Display
         + scale::Codec
         + From<sr25519::PublicKey>
+        + From<[u8; 32]>
         + serde::de::DeserializeOwned,
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,
@@ -717,24 +581,14 @@ where
                     subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::Decoding(e.to_string()))?;
                 log_error(&format!(
-                    "extrinsic for instantiate failed: {dispatch_error}"
+                    "extrinsic for instantiate failed: {dispatch_error} {trace:?}"
                 ));
-                return Err(Error::InstantiateExtrinsic(dispatch_error))
+                return Err(Error::InstantiateExtrinsic(dispatch_error, trace))
             }
         }
         let addr = addr.expect("cannot extract contract address from events");
         let mut account_id = [0xEE; 32];
         account_id[..20].copy_from_slice(addr.as_bytes());
-
-        /*
-        let deployer = self.derive_keypair_address(signer);
-        let addr = pallet_revive::create2(
-            &deployer,
-            &code[..],
-            &data[..],
-            &salt.expect("todo make salt() return no option, but value"),
-        );
-        */
 
         Ok(BareInstantiationResult {
             // The `account_id` must exist at this point. If the instantiation fails
@@ -998,7 +852,7 @@ where
     }
 
     async fn map_account(&mut self, caller: &Keypair) -> Result<(), Self::Error> {
-        let addr = address_from_keypair(caller);
+        let addr = self.derive_keypair_address(caller);
         if self.fetch_original_account(&addr).await?.is_some() {
             return Ok(());
         }
@@ -1120,6 +974,7 @@ where
         + core::fmt::Display
         + scale::Codec
         + From<sr25519::PublicKey>
+        + From<[u8; 32]>
         + serde::de::DeserializeOwned,
     C::Address: From<sr25519::PublicKey>,
     C::Signature: From<sr25519::Signature>,

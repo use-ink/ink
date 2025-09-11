@@ -108,7 +108,6 @@ use std::{
 use xts::ReviveApi;
 
 pub use subxt::PolkadotConfig;
-use ink::H160;
 
 /// We use this to only initialize `env_logger` once.
 pub static INIT: Once = Once::new();
