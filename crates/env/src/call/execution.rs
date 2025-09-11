@@ -518,6 +518,23 @@ mod tests {
     }
 
     #[test]
+    fn sol_empty_args_works() {
+        let empty_list = ArgumentList::empty();
+        let encoded = SolEncode::encode(&empty_list);
+        assert_eq!(encoded, Vec::<u8>::new());
+    }
+
+    #[test]
+    fn sol_single_argument_works() {
+        let args_list = ArgumentList::empty().push_arg(&1i32);
+        let encoded = SolEncode::encode(&args_list);
+        assert!(!encoded.is_empty());
+        let (decoded,) =
+            ink_primitives::sol::decode_sequence::<(i32,)>(&encoded).unwrap();
+        assert_eq!(decoded, 1i32);
+    }
+
+    #[test]
     fn sol_encoding_arguments_works() {
         let args_list = EmptyArgumentList::<Sol>::empty()
             .push_arg(100u8)
@@ -527,8 +544,7 @@ mod tests {
         let encoded_args_list = SolEncode::encode(&args_list);
 
         let args_tuple = (100u8, vec![1, 2, 3, 4], String::from("Hello, world!"), true);
-        let encoded_args_tuple =
-            ink_primitives::sol::SolParamsEncode::encode(&args_tuple);
+        let encoded_args_tuple = ink_primitives::sol::encode_sequence(&args_tuple);
 
         assert_eq!(encoded_args_list, encoded_args_tuple);
     }
