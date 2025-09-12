@@ -59,7 +59,6 @@ scale-info = { workspace = true, features = ["derive"] }
 [features]
 default = [ "std" ]
 std = [
-    "deranged/std",
 	"impl-serde/std",
 	"ink_e2e_macro/std",
 	"pallet-revive/std",

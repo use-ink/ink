@@ -44,8 +44,6 @@ trybuild = { workspace = true, features = ["diff"] }
 [features]
 default = ["std"]
 std = [
-    "tokio",
-    "deranged/std",
     "ink_env/std",
     "ink_macro/std",
     "ink_metadata/std",

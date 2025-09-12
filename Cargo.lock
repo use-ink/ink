@@ -1959,12 +1959,6 @@ dependencies = [
 
 [[package]]
 name = "deranged"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c9e6a11ca8224451684bc0d7d5a7adbf8f2fd6887261a1cfc3c0432f9d4068e"
-
-[[package]]
-name = "deranged"
 version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d630bccd429a5bb5a64b5e94f693bfc48c9f8566418fda4c494cc94f911f87cc"
@@ -3435,7 +3429,6 @@ name = "ink"
 version = "6.0.0-alpha.3"
 dependencies = [
  "const_format",
- "deranged 0.4.0",
  "derive_more 2.0.1",
  "ink_env",
  "ink_ir",
@@ -3453,7 +3446,6 @@ dependencies = [
  "sp-io",
  "sp-runtime-interface",
  "staging-xcm",
- "tokio",
  "trybuild",
 ]
 
@@ -3493,7 +3485,6 @@ version = "6.0.0-alpha.3"
 dependencies = [
  "cargo_metadata 0.21.0",
  "contract-build",
- "deranged 0.4.0",
  "frame-support",
  "funty",
  "impl-serde",
@@ -7948,7 +7939,7 @@ version = "0.3.43"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "83bde6f1ec10e72d583d91623c939f623002284ef622b87de38cfd546cbf2031"
 dependencies = [
- "deranged 0.5.3",
+ "deranged",
  "num-conv",
  "powerfmt",
  "serde",
