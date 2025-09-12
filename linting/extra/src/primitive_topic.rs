@@ -25,11 +25,6 @@ use rustc_errors::Applicability;
 use rustc_hash::FxHashSet;
 use rustc_hir::{
     self,
-    def::{
-        DefKind,
-        Res,
-    },
-    def_id::DefId,
     Arm,
     AssocItemKind,
     ExprKind,
@@ -41,6 +36,11 @@ use rustc_hir::{
     Node,
     PatKind,
     QPath,
+    def::{
+        DefKind,
+        Res,
+    },
+    def_id::DefId,
 };
 use rustc_lint::{
     LateContext,
