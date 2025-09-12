@@ -18,10 +18,6 @@ keywords = ["ink", "blockchain", "edsl", "dylint", "linting"]
 [workspace.dependencies]
 ink_linting_utils = { version = "=6.0.0-alpha.3", path = "utils" }
 
-# todo Remove once the `polkadot-sdk` compilation error
-# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
-tokio = { version = "1.44.2", features = ["net"], default-features = false }
-
 [workspace.metadata.dylint]
 libraries = [
     { path = "mandatory" },

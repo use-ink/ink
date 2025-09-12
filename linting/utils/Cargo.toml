@@ -21,19 +21,5 @@ if_chain = "1.0.2"
 # https://github.com/trailofbits/dylint/blob/v4.1.0/examples/supplementary/Cargo.toml#L40
 parity_clippy_utils = { package = "clippy_utils", git = "https://github.com/rust-lang/rust-clippy", rev = "0450db33a5d8587f7c1d4b6d233dac963605766b" }
 
-# todo Remove once the `polkadot-sdk` compilation error
-# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
-tokio = { workspace = true, features = ["net"] }
-
-# todo Remove once the `polkadot-sdk` compilation error
-# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
-[dev-dependencies]
-tokio = { workspace = true, features = ["net"] }
-
-# todo Remove once the `polkadot-sdk` compilation error
-# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
-[build-dependencies]
-tokio = { workspace = true, features = ["net"] }
-
 [package.metadata.rust-analyzer]
 rustc_private = true

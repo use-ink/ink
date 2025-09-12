@@ -54,8 +54,8 @@
 use std::{
     env,
     process::{
-        exit,
         Command,
+        exit,
     },
 };
 

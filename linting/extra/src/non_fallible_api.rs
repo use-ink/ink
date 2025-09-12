@@ -25,18 +25,18 @@ use ink_linting_utils::{
 use rustc_errors::Applicability;
 use rustc_hir::{
     self as hir,
-    def_id::DefId,
-    intravisit::{
-        walk_body,
-        walk_expr,
-        Visitor,
-    },
     Body,
     Expr,
     ExprKind,
     ImplItemKind,
     ItemKind,
     PathSegment,
+    def_id::DefId,
+    intravisit::{
+        Visitor,
+        walk_body,
+        walk_expr,
+    },
 };
 use rustc_lint::{
     LateContext,
