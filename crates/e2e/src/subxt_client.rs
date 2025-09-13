@@ -629,6 +629,10 @@ where
         .await
     }
 
+    /// Important: For an uncomplicated UX of the E2E testing environment we
+    /// decided to automatically map the account in `pallet-revive`, if not
+    /// yet mapped. This is a side effect, as a transaction is then issued
+    /// on-chain and the user incurs costs!
     async fn bare_instantiate_dry_run<
         Contract: Clone,
         Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
@@ -642,8 +646,7 @@ where
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error> {
-        // todo beware side effect! this is wrong, we have to batch up the `map_account`
-        // into the RPC dry run instead
+        // There's a side effect here!
         let _ = self.map_account(caller).await;
 
         let code = self.contracts.load_code(contract_name);
@@ -790,7 +793,12 @@ where
         Ok((tx_events, trace))
     }
 
-    // todo is not really a `bare_call`
+    /// Dry-runs a bare call.
+    ///
+    /// Important: For an uncomplicated UX of the E2E testing environment we
+    /// decided to automatically map the account in `pallet-revive`, if not
+    /// yet mapped. This is a side effect, as a transaction is then issued
+    /// on-chain and the user incurs costs!
     async fn bare_call_dry_run<
         Args: Sync + AbiEncodeWith<Abi> + Clone,
         RetType: Send + DecodeMessageResult<Abi>,
@@ -805,8 +813,7 @@ where
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {
-        // todo beware side effect! this is wrong, we have to batch up the `map_account`
-        // into the RPC dry run instead
+        // There's a side effect here!
         let _ = self.map_account(caller).await;
 
         let dest = *message.clone().params().callee();
