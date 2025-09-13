@@ -35,7 +35,7 @@ pub fn salt() -> Option<[u8; 32]> {
     Some(arr)
 }
 
-/// A registry of contracts that can be loaded.
+/// Registry of contracts that can be loaded.
 pub struct ContractsRegistry {
     contracts: BTreeMap<String, PathBuf>,
 }

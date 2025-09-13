@@ -28,7 +28,6 @@ use funty::Fundamental;
 use ink_primitives::{
     Address,
     DepositLimit,
-    H160,
 };
 use pallet_revive::{
     CodeUploadResult,
@@ -560,13 +559,12 @@ where
         &self,
         signer: &Keypair,
         code: Vec<u8>,
-        // todo
-        _storage_deposit_limit: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> CodeUploadResult<E::Balance> {
         let call_request = RpcCodeUploadRequest::<C, E> {
             origin: Signer::<C>::account_id(signer),
             code,
-            storage_deposit_limit: None,
+            storage_deposit_limit,
         };
         let func = "ReviveApi_upload_code";
         let params = scale::Encode::encode(&call_request);

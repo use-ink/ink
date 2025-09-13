@@ -12,11 +12,8 @@ use ink::{
 use ink_e2e::{
     BuilderClient,
     ChainBackend,
-    ContractsBackend,
-    E2EBackend,
     PolkadotConfig,
     Weight,
-    subxt::tx::Signer,
     subxt_signer,
 };
 use std::{
@@ -28,7 +25,6 @@ use std::{
 };
 
 const DEFAULT_GAS: Weight = Weight::from_parts(100_000_000_000, 1024 * 1024);
-const DEFAULT_STORAGE_DEPOSIT_LIMIT: u128 = 10_000_000_000_000;
 type E2EResult<T> = Result<T, Box<dyn Error>>;
 
 // TODO: (@davidsemakula) Re-enable when "no space left" CI issue is fixed
@@ -132,7 +128,6 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
     Ok(())
 }
 
-use ink::env::Environment;
 async fn call_ink<Ret>(
     client: &mut ink_e2e::Client<PolkadotConfig, DefaultEnvironment>,
     ink_addr: Address,

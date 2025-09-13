@@ -435,14 +435,14 @@ where
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        storage_deposit_limit: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
 
         let result = match self.sandbox.upload_contract(
             code,
             caller_to_origin::<S>(caller),
-            storage_deposit_limit,
+            storage_deposit_limit.unwrap_or_else(|| E::Balance::max_value()),
         ) {
             Ok(result) => result,
             Err(err) => {

@@ -155,12 +155,8 @@ where
         &mut self,
         signer: &Keypair,
         code: Vec<u8>,
-        _storage_deposit_limit: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, ExtrinsicEvents<C>>, Error> {
-        // todo
-        let storage_deposit_limit: E::Balance = unsafe {
-            core::mem::transmute_copy::<u128, <E as Environment>::Balance>(&u128::MAX)
-        };
         let dry_run = self
             .api
             .upload_dry_run(signer, code.clone(), storage_deposit_limit)
@@ -170,6 +166,16 @@ where
             let dispatch_err = self.runtime_dispatch_error_to_subxt_dispatch_error(&err);
             return Err(Error::UploadDryRun(dispatch_err))
         }
+
+        let storage_deposit_limit = match storage_deposit_limit {
+            None => {
+                dry_run
+                    .as_ref()
+                    .expect("would have returned already")
+                    .deposit
+            }
+            Some(limit) => limit,
+        };
 
         let (tx_events, trace) =
             self.api.upload(signer, code, storage_deposit_limit).await;
@@ -677,7 +683,7 @@ where
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        storage_deposit_limit: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
         let ret = self

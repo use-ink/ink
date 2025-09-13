@@ -323,7 +323,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        storage_deposit_limit: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error>;
 
     /// Removes the code of the contract at `code_hash`.
