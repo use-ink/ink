@@ -616,7 +616,7 @@ where
     pub async fn call_dry_run(
         &self,
         dest: Address,
-        input_data: Vec<u8>,
+        data: Vec<u8>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
         signer: &Keypair,
@@ -631,7 +631,7 @@ where
                 proof_size: u64::MAX,
             }),
             storage_deposit_limit: storage_deposit_limit.clone(),
-            input_data: input_data.clone(),
+            input_data: data.clone(),
         };
         let func = "ReviveApi_call";
         let params = scale::Encode::encode(&call_request);
@@ -642,16 +642,18 @@ where
             .unwrap_or_else(|err| {
                 panic!("error on ws request `ReviveApi_call`: {err:?}");
             });
-        let res: ContractExecResultFor<E> = scale::Decode::decode(&mut bytes.as_ref())
-            .unwrap_or_else(|err| panic!("decoding ContractExecResult failed: {err}"));
-
-        // todo for gas_limit we should use the value returned by a successful call above.
+        let dry_run_result: ContractExecResultFor<E> =
+            scale::Decode::decode(&mut bytes.as_ref()).unwrap_or_else(|err| {
+                panic!("decoding ContractExecResult failed: {err}")
+            });
 
         // Even if the `storage_deposit_limit` to this function was set as `Unchecked`,
         // we still take the return value of the dry run for submitting the extrinsic
         // that will take effect.
         let storage_deposit_limit = match storage_deposit_limit {
-            DepositLimit::UnsafeOnlyForDryRun => res.storage_deposit.charge_or_zero(),
+            DepositLimit::UnsafeOnlyForDryRun => {
+                dry_run_result.storage_deposit.charge_or_zero()
+            }
             DepositLimit::Balance(limit) => limit,
         };
 
@@ -662,11 +664,11 @@ where
                 dest,
                 value,
                 gas_limit: Weight {
-                    ref_time: u64::MAX,
-                    proof_size: u64::MAX,
+                    ref_time: dry_run_result.gas_required.ref_time(),
+                    proof_size: dry_run_result.gas_required.proof_size(),
                 },
                 storage_deposit_limit,
-                data: input_data,
+                data,
             },
         )
         .unvalidated();
@@ -690,7 +692,7 @@ where
             .trace(block_hash, None, parent_hash, Some(xt.into_encoded()))
             .await;
 
-        (res, trace)
+        (dry_run_result, trace)
     }
 
     /// Submits an extrinsic to call a contract with the given parameters.
@@ -726,7 +728,8 @@ where
     ///
     /// This is a `pallet-revive` concept, whereby a stroage entry is created on-chain.
     /// The entry maps the account id from `signer` to an `H160` account. This is
-    /// a necessity for any operation interacting with the contracts part of `pallet-revive`.
+    /// a necessity for any operation interacting with the contracts part of
+    /// `pallet-revive`.
     pub async fn map_account(
         &self,
         signer: &Keypair,

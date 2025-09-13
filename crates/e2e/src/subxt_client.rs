@@ -670,6 +670,7 @@ where
             .map_err(Error::InstantiateDryRun)?;
 
         /*
+        // todo
         if let Ok(res) = result.result.clone() {
             if res.result.did_revert() {
                 return Err(Self::Error::InstantiateDryRunReverted(DryRunRevert {
