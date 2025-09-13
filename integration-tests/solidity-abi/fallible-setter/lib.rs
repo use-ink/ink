@@ -1,39 +1,56 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::error]
-pub struct SetFailed;
+#[derive(Debug, PartialEq, Eq)]
+/// Equivalent to multiple Solidity custom errors, one for each variant.
+pub enum Error {
+    /// Error when `value > 100`
+    TooLarge,
+    /// Error when `value == self.value`
+    NoChange,
+}
 
 #[ink::contract]
 pub mod fallible_setter {
-    use super::SetFailed;
+    use super::Error;
 
     #[ink(storage)]
     pub struct FallibleSetter {
-        value: bool,
+        value: u8,
     }
 
     impl FallibleSetter {
         /// Creates a new fallible setter smart contract initialized with the given value.
+        /// Returns an error if `init_value > 100`.
         #[ink(constructor)]
-        pub fn new(init_value: bool) -> Self {
-            Self { value: init_value }
+        pub fn new(init_value: u8) -> Result<Self, Error> {
+            if init_value > 100 {
+                return Err(Error::TooLarge)
+            }
+            Ok(Self { value: init_value })
         }
 
-        /// Sets the value of the FallibleSetter's boolean.
-        /// Returns an error if the given value is the same as the current value.
+        /// Sets the value of the FallibleSetter's `u8`.
+        /// Returns an appropriate error if any of the following is true:
+        /// - `value == self.value`
+        /// - `init_value > 100`
         #[ink(message)]
-        pub fn try_set(&mut self, value: bool) -> Result<(), SetFailed> {
+        pub fn try_set(&mut self, value: u8) -> Result<(), Error> {
             if self.value == value {
-                return Err(SetFailed);
+                return Err(Error::NoChange);
+            }
+
+            if value > 100 {
+                return Err(Error::TooLarge);
             }
 
             self.value = value;
             Ok(())
         }
 
-        /// Returns the current value of the FallibleSetter's boolean.
+        /// Returns the current value of the FallibleSetter's `u8`.
         #[ink(message)]
-        pub fn get(&self) -> bool {
+        pub fn get(&self) -> u8 {
             self.value
         }
     }
@@ -44,11 +61,24 @@ pub mod fallible_setter {
 
         #[ink::test]
         fn it_works() {
-            let mut fallible_setter = FallibleSetter::new(false);
-            assert!(!fallible_setter.get());
-            let res = fallible_setter.try_set(true);
+            // given
+            let mut fallible_setter = FallibleSetter::new(0).expect("init failed");
+            assert_eq!(fallible_setter.get(), 0);
+
+            // when
+            let res = fallible_setter.try_set(1);
             assert!(res.is_ok());
-            assert!(fallible_setter.get());
+
+            // when
+            let res = fallible_setter.try_set(1);
+            assert_eq!(res, Err(Error::NoChange));
+
+            // when
+            let res = fallible_setter.try_set(101);
+            assert_eq!(res, Err(Error::TooLarge));
+
+            // then
+            assert_eq!(fallible_setter.get(), 1);
         }
     }
 
@@ -62,7 +92,7 @@ pub mod fallible_setter {
         #[ink_e2e::test]
         async fn it_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given
-            let mut constructor = FallibleSetterRef::new(false);
+            let mut constructor = FallibleSetterRef::new(0);
             let contract = client
                 .instantiate("fallible_setter", &ink_e2e::bob(), &mut constructor)
                 .submit()
@@ -72,10 +102,10 @@ pub mod fallible_setter {
 
             let get = call_builder.get();
             let get_res = client.call(&ink_e2e::bob(), &get).submit().await?;
-            assert!(!get_res.return_value());
+            assert_eq!(get_res.return_value(), 0);
 
             // when
-            let set = call_builder.try_set(true);
+            let set = call_builder.try_set(1);
             let set_res = client
                 .call(&ink_e2e::bob(), &set)
                 .submit()
@@ -83,10 +113,20 @@ pub mod fallible_setter {
                 .expect("set failed");
             assert!(set_res.return_value().is_ok());
 
+            // when
+            let set = call_builder.try_set(1);
+            let set_res = client.call(&ink_e2e::bob(), &set).submit().await;
+            assert!(matches!(set_res, Err(ink_e2e::Error::CallExtrinsic(_, _))));
+
+            // when
+            let set = call_builder.try_set(101);
+            let set_res = client.call(&ink_e2e::bob(), &set).submit().await;
+            assert!(matches!(set_res, Err(ink_e2e::Error::CallExtrinsic(_, _))));
+
             // then
             let get = call_builder.get();
             let get_res = client.call(&ink_e2e::bob(), &get).dry_run().await?;
-            assert!(get_res.return_value());
+            assert_eq!(get_res.return_value(), 1);
 
             Ok(())
         }
