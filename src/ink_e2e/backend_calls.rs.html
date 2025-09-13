@@ -326,7 +326,7 @@
 <a href=#326 id=326 data-nosnippet>326</a>
 <a href=#327 id=327 data-nosnippet>327</a>        <span class="kw">let </span>instantiate_result = B::bare_instantiate(
 <a href=#328 id=328 data-nosnippet>328</a>            <span class="self">self</span>.client,
-<a href=#329 id=329 data-nosnippet>329</a>            <span class="self">self</span>.contract_name,
+<a href=#329 id=329 data-nosnippet>329</a>            B::load_code(<span class="self">self</span>.client, <span class="self">self</span>.contract_name),
 <a href=#330 id=330 data-nosnippet>330</a>            <span class="self">self</span>.caller,
 <a href=#331 id=331 data-nosnippet>331</a>            <span class="self">self</span>.constructor,
 <a href=#332 id=332 data-nosnippet>332</a>            <span class="self">self</span>.value,
@@ -339,116 +339,117 @@
 <a href=#339 id=339 data-nosnippet>339</a>
 <a href=#340 id=340 data-nosnippet>340</a>        <span class="prelude-val">Ok</span>(InstantiationResult {
 <a href=#341 id=341 data-nosnippet>341</a>            addr: instantiate_result.addr,
-<a href=#342 id=342 data-nosnippet>342</a>            dry_run,
-<a href=#343 id=343 data-nosnippet>343</a>            events: instantiate_result.events,
-<a href=#344 id=344 data-nosnippet>344</a>            trace: instantiate_result.trace,
-<a href=#345 id=345 data-nosnippet>345</a>            code_hash: instantiate_result.code_hash,
-<a href=#346 id=346 data-nosnippet>346</a>        })
-<a href=#347 id=347 data-nosnippet>347</a>    }
-<a href=#348 id=348 data-nosnippet>348</a>
-<a href=#349 id=349 data-nosnippet>349</a>    <span class="doccomment">/// Dry run the instantiate call.
-<a href=#350 id=350 data-nosnippet>350</a>    </span><span class="kw">pub async fn </span>dry_run(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;InstantiateDryRunResult&lt;E, Abi&gt;, B::Error&gt; {
-<a href=#351 id=351 data-nosnippet>351</a>        B::bare_instantiate_dry_run(
-<a href=#352 id=352 data-nosnippet>352</a>            <span class="self">self</span>.client,
-<a href=#353 id=353 data-nosnippet>353</a>            <span class="self">self</span>.contract_name,
-<a href=#354 id=354 data-nosnippet>354</a>            <span class="self">self</span>.caller,
-<a href=#355 id=355 data-nosnippet>355</a>            <span class="self">self</span>.constructor,
-<a href=#356 id=356 data-nosnippet>356</a>            <span class="self">self</span>.value,
-<a href=#357 id=357 data-nosnippet>357</a>            <span class="self">self</span>.storage_deposit_limit.clone(),
-<a href=#358 id=358 data-nosnippet>358</a>        )
-<a href=#359 id=359 data-nosnippet>359</a>        .<span class="kw">await
-<a href=#360 id=360 data-nosnippet>360</a>    </span>}
-<a href=#361 id=361 data-nosnippet>361</a>}
-<a href=#362 id=362 data-nosnippet>362</a>
-<a href=#363 id=363 data-nosnippet>363</a><span class="doccomment">/// Allows to build an end-to-end upload call using a builder pattern.
-<a href=#364 id=364 data-nosnippet>364</a></span><span class="kw">pub struct </span>UploadBuilder&lt;<span class="lifetime">'a</span>, E, B&gt;
-<a href=#365 id=365 data-nosnippet>365</a><span class="kw">where
-<a href=#366 id=366 data-nosnippet>366</a>    </span>E: Environment,
-<a href=#367 id=367 data-nosnippet>367</a>    B: BuilderClient&lt;E&gt;,
-<a href=#368 id=368 data-nosnippet>368</a>{
-<a href=#369 id=369 data-nosnippet>369</a>    client: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>B,
-<a href=#370 id=370 data-nosnippet>370</a>    contract_name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
-<a href=#371 id=371 data-nosnippet>371</a>    caller: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Keypair,
-<a href=#372 id=372 data-nosnippet>372</a>    storage_deposit_limit: E::Balance,
-<a href=#373 id=373 data-nosnippet>373</a>}
-<a href=#374 id=374 data-nosnippet>374</a>
-<a href=#375 id=375 data-nosnippet>375</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, E, B&gt; UploadBuilder&lt;<span class="lifetime">'a</span>, E, B&gt;
-<a href=#376 id=376 data-nosnippet>376</a><span class="kw">where
-<a href=#377 id=377 data-nosnippet>377</a>    </span>E: Environment,
-<a href=#378 id=378 data-nosnippet>378</a>    B: BuilderClient&lt;E&gt;,
-<a href=#379 id=379 data-nosnippet>379</a>{
-<a href=#380 id=380 data-nosnippet>380</a>    <span class="doccomment">/// Initialize an upload builder with essential values.
-<a href=#381 id=381 data-nosnippet>381</a>    </span><span class="kw">pub fn </span>new(client: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>B, contract_name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, caller: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Keypair) -&gt; <span class="self">Self </span>{
-<a href=#382 id=382 data-nosnippet>382</a>        <span class="self">Self </span>{
-<a href=#383 id=383 data-nosnippet>383</a>            client,
-<a href=#384 id=384 data-nosnippet>384</a>            contract_name,
-<a href=#385 id=385 data-nosnippet>385</a>            caller,
-<a href=#386 id=386 data-nosnippet>386</a>            storage_deposit_limit: <span class="number">0u32</span>.into(),
-<a href=#387 id=387 data-nosnippet>387</a>        }
-<a href=#388 id=388 data-nosnippet>388</a>    }
-<a href=#389 id=389 data-nosnippet>389</a>
-<a href=#390 id=390 data-nosnippet>390</a>    <span class="doccomment">/// Specify the max amount of funds that can be charged for storage.
-<a href=#391 id=391 data-nosnippet>391</a>    </span><span class="kw">pub fn </span>storage_deposit_limit(
-<a href=#392 id=392 data-nosnippet>392</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#393 id=393 data-nosnippet>393</a>        storage_deposit_limit: E::Balance,
-<a href=#394 id=394 data-nosnippet>394</a>    ) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
-<a href=#395 id=395 data-nosnippet>395</a>        <span class="self">self</span>.storage_deposit_limit = storage_deposit_limit;
-<a href=#396 id=396 data-nosnippet>396</a>        <span class="self">self
-<a href=#397 id=397 data-nosnippet>397</a>    </span>}
-<a href=#398 id=398 data-nosnippet>398</a>
-<a href=#399 id=399 data-nosnippet>399</a>    <span class="doccomment">/// Execute the upload.
-<a href=#400 id=400 data-nosnippet>400</a>    </span><span class="kw">pub async fn </span>submit(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;UploadResult&lt;E, B::EventLog&gt;, B::Error&gt; {
-<a href=#401 id=401 data-nosnippet>401</a>        B::bare_upload(
-<a href=#402 id=402 data-nosnippet>402</a>            <span class="self">self</span>.client,
-<a href=#403 id=403 data-nosnippet>403</a>            <span class="self">self</span>.contract_name,
-<a href=#404 id=404 data-nosnippet>404</a>            <span class="self">self</span>.caller,
-<a href=#405 id=405 data-nosnippet>405</a>            <span class="self">self</span>.storage_deposit_limit,
-<a href=#406 id=406 data-nosnippet>406</a>        )
-<a href=#407 id=407 data-nosnippet>407</a>        .<span class="kw">await
-<a href=#408 id=408 data-nosnippet>408</a>    </span>}
-<a href=#409 id=409 data-nosnippet>409</a>}
-<a href=#410 id=410 data-nosnippet>410</a>
-<a href=#411 id=411 data-nosnippet>411</a><span class="doccomment">/// Allows to build an end-to-end remove code call using a builder pattern.
-<a href=#412 id=412 data-nosnippet>412</a></span><span class="kw">pub struct </span>RemoveCodeBuilder&lt;<span class="lifetime">'a</span>, E, B&gt;
-<a href=#413 id=413 data-nosnippet>413</a><span class="kw">where
-<a href=#414 id=414 data-nosnippet>414</a>    </span>E: Environment,
-<a href=#415 id=415 data-nosnippet>415</a>    B: BuilderClient&lt;E&gt;,
-<a href=#416 id=416 data-nosnippet>416</a>{
-<a href=#417 id=417 data-nosnippet>417</a>    client: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>B,
-<a href=#418 id=418 data-nosnippet>418</a>    caller: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Keypair,
-<a href=#419 id=419 data-nosnippet>419</a>    code_hash: <span class="kw">crate</span>::H256,
-<a href=#420 id=420 data-nosnippet>420</a>    _phantom: PhantomData&lt;<span class="kw">fn</span>() -&gt; E&gt;,
-<a href=#421 id=421 data-nosnippet>421</a>}
-<a href=#422 id=422 data-nosnippet>422</a>
-<a href=#423 id=423 data-nosnippet>423</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, E, B&gt; RemoveCodeBuilder&lt;<span class="lifetime">'a</span>, E, B&gt;
-<a href=#424 id=424 data-nosnippet>424</a><span class="kw">where
-<a href=#425 id=425 data-nosnippet>425</a>    </span>E: Environment,
-<a href=#426 id=426 data-nosnippet>426</a>    B: BuilderClient&lt;E&gt;,
-<a href=#427 id=427 data-nosnippet>427</a>{
-<a href=#428 id=428 data-nosnippet>428</a>    <span class="doccomment">/// Initialize a remove code builder with essential values.
-<a href=#429 id=429 data-nosnippet>429</a>    </span><span class="kw">pub fn </span>new(client: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>B, caller: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Keypair, code_hash: H256) -&gt; <span class="self">Self </span>{
-<a href=#430 id=430 data-nosnippet>430</a>        <span class="self">Self </span>{
-<a href=#431 id=431 data-nosnippet>431</a>            client,
-<a href=#432 id=432 data-nosnippet>432</a>            caller,
-<a href=#433 id=433 data-nosnippet>433</a>            code_hash,
-<a href=#434 id=434 data-nosnippet>434</a>            _phantom: Default::default(),
-<a href=#435 id=435 data-nosnippet>435</a>        }
-<a href=#436 id=436 data-nosnippet>436</a>    }
-<a href=#437 id=437 data-nosnippet>437</a>
-<a href=#438 id=438 data-nosnippet>438</a>    <span class="doccomment">/// Submit the remove code extrinsic.
-<a href=#439 id=439 data-nosnippet>439</a>    </span><span class="kw">pub async fn </span>submit(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;B::EventLog, B::Error&gt; {
-<a href=#440 id=440 data-nosnippet>440</a>        B::bare_remove_code(<span class="self">self</span>.client, <span class="self">self</span>.caller, <span class="self">self</span>.code_hash).<span class="kw">await
-<a href=#441 id=441 data-nosnippet>441</a>    </span>}
-<a href=#442 id=442 data-nosnippet>442</a>}
-<a href=#443 id=443 data-nosnippet>443</a>
-<a href=#444 id=444 data-nosnippet>444</a><span class="kw">fn </span>calculate_weight(
-<a href=#445 id=445 data-nosnippet>445</a>    <span class="kw-2">mut </span>proof_size: u64,
-<a href=#446 id=446 data-nosnippet>446</a>    <span class="kw-2">mut </span>ref_time: u64,
-<a href=#447 id=447 data-nosnippet>447</a>    portion: <span class="prelude-ty">Option</span>&lt;u64&gt;,
-<a href=#448 id=448 data-nosnippet>448</a>) -&gt; Weight {
-<a href=#449 id=449 data-nosnippet>449</a>    <span class="kw">if let </span><span class="prelude-val">Some</span>(m) = portion {
-<a href=#450 id=450 data-nosnippet>450</a>        ref_time += ref_time / <span class="number">100 </span>* m;
-<a href=#451 id=451 data-nosnippet>451</a>        proof_size += proof_size / <span class="number">100 </span>* m;
-<a href=#452 id=452 data-nosnippet>452</a>    }
-<a href=#453 id=453 data-nosnippet>453</a>    Weight::from_parts(ref_time, proof_size)
-<a href=#454 id=454 data-nosnippet>454</a>}</code></pre></div></section></main></body></html>
+<a href=#342 id=342 data-nosnippet>342</a>            account_id: instantiate_result.account_id,
+<a href=#343 id=343 data-nosnippet>343</a>            dry_run,
+<a href=#344 id=344 data-nosnippet>344</a>            events: instantiate_result.events,
+<a href=#345 id=345 data-nosnippet>345</a>            trace: instantiate_result.trace,
+<a href=#346 id=346 data-nosnippet>346</a>            code_hash: instantiate_result.code_hash,
+<a href=#347 id=347 data-nosnippet>347</a>        })
+<a href=#348 id=348 data-nosnippet>348</a>    }
+<a href=#349 id=349 data-nosnippet>349</a>
+<a href=#350 id=350 data-nosnippet>350</a>    <span class="doccomment">/// Dry run the instantiate call.
+<a href=#351 id=351 data-nosnippet>351</a>    </span><span class="kw">pub async fn </span>dry_run(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;InstantiateDryRunResult&lt;E, Abi&gt;, B::Error&gt; {
+<a href=#352 id=352 data-nosnippet>352</a>        B::bare_instantiate_dry_run(
+<a href=#353 id=353 data-nosnippet>353</a>            <span class="self">self</span>.client,
+<a href=#354 id=354 data-nosnippet>354</a>            <span class="self">self</span>.contract_name,
+<a href=#355 id=355 data-nosnippet>355</a>            <span class="self">self</span>.caller,
+<a href=#356 id=356 data-nosnippet>356</a>            <span class="self">self</span>.constructor,
+<a href=#357 id=357 data-nosnippet>357</a>            <span class="self">self</span>.value,
+<a href=#358 id=358 data-nosnippet>358</a>            <span class="self">self</span>.storage_deposit_limit.clone(),
+<a href=#359 id=359 data-nosnippet>359</a>        )
+<a href=#360 id=360 data-nosnippet>360</a>        .<span class="kw">await
+<a href=#361 id=361 data-nosnippet>361</a>    </span>}
+<a href=#362 id=362 data-nosnippet>362</a>}
+<a href=#363 id=363 data-nosnippet>363</a>
+<a href=#364 id=364 data-nosnippet>364</a><span class="doccomment">/// Allows to build an end-to-end upload call using a builder pattern.
+<a href=#365 id=365 data-nosnippet>365</a></span><span class="kw">pub struct </span>UploadBuilder&lt;<span class="lifetime">'a</span>, E, B&gt;
+<a href=#366 id=366 data-nosnippet>366</a><span class="kw">where
+<a href=#367 id=367 data-nosnippet>367</a>    </span>E: Environment,
+<a href=#368 id=368 data-nosnippet>368</a>    B: BuilderClient&lt;E&gt;,
+<a href=#369 id=369 data-nosnippet>369</a>{
+<a href=#370 id=370 data-nosnippet>370</a>    client: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>B,
+<a href=#371 id=371 data-nosnippet>371</a>    contract_name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
+<a href=#372 id=372 data-nosnippet>372</a>    caller: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Keypair,
+<a href=#373 id=373 data-nosnippet>373</a>    storage_deposit_limit: E::Balance,
+<a href=#374 id=374 data-nosnippet>374</a>}
+<a href=#375 id=375 data-nosnippet>375</a>
+<a href=#376 id=376 data-nosnippet>376</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, E, B&gt; UploadBuilder&lt;<span class="lifetime">'a</span>, E, B&gt;
+<a href=#377 id=377 data-nosnippet>377</a><span class="kw">where
+<a href=#378 id=378 data-nosnippet>378</a>    </span>E: Environment,
+<a href=#379 id=379 data-nosnippet>379</a>    B: BuilderClient&lt;E&gt;,
+<a href=#380 id=380 data-nosnippet>380</a>{
+<a href=#381 id=381 data-nosnippet>381</a>    <span class="doccomment">/// Initialize an upload builder with essential values.
+<a href=#382 id=382 data-nosnippet>382</a>    </span><span class="kw">pub fn </span>new(client: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>B, contract_name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, caller: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Keypair) -&gt; <span class="self">Self </span>{
+<a href=#383 id=383 data-nosnippet>383</a>        <span class="self">Self </span>{
+<a href=#384 id=384 data-nosnippet>384</a>            client,
+<a href=#385 id=385 data-nosnippet>385</a>            contract_name,
+<a href=#386 id=386 data-nosnippet>386</a>            caller,
+<a href=#387 id=387 data-nosnippet>387</a>            storage_deposit_limit: <span class="number">0u32</span>.into(),
+<a href=#388 id=388 data-nosnippet>388</a>        }
+<a href=#389 id=389 data-nosnippet>389</a>    }
+<a href=#390 id=390 data-nosnippet>390</a>
+<a href=#391 id=391 data-nosnippet>391</a>    <span class="doccomment">/// Specify the max amount of funds that can be charged for storage.
+<a href=#392 id=392 data-nosnippet>392</a>    </span><span class="kw">pub fn </span>storage_deposit_limit(
+<a href=#393 id=393 data-nosnippet>393</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#394 id=394 data-nosnippet>394</a>        storage_deposit_limit: E::Balance,
+<a href=#395 id=395 data-nosnippet>395</a>    ) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+<a href=#396 id=396 data-nosnippet>396</a>        <span class="self">self</span>.storage_deposit_limit = storage_deposit_limit;
+<a href=#397 id=397 data-nosnippet>397</a>        <span class="self">self
+<a href=#398 id=398 data-nosnippet>398</a>    </span>}
+<a href=#399 id=399 data-nosnippet>399</a>
+<a href=#400 id=400 data-nosnippet>400</a>    <span class="doccomment">/// Execute the upload.
+<a href=#401 id=401 data-nosnippet>401</a>    </span><span class="kw">pub async fn </span>submit(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;UploadResult&lt;E, B::EventLog&gt;, B::Error&gt; {
+<a href=#402 id=402 data-nosnippet>402</a>        B::bare_upload(
+<a href=#403 id=403 data-nosnippet>403</a>            <span class="self">self</span>.client,
+<a href=#404 id=404 data-nosnippet>404</a>            <span class="self">self</span>.contract_name,
+<a href=#405 id=405 data-nosnippet>405</a>            <span class="self">self</span>.caller,
+<a href=#406 id=406 data-nosnippet>406</a>            <span class="self">self</span>.storage_deposit_limit,
+<a href=#407 id=407 data-nosnippet>407</a>        )
+<a href=#408 id=408 data-nosnippet>408</a>        .<span class="kw">await
+<a href=#409 id=409 data-nosnippet>409</a>    </span>}
+<a href=#410 id=410 data-nosnippet>410</a>}
+<a href=#411 id=411 data-nosnippet>411</a>
+<a href=#412 id=412 data-nosnippet>412</a><span class="doccomment">/// Allows to build an end-to-end remove code call using a builder pattern.
+<a href=#413 id=413 data-nosnippet>413</a></span><span class="kw">pub struct </span>RemoveCodeBuilder&lt;<span class="lifetime">'a</span>, E, B&gt;
+<a href=#414 id=414 data-nosnippet>414</a><span class="kw">where
+<a href=#415 id=415 data-nosnippet>415</a>    </span>E: Environment,
+<a href=#416 id=416 data-nosnippet>416</a>    B: BuilderClient&lt;E&gt;,
+<a href=#417 id=417 data-nosnippet>417</a>{
+<a href=#418 id=418 data-nosnippet>418</a>    client: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>B,
+<a href=#419 id=419 data-nosnippet>419</a>    caller: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Keypair,
+<a href=#420 id=420 data-nosnippet>420</a>    code_hash: <span class="kw">crate</span>::H256,
+<a href=#421 id=421 data-nosnippet>421</a>    _phantom: PhantomData&lt;<span class="kw">fn</span>() -&gt; E&gt;,
+<a href=#422 id=422 data-nosnippet>422</a>}
+<a href=#423 id=423 data-nosnippet>423</a>
+<a href=#424 id=424 data-nosnippet>424</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, E, B&gt; RemoveCodeBuilder&lt;<span class="lifetime">'a</span>, E, B&gt;
+<a href=#425 id=425 data-nosnippet>425</a><span class="kw">where
+<a href=#426 id=426 data-nosnippet>426</a>    </span>E: Environment,
+<a href=#427 id=427 data-nosnippet>427</a>    B: BuilderClient&lt;E&gt;,
+<a href=#428 id=428 data-nosnippet>428</a>{
+<a href=#429 id=429 data-nosnippet>429</a>    <span class="doccomment">/// Initialize a remove code builder with essential values.
+<a href=#430 id=430 data-nosnippet>430</a>    </span><span class="kw">pub fn </span>new(client: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>B, caller: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Keypair, code_hash: H256) -&gt; <span class="self">Self </span>{
+<a href=#431 id=431 data-nosnippet>431</a>        <span class="self">Self </span>{
+<a href=#432 id=432 data-nosnippet>432</a>            client,
+<a href=#433 id=433 data-nosnippet>433</a>            caller,
+<a href=#434 id=434 data-nosnippet>434</a>            code_hash,
+<a href=#435 id=435 data-nosnippet>435</a>            _phantom: Default::default(),
+<a href=#436 id=436 data-nosnippet>436</a>        }
+<a href=#437 id=437 data-nosnippet>437</a>    }
+<a href=#438 id=438 data-nosnippet>438</a>
+<a href=#439 id=439 data-nosnippet>439</a>    <span class="doccomment">/// Submit the remove code extrinsic.
+<a href=#440 id=440 data-nosnippet>440</a>    </span><span class="kw">pub async fn </span>submit(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;B::EventLog, B::Error&gt; {
+<a href=#441 id=441 data-nosnippet>441</a>        B::bare_remove_code(<span class="self">self</span>.client, <span class="self">self</span>.caller, <span class="self">self</span>.code_hash).<span class="kw">await
+<a href=#442 id=442 data-nosnippet>442</a>    </span>}
+<a href=#443 id=443 data-nosnippet>443</a>}
+<a href=#444 id=444 data-nosnippet>444</a>
+<a href=#445 id=445 data-nosnippet>445</a><span class="kw">fn </span>calculate_weight(
+<a href=#446 id=446 data-nosnippet>446</a>    <span class="kw-2">mut </span>proof_size: u64,
+<a href=#447 id=447 data-nosnippet>447</a>    <span class="kw-2">mut </span>ref_time: u64,
+<a href=#448 id=448 data-nosnippet>448</a>    portion: <span class="prelude-ty">Option</span>&lt;u64&gt;,
+<a href=#449 id=449 data-nosnippet>449</a>) -&gt; Weight {
+<a href=#450 id=450 data-nosnippet>450</a>    <span class="kw">if let </span><span class="prelude-val">Some</span>(m) = portion {
+<a href=#451 id=451 data-nosnippet>451</a>        ref_time += ref_time / <span class="number">100 </span>* m;
+<a href=#452 id=452 data-nosnippet>452</a>        proof_size += proof_size / <span class="number">100 </span>* m;
+<a href=#453 id=453 data-nosnippet>453</a>    }
+<a href=#454 id=454 data-nosnippet>454</a>    Weight::from_parts(ref_time, proof_size)
+<a href=#455 id=455 data-nosnippet>455</a>}</code></pre></div></section></main></body></html>
