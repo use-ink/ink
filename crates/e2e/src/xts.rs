@@ -745,7 +745,10 @@ where
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
-    pub async fn map_account(&self, signer: &Keypair) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
+    pub async fn map_account(
+        &self,
+        signer: &Keypair,
+    ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
         let call = subxt::tx::DefaultPayload::new("Revive", "map_account", MapAccount {})
             .unvalidated();
 

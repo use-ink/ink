@@ -171,7 +171,8 @@ where
             return Err(Error::UploadDryRun(dispatch_err))
         }
 
-        let (tx_events, trace) = self.api.upload(signer, code, storage_deposit_limit).await;
+        let (tx_events, trace) =
+            self.api.upload(signer, code, storage_deposit_limit).await;
 
         let mut hash = None;
         for evt in tx_events.iter() {
@@ -196,7 +197,9 @@ where
                     DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::Decoding(e.to_string()))?;
 
-                log_error(&format!("extrinsic for upload failed: {dispatch_error} {trace:?}"));
+                log_error(&format!(
+                    "extrinsic for upload failed: {dispatch_error} {trace:?}"
+                ));
                 return Err(Error::UploadExtrinsic(dispatch_error, trace))
             }
         }
@@ -455,7 +458,9 @@ where
                 let dispatch_error =
                     subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::Decoding(e.to_string()))?;
-                log_error(&format!("extrinsic for call failed: {dispatch_error} {trace:?}"));
+                log_error(&format!(
+                    "extrinsic for call failed: {dispatch_error} {trace:?}"
+                ));
                 return Err(Error::CallExtrinsic(dispatch_error, trace))
             }
         }
@@ -702,7 +707,9 @@ where
                 let dispatch_error =
                     DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::Decoding(e.to_string()))?;
-                log_error(&format!("extrinsic for remove code failed: {dispatch_error} {trace:?}"));
+                log_error(&format!(
+                    "extrinsic for remove code failed: {dispatch_error} {trace:?}"
+                ));
                 return Err(Error::RemoveCodeExtrinsic(dispatch_error, trace))
             }
         }
@@ -770,7 +777,9 @@ where
                 let dispatch_error =
                     DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::Decoding(e.to_string()))?;
-                log_error(&format!("extrinsic for call failed: {dispatch_error} {trace:?}"));
+                log_error(&format!(
+                    "extrinsic for call failed: {dispatch_error} {trace:?}"
+                ));
                 return Err(Error::CallExtrinsic(dispatch_error, trace))
             }
         }
@@ -868,7 +877,9 @@ where
                 let dispatch_error =
                     DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::Decoding(e.to_string()))?;
-                log_error(&format!("extrinsic for call failed: {dispatch_error} {trace:?}"));
+                log_error(&format!(
+                    "extrinsic for call failed: {dispatch_error} {trace:?}"
+                ));
                 return Err(Error::CallExtrinsic(dispatch_error, trace))
             }
         }
@@ -892,7 +903,9 @@ where
                 let dispatch_error =
                     DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::Decoding(e.to_string()))?;
-                log_error(&format!("extrinsic for call failed: {dispatch_error} {trace:?}"));
+                log_error(&format!(
+                    "extrinsic for call failed: {dispatch_error} {trace:?}"
+                ));
                 return Err(Error::CallExtrinsic(dispatch_error, trace))
             }
         }
