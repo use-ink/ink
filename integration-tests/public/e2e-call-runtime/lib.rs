@@ -16,13 +16,6 @@ pub mod e2e_call_runtime {
         pub fn get_contract_balance(&self) -> ink::U256 {
             self.env().balance()
         }
-
-        /// todo
-        /// Returns the `AccountId` of this contract.
-        #[ink(message)]
-        pub fn account_id(&mut self) -> AccountId {
-            self.env().account_id()
-        }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
@@ -34,6 +27,7 @@ pub mod e2e_call_runtime {
             ContractsBackend,
             subxt::dynamic::Value,
         };
+        use static_assertions::assert_type_eq_all;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -48,26 +42,24 @@ pub mod e2e_call_runtime {
                 .submit()
                 .await
                 .expect("instantiate failed");
+
+            let account_id = client.to_account_id(&contract.addr).await?;
+            assert_eq!(account_id, contract.account_id);
+
             let mut call_builder = contract.call_builder::<Contract>();
 
-            // todo
-            let acc = call_builder.account_id();
-            let call_res = client
-                .call(&ink_e2e::alice(), &acc)
-                .submit()
-                .await
-                .expect("call failed");
-            let account_id: AccountId = call_res.return_value();
-
-            // todo
-            let transfer_amount = 100_000_000_000u128;
+            // The generic `Environment::Balance` type must be `u128`
+            // for this test to work. This is because we encode `Value::u128`
+            // in the `call_data`.
+            assert_type_eq_all!(Balance, u128);
+            let transfer_amount: u128 = 100_000_000_000;
 
             // when
             let call_data = vec![
                 // A value representing a `MultiAddress<AccountId32, _>`. We want the
                 // "Id" variant, and that will ultimately contain the
                 // bytes for our destination address
-                Value::unnamed_variant("Id", [Value::from_bytes(account_id)]),
+                Value::unnamed_variant("Id", [Value::from_bytes(contract.account_id)]),
                 // A value representing the amount we'd like to transfer.
                 Value::u128(transfer_amount),
             ];

@@ -113,7 +113,7 @@ pub mod overflow_safety {
             // when
             let add = call_builder.add(u8::MAX, 1u8);
             let add_res = client.call(&ink_e2e::bob(), &add).submit().await;
-            assert!(matches!(add_res, Err(ink_e2e::Error::CallExtrinsic(_))));
+            assert!(matches!(add_res, Err(ink_e2e::Error::CallExtrinsic(_, _))));
 
             Ok(())
         }
@@ -159,7 +159,7 @@ pub mod overflow_safety {
             // when
             let sub = call_builder.sub(u8::MIN, 1u8);
             let sub_res = client.call(&ink_e2e::bob(), &sub).submit().await;
-            assert!(matches!(sub_res, Err(ink_e2e::Error::CallExtrinsic(_))));
+            assert!(matches!(sub_res, Err(ink_e2e::Error::CallExtrinsic(_, _))));
 
             Ok(())
         }

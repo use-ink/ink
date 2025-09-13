@@ -28,6 +28,7 @@ use funty::Fundamental;
 use ink_primitives::{
     Address,
     DepositLimit,
+    H160,
 };
 use pallet_revive::{
     CodeUploadResult,
@@ -239,7 +240,7 @@ where
     <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
     E: Environment,
-    E::Balance: scale::HasCompact + serde::Serialize,
+    E::Balance: scale::HasCompact + serde::Serialize + std::fmt::Debug,
 {
     /// Creates a new [`ReviveApi`] instance.
     pub async fn new(rpc: RpcClient) -> Result<Self, subxt::Error> {
@@ -256,7 +257,7 @@ where
     ///
     /// Returns `Ok` on success, and a [`subxt::Error`] if the extrinsic is
     /// invalid (e.g. out of date nonce)
-    pub async fn try_transfer_balance(
+    pub async fn transfer_allow_death(
         &self,
         origin: &Keypair,
         dest: C::AccountId,
@@ -543,7 +544,7 @@ where
             InstantiateWithCode::<E> {
                 value,
                 gas_limit,
-                storage_deposit_limit, // todo
+                storage_deposit_limit,
                 code,
                 data,
                 salt,
@@ -589,7 +590,7 @@ where
         signer: &Keypair,
         code: Vec<u8>,
         storage_deposit_limit: E::Balance,
-    ) -> ExtrinsicEvents<C> {
+    ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
         let call = subxt::tx::DefaultPayload::new(
             "Revive",
             "upload_code",
@@ -600,7 +601,7 @@ where
         )
         .unvalidated();
 
-        self.submit_extrinsic(&call, signer).await.0
+        self.submit_extrinsic(&call, signer).await
     }
 
     /// Submits an extrinsic to remove the code at the given hash.
@@ -611,7 +612,7 @@ where
         &self,
         signer: &Keypair,
         code_hash: H256,
-    ) -> ExtrinsicEvents<C> {
+    ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
         let call = subxt::tx::DefaultPayload::new(
             "Revive",
             "remove_code",
@@ -619,19 +620,19 @@ where
         )
         .unvalidated();
 
-        self.submit_extrinsic(&call, signer).await.0
+        self.submit_extrinsic(&call, signer).await
     }
 
     /// Dry runs a call of the contract at `contract` with the given parameters.
     pub async fn call_dry_run(
         &self,
-        origin: C::AccountId,
         dest: Address,
         input_data: Vec<u8>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
         signer: &Keypair,
     ) -> (ContractExecResultFor<E>, Option<CallTrace>) {
+        let origin = Signer::<C>::account_id(signer);
         let call_request = RpcCallRequest::<C, E> {
             origin,
             dest,
@@ -650,7 +651,7 @@ where
             .state_call(func, Some(&params), None)
             .await
             .unwrap_or_else(|err| {
-                panic!("error on ws request `contracts_call`: {err:?}");
+                panic!("error on ws request `ReviveApi_call`: {err:?}");
             });
         let res: ContractExecResultFor<E> = scale::Decode::decode(&mut bytes.as_ref())
             .unwrap_or_else(|err| panic!("decoding ContractExecResult failed: {err}"));
@@ -729,7 +730,6 @@ where
             },
         )
         .unvalidated();
-
         self.submit_extrinsic(&call, signer).await
     }
 
@@ -738,11 +738,14 @@ where
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
-    pub async fn map_account(&self, signer: &Keypair) -> ExtrinsicEvents<C> {
+    pub async fn map_account(
+        &self,
+        signer: &Keypair,
+    ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
         let call = subxt::tx::DefaultPayload::new("Revive", "map_account", MapAccount {})
             .unvalidated();
 
-        self.submit_extrinsic(&call, signer).await.0
+        self.submit_extrinsic(&call, signer).await
     }
 
     /// Submit an extrinsic `call_name` for the `pallet_name`.
@@ -757,9 +760,8 @@ where
         pallet_name: &'a str,
         call_name: &'a str,
         call_data: Vec<subxt::dynamic::Value>,
-    ) -> ExtrinsicEvents<C> {
+    ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
         let call = subxt::dynamic::tx(pallet_name, call_name, call_data);
-
-        self.submit_extrinsic(&call, signer).await.0
+        self.submit_extrinsic(&call, signer).await
     }
 }

@@ -9,7 +9,6 @@ publish = false
 ink = { path = "../../../crates/ink", default-features = false }
 
 [dev-dependencies]
-#ink_e2e = { path = "../../../crates/e2e" }
 ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
 
 [lib]

@@ -94,45 +94,42 @@ pub type ContractExecResultFor<E> =
     ContractResult<ExecReturnValue, <E as Environment>::Balance>;
 
 /// Result of a contract instantiation using bare call.
-pub struct BareInstantiationResult<EventLog> {
-    /// The address at which the contract was instantiated.
+pub struct BareInstantiationResult<E: Environment, EventLog> {
+    // The address at which the contract was instantiated.
     pub addr: Address,
+    // The account id at which the contract was instantiated.
+    pub account_id: E::AccountId,
     /// Events that happened with the contract instantiation.
     pub events: EventLog,
-    /// todo
+    /// Trace of the instantiated contract.
     pub trace: Option<CallTrace>,
-    /// todo
+    /// Code hash of the instantiated contract.
     pub code_hash: H256,
 }
 
-impl<EventLog> BareInstantiationResult<EventLog> {
-    /// Returns the address at which the contract was instantiated.
-    /// todo why this strange name? shouldn't it be `fn addr()`?
-    pub fn call(&self) -> Address {
-        self.addr
-    }
-}
-
-/// We implement a custom `Debug` here, as to avoid requiring the trait bound `Debug` for
-/// `E`.
-impl<EventLog> Debug for BareInstantiationResult<EventLog>
+/// We implement a custom `Debug` here, as to avoid requiring the trait bound
+/// `Debug` for `E`.
+impl<E: Environment, EventLog> Debug for BareInstantiationResult<E, EventLog>
 where
     EventLog: Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        // todo add missing fields
         f.debug_struct("BareInstantiationResult")
             .field("addr", &self.addr)
+            .field("account_id", &self.account_id.encode())
             .field("events", &self.events)
             .field("trace", &self.trace)
+            .field("code_hash", &self.code_hash)
             .finish()
     }
 }
 
 /// Result of a contract instantiation.
 pub struct InstantiationResult<E: Environment, EventLog, Abi> {
-    /// The account id at which the contract was instantiated.
+    /// The address at which the contract was instantiated.
     pub addr: Address,
+    /// The account id at which the contract was instantiated.
+    pub account_id: E::AccountId,
     /// The result of the dry run, contains debug messages
     /// if there were any.
     pub dry_run: InstantiateDryRunResult<E, Abi>,
@@ -369,6 +366,7 @@ impl<E: Environment, V: DecodeMessageResult<Abi>, Abi> CallDryRunResult<E, V, Ab
 }
 
 /// Result of the dry run of a contract call.
+#[derive(Clone)]
 pub struct InstantiateDryRunResult<E: Environment, Abi> {
     /// The result of the dry run, contains debug messages if there were any.
     pub contract_result: ContractInstantiateResultFor<E>,
