@@ -268,6 +268,11 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     ///
     /// Returns the result of the dry run, together with the decoded return value of the
     /// invoked message.
+    ///
+    /// Important: For an uncomplicated UX of the E2E testing environment we
+    /// decided to automatically map the account in `pallet-revive`, if not
+    /// yet mapped. This is a side effect, as a transaction is then issued
+    /// on-chain and the user incurs costs!
     async fn bare_call_dry_run<
         Args: Sync + AbiEncodeWith<Abi> + Clone,
         RetType: Send + DecodeMessageResult<Abi>,
@@ -286,6 +291,11 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     ///
     /// Returns the result of the dry run, together with the decoded return value of the
     /// invoked message.
+    ///
+    /// Important: For an uncomplicated UX of the E2E testing environment we
+    /// decided to automatically map the account in `pallet-revive`, if not
+    /// yet mapped. This is a side effect, as a transaction is then issued
+    /// on-chain and the user incurs costs!
     async fn raw_call_dry_run<
         RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
@@ -382,6 +392,11 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error>;
 
     /// Dry run contract instantiation.
+    ///
+    /// Important: For an uncomplicated UX of the E2E testing environment we
+    /// decided to automatically map the account in `pallet-revive`, if not
+    /// yet mapped. This is a side effect, as a transaction is then issued
+    /// on-chain and the user incurs costs!
     async fn bare_instantiate_dry_run<
         Contract: Clone,
         Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
