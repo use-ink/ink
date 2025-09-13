@@ -543,9 +543,6 @@ where
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
         let storage_deposit_limit = deposit_limit_to_balance::<E>(storage_deposit_limit);
-        let salt = salt();
-        // todo remove assert once salt() returns no more option
-        assert!(salt.is_some());
         let (events, trace) = self
             .api
             .instantiate_with_code(
@@ -554,7 +551,7 @@ where
                 storage_deposit_limit,
                 code.clone(),
                 constructor.clone(),
-                salt,
+                salt(),
                 caller,
             )
             .await;

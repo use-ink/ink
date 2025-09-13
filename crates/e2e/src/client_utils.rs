@@ -19,8 +19,7 @@ use std::{
     path::PathBuf,
 };
 
-/// Generate a unique salt based on the system time.
-/// todo return no `Option` here, just the salt.
+/// Generates a unique salt based on the system time.
 pub fn salt() -> Option<[u8; 32]> {
     use funty::Fundamental as _;
 
