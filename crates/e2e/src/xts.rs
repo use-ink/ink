@@ -722,11 +722,11 @@ where
         self.submit_extrinsic(&call, signer).await
     }
 
-    /// todo
-    /// Submits an extrinsic to call a contract with the given parameters.
+    /// Maps the `signer` to an `H160` account.
     ///
-    /// Returns when the transaction is included in a block. The return value
-    /// contains all events that are associated with this transaction.
+    /// This is a `pallet-revive` concept, whereby a stroage entry is created on-chain.
+    /// The entry maps the account id from `signer` to an `H160` account. This is
+    /// a necessity for any operation interacting with the contracts part of `pallet-revive`.
     pub async fn map_account(
         &self,
         signer: &Keypair,
