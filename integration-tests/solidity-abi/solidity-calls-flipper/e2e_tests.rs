@@ -7,8 +7,13 @@ use ink::{
         Balance,
         DefaultEnvironment,
     },
+    primitives::DepositLimit,
 };
 use ink_e2e::{
+    BuilderClient,
+    ChainBackend,
+    ContractsBackend,
+    E2EBackend,
     PolkadotConfig,
     Weight,
     subxt::tx::Signer,
@@ -26,12 +31,12 @@ const DEFAULT_GAS: Weight = Weight::from_parts(100_000_000_000, 1024 * 1024);
 const DEFAULT_STORAGE_DEPOSIT_LIMIT: u128 = 10_000_000_000_000;
 type E2EResult<T> = Result<T, Box<dyn Error>>;
 
-#[ink_e2e::test]
 // TODO: (@davidsemakula) Re-enable when "no space left" CI issue is fixed
 // See https://github.com/use-ink/ink/issues/2458 for details.
 // This test consistently triggers the issue in CI when running `npm install` for hardhat
 // scripts.
 #[ignore]
+#[ink_e2e::test]
 async fn solidity_calls_ink_works<Client: E2EBackend>(
     mut client: Client,
 ) -> E2EResult<()> {
@@ -50,10 +55,11 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
     acc_bytes[..20].copy_from_slice(acc_id.as_ref());
 
     client
-        .api
-        .try_transfer_balance(
+        .transfer_allow_death(
             &ink_e2e::alice(),
-            ink_e2e::subxt::utils::AccountId32::from(acc_bytes),
+            <ink::env::DefaultEnvironment as ink::env::Environment>::AccountId::from(
+                acc_bytes,
+            ),
             1_000_000_000_000_000,
         )
         .await?;
@@ -61,15 +67,17 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
     let signer = ink_e2e::alice();
 
     // deploy ink! flipper (Sol encoded)
-    client.api.map_account(&signer).await;
+    let _ = client.map_account(&signer).await;
+    let input = exec_input.encode();
+    let storage_deposit_limit: Balance = 10_00_000_000_000_000_000;
     let ink_addr = client
         .exec_instantiate(
             &signer,
-            client.contracts.load_code("flipper"),
-            exec_input.encode(),
+            "flipper",
+            input,
             0,
             DEFAULT_GAS,
-            DEFAULT_STORAGE_DEPOSIT_LIMIT,
+            storage_deposit_limit,
         )
         .await?
         .addr;
@@ -114,20 +122,17 @@ async fn solidity_calls_ink_works<Client: E2EBackend>(
 
     let encoded = encode_ink_call("call_solidity_set(address)", sol_addr_encoded.clone());
     let encoded_get = encode_ink_call("call_solidity_get(address)", sol_addr_encoded);
-    assert_eq!(
-        call_ink::<u16>(&mut client, ink_addr, encoded_get.clone()).await,
-        42
-    );
+    let ret: u16 = call_ink(&mut client, ink_addr, encoded_get.clone()).await;
+    assert_eq!(ret, 42);
     call_ink_no_return(&mut client, ink_addr, encoded).await;
     // set_value uses hardcoded 77 for simplicity.
-    assert_eq!(
-        call_ink::<u16>(&mut client, ink_addr, encoded_get.clone()).await,
-        77
-    );
+    let ret: u16 = call_ink(&mut client, ink_addr, encoded_get.clone()).await;
+    assert_eq!(ret, 77);
 
     Ok(())
 }
 
+use ink::env::Environment;
 async fn call_ink<Ret>(
     client: &mut ink_e2e::Client<PolkadotConfig, DefaultEnvironment>,
     ink_addr: Address,
@@ -137,19 +142,18 @@ where
     Ret: SolDecode,
 {
     let signer = ink_e2e::alice();
-    let (exec_result, _trace) = client
-        .api
-        .call_dry_run(
-            <ink_e2e::Keypair as Signer<PolkadotConfig>>::account_id(&signer),
+    let exec_result = client
+        .raw_call_dry_run::<Vec<u8>, ink::abi::Sol>(
             ink_addr,
             data_sol,
-            0,
+            0u32.into(),
             ink::primitives::DepositLimit::UnsafeOnlyForDryRun,
             &signer,
         )
-        .await;
-
-    <Ret>::decode(&exec_result.result.unwrap().data[..]).expect("decode failed")
+        .await
+        .expect("dry run failed");
+    <Ret>::decode(&exec_result.exec_result.result.unwrap().data[..])
+        .expect("decode failed")
 }
 
 async fn call_ink_no_return(
@@ -159,13 +163,12 @@ async fn call_ink_no_return(
 ) {
     let signer = ink_e2e::alice();
     let _ = client
-        .api
-        .call(
+        .raw_call(
             ink_addr,
+            data_sol,
             Balance::from(0u128),
             DEFAULT_GAS.into(),
-            DEFAULT_STORAGE_DEPOSIT_LIMIT,
-            data_sol,
+            DepositLimit::Balance(Balance::MAX),
             &signer,
         )
         .await;

@@ -382,7 +382,7 @@ mod instantiate_contract {
             c: u32,
             d: u32,
         ) where
-            Client: E2EBackend,
+            Client: E2EBackend<ink::env::DefaultEnvironment>,
             E: ink::env::Environment,
         {
             let r1 = ver1.call_builder::<VirtualContract>();
