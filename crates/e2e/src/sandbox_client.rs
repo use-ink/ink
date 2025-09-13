@@ -403,7 +403,7 @@ where
 
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
-        let result = self.sandbox.dry_run(|sandbox| {
+        let dry_run_result = self.sandbox.dry_run(|sandbox| {
             sandbox.deploy_contract(
                 code,
                 value,
@@ -415,21 +415,18 @@ where
             )
         });
 
-        let addr_id_raw = match &result.result {
-            Err(err) => {
-                panic!("Instantiate dry-run failed: {err:?}!")
-            }
-            Ok(res) => res.addr,
+        if let Err(err) = dry_run_result.result {
+            panic!("Instantiate dry-run failed: {err:?}!")
         };
 
         let result = ContractResult::<InstantiateReturnValue, E::Balance> {
-            gas_consumed: result.gas_consumed,
-            gas_required: result.gas_required,
-            storage_deposit: result.storage_deposit,
-            result: result.result.map(|r| {
+            gas_consumed: dry_run_result.gas_consumed,
+            gas_required: dry_run_result.gas_required,
+            storage_deposit: dry_run_result.storage_deposit,
+            result: dry_run_result.result.map(|res| {
                 InstantiateReturnValue {
-                    result: r.result,
-                    addr: addr_id_raw, // todo
+                    result: res.result,
+                    addr: res.addr,
                 }
             }),
         };
