@@ -77,8 +77,6 @@ use subxt::{
     scale::Decode,
     scale::MaxEncodedLen,
     scale_encode::EncodeAsType,
-    serde::Serialize,
-    serde::Deserialize,
 )]
 #[encode_as_type(crate_path = "subxt::ext::scale_encode")]
 pub struct Weight {
@@ -174,8 +172,6 @@ pub struct UploadCode<E: Environment> {
 
 /// A struct that encodes RPC parameters required to instantiate a new smart contract.
 #[derive(scale::Encode)]
-// todo: #[derive(serde::Serialize, scale::Encode)]
-// todo: #[serde(rename_all = "camelCase")]
 struct RpcInstantiateRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
     value: E::Balance,
@@ -188,8 +184,6 @@ struct RpcInstantiateRequest<C: subxt::Config, E: Environment> {
 
 /// A struct that encodes RPC parameters required to upload a new smart contract.
 #[derive(scale::Encode)]
-// todo: #[derive(serde::Serialize, scale::Encode)]
-// todo: #[serde(rename_all = "camelCase")]
 struct RpcCodeUploadRequest<C: subxt::Config, E: Environment>
 where
     E::Balance: serde::Serialize,
@@ -201,8 +195,6 @@ where
 
 /// A struct that encodes RPC parameters required for a call to a smart contract.
 #[derive(scale::Encode)]
-// todo: #[derive(serde::Serialize, scale::Encode)]
-// todo: #[serde(rename_all = "camelCase")]
 struct RpcCallRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
     dest: Address,
@@ -213,8 +205,7 @@ struct RpcCallRequest<C: subxt::Config, E: Environment> {
 }
 
 /// Reference to an existing code hash or a new contract binary.
-#[derive(serde::Serialize, scale::Encode)]
-#[serde(rename_all = "camelCase")]
+#[derive(scale::Encode)]
 enum Code {
     /// A contract binary as raw bytes.
     Upload(Vec<u8>),
