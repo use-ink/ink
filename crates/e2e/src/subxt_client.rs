@@ -171,7 +171,7 @@ where
             return Err(Error::UploadDryRun(dispatch_err))
         }
 
-        let tx_events = self.api.upload(signer, code, storage_deposit_limit).await;
+        let (tx_events, trace) = self.api.upload(signer, code, storage_deposit_limit).await;
 
         let mut hash = None;
         for evt in tx_events.iter() {
@@ -196,8 +196,8 @@ where
                     DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::Decoding(e.to_string()))?;
 
-                log_error(&format!("extrinsic for upload failed: {dispatch_error}"));
-                return Err(Error::UploadExtrinsic(dispatch_error))
+                log_error(&format!("extrinsic for upload failed: {dispatch_error} {trace:?}"));
+                return Err(Error::UploadExtrinsic(dispatch_error, trace))
             }
         }
 
@@ -440,7 +440,7 @@ where
         call_name: &'a str,
         call_data: Vec<Value>,
     ) -> Result<Self::EventLog, Self::Error> {
-        let tx_events = self
+        let (tx_events, trace) = self
             .api
             .runtime_call(origin, pallet_name, call_name, call_data)
             .await;
@@ -455,9 +455,8 @@ where
                 let dispatch_error =
                     subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::Decoding(e.to_string()))?;
-
-                log_error(&format!("extrinsic for call failed: {dispatch_error}"));
-                return Err(Error::CallExtrinsic(dispatch_error))
+                log_error(&format!("extrinsic for call failed: {dispatch_error} {trace:?}"));
+                return Err(Error::CallExtrinsic(dispatch_error, trace))
             }
         }
 
@@ -691,7 +690,7 @@ where
         caller: &Keypair,
         code_hash: H256,
     ) -> Result<Self::EventLog, Self::Error> {
-        let tx_events = self.api.remove_code(caller, code_hash).await;
+        let (tx_events, trace) = self.api.remove_code(caller, code_hash).await;
 
         for evt in tx_events.iter() {
             let evt = evt.unwrap_or_else(|err| {
@@ -703,7 +702,8 @@ where
                 let dispatch_error =
                     DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::Decoding(e.to_string()))?;
-                return Err(Error::RemoveCodeExtrinsic(dispatch_error))
+                log_error(&format!("extrinsic for remove code failed: {dispatch_error} {trace:?}"));
+                return Err(Error::RemoveCodeExtrinsic(dispatch_error, trace))
             }
         }
 
@@ -770,8 +770,8 @@ where
                 let dispatch_error =
                     DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::Decoding(e.to_string()))?;
-                log_error(&format!("extrinsic for call failed: {dispatch_error}"));
-                return Err(Error::CallExtrinsic(dispatch_error))
+                log_error(&format!("extrinsic for call failed: {dispatch_error} {trace:?}"));
+                return Err(Error::CallExtrinsic(dispatch_error, trace))
             }
         }
 
@@ -856,7 +856,7 @@ where
         if self.fetch_original_account(&addr).await?.is_some() {
             return Ok(());
         }
-        let tx_events = self.api.map_account(caller).await;
+        let (tx_events, trace) = self.api.map_account(caller).await;
 
         for evt in tx_events.iter() {
             let evt = evt.unwrap_or_else(|err| {
@@ -868,8 +868,8 @@ where
                 let dispatch_error =
                     DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::Decoding(e.to_string()))?;
-                log_error(&format!("extrinsic for call failed: {dispatch_error}"));
-                return Err(Error::CallExtrinsic(dispatch_error))
+                log_error(&format!("extrinsic for call failed: {dispatch_error} {trace:?}"));
+                return Err(Error::CallExtrinsic(dispatch_error, trace))
             }
         }
 
@@ -880,7 +880,7 @@ where
     // todo not used anywhere
     // code is also not dry
     async fn map_account_dry_run(&mut self, caller: &Keypair) -> Result<(), Self::Error> {
-        let tx_events = self.api.map_account(caller).await;
+        let (tx_events, trace) = self.api.map_account(caller).await;
 
         for evt in tx_events.iter() {
             let evt = evt.unwrap_or_else(|err| {
@@ -892,8 +892,8 @@ where
                 let dispatch_error =
                     DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::Decoding(e.to_string()))?;
-                log_error(&format!("extrinsic for call failed: {dispatch_error}"));
-                return Err(Error::CallExtrinsic(dispatch_error))
+                log_error(&format!("extrinsic for call failed: {dispatch_error} {trace:?}"));
+                return Err(Error::CallExtrinsic(dispatch_error, trace))
             }
         }
 

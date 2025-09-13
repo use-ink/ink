@@ -35,16 +35,16 @@ pub enum Error<DispatchError: fmt::Debug + fmt::Display> {
     UploadDryRun(DispatchError),
     /// The `upload` extrinsic failed.
     #[error("Upload extrinsic error: {0}")]
-    UploadExtrinsic(DispatchError),
+    UploadExtrinsic(DispatchError, Option<CallTrace>),
     /// The `call` dry run failed.
     #[error("Call dry-run error: {0}")]
     CallDryRun(DryRunError<DispatchError>),
     /// The `call` extrinsic failed.
     #[error("Call extrinsic error: {0}")]
-    CallExtrinsic(DispatchError),
+    CallExtrinsic(DispatchError, Option<CallTrace>),
     /// The `remove_code` extrinsic failed.
     #[error("Remove code extrinsic error: {0}")]
-    RemoveCodeExtrinsic(DispatchError),
+    RemoveCodeExtrinsic(DispatchError, Option<CallTrace>),
     /// Error fetching account balance.
     #[error("Fetching account Balance error: {0}")]
     Balance(String),

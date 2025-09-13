@@ -597,7 +597,7 @@ where
         signer: &Keypair,
         code: Vec<u8>,
         storage_deposit_limit: E::Balance,
-    ) -> ExtrinsicEvents<C> {
+    ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
         let call = subxt::tx::DefaultPayload::new(
             "Revive",
             "upload_code",
@@ -608,7 +608,7 @@ where
         )
         .unvalidated();
 
-        self.submit_extrinsic(&call, signer).await.0
+        self.submit_extrinsic(&call, signer).await
     }
 
     /// Submits an extrinsic to remove the code at the given hash.
@@ -619,7 +619,7 @@ where
         &self,
         signer: &Keypair,
         code_hash: H256,
-    ) -> ExtrinsicEvents<C> {
+    ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
         let call = subxt::tx::DefaultPayload::new(
             "Revive",
             "remove_code",
@@ -627,7 +627,7 @@ where
         )
         .unvalidated();
 
-        self.submit_extrinsic(&call, signer).await.0
+        self.submit_extrinsic(&call, signer).await
     }
 
     /// Dry runs a call of the contract at `contract` with the given parameters.
@@ -745,11 +745,11 @@ where
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
-    pub async fn map_account(&self, signer: &Keypair) -> ExtrinsicEvents<C> {
+    pub async fn map_account(&self, signer: &Keypair) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
         let call = subxt::tx::DefaultPayload::new("Revive", "map_account", MapAccount {})
             .unvalidated();
 
-        self.submit_extrinsic(&call, signer).await.0
+        self.submit_extrinsic(&call, signer).await
     }
 
     /// Submit an extrinsic `call_name` for the `pallet_name`.
@@ -764,9 +764,9 @@ where
         pallet_name: &'a str,
         call_name: &'a str,
         call_data: Vec<subxt::dynamic::Value>,
-    ) -> ExtrinsicEvents<C> {
+    ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
         let call = subxt::dynamic::tx(pallet_name, call_name, call_data);
-        self.submit_extrinsic(&call, signer).await.0
+        self.submit_extrinsic(&call, signer).await
     }
 
     /// Returns the `H160` for an account id.
