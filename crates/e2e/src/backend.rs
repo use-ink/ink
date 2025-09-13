@@ -396,11 +396,12 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error>;
 
-    /// todo
-    async fn map_account(&mut self, caller: &Keypair) -> Result<(), Self::Error>;
-
-    /// todo
-    async fn map_account_dry_run(&mut self, caller: &Keypair) -> Result<(), Self::Error>;
+    /// Checks if `caller` was already mapped in `pallet-revive`. If not, it will do so
+    /// and return the events associated with that transaction.
+    async fn map_account(
+        &mut self,
+        caller: &Keypair,
+    ) -> Result<Option<Self::EventLog>, Self::Error>;
 
     /// Returns the `Environment::AccountId` for an `H160` address.
     async fn to_account_id(&mut self, addr: &H160) -> Result<E::AccountId, Self::Error>;

@@ -851,10 +851,15 @@ where
         })
     }
 
-    async fn map_account(&mut self, caller: &Keypair) -> Result<(), Self::Error> {
+    /// Checks if `caller` was already mapped in `pallet-revive`. If not, it will do so
+    /// and return the events associated with that transaction.
+    async fn map_account(
+        &mut self,
+        caller: &Keypair,
+    ) -> Result<Option<Self::EventLog>, Self::Error> {
         let addr = self.derive_keypair_address(caller);
         if self.fetch_original_account(&addr).await?.is_some() {
-            return Ok(());
+            return Ok(None);
         }
         let (tx_events, trace) = self.api.map_account(caller).await;
 
@@ -875,33 +880,7 @@ where
             }
         }
 
-        // todo: Ok(tx_events)
-        Ok(())
-    }
-
-    // todo not used anywhere
-    // code is also not dry
-    async fn map_account_dry_run(&mut self, caller: &Keypair) -> Result<(), Self::Error> {
-        let (tx_events, trace) = self.api.map_account(caller).await;
-
-        for evt in tx_events.iter() {
-            let evt = evt.unwrap_or_else(|err| {
-                panic!("unable to unwrap event: {err:?}");
-            });
-
-            if is_extrinsic_failed_event(&evt) {
-                let metadata = self.api.client.metadata();
-                let dispatch_error =
-                    DispatchError::decode_from(evt.field_bytes(), metadata)
-                        .map_err(|e| Error::Decoding(e.to_string()))?;
-                log_error(&format!(
-                    "extrinsic for call failed: {dispatch_error} {trace:?}"
-                ));
-                return Err(Error::CallExtrinsic(dispatch_error, trace))
-            }
-        }
-
-        Ok(())
+        Ok(Some(tx_events))
     }
 
     async fn to_account_id(&mut self, addr: &H160) -> Result<E::AccountId, Self::Error> {

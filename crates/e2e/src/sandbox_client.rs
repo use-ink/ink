@@ -601,18 +601,6 @@ where
         })
     }
 
-    async fn map_account_dry_run(&mut self, caller: &Keypair) -> Result<(), Self::Error> {
-        let caller = keypair_to_account(caller);
-        let origin = RawOrigin::Signed(caller);
-        let origin = OriginFor::<S::Runtime>::from(origin);
-
-        self.sandbox
-            .dry_run(|sandbox| sandbox.map_account(origin))
-            .map_err(|err| {
-                SandboxErr::new(format!("map_account_dry_run: execution error {err:?}"))
-            })
-    }
-
     async fn map_account(&mut self, caller: &Keypair) -> Result<(), Self::Error> {
         let caller = keypair_to_account(caller);
         let origin = RawOrigin::Signed(caller);
