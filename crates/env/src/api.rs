@@ -17,9 +17,9 @@
 use ink_primitives::{
     Address,
     H256,
-    SolEncode,
     U256,
     abi::AbiEncodeWith,
+    sol::SolResultEncode,
 };
 use ink_storage_traits::Storable;
 use pallet_revive_uapi::ReturnFlags;
@@ -465,7 +465,7 @@ where
 /// This function  stops the execution of the contract immediately.
 pub fn return_value_solidity<R>(return_flags: ReturnFlags, return_value: &R) -> !
 where
-    R: for<'a> SolEncode<'a>,
+    R: for<'a> SolResultEncode<'a>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         EnvBackend::return_value_solidity::<R>(instance, return_flags, return_value)

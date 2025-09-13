@@ -15,9 +15,9 @@
 use ink_primitives::{
     Address,
     H256,
-    SolEncode,
     U256,
     abi::AbiEncodeWith,
+    sol::SolResultEncode,
     types::Environment,
 };
 use ink_storage_traits::Storable;
@@ -146,10 +146,15 @@ pub trait EnvBackend {
     where
         R: scale::Encode;
 
-    /// todo: comment
+    /// Returns the *Solidity ABI encoded* value back to the caller of the executed
+    /// contract.
+    ///
+    /// # Note
+    ///
+    /// This function  stops the execution of the contract immediately.
     fn return_value_solidity<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
-        R: for<'a> SolEncode<'a>;
+        R: for<'a> SolResultEncode<'a>;
 
     /// Conducts the crypto hash of the given input and stores the result in `output`.
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)

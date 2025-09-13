@@ -15,13 +15,13 @@
 use ink_primitives::{
     Address,
     H256,
-    SolEncode,
     U256,
     abi::{
         AbiEncodeWith,
         Ink,
         Sol,
     },
+    sol::SolResultEncode,
 };
 use ink_storage_traits::{
     Storable,
@@ -746,7 +746,7 @@ impl EnvBackend for EnvInstance {
 
     fn return_value_solidity<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
-        R: for<'a> SolEncode<'a>,
+        R: for<'a> SolResultEncode<'a>,
     {
         let encoded = return_value.encode();
         ext::return_value(flags, &encoded[..]);

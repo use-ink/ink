@@ -41,11 +41,11 @@ pub fn sol_type(ty: &Type) -> TokenStream2 {
 /// # Note
 ///
 /// Use this function (instead of [`sol_type`]) when return type may be `Result<T, E>`,
-/// because `Result<T, E>` implements `ink::SolEncode` but doesn't implement
-/// `ink::SolDecode`.
+/// because `Result<T, E>` doesn't implement `ink::SolEncode` nor `ink::SolDecode`,
+/// but instead implements `ink::sol::SolResultEncode` and `ink::sol::SolResultDecode`.
 pub fn sol_return_type(ty: &Type) -> TokenStream2 {
     quote! {
-        <#ty as ::ink::SolEncode>::SOL_NAME
+        <#ty as ::ink::sol::SolResultEncode>::SOL_NAME
     }
 }
 
