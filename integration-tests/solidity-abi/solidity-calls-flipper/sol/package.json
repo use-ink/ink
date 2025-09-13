@@ -11,11 +11,9 @@
   "description": "",
   "devDependencies": {
     "@nomicfoundation/hardhat-ethers": "^3.0.8",
+    "@parity/hardhat-polkadot": "^0.1.10",
     "ethers": "^6.13.5",
-    "hardhat": "^2.22.18",
-    "hardhat-resolc": "^0.0.4",
-    "hardhat-revive": "github:bee344/hardhat-revive#main",
-    "hardhat-revive-node": "^0.0.3"
+    "hardhat": "^2.22.18"
   },
   "dependencies": {
     "axios": "^1.8.2"
