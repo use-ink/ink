@@ -213,13 +213,6 @@ struct RpcCallRequest<C: subxt::Config, E: Environment> {
     input_data: Vec<u8>,
 }
 
-/// A struct that encodes RPC parameters required for calling the
-/// `pallet-revive` Runtime Api function `address()`.
-#[derive(scale::Encode)]
-struct RpcAddressRequest<C: subxt::Config> {
-    account_id: C::AccountId,
-}
-
 /// Reference to an existing code hash or a new contract binary.
 #[derive(serde::Serialize, scale::Encode)]
 #[serde(rename_all = "camelCase")]
@@ -770,24 +763,5 @@ where
     ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
         let call = subxt::dynamic::tx(pallet_name, call_name, call_data);
         self.submit_extrinsic(&call, signer).await
-    }
-
-    /// Returns the `H160` for an account id.
-    ///
-    /// Queries the RPC server for the `pallet-revive` runtime api function `address`.
-    #[allow(dead_code)]
-    pub async fn address(&self, account_id: C::AccountId) -> H160 {
-        let call_request = RpcAddressRequest::<C> { account_id };
-        let func = "ReviveApi_address";
-        let params = scale::Encode::encode(&call_request);
-        let bytes = self
-            .rpc
-            .state_call(func, Some(&params), None)
-            .await
-            .unwrap_or_else(|err| {
-                panic!("error on ws request `ReviveApi_address`: {err:?}");
-            });
-        scale::Decode::decode(&mut bytes.as_ref())
-            .unwrap_or_else(|err| panic!("decoding `H160` failed: {err}"))
     }
 }

@@ -811,19 +811,7 @@ where
 
         let (exec_result, trace) = self
             .api
-            .call_dry_run(
-                /*
-                Signer::<C>::account_id(caller), /* todo this param is not necessary,
-                                                  * because the last argument is the
-                                                  * caller and this value can be
-                                                  * created in the function */
-                 */
-                dest,
-                exec_input,
-                value,
-                storage_deposit_limit,
-                caller,
-            )
+            .call_dry_run(dest, exec_input, value, storage_deposit_limit, caller)
             .await;
         log_info(&format!("call dry run result: {:?}", &exec_result.result));
 
@@ -1036,7 +1024,12 @@ impl<E: Environment, V, C: subxt::Config, Abi> CallResult<E, V, ExtrinsicEvents<
     /// Returns true if the specified event was triggered by the call.
     pub fn contains_event(&self, pallet_name: &str, variant_name: &str) -> bool {
         self.events.iter().any(|event| {
-            let event = event.unwrap();
+            let event = event.expect("unable to extract event");
+            tracing::debug!(
+                "found event with pallet: {:?}, variant: {:?}",
+                event.pallet_name(),
+                event.variant_name()
+            );
             event.pallet_name() == pallet_name && event.variant_name() == variant_name
         })
     }

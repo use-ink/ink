@@ -353,7 +353,7 @@ where
 
         let addr_raw = match &result.result {
             Err(err) => {
-                log_error(&format!("Instantiation failed: {err:?}"));
+                log_error(&format!("instantiation failed: {err:?}"));
                 return Err(SandboxErr::new(format!("bare_instantiate: {err:?}")));
             }
             Ok(res) => res.addr,
@@ -446,7 +446,7 @@ where
         ) {
             Ok(result) => result,
             Err(err) => {
-                log_error(&format!("Upload failed: {err:?}"));
+                log_error(&format!("upload failed: {err:?}"));
                 return Err(SandboxErr::new(format!("bare_upload: {err:?}")))
             }
         };

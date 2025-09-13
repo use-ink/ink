@@ -151,8 +151,7 @@ where
             &signer,
         )
         .await
-        .map_err(|_| "foo")
-        .unwrap(); // todo
+        .expect("dry run failed");
     <Ret>::decode(&exec_result.exec_result.result.unwrap().data[..])
         .expect("decode failed")
 }
@@ -163,14 +162,13 @@ async fn call_ink_no_return(
     data_sol: Vec<u8>,
 ) {
     let signer = ink_e2e::alice();
-    let storage_deposit_limit: Balance = 10_000_000_000_000;
     let _ = client
         .raw_call(
             ink_addr,
             data_sol,
             Balance::from(0u128),
             DEFAULT_GAS.into(),
-            DepositLimit::Balance(storage_deposit_limit),
+            DepositLimit::Balance(Balance::MAX),
             &signer,
         )
         .await;
