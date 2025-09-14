@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add integration test for arithmetic overflow checks - [#2631](https://github.com/use-ink/ink/pull/2631)
 - E2E: Misc quality of life improvements, new API functions, better debuggability ‒ [2634](https://github.com/use-ink/ink/pull/2634)
 
+### Changed
+- Error on message and constructor `selector` overrides in Solidity ABI mode - [#2638](https://github.com/use-ink/ink/pull/2638)
+
 ### Fixed
 - Bring intended panic handler behavior back ‒ [2636](https://github.com/use-ink/ink/pull/2636)
 
