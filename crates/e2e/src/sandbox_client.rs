@@ -397,12 +397,34 @@ where
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error> {
+        let code = self.contracts.load_code(contract_name);
+        let exec_input = constructor.clone().params().exec_input().encode();
+        self.raw_instantiate_dry_run(
+            code,
+            caller,
+            exec_input,
+            value,
+            storage_deposit_limit,
+        )
+        .await
+    }
+
+    /// Important: For an uncomplicated UX of the E2E testing environment we
+    /// decided to automatically map the account in `pallet-revive`, if not
+    /// yet mapped. This is a side effect, as a transaction is then issued
+    /// on-chain and the user incurs costs!
+    async fn raw_instantiate_dry_run<Abi: Sync + Clone>(
+        &mut self,
+        code: Vec<u8>,
+        caller: &Keypair,
+        data: Vec<u8>,
+        value: E::Balance,
+        storage_deposit_limit: DepositLimit<E::Balance>,
+    ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error> {
         // There's a side effect here!
         let _ =
             <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 
-        let code = self.contracts.load_code(contract_name);
-        let data = constructor_exec_input(constructor.clone());
         let dry_run_result = self.sandbox.dry_run(|sandbox| {
             sandbox.deploy_contract(
                 code,
@@ -559,16 +581,16 @@ where
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {
-        // There's a side effect here!
-        let _ =
-            <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
-
         let addr = *message.clone().params().callee();
         let exec_input = message.clone().params().exec_input().encode();
         self.raw_call_dry_run(addr, exec_input, value, storage_deposit_limit, caller)
             .await
     }
 
+    /// Important: For an uncomplicated UX of the E2E testing environment we
+    /// decided to automatically map the account in `pallet-revive`, if not
+    /// yet mapped. This is a side effect, as a transaction is then issued
+    /// on-chain and the user incurs costs!
     async fn raw_call_dry_run<
         RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
@@ -578,14 +600,18 @@ where
         input_data: Vec<u8>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
-        signer: &Keypair,
+        caller: &Keypair,
     ) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error> {
+        // There's a side effect here!
+        let _ =
+            <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
+
         let result = self.sandbox.dry_run(|sandbox| {
             sandbox.call_contract(
                 dest,
                 value,
                 input_data,
-                caller_to_origin::<S>(signer),
+                caller_to_origin::<S>(caller),
                 S::default_gas_limit(),
                 storage_deposit_limit,
             )
@@ -612,14 +638,20 @@ where
         })
     }
 
-    async fn map_account(&mut self, caller: &Keypair) -> Result<(), Self::Error> {
+    async fn map_account(
+        &mut self,
+        caller: &Keypair,
+    ) -> Result<Option<Self::EventLog>, Self::Error> {
         let caller = keypair_to_account(caller);
         let origin = RawOrigin::Signed(caller);
         let origin = OriginFor::<S::Runtime>::from(origin);
 
-        self.sandbox.map_account(origin).map_err(|err| {
-            SandboxErr::new(format!("map_account: execution error {err:?}"))
-        })
+        self.sandbox
+            .map_account(origin)
+            .map_err(|err| {
+                SandboxErr::new(format!("map_account: execution error {err:?}"))
+            })
+            .map(|_| None)
     }
 
     async fn to_account_id(&mut self, addr: &H160) -> Result<E::AccountId, Self::Error> {

@@ -646,11 +646,26 @@ where
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error> {
-        // There's a side effect here!
-        let _ = self.map_account(caller).await;
-
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
+        self.raw_instantiate_dry_run(code, caller, data, value, storage_deposit_limit)
+            .await
+    }
+
+    /// Important: For an uncomplicated UX of the E2E testing environment we
+    /// decided to automatically map the account in `pallet-revive`, if not
+    /// yet mapped. This is a side effect, as a transaction is then issued
+    /// on-chain and the user incurs costs!
+    async fn raw_instantiate_dry_run<Abi: Sync + Clone>(
+        &mut self,
+        code: Vec<u8>,
+        caller: &Keypair,
+        data: Vec<u8>,
+        value: E::Balance,
+        storage_deposit_limit: DepositLimit<E::Balance>,
+    ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error> {
+        // There's a side effect here!
+        let _ = self.map_account(caller).await;
 
         let result = self
             .api

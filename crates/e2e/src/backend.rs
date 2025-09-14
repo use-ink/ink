@@ -381,6 +381,15 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error>;
 
+    async fn raw_instantiate_dry_run<Abi: Sync + Clone>(
+        &mut self,
+        code: Vec<u8>,
+        caller: &Keypair,
+        constructor: Vec<u8>,
+        value: E::Balance,
+        storage_deposit_limit: DepositLimit<E::Balance>,
+    ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error>;
+
     async fn exec_instantiate(
         &mut self,
         signer: &Keypair,
