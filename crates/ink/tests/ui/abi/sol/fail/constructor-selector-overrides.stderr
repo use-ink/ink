@@ -1,0 +1,5 @@
+error: constructor `selector` attributes are not supported in Solidity ABI compatibility mode
+ --> tests/ui/abi/sol/fail/constructor-selector-overrides.rs:9:28
+  |
+9 |         #[ink(constructor, selector = 1)]
+  |                            ^^^^^^^^^^^^
