@@ -1,6 +1,6 @@
 #![allow(unexpected_cfgs)]
 
-#[derive(ink::SolErrorDecode, ink::SolErrorEncode)]
+#[ink::error]
 pub struct Error;
 
 #[ink::contract]
