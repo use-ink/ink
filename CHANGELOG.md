@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Error on message and constructor `selector` overrides in Solidity ABI mode - [#2638](https://github.com/use-ink/ink/pull/2638)
+- Improve abstractions for Solidity ABI encoding `Result` types - [#2635](https://github.com/use-ink/ink/pull/2635)
 
 ### Fixed
 - Bring intended panic handler behavior back ‒ [2636](https://github.com/use-ink/ink/pull/2636)

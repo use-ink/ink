@@ -62,6 +62,7 @@ pub use self::{
     result::{
         SolResultDecode,
         SolResultDecodeError,
+        SolResultEncode,
     },
     types::{
         SolTopicEncode,

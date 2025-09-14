@@ -16,13 +16,13 @@ use ink_engine::ext::Engine;
 use ink_primitives::{
     Address,
     H256,
-    SolEncode,
     U256,
     abi::{
         AbiEncodeWith,
         Ink,
         Sol,
     },
+    sol::SolResultEncode,
     types::{
         AccountIdMapper,
         Environment,
@@ -429,7 +429,7 @@ impl EnvBackend for EnvInstance {
 
     fn return_value_solidity<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
     where
-        R: for<'a> SolEncode<'a>,
+        R: for<'a> SolResultEncode<'a>,
     {
         unimplemented!("the off-chain env does not implement `return_value_solidity`")
     }
