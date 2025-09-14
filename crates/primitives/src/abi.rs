@@ -144,7 +144,7 @@ impl<T: SolDecode> AbiDecodeWith<Sol> for T {
 }
 
 /// A `scale::Output` implementing buffer that tracks the number of bytes written.
-struct SizedOutput<'a> {
+pub struct SizedOutput<'a> {
     buffer: &'a mut [u8],
     offset: usize,
 }

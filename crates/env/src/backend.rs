@@ -17,7 +17,6 @@ use ink_primitives::{
     CodeHashErr,
     H256,
     U256,
-    abi::AbiEncodeWith,
     sol::SolResultEncode,
     types::Environment,
 };
@@ -36,7 +35,10 @@ use crate::{
         DelegateCall,
         FromAddr,
         LimitParamsV2,
-        utils::DecodeMessageResult,
+        utils::{
+            DecodeMessageResult,
+            EncodeArgsWith,
+        },
     },
     event::{
         Event,
@@ -313,7 +315,7 @@ pub trait TypedEnvBackend: EnvBackend {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         R: DecodeMessageResult<Abi>;
 
     /// Invokes a contract message via delegate call and returns its result.
@@ -328,7 +330,7 @@ pub trait TypedEnvBackend: EnvBackend {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         R: DecodeMessageResult<Abi>;
 
     /// Instantiates another contract.
@@ -349,7 +351,7 @@ pub trait TypedEnvBackend: EnvBackend {
         ContractRef: FromAddr + crate::ContractReverseReference,
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         R: ConstructorReturnType<ContractRef, Abi>;
 
     /// Terminates a smart contract.

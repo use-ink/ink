@@ -54,7 +54,10 @@ use crate::{
         DelegateCall,
         FromAddr,
         LimitParamsV2,
-        utils::DecodeMessageResult,
+        utils::{
+            DecodeMessageResult,
+            EncodeArgsWith,
+        },
     },
     engine::on_chain::{
         EncodeScope,
@@ -1010,7 +1013,7 @@ impl TypedEnvBackend for EnvInstance {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         R: DecodeMessageResult<Abi>,
     {
         let mut scope = self.scoped_buffer();
@@ -1058,7 +1061,7 @@ impl TypedEnvBackend for EnvInstance {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         R: DecodeMessageResult<Abi>,
     {
         let mut scope = self.scoped_buffer();
@@ -1105,7 +1108,7 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
         ContractRef: FromAddr,
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         RetType: ConstructorReturnType<ContractRef, Abi>,
     {
         let mut scoped = self.scoped_buffer();

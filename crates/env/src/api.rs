@@ -20,7 +20,6 @@ use ink_primitives::{
     H256,
     U256,
     abi::{
-        AbiEncodeWith,
         Ink,
         Sol,
     },
@@ -45,7 +44,10 @@ use crate::{
         DelegateCall,
         FromAddr,
         LimitParamsV2,
-        utils::DecodeMessageResult,
+        utils::{
+            DecodeMessageResult,
+            EncodeArgsWith,
+        },
     },
     engine::{
         EnvInstance,
@@ -341,7 +343,7 @@ pub fn invoke_contract<E, Args, R, Abi>(
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
-    Args: AbiEncodeWith<Abi>,
+    Args: EncodeArgsWith<Abi>,
     R: DecodeMessageResult<Abi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
@@ -366,7 +368,7 @@ pub fn invoke_contract_delegate<E, Args, R, Abi>(
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
-    Args: AbiEncodeWith<Abi>,
+    Args: EncodeArgsWith<Abi>,
     R: DecodeMessageResult<Abi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
@@ -405,7 +407,7 @@ where
     ContractRef: FromAddr + crate::ContractReverseReference,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractConstructorDecoder,
-    Args: AbiEncodeWith<Abi>,
+    Args: EncodeArgsWith<Abi>,
     R: ConstructorReturnType<ContractRef, Abi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
