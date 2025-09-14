@@ -12,98 +12,129 @@
 <a href=#12 id=12 data-nosnippet>12</a>// See the License for the specific language governing permissions and
 <a href=#13 id=13 data-nosnippet>13</a>// limitations under the License.
 <a href=#14 id=14 data-nosnippet>14</a>
-<a href=#15 id=15 data-nosnippet>15</a></span><span class="kw">use </span>ink_prelude::vec::Vec;
-<a href=#16 id=16 data-nosnippet>16</a>
-<a href=#17 id=17 data-nosnippet>17</a><span class="kw">use </span><span class="kw">crate</span>::sol::{
-<a href=#18 id=18 data-nosnippet>18</a>    Error,
-<a href=#19 id=19 data-nosnippet>19</a>    SolDecode,
-<a href=#20 id=20 data-nosnippet>20</a>    SolEncode,
-<a href=#21 id=21 data-nosnippet>21</a>    SolErrorDecode,
-<a href=#22 id=22 data-nosnippet>22</a>    SolErrorEncode,
-<a href=#23 id=23 data-nosnippet>23</a>};
-<a href=#24 id=24 data-nosnippet>24</a>
-<a href=#25 id=25 data-nosnippet>25</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T, E&gt; SolEncode&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span><span class="prelude-ty">Result</span>&lt;T, E&gt;
-<a href=#26 id=26 data-nosnippet>26</a><span class="kw">where
-<a href=#27 id=27 data-nosnippet>27</a>    </span>T: SolEncode&lt;<span class="lifetime">'a</span>&gt;,
-<a href=#28 id=28 data-nosnippet>28</a>    E: SolErrorEncode,
-<a href=#29 id=29 data-nosnippet>29</a>{
-<a href=#30 id=30 data-nosnippet>30</a>    <span class="comment">// NOTE: Not actually used for encoding because of `encode` override below.
-<a href=#31 id=31 data-nosnippet>31</a>    // However, it's used for metadata generation, so the unwrapped type is used.
-<a href=#32 id=32 data-nosnippet>32</a>    </span><span class="kw">type </span>SolType = &lt;T <span class="kw">as </span>SolEncode&lt;<span class="lifetime">'a</span>&gt;&gt;::SolType;
-<a href=#33 id=33 data-nosnippet>33</a>
-<a href=#34 id=34 data-nosnippet>34</a>    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; Vec&lt;u8&gt; {
-<a href=#35 id=35 data-nosnippet>35</a>        <span class="kw">match </span><span class="self">self </span>{
-<a href=#36 id=36 data-nosnippet>36</a>            <span class="prelude-val">Ok</span>(val) =&gt; val.encode(),
-<a href=#37 id=37 data-nosnippet>37</a>            <span class="prelude-val">Err</span>(err) =&gt; err.encode(),
-<a href=#38 id=38 data-nosnippet>38</a>        }
-<a href=#39 id=39 data-nosnippet>39</a>    }
+<a href=#15 id=15 data-nosnippet>15</a></span><span class="kw">use </span>alloy_sol_types::SolType <span class="kw">as </span>AlloySolType;
+<a href=#16 id=16 data-nosnippet>16</a><span class="kw">use </span>ink_prelude::vec::Vec;
+<a href=#17 id=17 data-nosnippet>17</a>
+<a href=#18 id=18 data-nosnippet>18</a><span class="kw">use </span><span class="kw">crate</span>::sol::{
+<a href=#19 id=19 data-nosnippet>19</a>    Error,
+<a href=#20 id=20 data-nosnippet>20</a>    SolDecode,
+<a href=#21 id=21 data-nosnippet>21</a>    SolEncode,
+<a href=#22 id=22 data-nosnippet>22</a>    SolErrorDecode,
+<a href=#23 id=23 data-nosnippet>23</a>    SolErrorEncode,
+<a href=#24 id=24 data-nosnippet>24</a>    SolTypeDecode,
+<a href=#25 id=25 data-nosnippet>25</a>    SolTypeEncode,
+<a href=#26 id=26 data-nosnippet>26</a>};
+<a href=#27 id=27 data-nosnippet>27</a>
+<a href=#28 id=28 data-nosnippet>28</a><span class="doccomment">/// Solidity ABI encode return data.
+<a href=#29 id=29 data-nosnippet>29</a></span><span class="kw">pub trait </span>SolResultEncode&lt;<span class="lifetime">'a</span>&gt; {
+<a href=#30 id=30 data-nosnippet>30</a>    <span class="doccomment">/// Equivalent Solidity ABI type representation.
+<a href=#31 id=31 data-nosnippet>31</a>    </span><span class="kw">type </span>SolType: SolTypeEncode;
+<a href=#32 id=32 data-nosnippet>32</a>
+<a href=#33 id=33 data-nosnippet>33</a>    <span class="doccomment">/// Name of equivalent Solidity ABI type.
+<a href=#34 id=34 data-nosnippet>34</a>    </span><span class="kw">const </span>SOL_NAME: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str =
+<a href=#35 id=35 data-nosnippet>35</a>        &lt;&lt;<span class="self">Self</span>::SolType <span class="kw">as </span>SolTypeEncode&gt;::AlloyType <span class="kw">as </span>AlloySolType&gt;::SOL_NAME;
+<a href=#36 id=36 data-nosnippet>36</a>
+<a href=#37 id=37 data-nosnippet>37</a>    <span class="doccomment">/// Solidity ABI encode this type as return data.
+<a href=#38 id=38 data-nosnippet>38</a>    </span><span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; Vec&lt;u8&gt;;
+<a href=#39 id=39 data-nosnippet>39</a>}
 <a href=#40 id=40 data-nosnippet>40</a>
-<a href=#41 id=41 data-nosnippet>41</a>    <span class="comment">// NOTE: Not actually used for encoding because of `encode` override above.
-<a href=#42 id=42 data-nosnippet>42</a>    </span><span class="kw">fn </span>to_sol_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::SolType {
-<a href=#43 id=43 data-nosnippet>43</a>        <span class="macro">unimplemented!</span>(<span class="string">"Use the `encode` function directly instead."</span>)
-<a href=#44 id=44 data-nosnippet>44</a>    }
-<a href=#45 id=45 data-nosnippet>45</a>}
+<a href=#41 id=41 data-nosnippet>41</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T&gt; SolResultEncode&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>T
+<a href=#42 id=42 data-nosnippet>42</a><span class="kw">where
+<a href=#43 id=43 data-nosnippet>43</a>    </span>T: SolEncode&lt;<span class="lifetime">'a</span>&gt;,
+<a href=#44 id=44 data-nosnippet>44</a>{
+<a href=#45 id=45 data-nosnippet>45</a>    <span class="kw">type </span>SolType = &lt;T <span class="kw">as </span>SolEncode&lt;<span class="lifetime">'a</span>&gt;&gt;::SolType;
 <a href=#46 id=46 data-nosnippet>46</a>
-<a href=#47 id=47 data-nosnippet>47</a><span class="doccomment">/// Solidity ABI decode result data.
-<a href=#48 id=48 data-nosnippet>48</a></span><span class="comment">// Note: We define and implement this here (e.g. as opposed to an implementation
-<a href=#49 id=49 data-nosnippet>49</a>// in `ink_env`) because we need 2 generic implementations for `T: SolEncode` and
-<a href=#50 id=50 data-nosnippet>50</a>// `Result&lt;T: SolEncode, E&gt;` which `rustc` only allows if `Result&lt;T, E&gt;: !SolEncode`
-<a href=#51 id=51 data-nosnippet>51</a>// (i.e. `Result&lt;T, E&gt;` doesn't implement `SolEncode`). The latter negative condition is
-<a href=#52 id=52 data-nosnippet>52</a>// only allowed in this crate (because `SolEncode` is defined in this crate) as per Rust's
-<a href=#53 id=53 data-nosnippet>53</a>// coherence/orphan rules.
-<a href=#54 id=54 data-nosnippet>54</a>//
-<a href=#55 id=55 data-nosnippet>55</a>// Ref: &lt;https://doc.rust-lang.org/reference/items/implementations.html#orphan-rules&gt;
-<a href=#56 id=56 data-nosnippet>56</a></span><span class="kw">pub trait </span>SolResultDecode {
-<a href=#57 id=57 data-nosnippet>57</a>    <span class="doccomment">/// Solidity ABI decode result data into this type.
-<a href=#58 id=58 data-nosnippet>58</a>    </span><span class="kw">fn </span>decode(data: <span class="kw-2">&amp;</span>[u8], did_revert: bool) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, SolResultDecodeError&gt;
-<a href=#59 id=59 data-nosnippet>59</a>    <span class="kw">where
-<a href=#60 id=60 data-nosnippet>60</a>        </span><span class="self">Self</span>: Sized;
-<a href=#61 id=61 data-nosnippet>61</a>}
-<a href=#62 id=62 data-nosnippet>62</a>
-<a href=#63 id=63 data-nosnippet>63</a><span class="doccomment">/// Error representing reason for failing to decode Solidity ABI encoded result data.
-<a href=#64 id=64 data-nosnippet>64</a></span><span class="attr">#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-<a href=#65 id=65 data-nosnippet>65</a></span><span class="kw">pub enum </span>SolResultDecodeError {
-<a href=#66 id=66 data-nosnippet>66</a>    <span class="doccomment">/// Tried to decode revert/error data into a non-Result type.
-<a href=#67 id=67 data-nosnippet>67</a>    </span>NonResultFromRevert,
-<a href=#68 id=68 data-nosnippet>68</a>    <span class="doccomment">/// A general decoding error.
-<a href=#69 id=69 data-nosnippet>69</a>    </span>Decode,
-<a href=#70 id=70 data-nosnippet>70</a>}
-<a href=#71 id=71 data-nosnippet>71</a>
-<a href=#72 id=72 data-nosnippet>72</a><span class="kw">impl </span>From&lt;Error&gt; <span class="kw">for </span>SolResultDecodeError {
-<a href=#73 id=73 data-nosnippet>73</a>    <span class="kw">fn </span>from(<span class="kw">_</span>: Error) -&gt; <span class="self">Self </span>{
-<a href=#74 id=74 data-nosnippet>74</a>        SolResultDecodeError::Decode
-<a href=#75 id=75 data-nosnippet>75</a>    }
-<a href=#76 id=76 data-nosnippet>76</a>}
-<a href=#77 id=77 data-nosnippet>77</a>
-<a href=#78 id=78 data-nosnippet>78</a><span class="kw">impl</span>&lt;T&gt; SolResultDecode <span class="kw">for </span>T
-<a href=#79 id=79 data-nosnippet>79</a><span class="kw">where
-<a href=#80 id=80 data-nosnippet>80</a>    </span>T: SolDecode,
-<a href=#81 id=81 data-nosnippet>81</a>{
-<a href=#82 id=82 data-nosnippet>82</a>    <span class="kw">fn </span>decode(data: <span class="kw-2">&amp;</span>[u8], did_revert: bool) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, SolResultDecodeError&gt;
-<a href=#83 id=83 data-nosnippet>83</a>    <span class="kw">where
-<a href=#84 id=84 data-nosnippet>84</a>        </span><span class="self">Self</span>: Sized,
-<a href=#85 id=85 data-nosnippet>85</a>    {
-<a href=#86 id=86 data-nosnippet>86</a>        <span class="kw">if </span>did_revert {
-<a href=#87 id=87 data-nosnippet>87</a>            <span class="prelude-val">Err</span>(SolResultDecodeError::NonResultFromRevert)
-<a href=#88 id=88 data-nosnippet>88</a>        } <span class="kw">else </span>{
-<a href=#89 id=89 data-nosnippet>89</a>            <span class="prelude-val">Ok</span>(T::decode(data)<span class="question-mark">?</span>)
-<a href=#90 id=90 data-nosnippet>90</a>        }
-<a href=#91 id=91 data-nosnippet>91</a>    }
-<a href=#92 id=92 data-nosnippet>92</a>}
-<a href=#93 id=93 data-nosnippet>93</a>
-<a href=#94 id=94 data-nosnippet>94</a><span class="kw">impl</span>&lt;T, E&gt; SolResultDecode <span class="kw">for </span><span class="prelude-ty">Result</span>&lt;T, E&gt;
-<a href=#95 id=95 data-nosnippet>95</a><span class="kw">where
-<a href=#96 id=96 data-nosnippet>96</a>    </span>T: SolDecode,
-<a href=#97 id=97 data-nosnippet>97</a>    E: SolErrorDecode,
-<a href=#98 id=98 data-nosnippet>98</a>{
-<a href=#99 id=99 data-nosnippet>99</a>    <span class="kw">fn </span>decode(data: <span class="kw-2">&amp;</span>[u8], did_revert: bool) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, SolResultDecodeError&gt;
-<a href=#100 id=100 data-nosnippet>100</a>    <span class="kw">where
-<a href=#101 id=101 data-nosnippet>101</a>        </span><span class="self">Self</span>: Sized,
-<a href=#102 id=102 data-nosnippet>102</a>    {
-<a href=#103 id=103 data-nosnippet>103</a>        <span class="kw">if </span>did_revert {
-<a href=#104 id=104 data-nosnippet>104</a>            <span class="prelude-val">Ok</span>(E::decode(data).map(|err| <span class="prelude-val">Err</span>(err))<span class="question-mark">?</span>)
-<a href=#105 id=105 data-nosnippet>105</a>        } <span class="kw">else </span>{
-<a href=#106 id=106 data-nosnippet>106</a>            <span class="prelude-val">Ok</span>(T::decode(data).map(|val| <span class="prelude-val">Ok</span>(val))<span class="question-mark">?</span>)
-<a href=#107 id=107 data-nosnippet>107</a>        }
-<a href=#108 id=108 data-nosnippet>108</a>    }
-<a href=#109 id=109 data-nosnippet>109</a>}</code></pre></div></section></main></body></html>
+<a href=#47 id=47 data-nosnippet>47</a>    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; Vec&lt;u8&gt; {
+<a href=#48 id=48 data-nosnippet>48</a>        T::encode(<span class="self">self</span>)
+<a href=#49 id=49 data-nosnippet>49</a>    }
+<a href=#50 id=50 data-nosnippet>50</a>}
+<a href=#51 id=51 data-nosnippet>51</a>
+<a href=#52 id=52 data-nosnippet>52</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T, E&gt; SolResultEncode&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span><span class="prelude-ty">Result</span>&lt;T, E&gt;
+<a href=#53 id=53 data-nosnippet>53</a><span class="kw">where
+<a href=#54 id=54 data-nosnippet>54</a>    </span>T: SolEncode&lt;<span class="lifetime">'a</span>&gt;,
+<a href=#55 id=55 data-nosnippet>55</a>    E: SolErrorEncode,
+<a href=#56 id=56 data-nosnippet>56</a>{
+<a href=#57 id=57 data-nosnippet>57</a>    <span class="kw">type </span>SolType = &lt;T <span class="kw">as </span>SolEncode&lt;<span class="lifetime">'a</span>&gt;&gt;::SolType;
+<a href=#58 id=58 data-nosnippet>58</a>
+<a href=#59 id=59 data-nosnippet>59</a>    <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; Vec&lt;u8&gt; {
+<a href=#60 id=60 data-nosnippet>60</a>        <span class="kw">match </span><span class="self">self </span>{
+<a href=#61 id=61 data-nosnippet>61</a>            <span class="prelude-val">Ok</span>(val) =&gt; val.encode(),
+<a href=#62 id=62 data-nosnippet>62</a>            <span class="prelude-val">Err</span>(err) =&gt; err.encode(),
+<a href=#63 id=63 data-nosnippet>63</a>        }
+<a href=#64 id=64 data-nosnippet>64</a>    }
+<a href=#65 id=65 data-nosnippet>65</a>}
+<a href=#66 id=66 data-nosnippet>66</a>
+<a href=#67 id=67 data-nosnippet>67</a><span class="doccomment">/// Solidity ABI decode return data.
+<a href=#68 id=68 data-nosnippet>68</a></span><span class="comment">// Note: We define and implement this here (e.g. as opposed to an implementation
+<a href=#69 id=69 data-nosnippet>69</a>// in `ink_env`) because we need 2 generic implementations for `T: SolEncode` and
+<a href=#70 id=70 data-nosnippet>70</a>// `Result&lt;T: SolEncode, E&gt;` which Rust only allows if `Result&lt;T, E&gt;: !SolEncode`
+<a href=#71 id=71 data-nosnippet>71</a>// (i.e. `Result&lt;T, E&gt;` doesn't implement `SolEncode`). The latter negative condition is
+<a href=#72 id=72 data-nosnippet>72</a>// only allowed in this crate (because `SolEncode` is defined in this crate) as per Rust's
+<a href=#73 id=73 data-nosnippet>73</a>// coherence/orphan rules.
+<a href=#74 id=74 data-nosnippet>74</a>//
+<a href=#75 id=75 data-nosnippet>75</a>// Ref: &lt;https://doc.rust-lang.org/reference/items/implementations.html#orphan-rules&gt;
+<a href=#76 id=76 data-nosnippet>76</a></span><span class="kw">pub trait </span>SolResultDecode {
+<a href=#77 id=77 data-nosnippet>77</a>    <span class="doccomment">/// Equivalent Solidity ABI type representation.
+<a href=#78 id=78 data-nosnippet>78</a>    </span><span class="kw">type </span>SolType: SolTypeDecode;
+<a href=#79 id=79 data-nosnippet>79</a>
+<a href=#80 id=80 data-nosnippet>80</a>    <span class="doccomment">/// Name of equivalent Solidity ABI type.
+<a href=#81 id=81 data-nosnippet>81</a>    </span><span class="kw">const </span>SOL_NAME: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str =
+<a href=#82 id=82 data-nosnippet>82</a>        &lt;&lt;<span class="self">Self</span>::SolType <span class="kw">as </span>SolTypeDecode&gt;::AlloyType <span class="kw">as </span>AlloySolType&gt;::SOL_NAME;
+<a href=#83 id=83 data-nosnippet>83</a>
+<a href=#84 id=84 data-nosnippet>84</a>    <span class="doccomment">/// Solidity ABI decode return data into this type.
+<a href=#85 id=85 data-nosnippet>85</a>    </span><span class="kw">fn </span>decode(data: <span class="kw-2">&amp;</span>[u8], did_revert: bool) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, SolResultDecodeError&gt;
+<a href=#86 id=86 data-nosnippet>86</a>    <span class="kw">where
+<a href=#87 id=87 data-nosnippet>87</a>        </span><span class="self">Self</span>: Sized;
+<a href=#88 id=88 data-nosnippet>88</a>}
+<a href=#89 id=89 data-nosnippet>89</a>
+<a href=#90 id=90 data-nosnippet>90</a><span class="doccomment">/// Error representing reason for failing to decode Solidity ABI encoded return data.
+<a href=#91 id=91 data-nosnippet>91</a></span><span class="attr">#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+<a href=#92 id=92 data-nosnippet>92</a></span><span class="kw">pub enum </span>SolResultDecodeError {
+<a href=#93 id=93 data-nosnippet>93</a>    <span class="doccomment">/// Tried to decode revert/error data into a non-Result type.
+<a href=#94 id=94 data-nosnippet>94</a>    </span>NonResultFromRevert,
+<a href=#95 id=95 data-nosnippet>95</a>    <span class="doccomment">/// A general decoding error.
+<a href=#96 id=96 data-nosnippet>96</a>    </span>Decode,
+<a href=#97 id=97 data-nosnippet>97</a>}
+<a href=#98 id=98 data-nosnippet>98</a>
+<a href=#99 id=99 data-nosnippet>99</a><span class="kw">impl </span>From&lt;Error&gt; <span class="kw">for </span>SolResultDecodeError {
+<a href=#100 id=100 data-nosnippet>100</a>    <span class="kw">fn </span>from(<span class="kw">_</span>: Error) -&gt; <span class="self">Self </span>{
+<a href=#101 id=101 data-nosnippet>101</a>        SolResultDecodeError::Decode
+<a href=#102 id=102 data-nosnippet>102</a>    }
+<a href=#103 id=103 data-nosnippet>103</a>}
+<a href=#104 id=104 data-nosnippet>104</a>
+<a href=#105 id=105 data-nosnippet>105</a><span class="kw">impl</span>&lt;T&gt; SolResultDecode <span class="kw">for </span>T
+<a href=#106 id=106 data-nosnippet>106</a><span class="kw">where
+<a href=#107 id=107 data-nosnippet>107</a>    </span>T: SolDecode,
+<a href=#108 id=108 data-nosnippet>108</a>{
+<a href=#109 id=109 data-nosnippet>109</a>    <span class="kw">type </span>SolType = &lt;T <span class="kw">as </span>SolDecode&gt;::SolType;
+<a href=#110 id=110 data-nosnippet>110</a>
+<a href=#111 id=111 data-nosnippet>111</a>    <span class="kw">fn </span>decode(data: <span class="kw-2">&amp;</span>[u8], did_revert: bool) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, SolResultDecodeError&gt;
+<a href=#112 id=112 data-nosnippet>112</a>    <span class="kw">where
+<a href=#113 id=113 data-nosnippet>113</a>        </span><span class="self">Self</span>: Sized,
+<a href=#114 id=114 data-nosnippet>114</a>    {
+<a href=#115 id=115 data-nosnippet>115</a>        <span class="kw">if </span>did_revert {
+<a href=#116 id=116 data-nosnippet>116</a>            <span class="prelude-val">Err</span>(SolResultDecodeError::NonResultFromRevert)
+<a href=#117 id=117 data-nosnippet>117</a>        } <span class="kw">else </span>{
+<a href=#118 id=118 data-nosnippet>118</a>            <span class="prelude-val">Ok</span>(T::decode(data)<span class="question-mark">?</span>)
+<a href=#119 id=119 data-nosnippet>119</a>        }
+<a href=#120 id=120 data-nosnippet>120</a>    }
+<a href=#121 id=121 data-nosnippet>121</a>}
+<a href=#122 id=122 data-nosnippet>122</a>
+<a href=#123 id=123 data-nosnippet>123</a><span class="kw">impl</span>&lt;T, E&gt; SolResultDecode <span class="kw">for </span><span class="prelude-ty">Result</span>&lt;T, E&gt;
+<a href=#124 id=124 data-nosnippet>124</a><span class="kw">where
+<a href=#125 id=125 data-nosnippet>125</a>    </span>T: SolDecode,
+<a href=#126 id=126 data-nosnippet>126</a>    E: SolErrorDecode,
+<a href=#127 id=127 data-nosnippet>127</a>{
+<a href=#128 id=128 data-nosnippet>128</a>    <span class="kw">type </span>SolType = &lt;T <span class="kw">as </span>SolDecode&gt;::SolType;
+<a href=#129 id=129 data-nosnippet>129</a>
+<a href=#130 id=130 data-nosnippet>130</a>    <span class="kw">fn </span>decode(data: <span class="kw-2">&amp;</span>[u8], did_revert: bool) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, SolResultDecodeError&gt;
+<a href=#131 id=131 data-nosnippet>131</a>    <span class="kw">where
+<a href=#132 id=132 data-nosnippet>132</a>        </span><span class="self">Self</span>: Sized,
+<a href=#133 id=133 data-nosnippet>133</a>    {
+<a href=#134 id=134 data-nosnippet>134</a>        <span class="kw">if </span>did_revert {
+<a href=#135 id=135 data-nosnippet>135</a>            <span class="prelude-val">Ok</span>(E::decode(data).map(|err| <span class="prelude-val">Err</span>(err))<span class="question-mark">?</span>)
+<a href=#136 id=136 data-nosnippet>136</a>        } <span class="kw">else </span>{
+<a href=#137 id=137 data-nosnippet>137</a>            <span class="prelude-val">Ok</span>(T::decode(data).map(|val| <span class="prelude-val">Ok</span>(val))<span class="question-mark">?</span>)
+<a href=#138 id=138 data-nosnippet>138</a>        }
+<a href=#139 id=139 data-nosnippet>139</a>    }
+<a href=#140 id=140 data-nosnippet>140</a>}</code></pre></div></section></main></body></html>

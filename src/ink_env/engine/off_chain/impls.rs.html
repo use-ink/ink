@@ -16,13 +16,13 @@
 <a href=#16 id=16 data-nosnippet>16</a><span class="kw">use </span>ink_primitives::{
 <a href=#17 id=17 data-nosnippet>17</a>    Address,
 <a href=#18 id=18 data-nosnippet>18</a>    H256,
-<a href=#19 id=19 data-nosnippet>19</a>    SolEncode,
-<a href=#20 id=20 data-nosnippet>20</a>    U256,
-<a href=#21 id=21 data-nosnippet>21</a>    abi::{
-<a href=#22 id=22 data-nosnippet>22</a>        AbiEncodeWith,
-<a href=#23 id=23 data-nosnippet>23</a>        Ink,
-<a href=#24 id=24 data-nosnippet>24</a>        Sol,
-<a href=#25 id=25 data-nosnippet>25</a>    },
+<a href=#19 id=19 data-nosnippet>19</a>    U256,
+<a href=#20 id=20 data-nosnippet>20</a>    abi::{
+<a href=#21 id=21 data-nosnippet>21</a>        AbiEncodeWith,
+<a href=#22 id=22 data-nosnippet>22</a>        Ink,
+<a href=#23 id=23 data-nosnippet>23</a>        Sol,
+<a href=#24 id=24 data-nosnippet>24</a>    },
+<a href=#25 id=25 data-nosnippet>25</a>    sol::SolResultEncode,
 <a href=#26 id=26 data-nosnippet>26</a>    types::{
 <a href=#27 id=27 data-nosnippet>27</a>        AccountIdMapper,
 <a href=#28 id=28 data-nosnippet>28</a>        Environment,
@@ -429,7 +429,7 @@
 <a href=#429 id=429 data-nosnippet>429</a>
 <a href=#430 id=430 data-nosnippet>430</a>    <span class="kw">fn </span>return_value_solidity&lt;R&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _flags: ReturnFlags, _return_value: <span class="kw-2">&amp;</span>R) -&gt; !
 <a href=#431 id=431 data-nosnippet>431</a>    <span class="kw">where
-<a href=#432 id=432 data-nosnippet>432</a>        </span>R: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; SolEncode&lt;<span class="lifetime">'a</span>&gt;,
+<a href=#432 id=432 data-nosnippet>432</a>        </span>R: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; SolResultEncode&lt;<span class="lifetime">'a</span>&gt;,
 <a href=#433 id=433 data-nosnippet>433</a>    {
 <a href=#434 id=434 data-nosnippet>434</a>        <span class="macro">unimplemented!</span>(<span class="string">"the off-chain env does not implement `return_value_solidity`"</span>)
 <a href=#435 id=435 data-nosnippet>435</a>    }

@@ -17,9 +17,9 @@
 <a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use </span>ink_primitives::{
 <a href=#18 id=18 data-nosnippet>18</a>    Address,
 <a href=#19 id=19 data-nosnippet>19</a>    H256,
-<a href=#20 id=20 data-nosnippet>20</a>    SolEncode,
-<a href=#21 id=21 data-nosnippet>21</a>    U256,
-<a href=#22 id=22 data-nosnippet>22</a>    abi::AbiEncodeWith,
+<a href=#20 id=20 data-nosnippet>20</a>    U256,
+<a href=#21 id=21 data-nosnippet>21</a>    abi::AbiEncodeWith,
+<a href=#22 id=22 data-nosnippet>22</a>    sol::SolResultEncode,
 <a href=#23 id=23 data-nosnippet>23</a>};
 <a href=#24 id=24 data-nosnippet>24</a><span class="kw">use </span>ink_storage_traits::Storable;
 <a href=#25 id=25 data-nosnippet>25</a><span class="kw">use </span>pallet_revive_uapi::ReturnFlags;
@@ -431,7 +431,7 @@
 <a href=#431 id=431 data-nosnippet>431</a>///
 <a href=#432 id=432 data-nosnippet>432</a>/// # Note
 <a href=#433 id=433 data-nosnippet>433</a>///
-<a href=#434 id=434 data-nosnippet>434</a>/// This function  stops the execution of the contract immediately.
+<a href=#434 id=434 data-nosnippet>434</a>/// This function stops the execution of the contract immediately.
 <a href=#435 id=435 data-nosnippet>435</a></span><span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
 <a href=#436 id=436 data-nosnippet>436</a></span><span class="kw">pub fn </span>return_value&lt;R&gt;(return_flags: ReturnFlags, return_value: <span class="kw-2">&amp;</span>R) -&gt; !
 <a href=#437 id=437 data-nosnippet>437</a><span class="kw">where
@@ -462,10 +462,10 @@
 <a href=#462 id=462 data-nosnippet>462</a>///
 <a href=#463 id=463 data-nosnippet>463</a>/// # Note
 <a href=#464 id=464 data-nosnippet>464</a>///
-<a href=#465 id=465 data-nosnippet>465</a>/// This function  stops the execution of the contract immediately.
+<a href=#465 id=465 data-nosnippet>465</a>/// This function stops the execution of the contract immediately.
 <a href=#466 id=466 data-nosnippet>466</a></span><span class="kw">pub fn </span>return_value_solidity&lt;R&gt;(return_flags: ReturnFlags, return_value: <span class="kw-2">&amp;</span>R) -&gt; !
 <a href=#467 id=467 data-nosnippet>467</a><span class="kw">where
-<a href=#468 id=468 data-nosnippet>468</a>    </span>R: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; SolEncode&lt;<span class="lifetime">'a</span>&gt;,
+<a href=#468 id=468 data-nosnippet>468</a>    </span>R: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; SolResultEncode&lt;<span class="lifetime">'a</span>&gt;,
 <a href=#469 id=469 data-nosnippet>469</a>{
 <a href=#470 id=470 data-nosnippet>470</a>    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
 <a href=#471 id=471 data-nosnippet>471</a>        EnvBackend::return_value_solidity::&lt;R&gt;(instance, return_flags, return_value)

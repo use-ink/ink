@@ -14,7 +14,7 @@
 <a href=#14 id=14 data-nosnippet>14</a>
 <a href=#15 id=15 data-nosnippet>15</a></span><span class="kw">use </span>ink_primitives::{
 <a href=#16 id=16 data-nosnippet>16</a>    SolDecode,
-<a href=#17 id=17 data-nosnippet>17</a>    SolEncode,
+<a href=#17 id=17 data-nosnippet>17</a>    sol::SolResultEncode,
 <a href=#18 id=18 data-nosnippet>18</a>};
 <a href=#19 id=19 data-nosnippet>19</a>
 <a href=#20 id=20 data-nosnippet>20</a><span class="doccomment">/// Used to check if `T` is allowed as ink! input parameter type.
@@ -105,26 +105,27 @@
 <a href=#105 id=105 data-nosnippet>105</a>///
 <a href=#106 id=106 data-nosnippet>106</a>/// # Note
 <a href=#107 id=107 data-nosnippet>107</a>///
-<a href=#108 id=108 data-nosnippet>108</a>/// An ink! input parameter type must implement [`ink::SolEncode`][crate::SolEncode]
-<a href=#109 id=109 data-nosnippet>109</a>/// and must have a `'static` lifetime.
-<a href=#110 id=110 data-nosnippet>110</a>///
-<a href=#111 id=111 data-nosnippet>111</a>/// # Example
-<a href=#112 id=112 data-nosnippet>112</a>///
-<a href=#113 id=113 data-nosnippet>113</a>/// This compiles since `i32` fulfills the requirements of an ink! output.
-<a href=#114 id=114 data-nosnippet>114</a>///
-<a href=#115 id=115 data-nosnippet>115</a>/// ```
-<a href=#116 id=116 data-nosnippet>116</a>/// # use ink::codegen::DispatchOutputSol;
-<a href=#117 id=117 data-nosnippet>117</a>/// const _: () = ink::codegen::utils::consume_type::&lt;DispatchOutputSol&lt;i32&gt;&gt;();
-<a href=#118 id=118 data-nosnippet>118</a>/// ```
-<a href=#119 id=119 data-nosnippet>119</a>///
-<a href=#120 id=120 data-nosnippet>120</a>/// This fails to compile since `Foo` does not fulfill all requirements.
-<a href=#121 id=121 data-nosnippet>121</a>///
-<a href=#122 id=122 data-nosnippet>122</a>/// ```compile_fail
-<a href=#123 id=123 data-nosnippet>123</a>/// # use ink::codegen::DispatchOutputSol;
-<a href=#124 id=124 data-nosnippet>124</a>/// // Foo is missing scale codec implementations.
-<a href=#125 id=125 data-nosnippet>125</a>/// struct Foo {}
-<a href=#126 id=126 data-nosnippet>126</a>/// const _: () = ink::codegen::utils::consume_type::&lt;DispatchOutputSol&lt;Foo&gt;&gt;();
-<a href=#127 id=127 data-nosnippet>127</a>/// ```
-<a href=#128 id=128 data-nosnippet>128</a></span><span class="kw">pub struct </span>DispatchOutputSol&lt;T&gt;(T)
-<a href=#129 id=129 data-nosnippet>129</a><span class="kw">where
-<a href=#130 id=130 data-nosnippet>130</a>    </span>T: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; SolEncode&lt;<span class="lifetime">'a</span>&gt; + <span class="lifetime">'static</span>;</code></pre></div></section></main></body></html>
+<a href=#108 id=108 data-nosnippet>108</a>/// An ink! input parameter type must implement
+<a href=#109 id=109 data-nosnippet>109</a>/// [`ink::sol::SolResultEncode`][crate::sol::SolResultEncode] and must have a `'static`
+<a href=#110 id=110 data-nosnippet>110</a>/// lifetime.
+<a href=#111 id=111 data-nosnippet>111</a>///
+<a href=#112 id=112 data-nosnippet>112</a>/// # Example
+<a href=#113 id=113 data-nosnippet>113</a>///
+<a href=#114 id=114 data-nosnippet>114</a>/// This compiles since `i32` fulfills the requirements of an ink! output.
+<a href=#115 id=115 data-nosnippet>115</a>///
+<a href=#116 id=116 data-nosnippet>116</a>/// ```
+<a href=#117 id=117 data-nosnippet>117</a>/// # use ink::codegen::DispatchOutputSol;
+<a href=#118 id=118 data-nosnippet>118</a>/// const _: () = ink::codegen::utils::consume_type::&lt;DispatchOutputSol&lt;i32&gt;&gt;();
+<a href=#119 id=119 data-nosnippet>119</a>/// ```
+<a href=#120 id=120 data-nosnippet>120</a>///
+<a href=#121 id=121 data-nosnippet>121</a>/// This fails to compile since `Foo` does not fulfill all requirements.
+<a href=#122 id=122 data-nosnippet>122</a>///
+<a href=#123 id=123 data-nosnippet>123</a>/// ```compile_fail
+<a href=#124 id=124 data-nosnippet>124</a>/// # use ink::codegen::DispatchOutputSol;
+<a href=#125 id=125 data-nosnippet>125</a>/// // Foo is missing scale codec implementations.
+<a href=#126 id=126 data-nosnippet>126</a>/// struct Foo {}
+<a href=#127 id=127 data-nosnippet>127</a>/// const _: () = ink::codegen::utils::consume_type::&lt;DispatchOutputSol&lt;Foo&gt;&gt;();
+<a href=#128 id=128 data-nosnippet>128</a>/// ```
+<a href=#129 id=129 data-nosnippet>129</a></span><span class="kw">pub struct </span>DispatchOutputSol&lt;T&gt;(T)
+<a href=#130 id=130 data-nosnippet>130</a><span class="kw">where
+<a href=#131 id=131 data-nosnippet>131</a>    </span>T: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; SolResultEncode&lt;<span class="lifetime">'a</span>&gt; + <span class="lifetime">'static</span>;</code></pre></div></section></main></body></html>
