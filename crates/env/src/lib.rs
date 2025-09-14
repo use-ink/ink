@@ -55,27 +55,20 @@ pub const BUFFER_SIZE: usize = 16384;
 #[cfg(target_arch = "riscv64")]
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
-    // todo
-    //#[cfg(any(feature = "ink-debug", feature = "std"))]
+    // In case the contract is build in debug-mode, we return the
+    // panic message as a payload by triggering a contract revert.
+    #[cfg(any(feature = "ink-debug", feature = "std"))]
     self::return_value(
         ReturnFlags::REVERT,
         &ink_prelude::format!("{}", info.message()).as_bytes(),
     );
 
-    /*
-    #[cfg(not(any(feature = "ink-debug", feature = "std")))]
-    cfg_if::cfg_if! {
-        if #[cfg(target_arch = "riscv64")] {
-            // Safety: The unimp instruction is guaranteed to trap
-            unsafe {
-                core::arch::asm!("unimp");
-                core::hint::unreachable_unchecked();
-            }
-        } else {
-            core::compile_error!("ink! only supports riscv64");
-        }
-    }
-    */
+    // If contract is compiled with `cargo contract --release`, it will
+    // for efficiency reasons be build with `panic_immediate_abort`.
+    // This panic handler will thus never be invoked.
+    unreachable!(
+        "contract in non-debug/non-std mode needs to be build with `panic_immediate_abort`"
+    );
 }
 
 // This extern crate definition is required since otherwise rustc

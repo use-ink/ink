@@ -737,7 +737,11 @@ impl EnvBackend for EnvInstance {
         let mut scope = EncodeScope::from(&mut self.buffer[..]);
         return_value.encode_to(&mut scope);
         let len = scope.len();
-        ext::return_value(flags, &self.buffer[..][..len]);
+        if len == 0 {
+            ext::return_value(flags, &[]);
+        } else {
+            ext::return_value(flags, &self.buffer[..][..len]);
+        }
     }
 
     fn return_value_solidity<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
