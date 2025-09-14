@@ -151,7 +151,7 @@ pub trait EnvBackend {
     ///
     /// # Note
     ///
-    /// This function  stops the execution of the contract immediately.
+    /// This function stops the execution of the contract immediately.
     fn return_value_solidity<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
         R: for<'a> SolResultEncode<'a>;
