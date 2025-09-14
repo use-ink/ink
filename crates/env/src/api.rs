@@ -431,7 +431,7 @@ where
 ///
 /// # Note
 ///
-/// This function  stops the execution of the contract immediately.
+/// This function stops the execution of the contract immediately.
 #[cfg(not(feature = "std"))]
 pub fn return_value<R>(return_flags: ReturnFlags, return_value: &R) -> !
 where
@@ -462,7 +462,7 @@ where
 ///
 /// # Note
 ///
-/// This function  stops the execution of the contract immediately.
+/// This function stops the execution of the contract immediately.
 pub fn return_value_solidity<R>(return_flags: ReturnFlags, return_value: &R) -> !
 where
     R: for<'a> SolResultEncode<'a>,
