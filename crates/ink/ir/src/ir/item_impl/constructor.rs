@@ -173,6 +173,16 @@ impl TryFrom<syn::ImplItemFn> for Constructor {
         let is_default = ink_attrs.is_default();
         let selector = ink_attrs.selector();
         let name = ink_attrs.name();
+        #[cfg(ink_abi = "sol")]
+        if selector.is_some() {
+            let selector_span = ink_attrs.args().find_map(|arg| {
+                matches!(arg.kind(), ir::AttributeArg::Selector(_)).then_some(arg.span())
+            });
+            return Err(format_err!(
+                selector_span.unwrap_or_else(|| method_item.span()),
+                "constructor `selector` attributes are not supported in Solidity ABI compatibility mode",
+            ));
+        }
         Ok(Constructor {
             selector,
             is_payable,

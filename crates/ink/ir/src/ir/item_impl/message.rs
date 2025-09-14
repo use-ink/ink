@@ -227,6 +227,16 @@ impl TryFrom<syn::ImplItemFn> for Message {
                 "ink! messages with a `payable` attribute argument must have a `&mut self` receiver",
             ));
         }
+        #[cfg(ink_abi = "sol")]
+        if selector.is_some() {
+            let selector_span = ink_attrs.args().find_map(|arg| {
+                matches!(arg.kind(), ir::AttributeArg::Selector(_)).then_some(arg.span())
+            });
+            return Err(format_err!(
+                selector_span.unwrap_or_else(|| method_item.span()),
+                "message `selector` attributes are not supported in Solidity ABI compatibility mode",
+            ));
+        }
         Ok(Self {
             is_payable,
             is_default,
