@@ -180,16 +180,12 @@ mod construct_runtime {
     }
 
     parameter_types! {
-        // TODO can we delete some?
-        pub DeletionWeightLimit: Weight = Weight::zero();
-        pub DefaultDepositLimit: BalanceOf = 10_000_000;
         pub CodeHashLockupDepositPercent: Perbill = Perbill::from_percent(0);
-        pub MaxDelegateDependencies: u32 = 32;
     }
 
     impl $crate::pallet_revive::Config for $runtime {
         type AddressMapper = $crate::pallet_revive::AccountId32Mapper<Self>;
-        type ChainId = ConstU64<1>; // TODO
+        type ChainId = ConstU64<1>;
         type NativeToEthRatio = ConstU32<100_000_000>;
         type Time = Timestamp;
         type Currency = Balances;
@@ -217,8 +213,6 @@ mod construct_runtime {
         type AllowEVMBytecode = ConstBool<false>;
     }
 
-    // Implement `crate::Sandbox` trait
-
     /// Default initial balance for the default account.
     pub const INITIAL_BALANCE: u128 = 1_000_000_000_000_000;
     pub const DEFAULT_ACCOUNT: AccountId32 = AccountId32::new([1u8; 32]);
@@ -237,6 +231,7 @@ mod construct_runtime {
         }
     }
 
+    // Implement `crate::Sandbox` trait
     impl $crate::Sandbox for $sandbox {
         type Runtime = $runtime;
 

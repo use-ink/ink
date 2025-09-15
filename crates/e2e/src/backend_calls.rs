@@ -370,7 +370,7 @@ where
     client: &'a mut B,
     contract_name: &'a str,
     caller: &'a Keypair,
-    storage_deposit_limit: E::Balance,
+    storage_deposit_limit: Option<E::Balance>,
 }
 
 impl<'a, E, B> UploadBuilder<'a, E, B>
@@ -384,14 +384,14 @@ where
             client,
             contract_name,
             caller,
-            storage_deposit_limit: 0u32.into(),
+            storage_deposit_limit: None,
         }
     }
 
     /// Specify the max amount of funds that can be charged for storage.
     pub fn storage_deposit_limit(
         &mut self,
-        storage_deposit_limit: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> &mut Self {
         self.storage_deposit_limit = storage_deposit_limit;
         self

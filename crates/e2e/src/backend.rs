@@ -268,6 +268,11 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     ///
     /// Returns the result of the dry run, together with the decoded return value of the
     /// invoked message.
+    ///
+    /// Important: For an uncomplicated UX of the E2E testing environment we
+    /// decided to automatically map the account in `pallet-revive`, if not
+    /// yet mapped. This is a side effect, as a transaction is then issued
+    /// on-chain and the user incurs costs!
     async fn bare_call_dry_run<
         Args: Sync + AbiEncodeWith<Abi> + Clone,
         RetType: Send + DecodeMessageResult<Abi>,
@@ -286,6 +291,11 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     ///
     /// Returns the result of the dry run, together with the decoded return value of the
     /// invoked message.
+    ///
+    /// Important: For an uncomplicated UX of the E2E testing environment we
+    /// decided to automatically map the account in `pallet-revive`, if not
+    /// yet mapped. This is a side effect, as a transaction is then issued
+    /// on-chain and the user incurs costs!
     async fn raw_call_dry_run<
         RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
@@ -323,7 +333,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        storage_deposit_limit: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error>;
 
     /// Removes the code of the contract at `code_hash`.
@@ -371,6 +381,15 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error>;
 
+    async fn raw_instantiate_dry_run<Abi: Sync + Clone>(
+        &mut self,
+        code: Vec<u8>,
+        caller: &Keypair,
+        constructor: Vec<u8>,
+        value: E::Balance,
+        storage_deposit_limit: DepositLimit<E::Balance>,
+    ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error>;
+
     async fn exec_instantiate(
         &mut self,
         signer: &Keypair,
@@ -382,6 +401,11 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error>;
 
     /// Dry run contract instantiation.
+    ///
+    /// Important: For an uncomplicated UX of the E2E testing environment we
+    /// decided to automatically map the account in `pallet-revive`, if not
+    /// yet mapped. This is a side effect, as a transaction is then issued
+    /// on-chain and the user incurs costs!
     async fn bare_instantiate_dry_run<
         Contract: Clone,
         Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
@@ -396,11 +420,12 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error>;
 
-    /// todo
-    async fn map_account(&mut self, caller: &Keypair) -> Result<(), Self::Error>;
-
-    /// todo
-    async fn map_account_dry_run(&mut self, caller: &Keypair) -> Result<(), Self::Error>;
+    /// Checks if `caller` was already mapped in `pallet-revive`. If not, it will do so
+    /// and return the events associated with that transaction.
+    async fn map_account(
+        &mut self,
+        caller: &Keypair,
+    ) -> Result<Option<Self::EventLog>, Self::Error>;
 
     /// Returns the `Environment::AccountId` for an `H160` address.
     async fn to_account_id(&mut self, addr: &H160) -> Result<E::AccountId, Self::Error>;

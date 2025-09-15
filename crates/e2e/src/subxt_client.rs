@@ -155,12 +155,8 @@ where
         &mut self,
         signer: &Keypair,
         code: Vec<u8>,
-        _storage_deposit_limit: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, ExtrinsicEvents<C>>, Error> {
-        // todo
-        let storage_deposit_limit: E::Balance = unsafe {
-            core::mem::transmute_copy::<u128, <E as Environment>::Balance>(&u128::MAX)
-        };
         let dry_run = self
             .api
             .upload_dry_run(signer, code.clone(), storage_deposit_limit)
@@ -170,6 +166,16 @@ where
             let dispatch_err = self.runtime_dispatch_error_to_subxt_dispatch_error(&err);
             return Err(Error::UploadDryRun(dispatch_err))
         }
+
+        let storage_deposit_limit = match storage_deposit_limit {
+            None => {
+                dry_run
+                    .as_ref()
+                    .expect("would have returned already")
+                    .deposit
+            }
+            Some(limit) => limit,
+        };
 
         let (tx_events, trace) =
             self.api.upload(signer, code, storage_deposit_limit).await;
@@ -459,7 +465,7 @@ where
                     subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::Decoding(e.to_string()))?;
                 log_error(&format!(
-                    "extrinsic for call failed: {dispatch_error} {trace:?}"
+                    "extrinsic for `runtime_call` failed: {dispatch_error} {trace:?}"
                 ));
                 return Err(Error::CallExtrinsic(dispatch_error, trace))
             }
@@ -543,9 +549,6 @@ where
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
         let storage_deposit_limit = deposit_limit_to_balance::<E>(storage_deposit_limit);
-        let salt = salt();
-        // todo remove assert once salt() returns no more option
-        assert!(salt.is_some());
         let (events, trace) = self
             .api
             .instantiate_with_code(
@@ -554,7 +557,7 @@ where
                 storage_deposit_limit,
                 code.clone(),
                 constructor.clone(),
-                salt,
+                salt(),
                 caller,
             )
             .await;
@@ -626,6 +629,10 @@ where
         .await
     }
 
+    /// Important: For an uncomplicated UX of the E2E testing environment we
+    /// decided to automatically map the account in `pallet-revive`, if not
+    /// yet mapped. This is a side effect, as a transaction is then issued
+    /// on-chain and the user incurs costs!
     async fn bare_instantiate_dry_run<
         Contract: Clone,
         Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
@@ -639,12 +646,26 @@ where
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error> {
-        // todo beware side effect! this is wrong, we have to batch up the `map_account`
-        // into the RPC dry run instead
-        let _ = self.map_account(caller).await;
-
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
+        self.raw_instantiate_dry_run(code, caller, data, value, storage_deposit_limit)
+            .await
+    }
+
+    /// Important: For an uncomplicated UX of the E2E testing environment we
+    /// decided to automatically map the account in `pallet-revive`, if not
+    /// yet mapped. This is a side effect, as a transaction is then issued
+    /// on-chain and the user incurs costs!
+    async fn raw_instantiate_dry_run<Abi: Sync + Clone>(
+        &mut self,
+        code: Vec<u8>,
+        caller: &Keypair,
+        data: Vec<u8>,
+        value: E::Balance,
+        storage_deposit_limit: DepositLimit<E::Balance>,
+    ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error> {
+        // There's a side effect here!
+        let _ = self.map_account(caller).await;
 
         let result = self
             .api
@@ -664,6 +685,7 @@ where
             .map_err(Error::InstantiateDryRun)?;
 
         /*
+        // todo
         if let Ok(res) = result.result.clone() {
             if res.result.did_revert() {
                 return Err(Self::Error::InstantiateDryRunReverted(DryRunRevert {
@@ -680,7 +702,7 @@ where
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        storage_deposit_limit: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
         let ret = self
@@ -778,7 +800,7 @@ where
                     DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::Decoding(e.to_string()))?;
                 log_error(&format!(
-                    "extrinsic for call failed: {dispatch_error} {trace:?}"
+                    "extrinsic for `raw_call` failed: {dispatch_error} {trace:?}"
                 ));
                 return Err(Error::CallExtrinsic(dispatch_error, trace))
             }
@@ -787,7 +809,12 @@ where
         Ok((tx_events, trace))
     }
 
-    // todo is not really a `bare_call`
+    /// Dry-runs a bare call.
+    ///
+    /// Important: For an uncomplicated UX of the E2E testing environment we
+    /// decided to automatically map the account in `pallet-revive`, if not
+    /// yet mapped. This is a side effect, as a transaction is then issued
+    /// on-chain and the user incurs costs!
     async fn bare_call_dry_run<
         Args: Sync + AbiEncodeWith<Abi> + Clone,
         RetType: Send + DecodeMessageResult<Abi>,
@@ -802,8 +829,7 @@ where
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {
-        // todo beware side effect! this is wrong, we have to batch up the `map_account`
-        // into the RPC dry run instead
+        // There's a side effect here!
         let _ = self.map_account(caller).await;
 
         let dest = *message.clone().params().callee();
@@ -848,10 +874,15 @@ where
         })
     }
 
-    async fn map_account(&mut self, caller: &Keypair) -> Result<(), Self::Error> {
+    /// Checks if `caller` was already mapped in `pallet-revive`. If not, it will do so
+    /// and return the events associated with that transaction.
+    async fn map_account(
+        &mut self,
+        caller: &Keypair,
+    ) -> Result<Option<Self::EventLog>, Self::Error> {
         let addr = self.derive_keypair_address(caller);
         if self.fetch_original_account(&addr).await?.is_some() {
-            return Ok(());
+            return Ok(None);
         }
         let (tx_events, trace) = self.api.map_account(caller).await;
 
@@ -866,39 +897,13 @@ where
                     DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::Decoding(e.to_string()))?;
                 log_error(&format!(
-                    "extrinsic for call failed: {dispatch_error} {trace:?}"
+                    "extrinsic for `map_account` failed: {dispatch_error} {trace:?}"
                 ));
                 return Err(Error::CallExtrinsic(dispatch_error, trace))
             }
         }
 
-        // todo: Ok(tx_events)
-        Ok(())
-    }
-
-    // todo not used anywhere
-    // code is also not dry
-    async fn map_account_dry_run(&mut self, caller: &Keypair) -> Result<(), Self::Error> {
-        let (tx_events, trace) = self.api.map_account(caller).await;
-
-        for evt in tx_events.iter() {
-            let evt = evt.unwrap_or_else(|err| {
-                panic!("unable to unwrap event: {err:?}");
-            });
-
-            if is_extrinsic_failed_event(&evt) {
-                let metadata = self.api.client.metadata();
-                let dispatch_error =
-                    DispatchError::decode_from(evt.field_bytes(), metadata)
-                        .map_err(|e| Error::Decoding(e.to_string()))?;
-                log_error(&format!(
-                    "extrinsic for call failed: {dispatch_error} {trace:?}"
-                ));
-                return Err(Error::CallExtrinsic(dispatch_error, trace))
-            }
-        }
-
-        Ok(())
+        Ok(Some(tx_events))
     }
 
     async fn to_account_id(&mut self, addr: &H160) -> Result<E::AccountId, Self::Error> {

@@ -28,7 +28,6 @@ use funty::Fundamental;
 use ink_primitives::{
     Address,
     DepositLimit,
-    H160,
 };
 use pallet_revive::{
     CodeUploadResult,
@@ -78,8 +77,6 @@ use subxt::{
     scale::Decode,
     scale::MaxEncodedLen,
     scale_encode::EncodeAsType,
-    serde::Serialize,
-    serde::Deserialize,
 )]
 #[encode_as_type(crate_path = "subxt::ext::scale_encode")]
 pub struct Weight {
@@ -175,8 +172,6 @@ pub struct UploadCode<E: Environment> {
 
 /// A struct that encodes RPC parameters required to instantiate a new smart contract.
 #[derive(scale::Encode)]
-// todo: #[derive(serde::Serialize, scale::Encode)]
-// todo: #[serde(rename_all = "camelCase")]
 struct RpcInstantiateRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
     value: E::Balance,
@@ -189,8 +184,6 @@ struct RpcInstantiateRequest<C: subxt::Config, E: Environment> {
 
 /// A struct that encodes RPC parameters required to upload a new smart contract.
 #[derive(scale::Encode)]
-// todo: #[derive(serde::Serialize, scale::Encode)]
-// todo: #[serde(rename_all = "camelCase")]
 struct RpcCodeUploadRequest<C: subxt::Config, E: Environment>
 where
     E::Balance: serde::Serialize,
@@ -202,8 +195,6 @@ where
 
 /// A struct that encodes RPC parameters required for a call to a smart contract.
 #[derive(scale::Encode)]
-// todo: #[derive(serde::Serialize, scale::Encode)]
-// todo: #[serde(rename_all = "camelCase")]
 struct RpcCallRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
     dest: Address,
@@ -214,8 +205,7 @@ struct RpcCallRequest<C: subxt::Config, E: Environment> {
 }
 
 /// Reference to an existing code hash or a new contract binary.
-#[derive(serde::Serialize, scale::Encode)]
-#[serde(rename_all = "camelCase")]
+#[derive(scale::Encode)]
 enum Code {
     /// A contract binary as raw bytes.
     Upload(Vec<u8>),
@@ -560,13 +550,12 @@ where
         &self,
         signer: &Keypair,
         code: Vec<u8>,
-        // todo
-        _storage_deposit_limit: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> CodeUploadResult<E::Balance> {
         let call_request = RpcCodeUploadRequest::<C, E> {
             origin: Signer::<C>::account_id(signer),
             code,
-            storage_deposit_limit: None,
+            storage_deposit_limit,
         };
         let func = "ReviveApi_upload_code";
         let params = scale::Encode::encode(&call_request);
@@ -627,7 +616,7 @@ where
     pub async fn call_dry_run(
         &self,
         dest: Address,
-        input_data: Vec<u8>,
+        data: Vec<u8>,
         value: E::Balance,
         storage_deposit_limit: DepositLimit<E::Balance>,
         signer: &Keypair,
@@ -642,7 +631,7 @@ where
                 proof_size: u64::MAX,
             }),
             storage_deposit_limit: storage_deposit_limit.clone(),
-            input_data: input_data.clone(),
+            input_data: data.clone(),
         };
         let func = "ReviveApi_call";
         let params = scale::Encode::encode(&call_request);
@@ -653,16 +642,18 @@ where
             .unwrap_or_else(|err| {
                 panic!("error on ws request `ReviveApi_call`: {err:?}");
             });
-        let res: ContractExecResultFor<E> = scale::Decode::decode(&mut bytes.as_ref())
-            .unwrap_or_else(|err| panic!("decoding ContractExecResult failed: {err}"));
-
-        // todo for gas_limit we should use the value returned by a successful call above.
+        let dry_run_result: ContractExecResultFor<E> =
+            scale::Decode::decode(&mut bytes.as_ref()).unwrap_or_else(|err| {
+                panic!("decoding `ContractExecResult` failed: {err}")
+            });
 
         // Even if the `storage_deposit_limit` to this function was set as `Unchecked`,
         // we still take the return value of the dry run for submitting the extrinsic
         // that will take effect.
         let storage_deposit_limit = match storage_deposit_limit {
-            DepositLimit::UnsafeOnlyForDryRun => res.storage_deposit.charge_or_zero(),
+            DepositLimit::UnsafeOnlyForDryRun => {
+                dry_run_result.storage_deposit.charge_or_zero()
+            }
             DepositLimit::Balance(limit) => limit,
         };
 
@@ -673,11 +664,11 @@ where
                 dest,
                 value,
                 gas_limit: Weight {
-                    ref_time: u64::MAX,
-                    proof_size: u64::MAX,
+                    ref_time: dry_run_result.gas_required.ref_time(),
+                    proof_size: dry_run_result.gas_required.proof_size(),
                 },
                 storage_deposit_limit,
-                data: input_data,
+                data,
             },
         )
         .unvalidated();
@@ -701,7 +692,7 @@ where
             .trace(block_hash, None, parent_hash, Some(xt.into_encoded()))
             .await;
 
-        (res, trace)
+        (dry_run_result, trace)
     }
 
     /// Submits an extrinsic to call a contract with the given parameters.
@@ -733,15 +724,18 @@ where
         self.submit_extrinsic(&call, signer).await
     }
 
-    /// todo
-    /// Submits an extrinsic to call a contract with the given parameters.
+    /// Maps the `signer` to an `H160` account.
     ///
-    /// Returns when the transaction is included in a block. The return value
-    /// contains all events that are associated with this transaction.
+    /// This is a `pallet-revive` concept, whereby a stroage entry is created on-chain.
+    /// The entry maps the account id from `signer` to an `H160` account. This is
+    /// a necessity for any operation interacting with the contracts part of
+    /// `pallet-revive`.
     pub async fn map_account(
         &self,
         signer: &Keypair,
     ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
+        // todo check if the account is unmapped! otherwise
+        // we submit a costly extrinisc which is guaranteed to fail.
         let call = subxt::tx::DefaultPayload::new("Revive", "map_account", MapAccount {})
             .unvalidated();
 
