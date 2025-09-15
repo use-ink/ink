@@ -125,7 +125,7 @@ done
 total_manifests=${#filtered_manifests[@]}
 if [ "$partitioning" = true ]; then
     # calculate the partition start and end index
-    partition_size=$(( total_manifests / n ))
+    partition_size=$(( (total_manifests + n - 1) / n ))
     start=$(( (m - 1) * partition_size ))
     end=$(( m * partition_size - 1 ))
     if [ "$m" -eq "$n" ]; then
