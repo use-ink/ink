@@ -644,7 +644,7 @@ where
             });
         let dry_run_result: ContractExecResultFor<E> =
             scale::Decode::decode(&mut bytes.as_ref()).unwrap_or_else(|err| {
-                panic!("decoding ContractExecResult failed: {err}")
+                panic!("decoding `ContractExecResult` failed: {err}")
             });
 
         // Even if the `storage_deposit_limit` to this function was set as `Unchecked`,
@@ -734,6 +734,8 @@ where
         &self,
         signer: &Keypair,
     ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
+        // todo check if the account is unmapped! otherwise
+        // we submit a costly extrinisc which is guaranteed to fail.
         let call = subxt::tx::DefaultPayload::new("Revive", "map_account", MapAccount {})
             .unvalidated();
 
