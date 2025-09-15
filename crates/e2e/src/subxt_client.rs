@@ -465,7 +465,7 @@ where
                     subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::Decoding(e.to_string()))?;
                 log_error(&format!(
-                    "extrinsic for call failed: {dispatch_error} {trace:?}"
+                    "extrinsic for `runtime_call` failed: {dispatch_error} {trace:?}"
                 ));
                 return Err(Error::CallExtrinsic(dispatch_error, trace))
             }
@@ -785,7 +785,7 @@ where
                     DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::Decoding(e.to_string()))?;
                 log_error(&format!(
-                    "extrinsic for call failed: {dispatch_error} {trace:?}"
+                    "extrinsic for `raw_call` failed: {dispatch_error} {trace:?}"
                 ));
                 return Err(Error::CallExtrinsic(dispatch_error, trace))
             }
@@ -882,7 +882,7 @@ where
                     DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::Decoding(e.to_string()))?;
                 log_error(&format!(
-                    "extrinsic for call failed: {dispatch_error} {trace:?}"
+                    "extrinsic for `map_account` failed: {dispatch_error} {trace:?}"
                 ));
                 return Err(Error::CallExtrinsic(dispatch_error, trace))
             }
