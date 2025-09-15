@@ -370,7 +370,7 @@
 <a href=#370 id=370 data-nosnippet>370</a>    client: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>B,
 <a href=#371 id=371 data-nosnippet>371</a>    contract_name: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
 <a href=#372 id=372 data-nosnippet>372</a>    caller: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Keypair,
-<a href=#373 id=373 data-nosnippet>373</a>    storage_deposit_limit: E::Balance,
+<a href=#373 id=373 data-nosnippet>373</a>    storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
 <a href=#374 id=374 data-nosnippet>374</a>}
 <a href=#375 id=375 data-nosnippet>375</a>
 <a href=#376 id=376 data-nosnippet>376</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, E, B&gt; UploadBuilder&lt;<span class="lifetime">'a</span>, E, B&gt;
@@ -384,14 +384,14 @@
 <a href=#384 id=384 data-nosnippet>384</a>            client,
 <a href=#385 id=385 data-nosnippet>385</a>            contract_name,
 <a href=#386 id=386 data-nosnippet>386</a>            caller,
-<a href=#387 id=387 data-nosnippet>387</a>            storage_deposit_limit: <span class="number">0u32</span>.into(),
+<a href=#387 id=387 data-nosnippet>387</a>            storage_deposit_limit: <span class="prelude-val">None</span>,
 <a href=#388 id=388 data-nosnippet>388</a>        }
 <a href=#389 id=389 data-nosnippet>389</a>    }
 <a href=#390 id=390 data-nosnippet>390</a>
 <a href=#391 id=391 data-nosnippet>391</a>    <span class="doccomment">/// Specify the max amount of funds that can be charged for storage.
 <a href=#392 id=392 data-nosnippet>392</a>    </span><span class="kw">pub fn </span>storage_deposit_limit(
 <a href=#393 id=393 data-nosnippet>393</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#394 id=394 data-nosnippet>394</a>        storage_deposit_limit: E::Balance,
+<a href=#394 id=394 data-nosnippet>394</a>        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
 <a href=#395 id=395 data-nosnippet>395</a>    ) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
 <a href=#396 id=396 data-nosnippet>396</a>        <span class="self">self</span>.storage_deposit_limit = storage_deposit_limit;
 <a href=#397 id=397 data-nosnippet>397</a>        <span class="self">self
