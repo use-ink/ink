@@ -89,8 +89,8 @@ crates on which `ink` relies heavily:
    for ink! smart contracts.
 * `ink_codegen`: Generates Rust code from the ink! IR.
 
-The `cargo-expand` tool can be used to display the Rust source code that
-`ink_codegen` generates for an ink! contract:
+The [`cargo-expand`](https://crates.io/crates/cargo-expand) tool can be used 
+to display the Rust source code that `ink_codegen` generates for an ink! contract:
 
 ```ignore
 cd ink/integration-tests/public/flipper/
