@@ -23,6 +23,7 @@ pub mod bytes {
     impl Bytes {
         /// Creates a new bytes smart contract.
         #[ink(constructor)]
+        #[allow(clippy::new_without_default)]
         pub fn new() -> Self {
             Self {}
         }
