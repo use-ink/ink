@@ -1169,7 +1169,7 @@
 <a href=#1169 id=1169 data-nosnippet>1169</a>        ink_env::set_code_hash::&lt;E&gt;(code_hash)
 <a href=#1170 id=1170 data-nosnippet>1170</a>    }
 <a href=#1171 id=1171 data-nosnippet>1171</a>
-<a href=#1172 id=1172 data-nosnippet>1172</a>    <span class="attr">#[cfg(feature = <span class="string">"unstable-hostfn"</span>)]
+<a href=#1172 id=1172 data-nosnippet>1172</a>    <span class="attr">#[cfg(all(feature = <span class="string">"xcm"</span>, feature = <span class="string">"unstable-hostfn"</span>))]
 <a href=#1173 id=1173 data-nosnippet>1173</a>    </span><span class="kw">pub fn </span>xcm_execute&lt;Call: scale::Encode&gt;(
 <a href=#1174 id=1174 data-nosnippet>1174</a>        <span class="self">self</span>,
 <a href=#1175 id=1175 data-nosnippet>1175</a>        msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;,
@@ -1177,7 +1177,7 @@
 <a href=#1177 id=1177 data-nosnippet>1177</a>        ink_env::xcm_execute::&lt;E, <span class="kw">_</span>&gt;(msg)
 <a href=#1178 id=1178 data-nosnippet>1178</a>    }
 <a href=#1179 id=1179 data-nosnippet>1179</a>
-<a href=#1180 id=1180 data-nosnippet>1180</a>    <span class="attr">#[cfg(feature = <span class="string">"unstable-hostfn"</span>)]
+<a href=#1180 id=1180 data-nosnippet>1180</a>    <span class="attr">#[cfg(all(feature = <span class="string">"xcm"</span>, feature = <span class="string">"unstable-hostfn"</span>))]
 <a href=#1181 id=1181 data-nosnippet>1181</a>    </span><span class="kw">pub fn </span>xcm_send&lt;Call: scale::Encode&gt;(
 <a href=#1182 id=1182 data-nosnippet>1182</a>        <span class="self">self</span>,
 <a href=#1183 id=1183 data-nosnippet>1183</a>        dest: <span class="kw-2">&amp;</span>xcm::VersionedLocation,

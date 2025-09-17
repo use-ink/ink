@@ -794,7 +794,7 @@
 <a href=#794 id=794 data-nosnippet>794</a>        }
 <a href=#795 id=795 data-nosnippet>795</a>    }
 <a href=#796 id=796 data-nosnippet>796</a>
-<a href=#797 id=797 data-nosnippet>797</a>    <span class="attr">#[cfg(feature = <span class="string">"unstable-hostfn"</span>)]
+<a href=#797 id=797 data-nosnippet>797</a>    <span class="attr">#[cfg(all(feature = <span class="string">"xcm"</span>, feature = <span class="string">"unstable-hostfn"</span>))]
 <a href=#798 id=798 data-nosnippet>798</a>    </span><span class="kw">fn </span>xcm_execute&lt;E, Call&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
 <a href=#799 id=799 data-nosnippet>799</a>    <span class="kw">where
 <a href=#800 id=800 data-nosnippet>800</a>        </span>E: Environment,
@@ -802,7 +802,7 @@
 <a href=#802 id=802 data-nosnippet>802</a>        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support `xcm_execute`"</span>)
 <a href=#803 id=803 data-nosnippet>803</a>    }
 <a href=#804 id=804 data-nosnippet>804</a>
-<a href=#805 id=805 data-nosnippet>805</a>    <span class="attr">#[cfg(feature = <span class="string">"unstable-hostfn"</span>)]
+<a href=#805 id=805 data-nosnippet>805</a>    <span class="attr">#[cfg(all(feature = <span class="string">"xcm"</span>, feature = <span class="string">"unstable-hostfn"</span>))]
 <a href=#806 id=806 data-nosnippet>806</a>    </span><span class="kw">fn </span>xcm_send&lt;E, Call&gt;(
 <a href=#807 id=807 data-nosnippet>807</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
 <a href=#808 id=808 data-nosnippet>808</a>        _dest: <span class="kw-2">&amp;</span>xcm::VersionedLocation,
