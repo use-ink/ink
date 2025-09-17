@@ -25,8 +25,5 @@ fn main() {
         }
     }
 
-    assert_selector_eq!(
-        "message",
-        selector_bytes!("TraitDefinition::myMessage"),
-    );
+    assert_selector_eq!("message", selector_bytes!("TraitDefinition::myMessage"),);
 }
