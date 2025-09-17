@@ -28,7 +28,7 @@ num-traits = { workspace = true, features = ["i128"] }
 cfg-if = { workspace = true }
 static_assertions = { workspace = true }
 const_env = { workspace = true }
-xcm = { workspace = true }
+xcm = { workspace = true, optional = true }
 hex-literal = "1"
 const-crypto = "0.3.0"
 
@@ -85,7 +85,7 @@ std = [
     # Enables hashing crates for off-chain environment.
     "sha2",
     "sha3",
-    "xcm/std",
+    "xcm?/std",
     "derive_more/std"
 ]
 
@@ -99,6 +99,9 @@ no-allocator = ["ink_allocator/no-allocator"]
 no-panic-handler = []
 
 unstable-hostfn = []
+
+# Enable xcm utilities.
+xcm = ["dep:xcm"]
 
 # For the ui tests, which use this `Cargo.toml`
 [lints.rust.unexpected_cfgs]
