@@ -18,7 +18,11 @@ use ink_primitives::{
     Address,
     H256,
     U256,
-    abi::AbiEncodeWith,
+    abi::{
+        AbiEncodeWith,
+        Ink,
+        Sol,
+    },
     sol::SolResultEncode,
 };
 use ink_storage_traits::Storable;
@@ -46,10 +50,7 @@ use crate::{
         EnvInstance,
         OnInstance,
     },
-    event::{
-        Event,
-        TopicEncoder,
-    },
+    event::Event,
     hash::{
         CryptoHash,
         HashOutput,
@@ -175,13 +176,59 @@ pub fn minimum_balance() -> U256 {
 }
 
 /// Emits an event with the given event data.
-pub fn emit_event<Evt, Abi>(event: &Evt)
+///
+/// # Note
+///
+/// In "all" ABI mode, both an ink! and Solidity ABI event are emitted.
+#[cfg(not(ink_abi = "all"))]
+pub fn emit_event<Evt>(event: Evt)
 where
-    Evt: Event<Abi>,
-    Abi: TopicEncoder,
+    Evt: Event<crate::DefaultAbi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::emit_event::<Evt, Abi>(instance, event)
+        TypedEnvBackend::emit_event::<Evt, crate::DefaultAbi>(instance, &event)
+    })
+}
+
+/// Emits an event with the given event data.
+///
+/// # Note
+///
+/// In "all" ABI mode, both an ink! and Solidity ABI event are emitted.
+#[cfg(ink_abi = "all")]
+pub fn emit_event<Evt>(event: Evt)
+where
+    Evt: Event<Ink> + Event<Sol>,
+{
+    // Emits ink! ABI encoded event.
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::emit_event::<Evt, Ink>(instance, &event)
+    });
+
+    // Emits Solidity ABI encoded event.
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::emit_event::<Evt, Sol>(instance, &event)
+    });
+}
+
+/// Emits an event with the given event data using the ink! ABI encoding (i.e. with SCALE
+/// codec for event data encode/decode).
+pub fn emit_event_ink<Evt>(event: Evt)
+where
+    Evt: Event<Ink>,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::emit_event::<Evt, Ink>(instance, &event)
+    })
+}
+
+/// Emits an event with the given event data using the Solidity ABI encoding.
+pub fn emit_event_sol<Evt>(event: Evt)
+where
+    Evt: Event<Sol>,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::emit_event::<Evt, Sol>(instance, &event)
     })
 }
 
