@@ -97,7 +97,8 @@ impl<'a> InkTraitMessage<'a> {
                     ir::AttributeArg::Message
                     | ir::AttributeArg::Payable
                     | ir::AttributeArg::Default
-                    | ir::AttributeArg::Selector(_) => Ok(()),
+                    | ir::AttributeArg::Selector(_)
+                    | ir::AttributeArg::Name(_) => Ok(()),
                     _ => Err(None),
                 }
             },
