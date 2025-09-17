@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Bring intended panic handler behavior back ‒ [2636](https://github.com/use-ink/ink/pull/2636)
+- Support `name` attribute in trait definitions - [#2644](https://github.com/use-ink/ink/pull/2644)
 
 ## Version 6.0.0-alpha.3
 
