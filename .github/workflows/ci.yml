@@ -153,6 +153,7 @@ jobs:
         with:
           command: |
             cat ./all-contracts | \
+                grep integration-tests | \
                 scripts/for_all_contracts_exec.sh -- cargo +nightly fmt --manifest-path {} -- --check
             # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
             # todo @cmichi re-enable for pre-compile example
