@@ -934,8 +934,8 @@ synstructure::decl_derive!(
     ///     b: [u8; 32],
     /// }
     ///
-    /// ink_env::emit_event::<_, ink::abi::Ink>(&MyEvent { a: 42, b: [0x42; 32] });
-    /// ink_env::emit_event::<_, ink::abi::Ink>(&MyAnonEvent { a: 42, b: [0x42; 32] });
+    /// ink_env::emit_event(MyEvent { a: 42, b: [0x42; 32] });
+    /// ink_env::emit_event(MyAnonEvent { a: 42, b: [0x42; 32] });
     /// ```
     ///
     /// # The Signature Topic
