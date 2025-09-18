@@ -124,9 +124,22 @@ done
 
 # filter out ignored paths and check if each manifest is a contract
 filtered_manifests=()
-  while IFS= read -r line; do
-    filtered_manifests+=("$line")
+while IFS= read -r line; do
+  ignore_line="false"
+  for i in "${ignore[@]}"
+  do
+      if echo "$line" | grep -q "$i"; then
+        >&2 echo "Ignoring $line";
+        ignore_line=true;
+        break;
+      fi
   done
+
+  if [[ "$ignore_line" == "false" ]]; then
+      >&2 echo "Using $line";
+      filtered_manifests+=("$line");
+  fi
+done
 
 if [ ${#filtered_manifests[@]} -eq 0 ]; then
     for manifest_path in $(fdfind Cargo.toml "$path"); do
