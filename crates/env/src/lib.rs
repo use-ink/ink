@@ -89,10 +89,6 @@ pub mod hash;
 #[cfg(test)]
 mod tests;
 
-#[cfg(any(feature = "std", test, doc))]
-#[doc(inline)]
-pub use self::engine::off_chain::test_api as test;
-
 use self::backend::{
     EnvBackend,
     TypedEnvBackend,
