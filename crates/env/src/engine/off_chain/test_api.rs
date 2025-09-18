@@ -127,7 +127,6 @@ pub fn set_contract(contract: Address) {
 }
 
 /// Returns a boolean to indicate whether an account is a contract
-#[cfg(feature = "unstable-hostfn")]
 pub fn is_contract(contract: Address) -> bool {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.is_contract(&contract)

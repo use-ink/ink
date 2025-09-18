@@ -760,7 +760,6 @@ impl TypedEnvBackend for EnvInstance {
         })
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn is_contract(&mut self, account: &Address) -> bool {
         self.engine.is_contract(account)
     }

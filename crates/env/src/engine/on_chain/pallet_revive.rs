@@ -1204,11 +1204,12 @@ impl TypedEnvBackend for EnvInstance {
         <E::Balance as FromLittleEndian>::from_le_bytes(result)
     }
 
-    #[cfg(feature = "unstable-hostfn")]
-    fn is_contract(&mut self, _addr: &Address) -> bool {
-        panic!(
-            "todo call code() precompile, see https://github.com/paritytech/polkadot-sdk/pull/9001"
-        );
+    fn is_contract(&mut self, addr: &Address) -> bool {
+        let addr: &[u8; 20] = addr
+            .as_ref()
+            .try_into()
+            .expect("failed converting `Address` to `[u8; 20]`");
+        ext::code_size(addr) > 0
     }
 
     fn caller_is_origin<E>(&mut self) -> bool

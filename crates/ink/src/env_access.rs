@@ -31,6 +31,7 @@ use ink_env::{
         CryptoHash,
         HashOutput,
     },
+    is_contract,
 };
 use ink_primitives::{
     Address,
@@ -1009,8 +1010,15 @@ where
             .map_err(|_| ReturnErrorCode::Sr25519VerifyFailed.into())
     }
 
-    /// Checks whether a contract lives under `addr`.
-    /// todo update comment
+    /// Checks whether `addr` is a contract.
+    ///
+    /// # Notes
+    ///
+    /// If `addr` references a precompile address, the return value will be `true`.
+    ///
+    /// The function [`caller_is_origin`] performs better when checking whether your
+    /// contract is being called by a contract or an account. It performs better
+    /// for this case as it does not require any storage lookups.
     ///
     /// # Example
     ///
@@ -1030,6 +1038,20 @@ where
     /// pub fn is_contract(&mut self, addr: ink::Address) -> bool {
     ///     self.env().is_contract(&addr)
     /// }
+    ///
+    /// #[ink(message)]
+    /// pub fn check(&mut self, addr: ink::Address) -> bool {
+    ///     let this_contract = self.env().address();
+    ///     assert!(self.env().is_contract(&this_contract));
+    ///     assert!(!self.env().is_contract(&self.env().caller()));
+    ///
+    ///     const SYSTEM_PRECOMPILE: [u8; 20] =
+    ///         hex_literal::hex!("0000000000000000000000000000000000000900");
+    ///     assert!(
+    ///         self.env()
+    ///             .is_contract(&ink::H160::from_slice(&SYSTEM_PRECOMPILE[..]))
+    ///     );
+    /// }
     /// #    }
     /// # }
     /// ```
@@ -1037,7 +1059,6 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::is_contract`]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn is_contract(self, addr: &Address) -> bool {
         ink_env::is_contract(addr)
     }

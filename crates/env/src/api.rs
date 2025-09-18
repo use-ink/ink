@@ -680,12 +680,19 @@ pub fn sr25519_verify(
     })
 }
 
-/// Checks whether the specified account is a contract.
+/// Checks whether `addr` is a contract.
+///
+/// # Notes
+///
+/// If `addr` references a precompile address, the return value will be `true`.
+///
+/// The function [`caller_is_origin`] performs better when checking whether your
+/// contract is being called by a contract or an account. It performs better
+/// for this case as it does not require any storage lookups.
 ///
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-#[cfg(feature = "unstable-hostfn")]
 pub fn is_contract(account: &Address) -> bool {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::is_contract(instance, account)
