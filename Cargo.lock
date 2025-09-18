@@ -1686,7 +1686,7 @@ dependencies = [
  "heck",
  "hex",
  "impl-serde",
- "ink_metadata 6.0.0-alpha.3 (git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.3)",
+ "ink_metadata 6.0.0-alpha.3",
  "itertools 0.14.0",
  "parity-scale-codec",
  "polkavm-linker 0.29.0",
@@ -3419,16 +3419,16 @@ dependencies = [
 
 [[package]]
 name = "ink"
-version = "6.0.0-alpha.3"
+version = "6.0.0-alpha.4"
 dependencies = [
  "const_format",
  "derive_more 2.0.1",
  "ink_env",
  "ink_ir",
  "ink_macro",
- "ink_metadata 6.0.0-alpha.3",
- "ink_prelude 6.0.0-alpha.3",
- "ink_primitives 6.0.0-alpha.3",
+ "ink_metadata 6.0.0-alpha.4",
+ "ink_prelude 6.0.0-alpha.4",
+ "ink_primitives 6.0.0-alpha.4",
  "ink_storage",
  "keccak-const",
  "linkme",
@@ -3444,7 +3444,7 @@ dependencies = [
 
 [[package]]
 name = "ink_allocator"
-version = "6.0.0-alpha.3"
+version = "6.0.0-alpha.4"
 dependencies = [
  "cfg-if",
  "quickcheck",
@@ -3453,7 +3453,7 @@ dependencies = [
 
 [[package]]
 name = "ink_codegen"
-version = "6.0.0-alpha.3"
+version = "6.0.0-alpha.4"
 dependencies = [
  "blake2",
  "derive_more 2.0.1",
@@ -3461,7 +3461,7 @@ dependencies = [
  "heck",
  "impl-serde",
  "ink_ir",
- "ink_primitives 6.0.0-alpha.3",
+ "ink_primitives 6.0.0-alpha.4",
  "itertools 0.14.0",
  "parity-scale-codec",
  "polkavm-derive 0.26.0",
@@ -3474,7 +3474,7 @@ dependencies = [
 
 [[package]]
 name = "ink_e2e"
-version = "6.0.0-alpha.3"
+version = "6.0.0-alpha.4"
 dependencies = [
  "cargo_metadata 0.21.0",
  "contract-build",
@@ -3484,7 +3484,7 @@ dependencies = [
  "ink",
  "ink_e2e_macro",
  "ink_env",
- "ink_primitives 6.0.0-alpha.3",
+ "ink_primitives 6.0.0-alpha.4",
  "ink_sandbox",
  "itertools 0.14.0",
  "jsonrpsee",
@@ -3513,7 +3513,7 @@ dependencies = [
 
 [[package]]
 name = "ink_e2e_macro"
-version = "6.0.0-alpha.3"
+version = "6.0.0-alpha.4"
 dependencies = [
  "darling",
  "derive_more 2.0.1",
@@ -3531,12 +3531,12 @@ dependencies = [
 
 [[package]]
 name = "ink_engine"
-version = "6.0.0-alpha.3"
+version = "6.0.0-alpha.4"
 dependencies = [
  "blake2",
  "derive_more 2.0.1",
  "hex-literal 1.0.0",
- "ink_primitives 6.0.0-alpha.3",
+ "ink_primitives 6.0.0-alpha.4",
  "pallet-revive-uapi",
  "parity-scale-codec",
  "secp256k1 0.30.0",
@@ -3546,7 +3546,7 @@ dependencies = [
 
 [[package]]
 name = "ink_env"
-version = "6.0.0-alpha.3"
+version = "6.0.0-alpha.4"
 dependencies = [
  "blake2",
  "cfg-if",
@@ -3557,8 +3557,8 @@ dependencies = [
  "ink",
  "ink_allocator",
  "ink_engine",
- "ink_prelude 6.0.0-alpha.3",
- "ink_primitives 6.0.0-alpha.3",
+ "ink_prelude 6.0.0-alpha.4",
+ "ink_primitives 6.0.0-alpha.4",
  "ink_storage_traits",
  "num-traits",
  "pallet-revive-uapi",
@@ -3579,12 +3579,12 @@ dependencies = [
 
 [[package]]
 name = "ink_ir"
-version = "6.0.0-alpha.3"
+version = "6.0.0-alpha.4"
 dependencies = [
  "blake2",
  "either",
  "impl-serde",
- "ink_prelude 6.0.0-alpha.3",
+ "ink_prelude 6.0.0-alpha.4",
  "itertools 0.14.0",
  "proc-macro2",
  "quote",
@@ -3594,15 +3594,15 @@ dependencies = [
 
 [[package]]
 name = "ink_macro"
-version = "6.0.0-alpha.3"
+version = "6.0.0-alpha.4"
 dependencies = [
  "ink",
  "ink_codegen",
  "ink_env",
  "ink_ir",
- "ink_metadata 6.0.0-alpha.3",
- "ink_prelude 6.0.0-alpha.3",
- "ink_primitives 6.0.0-alpha.3",
+ "ink_metadata 6.0.0-alpha.4",
+ "ink_prelude 6.0.0-alpha.4",
+ "ink_primitives 6.0.0-alpha.4",
  "ink_storage",
  "parity-scale-codec",
  "proc-macro2",
@@ -3615,11 +3615,26 @@ dependencies = [
 [[package]]
 name = "ink_metadata"
 version = "6.0.0-alpha.3"
+source = "git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.3#5dee03ccdc5bf3d26a53dfd287385eedb3d3a695"
 dependencies = [
  "derive_more 2.0.1",
  "impl-serde",
  "ink_prelude 6.0.0-alpha.3",
  "ink_primitives 6.0.0-alpha.3",
+ "parity-scale-codec",
+ "scale-info",
+ "schemars 0.8.22",
+ "serde",
+]
+
+[[package]]
+name = "ink_metadata"
+version = "6.0.0-alpha.4"
+dependencies = [
+ "derive_more 2.0.1",
+ "impl-serde",
+ "ink_prelude 6.0.0-alpha.4",
+ "ink_primitives 6.0.0-alpha.4",
  "parity-scale-codec",
  "pretty_assertions",
  "scale-info",
@@ -3629,31 +3644,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "ink_metadata"
-version = "6.0.0-alpha.3"
-source = "git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.3#5dee03ccdc5bf3d26a53dfd287385eedb3d3a695"
-dependencies = [
- "derive_more 2.0.1",
- "impl-serde",
- "ink_prelude 6.0.0-alpha.3 (git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.3)",
- "ink_primitives 6.0.0-alpha.3 (git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.3)",
- "parity-scale-codec",
- "scale-info",
- "schemars 0.8.22",
- "serde",
-]
-
-[[package]]
 name = "ink_prelude"
 version = "6.0.0-alpha.3"
+source = "git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.3#5dee03ccdc5bf3d26a53dfd287385eedb3d3a695"
 dependencies = [
  "cfg-if",
 ]
 
 [[package]]
 name = "ink_prelude"
-version = "6.0.0-alpha.3"
-source = "git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.3#5dee03ccdc5bf3d26a53dfd287385eedb3d3a695"
+version = "6.0.0-alpha.4"
 dependencies = [
  "cfg-if",
 ]
@@ -3661,13 +3661,12 @@ dependencies = [
 [[package]]
 name = "ink_primitives"
 version = "6.0.0-alpha.3"
+source = "git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.3#5dee03ccdc5bf3d26a53dfd287385eedb3d3a695"
 dependencies = [
  "alloy-sol-types",
  "cfg-if",
  "derive_more 2.0.1",
  "impl-trait-for-tuples",
- "ink",
- "ink_env",
  "ink_prelude 6.0.0-alpha.3",
  "itertools 0.14.0",
  "num-traits",
@@ -3688,14 +3687,15 @@ dependencies = [
 
 [[package]]
 name = "ink_primitives"
-version = "6.0.0-alpha.3"
-source = "git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.3#5dee03ccdc5bf3d26a53dfd287385eedb3d3a695"
+version = "6.0.0-alpha.4"
 dependencies = [
  "alloy-sol-types",
  "cfg-if",
  "derive_more 2.0.1",
  "impl-trait-for-tuples",
- "ink_prelude 6.0.0-alpha.3 (git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.3)",
+ "ink",
+ "ink_env",
+ "ink_prelude 6.0.0-alpha.4",
  "itertools 0.14.0",
  "num-traits",
  "pallet-revive-uapi",
@@ -3715,12 +3715,12 @@ dependencies = [
 
 [[package]]
 name = "ink_sandbox"
-version = "6.0.0-alpha.3"
+version = "6.0.0-alpha.4"
 dependencies = [
  "frame-metadata",
  "frame-support",
  "frame-system",
- "ink_primitives 6.0.0-alpha.3",
+ "ink_primitives 6.0.0-alpha.4",
  "pallet-balances",
  "pallet-revive",
  "pallet-timestamp",
@@ -3736,16 +3736,16 @@ dependencies = [
 
 [[package]]
 name = "ink_storage"
-version = "6.0.0-alpha.3"
+version = "6.0.0-alpha.4"
 dependencies = [
  "array-init",
  "cfg-if",
  "derive_more 2.0.1",
  "ink",
  "ink_env",
- "ink_metadata 6.0.0-alpha.3",
- "ink_prelude 6.0.0-alpha.3",
- "ink_primitives 6.0.0-alpha.3",
+ "ink_metadata 6.0.0-alpha.4",
+ "ink_prelude 6.0.0-alpha.4",
+ "ink_primitives 6.0.0-alpha.4",
  "ink_storage_traits",
  "itertools 0.14.0",
  "pallet-revive-uapi",
@@ -3757,11 +3757,11 @@ dependencies = [
 
 [[package]]
 name = "ink_storage_traits"
-version = "6.0.0-alpha.3"
+version = "6.0.0-alpha.4"
 dependencies = [
- "ink_metadata 6.0.0-alpha.3",
- "ink_prelude 6.0.0-alpha.3",
- "ink_primitives 6.0.0-alpha.3",
+ "ink_metadata 6.0.0-alpha.4",
+ "ink_prelude 6.0.0-alpha.4",
+ "ink_primitives 6.0.0-alpha.4",
  "parity-scale-codec",
  "paste",
  "scale-info",

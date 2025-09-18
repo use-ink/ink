@@ -22,7 +22,7 @@ if_chain = "1.0.2"
 log = "0.4.14"
 regex = "1.5.4"
 ink_linting_utils = { workspace = true }
-ink_env = { version = "=6.0.0-alpha.3", path = "../../crates/env" }
+ink_env = { version = "=6.0.0-alpha.4", path = "../../crates/env" }
 
 [dev-dependencies]
 dylint_testing = "4.1.0"
@@ -32,8 +32,8 @@ dylint_testing = "4.1.0"
 #
 # These cannot be moved to the workspace level because `cargo` does not provide
 # the `[[workspace.dev-dependencies]]` directive.
-ink = { version = "=6.0.0-alpha.3", path = "../../crates/ink" }
-ink_primitives = { version = "=6.0.0-alpha.3", path = "../../crates/primitives" }
+ink = { version = "=6.0.0-alpha.4", path = "../../crates/ink" }
+ink_primitives = { version = "=6.0.0-alpha.4", path = "../../crates/primitives" }
 
 # For the moment we have to include the tests as examples and
 # then use `dylint_testing::ui_test_examples`.

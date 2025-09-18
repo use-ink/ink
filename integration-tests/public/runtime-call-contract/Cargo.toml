@@ -23,7 +23,7 @@ scale-info = { version = "2.11.1", default-features = false }
 
 [package]
 name = "runtime-call-contract"
-version = "6.0.0-alpha.3"
+version = "6.0.0-alpha.4"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2024"
 publish = false
