@@ -251,7 +251,6 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`to_account_id`][`crate::to_account_id`]
-    #[cfg(feature = "unstable-hostfn")]
     fn to_account_id<E: Environment>(&mut self, addr: Address) -> E::AccountId;
 
     /// Returns the address of the executed contract.

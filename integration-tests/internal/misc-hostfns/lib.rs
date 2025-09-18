@@ -18,7 +18,7 @@ mod misc_hostfns {
             let addr = self.env().address();
             let to_account_id = self.env().to_account_id(addr);
             let account_id = self.env().account_id();
-            assert_eq!(to_account_id, account_id);
+            assert_eq!(to_account_id, account_id, "not the account id");
         }
     }
 
@@ -57,7 +57,9 @@ mod misc_hostfns {
                 .call(&ink_e2e::alice(), &acc)
                 .submit()
                 .await
-                .expect("call failed");
+                .unwrap_or_else(|err| {
+                    panic!("call failed: {:#?}", err);
+                });
 
             Ok(())
         }

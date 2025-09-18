@@ -5,18 +5,18 @@ use frame_support::{
 };
 use frame_system::pallet_prelude::OriginFor;
 use ink::{
-    abi::AbiEncodeWith,
-    env::{
-        call::{
-            utils::DecodeMessageResult,
-            ExecutionInput,
-            Executor,
-        },
-        Environment,
-    },
-    primitives::U256,
     Address,
     MessageResult,
+    abi::AbiEncodeWith,
+    env::{
+        Environment,
+        call::{
+            ExecutionInput,
+            Executor,
+            utils::DecodeMessageResult,
+        },
+    },
+    primitives::U256,
 };
 use pallet_revive::{
     DepositLimit,
@@ -39,7 +39,6 @@ impl<E, R> Executor<E> for PalletReviveExecutor<E, R>
 where
     E: Environment,
     R: pallet_revive::Config,
-
     BalanceOf<R>: Into<U256> + TryFrom<U256> + Bounded,
     MomentOf<R>: Into<U256>,
     <R as frame_system::Config>::Hash: IsType<sp_runtime::testing::H256>,

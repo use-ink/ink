@@ -553,6 +553,25 @@ fn call_storage_precompile(
     )
 }
 
+/// Simple decoder for a Solidity `bytes` type.
+///
+/// Returns the number of bytes written to `out`.
+fn decode_bytes(input: &[u8], out: &mut [u8]) -> usize {
+    let mut buf = [0u8; 4];
+    buf[..].copy_from_slice(&input[28..32]);
+    let offset = u32::from_be_bytes(buf) as usize;
+
+    let mut buf = [0u8; 4];
+    buf[..].copy_from_slice(&input[60..64]);
+    let bytes_len = u32::from_be_bytes(buf) as usize;
+
+    // we start decoding at the start of the payload.
+    // the payload starts at the `len` word here:
+    // `bytes = offset (32 bytes) | len (32 bytes) | data`
+    out[..bytes_len].copy_from_slice(&input[32 + offset..32 + offset + bytes_len]);
+    bytes_len
+}
+
 const STORAGE_FLAGS: StorageFlags = StorageFlags::empty();
 
 impl EnvBackend for EnvInstance {
@@ -847,44 +866,45 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn account_id<E: Environment>(&mut self) -> E::AccountId {
+        let h160 = {
+            let mut scope = self.scoped_buffer();
+            let h160: &mut [u8; 20] = scope.take(20).try_into().unwrap();
+            ext::address(h160);
+            h160.clone()
+        };
+        self.to_account_id::<E>(h160.into())
+    }
+
+    fn to_account_id<E: Environment>(&mut self, addr: Address) -> E::AccountId {
         let mut scope = self.scoped_buffer();
-
-        let h160: &mut [u8; 20] = scope.take(20).try_into().unwrap();
-        ext::address(h160);
-
-        // 32 bytes offset + 32 bytes len + 32 bytes account_id
-        let output: &mut [u8; 96] = scope.take(96).try_into().unwrap();
-
-        let selector = const { solidity_selector("toAccountId(address)") };
-        let input: &mut [u8; 36] = &mut scope.take(4 + 32).try_into().unwrap();
-
-        input[..4].copy_from_slice(&selector[..]);
-        input[16..36].copy_from_slice(&h160[..]);
+        let output: &mut [u8; 32 + SOL_BYTES_ENCODING_OVERHEAD] = scope
+            .take(32 + SOL_BYTES_ENCODING_OVERHEAD)
+            .try_into()
+            .unwrap();
+        let addr = addr.as_fixed_bytes();
 
         const ADDR: [u8; 20] =
             hex_literal::hex!("0000000000000000000000000000000000000900");
-        let _ = ext::delegate_call(
+
+        let mut input = [0u8; 32 + 4];
+        let sel = const { solidity_selector("toAccountId(address)") };
+        input[..4].copy_from_slice(&sel[..4]);
+        input[16..36].copy_from_slice(&addr[..]);
+
+        let _ = ext::call(
             CallFlags::empty(),
             &ADDR,
             u64::MAX,       // `ref_time` to devote for execution. `u64::MAX` = all
             u64::MAX,       // `proof_size` to devote for execution. `u64::MAX` = all
             &[u8::MAX; 32], // No deposit limit.
+            &U256::zero().to_little_endian(), // Value transferred to the contract.
             &input[..],
             Some(&mut &mut output[..]),
-        )
-        .expect("call host function failed");
+        );
 
-        // We start decoding at the start of the payload.
-        // The payload starts at the `len` word here:
-        // `bytes = offset (32 bytes) | len (32 bytes) | data`
-        scale::Decode::decode(&mut &output[64..96]).expect("must exist")
-    }
-
-    #[cfg(feature = "unstable-hostfn")]
-    fn to_account_id<E: Environment>(&mut self, addr: Address) -> E::AccountId {
-        let mut scope = self.scoped_buffer();
         let account_id: &mut [u8; 32] = scope.take(32).try_into().unwrap();
-        ext::to_account_id(addr.as_fixed_bytes(), account_id);
+        let n = decode_bytes(&output[..], &mut account_id[..]);
+        debug_assert_eq!(n, 32, "length of decoded bytes must be 32");
         scale::Decode::decode(&mut &account_id[..])
             .expect("A contract being executed must have a valid account id.")
     }

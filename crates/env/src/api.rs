@@ -114,7 +114,6 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-#[cfg(feature = "unstable-hostfn")]
 pub fn to_account_id<E>(addr: Address) -> E::AccountId
 where
     E: Environment,

@@ -560,7 +560,6 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn to_account_id<E: Environment>(&mut self, addr: Address) -> E::AccountId {
         let mut full_scope: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
         let full_scope = &mut &mut full_scope[..];
