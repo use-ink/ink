@@ -14,8 +14,8 @@
 
 use crate::config::E2EConfig;
 use darling::{
-    ast::NestedMeta,
     FromMeta,
+    ast::NestedMeta,
 };
 use proc_macro2::TokenStream as TokenStream2;
 

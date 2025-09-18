@@ -46,11 +46,11 @@
 /// ```rust
 /// use ink::message_builder;
 /// use ink_env::{
+///     DefaultEnvironment,
 ///     call::{
 ///         ExecutionInput,
 ///         Executor,
 ///     },
-///     DefaultEnvironment,
 /// };
 /// use ink_primitives::{
 ///     AccountId,
@@ -77,13 +77,12 @@
 /// pub struct CustomEnv;
 ///
 /// impl ink_env::Environment for CustomEnv {
-///     const MAX_EVENT_TOPICS: usize = 3;
+///     const NATIVE_TO_ETH_RATIO: u32 = 100_000_000;
 ///     type AccountId = [u8; 32];
 ///     type Balance = u64;
 ///     type Hash = [u8; 32];
 ///     type Timestamp = u64;
 ///     type BlockNumber = u64;
-///     type ChainExtension = ();
 ///     type EventRecord = ();
 /// }
 ///

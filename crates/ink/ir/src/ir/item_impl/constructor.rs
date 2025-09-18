@@ -13,11 +13,11 @@
 // limitations under the License.
 
 use super::{
-    ensure_callable_invariants,
     Callable,
     CallableKind,
     InputsIter,
     Visibility,
+    ensure_callable_invariants,
 };
 use crate::{
     ir,
@@ -82,6 +82,13 @@ pub struct Constructor {
     /// This overrides the computed selector, even when using a manual namespace
     /// for the parent implementation block.
     selector: Option<SelectorOrWildcard>,
+    /// An optional function name override.
+    ///
+    /// # Note
+    ///
+    /// - Useful for defining overloaded interfaces.
+    /// - If provided, the name must be a valid "identifier-like" string.
+    name: Option<String>,
 }
 
 impl quote::ToTokens for Constructor {
@@ -145,7 +152,8 @@ impl Constructor {
                     ir::AttributeArg::Constructor
                     | ir::AttributeArg::Payable
                     | ir::AttributeArg::Default
-                    | ir::AttributeArg::Selector(_) => Ok(()),
+                    | ir::AttributeArg::Selector(_)
+                    | ir::AttributeArg::Name(_) => Ok(()),
                     _ => Err(None),
                 }
             },
@@ -164,10 +172,22 @@ impl TryFrom<syn::ImplItemFn> for Constructor {
         let is_payable = ink_attrs.is_payable();
         let is_default = ink_attrs.is_default();
         let selector = ink_attrs.selector();
+        let name = ink_attrs.name();
+        #[cfg(ink_abi = "sol")]
+        if selector.is_some() {
+            let selector_span = ink_attrs.args().find_map(|arg| {
+                matches!(arg.kind(), ir::AttributeArg::Selector(_)).then_some(arg.span())
+            });
+            return Err(format_err!(
+                selector_span.unwrap_or_else(|| method_item.span()),
+                "constructor `selector` attributes are not supported in Solidity ABI compatibility mode",
+            ));
+        }
         Ok(Constructor {
             selector,
             is_payable,
             is_default,
+            name,
             item: syn::ImplItemFn {
                 attrs: other_attrs,
                 ..method_item
@@ -227,6 +247,10 @@ impl Callable for Constructor {
     fn statements(&self) -> &[syn::Stmt] {
         &self.item.block.stmts
     }
+
+    fn name(&self) -> Option<&str> {
+        self.name.as_deref()
+    }
 }
 
 impl Constructor {
@@ -251,6 +275,11 @@ impl Constructor {
             syn::ReturnType::Default => None,
             syn::ReturnType::Type(_, return_type) => Some(return_type),
         }
+    }
+
+    /// Returns the function name override (if any).
+    pub fn name(&self) -> Option<&str> {
+        self.name.as_deref()
     }
 }
 
@@ -379,6 +408,32 @@ mod tests {
                 .unwrap()
                 .is_default();
             assert_eq!(is_default, expect_default);
+        }
+    }
+
+    #[test]
+    fn name_override_works() {
+        let test_inputs: Vec<(Option<&str>, syn::ImplItemFn)> = vec![
+            // No name override.
+            (
+                None,
+                syn::parse_quote! {
+                    #[ink(constructor)]
+                    fn my_constructor() -> Self {}
+                },
+            ),
+            // Name override.
+            (
+                Some("myConstructor"),
+                syn::parse_quote! {
+                    #[ink(constructor, name = "myConstructor")]
+                    pub fn my_constructor() -> Self {}
+                },
+            ),
+        ];
+        for (expected_name, item_method) in test_inputs {
+            let ctor = <ir::Constructor as TryFrom<_>>::try_from(item_method).unwrap();
+            assert_eq!(ctor.name(), expected_name);
         }
     }
 

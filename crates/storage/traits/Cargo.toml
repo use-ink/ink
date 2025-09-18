@@ -21,8 +21,8 @@ ink_prelude = { workspace = true }
 scale = { workspace = true }
 scale-info = { workspace = true, features = ["derive"], optional = true }
 
-sp-io = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
-sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false, features = ["disable_target_static_assertions"] }
+sp-io = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-runtime-interface = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false, features = ["disable_target_static_assertions"] }
 
 [dev-dependencies]
 paste = { workspace = true }

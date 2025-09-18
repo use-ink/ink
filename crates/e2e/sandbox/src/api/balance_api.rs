@@ -1,11 +1,13 @@
 use crate::{
     AccountIdFor,
+    OriginFor,
     Sandbox,
 };
 use frame_support::{
     sp_runtime::DispatchError,
     traits::fungible::Mutate,
 };
+use pallet_revive::sp_runtime::traits::StaticLookup;
 
 type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
 
@@ -36,6 +38,13 @@ where
         &mut self,
         account_id: &AccountIdFor<T::Runtime>,
     ) -> BalanceOf<T::Runtime>;
+
+    fn transfer_allow_death(
+        &mut self,
+        origin: &OriginFor<T::Runtime>,
+        dest: &AccountIdFor<T::Runtime>,
+        value: BalanceOf<T::Runtime>,
+    ) -> Result<(), DispatchError>;
 }
 
 impl<T> BalanceAPI<T> for T
@@ -59,6 +68,27 @@ where
     ) -> BalanceOf<T::Runtime> {
         self.execute_with(|| {
             pallet_balances::Pallet::<T::Runtime>::free_balance(account_id)
+        })
+    }
+
+    fn transfer_allow_death(
+        &mut self,
+        origin: &OriginFor<T::Runtime>,
+        dest: &AccountIdFor<T::Runtime>,
+        value: BalanceOf<T::Runtime>,
+    ) -> Result<(), DispatchError> {
+        // Convert AccountId into the proper `Lookup::Source`
+        let dest =
+            <<T::Runtime as frame_system::Config>::Lookup as StaticLookup>::unlookup(
+                dest.clone(),
+            );
+
+        self.execute_with(|| {
+            pallet_balances::Pallet::<T::Runtime>::transfer_allow_death(
+                origin.clone(),
+                dest,
+                value,
+            )
         })
     }
 }

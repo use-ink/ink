@@ -12,22 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use core::{
-    clone::Clone,
-    ops::Deref,
-};
+use core::clone::Clone;
 
 use alloy_sol_types::{
+    SolType as AlloySolType,
     abi::{
         self,
+        Encoder,
         token::{
             PackedSeqToken,
             WordToken,
         },
-        Encoder,
     },
     sol_data,
-    SolType as AlloySolType,
 };
 use impl_trait_for_tuples::impl_for_tuples;
 use ink_prelude::{
@@ -45,13 +42,17 @@ use primitive_types::U256;
 
 use crate::{
     sol::{
+        Error,
         encodable::{
             DynSizeDefault,
             Encodable,
             FixedSizeDefault,
             TokenOrDefault,
         },
-        Error,
+        utils::{
+            append_non_empty_member_topic_bytes,
+            non_zero_multiple_of_32,
+        },
     },
     types::Address,
 };
@@ -241,6 +242,53 @@ pub trait SolTokenType: private::Sealed {
     type DefaultType: Encodable;
 }
 
+/// Solidity ABI encode this type as a topic (i.e. an indexed event parameter).
+///
+/// # References
+///
+/// - <https://docs.soliditylang.org/en/latest/abi-spec.html#events>
+/// - <https://docs.soliditylang.org/en/latest/abi-spec.html#indexed-event-encoding>
+///
+/// # Note
+///
+/// This trait is sealed and cannot be implemented for types outside `ink_primitives`.
+//
+// # Design Notes
+//
+// One reason for not relying on `alloy`'s `EventTopic` and `SolEvent`
+// abstractions is that they're tightly coupled with the `alloy_primitives::keccak256`
+// utility, while we need to use the hasher provided by our execution environment.
+//
+// Ref: <https://github.com/alloy-rs/core/blob/10aed0012d59a571f35235a5f9c6ad03076bf62b/crates/primitives/src/utils/mod.rs#L148>
+pub trait SolTopicEncode: private::Sealed {
+    /// Solidity ABI encode the value as a topic (i.e. an indexed event parameter).
+    fn encode_topic<H>(&self, hasher: H) -> [u8; 32]
+    where
+        H: Fn(&[u8], &mut [u8; 32]),
+    {
+        let mut buffer = Vec::with_capacity(self.topic_preimage_size());
+        self.topic_preimage(&mut buffer);
+        let mut output = [0u8; 32];
+        hasher(buffer.as_slice(), &mut output);
+        output
+    }
+
+    /// Encode this type as input bytes for the hasher, when this type is member of a
+    /// complex topic type (e.g. a member of array or struct/tuple).
+    fn topic_preimage(&self, buffer: &mut Vec<u8>);
+
+    /// [`Self::topic_preimage`] equivalent for the default value representation of this
+    /// type.
+    fn default_topic_preimage(buffer: &mut Vec<u8>);
+
+    /// Size in bytes of the [`Self::topic_preimage`] encoding of this type.
+    fn topic_preimage_size(&self) -> usize;
+
+    /// [`Self::topic_preimage_size`] equivalent for the default value representation of
+    /// this type.
+    fn default_topic_preimage_size() -> usize;
+}
+
 macro_rules! impl_primitive_decode {
     ($($ty: ty => $sol_ty: ty),+ $(,)*) => {
         $(
@@ -255,34 +303,67 @@ macro_rules! impl_primitive_decode {
     };
 }
 
+macro_rules! impl_topic_encode_word {
+    ($($ty: ty),+ $(,)*) => {
+        $(
+            impl SolTopicEncode for $ty {
+                fn encode_topic<H>(&self, _: H) -> [u8; 32]
+                where
+                    H: Fn(&[u8], &mut [u8; 32]),
+                {
+                    self.tokenize().0 .0
+                }
+
+                fn topic_preimage(&self, buffer: &mut Vec<u8>) {
+                    buffer.extend(self.tokenize().0.0);
+                }
+
+                fn default_topic_preimage(buffer: &mut Vec<u8>) {
+                    buffer.extend([0u8; 32]);
+                }
+
+                fn topic_preimage_size(&self) -> usize {
+                    Self::default_topic_preimage_size()
+                }
+
+                fn default_topic_preimage_size() -> usize {
+                    32
+                }
+            }
+        )*
+    };
+}
+
 macro_rules! impl_primitive_encode {
-    ($($ty: ty => ($sol_ty: ty, $default_ty: ty, $default_value: expr)),+ $(,)*) => {
+    ($($ty: ty => $sol_ty: ty),+ $(,)*) => {
         $(
             impl SolTypeEncode for $ty {
                 type AlloyType = $sol_ty;
 
-                const DEFAULT_VALUE: Self::DefaultType = $default_value;
+                const DEFAULT_VALUE: Self::DefaultType = FixedSizeDefault::WORD;
 
                 fn tokenize(&self) -> Self::TokenType<'_> {
                     <Self::AlloyType as AlloySolType>::tokenize(self)
                 }
             }
 
+            impl_topic_encode_word!($ty);
+
             impl SolTokenType for $ty {
                 type TokenType<'enc> = <$sol_ty as AlloySolType>::Token<'enc>;
 
-                type DefaultType = $default_ty;
+                type DefaultType = FixedSizeDefault;
             }
         )*
     };
 }
 
 macro_rules! impl_primitive {
-    ($($ty: ty => ($sol_ty: ty, $default_ty: ty, $default_value: expr)),+ $(,)*) => {
+    ($($ty: ty => $sol_ty: ty),+ $(,)*) => {
         $(
             impl_primitive_decode!($ty => $sol_ty);
 
-            impl_primitive_encode!($ty => ($sol_ty, $default_ty, $default_value));
+            impl_primitive_encode!($ty => $sol_ty);
 
             impl private::Sealed for $ty {}
         )*
@@ -294,9 +375,9 @@ macro_rules! impl_native_int {
         $(
             impl_primitive! {
                 // signed
-                paste!([<i $bits>]) => (sol_data::Int<$bits>, FixedSizeDefault, FixedSizeDefault::WORD),
+                paste!([<i $bits>]) => sol_data::Int<$bits>,
                 // unsigned
-                paste!([<u $bits>]) => (sol_data::Uint<$bits>, FixedSizeDefault, FixedSizeDefault::WORD),
+                paste!([<u $bits>]) => sol_data::Uint<$bits>,
             }
         )*
     };
@@ -306,10 +387,65 @@ impl_native_int!(8, 16, 32, 64, 128);
 
 impl_primitive! {
     // bool
-    bool => (sol_data::Bool, FixedSizeDefault, FixedSizeDefault::WORD),
-    // string
-    String => (sol_data::String, DynSizeDefault, DynSizeDefault),
+    bool => sol_data::Bool,
 }
+
+// Rust `String` <-> Solidity `string`.
+impl_primitive_decode!(String => sol_data::String);
+
+// Implements `SolTypeEncode` and `SolTokenType` for string representations.
+macro_rules! impl_str_encode {
+    ($($ty: ty),+ $(,)*) => {
+        $(
+            impl SolTypeEncode for $ty {
+                type AlloyType = sol_data::String;
+
+                const DEFAULT_VALUE: Self::DefaultType = DynSizeDefault;
+
+                fn tokenize(&self) -> Self::TokenType<'_> {
+                    PackedSeqToken(self.as_bytes())
+                }
+            }
+
+            impl SolTopicEncode for $ty {
+                fn encode_topic<H>(&self, hasher: H) -> [u8; 32]
+                where
+                    H: Fn(&[u8], &mut [u8; 32]),
+                {
+                    let mut output = [0u8; 32];
+                    hasher(self.as_bytes(), &mut output);
+                    output
+                }
+
+                fn topic_preimage(&self, buffer: &mut Vec<u8>) {
+                    append_non_empty_member_topic_bytes(self.as_bytes(), buffer);
+                }
+
+                fn default_topic_preimage(buffer: &mut Vec<u8>) {
+                    buffer.extend([0u8; 32]);
+                }
+
+                fn topic_preimage_size(&self) -> usize {
+                    non_zero_multiple_of_32(self.as_bytes().len())
+                }
+
+                fn default_topic_preimage_size() -> usize {
+                    32
+                }
+            }
+
+            impl SolTokenType for $ty {
+                type TokenType<'enc> = PackedSeqToken<'enc>;
+
+                type DefaultType = DynSizeDefault;
+            }
+
+            impl private::Sealed for $ty {}
+        )*
+    };
+}
+
+impl_str_encode!(String);
 
 // Rust `Box<str>` (i.e. boxed string slice) <-> Solidity `string`.
 impl SolTypeDecode for Box<str> {
@@ -322,23 +458,7 @@ impl SolTypeDecode for Box<str> {
     }
 }
 
-impl SolTypeEncode for Box<str> {
-    type AlloyType = sol_data::String;
-
-    const DEFAULT_VALUE: Self::DefaultType = DynSizeDefault;
-
-    fn tokenize(&self) -> Self::TokenType<'_> {
-        PackedSeqToken(self.as_bytes())
-    }
-}
-
-impl SolTokenType for Box<str> {
-    type TokenType<'enc> = PackedSeqToken<'enc>;
-
-    type DefaultType = DynSizeDefault;
-}
-
-impl private::Sealed for Box<str> {}
+impl_str_encode!(Box<str>);
 
 // Address <-> address
 impl SolTypeDecode for Address {
@@ -351,7 +471,7 @@ impl SolTypeDecode for Address {
         // just taking the last 20 bytes of `alloy_sol_types::abi::token::WordToken` as
         // well anyway.
         // Ref: <https://github.com/alloy-rs/core/blob/5ae4fe0b246239602c97cc5a2f2e4bc780e2024a/crates/primitives/src/bits/address.rs#L132-L134>
-        Ok(Address::from_slice(&token.0 .0[12..]))
+        Ok(Address::from_slice(&token.0.0[12..]))
     }
 }
 
@@ -370,6 +490,8 @@ impl SolTypeEncode for Address {
     }
 }
 
+impl_topic_encode_word!(Address);
+
 impl SolTokenType for Address {
     type TokenType<'enc> = WordToken;
 
@@ -385,7 +507,7 @@ impl SolTypeDecode for U256 {
     fn detokenize(
         token: <Self::AlloyType as AlloySolType>::Token<'_>,
     ) -> Result<Self, Error> {
-        Ok(U256::from_big_endian(token.0 .0.as_slice()))
+        Ok(U256::from_big_endian(token.0.0.as_slice()))
     }
 }
 
@@ -402,6 +524,8 @@ impl SolTypeEncode for U256 {
         WordToken::from(self.to_big_endian())
     }
 }
+
+impl_topic_encode_word!(U256);
 
 impl SolTokenType for U256 {
     type TokenType<'enc> = WordToken;
@@ -444,6 +568,33 @@ impl<T: SolTypeEncode, const N: usize> SolTypeEncode for [T; N] {
     }
 }
 
+impl<T: SolTopicEncode, const N: usize> SolTopicEncode for [T; N] {
+    fn topic_preimage(&self, buffer: &mut Vec<u8>) {
+        for item in self {
+            item.topic_preimage(buffer);
+        }
+    }
+
+    fn default_topic_preimage(buffer: &mut Vec<u8>) {
+        // Empty array or array of "empty by default" types is a noop.
+        if N == 0 || Self::default_topic_preimage_size() == 0 {
+            return;
+        }
+
+        for _ in 0..N {
+            T::default_topic_preimage(buffer);
+        }
+    }
+
+    fn topic_preimage_size(&self) -> usize {
+        self.iter().map(T::topic_preimage_size).sum()
+    }
+
+    fn default_topic_preimage_size() -> usize {
+        N * T::default_topic_preimage_size()
+    }
+}
+
 impl<T: SolTokenType, const N: usize> SolTokenType for [T; N] {
     type TokenType<'enc> = [T::TokenType<'enc>; N];
 
@@ -469,25 +620,53 @@ impl<T: SolTypeDecode> SolTypeDecode for Vec<T> {
     }
 }
 
-impl<T: SolTypeEncode> SolTypeEncode for Vec<T> {
-    type AlloyType = sol_data::Array<T::AlloyType>;
+// Implements `SolTypeEncode` and `SolTokenType` for representations of dynamic size
+// collections.
+macro_rules! impl_dyn_collection_encode {
+    ($($ty: ty $([where $($clause:tt)*])?),+ $(,)*) => {
+        $(
+            impl<T: SolTypeEncode> SolTypeEncode for $ty $(where $($clause)*)? {
+                type AlloyType = sol_data::Array<T::AlloyType>;
 
-    const DEFAULT_VALUE: Self::DefaultType = DynSizeDefault;
+                const DEFAULT_VALUE: Self::DefaultType = DynSizeDefault;
 
-    fn tokenize(&self) -> Self::TokenType<'_> {
-        // Does NOT require `SolTypeValue<Self::AlloyType>` and instead relies on
-        // `SolTypeEncode::tokenize`.
-        self.iter().map(<T as SolTypeEncode>::tokenize).collect()
-    }
+                fn tokenize(&self) -> Self::TokenType<'_> {
+                    // Does NOT require `SolTypeValue<Self::AlloyType>` and instead relies on
+                    // `SolTypeEncode::tokenize`.
+                    self.iter().map(<T as SolTypeEncode>::tokenize).collect()
+                }
+            }
+
+            impl<T: SolTopicEncode> SolTopicEncode for $ty $(where $($clause)*)? {
+                fn topic_preimage(&self, buffer: &mut Vec<u8>) {
+                    for item in self.iter() {
+                        item.topic_preimage(buffer);
+                    }
+                }
+
+                fn default_topic_preimage(_: &mut Vec<u8>) {}
+
+                fn topic_preimage_size(&self) -> usize {
+                    self.iter().map(T::topic_preimage_size).sum()
+                }
+
+                fn default_topic_preimage_size() -> usize {
+                    0
+                }
+            }
+
+            impl<T: SolTypeEncode> SolTokenType for $ty $(where $($clause)*)? {
+                type TokenType<'enc> = Vec<T::TokenType<'enc>>;
+
+                type DefaultType = DynSizeDefault;
+            }
+
+            impl<T: private::Sealed> private::Sealed for $ty $(where $($clause)*)? {}
+        )*
+    };
 }
 
-impl<T: SolTokenType> SolTokenType for Vec<T> {
-    type TokenType<'enc> = Vec<T::TokenType<'enc>>;
-
-    type DefaultType = DynSizeDefault;
-}
-
-impl<T: private::Sealed> private::Sealed for Vec<T> {}
+impl_dyn_collection_encode!(Vec<T>);
 
 // Rust `Box<[T]>` (i.e. boxed slice) <-> Solidity dynamic size array (i.e. `T[]`).
 impl<T: SolTypeDecode> SolTypeDecode for Box<[T]> {
@@ -506,25 +685,7 @@ impl<T: SolTypeDecode> SolTypeDecode for Box<[T]> {
     }
 }
 
-impl<T: SolTypeEncode> SolTypeEncode for Box<[T]> {
-    type AlloyType = sol_data::Array<T::AlloyType>;
-
-    const DEFAULT_VALUE: Self::DefaultType = DynSizeDefault;
-
-    fn tokenize(&self) -> Self::TokenType<'_> {
-        // Does NOT require `SolTypeValue<Self::AlloyType>` and instead relies on
-        // `SolTypeEncode::tokenize`.
-        self.iter().map(<T as SolTypeEncode>::tokenize).collect()
-    }
-}
-
-impl<T: SolTokenType> SolTokenType for Box<[T]> {
-    type TokenType<'enc> = Vec<T::TokenType<'enc>>;
-
-    type DefaultType = DynSizeDefault;
-}
-
-impl<T: private::Sealed> private::Sealed for Box<[T]> {}
+impl_dyn_collection_encode!(Box<[T]>);
 
 // Rust `Cow<'_, [T]>` (i.e. clone-on-write slice) <-> Solidity dynamic size array (i.e.
 // `T[]`).
@@ -548,42 +709,15 @@ where
     }
 }
 
-impl<T> SolTypeEncode for Cow<'_, [T]>
-where
-    T: SolTypeEncode + Clone,
-    [T]: ToOwned,
-{
-    type AlloyType = sol_data::Array<T::AlloyType>;
-
-    const DEFAULT_VALUE: Self::DefaultType = DynSizeDefault;
-
-    fn tokenize(&self) -> Self::TokenType<'_> {
-        // Does NOT require `SolTypeValue<Self::AlloyType>` and instead relies on
-        // `SolTypeEncode::tokenize`.
-        self.iter().map(<T as SolTypeEncode>::tokenize).collect()
-    }
-}
-
-impl<T> SolTokenType for Cow<'_, [T]>
-where
-    T: SolTokenType + Clone,
-    [T]: ToOwned,
-{
-    type TokenType<'enc> = Vec<T::TokenType<'enc>>;
-
-    type DefaultType = DynSizeDefault;
-}
-
-impl<T: private::Sealed> private::Sealed for Cow<'_, [T]> where [T]: ToOwned {}
+impl_dyn_collection_encode!(Cow<'_, [T]> [where T: Clone, [T]: ToOwned]);
 
 // We follow the Rust standard library's convention of implementing traits for tuples up
 // to twelve items long.
 // Ref: <https://doc.rust-lang.org/std/primitive.tuple.html#trait-implementations>
-#[impl_for_tuples(12)]
+#[impl_for_tuples(1, 12)]
 impl SolTypeDecode for Tuple {
     for_tuples!( type AlloyType = ( #( Tuple::AlloyType ),* ); );
 
-    #[allow(clippy::unused_unit)]
     fn detokenize(
         token: <Self::AlloyType as AlloySolType>::Token<'_>,
     ) -> Result<Self, Error> {
@@ -593,18 +727,94 @@ impl SolTypeDecode for Tuple {
     }
 }
 
-#[impl_for_tuples(12)]
+#[impl_for_tuples(1, 12)]
 impl SolTypeEncode for Tuple {
     for_tuples!( type AlloyType = ( #( Tuple::AlloyType ),* ); );
 
     const DEFAULT_VALUE: Self::DefaultType =
         (for_tuples! { #( Tuple::DEFAULT_VALUE ),* });
 
-    #[allow(clippy::unused_unit)]
     fn tokenize(&self) -> Self::TokenType<'_> {
         // Does NOT require `SolTypeValue<Self::AlloyType>` and instead relies on
         // `SolTypeEncode::tokenize`.
         for_tuples!( ( #( <Tuple as SolTypeEncode>::tokenize(&self.Tuple) ),* ) );
+    }
+}
+
+#[impl_for_tuples(1, 12)]
+impl SolTopicEncode for Tuple {
+    fn topic_preimage(&self, buffer: &mut Vec<u8>) {
+        for_tuples!(
+            #(
+                <Tuple as SolTopicEncode>::topic_preimage(&self.Tuple, buffer);
+            )*
+        );
+    }
+
+    fn default_topic_preimage(buffer: &mut Vec<u8>) {
+        for_tuples!(
+            #(
+                <Tuple as SolTopicEncode>::default_topic_preimage(buffer);
+            )*
+        );
+    }
+
+    fn topic_preimage_size(&self) -> usize {
+        for_tuples!( ( #( <Tuple as SolTopicEncode>::topic_preimage_size(&self.Tuple) )+* ) );
+    }
+
+    fn default_topic_preimage_size() -> usize {
+        for_tuples!( ( #( <Tuple as SolTopicEncode>::default_topic_preimage_size() )+* ) );
+    }
+}
+
+// Optimized implementations for unit (i.e. `()`).
+impl SolTypeDecode for () {
+    type AlloyType = ();
+
+    fn decode(_: &[u8]) -> Result<Self, Error> {
+        // NOTE: Solidity ABI decoding doesn't validate input length.
+        Ok(())
+    }
+
+    fn detokenize(
+        _: <Self::AlloyType as AlloySolType>::Token<'_>,
+    ) -> Result<Self, Error> {
+        Ok(())
+    }
+}
+
+impl SolTypeEncode for () {
+    type AlloyType = ();
+    const DEFAULT_VALUE: Self::DefaultType = ();
+
+    fn encode(&self) -> Vec<u8> {
+        Vec::new()
+    }
+
+    fn tokenize(&self) -> Self::TokenType<'_> {}
+}
+
+impl SolTopicEncode for () {
+    fn encode_topic<H>(&self, _: H) -> [u8; 32]
+    where
+        H: Fn(&[u8], &mut [u8; 32]),
+    {
+        [0u8; 32]
+    }
+
+    fn topic_preimage(&self, buffer: &mut Vec<u8>) {
+        Self::default_topic_preimage(buffer);
+    }
+
+    fn default_topic_preimage(_: &mut Vec<u8>) {}
+
+    fn topic_preimage_size(&self) -> usize {
+        Self::default_topic_preimage_size()
+    }
+
+    fn default_topic_preimage_size() -> usize {
+        0
     }
 }
 
@@ -640,19 +850,43 @@ impl<T: SolTypeDecode> SolTypeDecode for Option<T> {
     }
 }
 
-impl<T> SolTypeEncode for Option<T>
-where
-    T: SolTypeEncode,
-{
+impl<T: SolTypeEncode> SolTypeEncode for Option<T> {
     type AlloyType = (sol_data::Bool, T::AlloyType);
 
     const DEFAULT_VALUE: Self::DefaultType = (FixedSizeDefault::WORD, T::DEFAULT_VALUE);
 
     fn tokenize(&self) -> Self::TokenType<'_> {
         match self {
-            Some(value) => (true.tokenize(), TokenOrDefault::Token(value.tokenize())),
             None => (false.tokenize(), TokenOrDefault::Default(T::DEFAULT_VALUE)),
+            Some(value) => (true.tokenize(), TokenOrDefault::Token(value.tokenize())),
         }
+    }
+}
+
+impl<T: SolTopicEncode> SolTopicEncode for Option<T> {
+    fn topic_preimage(&self, buffer: &mut Vec<u8>) {
+        // `bool` variant encoded bytes.
+        buffer.extend(self.is_some().tokenize().0.0);
+        // "Actual value" encoded bytes.
+        match self {
+            None => T::default_topic_preimage(buffer),
+            Some(value) => value.topic_preimage(buffer),
+        };
+    }
+
+    fn default_topic_preimage(buffer: &mut Vec<u8>) {
+        Self::topic_preimage(&None::<T>, buffer);
+    }
+
+    fn topic_preimage_size(&self) -> usize {
+        32 + match self {
+            None => T::default_topic_preimage_size(),
+            Some(value) => value.topic_preimage_size(),
+        }
+    }
+
+    fn default_topic_preimage_size() -> usize {
+        32 + T::default_topic_preimage_size()
     }
 }
 
@@ -667,11 +901,11 @@ impl<T: SolTokenType> SolTokenType for Option<T> {
 
 impl<T: private::Sealed> private::Sealed for Option<T> {}
 
-// Implements `SolTypeEncode` for reference types.
+// Implements `SolTypeEncode` for reference types and smart pointers.
 macro_rules! impl_refs_encode {
-    ($($ty: ty), +$(,)*) => {
+    ($($ty: ty $([where $($clause:tt)*])?), +$(,)*) => {
         $(
-            impl<T: SolTypeEncode> SolTypeEncode for $ty {
+            impl<T: SolTypeEncode> SolTypeEncode for $ty $(where $($clause)*)? {
                 type AlloyType = T::AlloyType;
 
                 const DEFAULT_VALUE: Self::DefaultType = T::DEFAULT_VALUE;
@@ -681,13 +915,38 @@ macro_rules! impl_refs_encode {
                 }
             }
 
-            impl<T: SolTokenType> SolTokenType for $ty {
+            impl<T: SolTopicEncode> SolTopicEncode for $ty $(where $($clause)*)? {
+                fn encode_topic<H>(&self, hasher: H) -> [u8; 32]
+                where
+                    H: Fn(&[u8], &mut [u8; 32]),
+                {
+                    T::encode_topic(self, hasher)
+                }
+
+                fn topic_preimage(&self, buffer: &mut Vec<u8>) {
+                    T::topic_preimage(self, buffer);
+                }
+
+                fn default_topic_preimage(buffer: &mut Vec<u8>) {
+                    T::default_topic_preimage(buffer);
+                }
+
+                fn topic_preimage_size(&self) -> usize {
+                    T::topic_preimage_size(self)
+                }
+
+                fn default_topic_preimage_size() -> usize {
+                    T::default_topic_preimage_size()
+                }
+            }
+
+            impl<T: SolTokenType> SolTokenType for $ty $(where $($clause)*)? {
                 type TokenType<'enc> = T::TokenType<'enc>;
 
                 type DefaultType = T::DefaultType;
             }
 
-            impl<T: private::Sealed> private::Sealed for $ty {}
+            impl<T: private::Sealed> private::Sealed for $ty $(where $($clause)*)? {}
         )*
     };
 }
@@ -696,82 +955,14 @@ impl_refs_encode! {
     &T,
     &mut T,
     Box<T>,
+    Cow<'_, T> [where T: Clone],
 }
-
-// Implements `SolTypeEncode` for smart pointers.
-impl<T: SolTypeEncode + Clone> SolTypeEncode for Cow<'_, T> {
-    type AlloyType = T::AlloyType;
-
-    const DEFAULT_VALUE: Self::DefaultType = T::DEFAULT_VALUE;
-
-    fn tokenize(&self) -> Self::TokenType<'_> {
-        <T as SolTypeEncode>::tokenize(self.deref())
-    }
-}
-
-impl<T: SolTokenType + Clone> SolTokenType for Cow<'_, T> {
-    type TokenType<'enc> = T::TokenType<'enc>;
-
-    type DefaultType = T::DefaultType;
-}
-
-impl<T: private::Sealed + Clone> private::Sealed for Cow<'_, T> {}
 
 // Implements `SolTypeEncode` for references and smart pointers to `str`.
-macro_rules! impl_str_ref_encode {
-    ($($ty: ty),+ $(,)*) => {
-        $(
-            impl SolTypeEncode for $ty {
-                type AlloyType = sol_data::String;
-
-                const DEFAULT_VALUE: Self::DefaultType = DynSizeDefault;
-
-                fn tokenize(&self) -> Self::TokenType<'_> {
-                    PackedSeqToken(self.as_bytes())
-                }
-            }
-
-            impl SolTokenType for $ty {
-                type TokenType<'enc> = PackedSeqToken<'enc>;
-
-                type DefaultType = DynSizeDefault;
-            }
-
-            impl private::Sealed for $ty {}
-        )*
-    };
-}
-
-impl_str_ref_encode!(&str, &mut str, Cow<'_, str>);
+impl_str_encode!(&str, &mut str, Cow<'_, str>);
 
 // Implements `SolTypeEncode` for references to `[T]` DSTs.
-macro_rules! impl_slice_ref_encode {
-    ($($ty: ty),+ $(,)*) => {
-        $(
-            impl<T: SolTypeEncode> SolTypeEncode for $ty {
-                type AlloyType = sol_data::Array<T::AlloyType>;
-
-                const DEFAULT_VALUE: Self::DefaultType = DynSizeDefault;
-
-                fn tokenize(&self) -> Self::TokenType<'_> {
-                    // Does NOT require `SolTypeValue<Self::AlloyType>` and instead relies on
-                    // `SolTypeEncode::tokenize`.
-                    self.iter().map(<T as SolTypeEncode>::tokenize).collect()
-                }
-            }
-
-            impl<T: SolTokenType> SolTokenType for $ty {
-                type TokenType<'enc> = Vec<T::TokenType<'enc>>;
-
-                type DefaultType = DynSizeDefault;
-            }
-
-            impl<T: private::Sealed> private::Sealed for $ty {}
-        )*
-    };
-}
-
-impl_slice_ref_encode!(&[T], &mut [T]);
+impl_dyn_collection_encode!(&[T], &mut [T]);
 
 pub(super) mod private {
     /// Seals implementations of `SolTypeEncode` and `SolTypeDecode`.

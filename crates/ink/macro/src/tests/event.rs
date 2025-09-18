@@ -31,28 +31,31 @@ fn unit_struct_works() {
         }
         expands to {
             const _: () = {
-                impl ::ink::env::Event for UnitStruct {
+                impl ::ink::env::Event<::ink::abi::Ink> for UnitStruct {
                     type RemainingTopics = [::ink::env::event::state::HasRemainingTopics; 1usize];
 
                     const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
                         ::core::option::Option::Some( ::ink::blake2x256!("UnitStruct()") );
 
-                    fn topics<E, B>(
+                    fn topics<B>(
                         &self,
-                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, E, B>,
-                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<E>>::Output
+                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, B, ::ink::abi::Ink>,
+                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>>::Output
                     where
-                        E: ::ink::env::Environment,
-                        B: ::ink::env::event::TopicsBuilderBackend<E>,
+                        B: ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>,
                     {
                         match self {
                             UnitStruct => {
                                 builder
                                     .build::<Self>()
-                                    .push_topic(Self::SIGNATURE_TOPIC.as_ref())
+                                    .push_topic(<Self as ::ink::env::Event<::ink::abi::Ink>>::SIGNATURE_TOPIC.as_ref())
                                     .finish()
                             }
                         }
+                    }
+
+                    fn encode_data(&self) -> ::ink::prelude::vec::Vec<::core::primitive::u8> {
+                        ::ink::abi::AbiEncodeWith::<::ink::abi::Ink>::encode_with(self)
                     }
                 }
             };
@@ -70,19 +73,18 @@ fn unit_struct_anonymous_has_no_topics() {
         }
         expands to {
             const _: () = {
-                impl ::ink::env::Event for UnitStruct {
+                impl ::ink::env::Event<::ink::abi::Ink> for UnitStruct {
                     type RemainingTopics = ::ink::env::event::state::NoRemainingTopics;
 
                     const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
                         ::core::option::Option::None;
 
-                    fn topics<E, B>(
+                    fn topics<B>(
                         &self,
-                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, E, B>,
-                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<E>>::Output
+                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, B, ::ink::abi::Ink>,
+                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>>::Output
                     where
-                        E: ::ink::env::Environment,
-                        B: ::ink::env::event::TopicsBuilderBackend<E>,
+                        B: ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>,
                     {
                         match self {
                             UnitStruct => {
@@ -91,6 +93,10 @@ fn unit_struct_anonymous_has_no_topics() {
                                     .finish()
                             }
                         }
+                    }
+
+                    fn encode_data(&self) -> ::ink::prelude::vec::Vec<::core::primitive::u8> {
+                        ::ink::abi::AbiEncodeWith::<::ink::abi::Ink>::encode_with(self)
                     }
                 }
             };
@@ -111,28 +117,31 @@ fn struct_with_fields_no_topics() {
         }
         expands to {
             const _: () = {
-                impl ::ink::env::Event for Event {
+                impl ::ink::env::Event<::ink::abi::Ink> for Event {
                     type RemainingTopics = [::ink::env::event::state::HasRemainingTopics; 1usize];
 
                     const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
                         ::core::option::Option::Some( ::ink::blake2x256!("Event(u32,u64,u128)") );
 
-                    fn topics<E, B>(
+                    fn topics<B>(
                         &self,
-                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, E, B>,
-                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<E>>::Output
+                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, B, ::ink::abi::Ink>,
+                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>>::Output
                     where
-                        E: ::ink::env::Environment,
-                        B: ::ink::env::event::TopicsBuilderBackend<E>,
+                        B: ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>,
                     {
                         match self {
-                            Event { .. } => {
+                            Event { field_1 : __binding_0 , field_2 : __binding_1 , field_3 : __binding_2 , } => {
                                 builder
                                     .build::<Self>()
-                                    .push_topic(Self::SIGNATURE_TOPIC.as_ref())
+                                    .push_topic(<Self as ::ink::env::Event<::ink::abi::Ink>>::SIGNATURE_TOPIC.as_ref())
                                     .finish()
                             }
                         }
+                    }
+
+                    fn encode_data(&self) -> ::ink::prelude::vec::Vec<::core::primitive::u8> {
+                        ::ink::abi::AbiEncodeWith::<::ink::abi::Ink>::encode_with(self)
                     }
                 }
             };
@@ -155,30 +164,33 @@ fn struct_with_fields_and_some_topics() {
         }
         expands to {
             const _: () = {
-                impl ::ink::env::Event for Event {
+                impl ::ink::env::Event<::ink::abi::Ink> for Event {
                     type RemainingTopics = [::ink::env::event::state::HasRemainingTopics; 3usize];
 
                     const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
                         ::core::option::Option::Some( ::ink::blake2x256!("Event(u32,u64,u128)") );
 
-                    fn topics<E, B>(
+                    fn topics<B>(
                         &self,
-                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, E, B>,
-                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<E>>::Output
+                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, B, ::ink::abi::Ink>,
+                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>>::Output
                     where
-                        E: ::ink::env::Environment,
-                        B: ::ink::env::event::TopicsBuilderBackend<E>,
+                        B: ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>,
                     {
                         match self {
-                            Event { field_2 : __binding_1 , field_3 : __binding_2 , .. } => {
+                            Event { field_1 : __binding_0 , field_2 : __binding_1 , field_3 : __binding_2 , } => {
                                 builder
                                     .build::<Self>()
-                                    .push_topic(Self::SIGNATURE_TOPIC.as_ref())
+                                    .push_topic(<Self as ::ink::env::Event<::ink::abi::Ink>>::SIGNATURE_TOPIC.as_ref())
                                     .push_topic(::ink::as_option!(__binding_1))
                                     .push_topic(::ink::as_option!(__binding_2))
                                     .finish()
                             }
                         }
+                    }
+
+                    fn encode_data(&self) -> ::ink::prelude::vec::Vec<::core::primitive::u8> {
+                        ::ink::abi::AbiEncodeWith::<::ink::abi::Ink>::encode_with(self)
                     }
                 }
             };
@@ -196,28 +208,116 @@ fn custom_signature_topic() {
         }
         expands to {
             const _: () = {
-                impl ::ink::env::Event for UnitStruct {
+                impl ::ink::env::Event<::ink::abi::Ink> for UnitStruct {
                     type RemainingTopics = [::ink::env::event::state::HasRemainingTopics; 1usize];
 
                     const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
                         ::core::option::Option::Some( [17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8] );
 
-                    fn topics<E, B>(
+                    fn topics<B>(
                         &self,
-                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, E, B>,
-                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<E>>::Output
+                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, B, ::ink::abi::Ink>,
+                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>>::Output
                     where
-                        E: ::ink::env::Environment,
-                        B: ::ink::env::event::TopicsBuilderBackend<E>,
+                        B: ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>,
                     {
                         match self {
                             UnitStruct => {
                                 builder
                                     .build::<Self>()
-                                    .push_topic(Self::SIGNATURE_TOPIC.as_ref())
+                                    .push_topic(<Self as ::ink::env::Event<::ink::abi::Ink>>::SIGNATURE_TOPIC.as_ref())
                                     .finish()
                             }
                         }
+                    }
+
+                    fn encode_data(&self) -> ::ink::prelude::vec::Vec<::core::primitive::u8> {
+                        ::ink::abi::AbiEncodeWith::<::ink::abi::Ink>::encode_with(self)
+                    }
+                }
+            };
+        } no_build
+    }
+}
+
+#[test]
+fn name_override_works() {
+    crate::test_derive! {
+        event_derive {
+            #[derive(scale::Encode)]
+            #[ink(name = "MyUnitStruct")]
+            struct UnitStruct;
+        }
+        expands to {
+            const _: () = {
+                impl ::ink::env::Event<::ink::abi::Ink> for UnitStruct {
+                    type RemainingTopics = [::ink::env::event::state::HasRemainingTopics; 1usize];
+
+                    const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
+                        ::core::option::Option::Some( ::ink::blake2x256!("MyUnitStruct()") );
+
+                    fn topics<B>(
+                        &self,
+                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, B, ::ink::abi::Ink>,
+                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>>::Output
+                    where
+                        B: ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>,
+                    {
+                        match self {
+                            UnitStruct => {
+                                builder
+                                    .build::<Self>()
+                                    .push_topic(<Self as ::ink::env::Event<::ink::abi::Ink>>::SIGNATURE_TOPIC.as_ref())
+                                    .finish()
+                            }
+                        }
+                    }
+
+                    fn encode_data(&self) -> ::ink::prelude::vec::Vec<::core::primitive::u8> {
+                        ::ink::abi::AbiEncodeWith::<::ink::abi::Ink>::encode_with(self)
+                    }
+                }
+            };
+        } no_build
+    }
+}
+
+#[test]
+fn custom_signature_topic_precedence() {
+    crate::test_derive! {
+        event_derive {
+            #[derive(scale::Encode)]
+            #[ink(signature_topic = "1111111111111111111111111111111111111111111111111111111111111111")]
+            #[ink(name = "MyUnitStruct")]
+            struct UnitStruct;
+        }
+        expands to {
+            const _: () = {
+                impl ::ink::env::Event<::ink::abi::Ink> for UnitStruct {
+                    type RemainingTopics = [::ink::env::event::state::HasRemainingTopics; 1usize];
+
+                    const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> =
+                        ::core::option::Option::Some( [17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8, 17u8] );
+
+                    fn topics<B>(
+                        &self,
+                        builder: ::ink::env::event::TopicsBuilder<::ink::env::event::state::Uninit, B, ::ink::abi::Ink>,
+                    ) -> <B as ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>>::Output
+                    where
+                        B: ::ink::env::event::TopicsBuilderBackend<::ink::abi::Ink>,
+                    {
+                        match self {
+                            UnitStruct => {
+                                builder
+                                    .build::<Self>()
+                                    .push_topic(<Self as ::ink::env::Event<::ink::abi::Ink>>::SIGNATURE_TOPIC.as_ref())
+                                    .finish()
+                            }
+                        }
+                    }
+
+                    fn encode_data(&self) -> ::ink::prelude::vec::Vec<::core::primitive::u8> {
+                        ::ink::abi::AbiEncodeWith::<::ink::abi::Ink>::encode_with(self)
                     }
                 }
             };

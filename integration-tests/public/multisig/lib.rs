@@ -64,17 +64,17 @@ pub use self::multisig::{
 #[ink::contract]
 mod multisig {
     use ink::{
+        U256,
         env::{
-            call::{
-                build_call,
-                ExecutionInput,
-            },
             CallFlags,
+            call::{
+                ExecutionInput,
+                build_call,
+            },
         },
         prelude::vec::Vec,
         scale::Output,
         storage::Mapping,
-        U256,
     };
 
     /// Tune this to your liking but be wary that allowing too many owners will not
@@ -304,15 +304,15 @@ mod multisig {
         /// ```should_panic
         /// use ink::{
         ///     env::{
+        ///         DefaultEnvironment as Env,
+        ///         Environment,
         ///         call::{
-        ///             utils::ArgumentList,
         ///             Call,
         ///             CallParams,
         ///             ExecutionInput,
         ///             Selector,
+        ///             utils::ArgumentList,
         ///         },
-        ///         DefaultEnvironment as Env,
-        ///         Environment,
         ///     },
         ///     scale::Encode,
         ///     selector_bytes,
@@ -802,7 +802,7 @@ mod multisig {
             set_from_owner();
             contract.submit_transaction(Transaction::change_requirement(1));
             assert_eq!(contract.transaction_list.transactions.len(), 1);
-            assert_eq!(test::recorded_events().count(), 2);
+            assert_eq!(test::recorded_events().len(), 2);
             let transaction = contract.transactions.get(0).unwrap();
             assert_eq!(transaction, Transaction::change_requirement(1));
             contract.confirmations.get((0, accounts.alice)).unwrap();
@@ -861,7 +861,7 @@ mod multisig {
             contract.add_owner(accounts.frank);
             assert_eq!(contract.owners.len(), owners + 1);
             assert!(contract.is_owner.contains(accounts.frank));
-            assert_eq!(test::recorded_events().count(), 1);
+            assert_eq!(test::recorded_events().len(), 1);
         }
 
         #[ink::test]
@@ -891,7 +891,7 @@ mod multisig {
             contract.remove_owner(accounts.alice);
             assert_eq!(contract.owners.len(), owners - 1);
             assert!(!contract.is_owner.contains(accounts.alice));
-            assert_eq!(test::recorded_events().count(), 1);
+            assert_eq!(test::recorded_events().len(), 1);
         }
 
         #[ink::test]
@@ -922,7 +922,7 @@ mod multisig {
             assert_eq!(contract.owners.len(), owners);
             assert!(!contract.is_owner.contains(accounts.alice));
             assert!(contract.is_owner.contains(accounts.django));
-            assert_eq!(test::recorded_events().count(), 2);
+            assert_eq!(test::recorded_events().len(), 2);
         }
 
         #[ink::test]
@@ -959,7 +959,7 @@ mod multisig {
             set_from_wallet();
             contract.change_requirement(3);
             assert_eq!(contract.requirement, 3);
-            assert_eq!(test::recorded_events().count(), 1);
+            assert_eq!(test::recorded_events().len(), 1);
         }
 
         #[ink::test]
@@ -1005,7 +1005,7 @@ mod multisig {
             set_from_wallet();
             contract.cancel_transaction(0);
             assert_eq!(contract.transaction_list.transactions.len(), 0);
-            assert_eq!(test::recorded_events().count(), 3);
+            assert_eq!(test::recorded_events().len(), 3);
         }
 
         #[ink::test]
@@ -1014,7 +1014,7 @@ mod multisig {
             set_from_wallet();
             contract.cancel_transaction(1);
             assert_eq!(contract.transaction_list.transactions.len(), 1);
-            assert_eq!(test::recorded_events().count(), 2);
+            assert_eq!(test::recorded_events().len(), 2);
         }
 
         #[ink::test]
@@ -1030,7 +1030,7 @@ mod multisig {
             let accounts = default_accounts();
             set_caller(accounts.bob);
             contract.confirm_transaction(0);
-            assert_eq!(test::recorded_events().count(), 3);
+            assert_eq!(test::recorded_events().len(), 3);
             contract.confirmations.get((0, accounts.bob)).unwrap();
             assert_eq!(contract.confirmation_count.get(0).unwrap(), 2);
         }
@@ -1062,7 +1062,7 @@ mod multisig {
             let accounts = default_accounts();
             set_caller(accounts.alice);
             contract.confirm_transaction(0);
-            assert_eq!(test::recorded_events().count(), 2);
+            assert_eq!(test::recorded_events().len(), 2);
             contract.confirmations.get((0, accounts.alice)).unwrap();
             assert_eq!(contract.confirmation_count.get(0).unwrap(), 1);
         }
@@ -1081,7 +1081,7 @@ mod multisig {
             let accounts = default_accounts();
             set_caller(accounts.alice);
             contract.revoke_confirmation(0);
-            assert_eq!(test::recorded_events().count(), 3);
+            assert_eq!(test::recorded_events().len(), 3);
             assert!(!contract.confirmations.contains((0, accounts.alice)));
             assert_eq!(contract.confirmation_count.get(0).unwrap(), 0);
         }
@@ -1092,7 +1092,7 @@ mod multisig {
             let accounts = default_accounts();
             set_caller(accounts.bob);
             contract.revoke_confirmation(0);
-            assert_eq!(test::recorded_events().count(), 2);
+            assert_eq!(test::recorded_events().len(), 2);
             assert!(contract.confirmations.contains((0, accounts.alice)));
             assert_eq!(contract.confirmation_count.get(0).unwrap(), 1);
         }

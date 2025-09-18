@@ -111,7 +111,7 @@ You can have a look at the [PR#1284](https://github.com/use-ink/ink/pull/1284/fi
 
 ## Issues and Pull Requests
 
-Please always respect our [code of conduct](CODE_OF_CONDUCT.md) when writing issues and pull requests or taking part in any kind of discussion.
+Please always respect our [code of conduct](CODE_OF_CONDUCT.adoc) when writing issues and pull requests or taking part in any kind of discussion.
 
 ### Issues
 
@@ -133,7 +133,7 @@ Before working on a pull request please make sure that the work has not already 
 
 For complex implementations you are advised to first discuss the feature implementation or bug fix using an issue.
 
-A pull request should be doing or implementing exactly one semantic issue. So for example, when you refactor the code base in a pull request you should not also include code formattings into the same pull request.
+A pull request should be doing or implementing exactly one semantic issue. So for example, when you refactor the code base in a pull request you should not also include code formatting into the same pull request.
 
 It's totally fine to extract changes made in one pull request to multiple pull requests. It makes the review process easier (and hey, more 🟩 for you!).
 

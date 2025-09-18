@@ -22,13 +22,9 @@ use ink_linting_utils::{
     match_def_path,
 };
 use rustc_errors::Applicability;
+use rustc_hash::FxHashSet;
 use rustc_hir::{
     self,
-    def::{
-        DefKind,
-        Res,
-    },
-    def_id::DefId,
     Arm,
     AssocItemKind,
     ExprKind,
@@ -40,6 +36,11 @@ use rustc_hir::{
     Node,
     PatKind,
     QPath,
+    def::{
+        DefKind,
+        Res,
+    },
+    def_id::DefId,
 };
 use rustc_lint::{
     LateContext,
@@ -47,13 +48,15 @@ use rustc_lint::{
 };
 use rustc_middle::ty::{
     self,
+    FieldDef,
     Ty,
-    TyKind,
+    TyCtxt,
 };
 use rustc_session::{
     declare_lint,
     declare_lint_pass,
 };
+use rustc_span::Symbol;
 
 declare_lint! {
     /// ## What it does
@@ -106,7 +109,7 @@ declare_lint! {
 declare_lint_pass!(PrimitiveTopic => [PRIMITIVE_TOPIC]);
 
 /// Returns `true` if `item` is an implementation of `::ink::env::Event` for a storage
-/// struct. If that's the case, it returns the name of this struct.
+/// struct.
 fn is_ink_event_impl<'tcx>(cx: &LateContext<'tcx>, item: &'tcx Item<'_>) -> bool {
     if let Some(trait_ref) = cx.tcx.impl_trait_ref(item.owner_id) {
         match_def_path(
@@ -172,6 +175,19 @@ fn get_event_def_id(topics_impl: &Impl) -> Option<DefId> {
     }
 }
 
+/// Returns true if the given field is annotated with an `#[ink(topic)]` attribute.
+fn is_topic_field(field: &FieldDef, tcx: TyCtxt) -> bool {
+    tcx.get_attrs(field.did, Symbol::intern("ink")).any(|attr| {
+        let Some(meta_list) = attr.meta_item_list() else {
+            return false;
+        };
+        meta_list.iter().any(|meta| {
+            meta.has_name(Symbol::intern("topic"))
+                || meta.lit().is_some_and(|lit| lit.symbol.as_str() == "topic")
+        })
+    })
+}
+
 impl<'tcx> LateLintPass<'tcx> for PrimitiveTopic {
     fn check_item(&mut self, cx: &LateContext<'tcx>, item: &'tcx Item<'_>) {
         if_chain! {
@@ -179,6 +195,11 @@ impl<'tcx> LateLintPass<'tcx> for PrimitiveTopic {
             if is_ink_event_impl(cx, item);
             if let Some(event_def_id) = get_event_def_id(topics_impl);
             then {
+                // Collect names of topic fields.
+                let event_fields = cx.tcx.adt_def(event_def_id).all_fields();
+                let topic_fields: FxHashSet<_> = event_fields
+                    .filter_map(|field| is_topic_field(field, cx.tcx).then_some(field.name))
+                    .collect();
                 topics_impl.items.iter().for_each(|impl_item| {
                     if_chain! {
                         // We need to extract field patterns from the event struct matched in the
@@ -205,24 +226,20 @@ impl<'tcx> LateLintPass<'tcx> for PrimitiveTopic {
                         if let ExprKind::Match(_, [Arm { pat: arm_pat, .. }], _) = match_self.kind;
                         if let PatKind::Struct(_, pat_fields, _) = &arm_pat.kind;
                         then {
-                            pat_fields.iter().for_each(|pat_field| {
-                                cx.tcx
-                                  .has_typeck_results(pat_field.hir_id.owner.def_id)
-                                  .then(|| {
-                                        if let TyKind::Ref(_, ty, _) = cx
-                                            .tcx
-                                            .typeck(pat_field.hir_id.owner.def_id)
-                                            .pat_ty(pat_field.pat)
-                                            .kind()
-                                        {
-                                            if is_primitive_number_ty(ty) {
-                                                report_field(cx,
-                                                             event_def_id,
-                                                             pat_field.ident.as_str())
+                            pat_fields
+                                .iter()
+                                .filter(|pat_field| topic_fields.contains(&pat_field.ident.name))
+                                .for_each(|pat_field| {
+                                    cx.tcx.has_typeck_results(pat_field.hir_id.owner.def_id)
+                                        .then(|| {
+                                            let topic_ty = cx.tcx
+                                                .typeck(pat_field.hir_id.owner.def_id)
+                                                .pat_ty(pat_field.pat).peel_refs();
+                                            if is_primitive_number_ty(&topic_ty) {
+                                                report_field(cx, event_def_id, pat_field.ident.as_str())
                                             }
-                                        }
-                                  });
-                            })
+                                        });
+                                })
                         }
                     }
                 })

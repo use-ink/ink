@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Calls a macro upto 12 times with an increasing number of identifiers for each call.
+/// Calls a macro up to 12 times with an increasing number of identifiers for each call.
 ///
 /// # Note
 ///
-/// The callee is typical a macro that implements a trait for tuples.
+/// The callee is a typical macro that implements a trait for tuples.
 ///
 /// We follow the Rust standard library's convention of implementing traits for tuples up
 /// to twelve items long.

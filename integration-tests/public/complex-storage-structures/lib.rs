@@ -3,6 +3,7 @@
 #[ink::contract]
 pub mod complex_structures {
     use ink::storage::{
+        Mapping,
         traits::{
             AutoKey,
             ManualKey,
@@ -10,7 +11,6 @@ pub mod complex_structures {
             StorableHint,
             StorageKey,
         },
-        Mapping,
     };
 
     /// Non-packed type usage

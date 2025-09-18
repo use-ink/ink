@@ -26,6 +26,15 @@ pub trait HashOutput: private::Sealed {
 pub trait CryptoHash: HashOutput + private::Sealed {
     /// Hashes the given raw byte input and copies the result into `output`.
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type);
+
+    /// Hashes the given raw byte input and copies the result into `output`.
+    ///
+    /// Utilizes `buffer`
+    fn hash_with_buffer(
+        input: &[u8],
+        buffer: &mut [u8],
+        output: &mut <Self as HashOutput>::Type,
+    );
 }
 
 /// The SHA-2 crypto hash with 256-bit output.

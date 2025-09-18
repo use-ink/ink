@@ -2,11 +2,11 @@
 name = "own-code-hash"
 version = "4.3.0"
 authors = ["Parity Technologies <admin@parity.io>"]
-edition = "2021"
+edition = "2024"
 publish = false
 
 [dependencies]
-ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
+ink = { path = "../../../crates/ink", default-features = false }
 # todo remove scale in favor of ink::scale
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.5", default-features = false, features = ["derive"], optional = true }

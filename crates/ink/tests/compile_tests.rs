@@ -105,6 +105,12 @@ fn ui_tests_contract_constructor_fail() {
 }
 
 #[test]
+fn ui_tests_contract_event_fail() {
+    let t = trybuild::TestCases::new();
+    t.compile_fail("tests/ui/contract/fail/event/*.rs");
+}
+
+#[test]
 fn ui_tests_contract_impl_fail() {
     let t = trybuild::TestCases::new();
     t.compile_fail("tests/ui/contract/fail/impl/*.rs");
@@ -156,12 +162,6 @@ fn ui_tests_trait_def_pass() {
 fn ui_tests_trait_def_fail() {
     let t = trybuild::TestCases::new();
     t.compile_fail("tests/ui/trait_def/fail/*.rs");
-}
-
-#[test]
-fn ui_tests_chain_extension_pass() {
-    let t = trybuild::TestCases::new();
-    t.pass("tests/ui/chain_extension/E-01-simple.rs");
 }
 
 #[test]
@@ -271,12 +271,21 @@ fn trybuild_wrapper_test(
 ) -> Result<(), ExitStatus> {
     let mut cmd = Command::new(wrapper);
     cmd.args(["trybuild", "--path", path, "--expected", expected]);
+
+    // Override `cargo` path while preserving initial path used by the test command.
     if let Ok(cargo) = env::var("CARGO") {
         cmd.env("TRYBUILD_WRAPPER_CARGO", cargo);
     }
     cmd.env("CARGO", wrapper);
-    let abi_cfg = format!("--cfg\x1fink_abi=\"{abi}\"\x1f--check-cfg\x1fcfg(ink_abi,values(\"ink\",\"sol\",\"all\"))");
+
+    // Set ABI `cfg` flags that will be passed to `cargo` by the `trybuild` wrapper.
+    let abi_cfg = format!(
+        "--cfg\x1fink_abi=\"{abi}\"\x1f--check-cfg\x1fcfg(ink_abi,values(\"ink\",\"sol\",\"all\"))"
+    );
     cmd.env("TRYBUILD_WRAPPER_ENCODED_FLAGS", abi_cfg);
+
+    // Enable `std` and `unstable-hostfn` features (needed by events and metadata tests).
+    cmd.env("TRYBUILD_WRAPPER_CARGO_ARGS", "--features std");
 
     let exit_status = cmd.status().unwrap();
     if !exit_status.success() {

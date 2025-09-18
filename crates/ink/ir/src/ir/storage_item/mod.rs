@@ -18,8 +18,8 @@ use crate::utils::find_storage_key_salt;
 use config::StorageItemConfig;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
-    quote,
     ToTokens,
+    quote,
 };
 use std::collections::HashSet;
 

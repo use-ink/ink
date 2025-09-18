@@ -1,6 +1,6 @@
 [package]
 name = "ink_sandbox"
-version = "6.0.0-alpha.1"
+version = "6.0.0-alpha.4"
 authors = ["Use Ink <ink@use.ink>", "Cardinal Cryptography"]
 edition.workspace = true
 license.workspace = true
@@ -20,6 +20,7 @@ pallet-timestamp = { workspace = true }
 scale = { workspace = true }
 sp-core = { workspace = true }
 sp-externalities = { workspace = true }
+sp-runtime = { workspace = true }
 sp-io = { workspace = true }
 ink_primitives = { workspace = true }
 

@@ -20,15 +20,15 @@
 mod call_builder {
     use constructors_return_value::ConstructorsReturnValueRef;
     use ink::{
+        H256,
         env::{
+            DefaultEnvironment,
             call::{
-                build_call,
                 ExecutionInput,
                 Selector,
+                build_call,
             },
-            DefaultEnvironment,
         },
-        H256,
     };
 
     #[ink(storage)]
@@ -259,7 +259,9 @@ mod call_builder {
             let call_result = client.call(&ink_e2e::bob(), &call).dry_run().await?;
             assert!(call_result.did_revert());
             let err_msg = String::from_utf8_lossy(call_result.return_data());
-            assert!(err_msg.contains("Cross-contract call failed with CouldNotReadInput"));
+            assert!(
+                err_msg.contains("Cross-contract call failed with CouldNotReadInput")
+            );
 
             Ok(())
         }
@@ -423,7 +425,7 @@ mod call_builder {
 
             assert!(
                 matches!(call_result, Some(Ok(_))),
-                "Call to falliable constructor failed, when it should have succeeded."
+                "Call to fallible constructor failed, when it should have succeeded."
             );
 
             Ok(())

@@ -39,8 +39,7 @@ impl GenerateCode for Env<'_> {
             type Hash = <<#storage_ident as ::ink::env::ContractEnv>::Env as ::ink::env::Environment>::Hash;
             type Timestamp = <<#storage_ident as ::ink::env::ContractEnv>::Env as ::ink::env::Environment>::Timestamp;
             type BlockNumber = <<#storage_ident as ::ink::env::ContractEnv>::Env as ::ink::env::Environment>::BlockNumber;
-            type ChainExtension = <<#storage_ident as ::ink::env::ContractEnv>::Env as ::ink::env::Environment>::ChainExtension;
-            const MAX_EVENT_TOPICS: usize = <<#storage_ident as ::ink::env::ContractEnv>::Env as ::ink::env::Environment>::MAX_EVENT_TOPICS;
+            const NATIVE_TO_ETH_RATIO: u32 = <<#storage_ident as ::ink::env::ContractEnv>::Env as ::ink::env::Environment>::NATIVE_TO_ETH_RATIO;
             type EventRecord = <<#storage_ident as ::ink::env::ContractEnv>::Env as ::ink::env::Environment>::EventRecord;
 
             type Address = ::ink::primitives::Address;

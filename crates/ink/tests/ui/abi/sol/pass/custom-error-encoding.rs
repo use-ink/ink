@@ -3,15 +3,18 @@
 use ink::sol::{SolErrorEncode, SolErrorDecode};
 
 // Equivalent to a Solidity custom error with no params.
-#[derive(Debug, PartialEq, Eq, ink::SolErrorDecode, ink::SolErrorEncode)]
+#[derive(Debug, PartialEq, Eq)]
+#[ink::error]
 pub struct UnitError;
 
 // Equivalent to a Solidity custom error with params.
-#[derive(Debug, PartialEq, Eq, ink::SolErrorDecode, ink::SolErrorEncode)]
+#[derive(Debug, PartialEq, Eq)]
+#[ink::error]
 struct ErrorWithParams(bool);
 
 // Equivalent to multiple Solidity custom errors, one for each variant.
-#[derive(Debug, PartialEq, Eq, ink::SolErrorDecode, ink::SolErrorEncode)]
+#[derive(Debug, PartialEq, Eq)]
+#[ink::error]
 pub enum MultipleErrors {
     UnitError,
     ErrorWithParams(bool)
@@ -54,4 +57,15 @@ fn main() {
     assert_eq!(SolErrorEncode::encode(&error), encoded);
     let decoded: MultipleErrors = SolErrorDecode::decode(&encoded).unwrap();
     assert_eq!(error, decoded);
+
+    // Ensures Solidity error metadata is collected.
+    let error_specs = ink::collect_errors_sol();
+    // NOTE: 4 errors, because `MultipleErrors` actually represents 2 errors
+    // (i.e. one for each variant).
+    // We don't deduplicate matching Solidity custom error definitions,
+    // this matches the behavior of `solc`.
+    // Ref: <https://docs.soliditylang.org/en/latest/abi-spec.html#json>
+    assert_eq!(error_specs.len(), 4);
+    assert!(error_specs.iter().any(|error| error.name == "UnitError"));
+    assert!(error_specs.iter().any(|error| error.name == "ErrorWithParams"));
 }

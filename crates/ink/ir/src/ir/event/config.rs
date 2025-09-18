@@ -12,9 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use syn::spanned::Spanned;
+
+use super::SignatureTopic;
 use crate::{
     ast,
-    utils::duplicate_config_err,
+    utils::{
+        duplicate_config_err,
+        extract_name_override,
+    },
 };
 
 /// The configuration arguments to the `#[ink::event(..)]` attribute macro.
@@ -24,18 +30,27 @@ pub struct EventConfig {
     /// If set to `true`, **no** signature topic is generated or emitted for this event.,
     /// This is the default value.
     anonymous: bool,
-
     /// Manually specified signature topic hash.
-    signature_topic_hex: Option<String>,
+    signature_topic: Option<SignatureTopic>,
+    /// An optional event name override.
+    ///
+    /// # Note
+    ///
+    /// - Useful for defining overloaded interfaces.
+    /// - If provided, the name must be a valid "identifier-like" string.
+    name: Option<String>,
 }
 
-impl TryFrom<ast::AttributeArgs> for EventConfig {
-    type Error = syn::Error;
-
-    fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
+impl EventConfig {
+    /// Parse a new [`EventConfig`] from a list of attribute meta items.
+    pub fn parse<I>(args: I) -> Result<Self, syn::Error>
+    where
+        I: Iterator<Item = ast::Meta>,
+    {
         let mut anonymous: Option<syn::Path> = None;
         let mut signature_topic: Option<syn::LitStr> = None;
-        for arg in args.into_iter() {
+        let mut name: Option<syn::LitStr> = None;
+        for arg in args {
             if arg.name().is_ident("anonymous") {
                 if let Some(lit_bool) = anonymous {
                     return Err(duplicate_config_err(lit_bool, arg, "anonymous", "event"));
@@ -74,6 +89,19 @@ impl TryFrom<ast::AttributeArgs> for EventConfig {
                         "expected a string literal value for `signature_topic` ink! event item configuration argument",
                     ));
                 }
+            } else if arg.name().is_ident("name") {
+                if let Some(lit_str) = name {
+                    return Err(duplicate_config_err(lit_str, arg, "name", "event"));
+                }
+
+                if let Some(value) = arg.value() {
+                    name = Some(extract_name_override(value, arg.span())?);
+                } else {
+                    return Err(format_err_spanned!(
+                        arg,
+                        "expected a string literal value for `name` attribute argument"
+                    ));
+                }
             } else {
                 return Err(format_err_spanned!(
                     arg,
@@ -84,17 +112,52 @@ impl TryFrom<ast::AttributeArgs> for EventConfig {
 
         Ok(EventConfig::new(
             anonymous.is_some(),
-            signature_topic.map(|lit_str| lit_str.value()),
+            signature_topic
+                .as_ref()
+                .map(SignatureTopic::try_from)
+                .transpose()?,
+            name.map(|lit_str| lit_str.value()),
         ))
+    }
+}
+
+impl TryFrom<ast::AttributeArgs> for EventConfig {
+    type Error = syn::Error;
+
+    fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
+        Self::parse(args.into_iter())
+    }
+}
+
+impl TryFrom<&[syn::Attribute]> for EventConfig {
+    type Error = syn::Error;
+
+    fn try_from(attrs: &[syn::Attribute]) -> Result<Self, Self::Error> {
+        let mut ink_attrs = Vec::new();
+        for attr in attrs {
+            if !attr.path().is_ident("ink") {
+                continue;
+            }
+            let nested = attr.parse_args_with(
+                syn::punctuated::Punctuated::<ast::Meta, syn::Token![,]>::parse_separated_nonempty,
+            )?;
+            ink_attrs.extend(nested);
+        }
+        Self::parse(ink_attrs.into_iter())
     }
 }
 
 impl EventConfig {
     /// Construct a new [`EventConfig`].
-    pub fn new(anonymous: bool, signature_topic_hex: Option<String>) -> Self {
+    pub fn new(
+        anonymous: bool,
+        signature_topic: Option<SignatureTopic>,
+        name: Option<String>,
+    ) -> Self {
         Self {
             anonymous,
-            signature_topic_hex,
+            signature_topic,
+            name,
         }
     }
 
@@ -104,7 +167,12 @@ impl EventConfig {
     }
 
     /// Returns the manually specified signature topic.
-    pub fn signature_topic_hex(&self) -> Option<&str> {
-        self.signature_topic_hex.as_deref()
+    pub fn signature_topic(&self) -> Option<SignatureTopic> {
+        self.signature_topic
+    }
+
+    /// Returns the event name override (if any).
+    pub fn name(&self) -> Option<&str> {
+        self.name.as_deref()
     }
 }

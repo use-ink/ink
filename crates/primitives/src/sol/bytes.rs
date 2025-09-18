@@ -18,12 +18,12 @@ use core::{
 };
 
 use alloy_sol_types::{
+    SolType as AlloySolType,
     abi::token::{
         PackedSeqToken,
         WordToken,
     },
     sol_data,
-    SolType as AlloySolType,
 };
 use ink_prelude::{
     boxed::Box,
@@ -37,16 +37,21 @@ use scale::{
 use scale_info::TypeInfo;
 
 use crate::sol::{
+    Error,
+    SolDecode,
+    SolEncode,
+    SolTopicEncode,
+    SolTypeDecode,
+    SolTypeEncode,
     encodable::{
         DynSizeDefault,
         FixedSizeDefault,
     },
     types::SolTokenType,
-    Error,
-    SolDecode,
-    SolEncode,
-    SolTypeDecode,
-    SolTypeEncode,
+    utils::{
+        append_non_empty_member_topic_bytes,
+        non_zero_multiple_of_32,
+    },
 };
 
 /// Newtype wrapper for Solidity ABI encoding/decoding `[u8; N]` for `1 <= N <= 32` as
@@ -57,6 +62,16 @@ use crate::sol::{
 #[cfg_attr(feature = "std", derive(TypeInfo))]
 #[repr(transparent)]
 pub struct FixedBytes<const N: usize>(pub [u8; N]);
+
+impl<const N: usize> FixedBytes<N> {
+    /// Converts a reference to `[u8; N]` into a reference to `FixedBytes<N>` (without
+    /// copying).
+    pub fn from_ref(value: &[u8; N]) -> &Self {
+        // SAFETY: `FixedBytes<N>` is `#[repr(transparent)]` for `[u8; N]`,
+        // so converting from `&[u8; N]` to `&FixedBytes<N>` is sound.
+        unsafe { &*value.as_ptr().cast::<Self>() }
+    }
+}
 
 // Implements `SolTypeDecode` and `SolTypeEncode` for `FixedBytes<N>`.
 impl<const N: usize> SolTypeDecode for FixedBytes<N>
@@ -73,7 +88,7 @@ where
         // unpacked to `[u8; N]`.
         // Ref: <https://github.com/alloy-rs/core/blob/5ae4fe0b246239602c97cc5a2f2e4bc780e2024a/crates/sol-types/src/types/data_type.rs#L204-L206>
         Ok(Self(
-            token.0 .0[..N]
+            token.0.0[..N]
                 .try_into()
                 .expect("Expected a slice of N bytes"),
         ))
@@ -94,6 +109,34 @@ where
         let mut word = [0; 32];
         word[..N].copy_from_slice(self.0.as_slice());
         WordToken::from(word)
+    }
+}
+
+impl<const N: usize> SolTopicEncode for FixedBytes<N>
+where
+    sol_data::ByteCount<N>: sol_data::SupportedFixedBytes,
+{
+    fn encode_topic<H>(&self, _: H) -> [u8; 32]
+    where
+        H: Fn(&[u8], &mut [u8; 32]),
+    {
+        self.tokenize().0.0
+    }
+
+    fn topic_preimage(&self, buffer: &mut Vec<u8>) {
+        buffer.extend(self.tokenize().0.0);
+    }
+
+    fn default_topic_preimage(buffer: &mut Vec<u8>) {
+        buffer.extend([0u8; 32]);
+    }
+
+    fn topic_preimage_size(&self) -> usize {
+        Self::default_topic_preimage_size()
+    }
+
+    fn default_topic_preimage_size() -> usize {
+        32
     }
 }
 
@@ -167,8 +210,8 @@ impl<const N: usize> AsRef<[u8; N]> for FixedBytes<N> {
     }
 }
 
-/// Newtype wrapper for Solidity ABI encoding/decoding `Vec<u8>` as dynamic sized byte
-/// sequences.
+/// Newtype wrapper for Solidity ABI encoding/decoding `Vec<u8>` as a dynamic sized byte
+/// sequence.
 ///
 /// Ref: <https://docs.soliditylang.org/en/latest/types.html#bytes-and-string-as-arrays>
 #[derive(Debug, Clone, PartialEq, Eq, Default, Encode, Decode)]
@@ -180,6 +223,16 @@ impl DynBytes {
     /// Constructs new empty `DynBytes` without allocating.
     pub const fn new() -> Self {
         Self(Vec::new())
+    }
+}
+
+impl DynBytes {
+    /// Converts a reference to `Vec<u8>` into a reference to `DynBytes` (without
+    /// copying).
+    pub fn from_ref(value: &Vec<u8>) -> &Self {
+        // SAFETY: `DynBytes` is `#[repr(transparent)]` for `Vec<u8>`,
+        // so converting from `&Vec<u8>` to `&DynBytes` is sound.
+        unsafe { &*(value as *const Vec<u8>).cast::<Self>() }
     }
 }
 
@@ -206,6 +259,33 @@ impl SolTypeEncode for DynBytes {
         // Direct implementation simplifies generic implementations by removing
         // requirement for `SolTypeValue<Self::AlloyType>`.
         PackedSeqToken(self.0.as_slice())
+    }
+}
+
+impl SolTopicEncode for DynBytes {
+    fn encode_topic<H>(&self, hasher: H) -> [u8; 32]
+    where
+        H: Fn(&[u8], &mut [u8; 32]),
+    {
+        let mut output = [0u8; 32];
+        hasher(self.0.as_slice(), &mut output);
+        output
+    }
+
+    fn topic_preimage(&self, buffer: &mut Vec<u8>) {
+        append_non_empty_member_topic_bytes(self.0.as_slice(), buffer);
+    }
+
+    fn default_topic_preimage(buffer: &mut Vec<u8>) {
+        buffer.extend([0u8; 32]);
+    }
+
+    fn topic_preimage_size(&self) -> usize {
+        non_zero_multiple_of_32(self.0.len())
+    }
+
+    fn default_topic_preimage_size() -> usize {
+        32
     }
 }
 
@@ -265,5 +345,103 @@ impl Borrow<[u8]> for DynBytes {
 impl AsRef<[u8]> for DynBytes {
     fn as_ref(&self) -> &[u8] {
         &self.0
+    }
+}
+
+/// Newtype wrapper for Solidity ABI encoding a byte slice (i.e. `&[u8]`) as a
+/// dynamic sized byte sequence.
+///
+/// # Note
+///
+/// Only encoding is implemented for this type, see [`DynBytes`] for an equivalent "owned"
+/// representation that supports both encoding and decoding.
+///
+/// Ref: <https://docs.soliditylang.org/en/latest/types.html#bytes-and-string-as-arrays>
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Encode)]
+#[cfg_attr(feature = "std", derive(TypeInfo))]
+#[repr(transparent)]
+pub struct ByteSlice<'a>(pub &'a [u8]);
+
+// Implements `SolTypeEncode` for `ByteSlice`.
+impl SolTypeEncode for ByteSlice<'_> {
+    type AlloyType = sol_data::Bytes;
+
+    const DEFAULT_VALUE: Self::DefaultType = DynSizeDefault;
+
+    fn tokenize(&self) -> Self::TokenType<'_> {
+        // Direct implementation simplifies generic implementations by removing
+        // requirement for `SolTypeValue<Self::AlloyType>`.
+        PackedSeqToken(self.0)
+    }
+}
+
+impl SolTopicEncode for ByteSlice<'_> {
+    fn encode_topic<H>(&self, hasher: H) -> [u8; 32]
+    where
+        H: Fn(&[u8], &mut [u8; 32]),
+    {
+        let mut output = [0u8; 32];
+        hasher(self.0, &mut output);
+        output
+    }
+
+    fn topic_preimage(&self, buffer: &mut Vec<u8>) {
+        append_non_empty_member_topic_bytes(self.0, buffer);
+    }
+
+    fn default_topic_preimage(buffer: &mut Vec<u8>) {
+        buffer.extend([0u8; 32]);
+    }
+
+    fn topic_preimage_size(&self) -> usize {
+        non_zero_multiple_of_32(self.0.len())
+    }
+
+    fn default_topic_preimage_size() -> usize {
+        32
+    }
+}
+
+impl SolTokenType for ByteSlice<'_> {
+    type TokenType<'enc> = PackedSeqToken<'enc>;
+
+    type DefaultType = DynSizeDefault;
+}
+
+impl crate::sol::types::private::Sealed for ByteSlice<'_> {}
+
+// Implements `SolEncode` for `ByteSlice`.
+impl<'a> SolEncode<'a> for ByteSlice<'a> {
+    type SolType = &'a ByteSlice<'a>;
+
+    fn to_sol_type(&'a self) -> Self::SolType {
+        self
+    }
+}
+
+// Implements core/standard traits for cheap representations as the inner type.
+impl<'a> From<&'a [u8]> for ByteSlice<'a> {
+    fn from(value: &'a [u8]) -> Self {
+        Self(value)
+    }
+}
+
+impl Deref for ByteSlice<'_> {
+    type Target = [u8];
+
+    fn deref(&self) -> &Self::Target {
+        self.0
+    }
+}
+
+impl Borrow<[u8]> for ByteSlice<'_> {
+    fn borrow(&self) -> &[u8] {
+        self.0
+    }
+}
+
+impl AsRef<[u8]> for ByteSlice<'_> {
+    fn as_ref(&self) -> &[u8] {
+        self.0
     }
 }

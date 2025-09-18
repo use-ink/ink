@@ -24,9 +24,9 @@ use quote::{
     quote_spanned,
 };
 use syn::{
-    spanned::Spanned,
     Attribute,
     Type,
+    spanned::Spanned,
 };
 
 /// Returns the equivalent Solidity ABI type for the given Rust/ink! type.
@@ -41,17 +41,21 @@ pub fn sol_type(ty: &Type) -> TokenStream2 {
 /// # Note
 ///
 /// Use this function (instead of [`sol_type`]) when return type may be `Result<T, E>`,
-/// because `Result<T, E>` implements `ink::SolEncode` but doesn't implement
-/// `ink::SolDecode`.
+/// because `Result<T, E>` doesn't implement `ink::SolEncode` nor `ink::SolDecode`,
+/// but instead implements `ink::sol::SolResultEncode` and `ink::sol::SolResultDecode`.
 pub fn sol_return_type(ty: &Type) -> TokenStream2 {
     quote! {
-        <#ty as ::ink::SolEncode>::SOL_NAME
+        <#ty as ::ink::sol::SolResultEncode>::SOL_NAME
     }
 }
 
 /// Returns Solidity ABI compatible selector of an ink! message.
 pub fn selector(message: &Message) -> TokenStream2 {
-    let signature = call_signature(message.ident().to_string(), message.inputs());
+    let name = message
+        .name()
+        .map(ToString::to_string)
+        .unwrap_or_else(|| message.ident().to_string());
+    let signature = call_signature(name, message.inputs());
     quote! {
         const {
             ::ink::codegen::sol::selector_bytes(#signature)

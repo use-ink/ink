@@ -64,11 +64,13 @@ static mut MEMORY: Option<SyncUnsafeCell<BumpMemory>> = None;
 unsafe impl GlobalAlloc for BumpAllocator {
     #[allow(static_mut_refs)]
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        if MEMORY.is_none() {
-            MEMORY = Some(SyncUnsafeCell::new(BumpMemory {
-                buffer: [0; 1024 * 1024],
-                offset: 0,
-            }));
+        unsafe {
+            if MEMORY.is_none() {
+                MEMORY = Some(SyncUnsafeCell::new(BumpMemory {
+                    buffer: [0; 1024 * 1024],
+                    offset: 0,
+                }));
+            }
         }
         let memory = unsafe { &mut *MEMORY.as_ref().unwrap().get() };
         let start = memory.offset;

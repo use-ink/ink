@@ -3,8 +3,8 @@
 #[ink::contract]
 mod dns {
     use ink::{
-        storage::Mapping,
         H256,
+        storage::Mapping,
     };
 
     /// Emitted whenever a new name is being registered.

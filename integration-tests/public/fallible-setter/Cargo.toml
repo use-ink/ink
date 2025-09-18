@@ -1,0 +1,27 @@
+[package]
+name = "fallible-setter"
+version = "6.0.0-alpha.4"
+authors = ["Use Ink <ink@use.ink>"]
+edition = "2024"
+publish = false
+
+[dependencies]
+ink = { path = "../../../crates/ink", default-features = false }
+
+[dev-dependencies]
+ink_e2e = { path = "../../../crates/e2e" }
+hex = { version = "0.4.3" }
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+]
+ink-as-dependency = []
+e2e-tests = []
+
+[package.metadata.ink-lang]
+abi = "sol"

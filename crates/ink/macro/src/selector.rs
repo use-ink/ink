@@ -14,11 +14,11 @@
 
 use ink_codegen::generate_code;
 use ink_ir::{
+    SelectorMacro,
     marker::{
         SelectorBytes,
         SelectorId,
     },
-    SelectorMacro,
 };
 use proc_macro2::TokenStream as TokenStream2;
 use syn::Result;

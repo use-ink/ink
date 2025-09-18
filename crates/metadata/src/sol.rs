@@ -32,6 +32,8 @@ pub struct ContractMetadata {
     pub functions: Vec<FunctionMetadata>,
     /// Metadata for all events of ink! contract.
     pub events: Vec<EventMetadata>,
+    /// Metadata for all errors encoded as Solidity custom errors for ink! contract.
+    pub errors: Vec<ErrorMetadata>,
     /// Documentation for ink! contract.
     pub docs: Cow<'static, str>,
 }
@@ -103,4 +105,40 @@ pub struct EventParamMetadata {
     pub is_topic: bool,
     /// Documentation for parameter.
     pub docs: Cow<'static, str>,
+}
+
+/// Error info for Solidity ABI compatible metadata generation.
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ErrorMetadata {
+    /// Name of error.
+    pub name: Cow<'static, str>,
+    /// Parameter info for error.
+    pub params: Vec<ErrorParamMetadata>,
+    /// Documentation for error or error variant.
+    pub docs: Cow<'static, str>,
+}
+
+/// Error parameter info.
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ErrorParamMetadata {
+    /// Name of parameter.
+    pub name: Cow<'static, str>,
+    /// Solidity ABI type of parameter.
+    pub ty: Cow<'static, str>,
+    /// Documentation for parameter.
+    pub docs: Cow<'static, str>,
+}
+
+/// Provides [Solidity custom error metadata][abi-json] for an error type.
+///
+/// # Note
+///
+/// For enums, each variant typically corresponds to its own
+/// [Solidity custom error][sol-error] type.
+///
+/// [abi-json]: https://docs.soliditylang.org/en/latest/abi-spec.html#json
+/// [sol-error]: https://soliditylang.org/blog/2021/04/21/custom-errors/
+pub trait SolErrorMetadata {
+    /// Returns the metadata for the error type.
+    fn error_specs() -> Vec<ErrorMetadata>;
 }

@@ -2,10 +2,10 @@
 name = "trybuild_wrapper"
 version = "0.1.0"
 authors = ["David Semakula <hello@davidsemakula.com>", "Use Ink <ink@use.ink>"]
-edition = "2021"
+edition = "2024"
 
 [dependencies]
-trybuild = { version = "1.0.102", features = ["diff"] }
+trybuild = { version = "1.0.110", features = ["diff"] }
 clap = {version = "4.5.32", features = ["derive"]}
 toml = "0.8.20"
 

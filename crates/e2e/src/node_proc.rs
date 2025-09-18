@@ -26,9 +26,9 @@ use std::{
     process,
 };
 use subxt::{
-    backend::rpc::RpcClient,
     Config,
     OnlineClient,
+    backend::rpc::RpcClient,
 };
 
 /// Spawn a local substrate node for testing.
@@ -246,8 +246,8 @@ fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
 mod tests {
     use super::*;
     use subxt::{
-        backend::legacy::LegacyRpcMethods,
         PolkadotConfig as SubxtConfig,
+        backend::legacy::LegacyRpcMethods,
     };
 
     #[tokio::test]

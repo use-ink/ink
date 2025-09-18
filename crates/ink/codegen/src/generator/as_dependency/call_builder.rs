@@ -24,9 +24,9 @@ use quote::{
 use syn::spanned::Spanned as _;
 
 use crate::{
+    GenerateCode,
     generator,
     generator::sol,
-    GenerateCode,
 };
 
 /// Generates code for the call builder of the ink! smart contract.
@@ -452,13 +452,23 @@ impl CallBuilder<'_> {
             .map(quote::ToTokens::to_token_stream)
             .unwrap_or_else(|| quote::quote! { () });
         let output_span = return_type.span();
-        let (selector_bytes, abi_ty) = match abi {
+        let (selector_bytes, abi_ty, build_call_fn) = match abi {
             Abi::Ink => {
                 let selector = message.composed_selector();
                 let selector_bytes = selector.hex_lits();
-                (quote!([ #( #selector_bytes ),* ]), quote!(::ink::abi::Ink))
+                (
+                    quote!([ #( #selector_bytes ),* ]),
+                    quote!(::ink::abi::Ink),
+                    quote!(build_call_ink),
+                )
             }
-            Abi::Sol => (sol::utils::selector(&message), quote!(::ink::abi::Sol)),
+            Abi::Sol => {
+                (
+                    sol::utils::selector(&message),
+                    quote!(::ink::abi::Sol),
+                    quote!(build_call_sol),
+                )
+            }
         };
         let arg_list = generator::generate_argument_list(
             input_types.iter().cloned(),
@@ -480,7 +490,7 @@ impl CallBuilder<'_> {
                 & #mut_tok self
                 #( , #input_bindings : #input_types )*
             ) -> #output_type {
-                ::ink::env::call::build_call_abi::<Environment, #abi_ty>()
+                ::ink::env::call::#build_call_fn::<Environment>()
                     .call(::ink::ToAddr::to_addr(self))
                     .exec_input(
                         ::ink::env::call::ExecutionInput::new(

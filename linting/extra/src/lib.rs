@@ -23,6 +23,7 @@ dylint_linting::dylint_library!();
 
 extern crate rustc_ast;
 extern crate rustc_errors;
+extern crate rustc_hash;
 extern crate rustc_hir;
 extern crate rustc_index;
 extern crate rustc_lint;
@@ -38,7 +39,7 @@ mod storage_never_freed;
 mod strict_balance_equality;
 
 #[doc(hidden)]
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub fn register_lints(
     _sess: &rustc_session::Session,
     lint_store: &mut rustc_lint::LintStore,

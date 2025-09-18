@@ -34,7 +34,10 @@ use {
     scale_info::TypeInfo,
 };
 
-use crate::arithmetic::AtLeast32BitUnsigned;
+use crate::arithmetic::{
+    AtLeast32BitUnsigned,
+    Saturating,
+};
 
 /// The default environment `AccountId` type.
 ///
@@ -195,6 +198,7 @@ impl Clear for Hash {
     }
 }
 
+// todo
 // impl Clear for H256 {
 // const CLEAR_HASH: Self = H256::CLEAR_HASH;
 //
@@ -317,12 +321,14 @@ cfg_if::cfg_if! {
 }
 
 /// The environmental types usable by contracts defined with ink!.
+///
+/// The types and consts in this trait must be the same as the chain to which
+/// the contract is deployed to. We have a mechanism in `cargo-contract` that
+/// attempts to check for type equality, but not everything can be compared.
 pub trait Environment: Clone {
-    /// The maximum number of supported event topics provided by the runtime.
-    ///
-    /// The value must match the maximum number of supported event topics of the used
-    /// runtime.
-    const MAX_EVENT_TOPICS: usize;
+    /// The ratio between the decimal representation of the native `Balance` token
+    /// and the ETH token.
+    const NATIVE_TO_ETH_RATIO: u32;
 
     /// The account id type.
     type AccountId: 'static
@@ -345,6 +351,7 @@ pub trait Environment: Clone {
         + PartialEq
         + Eq
         + AtLeast32BitUnsigned
+        + Into<U256>
         + FromLittleEndian;
 
     /// The type of hash.
@@ -383,22 +390,24 @@ pub trait Environment: Clone {
         + AtLeast32BitUnsigned
         + FromLittleEndian;
 
-    /// The chain extension for the environment.
-    ///
-    /// This is a type that is defined through the `#[ink::chain_extension]` procedural
-    /// macro. For more information about usage and definition click
-    /// [this][chain_extension] link.
-    ///
-    /// [chain_extension]: https://use-ink.github.io/ink/ink/attr.chain_extension.html
-    type ChainExtension;
-
     /// TODO comment
     type EventRecord: 'static + scale::Codec;
-}
 
-/// Placeholder for chains that have no defined chain extension.
-#[cfg_attr(feature = "std", derive(TypeInfo))]
-pub enum NoChainExtension {}
+    /// Converts from the generic `Balance` type to the Ethereum native `U256`.
+    ///
+    /// # Developer Note
+    ///
+    /// `pallet-revive` uses both types, hence we have to convert in between them
+    /// for certain functions. Notice that precision loss might occur when converting
+    /// the other way (from `U256` to `Balance`).
+    ///
+    /// See <https://github.com/paritytech/polkadot-sdk/pull/9101> for more details.
+    fn native_to_eth(value: Self::Balance) -> U256 {
+        value
+            .saturating_mul(Self::NATIVE_TO_ETH_RATIO.into())
+            .into()
+    }
+}
 
 /// The fundamental types of the default configuration.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -406,14 +415,16 @@ pub enum NoChainExtension {}
 pub enum DefaultEnvironment {}
 
 impl Environment for DefaultEnvironment {
-    const MAX_EVENT_TOPICS: usize = 4;
+    // This number was chosen as it's also what `pallet-revive`
+    // chooses by default. It's also the number present in the
+    // `ink_sandbox` and the `ink-node`.
+    const NATIVE_TO_ETH_RATIO: u32 = 100_000_000;
 
     type AccountId = AccountId;
     type Balance = Balance;
     type Hash = Hash;
     type Timestamp = Timestamp;
     type BlockNumber = BlockNumber;
-    type ChainExtension = NoChainExtension;
     type EventRecord = EventRecord;
 }
 
@@ -467,6 +478,7 @@ pub enum Origin<E: Environment> {
     Signed(E::AccountId),
 }
 
+/// Copied from `pallet-revive`.
 pub struct AccountIdMapper {}
 impl AccountIdMapper {
     pub fn to_address(account_id: &[u8]) -> Address {
@@ -490,7 +502,6 @@ impl AccountIdMapper {
     /// it is theoretically possible to create an ed25519 keypair that passed this
     /// filter. However, this can't be used for an attack. It also won't happen by
     /// accident since everybody is using sr25519 where this is not a valid public key.
-    //fn is_eth_derived(account_id: &[u8]) -> bool {
     fn is_eth_derived(account_bytes: &[u8]) -> bool {
         account_bytes[20..] == [0xEE; 12]
     }

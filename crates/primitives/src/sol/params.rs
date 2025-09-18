@@ -13,28 +13,28 @@
 // limitations under the License.
 
 use alloy_sol_types::{
+    SolType as AlloySolType,
     abi::{
         self,
         Encoder,
     },
-    SolType as AlloySolType,
 };
 use impl_trait_for_tuples::impl_for_tuples;
 use ink_prelude::vec::Vec;
 
 use super::{
-    encodable::{
-        Encodable,
-        EncodableParams,
-    },
     Error,
     SolDecode,
     SolEncode,
     SolTypeDecode,
     SolTypeEncode,
+    encodable::{
+        Encodable,
+        EncodableParams,
+    },
 };
 
-/// Solidity ABI decode function parameters.
+/// Solidity ABI decode from parameter data (e.g. function, event or error parameters).
 ///
 /// # Note
 ///
@@ -43,11 +43,12 @@ pub trait SolParamsDecode: SolDecode + Sized + private::Sealed {
     /// Name of equivalent Solidity ABI type.
     const SOL_NAME: &'static str = <Self as SolDecode>::SOL_NAME;
 
-    /// Solidity ABI decode function parameters into this type.
+    /// Solidity ABI decode parameter data into this type.
     fn decode(data: &[u8]) -> Result<Self, Error>;
 }
 
-/// Solidity ABI encode function parameters.
+/// Solidity ABI encode as a parameter sequence (e.g. function, event or error
+/// parameters).
 ///
 /// # Note
 ///
@@ -56,14 +57,14 @@ pub trait SolParamsEncode<'a>: SolEncode<'a> + private::Sealed {
     /// Name of equivalent Solidity ABI type.
     const SOL_NAME: &'static str = <Self as SolEncode<'a>>::SOL_NAME;
 
-    /// Solidity ABI encode the value as function parameters.
+    /// Solidity ABI encode the value as a parameter sequence.
     fn encode(&'a self) -> Vec<u8>;
 }
 
 // We follow the Rust standard library's convention of implementing traits for tuples up
 // to twelve items long.
 // Ref: <https://doc.rust-lang.org/std/primitive.tuple.html#trait-implementations>
-#[impl_for_tuples(12)]
+#[impl_for_tuples(1, 12)]
 #[tuple_types_custom_trait_bound(SolDecode)]
 impl SolParamsDecode for Tuple {
     fn decode(data: &[u8]) -> Result<Self, Error> {
@@ -88,7 +89,14 @@ impl<'a> SolParamsEncode<'a> for Tuple {
     }
 }
 
-// Optimized implementation for unit (i.e. `()`).
+// Optimized implementations for unit (i.e. `()`).
+impl SolParamsDecode for () {
+    fn decode(_: &[u8]) -> Result<Self, Error> {
+        // NOTE: Solidity ABI decoding doesn't validate input length.
+        Ok(())
+    }
+}
+
 impl SolParamsEncode<'_> for () {
     fn encode(&self) -> Vec<u8> {
         Vec::new()

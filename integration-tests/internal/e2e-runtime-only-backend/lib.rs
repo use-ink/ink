@@ -37,22 +37,16 @@ pub mod flipper {
         pub fn get_contract_balance(&self) -> ink::U256 {
             self.env().balance()
         }
-
-        /// todo
-        /// Returns the `AccountId` of this contract.
-        #[ink(message)]
-        pub fn account_id(&mut self) -> AccountId {
-            self.env().account_id()
-        }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink::env::Environment;
         use ink_e2e::{
-            subxt::dynamic::Value,
             ChainBackend,
             ContractsBackend,
+            subxt::dynamic::Value,
         };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -117,15 +111,6 @@ pub mod flipper {
                 .expect("deploy failed");
             let mut call_builder = contract.call_builder::<Flipper>();
 
-            // todo
-            let acc = call_builder.account_id();
-            let call_res = client
-                .call(&ink_e2e::alice(), &acc)
-                .submit()
-                .await
-                .expect("call failed");
-            let account_id: AccountId = call_res.return_value();
-
             let old_balance = client
                 .call(&ink_e2e::alice(), &call_builder.get_contract_balance())
                 .submit()
@@ -137,9 +122,7 @@ pub mod flipper {
 
             // when
             let call_data = vec![
-                // todo addr
-                Value::unnamed_variant("Id", [Value::from_bytes(account_id)]),
-                // todo check next line
+                Value::unnamed_variant("Id", [Value::from_bytes(contract.account_id)]),
                 Value::u128(ENDOWMENT),
             ];
             client
@@ -160,10 +143,8 @@ pub mod flipper {
                 .expect("get_contract_balance failed")
                 .return_value();
 
-            // todo make `NativeToEthRatio` part of  the `Environment`
-            #[allow(non_upper_case_globals)]
-            const NativeToEthRatio: u128 = 100_000_000;
-            assert_eq!(old_balance + (ENDOWMENT * NativeToEthRatio), new_balance);
+            let endowment_u256 = ink::env::DefaultEnvironment::native_to_eth(ENDOWMENT);
+            assert_eq!(old_balance + endowment_u256, new_balance);
             Ok(())
         }
 

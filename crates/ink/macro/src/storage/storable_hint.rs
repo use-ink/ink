@@ -15,13 +15,13 @@
 use ink_ir::utils::find_storage_key_salt;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
+    ToTokens,
     format_ident,
     quote,
-    ToTokens,
 };
 use syn::{
-    parse2,
     GenericParam,
+    parse2,
 };
 
 fn storable_hint_inner(s: synstructure::Structure) -> TokenStream2 {

@@ -7,6 +7,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [Unreleased]
 
 ### Added
+- Implements the API for the `pallet-revive` host function `to_account_id` - [#2578](https://github.com/use-ink/ink/pull/2578)
+
+### Changed
+- Marks the `pallet-revive` host function `account_id` stable - [#2578](https://github.com/use-ink/ink/pull/2578)
+
+## Version 6.0.0-alpha.4
+
+### Added
+- Add integration test for arithmetic overflow checks - [#2631](https://github.com/use-ink/ink/pull/2631)
+- E2E: Misc quality of life improvements, new API functions, better debuggability ‒ [2634](https://github.com/use-ink/ink/pull/2634)
+
+### Changed
+- Error on message and constructor `selector` overrides in Solidity ABI mode - [#2638](https://github.com/use-ink/ink/pull/2638)
+- Improve abstractions for Solidity ABI encoding `Result` types - [#2635](https://github.com/use-ink/ink/pull/2635)
+- Feature gate `xcm` - [#2641](https://github.com/use-ink/ink/pull/2641)
+- Refactor multi ABI interfaces for event emission via `ink_env` - [#2643](https://github.com/use-ink/ink/pull/2643)
+
+### Fixed
+- Bring intended panic handler behavior back ‒ [2636](https://github.com/use-ink/ink/pull/2636)
+- Support `name` attribute in trait definitions - [#2644](https://github.com/use-ink/ink/pull/2644)
+
+## Version 6.0.0-alpha.3
+
+Compatibility of this release:
+
+* Rust >= 1.88
+* [`cargo-contract` `v6.0.0-alpha.3`](https://github.com/use-ink/cargo-contract/releases/tag/v6.0.0-alpha.3)
+* [`ink-node` `v0.45.1`](https://github.com/use-ink/ink-node/releases/tag/v0.45.1)
+* [`polkadot-sdk` from `use-ink/polkadot-sdk/a71ec19a94702ea71767ba5ac97603ea6c6305c1`](https://github.com/use-ink/polkadot-sdk/tree/pallet-revive-with-system-and-storage-precompiles)
+
+We have to use a slight fork of `polkadot-sdk` for the moment. It's just `polkadot-sdk/master` plus two
+commits on top with pre-compiles. Those two commits are PRs to `polkadot-sdk`. but haven't been merged yet.
+
+### Added
+- Support functions of the `Storage` and `System` pre-compiles ‒ [2619](https://github.com/use-ink/ink/pull/2619)
+
+### Changed
+- Synchronize with `polkadot-sdk/c40b36c3a7c208f9a6837b80812473af3d9ba7f7` ‒ [2589](https://github.com/use-ink/ink/pull/2589)
+- Synchronize with `polkadot-sdk/a71ec19a94702ea71767ba5ac97603ea6c6305c1` ‒ [2619](https://github.com/use-ink/ink/pull/2619)
+- Refactor multi ABI interfaces - [#2618](https://github.com/use-ink/ink/pull/2618)
+- Upgrade to Rust edition 2024 - [#2624](https://github.com/use-ink/ink/pull/2624)
+
+### Removed
+- Removed functionalities around calling into the runtime and chain extensions ‒ [2621](https://github.com/use-ink/ink/pull/2621)
+- Remove `Environment::MAX_EVENT_TOPICS` and remove `Environment` generic type from event abstractions - [#2622](https://github.com/use-ink/ink/pull/2622)
+
+### Fixed
+- E2E: Fixes around correct handling of storage deposit limit ‒ [#2589](https://github.com/use-ink/ink/pull/2589)
+- Make `NativeToEthRatio` part of the `Environment` ‒ [#2604](https://github.com/use-ink/ink/pull/2604)
+- E2E: Fix `ink_sandbox` gating - [#2626](https://github.com/use-ink/ink/pull/2626)
+
+## Version 6.0.0-alpha.1
+
+### Added
 - Support ABI `cfg` flag in codegen - [#2501](https://github.com/use-ink/ink/pull/2501)
 - Generate Solidity ABI compatibility metadata - [#2510](https://github.com/use-ink/ink/pull/2510)
 - Improve Solidity ABI support in `codegen`, `ink_env` and `ink_e2e` - [#2517](https://github.com/use-ink/ink/pull/2517)
@@ -18,14 +72,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improve handling of Solidity constructor return and revert data - [#2552](https://github.com/use-ink/ink/pull/2552)
 - Implement `SolEncode` and `SolDecode` for `Option<T>` - [#2545](https://github.com/use-ink/ink/pull/2545)
 - Allow writing E2E fuzz tests for contracts - [#2570](https://github.com/use-ink/ink/pull/2570)
-- Implements the API for the `pallet-revive` host function `to_account_id` - [#2578](https://github.com/use-ink/ink/pull/2578)
+- Item name/identifier overrides for overloading, selector computation and metadata - [#2577](https://github.com/use-ink/ink/pull/2577)
+- Add custom errors to Solidity compatible metadata - [#2583](https://github.com/use-ink/ink/pull/2583)
+- Efficient conversions and representations for byte sequence references for Solidity ABI encoding/decoding - [#2590](https://github.com/use-ink/ink/pull/2590)
+- Add `#[ink::error]` attribute macro - [#2585](https://github.com/use-ink/ink/pull/2585)
 
 ### Changed
 - Use marker trait for finding ink! storage `struct` during code analysis - [2499](https://github.com/use-ink/ink/pull/2499)
 - Solidity ABI compatibility metadata improvements - [#2511](https://github.com/use-ink/ink/pull/2511)
 - Share intermediate build artifacts across all contract builds in e2e tests - [#2531](https://github.com/use-ink/ink/pull/2531)
 - Refactor Solidity bytes wrapper(s) - [#2569](https://github.com/use-ink/ink/pull/2569)
-- Marks the `pallet-revive` host function `account_id` stable - [#2578](https://github.com/use-ink/ink/pull/2578)
+- Refactor events for `pallet-revive` and multiple ABI support - [#2580](https://github.com/use-ink/ink/pull/2580)
 
 ### Fixed
 - Update metadata version to version 6 ‒ [#2507](https://github.com/use-ink/ink/pull/2507)

@@ -13,11 +13,11 @@
 // limitations under the License.
 
 use super::{
-    ensure_callable_invariants,
     Callable,
     CallableKind,
     InputsIter,
     Visibility,
+    ensure_callable_invariants,
 };
 use crate::ir::{
     self,
@@ -112,6 +112,13 @@ pub struct Message {
     /// This overrides the computed selector, even when using a manual namespace
     /// for the parent implementation block.
     selector: Option<SelectorOrWildcard>,
+    /// An optional function name override.
+    ///
+    /// # Note
+    ///
+    /// - Useful for defining overloaded interfaces.
+    /// - If provided, the name must be a valid "identifier-like" string.
+    name: Option<String>,
 }
 
 impl quote::ToTokens for Message {
@@ -162,13 +169,13 @@ impl Message {
         match &method_item.sig.output {
             syn::ReturnType::Default => (),
             syn::ReturnType::Type(_arrow, ret_type) => {
-                if let syn::Type::Path(type_path) = &**ret_type {
-                    if type_path.path.is_ident("Self") {
-                        return Err(format_err!(
-                            ret_type,
-                            "ink! messages must not return `Self`"
-                        ))
-                    }
+                if let syn::Type::Path(type_path) = &**ret_type
+                    && type_path.path.is_ident("Self")
+                {
+                    return Err(format_err!(
+                        ret_type,
+                        "ink! messages must not return `Self`"
+                    ))
                 }
             }
         }
@@ -190,7 +197,8 @@ impl Message {
                     ir::AttributeArg::Message
                     | ir::AttributeArg::Payable
                     | ir::AttributeArg::Default
-                    | ir::AttributeArg::Selector(_) => Ok(()),
+                    | ir::AttributeArg::Selector(_)
+                    | ir::AttributeArg::Name(_) => Ok(()),
                     _ => Err(None),
                 }
             },
@@ -211,6 +219,7 @@ impl TryFrom<syn::ImplItemFn> for Message {
         let is_payable = ink_attrs.is_payable();
         let is_default = ink_attrs.is_default();
         let selector = ink_attrs.selector();
+        let name = ink_attrs.name();
         // Ensures that immutable messages are NOT payable.
         if is_payable && self_ref_receiver.mutability.is_none() {
             return Err(format_err!(
@@ -218,10 +227,21 @@ impl TryFrom<syn::ImplItemFn> for Message {
                 "ink! messages with a `payable` attribute argument must have a `&mut self` receiver",
             ));
         }
+        #[cfg(ink_abi = "sol")]
+        if selector.is_some() {
+            let selector_span = ink_attrs.args().find_map(|arg| {
+                matches!(arg.kind(), ir::AttributeArg::Selector(_)).then_some(arg.span())
+            });
+            return Err(format_err!(
+                selector_span.unwrap_or_else(|| method_item.span()),
+                "message `selector` attributes are not supported in Solidity ABI compatibility mode",
+            ));
+        }
         Ok(Self {
             is_payable,
             is_default,
             selector,
+            name,
             item: syn::ImplItemFn {
                 attrs: other_attrs,
                 ..method_item
@@ -280,6 +300,10 @@ impl Callable for Message {
 
     fn statements(&self) -> &[syn::Stmt] {
         &self.item.block.stmts
+    }
+
+    fn name(&self) -> Option<&str> {
+        self.name.as_deref()
     }
 }
 
@@ -352,6 +376,11 @@ impl Message {
     /// Returns the identifier of the message with an additional `try_` prefix attached.
     pub fn try_ident(&self) -> Ident {
         quote::format_ident!("try_{}", self.ident())
+    }
+
+    /// Returns the function name override (if any).
+    pub fn name(&self) -> Option<&str> {
+        self.name.as_deref()
     }
 }
 
@@ -535,6 +564,32 @@ mod tests {
                 .unwrap()
                 .is_default();
             assert_eq!(is_default, expect_default);
+        }
+    }
+
+    #[test]
+    fn name_override_works() {
+        let test_inputs: Vec<(Option<&str>, syn::ImplItemFn)> = vec![
+            // No name override.
+            (
+                None,
+                syn::parse_quote! {
+                    #[ink(message)]
+                    fn my_message(&self) {}
+                },
+            ),
+            // Name override.
+            (
+                Some("myMessage"),
+                syn::parse_quote! {
+                    #[ink(message, name = "myMessage")]
+                    pub fn my_message(&mut self) {}
+                },
+            ),
+        ];
+        for (expected_name, item_method) in test_inputs {
+            let message = <ir::Message as TryFrom<_>>::try_from(item_method).unwrap();
+            assert_eq!(message.name(), expected_name);
         }
     }
 

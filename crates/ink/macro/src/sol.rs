@@ -24,5 +24,6 @@ pub use self::{
     error::{
         sol_error_decode_derive,
         sol_error_encode_derive,
+        sol_error_metadata_derive,
     },
 };

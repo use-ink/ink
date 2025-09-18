@@ -38,11 +38,7 @@ impl SolErrorDecode for () {
     where
         Self: Sized,
     {
-        if data.is_empty() {
-            Ok(())
-        } else {
-            Err(Error)
-        }
+        if data.is_empty() { Ok(()) } else { Err(Error) }
     }
 }
 

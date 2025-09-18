@@ -18,7 +18,6 @@
 //! for more information.
 
 use crate::{
-    chain_extension::ChainExtensionHandler,
     database::Database,
     exec_context::ExecContext,
     test_api::{
@@ -33,7 +32,6 @@ use ink_primitives::{
     U256,
 };
 pub use pallet_revive_uapi::ReturnErrorCode as Error;
-use scale::Encode;
 use std::panic::panic_any;
 
 /// The off-chain engine.
@@ -48,8 +46,6 @@ pub struct Engine {
     pub(crate) debug_info: DebugInfo,
     /// The chain specification.
     pub chain_spec: ChainSpec,
-    /// Handler for registered chain extensions.
-    pub chain_extension_handler: ChainExtensionHandler,
 }
 
 /// The chain specification.
@@ -81,14 +77,13 @@ impl Default for ChainSpec {
 }
 
 impl Engine {
-    // Creates a new `Engine instance.
+    // Creates a new `Engine` instance.
     pub fn new() -> Self {
         Self {
             database: Database::new(),
             exec_context: ExecContext::new(),
             debug_info: DebugInfo::new(),
             chain_spec: ChainSpec::default(),
-            chain_extension_handler: ChainExtensionHandler::new(),
         }
     }
 }
@@ -123,29 +118,9 @@ impl Engine {
     }
 
     /// Deposits an event identified by the supplied topics and data.
-    #[allow(clippy::arithmetic_side_effects)] // todo
-    pub fn deposit_event(&mut self, topics: &[u8], data: &[u8]) {
-        // The first byte contains the number of topics in the slice
-        let topics_count: scale::Compact<u32> = scale::Decode::decode(&mut &topics[0..1])
-            .unwrap_or_else(|err| panic!("decoding number of topics failed: {err}"));
-        let topics_count = topics_count.0 as usize;
-
-        let topics_vec = if topics_count > 0 {
-            // The rest of the slice contains the topics
-            let topics = &topics[1..];
-            let bytes_per_topic = topics.len() / topics_count;
-            let topics_vec: Vec<Vec<u8>> = topics
-                .chunks(bytes_per_topic)
-                .map(|chunk| chunk.to_vec())
-                .collect();
-            assert_eq!(topics_count, topics_vec.len());
-            topics_vec
-        } else {
-            Vec::new()
-        };
-
+    pub fn deposit_event(&mut self, topics: &[[u8; 32]], data: &[u8]) {
         self.debug_info.record_event(EmittedEvent {
-            topics: topics_vec,
+            topics: topics.to_vec(),
             data: data.to_vec(),
         });
     }
@@ -380,27 +355,6 @@ impl Engine {
         let fee: Vec<u8> = scale::Encode::encode(&fee);
         set_output(output, &fee[..])
     }
-
-    /// Calls the chain extension method registered at `func_id` with `input`.
-    pub fn call_chain_extension(
-        &mut self,
-        id: u32,
-        input: &[u8],
-        output: &mut &mut [u8],
-    ) {
-        let encoded_input = input.encode();
-        let (status_code, out) = self
-            .chain_extension_handler
-            .eval(id, &encoded_input)
-            .unwrap_or_else(|error| {
-                panic!(
-                    "Encountered unexpected missing chain extension method: {error:?}"
-                );
-            });
-        let res = (status_code, out);
-        let decoded: Vec<u8> = scale::Encode::encode(&res);
-        set_output(output, &decoded[..])
-    }
 }
 
 impl Engine {
@@ -414,12 +368,12 @@ impl Engine {
         output: &mut [u8; 33],
     ) -> Result<(), Error> {
         use secp256k1::{
+            Message,
+            SECP256K1,
             ecdsa::{
                 RecoverableSignature,
                 RecoveryId,
             },
-            Message,
-            SECP256K1,
         };
 
         // In most implementations, the v is just 0 or 1 internally, but 27 was added

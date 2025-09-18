@@ -32,6 +32,7 @@
 //!   to cargo).
 //! - Original `CARGO` env var (if any), should be specified via the
 //!   `TRYBUILD_WRAPPER_CARGO`
+//! - Extra `cargo` args are specified via the `TRYBUILD_WRAPPER_CARGO_ARGS` env var.
 //!
 //! ```shell
 //! $ TRYBUILD_WRAPPER_ENCODED_FLAGS="..." TRYBUILD_WRAPPER_CARGO="..." CARGO="trybuild_wrapper" \
@@ -53,8 +54,8 @@
 use std::{
     env,
     process::{
-        exit,
         Command,
+        exit,
     },
 };
 
@@ -109,7 +110,8 @@ enum Expected {
 }
 
 /// Calls `cargo` with extra flags `rustc` flags
-/// specified in `TRYBUILD_WRAPPER_ENCODED_FLAGS` env var (if any).
+/// specified in `TRYBUILD_WRAPPER_ENCODED_FLAGS` env var (if any)
+/// and extra args specified via `TRYBUILD_WRAPPER_CARGO_ARGS` (if any).
 fn cargo<T>(args: T)
 where
     T: Iterator<Item = String>,
@@ -124,6 +126,14 @@ where
     // Passes extra `rustc` flags to `cargo` (if specified).
     // See `with_abi_flags` doc for details.
     with_abi_flags(&mut cmd, args);
+
+    // Passes extra cargo args if specified via `TRYBUILD_WRAPPER_CARGO_ARGS`.
+    if let Ok(extra_args) = env::var("TRYBUILD_WRAPPER_CARGO_ARGS") {
+        let extra_args: Vec<_> = extra_args.split(' ').collect();
+        if !extra_args.is_empty() {
+            cmd.args(extra_args);
+        }
+    }
 
     // Runs `cargo`.
     let exit_status = cmd.status().expect("Failed to spawn `cargo` process");

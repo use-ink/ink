@@ -13,13 +13,17 @@
 // limitations under the License.
 
 use ink_primitives::{
-    abi::AbiEncodeWith,
     Address,
+    abi::AbiEncodeWith,
 };
 use pallet_revive_uapi::CallFlags;
 
 use crate::{
+    Error,
     call::{
+        CallBuilder,
+        CallParams,
+        ExecutionInput,
         common::{
             ReturnType,
             Set,
@@ -27,12 +31,8 @@ use crate::{
         },
         execution::EmptyArgumentList,
         utils::DecodeMessageResult,
-        CallBuilder,
-        CallParams,
-        ExecutionInput,
     },
     types::Environment,
-    Error,
 };
 
 /// The `delegatecall` call type. Performs a call with the given code hash.
@@ -174,8 +174,8 @@ where
     ///
     /// # Note
     ///
-    /// On failure this an [`ink::env::Error`][`crate::Error`] which can be handled by the
-    /// caller.
+    /// On failure this returns an [`ink::env::Error`][`crate::Error`] which can be
+    /// handled by the caller.
     pub fn try_invoke(self) -> Result<ink_primitives::MessageResult<()>, Error> {
         self.params().try_invoke()
     }

@@ -31,7 +31,6 @@ pub mod codegen;
 
 pub use ink_env::reflect;
 
-mod chain_extension;
 mod contract_ref;
 mod env_access;
 mod message_builder;
@@ -46,6 +45,7 @@ pub use ink_primitives::abi;
 pub use scale;
 #[cfg(feature = "std")]
 pub use scale_info;
+#[cfg(feature = "xcm")]
 pub use xcm;
 
 pub extern crate polkavm_derive;
@@ -70,21 +70,21 @@ pub mod storage {
 }
 
 pub use self::{
-    chain_extension::{
-        ChainExtensionInstance,
-        IsResultType,
-        Output,
-        ValueReturned,
-    },
     contract_ref::ToAddr,
     env_access::EnvAccess,
     prelude::IIP2_WILDCARD_COMPLEMENT_SELECTOR,
 };
-#[allow(unused)]
-pub use ink_macro::chain_extension;
 pub use ink_macro::{
+    Event,
+    EventMetadata,
+    SolDecode,
+    SolEncode,
+    SolErrorDecode,
+    SolErrorEncode,
+    SolErrorMetadata,
     blake2x256,
     contract,
+    error,
     event,
     scale_derive,
     selector_bytes,
@@ -92,22 +92,16 @@ pub use ink_macro::{
     storage_item,
     test,
     trait_definition,
-    Event,
-    EventMetadata,
-    SolDecode,
-    SolEncode,
-    SolErrorDecode,
-    SolErrorEncode,
 };
 pub use ink_primitives::{
     Address,
     ConstructorResult,
+    H160,
+    H256,
     LangError,
     MessageResult,
     SolDecode,
     SolEncode,
-    H160,
-    H256,
     U256,
 };
 
@@ -147,5 +141,22 @@ pub fn collect_events_sol() -> Vec<ink_metadata::sol::EventMetadata> {
     crate::CONTRACT_EVENTS_SOL
         .iter()
         .map(|event| event())
+        .collect()
+}
+
+/// Any error which derives `#[derive(ink::SolErrorMetadata)]` and is used in the contract
+/// binary will have its implementation added to this distributed slice at linking time.
+#[cfg(feature = "std")]
+#[linkme::distributed_slice]
+#[linkme(crate = linkme)]
+pub static CONTRACT_ERRORS_SOL: [fn() -> Vec<ink_metadata::sol::ErrorMetadata>] = [..];
+
+/// Collect the Solidity ABI compatible metadata of all error definitions encoded as
+/// Solidity custom errors that are linked and used in the binary.
+#[cfg(feature = "std")]
+pub fn collect_errors_sol() -> Vec<ink_metadata::sol::ErrorMetadata> {
+    crate::CONTRACT_ERRORS_SOL
+        .iter()
+        .flat_map(|event| event())
         .collect()
 }

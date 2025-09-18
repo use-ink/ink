@@ -34,24 +34,24 @@ use scale::{
     Encode,
 };
 use scale_info::{
+    IntoPortable,
+    Registry,
+    TypeInfo,
     form::{
         Form,
         MetaForm,
         PortableForm,
     },
     meta_type,
-    IntoPortable,
-    Registry,
-    TypeInfo,
 };
 use schemars::JsonSchema;
 use serde::{
+    Deserialize,
+    Serialize,
     de::{
         DeserializeOwned,
         Error,
     },
-    Deserialize,
-    Serialize,
 };
 
 /// Represents the static storage layout of an ink! smart contract.
@@ -79,7 +79,7 @@ pub enum Layout<F: Form = MetaForm> {
     Array(ArrayLayout<F>),
     /// A struct layout with fields of different types.
     Struct(StructLayout<F>),
-    /// An enum layout with a discriminant telling which variant is layed out.
+    /// An enum layout with a discriminant telling which variant is laid out.
     Enum(EnumLayout<F>),
 }
 

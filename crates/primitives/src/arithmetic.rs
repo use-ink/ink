@@ -25,12 +25,12 @@ use core::ops::{
     SubAssign,
 };
 use num_traits::{
-    checked_pow,
     Bounded,
     CheckedMul,
     One,
     Unsigned,
     Zero,
+    checked_pow,
 };
 
 /// Types that allow for simple arithmetic operations.
@@ -199,7 +199,7 @@ mod tests {
     }
 
     #[test]
-    fn saturatiung_sub() {
+    fn saturating_sub() {
         assert_eq!(u64::MIN, Saturating::saturating_sub(u64::MIN, 1))
     }
 

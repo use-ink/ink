@@ -3,7 +3,7 @@ name = "ink"
 version.workspace = true
 authors = ["Use Ink <ink@use.ink>"]
 edition.workspace = true
-rust-version = "1.63"
+rust-version.workspace = true
 
 license.workspace = true
 readme = "README.md"
@@ -31,37 +31,19 @@ keccak-const = { workspace = true }
 linkme = { workspace = true, optional = true }
 
 polkavm-derive = { workspace = true }
-xcm = { workspace = true }
+xcm = { workspace = true, optional = true }
 
-sp-io = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
-sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false, features = ["disable_target_static_assertions"] }
-
-# todo pin until https://github.com/jhpratt/deranged/issues/18 is resolved
-deranged = { version = "=0.4.0", default-features = false }
-
-# todo Remove once the `polkadot-sdk` compilation error
-# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
-tokio = { workspace = true, features = ["net"], optional = true }
+sp-io = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-runtime-interface = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false, features = ["disable_target_static_assertions"] }
 
 [dev-dependencies]
 ink_ir = { workspace = true, default-features = true }
 ink_metadata = { workspace = true } # todo why here too?
 trybuild = { workspace = true, features = ["diff"] }
 
-# todo Remove once the `polkadot-sdk` compilation error
-# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
-tokio = { workspace = true, features = ["net"] }
-
-# todo Remove once the `polkadot-sdk` compilation error
-# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
-[build-dependencies]
-tokio = { workspace = true, features = ["net"] }
-
 [features]
 default = ["std"]
 std = [
-    "tokio",
-    "deranged/std",
     "ink_env/std",
     "ink_macro/std",
     "ink_metadata/std",
@@ -70,7 +52,7 @@ std = [
     "ink_storage/std",
     "scale-info/std",
     "scale/std",
-    "xcm/std",
+    "xcm?/std",
     "derive_more/std",
     "sp-runtime-interface/std",
     "sp-io/std",
@@ -88,7 +70,10 @@ no-allocator = ["ink_env/no-allocator"]
 # Disable the ink! provided panic handler.
 no-panic-handler = ["ink_env/no-panic-handler"]
 
-unstable-hostfn = ["ink_env/unstable-hostfn", "ink_storage/unstable-hostfn"]
+unstable-hostfn = ["ink_env/unstable-hostfn"]
+
+# Enable xcm utilities.
+xcm = ["dep:xcm", "ink_env/xcm"]
 
 # For the ui tests, which use this `Cargo.toml`
 [lints.rust.unexpected_cfgs]

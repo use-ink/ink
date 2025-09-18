@@ -37,10 +37,10 @@ use syn::{
 
 use super::TraitDefinition;
 use crate::{
+    EnforcedErrors,
     generator,
     generator::sol,
     traits::GenerateCode,
-    EnforcedErrors,
 };
 
 impl TraitDefinition<'_> {
@@ -124,10 +124,8 @@ impl TraitRegistry<'_> {
     fn generate_registry_messages(&self) -> TokenStream2 {
         let messages = self.trait_def.trait_def.item().iter_items().filter_map(
             |(item, selector)| {
-                let ret = item.filter_map_message().map(|message| {
-                    self.generate_registry_for_message(&message, selector)
-                });
-                ret
+                item.filter_map_message()
+                    .map(|message| self.generate_registry_for_message(&message, selector))
             },
         );
         quote! {
@@ -214,7 +212,7 @@ impl TraitRegistry<'_> {
                 quote! {
                     /// We enforce linking errors in case this is ever actually called.
                     /// These linker errors are properly resolved by the cargo-contract tool.
-                    extern {
+                    unsafe extern {
                         fn #linker_error_ident() -> !;
                     }
                     unsafe { #linker_error_ident() }
@@ -239,7 +237,7 @@ impl TraitRegistry<'_> {
 
     /// Returns a pair of input bindings `__ink_bindings_N` and types.
     fn input_bindings_and_types(
-        inputs: ir::InputsIter,
+        inputs: ir::InputsIter<'_>,
     ) -> (Vec<syn::Ident>, Vec<&syn::Type>) {
         inputs
             .enumerate()

@@ -13,19 +13,24 @@
 // limitations under the License.
 
 use ink_engine::ext::Engine;
-#[cfg(feature = "unstable-hostfn")]
-use ink_primitives::types::AccountIdMapper;
 use ink_primitives::{
-    abi::AbiEncodeWith,
-    types::Environment,
     Address,
-    SolEncode,
     H256,
     U256,
+    abi::{
+        AbiEncodeWith,
+        Ink,
+        Sol,
+    },
+    sol::SolResultEncode,
+    types::{
+        AccountIdMapper,
+        Environment,
+    },
 };
 use ink_storage_traits::{
-    decode_all,
     Storable,
+    decode_all,
 };
 use pallet_revive_uapi::{
     ReturnErrorCode,
@@ -39,42 +44,35 @@ use schnorrkel::{
 
 use super::EnvInstance;
 use crate::{
-    call::{
-        utils::DecodeMessageResult,
-        Call,
-        CallParams,
-        DelegateCall,
-    },
-    event::{
-        Event,
-        TopicsBuilderBackend,
-    },
-    hash::{
-        CryptoHash,
-        HashOutput,
-        Keccak256,
-        Sha2x256,
-    },
     DecodeDispatch,
     DispatchError,
     EnvBackend,
     Result,
     TypedEnvBackend,
-};
-#[cfg(feature = "unstable-hostfn")]
-use crate::{
     call::{
+        Call,
+        CallParams,
         ConstructorReturnType,
         CreateParams,
+        DelegateCall,
         FromAddr,
         LimitParamsV2,
+        utils::DecodeMessageResult,
+    },
+    event::{
+        Event,
+        TopicEncoder,
+        TopicsBuilderBackend,
     },
     hash::{
         Blake2x128,
         Blake2x256,
+        CryptoHash,
+        HashOutput,
+        Keccak256,
+        Sha2x256,
     },
     test::callee,
-    Clear,
 };
 
 /// The capacity of the static buffer.
@@ -162,7 +160,6 @@ where
     R::decode_output(&result, false)
 }
 
-#[cfg(feature = "unstable-hostfn")]
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
         type OutputType = [u8; 16];
@@ -173,11 +170,20 @@ impl CryptoHash for Blake2x128 {
         let output: &mut OutputType = array_mut_ref!(output, 0, 16);
         Engine::hash_blake2_128(input, output);
     }
+
+    fn hash_with_buffer(
+        _input: &[u8],
+        _buffer: &mut [u8],
+        _output: &mut <Self as HashOutput>::Type,
+    ) {
+        unreachable!("not required, `hash` has been implemented.");
+    }
 }
 
-#[cfg(feature = "unstable-hostfn")]
 impl CryptoHash for Blake2x256 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
+        // For the engine (simulation of `pallet-revive` in `std`) we skip on the buffer
+        // in the implementation for simplicity.
         type OutputType = [u8; 32];
         static_assertions::assert_type_eq_all!(
             <Blake2x256 as HashOutput>::Type,
@@ -186,10 +192,20 @@ impl CryptoHash for Blake2x256 {
         let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         Engine::hash_blake2_256(input, output);
     }
+
+    fn hash_with_buffer(
+        _input: &[u8],
+        _buffer: &mut [u8],
+        _output: &mut <Self as HashOutput>::Type,
+    ) {
+        unreachable!("not required, `hash` has been implemented.");
+    }
 }
 
 impl CryptoHash for Sha2x256 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
+        // For the engine (simulation of `pallet-revive` in `std`) we skip on the buffer
+        // in the implementation for simplicity.
         type OutputType = [u8; 32];
         static_assertions::assert_type_eq_all!(
             <Sha2x256 as HashOutput>::Type,
@@ -197,6 +213,14 @@ impl CryptoHash for Sha2x256 {
         );
         let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         Engine::hash_sha2_256(input, output);
+    }
+
+    fn hash_with_buffer(
+        _input: &[u8],
+        _buffer: &mut [u8],
+        _output: &mut <Self as HashOutput>::Type,
+    ) {
+        unreachable!("not required, `hash` has been implemented.");
     }
 }
 
@@ -210,51 +234,79 @@ impl CryptoHash for Keccak256 {
         let output: &mut OutputType = array_mut_ref!(output, 0, 32);
         Engine::hash_keccak_256(input, output);
     }
+
+    fn hash_with_buffer(
+        _input: &[u8],
+        _buffer: &mut [u8],
+        _output: &mut <Self as HashOutput>::Type,
+    ) {
+        unreachable!("not required, `hash` has been implemented.");
+    }
 }
 
 #[derive(Default)]
 pub struct TopicsBuilder {
-    pub topics: Vec<Vec<u8>>,
+    pub topics: Vec<[u8; 32]>,
 }
 
-impl<E> TopicsBuilderBackend<E> for TopicsBuilder
+impl<Abi> TopicsBuilderBackend<Abi> for TopicsBuilder
 where
-    E: Environment,
+    Abi: TopicEncoder,
 {
-    type Output = Vec<u8>;
+    type Output = Vec<[u8; 32]>;
 
-    #[cfg(feature = "unstable-hostfn")]
     fn push_topic<T>(&mut self, topic_value: &T)
     where
-        T: scale::Encode,
+        T: AbiEncodeWith<Abi>,
     {
-        // todo
-        let encoded = topic_value.encode();
-        let len_encoded = encoded.len();
-        let mut result = <E as Environment>::Hash::CLEAR_HASH;
-        let len_result = result.as_ref().len();
-        if len_encoded <= len_result {
-            result.as_mut()[..len_encoded].copy_from_slice(&encoded[..]);
-        } else {
-            let mut hash_output = <Blake2x256 as HashOutput>::Type::default();
-            <Blake2x256 as CryptoHash>::hash(&encoded[..], &mut hash_output);
-            let copy_len = core::cmp::min(hash_output.len(), len_result);
-            result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
-        }
-        let off_hash = result.as_ref();
-        let off_hash = off_hash.to_vec();
-        self.topics.push(off_hash);
+        let output = <Abi as TopicEncoder>::encode_topic(topic_value);
+        self.topics.push(output);
     }
 
     fn output(self) -> Self::Output {
-        let mut all: Vec<u8> = Vec::new();
+        self.topics
+    }
+}
 
-        let topics_len_compact = &scale::Compact(self.topics.len() as u32);
-        let topics_encoded = &scale::Encode::encode(&topics_len_compact)[..];
-        all.append(&mut topics_encoded.to_vec());
+impl TopicEncoder for Ink {
+    const REQUIRES_BUFFER: bool = false;
 
-        self.topics.into_iter().for_each(|mut v| all.append(&mut v));
-        all
+    fn encode_topic<T>(value: &T) -> [u8; 32]
+    where
+        T: AbiEncodeWith<Self>,
+    {
+        value.encode_topic(<Blake2x256 as CryptoHash>::hash)
+    }
+
+    fn encode_topic_with_hash_buffer<T>(
+        _value: &T,
+        _output: &mut [u8; 32],
+        _buffer: &mut [u8],
+    ) where
+        T: AbiEncodeWith<Self>,
+    {
+        unreachable!("not required, `encode_topic` has been implemented.");
+    }
+}
+
+impl TopicEncoder for Sol {
+    const REQUIRES_BUFFER: bool = false;
+
+    fn encode_topic<T>(value: &T) -> [u8; 32]
+    where
+        T: AbiEncodeWith<Self>,
+    {
+        value.encode_topic(<Keccak256 as CryptoHash>::hash)
+    }
+
+    fn encode_topic_with_hash_buffer<T>(
+        _value: &T,
+        _output: &mut [u8; 32],
+        _buffer: &mut [u8],
+    ) where
+        T: AbiEncodeWith<Self>,
+    {
+        unreachable!("not required, `encode_topic` has been implemented.");
     }
 }
 
@@ -317,7 +369,6 @@ impl EnvBackend for EnvInstance {
         }
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn take_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
         K: scale::Encode,
@@ -333,7 +384,10 @@ impl EnvBackend for EnvInstance {
         }
     }
 
-    #[cfg(feature = "unstable-hostfn")]
+    fn remaining_buffer(&mut self) -> usize {
+        BUFFER_SIZE
+    }
+
     fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,
@@ -341,7 +395,6 @@ impl EnvBackend for EnvInstance {
         self.engine.contains_storage(&key.encode())
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,
@@ -376,7 +429,7 @@ impl EnvBackend for EnvInstance {
 
     fn return_value_solidity<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
     where
-        R: for<'a> SolEncode<'a>,
+        R: for<'a> SolResultEncode<'a>,
     {
         unimplemented!("the off-chain env does not implement `return_value_solidity`")
     }
@@ -405,12 +458,12 @@ impl EnvBackend for EnvInstance {
         output: &mut [u8; 33],
     ) -> Result<()> {
         use secp256k1::{
+            Message,
+            SECP256K1,
             ecdsa::{
                 RecoverableSignature,
                 RecoveryId,
             },
-            Message,
-            SECP256K1,
         };
 
         // In most implementations, the v is just 0 or 1 internally, but 27 was added
@@ -479,36 +532,6 @@ impl EnvBackend for EnvInstance {
     }
 
     #[cfg(feature = "unstable-hostfn")]
-    fn call_chain_extension<I, T, E, ErrorCode, F, D>(
-        &mut self,
-        id: u32,
-        input: &I,
-        status_to_result: F,
-        decode_to_result: D,
-    ) -> ::core::result::Result<T, E>
-    where
-        I: scale::Encode,
-        T: scale::Decode,
-        E: From<ErrorCode>,
-        F: FnOnce(u32) -> ::core::result::Result<(), ErrorCode>,
-        D: FnOnce(&[u8]) -> ::core::result::Result<T, E>,
-    {
-        let enc_input = &scale::Encode::encode(input)[..];
-        let mut output: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
-
-        self.engine
-            .call_chain_extension(id, enc_input, &mut &mut output[..]);
-        let (status, out): (u32, Vec<u8>) = scale::Decode::decode(&mut &output[..])
-            .unwrap_or_else(|error| {
-                panic!("could not decode `call_chain_extension` output: {error:?}")
-            });
-
-        status_to_result(status)?;
-        let decoded = decode_to_result(&out[..])?;
-        Ok(decoded)
-    }
-
-    #[cfg(feature = "unstable-hostfn")]
     fn set_code_hash(&mut self, code_hash: &H256) -> Result<()> {
         self.engine
             .database
@@ -573,23 +596,23 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
-    #[cfg(feature = "unstable-hostfn")]
-    fn minimum_balance<E: Environment>(&mut self) -> E::Balance {
-        self.get_property::<E::Balance>(Engine::minimum_balance)
+    fn minimum_balance(&mut self) -> U256 {
+        self.get_property::<U256>(Engine::minimum_balance)
             .unwrap_or_else(|error| {
                 panic!("could not read `minimum_balance` property: {error:?}")
             })
     }
 
-    fn emit_event<E, Evt>(&mut self, event: Evt)
+    fn emit_event<Evt, Abi>(&mut self, event: &Evt)
     where
-        E: Environment,
-        Evt: Event,
+        Evt: Event<Abi>,
+        Abi: TopicEncoder,
     {
         let builder = TopicsBuilder::default();
-        let enc_topics = event.topics::<E, _>(builder.into());
-        let enc_data = &scale::Encode::encode(&event)[..];
-        self.engine.deposit_event(&enc_topics[..], enc_data);
+        let enc_topics = event.topics(builder.into());
+        let enc_data = event.encode_data();
+        self.engine
+            .deposit_event(&enc_topics[..], enc_data.as_slice());
     }
 
     fn invoke_contract<E, Args, R, Abi>(
@@ -639,7 +662,6 @@ impl TypedEnvBackend for EnvInstance {
         )
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn instantiate_contract<E, ContractRef, Args, R, Abi>(
         &mut self,
         params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
@@ -699,7 +721,9 @@ impl TypedEnvBackend for EnvInstance {
         crate::reflect::ExecuteDispatchable::execute_dispatchable(dispatch)
             .unwrap_or_else(|e| panic!("Constructor call failed: {e:?}"));
 
-        self.set_code_hash(code_hash)?;
+        self.engine
+            .database
+            .set_code_hash(&self.engine.get_callee(), code_hash);
         self.engine.set_contract(callee());
         self.engine
             .database
@@ -742,7 +766,6 @@ impl TypedEnvBackend for EnvInstance {
         self.engine.is_contract(account)
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn caller_is_origin<E>(&mut self) -> bool
     where
         E: Environment,
@@ -750,7 +773,6 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support cross-contract calls")
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn caller_is_root<E>(&mut self) -> bool
     where
         E: Environment,
@@ -769,7 +791,6 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
-    #[cfg(feature = "unstable-hostfn")]
     fn own_code_hash(&mut self) -> Result<H256> {
         let callee = &self.engine.get_callee();
         let code_hash = self.engine.database.get_code_hash(callee);
@@ -780,15 +801,7 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
-    #[cfg(feature = "unstable-hostfn")]
-    fn call_runtime<E, Call>(&mut self, _call: &Call) -> Result<()>
-    where
-        E: Environment,
-    {
-        unimplemented!("off-chain environment does not support `call_runtime`")
-    }
-
-    #[cfg(feature = "unstable-hostfn")]
+    #[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
     fn xcm_execute<E, Call>(&mut self, _msg: &xcm::VersionedXcm<Call>) -> Result<()>
     where
         E: Environment,
@@ -796,7 +809,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `xcm_execute`")
     }
 
-    #[cfg(feature = "unstable-hostfn")]
+    #[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
     fn xcm_send<E, Call>(
         &mut self,
         _dest: &xcm::VersionedLocation,

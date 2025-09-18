@@ -62,7 +62,7 @@ they are uploaded to a blockchain that runs PolkaVM, PolkaVM then
 interprets them.
 As contracts are executed in a sandbox execution environment on the
 blockchain itself we compile them to a `no_std` environment.
-More specifically they are executed by the [`pallet-revive`](https://github.com/paritytech/substrate/tree/master/frame/revive),
+More specifically they are executed by the [`pallet-revive`](https://github.com/paritytech/polkadot-sdk/tree/master/substrate/frame/revive),
 a module of the Polkadot SDK blockchain framework. This module takes ink!
 smart contracts and runs them in a PolkaVM sandbox environment.
 It also provides an API to smart contracts for anything a smart contract
@@ -89,8 +89,8 @@ crates on which `ink` relies heavily:
    for ink! smart contracts.
 * `ink_codegen`: Generates Rust code from the ink! IR.
 
-The `cargo-expand` tool can be used to display the Rust source code that
-`ink_codegen` generates for an ink! contract:
+The [`cargo-expand`](https://crates.io/crates/cargo-expand) tool can be used 
+to display the Rust source code that `ink_codegen` generates for an ink! contract:
 
 ```ignore
 cd ink/integration-tests/public/flipper/
@@ -221,3 +221,45 @@ the contract macro ([documentation here](https://use-ink.github.io/ink/ink/attr.
 __Important:__ If a developer writes a contract for a chain that deviates
 from the default Polkadot SDK types, they have to make sure to use that
 chain's `Environment`.
+
+## Design decisions in `pallet-revive` that make it harder for ink!
+
+Parity made a couple changes when forking `pallet-revive` from `pallet-contracts`, which 
+make things harder/less performant for ink!. 
+
+We are tracking these changes here because they make it easier to understand the codebase.
+In the future, this list could also be used to improve the performance of ink! running
+on `pallet-revive`, if Parity is open to it.
+
+(1) Individual host functions were migrated to pre-compiles. Instead of being able to
+just call into the host, these functions now have the performance overhead of calling
+into another contract. Functions throughout ink! are affected by this.
+
+(2) The `pallet-revive` pre-compiles don't support SCALE encoding, but instead expose 
+only a Solidity interface. As ink! natively uses SCALE encoding we are required to
+re-encode arguments into the bloated Solidity ABI encoding, as well as decode them.
+
+(3) `pallet-revive` uses two types for a contracts balance: the generic `Balance` (which
+is set in the chain configuration) and the Ethereum-native `U256`. Users of
+ink! have to deal with both types as well. 
+
+(4) In [#7164](https://github.com/paritytech/polkadot-sdk/pull/7164), Parity removed
+most smart-contract-specific events: `Called`, `ContractCodeUpdated, CodeStored`,
+`CodeRemoved`, `Terminated`, `DelegateCalled`,
+`StorageDepositTransferredAndHeld`, `StorageDepositTransferredAndReleased`. 
+The `Instantiated` event was brought back in a latter PR.
+
+(5) `pallet-revive` included `revm` as a non-optional dependency. As ink! has to 
+depend on `pallet-revive` for some features (e.g. sandboxed E2E testing), this 
+results in over 75 more child dependencies having to be build now. This increased 
+build times for sandboxed E2E tests significantly. 
+[We proposed](https://github.com/paritytech/polkadot-sdk/pull/9689) putting anything 
+`revm` behind a feature flag, but Parity is not open to it.
+
+(6) The removal of host functions in favor of pre-compiles results in a loss of semantic
+information why a contract call failed. Previously, if a contract call involving one of
+the affected host functions (e.g. `take_storage`) contained too little Gas, the contract
+would error with `OutOfGas`. As those functions are pre-compiles now and called like
+other contracts, the contract call will now fail with `ContractTrapped` if too little
+Gas is supplied. This makes it harder for users to debug and understand what caused the
+call failure.

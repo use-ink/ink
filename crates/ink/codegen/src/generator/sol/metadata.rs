@@ -49,13 +49,14 @@ impl GenerateCode for SolidityMetadata<'_> {
             #[cfg(not(feature = "ink-as-dependency"))]
             #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
             const _: () = {
-                #[no_mangle]
+                #[unsafe(no_mangle)]
                 pub fn __ink_generate_solidity_metadata() -> ::ink::metadata::sol::ContractMetadata  {
                     ::ink::metadata::sol::ContractMetadata {
                         name: #name.into(),
                         constructors: vec![ #( #ctors ),* ],
                         functions: vec![ #( #msgs ),* ],
                         events: ::ink::collect_events_sol(),
+                        errors: ::ink::collect_errors_sol(),
                         docs: #docs.into(),
                     }
                 }
@@ -72,8 +73,10 @@ impl SolidityMetadata<'_> {
             .impls()
             .flat_map(|item_impl| item_impl.iter_constructors())
             .map(|ctor| {
-                let ident = ctor.ident();
-                let name = ident.to_string();
+                let name = ctor
+                    .name()
+                    .map(ToString::to_string)
+                    .unwrap_or_else(|| ctor.ident().to_string());
                 let inputs = params_info(ctor.inputs());
                 let is_payable = ctor.is_payable();
                 let is_default = ctor.is_default();
@@ -98,8 +101,10 @@ impl SolidityMetadata<'_> {
             .impls()
             .flat_map(|item_impl| item_impl.iter_messages())
             .map(|msg| {
-                let ident = msg.ident();
-                let name = ident.to_string();
+                let name = msg
+                    .name()
+                    .map(ToString::to_string)
+                    .unwrap_or_else(|| msg.ident().to_string());
                 let inputs = params_info(msg.inputs());
                 let output = msg
                     .output()
@@ -131,7 +136,7 @@ impl SolidityMetadata<'_> {
 }
 
 /// Returns the Solidity ABI compatible parameter type and name for the given inputs.
-fn params_info(inputs: InputsIter) -> impl Iterator<Item = TokenStream2> + '_ {
+fn params_info(inputs: InputsIter<'_>) -> impl Iterator<Item = TokenStream2> + '_ {
     inputs.map(|input| {
         let ty = &*input.ty;
         let sol_ty = sol_type(ty);

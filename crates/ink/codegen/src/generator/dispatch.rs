@@ -36,9 +36,9 @@ use quote::{
 use syn::spanned::Spanned as _;
 
 use crate::{
+    GenerateCode,
     generator,
     generator::sol,
-    GenerateCode,
 };
 
 /// A message to be dispatched.
@@ -132,7 +132,7 @@ impl Dispatch<'_> {
     }
 
     /// Returns the constructor to use for Solidity ABI encoded instantiation.
-    fn constructor_sol(&self) -> Option<CallableWithSelector<Constructor>> {
+    fn constructor_sol(&self) -> Option<CallableWithSelector<'_, Constructor>> {
         self.contract
             .module()
             .impls()
@@ -143,7 +143,7 @@ impl Dispatch<'_> {
     /// Puts messages and their calculated selector ids in a single data structure
     ///
     /// See [`MessageDispatchable`]
-    fn compose_messages_with_ids(&self) -> Vec<MessageDispatchable> {
+    fn compose_messages_with_ids(&self) -> Vec<MessageDispatchable<'_>> {
         let storage_ident = self.contract.module().storage().ident();
         self.contract
             .module()
@@ -194,7 +194,7 @@ impl Dispatch<'_> {
     /// Puts constructors and their calculated selector ids in a single data structure
     ///
     /// See [`ConstructorDispatchable`]
-    fn compose_constructors_with_ids(&self) -> Vec<ConstructorDispatchable> {
+    fn compose_constructors_with_ids(&self) -> Vec<ConstructorDispatchable<'_>> {
         let mut constructor_dispatchables = Vec::new();
         for_each_abi!(@type |abi| {
             match abi {

@@ -17,13 +17,13 @@ use derive_more::From;
 use ir::IsDocAttribute;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use syn::spanned::Spanned;
 #[cfg(all(feature = "std", any(ink_abi = "sol", ink_abi = "all")))]
 use syn::Fields;
+use syn::spanned::Spanned;
 
+use crate::GenerateCode;
 #[cfg(all(feature = "std", any(ink_abi = "sol", ink_abi = "all")))]
 use crate::generator::sol;
-use crate::GenerateCode;
 
 /// Generates code for the event item.
 #[derive(From, Copy, Clone)]
@@ -42,23 +42,51 @@ impl GenerateCode for Event<'_> {
             .then(|| quote::quote! { #[ink(anonymous)] });
         let signature_topic = self
             .item
-            .signature_topic_hex()
+            .signature_topic()
+            .as_ref()
+            .map(ToString::to_string)
             .map(|hex_s| quote::quote! { #[ink(signature_topic = #hex_s)] });
+        let name_override = self
+            .item
+            .name()
+            .map(|name| quote::quote! { #[ink(name = #name)] });
         let cfg_attrs = self.item.get_cfg_attrs(item.span());
 
-        #[cfg(all(feature = "std", any(ink_abi = "sol", ink_abi = "all")))]
-        let sol_event_metadata = self.solidity_event_metadata();
+        // SCALE Codec and ink! metadata derives.
+        #[cfg(not(ink_abi = "sol"))]
+        let (scale_derive, ink_event_metadata_derive) =
+            (quote! { #[::ink::scale_derive(Encode, Decode)] }, {
+                #[cfg(feature = "std")]
+                quote! { #[derive(::ink::EventMetadata)] }
+                #[cfg(not(feature = "std"))]
+                quote! {}
+            });
+        #[cfg(ink_abi = "sol")]
+        let (scale_derive, ink_event_metadata_derive) = (quote! {}, quote! {});
 
-        #[cfg(not(all(feature = "std", any(ink_abi = "sol", ink_abi = "all"))))]
-        let sol_event_metadata = quote! {};
+        // Solidity ABI encoding/decoding derives and metadata implementation.
+        #[cfg(not(any(ink_abi = "sol", ink_abi = "all")))]
+        let (sol_codec_derive, sol_event_metadata) = (quote! {}, quote! {});
+        #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
+        let (sol_codec_derive, sol_event_metadata) =
+            (quote! { #[derive(::ink::SolEncode, ::ink::SolDecode)] }, {
+                #[cfg(feature = "std")]
+                {
+                    self.solidity_event_metadata()
+                }
+                #[cfg(not(feature = "std"))]
+                quote! {}
+            });
 
         quote::quote! (
             #( #cfg_attrs )*
-            #[cfg_attr(feature = "std", derive(::ink::EventMetadata))]
+            #ink_event_metadata_derive
             #[derive(::ink::Event)]
-            #[::ink::scale_derive(Encode, Decode)]
+            #scale_derive
+            #sol_codec_derive
             #anonymous
             #signature_topic
+            #name_override
             #item
 
             #sol_event_metadata
@@ -72,7 +100,11 @@ impl Event<'_> {
     fn solidity_event_metadata(&self) -> TokenStream2 {
         let item = self.item.item();
         let ident = &item.ident;
-        let name = ident.to_string();
+        let name = self
+            .item
+            .name()
+            .map(ToString::to_string)
+            .unwrap_or_else(|| ident.to_string());
         let is_anonymous = self.item.anonymous();
 
         let fields = match &item.fields {

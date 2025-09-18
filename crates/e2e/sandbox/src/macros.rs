@@ -2,11 +2,11 @@ use std::time::SystemTime;
 
 use frame_support::{
     sp_runtime::{
+        BuildStorage,
         traits::{
             Header,
             One,
         },
-        BuildStorage,
     },
     traits::Hooks,
 };
@@ -17,10 +17,10 @@ use sp_io::TestExternalities;
 pub struct BlockBuilder<T>(std::marker::PhantomData<T>);
 
 impl<
-        T: pallet_balances::Config
-            + pallet_timestamp::Config<Moment = u64>
-            + pallet_revive::Config,
-    > BlockBuilder<T>
+    T: pallet_balances::Config
+        + pallet_timestamp::Config<Moment = u64>
+        + pallet_revive::Config,
+> BlockBuilder<T>
 {
     /// Create a new externalities with the given balances.
     pub fn new_ext(balances: Vec<(T::AccountId, T::Balance)>) -> TestExternalities {
@@ -79,33 +79,31 @@ impl<
     }
 }
 
-/// Macro creating a minimal runtime with the given name. Optionally can take a chain
-/// extension type as a second argument.
+/// Macro creating a minimal runtime with the given name.
 ///
 /// The new macro will automatically implement `crate::Sandbox`.
 #[macro_export]
 macro_rules! create_sandbox {
     ($name:ident) => {
         $crate::paste::paste! {
-            $crate::create_sandbox!($name, [<$name Runtime>], (), (), {});
+            $crate::create_sandbox!($name, [<$name Runtime>], (), {});
         }
     };
-    ($name:ident, $chain_extension: ty, $debug: ty) => {
+    ($name:ident, $debug: ty) => {
         $crate::paste::paste! {
-            $crate::create_sandbox!($name, [<$name Runtime>], $chain_extension, $debug, {});
+            $crate::create_sandbox!($name, [<$name Runtime>], $debug, {});
         }
     };
-    ($name:ident, $chain_extension: ty, $debug: ty, { $( $pallet_name:tt : $pallet:ident ),* $(,)? }) => {
+    ($name:ident, $debug: ty, { $( $pallet_name:tt : $pallet:ident ),* $(,)? }) => {
         $crate::paste::paste! {
-            $crate::create_sandbox!($name, [<$name Runtime>], $chain_extension, $debug, {
+            $crate::create_sandbox!($name, [<$name Runtime>], $debug, {
                 $(
                     $pallet_name : $pallet,
                 )*
             });
         }
     };
-    ($sandbox:ident, $runtime:ident, $chain_extension: ty, $debug: ty, { $( $pallet_name:tt : $pallet:ident ),* $(,)? }) => {
-
+    ($sandbox:ident, $runtime:ident, $debug: ty, { $( $pallet_name:tt : $pallet:ident ),* $(,)? }) => {
 
 // Put all the boilerplate into an auxiliary module
 mod construct_runtime {
@@ -182,16 +180,12 @@ mod construct_runtime {
     }
 
     parameter_types! {
-        // TODO can we delete some?
-        pub DeletionWeightLimit: Weight = Weight::zero();
-        pub DefaultDepositLimit: BalanceOf = 10_000_000;
         pub CodeHashLockupDepositPercent: Perbill = Perbill::from_percent(0);
-        pub MaxDelegateDependencies: u32 = 32;
     }
 
     impl $crate::pallet_revive::Config for $runtime {
         type AddressMapper = $crate::pallet_revive::AccountId32Mapper<Self>;
-        type ChainId = ConstU64<1>; // TODO
+        type ChainId = ConstU64<1>;
         type NativeToEthRatio = ConstU32<100_000_000>;
         type Time = Timestamp;
         type Currency = Balances;
@@ -201,8 +195,6 @@ mod construct_runtime {
         type DepositPerByte = ConstU128<1>;
         type WeightPrice = Self;
         type WeightInfo = ();
-        // todo remove this + the $chain_extension variable
-        // type ChainExtension = $chain_extension;
         type RuntimeMemory = ConstU32<{ 128 * 1024 * 1024 }>;
         type PVFMemory = ConstU32<{ 512 * 1024 * 1024 }>;
         type UnsafeUnstableInterface = ConstBool<true>;
@@ -218,9 +210,8 @@ mod construct_runtime {
             //ERC20<Self, InlineIdConfig<0x320>, PoolAssetsInstance>,
             //XcmPrecompile<Self>,
         );
+        type AllowEVMBytecode = ConstBool<false>;
     }
-
-    // Implement `crate::Sandbox` trait
 
     /// Default initial balance for the default account.
     pub const INITIAL_BALANCE: u128 = 1_000_000_000_000_000;
@@ -240,6 +231,7 @@ mod construct_runtime {
         }
     }
 
+    // Implement `crate::Sandbox` trait
     impl $crate::Sandbox for $sandbox {
         type Runtime = $runtime;
 

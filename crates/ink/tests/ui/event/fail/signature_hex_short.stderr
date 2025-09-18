@@ -3,11 +3,3 @@ error: `signature_topic` is expected to be 32-byte hex string. Found 14 bytes
   |
 2 | #[ink(signature_topic = "1111111111111111111111111111")]
   |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-error[E0277]: the trait bound `Event: ink::ink_env::Event` is not satisfied
- --> tests/ui/event/fail/signature_hex_short.rs:1:1
-  |
-1 | #[ink::event]
-  | ^^^^^^^^^^^^^ the trait `ink::ink_env::Event` is not implemented for `Event`
-  |
-  = note: this error originates in the attribute macro `ink::event` (in Nightly builds, run with -Z macro-backtrace for more info)

@@ -13,14 +13,14 @@
 // limitations under the License.
 
 use crate::{
+    AccountError,
+    Error,
     ext::Engine,
     types::{
         Balance,
         BlockNumber,
         BlockTimestamp,
     },
-    AccountError,
-    Error,
 };
 use ink_primitives::{
     AccountId,
@@ -33,7 +33,7 @@ use std::collections::HashMap;
 #[derive(Debug, Clone)]
 pub struct EmittedEvent {
     /// Recorded topics of the emitted event.
-    pub topics: Vec<Vec<u8>>,
+    pub topics: Vec<[u8; 32]>,
     /// Recorded encoding of the emitted event.
     pub data: Vec<u8>,
 }
@@ -57,7 +57,7 @@ impl Default for DebugInfo {
 }
 
 impl DebugInfo {
-    // Creates a new `RecInstance instance.
+    // Creates a new `RecInstance` instance.
     pub fn new() -> Self {
         Self {
             emitted_events: Vec::new(),

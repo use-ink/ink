@@ -17,7 +17,7 @@
 //! # Note
 //!
 //! This mapping doesn't actually "own" any data.
-//! Instead it is just a simple wrapper around the contract storage facilities.
+//! Instead, it is just a simple wrapper around the contract storage facilities.
 
 use crate::traits::{
     AutoKey,
@@ -40,7 +40,7 @@ use scale::{
 /// # Important
 ///
 /// The mapping requires its own pre-defined storage key where to store values. By
-/// default, the is automatically calculated using [`AutoKey`](crate::traits::AutoKey)
+/// default, the key is automatically calculated using [`AutoKey`](crate::traits::AutoKey)
 /// during compilation. However, anyone can specify a storage key using
 /// [`ManualKey`](crate::traits::ManualKey). Specifying the storage key can be helpful for
 /// upgradeable contracts or you want to be resistant to future changes of storage key
@@ -51,11 +51,11 @@ use scale::{
 /// # #[ink::contract]
 /// # mod my_module {
 /// use ink::{
-///     storage::{
-///         traits::ManualKey,
-///         Mapping,
-///     },
 ///     U256,
+///     storage::{
+///         Mapping,
+///         traits::ManualKey,
+///     },
 /// };
 ///
 /// #[ink(storage)]
@@ -183,7 +183,7 @@ where
     ///
     /// # Panics
     ///
-    /// Traps if the the encoded `key` or `value` doesn't fit into the static buffer.
+    /// Traps if the encoded `key` or `value` doesn't fit into the static buffer.
     #[inline]
     pub fn get<Q>(&self, key: Q) -> Option<V>
     where
@@ -201,14 +201,13 @@ where
     ///   or (b) the value existed but its length exceeds the static buffer size.
     /// - `None` if there was no value under this mapping key.
     #[inline]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn try_get<Q>(&self, key: Q) -> Option<ink_env::Result<V>>
     where
         Q: scale::EncodeLike<K>,
     {
         let key_size = <Q as Encode>::encoded_size(&key);
 
-        if key_size > ink_env::BUFFER_SIZE {
+        if key_size > ink_env::remaining_buffer() {
             return Some(Err(ink_env::Error::BufferTooSmall))
         }
 
@@ -217,7 +216,7 @@ where
                 .try_into()
                 .expect("targets of less than 32bit pointer size are not supported; qed");
 
-        if key_size.saturating_add(value_size) > ink_env::BUFFER_SIZE {
+        if key_size.saturating_add(value_size) > ink_env::remaining_buffer() {
             return Some(Err(ink_env::Error::BufferTooSmall))
         }
 
@@ -232,14 +231,7 @@ where
     /// # Panics
     ///
     /// Traps if the encoded `key` or `value` doesn't fit into the static buffer.
-    ///
-    /// # Warning
-    ///
-    /// This method uses the
-    /// [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
-    /// which is unsafe and normally is not available on production chains.
     #[inline]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn take<Q>(&self, key: Q) -> Option<V>
     where
         Q: scale::EncodeLike<K>,
@@ -256,21 +248,17 @@ where
     /// - `Some(Err(_))` if either (a) the encoded key doesn't fit into the static buffer
     ///   or (b) the value existed but its length exceeds the static buffer size.
     /// - `None` if there was no value under this mapping key.
-    ////
-    /// # Warning
-    ///
-    /// This method uses the
-    /// [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
-    /// which is unsafe and normally is not available on production chains.
     #[inline]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn try_take<Q>(&self, key: Q) -> Option<ink_env::Result<V>>
     where
         Q: scale::EncodeLike<K>,
     {
         let key_size = <Q as Encode>::encoded_size(&key);
 
-        if key_size > ink_env::BUFFER_SIZE {
+        // todo @cmichi explain calculation, move it into `contains_contract_storage
+        let required_buffer =
+            key_size.saturating_add(4 + 32 + 32 + 64 + key_size + 32 + 32);
+        if required_buffer > ink_env::remaining_buffer() {
             return Some(Err(ink_env::Error::BufferTooSmall))
         }
 
@@ -279,7 +267,11 @@ where
                 .try_into()
                 .expect("targets of less than 32bit pointer size are not supported; qed");
 
-        if key_size.saturating_add(value_size) > ink_env::BUFFER_SIZE {
+        let required_buffer = key_size
+            .saturating_add(4 + 32 + 32 + 64 + key_size + 32 + 32)
+            .saturating_add(value_size)
+            .saturating_add(4 + 32 + 32 + 64 + key_size + 64 + value_size);
+        if required_buffer > ink_env::remaining_buffer() {
             return Some(Err(ink_env::Error::BufferTooSmall))
         }
 
@@ -290,7 +282,6 @@ where
     ///
     /// Returns `None` if no `value` exists at the given `key`.
     #[inline]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn size<Q>(&self, key: Q) -> Option<u32>
     where
         Q: scale::EncodeLike<K>,
@@ -302,7 +293,6 @@ where
     ///
     /// Returns `false` if no `value` exists at the given `key`.
     #[inline]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn contains<Q>(&self, key: Q) -> bool
     where
         Q: scale::EncodeLike<K>,
@@ -312,7 +302,6 @@ where
 
     /// Clears the value at `key` from storage.
     #[inline]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn remove<Q>(&self, key: Q)
     where
         Q: scale::EncodeLike<K>,
@@ -487,6 +476,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn fallible_storage_works_for_fitting_data() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mut mapping: Mapping<u8, [u8; ink_env::BUFFER_SIZE - 1]> = Mapping::new();

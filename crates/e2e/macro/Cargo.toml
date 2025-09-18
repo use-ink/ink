@@ -27,6 +27,7 @@ serde_json = { workspace = true }
 syn = { workspace = true }
 proc-macro2 = { workspace = true }
 quote = { workspace = true }
+tracing = { workspace = true }
 
 [dev-dependencies]
 ink = { path = "../../ink" }

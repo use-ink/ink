@@ -52,7 +52,7 @@ where
     }
 }
 
-/// Decode and consume all of the given input data.
+/// Decode and consume all the given input data.
 ///
 /// If not all data is consumed, an error is returned.
 pub fn decode_all<T: Storable>(input: &mut &[u8]) -> Result<T, scale::Error> {

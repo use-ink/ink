@@ -10,12 +10,13 @@ use frame_support::{
     traits::fungible::Inspect,
 };
 use frame_system::{
+    EventRecord,
     pallet_prelude::{
         BlockNumberFor,
         OriginFor,
     },
-    EventRecord,
 };
+use ink_primitives::U256;
 pub use macros::{
     BlockBuilder,
     DefaultSandbox,
@@ -25,6 +26,7 @@ use pallet_revive::{
     ExecReturnValue,
     InstantiateReturnValue,
 };
+use sp_core::Get;
 /// Export pallets that are used in [`crate::create_sandbox`]
 pub use {
     frame_support::sp_runtime::testing::H256,
@@ -146,4 +148,25 @@ pub trait Sandbox {
 
     /// Restore the storage from the given snapshot.
     fn restore_snapshot(&mut self, snapshot: Snapshot);
+}
+
+/// Converts from the generic `Balance` type to the Ethereum native `U256`.
+///
+/// # Developer Note
+///
+/// `pallet-revive` uses both types, hence we have to convert in between them
+/// for certain functions. Notice that precision loss might occur when converting
+/// the other way (from `U256` to `Balance`).
+///
+/// See <https://github.com/paritytech/polkadot-sdk/pull/9101> for more details.
+pub fn balance_to_evm_value<R>(value: BalanceOf<R>) -> U256
+where
+    R: pallet_revive::Config,
+    BalanceOf<R>: Into<U256>,
+    U256: From<u32>,
+{
+    let native_to_eth_ratio: U256 =
+        <R as pallet_revive::Config>::NativeToEthRatio::get().into();
+    let evm_value: U256 = value.into();
+    native_to_eth_ratio.saturating_mul(evm_value)
 }

@@ -34,7 +34,7 @@ extern crate rustc_span;
 mod no_main;
 
 #[doc(hidden)]
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub fn register_lints(
     _sess: &rustc_session::Session,
     lint_store: &mut rustc_lint::LintStore,

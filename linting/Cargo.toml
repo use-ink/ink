@@ -7,20 +7,16 @@ members = [
 ]
 
 [workspace.package]
-version = "6.0.0-alpha.1"
+version = "6.0.0-alpha.4"
 authors = ["Use Ink <ink@use.ink>"]
-edition = "2021"
+edition = "2024"
 license = "Apache-2.0"
 repository = "https://github.com/use-ink/ink"
 homepage = "https://use.ink"
 keywords = ["ink", "blockchain", "edsl", "dylint", "linting"]
 
 [workspace.dependencies]
-ink_linting_utils = { version = "=6.0.0-alpha.1", path = "utils" }
-
-# todo Remove once the `polkadot-sdk` compilation error
-# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
-tokio = { version = "1.44.2", features = ["net"], default-features = false }
+ink_linting_utils = { version = "=6.0.0-alpha.4", path = "utils" }
 
 [workspace.metadata.dylint]
 libraries = [

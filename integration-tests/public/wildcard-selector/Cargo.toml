@@ -1,8 +1,8 @@
 [package]
 name = "wildcard-selector"
-version = "6.0.0-alpha.1"
+version = "6.0.0-alpha.4"
 authors = ["Use Ink <ink@use.ink>"]
-edition = "2021"
+edition = "2024"
 publish = false
 
 [dependencies]
@@ -21,7 +21,7 @@ std = [
 ]
 ink-as-dependency = []
 e2e-tests = []
-emit-event = ["ink/unstable-hostfn"]
+emit-event = []
 
 [package.metadata.ink-lang]
 abi = "ink"

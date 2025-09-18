@@ -51,7 +51,7 @@ impl GenerateCode for Metadata<'_> {
             #[cfg(not(feature = "ink-as-dependency"))]
             #[cfg(not(ink_abi = "sol"))]
             const _: () = {
-                #[no_mangle]
+                #[unsafe(no_mangle)]
                 pub fn __ink_generate_metadata() -> ::ink::metadata::InkProject  {
                     let layout = #layout;
                     ::ink::metadata::layout::ValidateLayout::validate(&layout).unwrap_or_else(|error| {
@@ -150,14 +150,17 @@ impl Metadata<'_> {
         let is_payable = constructor.is_payable();
         let is_default = constructor.is_default();
         let constructor = constructor.callable();
-        let ident = constructor.ident();
+        let name = constructor
+            .name()
+            .map(ToString::to_string)
+            .unwrap_or_else(|| constructor.ident().to_string());
         let args = constructor.inputs().map(Self::generate_dispatch_argument);
         let storage_ident = self.contract.module().storage().ident();
         let ret_ty = Self::generate_constructor_return_type(storage_ident, selector_id);
         let cfg_attrs = constructor.get_cfg_attrs(span);
         quote_spanned!(span=>
             #( #cfg_attrs )*
-            ::ink::metadata::ConstructorSpec::from_label(::core::stringify!(#ident))
+            ::ink::metadata::ConstructorSpec::from_label(#name)
                 .selector([
                     #( #selector_bytes ),*
                 ])
@@ -215,14 +218,17 @@ impl Metadata<'_> {
                 let is_default = message.is_default();
                 let message = message.callable();
                 let mutates = message.receiver().is_ref_mut();
-                let ident = message.ident();
+                let name = message
+                    .name()
+                    .map(ToString::to_string)
+                    .unwrap_or_else(|| message.ident().to_string());
                 let args = message.inputs().map(Self::generate_dispatch_argument);
                 let cfg_attrs = message.get_cfg_attrs(span);
                 let ret_ty =
                     Self::generate_message_return_type(&message.wrapped_output());
                 quote_spanned!(span =>
                     #( #cfg_attrs )*
-                    ::ink::metadata::MessageSpec::from_label(::core::stringify!(#ident))
+                    ::ink::metadata::MessageSpec::from_label(#name)
                         .selector([
                             #( #selector_bytes ),*
                         ])
@@ -261,7 +267,10 @@ impl Metadata<'_> {
             .flatten()
             .map(|((trait_ident, trait_path), message)| {
                 let message_span = message.span();
-                let message_ident = message.ident();
+                let message_name = message
+                    .name()
+                    .map(ToString::to_string)
+                    .unwrap_or_else(|| message.ident().to_string());
                 let message_docs = message
                     .attrs()
                     .iter()
@@ -283,7 +292,7 @@ impl Metadata<'_> {
                         as ::ink::reflect::TraitMessageInfo<#local_id>>::SELECTOR
                 }};
                 let ret_ty = Self::generate_message_return_type(&message.wrapped_output());
-                let label = [trait_ident.to_string(), message_ident.to_string()].join("::");
+                let label = [trait_ident.to_string(), message_name].join("::");
                 quote_spanned!(message_span=>
                     #( #cfg_attrs )*
                     ::ink::metadata::MessageSpec::from_label(#label)
@@ -342,14 +351,12 @@ impl Metadata<'_> {
         let hash: syn::Type = parse_quote!(Hash);
         let timestamp: syn::Type = parse_quote!(Timestamp);
         let block_number: syn::Type = parse_quote!(BlockNumber);
-        let chain_extension: syn::Type = parse_quote!(ChainExtension);
 
         let account_id = generate_type_spec(&account_id);
         let balance = generate_type_spec(&balance);
         let hash = generate_type_spec(&hash);
         let timestamp = generate_type_spec(&timestamp);
         let block_number = generate_type_spec(&block_number);
-        let chain_extension = generate_type_spec(&chain_extension);
         let buffer_size_const = quote!(::ink::env::BUFFER_SIZE);
         quote_spanned!(span=>
             ::ink::metadata::EnvironmentSpec::new()
@@ -358,8 +365,7 @@ impl Metadata<'_> {
                 .hash(#hash)
                 .timestamp(#timestamp)
                 .block_number(#block_number)
-                .chain_extension(#chain_extension)
-                .max_event_topics(MAX_EVENT_TOPICS)
+                .native_to_eth_ratio(NATIVE_TO_ETH_RATIO)
                 .static_buffer_size(#buffer_size_const)
                 .done()
         )
@@ -430,12 +436,14 @@ mod tests {
                  * many lines
                  */
             )]),
-            vec![r"
+            vec![
+                r"
                  * Multi-line comments
                  * may span many,
                  * many lines
                  "
-            .to_string()],
+                .to_string()
+            ],
         );
         assert_eq!(
             extract_doc_attributes(&[

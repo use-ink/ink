@@ -23,28 +23,15 @@ log = "0.4.14"
 regex = "1.5.4"
 ink_linting_utils = { workspace = true }
 
-# todo Remove once the `polkadot-sdk` compilation error
-# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
-tokio = { workspace = true, features = ["net"] }
-
 [dev-dependencies]
 dylint_testing = "4.1.0"
 
 # The ink! dependencies used to build the `ui` tests and to compile the linting
-# library with `--default-features=std` (see the `features` section bellow).
+# library with `--default-features=std` (see the `features` section below).
 #
 # These cannot be moved to the workspace level because `cargo` does not provide
 # the `[[workspace.dev-dependencies]]` directive.
-ink = { version = "=6.0.0-alpha.1", path = "../../crates/ink" }
-
-# todo Remove once the `polkadot-sdk` compilation error
-# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
-tokio = { workspace = true, features = ["net"] }
-
-# todo Remove once the `polkadot-sdk` compilation error
-# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
-[build-dependencies]
-tokio = { workspace = true, features = ["net"] }
+ink = { version = "=6.0.0-alpha.4", path = "../../crates/ink" }
 
 # For the moment we have to include the tests as examples and
 # then use `dylint_testing::ui_test_examples`.

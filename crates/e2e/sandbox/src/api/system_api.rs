@@ -4,11 +4,11 @@ use crate::{
     Sandbox,
 };
 use frame_support::sp_runtime::{
+    DispatchResultWithInfo,
     traits::{
         Dispatchable,
         Saturating,
     },
-    DispatchResultWithInfo,
 };
 use frame_system::pallet_prelude::BlockNumberFor;
 
@@ -100,17 +100,17 @@ where
 #[cfg(test)]
 mod tests {
     use crate::{
-        api::prelude::*,
         DefaultSandbox,
         RuntimeCall,
         RuntimeEventOf,
         RuntimeOf,
         Sandbox,
+        api::prelude::*,
     };
     use frame_support::sp_runtime::{
-        traits::Dispatchable,
         AccountId32,
         DispatchResultWithInfo,
+        traits::Dispatchable,
     };
 
     fn make_transfer(

@@ -44,24 +44,24 @@ pub mod utils {
 
 pub use self::{
     call_builder::{
-        build_call,
-        build_call_abi,
-        build_call_solidity,
         Call,
         CallBuilder,
         CallParams,
         DelegateCall,
+        build_call,
+        build_call_ink,
+        build_call_sol,
     },
     create_builder::{
-        build_create,
-        build_create_abi,
-        build_create_solidity,
-        state,
         ConstructorReturnType,
         CreateBuilder,
         CreateParams,
         FromAddr,
         LimitParamsV2,
+        build_create,
+        build_create_ink,
+        build_create_sol,
+        state,
     },
     execution::{
         Execution,

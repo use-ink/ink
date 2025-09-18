@@ -59,7 +59,7 @@ jobs:
       cargo-contract-version: ${{ steps.environment.outputs.cargo-contract-version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -77,12 +77,43 @@ jobs:
             echo -e '[registry]\nprotocol = \"sparse\"' > /usr/local/cargo/config.toml
             echo \"cargo-contract-version=$(cargo contract --version)\" >> $GITHUB_OUTPUT
 
+  # Iterate over all Rust projects and return the ones which are contracts.
+  # This includes the one from `integration-tests`, but also any others.
+  collect-all-contracts:
+      runs-on: ubuntu-latest
+      needs: ci-image
+      strategy:
+          fail-fast: true
+      steps:
+          - name: Checkout
+            uses: actions/checkout@v5
+            with:
+                fetch-depth: 1
+
+          - name: Initialize runner
+            uses: ./.github/init
+            with:
+                cache: true
+                cache-directories: ${{ github.workspace}}/${{ env.CARGO_TARGET_DIR }}
+                cache-key: ${{ matrix.type }}
+
+          - name: Find contracts
+            uses: ./.github/run-container-command
+            with:
+                command: |
+                    scripts/for_all_contracts_exec.sh --output ./all-contracts --path . -- echo {}
+
+          - uses: actions/upload-artifact@v4
+            with:
+                name: ${{ github.run_id }}-all-contracts
+                path: ./all-contracts
+
   spellcheck:
     runs-on: ubuntu-latest
     needs: ci-image
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -95,10 +126,10 @@ jobs:
 
   fmt:
     runs-on: ubuntu-latest
-    needs: ci-image
+    needs: [ci-image, collect-all-contracts]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -112,13 +143,21 @@ jobs:
             cargo +nightly fmt --all -- --check ./crates/ink/tests/ui/contract/{pass,fail}/*.rs
             cargo +nightly fmt --all -- --check ./crates/ink/tests/ui/trait_def/{pass,fail}/*.rs
 
+      - name: Download all-contracts artifacts
+        uses: actions/download-artifact@v5
+        with:
+            name: ${{ github.run_id }}-all-contracts
+
       - name: Check Examples Formatting
         uses: ./.github/run-container-command
         with:
           command: |
-            scripts/for_all_contracts_exec.sh --path integration-tests -- cargo +nightly fmt --manifest-path {} -- --check
+            cat ./all-contracts | \
+                grep integration-tests | \
+                scripts/for_all_contracts_exec.sh -- cargo +nightly fmt --manifest-path {} -- --check
             # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
-            rustfmt +nightly --check ./integration-tests/public/psp22-extension/runtime/psp22-extension-example.rs
+            # todo @cmichi re-enable for pre-compile example
+            # rustfmt +nightly --check ./integration-tests/public/psp22-extension/runtime/psp22-extension-example.rs
 
   clippy:
     runs-on: ubuntu-latest
@@ -129,7 +168,7 @@ jobs:
         type: [ ALL, RISCV ]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -167,7 +206,7 @@ jobs:
 
   clippy-examples:
     runs-on: ubuntu-latest
-    needs: ci-image
+    needs: [ci-image, collect-all-contracts]
     strategy:
       fail-fast: false
       matrix:
@@ -178,7 +217,7 @@ jobs:
       ALLOWED_LINTS: -A unexpected_cfgs
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -189,13 +228,20 @@ jobs:
           cache-directories: ${{ github.workspace}}/${{ env.CARGO_TARGET_DIR }}
           cache-key: ${{ matrix.type }}
 
+      - name: Download all-contracts artifacts
+        uses: actions/download-artifact@v5
+        with:
+            name: ${{ github.run_id }}-all-contracts
+
       - name: Run Clippy for Examples
         uses: ./.github/run-container-command
         if: ${{ matrix.type == 'STD' }}
         with:
           command: |
-            scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --all-targets \
-              --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED $ALLOWED_LINTS
+            while IFS= read -r contract; do
+                cargo clippy --all-targets \
+                  --manifest-path $contract -- -D warnings -A $CLIPPY_ALLOWED $ALLOWED_LINTS;
+            done < <(grep integration-tests ./all-contracts)
 
       - name: Run Clippy for RISC-V Examples
         uses: ./.github/run-container-command
@@ -204,9 +250,11 @@ jobs:
           RUSTFLAGS: "--cfg substrate_runtime"
         with:
           command: |
-            scripts/for_all_contracts_exec.sh --path integration-tests -- cargo clippy --no-default-features \
-              --target ${CLIPPY_TARGET} \
-              --manifest-path {} -- -D warnings -A $CLIPPY_ALLOWED $ALLOWED_LINTS
+              while IFS= read -r contract; do
+                  cargo clippy --no-default-features \
+                      --target ${CLIPPY_TARGET} \
+                      --manifest-path ${contract} -- -D warnings -A $CLIPPY_ALLOWED $ALLOWED_LINTS;
+              done < <(grep integration-tests ./all-contracts)
 
   check:
     runs-on: ubuntu-latest
@@ -217,7 +265,7 @@ jobs:
         type: [STD, RISCV]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -256,7 +304,7 @@ jobs:
     needs: ci-image
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -282,7 +330,7 @@ jobs:
     needs: ci-image
     steps:
         - name: Checkout
-          uses: actions/checkout@v4
+          uses: actions/checkout@v5
           with:
               fetch-depth: 1
 
@@ -310,7 +358,7 @@ jobs:
         type: [STD, RISCV]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -353,7 +401,7 @@ jobs:
     needs: [check]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -387,7 +435,7 @@ jobs:
             workspace: [ink, linting]
     steps:
         - name: Checkout
-          uses: actions/checkout@v4
+          uses: actions/checkout@v5
           with:
               fetch-depth: 1
 
@@ -423,7 +471,7 @@ jobs:
             workspace: [ink, linting]
     steps:
         - name: Checkout
-          uses: actions/checkout@v4
+          uses: actions/checkout@v5
           with:
               fetch-depth: 1
 
@@ -454,7 +502,7 @@ jobs:
     needs: [check, fmt, clippy, clippy-examples, dylint-checks, dylint-testing, spellcheck]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -499,7 +547,7 @@ jobs:
 #      #image: ${{ needs.set-image.outputs.IMAGE }}
 #    steps:
 #      - name: Checkout
-#        uses: actions/checkout@v4
+#        uses: actions/checkout@v5
 #        with:
 #          fetch-depth: 0
 #
@@ -531,14 +579,14 @@ jobs:
 
   examples-test:
     runs-on: ubuntu-latest
-    needs: [fmt]
+    needs: [fmt, collect-all-contracts]
     strategy:
       fail-fast: false
       matrix:
         partition: [1, 2, 3, 4]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -553,6 +601,11 @@ jobs:
           # cache-on-failure: true
           # cache-key: ${{ matrix.partition }}
 
+      - name: Download all-contracts artifacts
+        uses: actions/download-artifact@v5
+        with:
+            name: ${{ github.run_id }}-all-contracts
+
       - name: Test Examples
         uses: ./.github/run-container-command
         env:
@@ -564,23 +617,20 @@ jobs:
         with:
           # Run all tests with --all-features, which will run the `e2e-tests` feature if present.
           command: |
-            scripts/for_all_contracts_exec.sh --path integration-tests --ignore internal/static-buffer \
-            --ignore internal/mapping --ignore public/debugging-strategies --ignore public/wildcard-selector \
-            --ignore solidity-abi/sol-cross-contract --ignore solidity-abi/sol-encoding \
-            --ignore solidity-abi/solidity-calls-flipper --ignore solidity-abi/events \
-            --ignore solidity-abi/trait-flipper --ignore solidity-abi/trait-dyn-cross-contract-calls \
-            --ignore solidity-abi/fallible-setter \
-            --ignore solidity-abi/sol-cross-contract/other-contract-sol \
-            --ignore solidity-abi/trait-dyn-cross-contract-calls/contracts/incrementer \
-            --partition ${{ matrix.partition }}/4 -- \
-            cargo contract test --all-features --manifest-path {}
+            cat ./all-contracts | \
+            grep integration-tests | \
+            scripts/for_all_contracts_exec.sh \
+              --ignore internal/static-buffer \
+              --ignore internal/mapping \
+              --partition ${{ matrix.partition }}/4 -- \
+              cargo contract test --all-features --manifest-path {}
 
   examples-test-mapping:
     runs-on: ubuntu-latest
     needs: ci-image
     steps:
         - name: Checkout
-          uses: actions/checkout@v4
+          uses: actions/checkout@v5
           with:
               fetch-depth: 1
 
@@ -596,8 +646,6 @@ jobs:
           env:
               # Fix for linking of `linkme` for `cargo test`: https://github.com/dtolnay/linkme/issues/49
               RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
-              # needed for `mapping::e2e_tests::fallible_storage_methods_work`
-              INK_STATIC_BUFFER_SIZE: 256
               # Run the quickcheck tests inside contracts, but not for the default amount
               # of times (as that would take quite long).
               QUICKCHECK_TESTS: 2
@@ -605,59 +653,14 @@ jobs:
             command: |
                 cargo contract test --all-features --manifest-path integration-tests/internal/mapping/Cargo.toml
 
-  # TODO: (@davidsemakula) Add back to `examples-test` job when flakiness is fixed.
-  examples-test-debugging-strategies:
-    runs-on: ubuntu-latest
-    needs: ci-image
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Initialize runner
-        uses: ./.github/init
-        with:
-          cache: true
-          cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
-          cache-on-failure: true
-
-      - name: Test Debugging Strategies Example
-        uses: ./.github/run-container-command
-        with:
-          command: |
-            cargo contract test --all-features --manifest-path integration-tests/public/debugging-strategies/Cargo.toml
-
-
-  # TODO: (@davidsemakula) Add back to `examples-test` job when flakiness is fixed.
-  examples-test-wildcard-selector:
-    runs-on: ubuntu-latest
-    needs: ci-image
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Initialize runner
-        uses: ./.github/init
-        with:
-          cache: true
-          cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
-          cache-on-failure: true
-
-      - name: Test Wildcard Selector Example
-        uses: ./.github/run-container-command
-        with:
-          command: |
-            cargo contract test --all-features --manifest-path integration-tests/public/wildcard-selector/Cargo.toml
+                INK_STATIC_BUFFER_SIZE=256 cargo test --all-features --manifest-path integration-tests/internal/mapping/Cargo.toml -- --ignored fallible_storage_methods_work
 
   examples-custom-test:
     runs-on: ubuntu-latest
     needs: [clippy, clippy-examples]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -704,37 +707,12 @@ jobs:
             cargo clean --manifest-path integration-tests/internal/static-buffer/Cargo.toml
             INK_STATIC_BUFFER_SIZE=32 cargo contract test --manifest-path integration-tests/internal/static-buffer/Cargo.toml --all-features
 
-  # NOTE: Sharing build artifacts (i.e. via a shared cargo target directory) with other tests
-  # that don't have the `ink_abi="sol"` `cfg` option set makes the Solidity ABI tests fail.
-  examples-test-solidity-abi:
-    runs-on: ubuntu-latest
-    needs: ci-image
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Initialize runner
-        uses: ./.github/init
-        with:
-          cache: true
-          cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
-          cache-on-failure: true
-
-      - name: Test Solidity ABI Examples
-        uses: ./.github/run-container-command
-        with:
-          command: |
-            scripts/for_all_contracts_exec.sh --path integration-tests/solidity-abi -- \
-            cargo contract test --all-features --manifest-path {}
-
   examples-contract-build:
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: [build, collect-all-contracts]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -753,6 +731,11 @@ jobs:
         run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
         id: extract_branch
 
+      - name: Download all-contracts artifacts
+        uses: actions/download-artifact@v5
+        with:
+            name: ${{ github.run_id }}-all-contracts
+
       - name: Build Contract Examples for RISC-V
         uses: ./.github/run-container-command
         env:
@@ -762,29 +745,11 @@ jobs:
         with:
           command: |
             mkdir -p measurements-${{ env.MEASUREMENTS_ID }}/
-            scripts/for_all_contracts_exec2.sh --path integration-tests \
-              --ignore solidity-abi/sol-cross-contract --ignore solidity-abi/sol-encoding \
-              --ignore solidity-abi/solidity-calls-flipper --ignore solidity-abi/events \
-              --ignore solidity-abi/trait-flipper --ignore solidity-abi/trait-dyn-cross-contract-calls \
-              --ignore solidity-abi/fallible-setter \
-              --ignore solidity-abi/sol-cross-contract/other-contract-sol \
-              --ignore solidity-abi/trait-dyn-cross-contract-calls/contracts/incrementer -- \
-              scripts/build_and_determine_contract_size.sh {}
-
-      # NOTE: Sharing build artifacts (i.e. via a shared cargo target directory) with other contracts
-      # that don't have the same ABI set makes the builds fail.
-      - name: Build Contract Examples for RISC-V (Solidity ABI)
-        uses: ./.github/run-container-command
-        env:
-          MANIFEST_PATH: ""
-          CONTRACT_SIZE_FILE: "measurements-${{ env.MEASUREMENTS_ID }}/contract_size_"
-          CARGO_INCREMENTAL: 0
-          CARGO_TARGET_DIR: ${{ env.CARGO_TARGET_DIR }}/sol-abi
-        with:
-          command: |
-            mkdir -p measurements-${{ env.MEASUREMENTS_ID }}/
-            scripts/for_all_contracts_exec2.sh --path integration-tests/solidity-abi -- \
-              scripts/build_and_determine_contract_size.sh {}
+            cat ./all-contracts | \
+            grep integration-tests | \
+            scripts/for_all_contracts_exec.sh \
+              'scripts/build_and_determine_contract_size.sh {} >> $CONTRACT_SIZE_FILE$example'
+            sed -ie 's/^integration-tests\/\(public\/\|internal\/\)\?//' ${CONTRACT_SIZE_FILE}*
 
       - uses: actions/upload-artifact@v4
         with:
@@ -797,7 +762,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download reports' artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
             path: downloaded_artifacts
 
@@ -821,14 +786,14 @@ jobs:
 
   examples-contract-build-force-specific-abi:
       runs-on: ubuntu-latest
-      needs: [build]
+      needs: [build, collect-all-contracts]
       strategy:
           fail-fast: false
           matrix:
               type: [ sol, all ]
       steps:
           - name: Checkout
-            uses: actions/checkout@v4
+            uses: actions/checkout@v5
             with:
                 fetch-depth: 1
 
@@ -843,6 +808,11 @@ jobs:
             shell: bash
             run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
             id: extract_branch
+
+          - name: Download all-contracts artifacts
+            uses: actions/download-artifact@v5
+            with:
+                name: ${{ github.run_id }}-all-contracts
 
           - name: Build Contract Examples
             uses: ./.github/run-container-command
@@ -859,7 +829,9 @@ jobs:
                     find integration-tests/solidity-abi -type f -name "Cargo.toml" | xargs -n1 sed -i 's/abi = \".*\"/abi = \"'$ABI'\"/g'
 
                     mkdir -p measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}/
-                    IGNORE_ERR=true scripts/for_all_contracts_exec.sh --path integration-tests \
+                    cat ./all-contracts | \
+                    grep integration-tests | \
+                    IGNORE_ERR=true scripts/for_all_contracts_exec.sh \
                       --ignore solidity-abi/sol-cross-contract --ignore solidity-abi/sol-encoding \
                       --ignore solidity-abi/solidity-calls-flipper --ignore solidity-abi/events \
                       --ignore solidity-abi/trait-flipper --ignore solidity-abi/trait-dyn-cross-contract-calls \
@@ -882,7 +854,7 @@ jobs:
               type: [ sol, all ]
       steps:
           - name: Download reports' artifacts
-            uses: actions/download-artifact@v4
+            uses: actions/download-artifact@v5
             with:
                 path: downloaded_artifacts
 
@@ -906,10 +878,10 @@ jobs:
 
   examples-docs:
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: [build, collect-all-contracts]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -918,6 +890,11 @@ jobs:
         with:
           cache: true
           cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
+
+      - name: Download all-contracts artifacts
+        uses: actions/download-artifact@v5
+        with:
+            name: ${{ github.run_id }}-all-contracts
 
       - name: Create Examples Docs
         uses: ./.github/run-container-command
@@ -930,7 +907,9 @@ jobs:
             # puts the contract functions in a private module.
             # Once https://github.com/use-ink/ink/issues/336 has been implemented we can get rid
             # of this flag.
-            scripts/for_all_contracts_exec.sh --path integration-tests -- cargo doc --manifest-path {} \
+            cat ./all-contracts | \
+            grep integration-tests | \
+            scripts/for_all_contracts_exec.sh -- cargo doc --manifest-path {} \
               --document-private-items --no-deps
 
 # fuzz
@@ -944,7 +923,7 @@ jobs:
       issues: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -1025,7 +1004,7 @@ jobs:
     if: github.ref != 'refs/heads/master'
     steps:
         - name: Checkout
-          uses: actions/checkout@v4
+          uses: actions/checkout@v5
           with:
               fetch-depth: 1
 

@@ -21,14 +21,15 @@ use ir::{
 use itertools::Itertools;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
+    format_ident,
     quote,
     quote_spanned,
 };
 use syn::spanned::Spanned as _;
 
 use crate::{
-    generator,
     GenerateCode,
+    generator,
 };
 
 /// Generates code for the contract reference of the ink! smart contract.
@@ -66,8 +67,13 @@ impl GenerateCode for ContractRef<'_> {
 
 impl ContractRef<'_> {
     /// Generates the identifier of the contract reference struct.
+    fn generate_contract_ref_base_ident(&self) -> syn::Ident {
+        format_ident!("{}Ref", self.contract.module().storage().ident())
+    }
+
+    /// Generates the identifier of the contract reference struct.
     fn generate_contract_ref_ident(&self) -> syn::Ident {
-        quote::format_ident!("{}Ref", self.contract.module().storage().ident())
+        format_ident!("{}For", self.generate_contract_ref_base_ident())
     }
 
     /// Generates the code for the struct representing the contract reference.
@@ -89,6 +95,18 @@ impl ContractRef<'_> {
         let storage_ident = self.contract.module().storage().ident();
         let ref_ident = self.generate_contract_ref_ident();
         let abi = default_abi!();
+        let ref_ident_default_abi = self.generate_contract_ref_base_ident();
+        let ref_ident_abi_aliases = generate_abi_impls!(@type |abi| {
+            let (abi_ty, suffix) = match abi {
+                Abi::Ink => (quote!(::ink::abi::Ink), "Ink"),
+                Abi::Sol => (quote!(::ink::abi::Sol), "Sol"),
+            };
+            let ref_ident_abi_alias = format_ident!("{ref_ident_default_abi}{suffix}");
+            quote! {
+                #[allow(dead_code)]
+                pub type #ref_ident_abi_alias = #ref_ident::<#abi_ty>;
+            }
+        });
         let sol_codec = if cfg!(any(ink_abi = "sol", ink_abi = "all")) {
             // These manual implementations are a bit more efficient than the derived
             // equivalents.
@@ -131,6 +149,12 @@ impl ContractRef<'_> {
                 inner: <#storage_ident as ::ink::codegen::ContractCallBuilder>::Type<Abi>,
                 _marker: core::marker::PhantomData<Abi>,
             }
+
+            // Default type alias (i.e. `ContractRef` for a contract named `Contract`).
+            #[allow(dead_code)]
+            pub type #ref_ident_default_abi = #ref_ident::<#abi>;
+            // ABI specific type aliases (i.e. `ContractRefInk` and `ContractRefSol`) as appropriate.
+            #ref_ident_abi_aliases
 
             const _: () = {
                 impl ::ink::env::ContractReference for #storage_ident {
@@ -585,7 +609,7 @@ impl ContractRef<'_> {
             .map(quote::ToTokens::to_token_stream)
             .unwrap_or_else(|| quote::quote! { Self });
 
-        let (abi_ty, exec_input_init) = match abi {
+        let (abi_ty, exec_input_init, build_create_fn) = match abi {
             Abi::Ink => {
                 let selector_bytes = constructor.composed_selector().hex_lits();
                 (
@@ -595,6 +619,7 @@ impl ContractRef<'_> {
                             ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
                         )
                     },
+                    quote!(build_create_ink),
                 )
             }
             Abi::Sol => {
@@ -603,6 +628,7 @@ impl ContractRef<'_> {
                     quote! {
                         ::ink::env::call::ExecutionInput::no_selector()
                     },
+                    quote!(build_create_sol),
                 )
             }
         };
@@ -625,7 +651,7 @@ impl ContractRef<'_> {
                 ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#ret_type>>,
                 #abi_ty
             > {
-                ::ink::env::call::build_create_abi::<Self, #abi_ty>()
+                ::ink::env::call::#build_create_fn::<Self>()
                     .exec_input(
                         #exec_input_init
                         #(

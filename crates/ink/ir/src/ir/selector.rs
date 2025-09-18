@@ -104,11 +104,11 @@ impl Selector {
     /// 1. Concatenate `N`, `T` and `F` using `::` as separator and call it `C`.
     /// 1. Apply the `BLAKE2` 256-bit hash `H` of `C`.
     /// 1. The first 4 bytes of `H` make up the selector.
-    pub fn compose<'a, T>(trait_prefix: T, fn_ident: &syn::Ident) -> Self
+    pub fn compose<'a, T>(trait_prefix: T, fn_name: String) -> Self
     where
         T: Into<Option<TraitPrefix<'a>>>,
     {
-        let fn_ident = fn_ident.to_string().into_bytes();
+        let fn_ident = fn_name.into_bytes();
         let input_bytes: Vec<u8> = match trait_prefix.into() {
             Some(trait_prefix) => {
                 let namespace = trait_prefix.namespace_bytes();

@@ -14,36 +14,35 @@
 
 use core::marker::PhantomData;
 
-#[cfg(feature = "unstable-hostfn")]
-use ink_env::call::{
-    ConstructorReturnType,
-    CreateParams,
-    FromAddr,
-    LimitParamsV2,
-};
 use ink_env::{
+    Environment,
+    Result,
     call::{
-        utils::DecodeMessageResult,
         Call,
         CallParams,
+        ConstructorReturnType,
+        CreateParams,
         DelegateCall,
+        FromAddr,
+        LimitParamsV2,
+        utils::DecodeMessageResult,
     },
     hash::{
         CryptoHash,
         HashOutput,
     },
-    Environment,
-    Result,
 };
 use ink_primitives::{
-    abi::AbiEncodeWith,
     Address,
     H256,
     U256,
+    abi::{
+        AbiEncodeWith,
+        Ink,
+        Sol,
+    },
 };
 use pallet_revive_uapi::ReturnErrorCode;
-
-use crate::ChainExtensionInstance;
 
 /// The API behind the `self.env()` and `Self::env()` syntax in ink!.
 ///
@@ -67,19 +66,6 @@ impl<E> Default for EnvAccess<'_, E> {
 impl<E> core::fmt::Debug for EnvAccess<'_, E> {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("EnvAccess").finish()
-    }
-}
-
-impl<E> EnvAccess<'_, E>
-where
-    E: Environment,
-    <E as Environment>::ChainExtension: ChainExtensionInstance,
-{
-    /// Allows to call one of the available defined chain extension methods.
-    pub fn extension(
-        self,
-    ) -> <<E as Environment>::ChainExtension as ChainExtensionInstance>::Instance {
-        <<E as Environment>::ChainExtension as ChainExtensionInstance>::instantiate()
     }
 }
 
@@ -420,7 +406,7 @@ where
     /// #         }
     /// #
     /// #[ink(message)]
-    /// pub fn minimum_balance(&self) -> Balance {
+    /// pub fn minimum_balance(&self) -> ink::U256 {
     ///     self.env().minimum_balance()
     /// }
     /// #
@@ -431,17 +417,51 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::minimum_balance`]
-    #[cfg(feature = "unstable-hostfn")]
-    pub fn minimum_balance(self) -> E::Balance {
-        ink_env::minimum_balance::<E>()
+    pub fn minimum_balance(self) -> U256 {
+        ink_env::minimum_balance()
     }
 
     /// Emits an event.
+    ///
+    /// # Note
+    ///
+    /// In "all" ABI mode, both an ink! and Solidity ABI event are emitted.
+    #[cfg(not(ink_abi = "all"))]
     pub fn emit_event<Evt>(self, event: Evt)
     where
-        Evt: ink_env::Event,
+        Evt: ink_env::Event<crate::env::DefaultAbi>,
     {
-        ink_env::emit_event::<E, Evt>(event)
+        ink_env::emit_event::<Evt>(event)
+    }
+
+    /// Emits an event.
+    ///
+    /// # Note
+    ///
+    /// In "all" ABI mode, both an ink! and Solidity ABI event are emitted.
+    #[cfg(ink_abi = "all")]
+    pub fn emit_event<Evt>(self, event: Evt)
+    where
+        Evt: ink_env::Event<crate::abi::Ink> + ink_env::Event<crate::abi::Sol>,
+    {
+        ink_env::emit_event::<Evt>(event)
+    }
+
+    /// Emits an event using the ink! ABI encoding (i.e. with SCALE codec for event data
+    /// encode/decode).
+    pub fn emit_event_ink<Evt>(self, event: Evt)
+    where
+        Evt: ink_env::Event<Ink>,
+    {
+        ink_env::emit_event_ink::<Evt>(event)
+    }
+
+    /// Emits an event using the Solidity ABI encoding.
+    pub fn emit_event_sol<Evt>(self, event: Evt)
+    where
+        Evt: ink_env::Event<Sol>,
+    {
+        ink_env::emit_event_sol::<Evt>(event)
     }
 
     /// Instantiates another contract using the supplied code hash.
@@ -505,12 +525,11 @@ where
     ///         .instantiate_contract(&create_params)
     ///         .unwrap_or_else(|error| {
     ///             panic!(
-    ///                 "Received an error from `pallet-revive` while instantiating: {:?}",
-    ///                 error
+    ///                 "Received an error from `pallet-revive` while instantiating: {error:?}"
     ///             )
     ///         })
     ///         .unwrap_or_else(|error| {
-    ///             panic!("Received a `LangError` while instantiating: {:?}", error)
+    ///             panic!("Received a `LangError` while instantiating: {error:?}")
     ///         })
     /// }
     /// #
@@ -524,7 +543,6 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::instantiate_contract`]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn instantiate_contract<ContractRef, Args, R, Abi>(
         self,
         params: &CreateParams<E, ContractRef, LimitParamsV2, Args, R, Abi>,
@@ -537,7 +555,6 @@ where
         ContractRef: FromAddr + ink_env::ContractReverseReference,
         <ContractRef as ink_env::ContractReverseReference>::Type:
             ink_env::reflect::ContractConstructorDecoder,
-
         Args: AbiEncodeWith<Abi>,
         R: ConstructorReturnType<ContractRef, Abi>,
     {
@@ -552,12 +569,12 @@ where
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// use ink::env::{
+    ///     DefaultEnvironment,
     ///     call::{
-    ///         build_call,
     ///         ExecutionInput,
     ///         Selector,
+    ///         build_call,
     ///     },
-    ///     DefaultEnvironment,
     /// };
     ///
     /// #
@@ -621,14 +638,14 @@ where
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// use ink::env::{
+    ///     DefaultEnvironment,
     ///     call::{
-    ///         build_call,
-    ///         utils::ReturnType,
     ///         DelegateCall,
     ///         ExecutionInput,
     ///         Selector,
+    ///         build_call,
+    ///         utils::ReturnType,
     ///     },
-    ///     DefaultEnvironment,
     /// };
     /// use ink_primitives::Clear;
     ///
@@ -897,17 +914,22 @@ where
     /// #[ink(message)]
     /// pub fn ecdsa_to_eth_address(&self) {
     ///     let pub_key = [
-    ///         3, 110, 192, 35, 209, 24, 189, 55, 218, 250, 100, 89, 40, 76, 222, 208, 202, 127,
-    ///         31, 13, 58, 51, 242, 179, 13, 63, 19, 22, 252, 164, 226, 248, 98,
+    ///         3, 110, 192, 35, 209, 24, 189, 55, 218, 250, 100, 89, 40, 76, 222, 208, 202,
+    ///         127, 31, 13, 58, 51, 242, 179, 13, 63, 19, 22, 252, 164, 226, 248, 98,
     ///     ];
     ///     let EXPECTED_ETH_ADDRESS = [
-    ///         253, 240, 181, 194, 143, 66, 163, 109, 18, 211, 78, 49, 177, 94, 159, 79, 207,
-    ///         37, 21, 191,
+    ///         253, 240, 181, 194, 143, 66, 163, 109, 18, 211, 78, 49, 177, 94, 159, 79,
+    ///         207, 37, 21, 191,
     ///     ];
     ///     let output = self
     ///         .env()
     ///         .ecdsa_to_eth_address(&pub_key)
-    ///         .unwrap_or_else(|err| panic!("must return an Ethereum address for the compressed public key: {:?}", err));
+    ///         .unwrap_or_else(|err| {
+    ///             panic!(
+    ///                 "must return an Ethereum address for the compressed public key: {:?}",
+    ///                 err
+    ///             )
+    ///         });
     ///     assert_eq!(output, EXPECTED_ETH_ADDRESS);
     /// }
     /// #
@@ -1049,7 +1071,6 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::caller_is_origin`]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn caller_is_origin(self) -> bool {
         ink_env::caller_is_origin::<E>()
     }
@@ -1081,7 +1102,6 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::caller_is_root`]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn caller_is_root(self) -> bool {
         ink_env::caller_is_root::<E>()
     }
@@ -1147,7 +1167,6 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::own_code_hash`]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn own_code_hash(self) -> Result<H256> {
         ink_env::own_code_hash()
     }
@@ -1186,12 +1205,7 @@ where
         ink_env::set_code_hash::<E>(code_hash)
     }
 
-    #[cfg(feature = "unstable-hostfn")]
-    pub fn call_runtime<Call: scale::Encode>(self, call: &Call) -> Result<()> {
-        ink_env::call_runtime::<E, _>(call)
-    }
-
-    #[cfg(feature = "unstable-hostfn")]
+    #[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
     pub fn xcm_execute<Call: scale::Encode>(
         self,
         msg: &xcm::VersionedXcm<Call>,
@@ -1199,7 +1213,7 @@ where
         ink_env::xcm_execute::<E, _>(msg)
     }
 
-    #[cfg(feature = "unstable-hostfn")]
+    #[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
     pub fn xcm_send<Call: scale::Encode>(
         self,
         dest: &xcm::VersionedLocation,

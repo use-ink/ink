@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::fmt::{
+    Display,
+    Formatter,
+};
+
 use impl_serde::serialize as serde_hex;
 use syn::spanned::Spanned;
 
@@ -21,44 +26,68 @@ use crate::ast;
 ///
 /// Used as part of `ink::event` macro.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct SignatureTopicArg {
+pub struct SignatureTopic {
     topic: [u8; 32],
 }
 
-impl SignatureTopicArg {
-    pub fn signature_topic(&self) -> [u8; 32] {
+impl SignatureTopic {
+    /// Returns a 32-byte array representation of the signature topic.
+    pub fn to_bytes(&self) -> [u8; 32] {
         self.topic
     }
-}
 
-impl From<&[u8; 32]> for SignatureTopicArg {
-    fn from(value: &[u8; 32]) -> Self {
-        Self { topic: *value }
+    /// Returns a 32 byte hex-string representation of the signature topic.
+    pub fn to_hex(&self) -> String {
+        serde_hex::to_hex(self.topic.as_slice(), false)
     }
 }
 
-impl TryFrom<&syn::Lit> for SignatureTopicArg {
+impl Display for SignatureTopic {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.to_hex())
+    }
+}
+
+impl From<[u8; 32]> for SignatureTopic {
+    fn from(value: [u8; 32]) -> Self {
+        Self { topic: value }
+    }
+}
+
+impl TryFrom<&str> for SignatureTopic {
+    type Error = String;
+
+    fn try_from(value: &str) -> Result<Self, String> {
+        let bytes: [u8; 32] = serde_hex::from_hex(value)
+            .map_err(|_| "`signature_topic` has invalid hex string".to_string())?
+            .try_into()
+            .map_err(|e: Vec<u8>| {
+                format!(
+                    "`signature_topic` is expected to be 32-byte hex string. \
+                    Found {} bytes",
+                    e.len()
+                )
+            })?;
+
+        Ok(Self { topic: bytes })
+    }
+}
+
+impl TryFrom<&syn::LitStr> for SignatureTopic {
+    type Error = syn::Error;
+
+    fn try_from(lit: &syn::LitStr) -> Result<Self, Self::Error> {
+        Self::try_from(lit.value().as_str())
+            .map_err(|err| syn::Error::new_spanned(lit, err))
+    }
+}
+
+impl TryFrom<&syn::Lit> for SignatureTopic {
     type Error = syn::Error;
 
     fn try_from(lit: &syn::Lit) -> Result<Self, Self::Error> {
         if let syn::Lit::Str(s) = lit {
-            let bytes: [u8; 32] = serde_hex::from_hex(&s.value())
-                    .map_err(|_| {
-                        format_err_spanned!(
-                            lit,
-                            "`signature_topic` has invalid hex string",
-                        )
-                    })?
-                    .try_into()
-                    .map_err(|e: Vec<u8>| {
-                        format_err_spanned!(
-                            lit,
-                            "`signature_topic` is expected to be 32-byte hex string. Found {} bytes",
-                            e.len()
-                        )
-                    })?;
-
-            Ok(Self { topic: bytes })
+            Self::try_from(s)
         } else {
             Err(format_err_spanned!(
                 lit,
@@ -68,7 +97,7 @@ impl TryFrom<&syn::Lit> for SignatureTopicArg {
     }
 }
 
-impl TryFrom<&ast::MetaValue> for SignatureTopicArg {
+impl TryFrom<&ast::MetaValue> for SignatureTopic {
     type Error = syn::Error;
 
     fn try_from(value: &ast::MetaValue) -> Result<Self, Self::Error> {
@@ -83,13 +112,13 @@ impl TryFrom<&ast::MetaValue> for SignatureTopicArg {
     }
 }
 
-impl TryFrom<ast::AttributeArgs> for Option<SignatureTopicArg> {
+impl TryFrom<ast::AttributeArgs> for Option<SignatureTopic> {
     type Error = syn::Error;
 
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
-        let mut signature_topic: Option<SignatureTopicArg> = None;
+        let mut signature_topic: Option<SignatureTopic> = None;
         for arg in args.into_iter() {
-            if arg.name().is_ident("hash") {
+            if arg.name().is_ident("signature_topic") {
                 if signature_topic.is_some() {
                     return Err(format_err!(
                         arg.span(),
@@ -97,7 +126,7 @@ impl TryFrom<ast::AttributeArgs> for Option<SignatureTopicArg> {
                     ));
                 }
                 signature_topic =
-                    arg.value().map(SignatureTopicArg::try_from).transpose()?;
+                    arg.value().map(SignatureTopic::try_from).transpose()?;
             } else {
                 return Err(format_err_spanned!(
                     arg,
@@ -109,7 +138,7 @@ impl TryFrom<ast::AttributeArgs> for Option<SignatureTopicArg> {
     }
 }
 
-impl TryFrom<&syn::MetaNameValue> for SignatureTopicArg {
+impl TryFrom<&syn::MetaNameValue> for SignatureTopic {
     type Error = syn::Error;
 
     fn try_from(nv: &syn::MetaNameValue) -> Result<Self, Self::Error> {

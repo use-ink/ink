@@ -19,17 +19,14 @@ use super::{
     OnInstance,
 };
 use crate::{
-    types::Environment,
     Result,
+    types::Environment,
 };
 use core::fmt::Debug;
 use std::panic::UnwindSafe;
 
 pub use super::call_data::CallData;
-pub use ink_engine::{
-    ext::ChainSpec,
-    ChainExtension,
-};
+pub use ink_engine::ext::ChainSpec;
 use ink_primitives::{
     AccountIdMapper,
     Address,
@@ -41,29 +38,24 @@ use ink_primitives::{
 #[derive(Clone)]
 pub struct EmittedEvent {
     /// Recorded topics of the emitted event.
-    pub topics: Vec<Vec<u8>>,
+    pub topics: Vec<[u8; 32]>,
     /// Recorded encoding of the emitted event.
     pub data: Vec<u8>,
 }
 
-/// Sets the balance of the account to the given balance.
+/// Sets the balance of a contract to the given balance.
 ///
 /// # Note
-///
-/// Note that account could refer to either a user account or
-/// a smart contract account.
 ///
 /// If a 0 balance is set, this would not fail. This is useful for
 /// reaping an account.
 ///
 /// # Errors
 ///
-/// - If `account` does not exist.
-/// - If the underlying `account` type does not match.
+/// - If `addr` does not exist.
 /// - If the underlying `new_balance` type does not match.
 /// - If the `new_balance` is less than the existential minimum.
-#[cfg(feature = "unstable-hostfn")] // todo check this is needed here
-pub fn set_account_balance(addr: Address, new_balance: U256) {
+pub fn set_contract_balance(addr: Address, new_balance: U256) {
     let min = ChainSpec::default().minimum_balance;
     if new_balance < min && new_balance != U256::zero() {
         panic!("Balance must be at least [{min}]. Use 0 as balance to reap the account.");
@@ -74,34 +66,19 @@ pub fn set_account_balance(addr: Address, new_balance: U256) {
     })
 }
 
-/// Returns the balance of the account.
+/// Returns the balance of a contract.
 ///
 /// # Note
 ///
-/// Note that account could refer to either a user account or
-/// a smart contract account. This returns the same as `env::api::balance`
-/// if given the account id of the currently executed smart contract.
+/// This returns the same as `env::api::balance` if given the contract
+/// address of the currently executed smart contract.
 ///
 /// # Errors
 ///
-/// - If `account` does not exist.
-/// - If the underlying `account` type does not match.
-pub fn get_account_balance<T>(addr: Address) -> Result<U256> {
+/// - If `contract` does not exist.
+pub fn get_contract_balance<T>(addr: Address) -> Result<U256> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.get_balance(addr).map_err(Into::into)
-    })
-}
-
-/// Registers a new chain extension.
-pub fn register_chain_extension<E>(extension: E)
-where
-    E: ink_engine::ChainExtension + 'static,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance
-            .engine
-            .chain_extension_handler
-            .register(Box::new(extension));
     })
 }
 
@@ -277,9 +254,8 @@ where
     f(default_accounts)
 }
 
-/// Returns the default accounts for testing purposes:
-/// Alice, Bob, Charlie, Django, Eve and Frank.
-/// todo should be `default_addresses`
+/// Returns the `H160` addresses of default accounts, for testing
+/// purposes: Alice, Bob, Charlie, Django, Eve and Frank.
 pub fn default_accounts() -> DefaultAccounts {
     DefaultAccounts {
         alice: AccountIdMapper::to_address(&[0x01; 32]),
@@ -291,29 +267,30 @@ pub fn default_accounts() -> DefaultAccounts {
     }
 }
 
-/// The default accounts.
+/// Addresses of the default accounts.
 pub struct DefaultAccounts {
-    /// The predefined `ALICE` account holding substantial amounts of value.
+    /// The predefined `ALICE` address holding substantial amounts of value.
     pub alice: Address,
-    /// The predefined `BOB` account holding some amounts of value.
+    /// The predefined `BOB` address holding some amounts of value.
     pub bob: Address,
-    /// The predefined `CHARLIE` account holding some amounts of value.
+    /// The predefined `CHARLIE` address holding some amounts of value.
     pub charlie: Address,
-    /// The predefined `DJANGO` account holding no value.
+    /// The predefined `DJANGO` address holding no value.
     pub django: Address,
-    /// The predefined `EVE` account holding no value.
+    /// The predefined `EVE` address holding no value.
     pub eve: Address,
-    /// The predefined `FRANK` account holding no value.
+    /// The predefined `FRANK` address holding no value.
     pub frank: Address,
 }
 
 /// Returns the recorded emitted events in order.
-pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
+pub fn recorded_events() -> Vec<EmittedEvent> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
             .engine
             .get_emitted_events()
             .map(|evt: ink_engine::test_api::EmittedEvent| evt.into())
+            .collect()
     })
 }
 

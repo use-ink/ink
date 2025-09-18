@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_ir::IsDocAttribute;
+use ink_ir::{
+    EventConfig,
+    IsDocAttribute,
+};
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote_spanned;
 use syn::spanned::Spanned;
@@ -43,6 +46,12 @@ fn event_metadata_derive_struct(s: synstructure::Structure) -> syn::Result<Token
 
     let variant = &s.variants()[0];
     let ident = variant.ast().ident;
+
+    let config = EventConfig::try_from(variant.ast().attrs)?;
+    let name = config
+        .name()
+        .map(ToString::to_string)
+        .unwrap_or_else(|| variant.ast().ident.to_string());
 
     let docs = variant
         .ast()
@@ -89,10 +98,10 @@ fn event_metadata_derive_struct(s: synstructure::Structure) -> syn::Result<Token
                static EVENT_METADATA: fn() -> ::ink::metadata::EventSpec =
                    <#ident as ::ink::metadata::EventMetadata>::event_spec;
 
-                ::ink::metadata::EventSpec::new(::core::stringify!(#ident))
+                ::ink::metadata::EventSpec::new(#name)
                     .module_path(::core::module_path!())
                     .signature_topic(
-                        <Self as ::ink::env::Event>::SIGNATURE_TOPIC
+                        <Self as ::ink::env::Event<::ink::abi::Ink>>::SIGNATURE_TOPIC
                     )
                     .args([
                        #( #args ),*

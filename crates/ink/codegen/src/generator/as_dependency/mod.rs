@@ -20,8 +20,8 @@ use self::{
     contract_ref::ContractRef,
 };
 use crate::{
-    traits::GenerateCodeUsing,
     GenerateCode,
+    traits::GenerateCodeUsing,
 };
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;

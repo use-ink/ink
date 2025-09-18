@@ -14,22 +14,22 @@
 
 use super::super::InkAttribute;
 use crate::{
+    InputsIter,
+    Receiver,
     ir::{
         self,
         attrs::SelectorOrWildcard,
         utils,
         utils::extract_cfg_attributes,
     },
-    InputsIter,
-    Receiver,
 };
 use proc_macro2::{
     Span,
     TokenStream,
 };
 use syn::{
-    spanned::Spanned as _,
     Result,
+    spanned::Spanned as _,
 };
 
 /// An ink! item within an ink! trait definition.
@@ -88,12 +88,17 @@ impl<'a> InkTraitMessage<'a> {
             &ir::AttributeArgKind::Message,
             |arg| {
                 match arg.kind() {
-                    ir::AttributeArg::Selector(SelectorOrWildcard::Wildcard) =>
-                        Err(Some(format_err!(arg.span(), "wildcard selectors are only supported for inherent ink! messages or constructors, not for traits."))),
+                    ir::AttributeArg::Selector(SelectorOrWildcard::Wildcard) => {
+                        Err(Some(format_err!(
+                            arg.span(),
+                            "wildcard selectors are only supported for inherent ink! messages or constructors, not for traits."
+                        )))
+                    }
                     ir::AttributeArg::Message
                     | ir::AttributeArg::Payable
                     | ir::AttributeArg::Default
-                    | ir::AttributeArg::Selector(_) => Ok(()),
+                    | ir::AttributeArg::Selector(_)
+                    | ir::AttributeArg::Name(_) => Ok(()),
                     _ => Err(None),
                 }
             },

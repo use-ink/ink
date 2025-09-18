@@ -382,6 +382,19 @@ fn trait_def_with_payable_ok() {
 }
 
 #[test]
+fn trait_def_with_name_override_ok() {
+    assert!(
+        <InkItemTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
+            pub trait MyTrait {
+                #[ink(message, name = "myMessage")]
+                fn my_message(&self);
+            }
+        })
+        .is_ok()
+    )
+}
+
+#[test]
 fn trait_def_with_everything_combined_ok() {
     assert!(
         <InkItemTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
@@ -391,12 +404,20 @@ fn trait_def_with_everything_combined_ok() {
                 fn my_message_1(&self);
                 #[ink(message, selector = 0xDEADBEEF)]
                 fn my_message_2(&self);
+                #[ink(message, name = "myMessage3")]
+                fn my_message_3(&self);
+                #[ink(message, selector = 0xDEADC0DE, name = "myMessage4")]
+                fn my_message_4(&self);
                 #[ink(message)]
                 fn my_message_mut_1(&mut self);
                 #[ink(message, payable)]
                 fn my_message_mut_2(&mut self);
                 #[ink(message, payable, selector = 0xC0DEBEEF)]
                 fn my_message_mut_3(&mut self);
+                #[ink(message, payable, name = "myMessageMut4")]
+                fn my_message_mut_4(&mut self);
+                #[ink(message, payable, selector = 0xC0DECAFE, name = "myMessageMut5")]
+                fn my_message_mut_5(&mut self);
             }
         })
         .is_ok()

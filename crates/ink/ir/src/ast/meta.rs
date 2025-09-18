@@ -18,6 +18,10 @@ use proc_macro2::{
 };
 use quote::ToTokens;
 use syn::{
+    LitBool,
+    LitInt,
+    LitStr,
+    Token,
     ext::IdentExt as _,
     parse::{
         Parse,
@@ -25,10 +29,6 @@ use syn::{
     },
     punctuated::Punctuated,
     spanned::Spanned,
-    LitBool,
-    LitInt,
-    LitStr,
-    Token,
 };
 
 /// Content of a compile-time structured attribute.
@@ -178,7 +178,7 @@ impl MetaValue {
     }
 
     /// Returns the value of the literal if it is a string literal.
-    pub fn as_string(&self) -> Option<String> {
+    pub fn to_string(&self) -> Option<String> {
         match self {
             Self::Lit(syn::Lit::Str(lit_str)) => Some(lit_str.value()),
             _ => None,

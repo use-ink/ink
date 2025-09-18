@@ -3,7 +3,7 @@ name = "ink_env"
 version.workspace = true
 authors = ["Use Ink <ink@use.ink>"]
 edition.workspace = true
-rust-version = "1.81"
+rust-version.workspace = true
 
 license.workspace = true
 readme = "README.md"
@@ -28,18 +28,18 @@ num-traits = { workspace = true, features = ["i128"] }
 cfg-if = { workspace = true }
 static_assertions = { workspace = true }
 const_env = { workspace = true }
-xcm = { workspace = true }
+xcm = { workspace = true, optional = true }
 hex-literal = "1"
+const-crypto = "0.3.0"
 
-sp-io = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
-sp-runtime-interface = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false, features = ["disable_target_static_assertions"] }
+sp-io = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-runtime-interface = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false, features = ["disable_target_static_assertions"] }
 
 [target.'cfg(target_arch = "riscv64")'.dependencies]
 polkavm-derive = { workspace = true, default-features = false }
 
 [target.'cfg(not(target_arch = "riscv64"))'.dependencies]
 ink_engine = { workspace = true, default-features = true, optional = true }
-pallet-revive = { git = "https://github.com/paritytech/polkadot-sdk.git", rev = "cb629d46ebf00aa65624013a61f9c69ebf02b0b4", default-features = false }
 
 # Hashes for the off-chain environment.
 sha2 = { workspace = true, optional = true }
@@ -85,7 +85,7 @@ std = [
     # Enables hashing crates for off-chain environment.
     "sha2",
     "sha3",
-    "xcm/std",
+    "xcm?/std",
     "derive_more/std"
 ]
 
@@ -99,6 +99,9 @@ no-allocator = ["ink_allocator/no-allocator"]
 no-panic-handler = []
 
 unstable-hostfn = []
+
+# Enable xcm utilities.
+xcm = ["dep:xcm"]
 
 # For the ui tests, which use this `Cargo.toml`
 [lints.rust.unexpected_cfgs]

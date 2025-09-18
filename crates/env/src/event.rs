@@ -14,27 +14,50 @@
 
 //! This module contains the implementation for the event topic logic.
 
-use crate::types::Environment;
+use ink_primitives::abi::{
+    AbiEncodeWith,
+    Ink,
+    Sol,
+};
 
 /// The concrete implementation that is guided by the topics builder.
 ///
 /// To be implemented by the on-chain and off-chain environments respectively.
 #[doc(hidden)]
-pub trait TopicsBuilderBackend<E>
-where
-    E: Environment,
-{
+pub trait TopicsBuilderBackend<Abi = crate::DefaultAbi> {
     /// The type of the serialized event topics.
     type Output;
 
-    #[cfg(feature = "unstable-hostfn")]
     /// Pushes another topic for serialization to the backend.
     fn push_topic<T>(&mut self, topic_value: &T)
     where
-        T: scale::Encode;
+        T: AbiEncodeWith<Abi>;
 
     /// Extracts the serialized topics.
     fn output(self) -> Self::Output;
+}
+
+/// Specifies the topic (i.e. indexed event parameter) encoding implementation for
+/// the given ABI.
+pub trait TopicEncoder: private::Sealed + Sized {
+    /// True if the topic hashing implementation requires a buffer.
+    ///
+    /// (e.g. when hashing requires calling a pre-compile).
+    const REQUIRES_BUFFER: bool;
+
+    /// Encodes the value as a topic (i.e. an indexed event parameter).
+    fn encode_topic<T>(value: &T) -> [u8; 32]
+    where
+        T: AbiEncodeWith<Self>;
+
+    /// Encodes the value as a topic (i.e. an indexed event parameter), utilizing the
+    /// given buffer for hashing (if necessary).
+    fn encode_topic_with_hash_buffer<T>(
+        value: &T,
+        output: &mut [u8; 32],
+        buffer: &mut [u8],
+    ) where
+        T: AbiEncodeWith<Self>;
 }
 
 /// Builder for event topic serialization.
@@ -42,15 +65,15 @@ where
 /// Abstraction to build up event topic serialization with zero-overhead,
 /// no heap-memory allocations and no dynamic dispatch.
 #[doc(hidden)]
-pub struct TopicsBuilder<S, E, B> {
+pub struct TopicsBuilder<S, B, Abi = crate::DefaultAbi> {
     backend: B,
-    state: core::marker::PhantomData<fn() -> (S, E)>,
+    #[allow(clippy::type_complexity)]
+    state: core::marker::PhantomData<fn() -> (S, Abi)>,
 }
 
-impl<E, B> From<B> for TopicsBuilder<state::Uninit, E, B>
+impl<B, Abi> From<B> for TopicsBuilder<state::Uninit, B, Abi>
 where
-    E: Environment,
-    B: TopicsBuilderBackend<E>,
+    B: TopicsBuilderBackend<Abi>,
 {
     fn from(backend: B) -> Self {
         Self {
@@ -71,17 +94,16 @@ pub mod state {
     pub enum NoRemainingTopics {}
 }
 
-impl<E, B> TopicsBuilder<state::Uninit, E, B>
+impl<B, Abi> TopicsBuilder<state::Uninit, B, Abi>
 where
-    E: Environment,
-    B: TopicsBuilderBackend<E>,
+    B: TopicsBuilderBackend<Abi>,
 {
     /// Initializes the topics builder.
     ///
     /// The number of expected topics is given implicitly by the `E` type parameter.
-    pub fn build<Evt: Event>(
+    pub fn build<Evt: Event<Abi>>(
         self,
-    ) -> TopicsBuilder<<Evt as Event>::RemainingTopics, E, B> {
+    ) -> TopicsBuilder<<Evt as Event<Abi>>::RemainingTopics, B, Abi> {
         TopicsBuilder {
             backend: self.backend,
             state: Default::default(),
@@ -89,23 +111,21 @@ where
     }
 }
 
-impl<E, S, B> TopicsBuilder<S, E, B>
+impl<S, B> TopicsBuilder<S, B, Ink>
 where
-    E: Environment,
     S: SomeRemainingTopics,
-    B: TopicsBuilderBackend<E>,
+    B: TopicsBuilderBackend<Ink>,
 {
     /// Pushes another event topic to be serialized through the topics builder.
     ///
     /// Returns a topics builder that expects one less event topic for serialization
     /// than before the call.
-    #[cfg(feature = "unstable-hostfn")]
     pub fn push_topic<T>(
         mut self,
         value: Option<&T>,
-    ) -> TopicsBuilder<<S as SomeRemainingTopics>::Next, E, B>
+    ) -> TopicsBuilder<<S as SomeRemainingTopics>::Next, B, Ink>
     where
-        T: scale::Encode,
+        T: AbiEncodeWith<Ink>,
     {
         // Only publish the topic if it is not an `Option::None`.
         if let Some(topic) = value {
@@ -120,19 +140,42 @@ where
     }
 }
 
-impl<E, B> TopicsBuilder<state::NoRemainingTopics, E, B>
+impl<S, B> TopicsBuilder<S, B, Sol>
 where
-    E: Environment,
-    B: TopicsBuilderBackend<E>,
+    S: SomeRemainingTopics,
+    B: TopicsBuilderBackend<Sol>,
+{
+    /// Pushes another event topic to be serialized through the topics builder.
+    ///
+    /// Returns a topics builder that expects one less event topic for serialization
+    /// than before the call.
+    pub fn push_topic<T>(
+        mut self,
+        value: &T,
+    ) -> TopicsBuilder<<S as SomeRemainingTopics>::Next, B, Sol>
+    where
+        T: AbiEncodeWith<Sol>,
+    {
+        self.backend.push_topic::<T>(value);
+        TopicsBuilder {
+            backend: self.backend,
+            state: Default::default(),
+        }
+    }
+}
+
+impl<B, Abi> TopicsBuilder<state::NoRemainingTopics, B, Abi>
+where
+    B: TopicsBuilderBackend<Abi>,
 {
     /// Finalizes the topics builder.
     ///
     /// No more event topics can be serialized afterwards, but the environment will be
     /// able to extract the information collected by the topics builder in order to
     /// emit the serialized event.
-    pub fn finish(self) -> <B as TopicsBuilderBackend<E>>::Output
+    pub fn finish(self) -> <B as TopicsBuilderBackend<Abi>>::Output
     where
-        B: TopicsBuilderBackend<E>,
+        B: TopicsBuilderBackend<Abi>,
     {
         self.backend.output()
     }
@@ -167,13 +210,8 @@ macro_rules! impl_some_remaining_for {
         )*
     };
 }
-#[rustfmt::skip]
-impl_some_remaining_for!(
-             2,  3,  4,  5,  6,  7,  8,  9,
-    10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-    20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
-    30, 31, 32,
-);
+
+impl_some_remaining_for!(2, 3, 4);
 
 impl SomeRemainingTopics for [state::HasRemainingTopics; 1] {
     type Next = state::NoRemainingTopics;
@@ -191,7 +229,7 @@ impl EventTopicsAmount for state::NoRemainingTopics {
 /// builder.
 ///
 /// Normally this trait should be implemented automatically via `#[derive(ink::Event)`.
-pub trait Event: scale::Encode {
+pub trait Event<Abi = crate::DefaultAbi>: AbiEncodeWith<Abi> {
     /// Type state indicating how many event topics are to be expected by the topics
     /// builder.
     type RemainingTopics: EventTopicsAmount;
@@ -205,11 +243,22 @@ pub trait Event: scale::Encode {
     const SIGNATURE_TOPIC: core::option::Option<[u8; 32]>;
 
     /// Guides event topic serialization using the given topics builder.
-    fn topics<E, B>(
+    fn topics<B>(
         &self,
-        builder: TopicsBuilder<state::Uninit, E, B>,
-    ) -> <B as TopicsBuilderBackend<E>>::Output
+        builder: TopicsBuilder<state::Uninit, B, Abi>,
+    ) -> <B as TopicsBuilderBackend<Abi>>::Output
     where
-        E: Environment,
-        B: TopicsBuilderBackend<E>;
+        B: TopicsBuilderBackend<Abi>;
+
+    /// ABI encode the dynamic data of this event.
+    fn encode_data(&self) -> ink_prelude::vec::Vec<u8>;
+}
+
+mod private {
+    /// Seals the implementation of `TopicEncoder`.
+    pub trait Sealed {}
+
+    impl Sealed for ink_primitives::abi::Ink {}
+
+    impl Sealed for ink_primitives::abi::Sol {}
 }

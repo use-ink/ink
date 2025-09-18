@@ -14,30 +14,30 @@
 
 pub struct AsOption<'lt, T>(pub &'lt T);
 
-impl<T> AsOption<'_, ::core::option::Option<T>> {
+impl<'lt, T> AsOption<'lt, ::core::option::Option<T>> {
     #[inline]
     // We need to allow for dead code at this point because
     // the Rust compiler thinks this function is unused even
     // though it acts as the specialized case for detection.
     #[allow(dead_code)]
-    pub fn value(&self) -> Option<&T> {
+    pub fn value(&self) -> Option<&'lt T> {
         self.0.as_ref()
     }
 }
 
 impl<'lt, T> AsOption<'lt, &'lt ::core::option::Option<T>> {
     #[inline]
-    pub fn value(&self) -> Option<&T> {
+    pub fn value(&self) -> Option<&'lt T> {
         self.0.as_ref()
     }
 }
 
-pub trait AsOptionFallback<T> {
-    fn value(&self) -> Option<&T>;
+pub trait AsOptionFallback<'lt, T> {
+    fn value(&self) -> Option<&'lt T>;
 }
-impl<T> AsOptionFallback<T> for AsOption<'_, T> {
+impl<'lt, T> AsOptionFallback<'lt, T> for AsOption<'lt, T> {
     #[inline]
-    fn value(&self) -> Option<&T> {
+    fn value(&self) -> Option<&'lt T> {
         Some(self.0)
     }
 }
