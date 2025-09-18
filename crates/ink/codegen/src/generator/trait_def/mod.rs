@@ -18,8 +18,8 @@ mod definition;
 mod message_builder;
 mod trait_registry;
 
-use crate::GenerateCode;
 use derive_more::From;
+use ink_primitives::abi::Abi;
 use proc_macro2::{
     Span,
     TokenStream as TokenStream2,
@@ -29,10 +29,23 @@ use quote::{
     quote_spanned,
 };
 
+use crate::GenerateCode;
+
 /// Generator to create the ink! storage struct and important trait implementations.
 #[derive(From, Copy, Clone)]
 pub struct TraitDefinition<'a> {
     trait_def: &'a ir::InkTraitDefinition,
+    abi: Option<Abi>,
+}
+
+impl<'a> From<&'a ir::InkTraitDefinition> for TraitDefinition<'a> {
+    #[inline]
+    fn from(value: &'a ir::InkTraitDefinition) -> Self {
+        TraitDefinition {
+            trait_def: value,
+            abi: None,
+        }
+    }
 }
 
 impl TraitDefinition<'_> {
@@ -55,10 +68,10 @@ impl GenerateCode for TraitDefinition<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let span = self.trait_def.item().span();
         let trait_definition = self.generate_trait_definition();
-        let trait_registry = self.generate_trait_registry_impl();
-        let trait_message_builder = self.generate_message_builder();
-        let trait_call_builder = self.generate_call_builder();
-        let trait_call_forwarder = self.generate_call_forwarder();
+        let trait_registry = self.generate_trait_registry_impl(self.abi);
+        let trait_message_builder = self.generate_message_builder(self.abi);
+        let trait_call_builder = self.generate_call_builder(self.abi);
+        let trait_call_forwarder = self.generate_call_forwarder(self.abi);
         quote_spanned!(span =>
             #trait_definition
             const _: () = {

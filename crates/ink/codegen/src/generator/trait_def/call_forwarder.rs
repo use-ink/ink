@@ -12,12 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::TraitDefinition;
-use crate::{
-    generator,
-    traits::GenerateCode,
-};
 use derive_more::From;
+use ink_primitives::abi::Abi;
 use proc_macro2::{
     Span,
     TokenStream as TokenStream2,
@@ -25,6 +21,12 @@ use proc_macro2::{
 use quote::{
     quote,
     quote_spanned,
+};
+
+use super::TraitDefinition;
+use crate::{
+    generator,
+    traits::GenerateCode,
 };
 
 impl TraitDefinition<'_> {
@@ -38,8 +40,8 @@ impl TraitDefinition<'_> {
     /// - The call forwarder is associated to the call builder for the same ink! trait
     ///   definition and handles all ink! trait calls into another contract instance
     ///   on-chain. For constructing custom calls it forwards to the call builder.
-    pub fn generate_call_forwarder(&self) -> TokenStream2 {
-        CallForwarder::from(*self).generate_code()
+    pub fn generate_call_forwarder(&self, abi: Option<Abi>) -> TokenStream2 {
+        CallForwarder::from((*self, abi)).generate_code()
     }
 
     /// The identifier of the ink! trait call forwarder.
@@ -52,6 +54,7 @@ impl TraitDefinition<'_> {
 #[derive(From)]
 struct CallForwarder<'a> {
     trait_def: TraitDefinition<'a>,
+    abi: Option<Abi>,
 }
 
 impl GenerateCode for CallForwarder<'_> {
@@ -366,17 +369,29 @@ impl CallForwarder<'_> {
         let trait_info_ident = self.trait_def.trait_info_ident();
         let forwarder_ident = self.ident();
         let message_impls = self.generate_ink_trait_impl_messages();
-        generate_abi_impls!(@tokens |abi| quote_spanned!(span=>
-            impl<E> #trait_ident for #forwarder_ident<E, #abi>
-            where
-                E: ::ink::env::Environment,
-            {
-                #[allow(non_camel_case_types)]
-                type __ink_TraitInfo = #trait_info_ident<E>;
+        let generator = |abi| {
+            quote_spanned!(span=>
+                impl<E> #trait_ident for #forwarder_ident<E, #abi>
+                where
+                    E: ::ink::env::Environment,
+                {
+                    #[allow(non_camel_case_types)]
+                    type __ink_TraitInfo = #trait_info_ident<E>;
 
-                #message_impls
+                    #message_impls
+                }
+            )
+        };
+        match self.abi {
+            None => generate_abi_impls!(@tokens generator),
+            Some(abi) => {
+                let abi_ty = match abi {
+                    Abi::Ink => quote!(::ink::abi::Ink),
+                    Abi::Sol => quote!(::ink::abi::Sol),
+                };
+                generator(abi_ty)
             }
-        ))
+        }
     }
 
     /// Generate the code for all ink! trait messages implemented by the trait call
