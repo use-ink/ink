@@ -86,6 +86,7 @@ pub use ink_macro::{
     contract,
     error,
     event,
+    interface,
     scale_derive,
     selector_bytes,
     selector_id,
