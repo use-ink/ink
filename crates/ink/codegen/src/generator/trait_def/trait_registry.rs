@@ -49,8 +49,8 @@ impl TraitDefinition<'_> {
     /// This also generates the code for the global trait info object which
     /// implements some `ink` traits to provide common information about
     /// the ink! trait definition such as its unique identifier.
-    pub fn generate_trait_registry_impl(&self) -> TokenStream2 {
-        TraitRegistry::from(*self).generate_code()
+    pub fn generate_trait_registry_impl(&self, abi: Option<Abi>) -> TokenStream2 {
+        TraitRegistry::from((*self, abi)).generate_code()
     }
 
     /// Returns the identifier for the ink! trait definition info object.
@@ -63,6 +63,7 @@ impl TraitDefinition<'_> {
 #[derive(From)]
 struct TraitRegistry<'a> {
     trait_def: TraitDefinition<'a>,
+    abi: Option<Abi>,
 }
 
 impl GenerateCode for TraitRegistry<'_> {
@@ -193,9 +194,11 @@ impl TraitRegistry<'_> {
             selector,
             message.mutates(),
         );
-        let inout_guards = generate_abi_impls!(@type |abi| {
-            Self::generate_inout_guards_for_message(message, abi)
-        });
+        let generator = |abi| Self::generate_inout_guards_for_message(message, abi);
+        let inout_guards = match self.abi {
+            None => generate_abi_impls!(@type generator),
+            Some(abi) => generator(abi),
+        };
         let impl_body = match option_env!("INK_COVERAGE_REPORTING") {
             Some("true") => {
                 quote! {
@@ -343,15 +346,12 @@ impl TraitRegistry<'_> {
         let span = message.span();
         let trait_info_ident = self.trait_def.trait_info_ident();
         let is_payable = message.ink_attrs().is_payable();
-        generate_abi_impls!(@type |abi| {
+        let generator = |abi| {
             let (local_id, selector_bytes) = match abi {
                 Abi::Ink => {
                     let local_id = message.local_id();
                     let selector_bytes = selector.hex_lits();
-                    (
-                        quote!(#local_id),
-                        quote!([ #( #selector_bytes ),* ])
-                    )
+                    (quote!(#local_id), quote!([ #( #selector_bytes ),* ]))
                 }
                 Abi::Sol => {
                     let name = message.normalized_name();
@@ -364,10 +364,7 @@ impl TraitRegistry<'_> {
                             ::core::primitive::u32::from_be_bytes(#selector_bytes)
                         }
                     );
-                    (
-                        selector_id,
-                        selector_bytes
-                    )
+                    (selector_id, selector_bytes)
                 }
             };
             quote_spanned!(span=>
@@ -376,6 +373,10 @@ impl TraitRegistry<'_> {
                     const SELECTOR: [::core::primitive::u8; 4usize] = #selector_bytes;
                 }
             )
-        })
+        };
+        match self.abi {
+            None => generate_abi_impls!(@type generator),
+            Some(abi) => generator(abi),
+        }
     }
 }

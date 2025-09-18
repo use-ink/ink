@@ -40,8 +40,8 @@ impl TraitDefinition<'_> {
     ///   gas limit, endowment etc.
     /// - The call builder is used directly by the generated call forwarder. There exists
     ///   one global call forwarder and call builder pair for every ink! trait definition.
-    pub fn generate_message_builder(&self) -> TokenStream2 {
-        MessageBuilder::from(*self).generate_code()
+    pub fn generate_message_builder(&self, abi: Option<Abi>) -> TokenStream2 {
+        MessageBuilder::from((*self, abi)).generate_code()
     }
 
     /// The identifier of the ink! trait message builder.
@@ -54,6 +54,7 @@ impl TraitDefinition<'_> {
 #[derive(From)]
 struct MessageBuilder<'a> {
     trait_def: TraitDefinition<'a>,
+    abi: Option<Abi>,
 }
 
 impl GenerateCode for MessageBuilder<'_> {
@@ -109,7 +110,9 @@ impl MessageBuilder<'_> {
     fn generate_auxiliary_trait_impls(&self) -> TokenStream2 {
         let span = self.span();
         let message_builder_ident = self.trait_def.message_builder_ident();
-        let sol_codec = if cfg!(any(ink_abi = "sol", ink_abi = "all")) {
+        let sol_codec = if matches!(self.abi, Some(Abi::Sol))
+            || cfg!(any(ink_abi = "sol", ink_abi = "all"))
+        {
             // These manual implementations are a bit more efficient than the derived
             // equivalents.
             quote_spanned!(span=>
@@ -173,7 +176,7 @@ impl MessageBuilder<'_> {
         let trait_ident = self.trait_def.trait_def.item().ident();
         let trait_info_ident = self.trait_def.trait_info_ident();
         let message_builder_ident = self.trait_def.message_builder_ident();
-        generate_abi_impls!(@type |abi| {
+        let generator = |abi| {
             let abi_ty = match abi {
                 Abi::Ink => quote!(::ink::abi::Ink),
                 Abi::Sol => quote!(::ink::abi::Sol),
@@ -190,7 +193,11 @@ impl MessageBuilder<'_> {
                     #message_impls
                 }
             )
-        })
+        };
+        match self.abi {
+            None => generate_abi_impls!(@type generator),
+            Some(abi) => generator(abi),
+        }
     }
 
     /// Generate the code for all ink! trait messages implemented by the trait call
