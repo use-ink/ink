@@ -37,7 +37,7 @@ OPTIONS
   -q, --quiet
       Suppress output from this script, only output from the supplied command will be printed
 
-ENVIRONMENT VARIABLE,S
+ENVIRONMENT VARIABLES
 
 IGNORE_ERR=true
       Makes this script always exit with `0`, no matter what the execution of

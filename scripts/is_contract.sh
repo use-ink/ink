@@ -50,7 +50,7 @@ fi
 if grep -qE '^#\[(::)?ink::contract([^]]*)\]' "$SOURCE_PATH"; then
     exit 0
 else
-    # we exit with a defined error code > 0, to allow a distinction
+    # we exit with a defined error code > 1, to allow a distinction
     # between `is_contract == false` and "error while checking".
     exit 3
 fi
