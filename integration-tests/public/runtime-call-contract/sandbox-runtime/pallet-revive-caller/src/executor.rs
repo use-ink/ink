@@ -25,8 +25,6 @@ use pallet_revive::{
 use sp_runtime::traits::Bounded;
 
 pub struct PalletReviveExecutor<E: Environment, Runtime: pallet_revive::Config> {
-    // todo
-    //pub origin: AccountIdOf<Runtime>,
     pub origin: OriginFor<Runtime>,
     pub contract: Address,
     pub value: BalanceOf<Runtime>,
