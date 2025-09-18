@@ -65,8 +65,7 @@ cfg_if! {
         mod on_chain;
         pub use self::on_chain::EnvInstance;
     } else {
-        pub mod off_chain;
-        pub use self::off_chain::EnvInstance;
+        //unreachable!("no engine defined for std")
     }
 }
 

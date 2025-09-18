@@ -5,7 +5,6 @@ members = [
     "crates/e2e",
     "crates/e2e/macro",
     "crates/e2e/sandbox",
-    "crates/engine",
     "crates/env",
     "crates/ink",
     "crates/ink/codegen",
