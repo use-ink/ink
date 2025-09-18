@@ -66,94 +66,95 @@
 <a href=#66 id=66 data-nosnippet>66</a>    <span class="comment">// If contract is compiled with `cargo contract --release`, it will
 <a href=#67 id=67 data-nosnippet>67</a>    // for efficiency reasons be build with `panic_immediate_abort`.
 <a href=#68 id=68 data-nosnippet>68</a>    // This panic handler will thus never be invoked.
-<a href=#69 id=69 data-nosnippet>69</a>    </span><span class="macro">unreachable!</span>(
-<a href=#70 id=70 data-nosnippet>70</a>        <span class="string">"contract in non-debug/non-std mode needs to be build with `panic_immediate_abort`"
-<a href=#71 id=71 data-nosnippet>71</a>    </span>);
-<a href=#72 id=72 data-nosnippet>72</a>}
-<a href=#73 id=73 data-nosnippet>73</a>
-<a href=#74 id=74 data-nosnippet>74</a><span class="comment">// This extern crate definition is required since otherwise rustc
-<a href=#75 id=75 data-nosnippet>75</a>// is not recognizing its allocator and panic handler definitions.
-<a href=#76 id=76 data-nosnippet>76</a></span><span class="attr">#[cfg(not(any(feature = <span class="string">"std"</span>, feature = <span class="string">"no-allocator"</span>)))]
-<a href=#77 id=77 data-nosnippet>77</a></span><span class="kw">extern crate </span>ink_allocator;
-<a href=#78 id=78 data-nosnippet>78</a>
-<a href=#79 id=79 data-nosnippet>79</a><span class="kw">mod </span>api;
-<a href=#80 id=80 data-nosnippet>80</a><span class="kw">mod </span>backend;
-<a href=#81 id=81 data-nosnippet>81</a><span class="kw">pub mod </span>call;
-<a href=#82 id=82 data-nosnippet>82</a><span class="kw">mod </span>engine;
-<a href=#83 id=83 data-nosnippet>83</a><span class="kw">mod </span>error;
-<a href=#84 id=84 data-nosnippet>84</a><span class="attr">#[doc(hidden)]
-<a href=#85 id=85 data-nosnippet>85</a></span><span class="kw">pub mod </span>event;
-<a href=#86 id=86 data-nosnippet>86</a><span class="kw">pub mod </span>hash;
-<a href=#87 id=87 data-nosnippet>87</a>
-<a href=#88 id=88 data-nosnippet>88</a><span class="attr">#[cfg(test)]
-<a href=#89 id=89 data-nosnippet>89</a></span><span class="kw">mod </span>tests;
-<a href=#90 id=90 data-nosnippet>90</a>
-<a href=#91 id=91 data-nosnippet>91</a><span class="attr">#[cfg(any(feature = <span class="string">"std"</span>, test, doc))]
-<a href=#92 id=92 data-nosnippet>92</a>#[doc(inline)]
-<a href=#93 id=93 data-nosnippet>93</a></span><span class="kw">pub use </span><span class="self">self</span>::engine::off_chain::test_api <span class="kw">as </span>test;
-<a href=#94 id=94 data-nosnippet>94</a>
-<a href=#95 id=95 data-nosnippet>95</a><span class="kw">use </span><span class="self">self</span>::backend::{
-<a href=#96 id=96 data-nosnippet>96</a>    EnvBackend,
-<a href=#97 id=97 data-nosnippet>97</a>    TypedEnvBackend,
-<a href=#98 id=98 data-nosnippet>98</a>};
-<a href=#99 id=99 data-nosnippet>99</a><span class="kw">pub use </span><span class="self">self</span>::{
-<a href=#100 id=100 data-nosnippet>100</a>    api::<span class="kw-2">*</span>,
-<a href=#101 id=101 data-nosnippet>101</a>    error::{
-<a href=#102 id=102 data-nosnippet>102</a>        Error,
-<a href=#103 id=103 data-nosnippet>103</a>        <span class="prelude-ty">Result</span>,
-<a href=#104 id=104 data-nosnippet>104</a>    },
-<a href=#105 id=105 data-nosnippet>105</a>    event::{
-<a href=#106 id=106 data-nosnippet>106</a>        Event,
-<a href=#107 id=107 data-nosnippet>107</a>        TopicEncoder,
-<a href=#108 id=108 data-nosnippet>108</a>    },
-<a href=#109 id=109 data-nosnippet>109</a>    types::{
-<a href=#110 id=110 data-nosnippet>110</a>        AccountIdGuard,
-<a href=#111 id=111 data-nosnippet>111</a>        Balance,
-<a href=#112 id=112 data-nosnippet>112</a>        BlockNumber,
-<a href=#113 id=113 data-nosnippet>113</a>        CodecAsType,
-<a href=#114 id=114 data-nosnippet>114</a>        DefaultEnvironment,
-<a href=#115 id=115 data-nosnippet>115</a>        Environment,
-<a href=#116 id=116 data-nosnippet>116</a>        FromLittleEndian,
-<a href=#117 id=117 data-nosnippet>117</a>        Gas,
-<a href=#118 id=118 data-nosnippet>118</a>        Timestamp,
-<a href=#119 id=119 data-nosnippet>119</a>    },
-<a href=#120 id=120 data-nosnippet>120</a>};
-<a href=#121 id=121 data-nosnippet>121</a><span class="kw">pub use </span>ink_primitives::{
-<a href=#122 id=122 data-nosnippet>122</a>    contract::{
-<a href=#123 id=123 data-nosnippet>123</a>        ContractEnv,
-<a href=#124 id=124 data-nosnippet>124</a>        ContractReference,
-<a href=#125 id=125 data-nosnippet>125</a>        ContractReverseReference,
-<a href=#126 id=126 data-nosnippet>126</a>    },
-<a href=#127 id=127 data-nosnippet>127</a>    reflect,
-<a href=#128 id=128 data-nosnippet>128</a>    reflect::{
-<a href=#129 id=129 data-nosnippet>129</a>        DecodeDispatch,
-<a href=#130 id=130 data-nosnippet>130</a>        DispatchError,
-<a href=#131 id=131 data-nosnippet>131</a>    },
-<a href=#132 id=132 data-nosnippet>132</a>    types,
-<a href=#133 id=133 data-nosnippet>133</a>};
-<a href=#134 id=134 data-nosnippet>134</a><span class="attr">#[doc(inline)]
-<a href=#135 id=135 data-nosnippet>135</a></span><span class="kw">pub use </span>pallet_revive_uapi::{
-<a href=#136 id=136 data-nosnippet>136</a>    CallFlags,
-<a href=#137 id=137 data-nosnippet>137</a>    ReturnErrorCode,
-<a href=#138 id=138 data-nosnippet>138</a>    ReturnFlags,
-<a href=#139 id=139 data-nosnippet>139</a>};
-<a href=#140 id=140 data-nosnippet>140</a>
-<a href=#141 id=141 data-nosnippet>141</a><span class="doccomment">/// A convenience type alias to the marker type representing the "default" ABI for calls.
-<a href=#142 id=142 data-nosnippet>142</a>///
-<a href=#143 id=143 data-nosnippet>143</a>/// # Note
-<a href=#144 id=144 data-nosnippet>144</a>///
-<a href=#145 id=145 data-nosnippet>145</a>/// The "default" ABI for calls is "ink", unless the ABI is set to "sol"
-<a href=#146 id=146 data-nosnippet>146</a>/// in the ink! project's manifest file (i.e. `Cargo.toml`).
-<a href=#147 id=147 data-nosnippet>147</a></span><span class="attr">#[cfg(not(ink_abi = <span class="string">"sol"</span>))]
-<a href=#148 id=148 data-nosnippet>148</a>#[doc(hidden)]
-<a href=#149 id=149 data-nosnippet>149</a></span><span class="kw">pub type </span>DefaultAbi = ink_primitives::abi::Ink;
-<a href=#150 id=150 data-nosnippet>150</a>
-<a href=#151 id=151 data-nosnippet>151</a><span class="doccomment">/// A convenience type alias to the marker type representing the "default" ABI for calls.
-<a href=#152 id=152 data-nosnippet>152</a>///
-<a href=#153 id=153 data-nosnippet>153</a>/// # Note
-<a href=#154 id=154 data-nosnippet>154</a>///
-<a href=#155 id=155 data-nosnippet>155</a>/// The "default" ABI for calls is "ink", unless the ABI is set to "sol"
-<a href=#156 id=156 data-nosnippet>156</a>/// in the ink! project's manifest file (i.e. `Cargo.toml`).
-<a href=#157 id=157 data-nosnippet>157</a></span><span class="attr">#[cfg(ink_abi = <span class="string">"sol"</span>)]
-<a href=#158 id=158 data-nosnippet>158</a>#[doc(hidden)]
-<a href=#159 id=159 data-nosnippet>159</a></span><span class="kw">pub type </span>DefaultAbi = ink_primitives::abi::Sol;</code></pre></div></section></main></body></html>
+<a href=#69 id=69 data-nosnippet>69</a>    </span><span class="attr">#[cfg(not(any(feature = <span class="string">"ink-debug"</span>, feature = <span class="string">"std"</span>)))]
+<a href=#70 id=70 data-nosnippet>70</a>    </span><span class="macro">unreachable!</span>(
+<a href=#71 id=71 data-nosnippet>71</a>        <span class="string">"contract in non-debug/non-std mode needs to be build with `panic_immediate_abort`"
+<a href=#72 id=72 data-nosnippet>72</a>    </span>);
+<a href=#73 id=73 data-nosnippet>73</a>}
+<a href=#74 id=74 data-nosnippet>74</a>
+<a href=#75 id=75 data-nosnippet>75</a><span class="comment">// This extern crate definition is required since otherwise rustc
+<a href=#76 id=76 data-nosnippet>76</a>// is not recognizing its allocator and panic handler definitions.
+<a href=#77 id=77 data-nosnippet>77</a></span><span class="attr">#[cfg(not(any(feature = <span class="string">"std"</span>, feature = <span class="string">"no-allocator"</span>)))]
+<a href=#78 id=78 data-nosnippet>78</a></span><span class="kw">extern crate </span>ink_allocator;
+<a href=#79 id=79 data-nosnippet>79</a>
+<a href=#80 id=80 data-nosnippet>80</a><span class="kw">mod </span>api;
+<a href=#81 id=81 data-nosnippet>81</a><span class="kw">mod </span>backend;
+<a href=#82 id=82 data-nosnippet>82</a><span class="kw">pub mod </span>call;
+<a href=#83 id=83 data-nosnippet>83</a><span class="kw">mod </span>engine;
+<a href=#84 id=84 data-nosnippet>84</a><span class="kw">mod </span>error;
+<a href=#85 id=85 data-nosnippet>85</a><span class="attr">#[doc(hidden)]
+<a href=#86 id=86 data-nosnippet>86</a></span><span class="kw">pub mod </span>event;
+<a href=#87 id=87 data-nosnippet>87</a><span class="kw">pub mod </span>hash;
+<a href=#88 id=88 data-nosnippet>88</a>
+<a href=#89 id=89 data-nosnippet>89</a><span class="attr">#[cfg(test)]
+<a href=#90 id=90 data-nosnippet>90</a></span><span class="kw">mod </span>tests;
+<a href=#91 id=91 data-nosnippet>91</a>
+<a href=#92 id=92 data-nosnippet>92</a><span class="attr">#[cfg(any(feature = <span class="string">"std"</span>, test, doc))]
+<a href=#93 id=93 data-nosnippet>93</a>#[doc(inline)]
+<a href=#94 id=94 data-nosnippet>94</a></span><span class="kw">pub use </span><span class="self">self</span>::engine::off_chain::test_api <span class="kw">as </span>test;
+<a href=#95 id=95 data-nosnippet>95</a>
+<a href=#96 id=96 data-nosnippet>96</a><span class="kw">use </span><span class="self">self</span>::backend::{
+<a href=#97 id=97 data-nosnippet>97</a>    EnvBackend,
+<a href=#98 id=98 data-nosnippet>98</a>    TypedEnvBackend,
+<a href=#99 id=99 data-nosnippet>99</a>};
+<a href=#100 id=100 data-nosnippet>100</a><span class="kw">pub use </span><span class="self">self</span>::{
+<a href=#101 id=101 data-nosnippet>101</a>    api::<span class="kw-2">*</span>,
+<a href=#102 id=102 data-nosnippet>102</a>    error::{
+<a href=#103 id=103 data-nosnippet>103</a>        Error,
+<a href=#104 id=104 data-nosnippet>104</a>        <span class="prelude-ty">Result</span>,
+<a href=#105 id=105 data-nosnippet>105</a>    },
+<a href=#106 id=106 data-nosnippet>106</a>    event::{
+<a href=#107 id=107 data-nosnippet>107</a>        Event,
+<a href=#108 id=108 data-nosnippet>108</a>        TopicEncoder,
+<a href=#109 id=109 data-nosnippet>109</a>    },
+<a href=#110 id=110 data-nosnippet>110</a>    types::{
+<a href=#111 id=111 data-nosnippet>111</a>        AccountIdGuard,
+<a href=#112 id=112 data-nosnippet>112</a>        Balance,
+<a href=#113 id=113 data-nosnippet>113</a>        BlockNumber,
+<a href=#114 id=114 data-nosnippet>114</a>        CodecAsType,
+<a href=#115 id=115 data-nosnippet>115</a>        DefaultEnvironment,
+<a href=#116 id=116 data-nosnippet>116</a>        Environment,
+<a href=#117 id=117 data-nosnippet>117</a>        FromLittleEndian,
+<a href=#118 id=118 data-nosnippet>118</a>        Gas,
+<a href=#119 id=119 data-nosnippet>119</a>        Timestamp,
+<a href=#120 id=120 data-nosnippet>120</a>    },
+<a href=#121 id=121 data-nosnippet>121</a>};
+<a href=#122 id=122 data-nosnippet>122</a><span class="kw">pub use </span>ink_primitives::{
+<a href=#123 id=123 data-nosnippet>123</a>    contract::{
+<a href=#124 id=124 data-nosnippet>124</a>        ContractEnv,
+<a href=#125 id=125 data-nosnippet>125</a>        ContractReference,
+<a href=#126 id=126 data-nosnippet>126</a>        ContractReverseReference,
+<a href=#127 id=127 data-nosnippet>127</a>    },
+<a href=#128 id=128 data-nosnippet>128</a>    reflect,
+<a href=#129 id=129 data-nosnippet>129</a>    reflect::{
+<a href=#130 id=130 data-nosnippet>130</a>        DecodeDispatch,
+<a href=#131 id=131 data-nosnippet>131</a>        DispatchError,
+<a href=#132 id=132 data-nosnippet>132</a>    },
+<a href=#133 id=133 data-nosnippet>133</a>    types,
+<a href=#134 id=134 data-nosnippet>134</a>};
+<a href=#135 id=135 data-nosnippet>135</a><span class="attr">#[doc(inline)]
+<a href=#136 id=136 data-nosnippet>136</a></span><span class="kw">pub use </span>pallet_revive_uapi::{
+<a href=#137 id=137 data-nosnippet>137</a>    CallFlags,
+<a href=#138 id=138 data-nosnippet>138</a>    ReturnErrorCode,
+<a href=#139 id=139 data-nosnippet>139</a>    ReturnFlags,
+<a href=#140 id=140 data-nosnippet>140</a>};
+<a href=#141 id=141 data-nosnippet>141</a>
+<a href=#142 id=142 data-nosnippet>142</a><span class="doccomment">/// A convenience type alias to the marker type representing the "default" ABI for calls.
+<a href=#143 id=143 data-nosnippet>143</a>///
+<a href=#144 id=144 data-nosnippet>144</a>/// # Note
+<a href=#145 id=145 data-nosnippet>145</a>///
+<a href=#146 id=146 data-nosnippet>146</a>/// The "default" ABI for calls is "ink", unless the ABI is set to "sol"
+<a href=#147 id=147 data-nosnippet>147</a>/// in the ink! project's manifest file (i.e. `Cargo.toml`).
+<a href=#148 id=148 data-nosnippet>148</a></span><span class="attr">#[cfg(not(ink_abi = <span class="string">"sol"</span>))]
+<a href=#149 id=149 data-nosnippet>149</a>#[doc(hidden)]
+<a href=#150 id=150 data-nosnippet>150</a></span><span class="kw">pub type </span>DefaultAbi = ink_primitives::abi::Ink;
+<a href=#151 id=151 data-nosnippet>151</a>
+<a href=#152 id=152 data-nosnippet>152</a><span class="doccomment">/// A convenience type alias to the marker type representing the "default" ABI for calls.
+<a href=#153 id=153 data-nosnippet>153</a>///
+<a href=#154 id=154 data-nosnippet>154</a>/// # Note
+<a href=#155 id=155 data-nosnippet>155</a>///
+<a href=#156 id=156 data-nosnippet>156</a>/// The "default" ABI for calls is "ink", unless the ABI is set to "sol"
+<a href=#157 id=157 data-nosnippet>157</a>/// in the ink! project's manifest file (i.e. `Cargo.toml`).
+<a href=#158 id=158 data-nosnippet>158</a></span><span class="attr">#[cfg(ink_abi = <span class="string">"sol"</span>)]
+<a href=#159 id=159 data-nosnippet>159</a>#[doc(hidden)]
+<a href=#160 id=160 data-nosnippet>160</a></span><span class="kw">pub type </span>DefaultAbi = ink_primitives::abi::Sol;</code></pre></div></section></main></body></html>
