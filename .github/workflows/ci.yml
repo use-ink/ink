@@ -747,7 +747,7 @@ jobs:
             mkdir -p measurements-${{ env.MEASUREMENTS_ID }}/
             cat ./all-contracts | \
             grep integration-tests | \
-            scripts/for_all_contracts_exec.sh \
+            scripts/for_all_contracts_exec.sh -- \
               'scripts/build_and_determine_contract_size.sh {} >> $CONTRACT_SIZE_FILE$example'
             sed -ie 's/^integration-tests\/\(public\/\|internal\/\)\?//' ${CONTRACT_SIZE_FILE}*
 
