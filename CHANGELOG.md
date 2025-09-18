@@ -52,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `name` override fixes for message id computation and trait definitions - [#2649](https://github.com/use-ink/ink/pull/2649)
 - Add hotfix for `generic-array` breakage ([issue](https://github.com/fizyk20/generic-array/issues/158)) - [#2688](https://github.com/use-ink/ink/pull/2688)
 
-## Version 6.0.0-alpha.4
+## Version 6.0.0-beta.1
 
 ### Added
 - Add integration test for arithmetic overflow checks - [#2631](https://github.com/use-ink/ink/pull/2631)

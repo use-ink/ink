@@ -77,10 +77,12 @@ fn panic(_info: &core::panic::PanicInfo) -> ! {
 #[cfg(not(any(feature = "std", feature = "no-allocator")))]
 extern crate ink_allocator;
 
+//#[cfg(not(feature = "std"))]
 mod api;
+//#[cfg(not(feature = "std"))]
 mod backend;
+//#[cfg(not(feature = "std"))]
 pub mod call;
-mod engine;
 mod error;
 #[doc(hidden)]
 pub mod event;
@@ -89,12 +91,14 @@ pub mod hash;
 #[cfg(test)]
 mod tests;
 
+//#[cfg(not(feature = "std"))]
 use self::backend::{
     EnvBackend,
     TypedEnvBackend,
 };
+//#[cfg(not(feature = "std"))]
+pub use self::api::*;
 pub use self::{
-    api::*,
     error::{
         Error,
         Result,
