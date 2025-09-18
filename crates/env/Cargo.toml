@@ -35,28 +35,6 @@ const-crypto = "0.3.0"
 [target.'cfg(target_arch = "riscv64")'.dependencies]
 polkavm-derive = { workspace = true, default-features = false }
 
-[target.'cfg(not(target_arch = "riscv64"))'.dependencies]
-ink_engine = { workspace = true, default-features = true, optional = true }
-
-# Hashes for the off-chain environment.
-sha2 = { workspace = true, optional = true }
-sha3 = { workspace = true, optional = true }
-blake2 = { workspace = true, optional = true }
-
-# ECDSA for the off-chain environment.
-secp256k1 = { workspace = true, features = ["recovery", "global-context"], optional = true }
-
-# schnorrkel for the off-chain environment.
-schnorrkel = { version = "0.11.4", optional = true }
-
-# Only used in the off-chain environment.
-#
-# Sadly couldn't be marked as dev-dependency.
-# Never use this crate outside the off-chain environment!
-scale-decode = { workspace = true, optional = true }
-scale-encode = { workspace = true, optional = true }
-scale-info = { workspace = true, features = ["derive"], optional = true }
-
 [dev-dependencies]
 ink = { path = "../ink" }
 
@@ -69,17 +47,9 @@ std = [
     "ink_prelude/std",
     "ink_primitives/std",
     "ink_storage_traits/std",
-    "ink_engine/std",
     "scale/std",
-    "scale-decode",
-    "scale-encode",
     "scale-info/std",
-    "secp256k1",
-    "schnorrkel",
     "num-traits/std",
-    # Enables hashing crates for off-chain environment.
-    "sha2",
-    "sha3",
     "xcm?/std",
     "derive_more/std"
 ]
