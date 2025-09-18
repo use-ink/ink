@@ -187,6 +187,18 @@ impl From<u8> for FixedBytes<1> {
     }
 }
 
+impl<const N: usize> From<FixedBytes<N>> for [u8; N] {
+    fn from(value: FixedBytes<N>) -> Self {
+        value.0
+    }
+}
+
+impl From<FixedBytes<1>> for u8 {
+    fn from(value: FixedBytes<1>) -> Self {
+        value.0[0]
+    }
+}
+
 impl<const N: usize> Deref for FixedBytes<N> {
     type Target = [u8; N];
 
@@ -323,6 +335,12 @@ impl From<Box<[u8]>> for DynBytes {
     }
 }
 
+impl From<DynBytes> for Vec<u8> {
+    fn from(value: DynBytes) -> Self {
+        value.0
+    }
+}
+
 impl Deref for DynBytes {
     type Target = [u8];
 
@@ -416,6 +434,12 @@ impl<'a> SolEncode<'a> for ByteSlice<'_> {
 impl<'a> From<&'a [u8]> for ByteSlice<'a> {
     fn from(value: &'a [u8]) -> Self {
         Self(value)
+    }
+}
+
+impl<'a> From<ByteSlice<'a>> for &'a [u8] {
+    fn from(value: ByteSlice<'a>) -> Self {
+        value.0
     }
 }
 
