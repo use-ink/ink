@@ -66,6 +66,7 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
     // If contract is compiled with `cargo contract --release`, it will
     // for efficiency reasons be build with `panic_immediate_abort`.
     // This panic handler will thus never be invoked.
+    #[cfg(not(any(feature = "ink-debug", feature = "std")))]
     unreachable!(
         "contract in non-debug/non-std mode needs to be build with `panic_immediate_abort`"
     );
