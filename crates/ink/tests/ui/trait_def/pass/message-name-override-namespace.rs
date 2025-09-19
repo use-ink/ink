@@ -15,6 +15,7 @@ pub trait TraitDefinition {
 }
 
 fn main() {
+    // Message selector and selector id both use the name override.
     macro_rules! assert_selector_eq {
         ( $message_id:literal, $expected_selector:expr $(,)? ) => {
             assert_eq!(
@@ -26,7 +27,7 @@ fn main() {
     }
 
     assert_selector_eq!(
-        "message",
+        "myMessage",
         selector_bytes!("foo::TraitDefinition::myMessage"),
     );
 }
