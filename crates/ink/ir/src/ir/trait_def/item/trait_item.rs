@@ -173,7 +173,8 @@ impl<'a> InkTraitMessage<'a> {
     /// Although the above scenario is very unlikely since the local ID is computed
     /// solely by the identifier of the ink! message.
     pub fn local_id(&self) -> u32 {
-        utils::local_message_id(self.ident())
+        let name = self.name().unwrap_or_else(|| self.ident().to_string());
+        utils::local_message_id(&name)
     }
 
     /// Returns the span of the ink! message.
