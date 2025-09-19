@@ -726,7 +726,7 @@ where
 
     /// Maps the `signer` to an `H160` account.
     ///
-    /// This is a `pallet-revive` concept, whereby a stroage entry is created on-chain.
+    /// This is a `pallet-revive` concept, whereby a storage entry is created on-chain.
     /// The entry maps the account id from `signer` to an `H160` account. This is
     /// a necessity for any operation interacting with the contracts part of
     /// `pallet-revive`.
