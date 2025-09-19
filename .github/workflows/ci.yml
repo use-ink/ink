@@ -748,7 +748,7 @@ jobs:
             cat ./all-contracts | \
             grep integration-tests | \
             scripts/for_all_contracts_exec.sh -- \
-              'scripts/build_and_determine_contract_size.sh {} >> $CONTRACT_SIZE_FILE$example'
+              'scripts/build_and_determine_contract_size.sh $manifest_path >> $CONTRACT_SIZE_FILE$example'
             sed -ie 's/^integration-tests\/\(public\/\|internal\/\)\?//' ${CONTRACT_SIZE_FILE}*
 
       - uses: actions/upload-artifact@v4
