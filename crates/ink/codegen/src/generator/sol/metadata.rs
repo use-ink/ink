@@ -73,10 +73,7 @@ impl SolidityMetadata<'_> {
             .impls()
             .flat_map(|item_impl| item_impl.iter_constructors())
             .map(|ctor| {
-                let name = ctor
-                    .name()
-                    .map(ToString::to_string)
-                    .unwrap_or_else(|| ctor.ident().to_string());
+                let name = ctor.normalized_name();
                 let inputs = params_info(ctor.inputs());
                 let is_payable = ctor.is_payable();
                 let is_default = ctor.is_default();
@@ -101,10 +98,7 @@ impl SolidityMetadata<'_> {
             .impls()
             .flat_map(|item_impl| item_impl.iter_messages())
             .map(|msg| {
-                let name = msg
-                    .name()
-                    .map(ToString::to_string)
-                    .unwrap_or_else(|| msg.ident().to_string());
+                let name = msg.normalized_name();
                 let inputs = params_info(msg.inputs());
                 let output = msg
                     .output()

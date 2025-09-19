@@ -150,10 +150,7 @@ impl Metadata<'_> {
         let is_payable = constructor.is_payable();
         let is_default = constructor.is_default();
         let constructor = constructor.callable();
-        let name = constructor
-            .name()
-            .map(ToString::to_string)
-            .unwrap_or_else(|| constructor.ident().to_string());
+        let name = constructor.normalized_name();
         let args = constructor.inputs().map(Self::generate_dispatch_argument);
         let storage_ident = self.contract.module().storage().ident();
         let ret_ty = Self::generate_constructor_return_type(storage_ident, selector_id);
@@ -218,10 +215,7 @@ impl Metadata<'_> {
                 let is_default = message.is_default();
                 let message = message.callable();
                 let mutates = message.receiver().is_ref_mut();
-                let name = message
-                    .name()
-                    .map(ToString::to_string)
-                    .unwrap_or_else(|| message.ident().to_string());
+                let name = message.normalized_name();
                 let args = message.inputs().map(Self::generate_dispatch_argument);
                 let cfg_attrs = message.get_cfg_attrs(span);
                 let ret_ty =
@@ -268,9 +262,7 @@ impl Metadata<'_> {
             .map(|((trait_ident, trait_path), message)| {
                 let message_span = message.span();
                 let message_name = message
-                    .name()
-                    .map(ToString::to_string)
-                    .unwrap_or_else(|| message.ident().to_string());
+                    .normalized_name();
                 let message_docs = message
                     .attrs()
                     .iter()
