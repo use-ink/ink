@@ -205,11 +205,11 @@ impl MessageBuilder<'_> {
                             (quote!([ #( #selector_bytes ),* ]), quote!(::ink::abi::Ink))
                         }
                         Abi::Sol => {
-                            let message_ident = message.ident();
-                            let signature = sol::utils::call_signature(
-                                message_ident.to_string(),
-                                message.inputs(),
-                            );
+                            let name = message
+                                .name()
+                                .unwrap_or_else(|| message.ident().to_string());
+                            let signature =
+                                sol::utils::call_signature(name, message.inputs());
                             (
                                 quote!(::ink::codegen::sol::selector_bytes(#signature)),
                                 quote!(::ink::abi::Sol),
