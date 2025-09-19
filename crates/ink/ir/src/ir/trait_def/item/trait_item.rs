@@ -188,6 +188,11 @@ impl<'a> InkTraitMessage<'a> {
             .map(|receiver| receiver.mutability.is_some())
             .expect("encountered missing receiver for ink! message")
     }
+
+    /// Returns the function name override (if any).
+    pub fn name(&self) -> Option<String> {
+        self.ink_attrs().name()
+    }
 }
 
 impl<'a> From<&'a InkTraitMessage<'a>> for InputsIter<'a> {
