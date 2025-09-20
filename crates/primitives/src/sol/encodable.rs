@@ -14,16 +14,7 @@
 
 use alloy_sol_types::{
     Word as AlloyWord,
-    abi::{
-        Encoder,
-        token::{
-            DynSeqToken,
-            FixedSeqToken,
-            PackedSeqToken,
-            Token,
-            WordToken,
-        },
-    },
+    abi::Encoder,
     utils::words_for_len,
 };
 use ink_prelude::vec::Vec;
@@ -81,43 +72,6 @@ pub trait Encodable: private::Sealed {
         // Encoder implementation detail for tracking offsets.
         encoder.pop_offset();
     }
-}
-
-// NOTE: We use a macro instead of a generic implementation over `T: Token` because
-// that would "conflict" with generic implementations over `T: Encodable`.
-macro_rules! impl_encodable_for_token {
-    ($([$($gen:tt)*] $ty: ty),+ $(,)*) => {
-        $(
-            impl<$($gen)*> Encodable for $ty {
-                const DYNAMIC: bool = <$ty as Token>::DYNAMIC;
-
-                fn head_words(&self) -> usize {
-                    Token::head_words(self)
-                }
-
-                fn tail_words(&self) -> usize {
-                    Token::tail_words(self)
-                }
-
-                fn head_append(&self, encoder: &mut Encoder) {
-                    Token::head_append(self, encoder);
-                }
-
-                fn tail_append(&self, encoder: &mut Encoder) {
-                    Token::tail_append(self, encoder);
-                }
-            }
-
-            impl<$($gen)*> private::Sealed for $ty {}
-        )+
-    };
-}
-
-impl_encodable_for_token! {
-    [] WordToken,
-    [] PackedSeqToken<'_>,
-    [T: for<'a> Token<'a>, const N: usize] FixedSeqToken<T, N>,
-    [T: for<'a> Token<'a>] DynSeqToken<T>,
 }
 
 /// Either a `Token` based (i.e. "actual value") or "default value" (i.e.
