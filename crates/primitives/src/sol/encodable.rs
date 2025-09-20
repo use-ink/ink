@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use alloy_sol_types::{
-    Word,
+    Word as AlloyWord,
     abi::{
         Encoder,
         token::{
@@ -167,7 +167,7 @@ impl Encodable for FixedSizeDefault {
             0 => (),
             1 => {
                 // Appends empty word.
-                encoder.append_word(Word::from([0u8; 32]));
+                encoder.append_word(AlloyWord::from([0u8; 32]));
             }
             size => {
                 // Appends empty words.
@@ -175,7 +175,7 @@ impl Encodable for FixedSizeDefault {
                 // doesn't currently have a public method for doing this.
                 let mut counter = 0;
                 while counter < size {
-                    encoder.append_word(Word::from([0u8; 32]));
+                    encoder.append_word(AlloyWord::from([0u8; 32]));
                     counter += 1;
                 }
             }
@@ -249,6 +249,42 @@ where
 }
 
 impl<T, D> private::Sealed for TokenOrDefault<T, D> {}
+
+/// A Solidity ABI word (i.e. 32 bytes).
+//
+// # Design Notes
+//
+// We need this wrapper because an implementation of `Encodable` for `[u8; 32]` would
+// conflict with one for `[T; N]`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(transparent)]
+pub struct Word(pub [u8; 32]);
+
+// Analog of `WordToken` but with `T` bound being `Encodable` instead of `Token`.
+//
+// Ref: <https://github.com/alloy-rs/core/blob/49b7bce463cce6e987a8fb9a987acbf4ec4297a6/crates/sol-types/src/abi/token.rs#L185>
+impl Encodable for Word {
+    const DYNAMIC: bool = false;
+
+    fn head_words(&self) -> usize {
+        // All the data is in the head.
+        1
+    }
+
+    fn tail_words(&self) -> usize {
+        // No tail words, because all the data is in the head.
+        0
+    }
+
+    fn head_append(&self, encoder: &mut Encoder) {
+        // Appends the data.
+        encoder.append_word(AlloyWord::from(self.0));
+    }
+
+    fn tail_append(&self, _: &mut Encoder) {}
+}
+
+impl private::Sealed for Word {}
 
 // Analog of `FixedSeqToken` but with `T` bound being `Encodable` instead of `Token` and
 // `TokenSeq`.
