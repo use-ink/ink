@@ -251,6 +251,10 @@ impl Callable for Constructor {
     fn name(&self) -> Option<&str> {
         self.name.as_deref()
     }
+
+    fn normalized_name(&self) -> String {
+        self.normalized_name()
+    }
 }
 
 impl Constructor {
@@ -280,6 +284,17 @@ impl Constructor {
     /// Returns the function name override (if any).
     pub fn name(&self) -> Option<&str> {
         self.name.as_deref()
+    }
+
+    /// Returns the "normalized" function name
+    ///
+    /// # Note
+    /// This returns the name override (if provided), otherwise the identifier is
+    /// returned.
+    pub fn normalized_name(&self) -> String {
+        self.name()
+            .map(ToString::to_string)
+            .unwrap_or_else(|| self.ident().to_string())
     }
 }
 

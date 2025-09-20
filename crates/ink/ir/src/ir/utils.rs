@@ -58,9 +58,9 @@ pub fn ensure_pub_visibility(
 ///
 /// - The returned value is equal to the selector of the message identifier.
 /// - Used from within ink! trait definitions as well as ink! trait implementation blocks.
-pub fn local_message_id(ident: &syn::Ident) -> u32 {
-    let input = ident.to_string().into_bytes();
-    let selector = Selector::compute(&input);
+pub fn local_message_id(ident: &str) -> u32 {
+    let input = ident.as_bytes();
+    let selector = Selector::compute(input);
     selector.into_be_u32()
 }
 

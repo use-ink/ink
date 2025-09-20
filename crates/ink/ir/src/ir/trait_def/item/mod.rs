@@ -373,9 +373,7 @@ impl InkItemTrait {
                     manual_selector
                 }
                 _ => {
-                    let name = ink_attrs
-                        .name()
-                        .unwrap_or_else(|| callable.ident().to_string());
+                    let name = callable.normalized_name();
                     Selector::compose(trait_prefix, name)
                 }
             };

@@ -14,6 +14,7 @@ pub trait TraitDefinition {
 }
 
 fn main() {
+    // Custom selector (i.e `selector = 1`) takes precedence over name override
     macro_rules! assert_selector_eq {
         ( $message_id:literal, $expected_selector:expr $(,)? ) => {
             assert_eq!(
@@ -24,5 +25,5 @@ fn main() {
         }
     }
 
-    assert_selector_eq!("message", [0, 0, 0, 1]);
+    assert_selector_eq!("myMessage", [0, 0, 0, 1]);
 }
