@@ -19,7 +19,6 @@ use alloy_sol_types::{
     abi::{
         self,
         Encoder,
-        token::WordToken,
     },
     sol_data,
 };
@@ -45,6 +44,7 @@ use crate::{
             Encodable,
             FixedSizeDefault,
             TokenOrDefault,
+            Word,
         },
         utils::{
             append_non_empty_member_topic_bytes,
@@ -308,11 +308,11 @@ macro_rules! impl_topic_encode_word {
                 where
                     H: Fn(&[u8], &mut [u8; 32]),
                 {
-                    self.tokenize().0 .0
+                    self.tokenize().0
                 }
 
                 fn topic_preimage(&self, buffer: &mut Vec<u8>) {
-                    buffer.extend(self.tokenize().0.0);
+                    buffer.extend(self.tokenize().0);
                 }
 
                 fn default_topic_preimage(buffer: &mut Vec<u8>) {
@@ -340,14 +340,14 @@ macro_rules! impl_primitive_encode {
                 const DEFAULT_VALUE: Self::DefaultType = FixedSizeDefault::WORD;
 
                 fn tokenize(&self) -> Self::TokenType<'_> {
-                    <Self::AlloyType as AlloySolType>::tokenize(self)
+                    Word(<Self::AlloyType as AlloySolType>::tokenize(self).0.0)
                 }
             }
 
             impl_topic_encode_word!($ty);
 
             impl SolTokenType for $ty {
-                type TokenType<'enc> = <$sol_ty as AlloySolType>::Token<'enc>;
+                type TokenType<'enc> = Word;
 
                 type DefaultType = FixedSizeDefault;
             }
@@ -478,19 +478,16 @@ impl SolTypeEncode for Address {
     const DEFAULT_VALUE: Self::DefaultType = FixedSizeDefault::WORD;
 
     fn tokenize(&self) -> Self::TokenType<'_> {
-        // We skip the conversion to `alloy_sol_types::private::Address` which will just
-        // end up doing the conversion below anyway.
-        // Ref: <https://github.com/alloy-rs/core/blob/5ae4fe0b246239602c97cc5a2f2e4bc780e2024a/crates/primitives/src/bits/address.rs#L149-L153>
         let mut word = [0; 32];
         word[12..].copy_from_slice(self.0.as_slice());
-        WordToken::from(word)
+        Word(word)
     }
 }
 
 impl_topic_encode_word!(Address);
 
 impl SolTokenType for Address {
-    type TokenType<'enc> = WordToken;
+    type TokenType<'enc> = Word;
 
     type DefaultType = FixedSizeDefault;
 }
@@ -514,18 +511,14 @@ impl SolTypeEncode for U256 {
     const DEFAULT_VALUE: Self::DefaultType = FixedSizeDefault::WORD;
 
     fn tokenize(&self) -> Self::TokenType<'_> {
-        // `<Self::AlloyType as AlloySolType>::tokenize(self)` won't work because
-        // `primitive_types::U256` does NOT implement
-        // `Borrow<alloy_sol_types::private::U256>`. And both the `U256` and
-        // `Borrow` are foreign, so we can't just implement it.
-        WordToken::from(self.to_big_endian())
+        Word(self.to_big_endian())
     }
 }
 
 impl_topic_encode_word!(U256);
 
 impl SolTokenType for U256 {
-    type TokenType<'enc> = WordToken;
+    type TokenType<'enc> = Word;
 
     type DefaultType = FixedSizeDefault;
 }
@@ -863,7 +856,7 @@ impl<T: SolTypeEncode> SolTypeEncode for Option<T> {
 impl<T: SolTopicEncode> SolTopicEncode for Option<T> {
     fn topic_preimage(&self, buffer: &mut Vec<u8>) {
         // `bool` variant encoded bytes.
-        buffer.extend(self.is_some().tokenize().0.0);
+        buffer.extend(self.is_some().tokenize().0);
         // "Actual value" encoded bytes.
         match self {
             None => T::default_topic_preimage(buffer),
@@ -888,10 +881,7 @@ impl<T: SolTopicEncode> SolTopicEncode for Option<T> {
 }
 
 impl<T: SolTokenType> SolTokenType for Option<T> {
-    type TokenType<'enc> = (
-        WordToken,
-        TokenOrDefault<T::TokenType<'enc>, T::DefaultType>,
-    );
+    type TokenType<'enc> = (Word, TokenOrDefault<T::TokenType<'enc>, T::DefaultType>);
 
     type DefaultType = (FixedSizeDefault, T::DefaultType);
 }
