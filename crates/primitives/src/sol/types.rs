@@ -19,10 +19,7 @@ use alloy_sol_types::{
     abi::{
         self,
         Encoder,
-        token::{
-            PackedSeqToken,
-            WordToken,
-        },
+        token::WordToken,
     },
     sol_data,
 };
@@ -403,7 +400,7 @@ macro_rules! impl_str_encode {
                 const DEFAULT_VALUE: Self::DefaultType = DynSizeDefault;
 
                 fn tokenize(&self) -> Self::TokenType<'_> {
-                    PackedSeqToken(self.as_bytes())
+                    self.as_bytes()
                 }
             }
 
@@ -435,7 +432,7 @@ macro_rules! impl_str_encode {
             }
 
             impl SolTokenType for $ty {
-                type TokenType<'enc> = PackedSeqToken<'enc>;
+                type TokenType<'enc> = &'enc [u8];
 
                 type DefaultType = DynSizeDefault;
             }

@@ -24,7 +24,7 @@ use alloy_sol_types::{
             WordToken,
         },
     },
-    utils::words_for_len
+    utils::words_for_len,
 };
 use ink_prelude::vec::Vec;
 
@@ -340,7 +340,7 @@ impl<T> private::Sealed for Vec<T> {}
 // Analog of `PackedSeqToken` but with `T` bound being `Encodable` instead of `Token`.
 //
 // Ref: <https://github.com/alloy-rs/core/blob/49b7bce463cce6e987a8fb9a987acbf4ec4297a6/crates/sol-types/src/abi/token.rs#L466>
-impl<'a> Encodable for &'a [u8] {
+impl Encodable for &[u8] {
     const DYNAMIC: bool = true;
 
     fn head_words(&self) -> usize {
@@ -364,7 +364,7 @@ impl<'a> Encodable for &'a [u8] {
     }
 }
 
-impl<'a> private::Sealed for &'a [u8] {}
+impl private::Sealed for &[u8] {}
 
 /// Identical to `TokenSeq::encode_sequence` implementations for `FixedSeqToken` and
 /// `DynSeqToken` but with `T` bound being `Encodable` instead of `Token`.

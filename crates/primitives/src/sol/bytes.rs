@@ -19,10 +19,7 @@ use core::{
 
 use alloy_sol_types::{
     SolType as AlloySolType,
-    abi::token::{
-        PackedSeqToken,
-        WordToken,
-    },
+    abi::token::WordToken,
     sol_data,
 };
 use ink_prelude::{
@@ -256,9 +253,7 @@ impl SolTypeEncode for DynBytes {
     const DEFAULT_VALUE: Self::DefaultType = DynSizeDefault;
 
     fn tokenize(&self) -> Self::TokenType<'_> {
-        // Direct implementation simplifies generic implementations by removing
-        // requirement for `SolTypeValue<Self::AlloyType>`.
-        PackedSeqToken(self.0.as_slice())
+        self.0.as_slice()
     }
 }
 
@@ -290,7 +285,7 @@ impl SolTopicEncode for DynBytes {
 }
 
 impl SolTokenType for DynBytes {
-    type TokenType<'enc> = PackedSeqToken<'enc>;
+    type TokenType<'enc> = &'enc [u8];
 
     type DefaultType = DynSizeDefault;
 }
@@ -369,9 +364,7 @@ impl SolTypeEncode for ByteSlice<'_> {
     const DEFAULT_VALUE: Self::DefaultType = DynSizeDefault;
 
     fn tokenize(&self) -> Self::TokenType<'_> {
-        // Direct implementation simplifies generic implementations by removing
-        // requirement for `SolTypeValue<Self::AlloyType>`.
-        PackedSeqToken(self.0)
+        self.0
     }
 }
 
@@ -403,7 +396,7 @@ impl SolTopicEncode for ByteSlice<'_> {
 }
 
 impl SolTokenType for ByteSlice<'_> {
-    type TokenType<'enc> = PackedSeqToken<'enc>;
+    type TokenType<'enc> = &'enc [u8];
 
     type DefaultType = DynSizeDefault;
 }
