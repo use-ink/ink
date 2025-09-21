@@ -58,9 +58,9 @@
 <a href=#58 id=58 data-nosnippet>58</a>///
 <a href=#59 id=59 data-nosnippet>59</a>/// - The returned value is equal to the selector of the message identifier.
 <a href=#60 id=60 data-nosnippet>60</a>/// - Used from within ink! trait definitions as well as ink! trait implementation blocks.
-<a href=#61 id=61 data-nosnippet>61</a></span><span class="kw">pub fn </span>local_message_id(ident: <span class="kw-2">&amp;</span>syn::Ident) -&gt; u32 {
-<a href=#62 id=62 data-nosnippet>62</a>    <span class="kw">let </span>input = ident.to_string().into_bytes();
-<a href=#63 id=63 data-nosnippet>63</a>    <span class="kw">let </span>selector = Selector::compute(<span class="kw-2">&amp;</span>input);
+<a href=#61 id=61 data-nosnippet>61</a></span><span class="kw">pub fn </span>local_message_id(ident: <span class="kw-2">&amp;</span>str) -&gt; u32 {
+<a href=#62 id=62 data-nosnippet>62</a>    <span class="kw">let </span>input = ident.as_bytes();
+<a href=#63 id=63 data-nosnippet>63</a>    <span class="kw">let </span>selector = Selector::compute(input);
 <a href=#64 id=64 data-nosnippet>64</a>    selector.into_be_u32()
 <a href=#65 id=65 data-nosnippet>65</a>}
 <a href=#66 id=66 data-nosnippet>66</a>
