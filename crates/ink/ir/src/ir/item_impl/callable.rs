@@ -143,6 +143,12 @@ where
     fn name(&self) -> Option<&str> {
         <C as Callable>::name(self.callable)
     }
+
+    fn normalized_name(&self) -> String {
+        self.name()
+            .map(ToString::to_string)
+            .unwrap_or_else(|| self.ident().to_string())
+    }
 }
 
 impl<C> ::core::ops::Deref for CallableWithSelector<'_, C> {
@@ -201,6 +207,13 @@ pub trait Callable {
 
     /// Returns the function name override (if any).
     fn name(&self) -> Option<&str>;
+
+    /// Returns the "normalized" function name
+    ///
+    /// # Note
+    /// This returns the name override (if provided), otherwise the identifier is
+    /// returned.
+    fn normalized_name(&self) -> String;
 }
 
 /// Returns the composed selector of the ink! callable.
@@ -339,10 +352,7 @@ fn compose_selector_preimage<C>(item_impl: &ir::ItemImpl, callable: &C) -> Vec<u
 where
     C: Callable,
 {
-    let callable_name = callable
-        .name()
-        .map(|name| name.as_bytes().to_vec())
-        .unwrap_or_else(|| callable.ident().to_string().into_bytes());
+    let callable_name = callable.normalized_name().into_bytes();
     let namespace_bytes = item_impl
         .namespace()
         .map(|namespace| namespace.as_bytes().to_vec())
