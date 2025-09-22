@@ -1,0 +1,105 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Defines the interface of a “callee” contract and generates a wrapper type which can be used for interacting with the contract."><title>contract_ref in ink_macro - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-1a91846b.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="ink_macro" data-themes="" data-resource-suffix="" data-rustdoc-version="1.88.0 (6b00bc388 2025-06-23)" data-channel="1.88.0" data-search-js="search-f7877310.js" data-settings-js="settings-5514c975.js" ><script src="../static.files/storage-4e99c027.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-7ef8a74a.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button><a class="logo-container" href="../ink_macro/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt=""></a></nav><nav class="sidebar"><div class="sidebar-crate"><a class="logo-container" href="../ink_macro/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><h2><a href="../ink_macro/index.html">ink_<wbr>macro</a><span class="version">6.0.0-alpha.4</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">contract_<wbr>ref</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#example" title="Example">Example</a></li><li><a href="#definition" title="Definition">Definition</a></li><li><a href="#usage" title="Usage">Usage</a><ul><li><a href="#header-arguments" title="Header Arguments">Header Arguments</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate ink_<wbr>macro</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">ink_macro</a></div><h1>Attribute Macro <span class="attr">contract_ref</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/ink_macro/lib.rs.html#814-816">Source</a> </span></div><pre class="rust item-decl"><code>#[contract_ref]</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Defines the interface of a “callee” contract and generates a wrapper type which can be
+used for interacting with the contract.</p>
+<p>The interface is defined using a trait, and the macro generates a native Rust type
+(a contract reference) that implements this trait, so it can be used in any Rust
+context that expects types.</p>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2><h2 id="definition"><a class="doc-anchor" href="#definition">§</a>Definition</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[ink::contract_ref(abi = <span class="string">"sol"</span>)]
+</span><span class="kw">pub trait </span>Erc20 {
+    <span class="doccomment">/// Returns the total supply of the ERC-20 smart contract.
+    </span><span class="attr">#[ink(message)]
+    </span><span class="kw">fn </span>total_supply(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ink::U256;
+
+    <span class="doccomment">/// Transfers balance from the caller to the given address.
+    </span><span class="attr">#[ink(message)]
+    </span><span class="kw">fn </span>transfer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, amount: ink::U256, to: ink::Address) -&gt; bool;
+
+    <span class="comment">// etc.
+</span>}</code></pre></div>
+<h2 id="usage"><a class="doc-anchor" href="#usage">§</a>Usage</h2>
+<p>Given the above interface, you can use the generated contract reference in a
+“caller” contract as shown below:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[ink::contract]
+</span><span class="kw">mod </span>erc20_caller {
+    <span class="kw">use </span>ink::U256;
+    <span class="attr">#[ink(storage)]
+    </span><span class="kw">pub struct </span>Erc20Caller {
+        callee: ink::Address,
+    }
+
+    <span class="kw">impl </span>Erc20Caller {
+        <span class="attr">#[ink(constructor)]
+        </span><span class="kw">pub fn </span>new(addr: ink::Address) -&gt; <span class="self">Self </span>{
+            <span class="self">Self </span>{ callee: addr }
+        }
+
+        <span class="attr">#[ink(message)]
+        </span><span class="kw">pub fn </span>call_erc20(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+            <span class="comment">// Calls the ERC20 contract using the contract ref generated above.
+            </span><span class="kw">let </span>total = Erc20Ref::from(<span class="self">self</span>.callee).total_supply();
+
+            <span class="comment">// Do some fun stuff!
+        </span>}
+    }
+}</code></pre></div>
+<h3 id="header-arguments"><a class="doc-anchor" href="#header-arguments">§</a>Header Arguments</h3>
+<p>The <code>#[ink::contract_ref]</code> macro can be provided with some additional
+comma-separated header arguments:</p>
+<ul>
+<li>
+<p><code>abi: String</code></p>
+<p>Specifies the ABI (Application Binary Interface) of the “callee” contract.</p>
+<p><strong>Usage Example:</strong></p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[ink::contract_ref(abi = <span class="string">"sol"</span>)]
+</span><span class="kw">pub trait </span>Callee {
+    <span class="attr">#[ink(message)]
+    </span><span class="kw">fn </span>message1(<span class="kw-2">&amp;</span><span class="self">self</span>);
+
+    <span class="attr">#[ink(message, selector = <span class="number">42</span>)]
+    </span><span class="kw">fn </span>message2(<span class="kw-2">&amp;</span><span class="self">self</span>);
+}</code></pre></div>
+<p><strong>Default value:</strong> Empty.</p>
+<p><strong>Allowed values:</strong> <code>"ink"</code>, <code>"sol"</code></p>
+<p><strong>NOTE</strong>: When no value is provided, the generated contract reference will use the
+ABI of the  root contract (i.e “ink” in “ink” and “all” ABI mode and “sol” in “sol”
+ABI mode).</p>
+</li>
+<li>
+<p><code>env: impl Environment</code></p>
+<p>Specifies the environment to use for the generated contract reference.</p>
+<p>This should be the same environment used by the root contract (if any).</p>
+<p>The environment must implement the <code>Environment</code> (defined in <code>ink_env</code>)
+trait and provides all the necessary fundamental type definitions for <code>Balance</code>,
+<code>AccountId</code> etc.</p>
+<p><strong>Usage Example:</strong></p>
+<p>Given a custom <code>Environment</code> implementation:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Clone)]
+</span><span class="kw">pub struct </span>MyEnvironment;
+
+<span class="kw">impl </span>ink_env::Environment <span class="kw">for </span>MyEnvironment {
+    <span class="kw">const </span>NATIVE_TO_ETH_RATIO: u32 = <span class="number">100_000_000</span>;
+    <span class="kw">type </span>AccountId = [u8; <span class="number">16</span>];
+    <span class="kw">type </span>Balance = u128;
+    <span class="kw">type </span>Hash = [u8; <span class="number">32</span>];
+    <span class="kw">type </span>Timestamp = u64;
+    <span class="kw">type </span>BlockNumber = u32;
+    <span class="kw">type </span>EventRecord = ();
+}</code></pre></div>
+<p>A user might define an interface (and generate a contract reference) that uses the
+above custom <code>Environment</code> implementation as demonstrated below:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[ink::contract_ref(env = MyEnvironment)]
+</span><span class="kw">pub trait </span>Callee {
+    <span class="attr">#[ink(message)]
+    </span><span class="kw">fn </span>message(<span class="kw-2">&amp;</span><span class="self">self</span>);
+
+    <span class="comment">// ...
+</span>}
+</code></pre></div>
+<p><strong>Default value:</strong> <code>DefaultEnvironment</code> defined in <code>ink_env</code> crate.</p>
+</li>
+</ul>
+</div></details></section></div></main></body></html>
