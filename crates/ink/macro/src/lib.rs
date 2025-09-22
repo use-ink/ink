@@ -754,7 +754,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///   **Allowed values:** `"ink"`, `"sol"`
 ///
 ///   **NOTE**: When no value is provided, the generated contract reference will use the
-///   ABI of the   root contract (i.e "ink" in "ink" and "all" ABI mode and "sol" in "sol"
+///   ABI of the  root contract (i.e "ink" in "ink" and "all" ABI mode and "sol" in "sol"
 ///   ABI mode).
 ///
 /// - `env: impl Environment`
