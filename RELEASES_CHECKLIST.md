@@ -111,5 +111,5 @@ in the future.
    there. The title of the release should be `vX.X.X`.
 11. Post an announcement to the Telegram channel: https://t.me/inkathon/1
 12. Update the documentation with the new release:
-- In setup page: https://github.com/use-ink/ink-docs/blob/master/docs/getting-started/setup.md#rust--cargo
-- In contract template page: https://github.com/use-ink/ink-docs/blob/master/docs/basics/contract-template.md#cargotoml
+    - In setup page: https://github.com/use-ink/ink-docs/blob/master/docs/getting-started/setup.md#rust--cargo
+    - In contract template page: https://github.com/use-ink/ink-docs/blob/master/docs/basics/contract-template.md#cargotoml
