@@ -668,7 +668,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// # Example
 ///
-/// # Definition:
+/// # Definition
 ///
 /// ```
 /// #[ink::interface(abi = "sol")]
