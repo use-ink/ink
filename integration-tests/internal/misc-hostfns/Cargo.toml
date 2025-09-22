@@ -10,7 +10,7 @@ publish = false
 ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
 
 [dev-dependencies]
-ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
+ink_e2e = { path = "../../../crates/e2e" }
 
 [lib]
 path = "lib.rs"
