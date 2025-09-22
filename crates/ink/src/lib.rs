@@ -84,6 +84,7 @@ pub use ink_macro::{
     SolErrorMetadata,
     blake2x256,
     contract,
+    contract_ref,
     error,
     event,
     scale_derive,

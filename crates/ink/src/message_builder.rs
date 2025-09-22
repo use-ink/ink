@@ -20,10 +20,10 @@
 /// The macro returns an instance of the generated message builder type which implements
 /// the trait, allowing the user to create and invoke messages on the trait.
 ///
-/// This is similar to the call builder syntax accessible via the [`crate::contract_ref!`]
-/// macro, except that it is decoupled from the callee account id, as well as the
-/// underlying execution environment. This allows it to be used in execution contexts
-/// other than cross-contract calls.
+/// This is similar to the call builder syntax accessible via the
+/// [`crate::contract_ref_from_path!`] macro, except that it is decoupled from the callee
+/// account id, as well as the underlying execution environment. This allows it to be used
+/// in execution contexts other than cross-contract calls.
 ///
 /// # Usage
 ///
