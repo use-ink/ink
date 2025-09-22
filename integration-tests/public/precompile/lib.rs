@@ -3,7 +3,7 @@
 /// Defines (partial) interface of System precompile.
 ///
 /// See <https://github.com/paritytech/polkadot-sdk/blob/d5bc25b57c300d0477ceb2d53cbbc2e6734da933/substrate/frame/revive/uapi/src/precompiles/system.rs>
-#[ink::interface(abi = "sol")]
+#[ink::contract_ref(abi = "sol")]
 pub trait System {
     /// Computes Blake2b 256-bit hash of given input.
     ///

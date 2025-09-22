@@ -23,10 +23,10 @@ extern crate ink_codegen;
 
 mod blake2b;
 mod contract;
+mod contract_ref;
 mod error;
 mod event;
 mod ink_test;
-mod interface;
 mod scale;
 mod selector;
 mod sol;
@@ -671,7 +671,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// # Definition
 ///
 /// ```
-/// #[ink::interface(abi = "sol")]
+/// #[ink::contract_ref(abi = "sol")]
 /// pub trait Erc20 {
 ///     /// Returns the total supply of the ERC-20 smart contract.
 ///     #[ink(message)]
@@ -695,7 +695,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// mod erc20_caller {
 ///     use ink::U256;
 /// #    // We somehow cannot put the trait in the doc-test crate root due to bugs.
-/// #    #[ink::interface(abi = "sol")]
+/// #    #[ink::contract_ref(abi = "sol")]
 /// #    pub trait Erc20 {
 /// #       /// Returns the total supply of the ERC-20 smart contract.
 /// #       #[ink(message)]
@@ -730,7 +730,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// ## Header Arguments
 ///
-/// The `#[ink::interface]` macro can be provided with some additional
+/// The `#[ink::contract_ref]` macro can be provided with some additional
 /// comma-separated header arguments:
 ///
 /// - `abi: String`
@@ -739,7 +739,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 ///   **Usage Example:**
 ///   ```
-///   #[ink::interface(abi = "sol")]
+///   #[ink::contract_ref(abi = "sol")]
 ///   pub trait Callee {
 ///       #[ink(message)]
 ///       fn message1(&self);
@@ -787,7 +787,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///   A user might define an interface (and generate a contract reference) that uses the
 ///   above custom `Environment` implementation as demonstrated below:
 ///   ```
-///   #[ink::interface(env = MyEnvironment)]
+///   #[ink::contract_ref(env = MyEnvironment)]
 ///   pub trait Callee {
 ///       #[ink(message)]
 ///       fn message(&self);
@@ -810,15 +810,9 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///   ```
 ///
 ///   **Default value:** `DefaultEnvironment` defined in `ink_env` crate.
-//
-// # Design Notes
-//
-// We would have preferred to name this attribute `#[ink::contract_ref]`, however, the
-// `ink::contract_ref` name is already taken by the `ink::contract_ref_from_path!` declarative
-// macro.
 #[proc_macro_attribute]
-pub fn interface(attr: TokenStream, item: TokenStream) -> TokenStream {
-    interface::analyze(attr.into(), item.into()).into()
+pub fn contract_ref(attr: TokenStream, item: TokenStream) -> TokenStream {
+    contract_ref::analyze(attr.into(), item.into()).into()
 }
 
 /// Implements the necessary traits for a `struct` to be emitted as an event from a
