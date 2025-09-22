@@ -3,8 +3,6 @@ use ink::{
         TraitDefinitionRegistry,
         TraitMessageInfo,
     },
-    selector_bytes,
-    selector_id,
 };
 use ink_env::DefaultEnvironment;
 
@@ -20,11 +18,12 @@ fn main() {
         ( $message_id:literal, $expected_selector:expr $(,)? ) => {
             assert_eq!(
                 <<TraitDefinitionRegistry<DefaultEnvironment> as TraitDefinition>::__ink_TraitInfo
-                    as TraitMessageInfo<{selector_id!($message_id)}>>::SELECTOR,
+                    as TraitMessageInfo<$message_id>>::SELECTOR,
                     $expected_selector
             );
         }
     }
 
-    assert_selector_eq!("myMessage", selector_bytes!("TraitDefinition::myMessage"),);
+    // `keccak256("myMessage()")` == `0x1b008a9f`
+    assert_selector_eq!(0x1b008a9f_u32, [0x1b, 0x00, 0x8a, 0x9f]);
 }

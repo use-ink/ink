@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Marks the `pallet-revive` host function `account_id` stable - [#2578](https://github.com/use-ink/ink/pull/2578)
+- Add `#[ink::contract_ref]` attribute - [#2648](https://github.com/use-ink/ink/pull/2648)
+
+### Fixed
+- `name` override fixes for message id computation and trait definitions - [#2649](https://github.com/use-ink/ink/pull/2649)
 
 ## Version 6.0.0-alpha.4
 

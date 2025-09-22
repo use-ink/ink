@@ -1,15 +1,17 @@
 [package]
-name = "fallible-setter"
-version = "6.0.0-alpha.4"
+name = "precompile"
+version = "6.0.0-alpha.3"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2024"
 publish = false
 
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false }
+hex-literal = "1"
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
+blake2 = "0.10"
 
 [lib]
 path = "lib.rs"
@@ -23,4 +25,10 @@ ink-as-dependency = []
 e2e-tests = []
 
 [package.metadata.ink-lang]
-abi = "sol"
+abi = "ink"
+
+[lints.rust.unexpected_cfgs]
+level = "warn"
+check-cfg = [
+    'cfg(ink_abi, values("ink", "sol", "all"))'
+]

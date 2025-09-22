@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -u
+set -eu
 
 script_name="${BASH_SOURCE[0]}"
 scripts_path=$( cd "$(dirname "$script_name")" || exit; pwd -P )
@@ -124,9 +124,22 @@ done
 
 # filter out ignored paths and check if each manifest is a contract
 filtered_manifests=()
-  while IFS= read -r line; do
-    filtered_manifests+=("$line")
+while IFS= read -r line; do
+  ignore_line="false"
+  for i in "${ignore[@]}"
+  do
+      if echo "$line" | grep -q "$i"; then
+        >&2 echo "Ignoring $line";
+        ignore_line=true;
+        break;
+      fi
   done
+
+  if [[ "$ignore_line" == "false" ]]; then
+      >&2 echo "Using $line";
+      filtered_manifests+=("$line");
+  fi
+done
 
 if [ ${#filtered_manifests[@]} -eq 0 ]; then
     for manifest_path in $(fdfind Cargo.toml "$path"); do
@@ -137,6 +150,12 @@ if [ ${#filtered_manifests[@]} -eq 0 ]; then
           >&2 echo "Ignoring $manifest_path"
         fi
       else
+            # `is_contract.sh` is using exit codes to communicate
+            # its outcome. We have to disable `set -e` here, as
+            # this script would otherwise exit immediately if
+            # `is_contract.sh` were to report `exit 1`.
+            set +e
+
             >&2 echo "Checking: $manifest_path"
             "$scripts_path"/is_contract.sh "$manifest_path";
             check_exit=$?
@@ -154,6 +173,7 @@ if [ ${#filtered_manifests[@]} -eq 0 ]; then
                   failures+=("$manifest_path")
                 fi
             fi
+            set -e
       fi
     done
 fi
@@ -166,7 +186,7 @@ if [ "$partitioning" = true ]; then
     start=$(( (m - 1) * partition_size ))
     end=$(( m * partition_size - 1 ))
     if [ "$m" -eq "$n" ]; then
-    # last partition
+      # last partition
       end=$(( total_manifests - 1 ))
     fi
 else
@@ -182,7 +202,7 @@ for (( i = start; i <= end; i++ )); do
   if [ "$quiet" = false ]; then
     >&2 echo Running: "${command[@]}"
   fi
-  echo "command" ${command[@]} >&2
+  echo "evaluating command" ${command[@]} >&2
   eval "${command[@]}" >> "$output"
 
   if [ $? -eq 0 ]; then

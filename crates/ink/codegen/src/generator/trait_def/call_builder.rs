@@ -12,12 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::TraitDefinition;
-use crate::{
-    generator,
-    traits::GenerateCode,
-};
 use derive_more::From;
+use ink_primitives::abi::Abi;
 use proc_macro2::{
     Span,
     TokenStream as TokenStream2,
@@ -25,6 +21,12 @@ use proc_macro2::{
 use quote::{
     quote,
     quote_spanned,
+};
+
+use super::TraitDefinition;
+use crate::{
+    generator,
+    traits::GenerateCode,
 };
 
 impl TraitDefinition<'_> {
@@ -37,8 +39,8 @@ impl TraitDefinition<'_> {
     ///   gas limit, endowment etc.
     /// - The call builder is used directly by the generated call forwarder. There exists
     ///   one global call forwarder and call builder pair for every ink! trait definition.
-    pub fn generate_call_builder(&self) -> TokenStream2 {
-        CallBuilder::from(*self).generate_code()
+    pub fn generate_call_builder(&self, abi: Option<Abi>) -> TokenStream2 {
+        CallBuilder::from((*self, abi)).generate_code()
     }
 
     /// The identifier of the ink! trait call builder.
@@ -51,6 +53,7 @@ impl TraitDefinition<'_> {
 #[derive(From)]
 struct CallBuilder<'a> {
     trait_def: TraitDefinition<'a>,
+    abi: Option<Abi>,
 }
 
 impl GenerateCode for CallBuilder<'_> {
@@ -168,7 +171,9 @@ impl CallBuilder<'_> {
     fn generate_auxiliary_trait_impls(&self) -> TokenStream2 {
         let span = self.span();
         let call_builder_ident = self.ident();
-        let sol_codec = if cfg!(any(ink_abi = "sol", ink_abi = "all")) {
+        let sol_codec = if matches!(self.abi, Some(Abi::Sol))
+            || cfg!(any(ink_abi = "sol", ink_abi = "all"))
+        {
             // These manual implementations are a bit more efficient than the derived
             // equivalents.
             quote_spanned!(span=>
@@ -356,7 +361,7 @@ impl CallBuilder<'_> {
         let trait_ident = self.trait_def.trait_def.item().ident();
         let trait_info_ident = self.trait_def.trait_info_ident();
         let builder_ident = self.ident();
-        generate_abi_impls!(@tokens |abi: TokenStream2| {
+        let generator = |abi: TokenStream2| {
             let message_impls = self.generate_ink_trait_impl_messages(abi.clone());
             quote_spanned!(span=>
                 impl<E> #trait_ident for #builder_ident<E, #abi>
@@ -369,7 +374,17 @@ impl CallBuilder<'_> {
                     #message_impls
                 }
             )
-        })
+        };
+        match self.abi {
+            None => generate_abi_impls!(@tokens generator),
+            Some(abi) => {
+                let abi_ty = match abi {
+                    Abi::Ink => quote!(::ink::abi::Ink),
+                    Abi::Sol => quote!(::ink::abi::Sol),
+                };
+                generator(abi_ty)
+            }
+        }
     }
 
     /// Generate the code for all ink! trait messages implemented by the trait call
