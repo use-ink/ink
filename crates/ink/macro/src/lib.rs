@@ -814,7 +814,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 // # Design Notes
 //
 // We would have preferred to name this attribute `#[ink::contract_ref]`, however, the
-// `ink::contract_ref` name is already taken by the `ink::contract_ref!` declarative
+// `ink::contract_ref` name is already taken by the `ink::contract_ref_from_path!` declarative
 // macro.
 #[proc_macro_attribute]
 pub fn interface(attr: TokenStream, item: TokenStream) -> TokenStream {
