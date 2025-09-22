@@ -737,7 +737,6 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 ///   Specifies the ABI (Application Binary Interface) of the "callee" contract.
 ///
-///
 ///   **Usage Example:**
 ///   ```
 ///   #[ink::interface(abi = "sol")]
