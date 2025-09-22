@@ -262,7 +262,6 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::to_account_id`]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn to_account_id(self, addr: Address) -> E::AccountId {
         ink_env::to_account_id::<E>(addr)
     }

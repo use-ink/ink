@@ -12,13 +12,17 @@ mod misc_hostfns {
             Self {}
         }
 
-        /// Takes an auction data struct as input and returns it back.
+        /// Checks that the host functions `address`, `to_account_id`,
+        /// and `account_id` work together.
         #[ink(message)]
         pub fn addr_account_id(&self) {
             let addr = self.env().address();
             let to_account_id = self.env().to_account_id(addr);
             let account_id = self.env().account_id();
-            assert_eq!(to_account_id, account_id, "not the account id");
+            assert_eq!(
+                to_account_id, account_id,
+                "failed asserting equality for the account id"
+            );
         }
     }
 
@@ -41,7 +45,9 @@ mod misc_hostfns {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+        async fn e2e_addr_account_id_works<Client: E2EBackend>(
+            mut client: Client,
+        ) -> E2EResult<()> {
             // given
             let mut constructor = MiscHostfnsRef::new();
             let contract = client
