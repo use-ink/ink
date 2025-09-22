@@ -19,6 +19,7 @@ mod macros;
 
 mod bytes;
 mod encodable;
+mod encoder;
 mod error;
 mod params;
 mod result;

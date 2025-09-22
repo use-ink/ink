@@ -14,10 +14,7 @@
 
 use alloy_sol_types::{
     SolType as AlloySolType,
-    abi::{
-        self,
-        Encoder,
-    },
+    abi,
 };
 use impl_trait_for_tuples::impl_for_tuples;
 use ink_prelude::vec::Vec;
@@ -32,6 +29,8 @@ use super::{
         Encodable,
         EncodableParams,
     },
+    encoder::Encoder,
+    types::SolTokenType,
 };
 
 /// Solidity ABI decode from parameter data (e.g. function, event or error parameters).
@@ -83,9 +82,22 @@ impl<'a> SolParamsEncode<'a> for Tuple {
     fn encode(&'a self) -> Vec<u8> {
         let params = self.to_sol_type();
         let token = <<Self as SolEncode>::SolType as SolTypeEncode>::tokenize(&params);
-        let mut encoder = Encoder::with_capacity(token.total_words());
+        // NOTE: Parameter encoding excludes the top-level offset for a tuple with any
+        // dynamic type member(s).
+        let encoded_size = if <<<Self as SolEncode>::SolType as SolTokenType>::TokenType<
+            'a,
+        > as Encodable>::DYNAMIC
+        {
+            token.tail_words()
+        } else {
+            token.head_words()
+        }
+        .checked_mul(32)
+        .unwrap();
+        let mut buffer = ink_prelude::vec![0u8; encoded_size];
+        let mut encoder = Encoder::new(buffer.as_mut_slice());
         EncodableParams::encode_params(&token, &mut encoder);
-        encoder.into_bytes()
+        buffer
     }
 }
 

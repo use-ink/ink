@@ -16,10 +16,7 @@ use core::clone::Clone;
 
 use alloy_sol_types::{
     SolType as AlloySolType,
-    abi::{
-        self,
-        Encoder,
-    },
+    abi,
     sol_data,
 };
 use impl_trait_for_tuples::impl_for_tuples;
@@ -46,6 +43,7 @@ use crate::{
             TokenOrDefault,
             Word,
         },
+        encoder::Encoder,
         utils::{
             append_non_empty_member_topic_bytes,
             non_zero_multiple_of_32,
@@ -190,9 +188,11 @@ pub trait SolTypeEncode: SolTokenType + private::Sealed {
     /// Solidity ABI encode the value.
     fn encode(&self) -> Vec<u8> {
         let token = self.tokenize();
-        let mut encoder = Encoder::with_capacity(token.total_words());
+        let mut buffer =
+            ink_prelude::vec![0u8; token.total_words().checked_mul(32).unwrap()];
+        let mut encoder = Encoder::new(buffer.as_mut_slice());
         token.encode(&mut encoder);
-        encoder.into_bytes()
+        buffer
     }
 
     /// Tokenizes the given value into a [`Self::AlloyType`] token.

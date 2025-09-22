@@ -12,12 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use alloy_sol_types::{
-    Word as AlloyWord,
-    abi::Encoder,
-    utils::words_for_len,
-};
+use alloy_sol_types::utils::words_for_len;
 use ink_prelude::vec::Vec;
+
+use super::encoder::Encoder;
 
 /// A Solidity ABI encodable representation for a type.
 ///
@@ -60,17 +58,17 @@ pub trait Encodable: private::Sealed {
 
     /// Append both head and tail words to the encoder.
     fn encode(&self, encoder: &mut Encoder) {
-        // Head is either the actual data (for fixed-sized types) or the offset (for
-        // dynamic types).
-        encoder.push_offset(Encodable::head_words(self));
-        Encodable::head_append(self, encoder);
         if <Self as Encodable>::DYNAMIC {
+            // Head is the offset for dynamic types.
+            let mut main_encoder = encoder.segment(self.head_words());
+            Encodable::head_append(self, &mut main_encoder);
             // Only dynamic types have tails, which contain the "actual data".
-            encoder.bump_offset(Encodable::tail_words(self));
-            Encodable::tail_append(self, encoder);
+            let mut tail_encoder = main_encoder.take_tail(self.tail_words());
+            Encodable::tail_append(self, &mut tail_encoder);
+        } else {
+            // Head is the actual data for fixed size types.
+            Encodable::head_append(self, encoder);
         }
-        // Encoder implementation detail for tracking offsets.
-        encoder.pop_offset();
     }
 }
 
@@ -119,19 +117,9 @@ impl Encodable for FixedSizeDefault {
     fn head_append(&self, encoder: &mut Encoder) {
         match self.0 {
             0 => (),
-            1 => {
-                // Appends empty word.
-                encoder.append_word(AlloyWord::from([0u8; 32]));
-            }
-            size => {
-                // Appends empty words.
-                // NOTE: Appending bytes directly would be more efficient but `Encoder`
-                // doesn't currently have a public method for doing this.
-                let mut counter = 0;
-                while counter < size {
-                    encoder.append_word(AlloyWord::from([0u8; 32]));
-                    counter += 1;
-                }
+            n => {
+                // Appends `n` empty words.
+                encoder.fill(0, n);
             }
         }
     }
@@ -156,11 +144,11 @@ impl Encodable for DynSizeDefault {
 
     fn head_append(&self, encoder: &mut Encoder) {
         // Appends offset.
-        encoder.append_indirection();
+        encoder.append_offset();
     }
 
     fn tail_append(&self, encoder: &mut Encoder) {
-        encoder.append_seq_len(0);
+        encoder.append_length(0);
     }
 }
 
@@ -232,7 +220,7 @@ impl Encodable for Word {
 
     fn head_append(&self, encoder: &mut Encoder) {
         // Appends the data.
-        encoder.append_word(AlloyWord::from(self.0));
+        encoder.append_word(self.0);
     }
 
     fn tail_append(&self, _: &mut Encoder) {}
@@ -272,7 +260,7 @@ where
     fn head_append(&self, encoder: &mut Encoder) {
         if Self::DYNAMIC {
             // Appends offset.
-            encoder.append_indirection();
+            encoder.append_offset();
         } else {
             // Appends "actual data".
             for inner in self {
@@ -313,12 +301,12 @@ where
 
     fn head_append(&self, encoder: &mut Encoder) {
         // Adds offset.
-        encoder.append_indirection();
+        encoder.append_offset();
     }
 
     fn tail_append(&self, encoder: &mut Encoder) {
         // Appends length.
-        encoder.append_seq_len(self.len());
+        encoder.append_length(self.len());
 
         // Appends "actual data".
         encode_sequence(self, encoder);
@@ -345,18 +333,19 @@ impl Encodable for &[u8] {
 
     fn head_append(&self, encoder: &mut Encoder) {
         // Adds offset.
-        encoder.append_indirection();
+        encoder.append_offset();
     }
 
     fn tail_append(&self, encoder: &mut Encoder) {
         // Appends length + "actual data".
-        encoder.append_packed_seq(self);
+        encoder.append_length(self.len());
+        encoder.append_bytes(self);
     }
 }
 
 impl private::Sealed for &[u8] {}
 
-/// Identical to `TokenSeq::encode_sequence` implementations for `FixedSeqToken` and
+/// Similar to `TokenSeq::encode_sequence` implementations for `FixedSeqToken` and
 /// `DynSeqToken` but with `T` bound being `Encodable` instead of `Token`.
 ///
 /// References:
@@ -366,15 +355,17 @@ fn encode_sequence<T>(tokens: &[T], encoder: &mut Encoder)
 where
     T: Encodable,
 {
-    encoder.push_offset(tokens.iter().map(T::head_words).sum());
-    for inner in tokens {
-        inner.head_append(encoder);
-        encoder.bump_offset(inner.tail_words());
+    if T::DYNAMIC {
+        let head_words = tokens.iter().map(T::head_words).sum();
+        let mut main_encoder = encoder.segment(head_words);
+        for inner in tokens {
+            inner.head_append(&mut main_encoder);
+            let mut tail_encoder = main_encoder.take_tail(inner.tail_words());
+            inner.tail_append(&mut tail_encoder);
+        }
+    } else {
+        tokens.iter().for_each(|inner| inner.head_append(encoder));
     }
-    for inner in tokens {
-        inner.tail_append(encoder);
-    }
-    encoder.pop_offset();
 }
 
 /// A Solidity ABI encodable representation of function parameters.
@@ -392,22 +383,25 @@ pub trait EncodableParams: private::Sealed {
 macro_rules! impl_encodable_params {
     ($source: ident, $encoder: ident => ($($ty:ident),+$(,)*)) => {
         let ($($ty,)+) = $source;
-        $encoder.push_offset(0 $( + $ty.head_words() )+);
 
-        $(
-            $ty.head_append($encoder);
-            $encoder.bump_offset($ty.tail_words());
-        )+
+        if Self::DYNAMIC {
+            let head_words = 0 $( + $ty.head_words() )+;
+            let mut main_encoder = $encoder.segment(head_words);
 
-        $(
-            $ty.tail_append($encoder);
-        )+
-
-        $encoder.pop_offset();
+            $(
+                $ty.head_append(&mut main_encoder);
+                if $ty::DYNAMIC {
+                    let mut tail_encoder = main_encoder.take_tail($ty.tail_words());
+                    $ty.tail_append(&mut tail_encoder);
+                }
+            )+
+        } else {
+            $( $ty.head_append($encoder); )+
+        }
     };
 }
 
-/// Identical to tuple implementations for `T: Token` and `T: TokenSeq` but with
+/// Similar to tuple implementations for `T: Token` and `T: TokenSeq` but with
 /// `T: Encodable` as the bound.
 ///
 /// Ref: <https://github.com/alloy-rs/core/blob/49b7bce463cce6e987a8fb9a987acbf4ec4297a6/crates/sol-types/src/abi/token.rs#L521>
@@ -445,7 +439,7 @@ macro_rules! impl_encodable {
             #[inline]
             fn head_append(&self, encoder: &mut Encoder) {
                 if Self::DYNAMIC {
-                    encoder.append_indirection();
+                    encoder.append_offset();
                 } else {
                     let ($($ty,)+) = self;
                     $(
@@ -475,7 +469,7 @@ macro_rules! impl_encodable {
 
 impl_all_tuples!(@nonempty impl_encodable);
 
-// Identical to optimized `Token` and `TokenSeq` implementation for `()`, but for
+// Similar to optimized `Token` and `TokenSeq` implementation for `()`, but for
 // `Encodable`.
 //
 // Ref: <https://github.com/alloy-rs/core/blob/49b7bce463cce6e987a8fb9a987acbf4ec4297a6/crates/sol-types/src/abi/token.rs#L616>
