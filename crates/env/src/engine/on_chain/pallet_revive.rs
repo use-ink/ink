@@ -569,9 +569,11 @@ fn call_storage_precompile(
 fn decode_bytes(input: &[u8], out: &mut [u8]) -> usize {
     let mut buf = [0u8; 4];
     buf[..].copy_from_slice(&input[28..32]);
-    debug_assert_eq!({
-        let offset = u32::from_be_bytes(buf) as usize;
-        offset},
+    debug_assert_eq!(
+        {
+            let offset = u32::from_be_bytes(buf) as usize;
+            offset
+        },
         64
     );
 
