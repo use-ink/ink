@@ -555,11 +555,25 @@ fn call_storage_precompile(
 
 /// Simple decoder for a Solidity `bytes` type.
 ///
+/// # Important
+///
+/// This function assumes that it is decoding a single
+/// bytes return type!
+///
+/// - Fine: `function foo() returns (bytes memory);`
+/// - Not Fine: `function foo() returns (bool, bytes memory);`
+///
+/// # Return Valu
+///
 /// Returns the number of bytes written to `out`.
 fn decode_bytes(input: &[u8], out: &mut [u8]) -> usize {
     let mut buf = [0u8; 4];
     buf[..].copy_from_slice(&input[28..32]);
-    let offset = u32::from_be_bytes(buf) as usize;
+    debug_assert_eq!({
+        let offset = u32::from_be_bytes(buf) as usize;
+        offset},
+        64
+    );
 
     let mut buf = [0u8; 4];
     buf[..].copy_from_slice(&input[60..64]);
@@ -568,7 +582,7 @@ fn decode_bytes(input: &[u8], out: &mut [u8]) -> usize {
     // we start decoding at the start of the payload.
     // the payload starts at the `len` word here:
     // `bytes = offset (32 bytes) | len (32 bytes) | data`
-    out[..bytes_len].copy_from_slice(&input[32 + offset..32 + offset + bytes_len]);
+    out[..bytes_len].copy_from_slice(&input[64..64 + bytes_len]);
     bytes_len
 }
 
