@@ -1205,11 +1205,7 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn is_contract(&mut self, addr: &Address) -> bool {
-        let addr: &[u8; 20] = addr
-            .as_ref()
-            .try_into()
-            .expect("failed converting `Address` to `[u8; 20]`");
-        ext::code_size(addr) > 0
+        ext::code_size(&addr.0) > 0
     }
 
     fn caller_is_origin<E>(&mut self) -> bool
