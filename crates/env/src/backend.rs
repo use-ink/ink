@@ -373,8 +373,6 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`is_contract`][`crate::is_contract`]
-    #[allow(clippy::wrong_self_convention)]
-    #[cfg(feature = "unstable-hostfn")]
     fn is_contract(&mut self, account: &Address) -> bool;
 
     /// Checks whether the caller of the current contract is the origin of the whole call

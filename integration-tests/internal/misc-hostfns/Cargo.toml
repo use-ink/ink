@@ -8,6 +8,7 @@ publish = false
 
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
+hex-literal = "1"
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
