@@ -1,2 +1,2 @@
-window.ALL_CRATES = ["ink","ink_allocator","ink_codegen","ink_e2e","ink_e2e_macro","ink_engine","ink_env","ink_ir","ink_macro","ink_prelude","ink_primitives","ink_sandbox","ink_storage","ink_storage_traits"];
-//{"start":21,"fragment_lengths":[5,16,14,10,16,13,10,9,12,14,17,14,14,21]}
+window.ALL_CRATES = ["ink_allocator","ink_codegen","ink_e2e","ink_e2e_macro","ink_engine","ink_env","ink_ir","ink_macro","ink_prelude","ink_primitives","ink_sandbox","ink_storage","ink_storage_traits"];
+//{"start":21,"fragment_lengths":[15,14,10,16,13,10,9,12,14,17,14,14,21]}

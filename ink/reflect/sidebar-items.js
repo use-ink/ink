@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["DispatchError"],"struct":["ConstructorOutputValue","TraitDefinitionRegistry"],"trait":["ConstructorOutput","ContractConstructorDecoder","ContractMessageDecoder","ContractName","DecodeDispatch","DispatchableConstructorInfo","DispatchableMessageInfo","ExecuteDispatchable","TraitInfo","TraitMessageInfo"]};

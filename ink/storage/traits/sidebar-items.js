@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"derive":["Storable","StorableHint","StorageKey","StorageLayout"],"fn":["decode_all"],"struct":["AutoKey","ManualKey","ResolverKey"],"trait":["AutoStorableHint","Packed","Storable","StorableHint","StorageKey","StorageLayout"]};

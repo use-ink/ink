@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["SolResultDecodeError"],"fn":["decode_sequence","encode_sequence"],"struct":["ByteSlice","DynBytes","Error","FixedBytes"],"trait":["SolDecode","SolEncode","SolErrorDecode","SolErrorEncode","SolParamsDecode","SolParamsEncode","SolResultDecode","SolResultEncode","SolTopicEncode","SolTypeDecode","SolTypeEncode"]};
