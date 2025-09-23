@@ -31,7 +31,6 @@ use ink_env::{
         CryptoHash,
         HashOutput,
     },
-    is_contract,
 };
 use ink_primitives::{
     Address,
@@ -1040,17 +1039,10 @@ where
     /// }
     ///
     /// #[ink(message)]
-    /// pub fn check(&mut self, addr: ink::Address) -> bool {
+    /// pub fn check(&mut self) {
     ///     let this_contract = self.env().address();
     ///     assert!(self.env().is_contract(&this_contract));
     ///     assert!(!self.env().is_contract(&self.env().caller()));
-    ///
-    ///     const SYSTEM_PRECOMPILE: [u8; 20] =
-    ///         hex_literal::hex!("0000000000000000000000000000000000000900");
-    ///     assert!(
-    ///         self.env()
-    ///             .is_contract(&ink::H160::from_slice(&SYSTEM_PRECOMPILE[..]))
-    ///     );
     /// }
     /// #    }
     /// # }
