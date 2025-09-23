@@ -158,6 +158,7 @@ where
     /// #[ink(message)]
     /// pub fn foo(&self) {}
     ///
+    /// // todo
     /// // /// Returns a tuple of
     /// // ///   - the result of adding the `rhs` to the `lhs`
     /// // ///   - the gas costs of this addition operation
@@ -224,17 +225,57 @@ where
         ink_env::block_timestamp::<E>()
     }
 
-    /// Returns the account ID of the executed contract.
+    /// Retrieves the account id for a specified address.
     ///
     /// # Example
     ///
-    /// todo this code example doesn't use `account_id()`.
     /// ```
     /// #[ink::contract]
     /// pub mod only_owner {
     ///     #[ink(storage)]
     ///     pub struct OnlyOwner {
-    ///         owner: ink::Address,
+    ///         owner: AccountId,
+    ///         value: u32,
+    ///     }
+    ///
+    ///     impl OnlyOwner {
+    ///         #[ink(constructor)]
+    ///         pub fn new(owner: AccountId) -> Self {
+    ///             Self { owner, value: 0 }
+    ///         }
+    ///
+    ///         /// Allows incrementing the contract's `value` only
+    ///         /// for the owner.
+    ///         ///
+    ///         /// The contract panics if the caller is not the owner.
+    ///         #[ink(message)]
+    ///         pub fn increment(&mut self) {
+    ///             let caller = self.env().address();
+    ///             let caller_acc = self.env().to_account_id(caller);
+    ///             assert!(self.owner == caller_acc);
+    ///             self.value = self.value + 1;
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::to_account_id`]
+    pub fn to_account_id(self, addr: Address) -> E::AccountId {
+        ink_env::to_account_id::<E>(addr)
+    }
+
+    /// Returns the account ID of the executed contract.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// pub mod only_owner {
+    ///     #[ink(storage)]
+    ///     pub struct OnlyOwner {
+    ///         owner: AccountId,
     ///         value: u32,
     ///     }
     ///
@@ -242,19 +283,18 @@ where
     ///         #[ink(constructor)]
     ///         pub fn new() -> Self {
     ///             Self {
-    ///                 owner: Self::env().caller(),
+    ///                 owner: Self::env().account_id(),
     ///                 value: 0,
     ///             }
     ///         }
     ///
     ///         /// Allows incrementing the contract's `value` only
-    ///         /// for the owner (i.e. the account which instantiated
-    ///         /// this contract.
+    ///         /// for the owner.
     ///         ///
     ///         /// The contract panics if the caller is not the owner.
     ///         #[ink(message)]
     ///         pub fn increment(&mut self) {
-    ///             let caller = self.env().caller();
+    ///             let caller = self.env().account_id();
     ///             assert!(self.owner == caller);
     ///             self.value = self.value + 1;
     ///         }

@@ -27,8 +27,8 @@ pub mod pallet {
     };
     use frame_system::pallet_prelude::*;
     use pallet_revive::{
-        evm::*,
         MomentOf,
+        evm::*,
     };
     use sp_runtime::traits::Bounded;
 
@@ -48,7 +48,6 @@ pub mod pallet {
         <<T as pallet_revive::Config>::Currency as Inspect<
             <T as frame_system::Config>::AccountId,
         >>::Balance: From<u128>,
-
         BalanceOf<T>: Into<U256> + TryFrom<U256> + Bounded,
         MomentOf<T>: Into<U256>,
         <T as frame_system::Config>::Hash: IsType<sp_runtime::testing::H256>,

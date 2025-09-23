@@ -246,6 +246,13 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`block_timestamp`][`crate::block_timestamp`]
     fn block_timestamp<E: Environment>(&mut self) -> E::Timestamp;
 
+    /// Retrieves the account id for a specified address.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`to_account_id`][`crate::to_account_id`]
+    fn to_account_id<E: Environment>(&mut self, addr: Address) -> E::AccountId;
+
     /// Returns the address of the executed contract.
     ///
     /// # Note
