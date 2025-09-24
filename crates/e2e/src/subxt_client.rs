@@ -73,8 +73,8 @@ use ink_primitives::{
     DepositLimit,
     abi::AbiEncodeWith,
 };
-use jsonrpsee::core::async_trait;
 use ink_revive::evm::CallTrace;
+use jsonrpsee::core::async_trait;
 use scale::{
     Decode,
     Encode,

@@ -21,8 +21,8 @@ use ink_primitives::{
     H160,
     abi::AbiEncodeWith,
 };
-use jsonrpsee::core::async_trait;
 use ink_revive::evm::CallTrace;
+use jsonrpsee::core::async_trait;
 use sp_weights::Weight;
 use subxt::dynamic::Value;
 

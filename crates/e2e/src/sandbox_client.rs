@@ -59,8 +59,17 @@ use ink_env::{
 use ink_primitives::{
     DepositLimit,
     H160,
+    U256,
     abi::AbiEncodeWith,
-    U256
+};
+use ink_revive::{
+    CodeUploadReturnValue,
+    ExecReturnValue,
+    InstantiateReturnValue,
+    evm::{
+        CallLog,
+        CallTrace,
+    },
 };
 use ink_sandbox::{
     AccountIdFor,
@@ -74,23 +83,14 @@ use ink_sandbox::{
     pallet_revive,
 };
 use jsonrpsee::core::async_trait;
-use ink_revive::{
-    ExecReturnValue,
-    CodeUploadReturnValue,
-    InstantiateReturnValue,
-    evm::{
-        CallTrace,
-        CallLog
-    },
-};
 use pallet_revive::{
     AddressMapper,
-    MomentOf, 
+    MomentOf,
     evm::{
-        TracerType,
-        Trace,
         CallTracerConfig,
-    }
+        Trace,
+        TracerType,
+    },
 };
 use scale::Decode;
 use sp_core::{
@@ -642,9 +642,9 @@ where
                 storage_deposit: to_revive_storage_deposit(result.storage_deposit),
                 result: result.result.map(|res| {
                     ExecReturnValue {
-                            flags: res.flags,
-                            data: res.data,
-                        }
+                        flags: res.flags,
+                        data: res.data,
+                    }
                 }),
             },
             trace: None, // todo
@@ -844,7 +844,6 @@ where
     OriginFor::<S::Runtime>::from(origin)
 }
 
-
 /// Convert a `pallet_revive::CallTrace` (sandbox) into an `ink_revive::CallTrace` (API).
 fn to_revive_trace(t: pallet_revive::evm::CallTrace) -> CallTrace {
     CallTrace {
@@ -857,12 +856,18 @@ fn to_revive_trace(t: pallet_revive::evm::CallTrace) -> CallTrace {
         error: t.error,
         revert_reason: t.revert_reason,
         calls: t.calls.into_iter().map(to_revive_trace).collect(),
-        logs: t.logs.into_iter().map(|log| CallLog {
-            address: log.address,
-            topics: log.topics,
-            data: log.data.0,
-            ..Default::default()
-        }).collect(),
+        logs: t
+            .logs
+            .into_iter()
+            .map(|log| {
+                CallLog {
+                    address: log.address,
+                    topics: log.topics,
+                    data: log.data.0,
+                    ..Default::default()
+                }
+            })
+            .collect(),
         value: t.value,
         call_type: to_revive_call_type(t.call_type),
     }
@@ -873,7 +878,9 @@ fn to_revive_call_type(ct: pallet_revive::evm::CallType) -> ink_revive::evm::Cal
     match ct {
         pallet_revive::evm::CallType::Call => ink_revive::evm::CallType::Call,
         pallet_revive::evm::CallType::StaticCall => ink_revive::evm::CallType::StaticCall,
-        pallet_revive::evm::CallType::DelegateCall => ink_revive::evm::CallType::DelegateCall,
+        pallet_revive::evm::CallType::DelegateCall => {
+            ink_revive::evm::CallType::DelegateCall
+        }
         pallet_revive::evm::CallType::Create => ink_revive::evm::CallType::Create,
         pallet_revive::evm::CallType::Create2 => ink_revive::evm::CallType::Create2,
     }
