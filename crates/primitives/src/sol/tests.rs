@@ -54,6 +54,8 @@ use crate::{
         decode_sequence,
         encodable::Encodable,
         encode_sequence,
+        encode_sequence_to,
+        types::SolTokenType,
     },
     types::{
         AccountId,
@@ -630,12 +632,31 @@ fn params_works() {
             test_case_params!($ty, $val, $sol_ty, $sol_trait, $val, [], [])
         };
         ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty, $sol_val: expr, [$($ty_cvt: tt)*], [$($sol_ty_cvt: tt)*]) => {
-            // `SolParamsEncode` and `encode_sequence` test.
+            // `SolParamsEncode::encode` and `encode_sequence` test.
             let encoded = <$ty as SolParamsEncode>::encode(&$val);
             let encoded_sequence = encode_sequence::<$ty>(&$val);
             let encoded_alloy = <$sol_ty as $sol_trait>::abi_encode_params(&$sol_val);
             assert_eq!(encoded, encoded_alloy);
             assert_eq!(encoded_sequence, encoded_alloy);
+
+            // `SolParamsEncode::encode_to` and `encode_sequence_to` test.
+            let mut encoded_size = <<$ty as SolEncode>::SolType as SolTypeEncode>::tokenize(
+                &<$ty as SolEncode>::to_sol_type(&$val),
+            )
+            .total_words()
+                * 32;
+            if <<<$ty as SolEncode>::SolType as SolTokenType>::TokenType<'_> as Encodable>::DYNAMIC {
+                // Parameter encoding excludes top-level offset.
+                encoded_size -= 32;
+            }
+            let mut buffer = vec![0u8; encoded_size];
+            let written = <$ty as SolParamsEncode>::encode_to(&$val, buffer.as_mut_slice());
+            assert_eq!(written, encoded_size);
+            assert_eq!(&buffer[..written], encoded_alloy.as_slice());
+            let mut buffer = vec![0u8; encoded_size];
+            let written = encode_sequence_to::<$ty>(&$val, buffer.as_mut_slice());
+            assert_eq!(written, encoded_size);
+            assert_eq!(&buffer[..written], encoded_alloy.as_slice());
 
             // `SolParamsDecode` and `decode_sequence` test.
             let decoded = <$ty as SolParamsDecode>::decode(&encoded);
