@@ -237,7 +237,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`weight_to_fee`][`crate::weight_to_fee`]
-    fn weight_to_fee<E: Environment>(&mut self, gas: u64) -> E::Balance;
+    fn weight_to_fee(&mut self, gas: u64) -> U256;
 
     /// Returns the timestamp of the current block.
     ///
@@ -381,18 +381,14 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`caller_is_origin`][`crate::caller_is_origin`]
-    fn caller_is_origin<E>(&mut self) -> bool
-    where
-        E: Environment;
+    fn caller_is_origin(&mut self) -> bool;
 
     /// Checks whether the caller of the current contract is root.
     ///
     /// # Note
     ///
     /// For more details visit: [`caller_is_root`][`crate::caller_is_root`]
-    fn caller_is_root<E>(&mut self) -> bool
-    where
-        E: Environment;
+    fn caller_is_root(&mut self) -> bool;
 
     /// Retrieves the code hash of the contract at the given `account` id.
     ///

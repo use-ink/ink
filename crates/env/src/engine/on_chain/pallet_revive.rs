@@ -1203,9 +1203,7 @@ impl TypedEnvBackend for EnvInstance {
         ext::code_size(&addr.0) > 0
     }
 
-    fn caller_is_origin<E>(&mut self) -> bool
-    where
-        E: Environment,
+    fn caller_is_origin(&mut self) -> bool
     {
         let sel = const { solidity_selector("callerIsOrigin()") };
         let output: &mut [u8; 32] =
@@ -1213,9 +1211,7 @@ impl TypedEnvBackend for EnvInstance {
         call_bool_precompile(sel, output)
     }
 
-    fn caller_is_root<E>(&mut self) -> bool
-    where
-        E: Environment,
+    fn caller_is_root(&mut self) -> bool
     {
         let sel = const { solidity_selector("callerIsRoot()") };
         let output: &mut [u8; 32] =

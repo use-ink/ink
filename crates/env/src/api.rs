@@ -86,12 +86,9 @@ pub fn transferred_value() -> U256 {
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn weight_to_fee<E>(gas: Gas) -> U256
-where
-    E: Environment,
-{
+pub fn weight_to_fee(gas: Gas) -> U256 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::weight_to_fee::<E>(instance, gas)
+        TypedEnvBackend::weight_to_fee(instance, gas)
     })
 }
 
@@ -735,12 +732,9 @@ pub fn own_code_hash() -> Result<H256> {
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn caller_is_origin<E>() -> bool
-where
-    E: Environment,
-{
+pub fn caller_is_origin() -> bool {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::caller_is_origin::<E>(instance)
+        TypedEnvBackend::caller_is_origin(instance)
     })
 }
 
@@ -755,12 +749,9 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn caller_is_root<E>() -> bool
-where
-    E: Environment,
-{
+pub fn caller_is_root() -> bool {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::caller_is_root::<E>(instance)
+        TypedEnvBackend::caller_is_root(instance)
     })
 }
 
