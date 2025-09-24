@@ -964,7 +964,7 @@ impl TypedEnvBackend for EnvInstance {
         )
         .expect("call host function failed");
 
-        U256::from_little_endian(&output[..])
+        U256::from_big_endian(&output[..])
     }
 
     fn emit_event<Evt, Abi>(&mut self, event: &Evt)
