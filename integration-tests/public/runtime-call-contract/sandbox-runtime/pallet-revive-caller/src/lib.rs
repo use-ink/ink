@@ -12,7 +12,6 @@ use frame_support::{
 };
 pub use pallet::*;
 
-//type AccountIdOf<R> = <R as frame_system::Config>::AccountId;
 type BalanceOf<R> = <<R as pallet_revive::Config>::Currency as Inspect<
     <R as frame_system::Config>::AccountId,
 >>::Balance;
