@@ -1,0 +1,176 @@
+#![cfg_attr(not(feature = "std"), allow(unused_imports))]
+
+use pallet_revive_uapi::ReturnFlags;
+use scale::{Decode, Encode, MaxEncodedLen};
+use alloc::vec::Vec;
+use scale_info::TypeInfo;
+use frame_support::weights::Weight;
+use ink_primitives::{
+    H160,
+};
+use sp_runtime::{
+	traits::{Saturating, Zero},
+	DispatchError, RuntimeDebug,
+};
+
+/// The amount of balance that was either charged or refunded in order to pay for storage.
+#[derive(
+	Clone, Eq, PartialEq, Ord, PartialOrd, Encode, Decode, MaxEncodedLen, RuntimeDebug, TypeInfo,
+)]
+pub enum StorageDeposit<Balance> {
+	/// The transaction reduced storage consumption.
+	///
+	/// This means that the specified amount of balance was transferred from the involved
+	/// deposit accounts to the origin.
+	Refund(Balance),
+	/// The transaction increased storage consumption.
+	///
+	/// This means that the specified amount of balance was transferred from the origin
+	/// to the involved deposit accounts.
+	Charge(Balance),
+}
+
+impl<Balance: Zero> Default for StorageDeposit<Balance> {
+	fn default() -> Self {
+		Self::Charge(Zero::zero())
+	}
+}
+
+impl<Balance: Zero + Copy> StorageDeposit<Balance> {
+	/// Returns how much balance is charged or `0` in case of a refund.
+	pub fn charge_or_zero(&self) -> Balance {
+		match self {
+			Self::Charge(amount) => *amount,
+			Self::Refund(_) => Zero::zero(),
+		}
+	}
+
+	pub fn is_zero(&self) -> bool {
+		match self {
+			Self::Charge(amount) => amount.is_zero(),
+			Self::Refund(amount) => amount.is_zero(),
+		}
+	}
+}
+
+impl<Balance> StorageDeposit<Balance>
+where
+	Balance: Saturating + Ord + Copy,
+{
+	/// This is essentially a saturating signed add.
+	pub fn saturating_add(&self, rhs: &Self) -> Self {
+		use StorageDeposit::*;
+		match (self, rhs) {
+			(Charge(lhs), Charge(rhs)) => Charge(lhs.saturating_add(*rhs)),
+			(Refund(lhs), Refund(rhs)) => Refund(lhs.saturating_add(*rhs)),
+			(Charge(lhs), Refund(rhs)) =>
+				if lhs >= rhs {
+					Charge(lhs.saturating_sub(*rhs))
+				} else {
+					Refund(rhs.saturating_sub(*lhs))
+				},
+			(Refund(lhs), Charge(rhs)) =>
+				if lhs > rhs {
+					Refund(lhs.saturating_sub(*rhs))
+				} else {
+					Charge(rhs.saturating_sub(*lhs))
+				},
+		}
+	}
+
+	/// This is essentially a saturating signed sub.
+	pub fn saturating_sub(&self, rhs: &Self) -> Self {
+		use StorageDeposit::*;
+		match (self, rhs) {
+			(Charge(lhs), Refund(rhs)) => Charge(lhs.saturating_add(*rhs)),
+			(Refund(lhs), Charge(rhs)) => Refund(lhs.saturating_add(*rhs)),
+			(Charge(lhs), Charge(rhs)) =>
+				if lhs >= rhs {
+					Charge(lhs.saturating_sub(*rhs))
+				} else {
+					Refund(rhs.saturating_sub(*lhs))
+				},
+			(Refund(lhs), Refund(rhs)) =>
+				if lhs > rhs {
+					Refund(lhs.saturating_sub(*rhs))
+				} else {
+					Charge(rhs.saturating_sub(*lhs))
+				},
+		}
+	}
+
+	/// If the amount of deposit (this type) is constrained by a `limit` this calculates how
+	/// much balance (if any) is still available from this limit.
+	///
+	/// # Note
+	///
+	/// In case of a refund the return value can be larger than `limit`.
+	pub fn available(&self, limit: &Balance) -> Balance {
+		use StorageDeposit::*;
+		match self {
+			Charge(amount) => limit.saturating_sub(*amount),
+			Refund(amount) => limit.saturating_add(*amount),
+		}
+	}
+}
+
+/// Result type of a `bare_call` or `bare_instantiate` call as well as `ContractsApi::call` and
+/// `ContractsApi::instantiate`.
+///
+/// It contains the execution result together with some auxiliary information.
+///
+/// #Note
+///
+/// It has been extended to include `events` at the end of the struct while not bumping the
+/// `ContractsApi` version. Therefore when SCALE decoding a `ContractResult` its trailing data
+/// should be ignored to avoid any potential compatibility issues.
+#[derive(Clone, Eq, PartialEq, Encode, Decode, RuntimeDebug, TypeInfo)]
+pub struct ContractResult<R, Balance> {
+	/// How much weight was consumed during execution.
+	pub gas_consumed: Weight,
+	/// How much weight is required as gas limit in order to execute this call.
+	///
+	/// This value should be used to determine the weight limit for on-chain execution.
+	///
+	/// # Note
+	///
+	/// This can only be different from [`Self::gas_consumed`] when weight pre charging
+	/// is used. Currently, only `seal_call_runtime` makes use of pre charging.
+	/// Additionally, any `seal_call` or `seal_instantiate` makes use of pre-charging
+	/// when a non-zero `gas_limit` argument is supplied.
+	pub gas_required: Weight,
+	/// How much balance was paid by the origin into the contract's deposit account in order to
+	/// pay for storage.
+	///
+	/// The storage deposit is never actually charged from the origin in case of [`Self::result`]
+	/// is `Err`. This is because on error all storage changes are rolled back including the
+	/// payment of the deposit.
+	pub storage_deposit: StorageDeposit<Balance>,
+	/// The execution result of the vm binary code.
+	pub result: Result<R, DispatchError>,
+}
+
+/// Output of a contract call or instantiation which ran to completion.
+#[derive(Clone, PartialEq, Eq, Encode, Decode, RuntimeDebug, TypeInfo, Default)]
+pub struct ExecReturnValue {
+	/// Flags passed along by `seal_return`. Empty when `seal_return` was never called.
+	pub flags: ReturnFlags,
+	/// Buffer passed along by `seal_return`. Empty when `seal_return` was never called.
+	pub data: Vec<u8>,
+}
+
+impl ExecReturnValue {
+	/// The contract did revert all storage changes.
+	pub fn did_revert(&self) -> bool {
+		self.flags.contains(ReturnFlags::REVERT)
+	}
+}
+
+/// The result of a successful contract instantiation.
+#[derive(Clone, PartialEq, Eq, Encode, Decode, RuntimeDebug, TypeInfo)]
+pub struct InstantiateReturnValue {
+	/// The output of the called constructor.
+	pub result: ExecReturnValue,
+	/// The address of the new contract.
+	pub addr: H160,
+}
