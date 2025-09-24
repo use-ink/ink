@@ -174,3 +174,15 @@ pub struct InstantiateReturnValue {
 	/// The address of the new contract.
 	pub addr: H160,
 }
+
+/// The result of successfully uploading a contract.
+#[derive(Clone, PartialEq, Eq, Encode, Decode, MaxEncodedLen, RuntimeDebug, TypeInfo)]
+pub struct CodeUploadReturnValue<Balance> {
+	/// The key under which the new code is stored.
+	pub code_hash: sp_core::H256,
+	/// The deposit that was reserved at the caller. Is zero when the code already existed.
+	pub deposit: Balance,
+}
+
+/// Result type of a `bare_code_upload` call.
+pub type CodeUploadResult<Balance> = Result<CodeUploadReturnValue<Balance>, DispatchError>;

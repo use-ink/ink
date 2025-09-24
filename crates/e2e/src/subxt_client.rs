@@ -74,7 +74,7 @@ use ink_primitives::{
     abi::AbiEncodeWith,
 };
 use jsonrpsee::core::async_trait;
-use pallet_revive::evm::CallTrace;
+use ink_revive::evm::CallTrace;
 use scale::{
     Decode,
     Encode,

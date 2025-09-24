@@ -29,7 +29,7 @@ use ink_primitives::{
     Address,
     DepositLimit,
 };
-use pallet_revive::{
+use ink_revive::{
     CodeUploadResult,
     evm::{
         CallTrace,
