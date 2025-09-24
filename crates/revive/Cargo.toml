@@ -33,7 +33,6 @@ std = [
     "scale-info/std",
     "frame-support/std",
     "ink_primitives/std",
-    # "sp-weights/std",
     "sp-core/std",
     "sp-runtime/std",
     "serde/std",

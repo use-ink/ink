@@ -6,13 +6,13 @@ use ink::{
     primitives::DepositLimit,
 };
 use ink_e2e::ContractsRegistry;
+use ink_revive::ExecReturnValue;
 use ink_sandbox::{
     DefaultSandbox,
     Sandbox,
     api::prelude::*,
     frame_system::pallet_prelude::OriginFor,
 };
-use ink_revive::ExecReturnValue;
 
 const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::UnsafeOnlyForDryRun;
 
@@ -127,7 +127,7 @@ impl ContractSandbox {
         .expect("sandbox call contract failed");
         ExecReturnValue {
             flags: call_raw.flags,
-            data: call_raw.data
+            data: call_raw.data,
         }
     }
 }
