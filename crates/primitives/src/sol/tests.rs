@@ -52,6 +52,7 @@ use crate::{
         SolTypeDecode,
         SolTypeEncode,
         decode_sequence,
+        encodable::Encodable,
         encode_sequence,
     },
     types::{
@@ -60,6 +61,58 @@ use crate::{
         Hash,
     },
 };
+
+macro_rules! test_case_sol_type_encode {
+    ($ty: ty, $val: expr) => {
+        test_case!($ty, $val, $ty, alloy_sol_types::SolValue, $val, [], [])
+    };
+    ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty) => {
+        test_case!($ty, $val, $sol_ty, $sol_trait, $val, [], [])
+    };
+    ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty, $sol_val: expr) => {{
+        // `SolTypeEncode::encode` test.
+        let encoded = <$ty as SolTypeEncode>::encode(&$val);
+        let encoded_alloy = <$sol_ty as $sol_trait>::abi_encode(&$sol_val);
+        assert_eq!(encoded, encoded_alloy);
+
+        // `SolTypeEncode::encode_to` test.
+        let encoded_size = <$ty as SolTypeEncode>::tokenize(&$val).total_words() * 32;
+        let mut buffer = vec![0u8; encoded_size];
+        let written = <$ty as SolTypeEncode>::encode_to(&$val, buffer.as_mut_slice());
+        assert_eq!(written, encoded_size);
+        assert_eq!(&buffer[..written], encoded_alloy.as_slice());
+
+        encoded
+    }};
+}
+
+macro_rules! test_case_sol_encode {
+    ($ty: ty, $val: expr) => {
+        test_case_codec!($ty, $val, $ty, alloy_sol_types::SolValue, $val, [], [])
+    };
+    ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty) => {
+        test_case_codec!($ty, $val, $sol_ty, $sol_trait, $val, [], [])
+    };
+    ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty, $sol_val: expr) => {{
+        // `SolEncode::encode` test.
+        let encoded = <$ty as SolEncode>::encode(&$val);
+        let encoded_alloy = <$sol_ty as $sol_trait>::abi_encode(&$sol_val);
+        assert_eq!(encoded, encoded_alloy);
+
+        // `SolEncode::encode_to` test.
+        let encoded_size = <<$ty as SolEncode>::SolType as SolTypeEncode>::tokenize(
+            &<$ty as SolEncode>::to_sol_type(&$val),
+        )
+        .total_words()
+            * 32;
+        let mut buffer = vec![0u8; encoded_size];
+        let written = <$ty as SolEncode>::encode_to(&$val, buffer.as_mut_slice());
+        assert_eq!(written, encoded_size);
+        assert_eq!(&buffer[..written], encoded_alloy.as_slice());
+
+        encoded
+    }};
+}
 
 macro_rules! test_case_codec {
     ($ty: ty, $val: expr) => {
@@ -70,9 +123,7 @@ macro_rules! test_case_codec {
     };
     ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty, $sol_val: expr, [$($ty_cvt: tt)*], [$($sol_ty_cvt: tt)*]) => {
         // `SolEncode` test.
-        let encoded = <$ty as SolEncode>::encode(&$val);
-        let encoded_alloy = <$sol_ty as $sol_trait>::abi_encode(&$sol_val);
-        assert_eq!(encoded, encoded_alloy);
+        let encoded = test_case_sol_encode!($ty, $val, $sol_ty, $sol_trait, $sol_val);
 
         // `SolDecode` test.
         let decoded = <$ty as SolDecode>::decode(&encoded);
@@ -90,9 +141,7 @@ macro_rules! test_case {
     };
     ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty, $sol_val: expr, [$($ty_cvt: tt)*], [$($sol_ty_cvt: tt)*]) => {
         // `SolTypeEncode` test.
-        let encoded = <$ty as SolTypeEncode>::encode(&$val);
-        let encoded_alloy = <$sol_ty as $sol_trait>::abi_encode(&$sol_val);
-        assert_eq!(encoded, encoded_alloy);
+        let encoded = test_case_sol_type_encode!($ty, $val, $sol_ty, $sol_trait, $sol_val);
 
         // `SolTypeDecode` test.
         let decoded = <$ty as SolTypeDecode>::decode(&encoded);
@@ -113,14 +162,10 @@ macro_rules! test_case_encode {
     };
     ($ty: ty, $val: expr, $sol_ty: ty, $sol_trait: ty, $sol_val: expr, [$($ty_cvt: tt)*], [$($sol_ty_cvt: tt)*]) => {
         // `SolTypeEncode` test.
-        let encoded = <$ty as SolTypeEncode>::encode(&$val);
-        let encoded_alloy = <$sol_ty as $sol_trait>::abi_encode(&$sol_val);
-        assert_eq!(encoded, encoded_alloy);
+        test_case_sol_type_encode!($ty, $val, $sol_ty, $sol_trait, $sol_val);
 
         // `SolEncode` test.
-        let encoded = <$ty as SolEncode>::encode(&$val);
-        let encoded_alloy = <$sol_ty as $sol_trait>::abi_encode(&$sol_val);
-        assert_eq!(encoded, encoded_alloy);
+        test_case_sol_encode!($ty, $val, $sol_ty, $sol_trait, $sol_val);
     };
 }
 
