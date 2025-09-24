@@ -183,9 +183,19 @@ pub trait SolEncode<'a> {
     const DYNAMIC: bool =
         <<Self::SolType as SolTypeEncode>::AlloyType as AlloySolType>::DYNAMIC;
 
-    /// Solidity ABI encode the value.
+    /// Solidity ABI encode the value
     fn encode(&'a self) -> Vec<u8> {
         <Self::SolType as SolTypeEncode>::encode(&self.to_sol_type())
+    }
+
+    /// Solidity ABI encode the value into the given buffer, and returns the number of
+    /// bytes written.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the buffer is not large enough.
+    fn encode_to(&'a self, buffer: &mut [u8]) -> usize {
+        <Self::SolType as SolTypeEncode>::encode_to(&self.to_sol_type(), buffer)
     }
 
     /// Solidity ABI encode the value as a topic (i.e. an indexed event parameter).

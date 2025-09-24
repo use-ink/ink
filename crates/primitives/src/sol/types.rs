@@ -195,6 +195,19 @@ pub trait SolTypeEncode: SolTokenType + private::Sealed {
         buffer
     }
 
+    /// Solidity ABI encode the value into the given buffer, and returns the number of
+    /// bytes written.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the buffer is not large enough.
+    fn encode_to(&self, buffer: &mut [u8]) -> usize {
+        let token = self.tokenize();
+        let mut encoder = Encoder::new(buffer);
+        token.encode(&mut encoder);
+        token.total_words().checked_mul(32).unwrap()
+    }
+
     /// Tokenizes the given value into a [`Self::AlloyType`] token.
     fn tokenize(&self) -> Self::TokenType<'_>;
 }
