@@ -58,6 +58,10 @@ pub trait SolParamsEncode<'a>: SolEncode<'a> + private::Sealed {
 
     /// Solidity ABI encode the value as a parameter sequence.
     fn encode(&'a self) -> Vec<u8>;
+
+    /// Solidity ABI encode the value into the given buffer as a parameter sequence, and
+    /// returns the number of bytes written.
+    fn encode_to(&'a self, buffer: &mut [u8]) -> usize;
 }
 
 // We follow the Rust standard library's convention of implementing traits for tuples up
@@ -99,6 +103,24 @@ impl<'a> SolParamsEncode<'a> for Tuple {
         EncodableParams::encode_params(&token, &mut encoder);
         buffer
     }
+
+    fn encode_to(&'a self, buffer: &mut [u8]) -> usize {
+        let params = self.to_sol_type();
+        let token = <<Self as SolEncode>::SolType as SolTypeEncode>::tokenize(&params);
+        let mut encoder = Encoder::new(buffer);
+        EncodableParams::encode_params(&token, &mut encoder);
+        // NOTE: Parameter encoding excludes the top-level offset for a tuple with any
+        // dynamic type member(s).
+        let encoded_words = if <<<Self as SolEncode>::SolType as SolTokenType>::TokenType<
+            'a,
+        > as Encodable>::DYNAMIC
+        {
+            token.tail_words()
+        } else {
+            token.head_words()
+        };
+        encoded_words.checked_mul(32).unwrap()
+    }
 }
 
 // Optimized implementations for unit (i.e. `()`).
@@ -112,6 +134,10 @@ impl SolParamsDecode for () {
 impl SolParamsEncode<'_> for () {
     fn encode(&self) -> Vec<u8> {
         Vec::new()
+    }
+
+    fn encode_to(&self, _: &mut [u8]) -> usize {
+        0
     }
 }
 

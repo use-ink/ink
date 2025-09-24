@@ -218,11 +218,29 @@ pub trait SolEncode<'a> {
 /// - `T` must be a tuple type where each member implements [`SolEncode`].
 /// - The result can be different from [`SolEncode::encode`] for the given tuple because
 ///   this function always returns the encoded data in place, even for tuples containing
-///   dynamic types (i.e. no offset is included for dynamic tuples).
+///   dynamic types (i.e. no top-level offset is included for dynamic tuples).
 ///
 /// This function is a convenience wrapper for [`SolParamsEncode::encode`].
 pub fn encode_sequence<T: for<'a> SolParamsEncode<'a>>(value: &T) -> Vec<u8> {
     SolParamsEncode::encode(value)
+}
+
+/// Solidity ABI encode the given value into the given buffer as a parameter sequence, and
+/// returns the number of bytes written.
+///
+/// # Note
+///
+/// - `T` must be a tuple type where each member implements [`SolEncode`].
+/// - The result can be different from [`SolEncode::encode_to`] for the given tuple
+///   because this function always returns the encoded data in place, even for tuples
+///   containing dynamic types (i.e. no top-level offset is included for dynamic tuples).
+///
+/// This function is a convenience wrapper for [`SolParamsEncode::encode_to`].
+pub fn encode_sequence_to<T: for<'a> SolParamsEncode<'a>>(
+    value: &T,
+    buffer: &mut [u8],
+) -> usize {
+    SolParamsEncode::encode_to(value, buffer)
 }
 
 /// Solidity ABI decode the given data as a parameter sequence.
