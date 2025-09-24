@@ -403,6 +403,20 @@ where
             .collect()
     }
 
+    fn encode_to(&self, buffer: &mut [u8]) -> usize {
+        // TODO: (@davidsemakula) Optimized implementation.
+        let encoded = SolEncode::encode(self);
+        let len = encoded.len();
+        debug_assert!(
+            len <= buffer.len(),
+            "encode scope buffer overflowed, encoded len is {} but buffer len is {}",
+            len,
+            buffer.len()
+        );
+        buffer[..len].copy_from_slice(&encoded);
+        len
+    }
+
     // NOTE: Not actually used for encoding because of `encode` override above.
     fn to_sol_type(&self) {}
 }
