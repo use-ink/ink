@@ -86,7 +86,7 @@ pub fn transferred_value() -> U256 {
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn weight_to_fee<E>(gas: Gas) -> E::Balance
+pub fn weight_to_fee<E>(gas: Gas) -> U256
 where
     E: Environment,
 {

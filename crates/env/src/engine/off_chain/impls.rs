@@ -752,7 +752,7 @@ impl TypedEnvBackend for EnvInstance {
             .map_err(Into::into)
     }
 
-    fn weight_to_fee<E: Environment>(&mut self, gas: u64) -> E::Balance {
+    fn weight_to_fee<E: Environment>(&mut self, gas: u64) -> U256 {
         let mut output: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
         self.engine.weight_to_fee(gas, &mut &mut output[..]);
         scale::Decode::decode(&mut &output[..]).unwrap_or_else(|error| {

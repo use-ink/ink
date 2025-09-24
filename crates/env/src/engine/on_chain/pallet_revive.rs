@@ -1193,15 +1193,10 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
-    fn weight_to_fee<E: Environment>(&mut self, gas: u64) -> E::Balance {
+    fn weight_to_fee(&mut self, gas: u64) -> U256 {
         let mut scope = self.scoped_buffer();
         let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();
-        // TODO: needs ref and proof
         ext::weight_to_fee(gas, gas, u256);
-        let mut result = <E::Balance as FromLittleEndian>::Bytes::default();
-        let len = result.as_ref().len();
-        result.as_mut().copy_from_slice(&u256[..len]);
-        <E::Balance as FromLittleEndian>::from_le_bytes(result)
     }
 
     fn is_contract(&mut self, addr: &Address) -> bool {
