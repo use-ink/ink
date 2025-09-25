@@ -46,11 +46,12 @@ sp-core = { workspace = true }
 sp-keyring = { workspace = true }
 sp-runtime = { workspace = true }
 sp-weights = { workspace = true }
+pallet-revive = { workspace = true, optional = true }
 regex = "1.11.2"
 itertools = "0.14.0"
 
-sp-io = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
-sp-runtime-interface = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false, features = ["disable_target_static_assertions"] }
+sp-io = { workspace = true, default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-runtime-interface = { workspace = true, default-features = false, features = ["disable_target_static_assertions"] }
 
 [dev-dependencies]
 # Required for the doctest of `MessageBuilder::call`
@@ -74,10 +75,12 @@ std = [
 	"ink_revive_types/std",
 	"ink_sandbox?/std",
 	"frame-support/std",
+	"pallet-revive?/std",
 ]
 
 sandbox = [
     "dep:ink_sandbox",
     "dep:subxt-metadata",
+	"dep:pallet-revive",
     "ink_e2e_macro/sandbox",
 ]
