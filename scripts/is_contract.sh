@@ -47,7 +47,7 @@ if [ -z "$SOURCE_PATH" ]; then
 fi
 
 # Check for the #[ink::contract] macro in the source file
-if grep -qE '^#\[(::)?ink::contract([^]]*)\]' "$SOURCE_PATH"; then
+grep -q '#\s*\[\(::\)\?ink::contract' "$SOURCE_PATH"; then
     exit 0
 else
     # we exit with a defined error code > 1, to allow a distinction
