@@ -17,6 +17,10 @@ use frame_system::{
     },
 };
 use ink_primitives::U256;
+use ink_revive::evm::{
+    CallLog,
+    CallTrace,
+};
 pub use macros::{
     BlockBuilder,
     DefaultSandbox,
@@ -169,4 +173,56 @@ where
         <R as pallet_revive::Config>::NativeToEthRatio::get().into();
     let evm_value: U256 = value.into();
     native_to_eth_ratio.saturating_mul(evm_value)
+}
+
+/// Convert a `pallet_revive::CallTrace` (sandbox) into an `ink_revive::CallTrace` (API).
+pub fn to_revive_trace(t: pallet_revive::evm::CallTrace) -> CallTrace {
+    CallTrace {
+        from: t.from,
+        gas: t.gas,
+        gas_used: t.gas_used,
+        to: t.to,
+        input: t.input.0,
+        output: t.output.0,
+        error: t.error,
+        revert_reason: t.revert_reason,
+        calls: t.calls.into_iter().map(to_revive_trace).collect(),
+        logs: t
+            .logs
+            .into_iter()
+            .map(|log| {
+                CallLog {
+                    address: log.address,
+                    topics: log.topics,
+                    data: log.data.0,
+                    ..Default::default()
+                }
+            })
+            .collect(),
+        value: t.value,
+        call_type: to_revive_call_type(t.call_type),
+    }
+}
+
+/// Convert a `pallet_revive::CallType` into an `ink_revive::evm::CallType`.
+fn to_revive_call_type(ct: pallet_revive::evm::CallType) -> ink_revive::evm::CallType {
+    match ct {
+        pallet_revive::evm::CallType::Call => ink_revive::evm::CallType::Call,
+        pallet_revive::evm::CallType::StaticCall => ink_revive::evm::CallType::StaticCall,
+        pallet_revive::evm::CallType::DelegateCall => {
+            ink_revive::evm::CallType::DelegateCall
+        }
+        pallet_revive::evm::CallType::Create => ink_revive::evm::CallType::Create,
+        pallet_revive::evm::CallType::Create2 => ink_revive::evm::CallType::Create2,
+    }
+}
+
+/// Convert a `ink_revive::StorageDeposit` into an `ink_revive::StorageDeposit`.
+pub fn to_revive_storage_deposit<B>(
+    sd: pallet_revive::StorageDeposit<B>,
+) -> ink_revive::StorageDeposit<B> {
+    match sd {
+        pallet_revive::StorageDeposit::Charge(b) => ink_revive::StorageDeposit::Charge(b),
+        pallet_revive::StorageDeposit::Refund(b) => ink_revive::StorageDeposit::Refund(b),
+    }
 }

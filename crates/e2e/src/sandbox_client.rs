@@ -66,10 +66,7 @@ use ink_revive::{
     CodeUploadReturnValue,
     ExecReturnValue,
     InstantiateReturnValue,
-    evm::{
-        CallLog,
-        CallTrace,
-    },
+    evm::CallTrace,
 };
 use ink_sandbox::{
     AccountIdFor,
@@ -81,17 +78,19 @@ use ink_sandbox::{
     frame_system::pallet_prelude::OriginFor,
     pallet_balances,
     pallet_revive,
+    pallet_revive::{
+        AddressMapper,
+        MomentOf,
+        evm::{
+            CallTracerConfig,
+            Trace,
+            TracerType,
+        },
+    },
+    to_revive_storage_deposit,
+    to_revive_trace,
 };
 use jsonrpsee::core::async_trait;
-use pallet_revive::{
-    AddressMapper,
-    MomentOf,
-    evm::{
-        CallTracerConfig,
-        Trace,
-        TracerType,
-    },
-};
 use scale::Decode;
 use sp_core::{
     Pair as _,
@@ -842,56 +841,4 @@ where
     let caller = keypair_to_account(caller);
     let origin = RawOrigin::Signed(caller);
     OriginFor::<S::Runtime>::from(origin)
-}
-
-/// Convert a `pallet_revive::CallTrace` (sandbox) into an `ink_revive::CallTrace` (API).
-fn to_revive_trace(t: pallet_revive::evm::CallTrace) -> CallTrace {
-    CallTrace {
-        from: t.from,
-        gas: t.gas,
-        gas_used: t.gas_used,
-        to: t.to,
-        input: t.input.0,
-        output: t.output.0,
-        error: t.error,
-        revert_reason: t.revert_reason,
-        calls: t.calls.into_iter().map(to_revive_trace).collect(),
-        logs: t
-            .logs
-            .into_iter()
-            .map(|log| {
-                CallLog {
-                    address: log.address,
-                    topics: log.topics,
-                    data: log.data.0,
-                    ..Default::default()
-                }
-            })
-            .collect(),
-        value: t.value,
-        call_type: to_revive_call_type(t.call_type),
-    }
-}
-
-/// Convert a `pallet_revive::CallType` into an `ink_revive::evm::CallType`.
-fn to_revive_call_type(ct: pallet_revive::evm::CallType) -> ink_revive::evm::CallType {
-    match ct {
-        pallet_revive::evm::CallType::Call => ink_revive::evm::CallType::Call,
-        pallet_revive::evm::CallType::StaticCall => ink_revive::evm::CallType::StaticCall,
-        pallet_revive::evm::CallType::DelegateCall => {
-            ink_revive::evm::CallType::DelegateCall
-        }
-        pallet_revive::evm::CallType::Create => ink_revive::evm::CallType::Create,
-        pallet_revive::evm::CallType::Create2 => ink_revive::evm::CallType::Create2,
-    }
-}
-
-/// Convert a `ink_revive::StorageDeposit` into an `ink_revive::StorageDeposit`.
-fn to_revive_storage_deposit<B>(
-    sd: pallet_revive::StorageDeposit<B>,
-) -> ink_revive::StorageDeposit<B> {
-    match sd {
-        pallet_revive::StorageDeposit::Charge(b) => ink_revive::StorageDeposit::Charge(b),
-        pallet_revive::StorageDeposit::Refund(b) => ink_revive::StorageDeposit::Refund(b),
-    }
 }
