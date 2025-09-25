@@ -6,7 +6,7 @@ use ink::{
     primitives::DepositLimit,
 };
 use ink_e2e::ContractsRegistry;
-use ink_revive::ExecReturnValue;
+use ink_revive_types::ExecReturnValue;
 use ink_sandbox::{
     DefaultSandbox,
     Sandbox,

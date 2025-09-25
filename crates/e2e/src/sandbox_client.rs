@@ -62,7 +62,7 @@ use ink_primitives::{
     U256,
     abi::AbiEncodeWith,
 };
-use ink_revive::{
+use ink_revive_types::{
     CodeUploadReturnValue,
     ExecReturnValue,
     InstantiateReturnValue,

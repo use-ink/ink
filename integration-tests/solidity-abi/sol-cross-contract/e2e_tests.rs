@@ -12,7 +12,7 @@ use ink::{
     SolEncode,
     primitives::DepositLimit,
 };
-use ink_revive::ExecReturnValue;
+use ink_revive_types::ExecReturnValue;
 use ink_sandbox::frame_system::pallet_prelude::OriginFor;
 
 const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::UnsafeOnlyForDryRun;

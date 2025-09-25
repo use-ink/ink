@@ -17,7 +17,7 @@ use frame_system::{
     },
 };
 use ink_primitives::U256;
-use ink_revive::evm::{
+use ink_revive_types::evm::{
     CallLog,
     CallTrace,
 };
@@ -175,7 +175,8 @@ where
     native_to_eth_ratio.saturating_mul(evm_value)
 }
 
-/// Convert a `pallet_revive::CallTrace` (sandbox) into an `ink_revive::CallTrace` (API).
+/// Convert a `pallet_revive::CallTrace` (sandbox) into an `ink_revive_types::CallTrace`
+/// (API).
 pub fn to_revive_trace(t: pallet_revive::evm::CallTrace) -> CallTrace {
     CallTrace {
         from: t.from,
@@ -204,25 +205,33 @@ pub fn to_revive_trace(t: pallet_revive::evm::CallTrace) -> CallTrace {
     }
 }
 
-/// Convert a `pallet_revive::CallType` into an `ink_revive::evm::CallType`.
-fn to_revive_call_type(ct: pallet_revive::evm::CallType) -> ink_revive::evm::CallType {
+/// Convert a `pallet_revive::CallType` into an `ink_revive_types::evm::CallType`.
+fn to_revive_call_type(
+    ct: pallet_revive::evm::CallType,
+) -> ink_revive_types::evm::CallType {
     match ct {
-        pallet_revive::evm::CallType::Call => ink_revive::evm::CallType::Call,
-        pallet_revive::evm::CallType::StaticCall => ink_revive::evm::CallType::StaticCall,
-        pallet_revive::evm::CallType::DelegateCall => {
-            ink_revive::evm::CallType::DelegateCall
+        pallet_revive::evm::CallType::Call => ink_revive_types::evm::CallType::Call,
+        pallet_revive::evm::CallType::StaticCall => {
+            ink_revive_types::evm::CallType::StaticCall
         }
-        pallet_revive::evm::CallType::Create => ink_revive::evm::CallType::Create,
-        pallet_revive::evm::CallType::Create2 => ink_revive::evm::CallType::Create2,
+        pallet_revive::evm::CallType::DelegateCall => {
+            ink_revive_types::evm::CallType::DelegateCall
+        }
+        pallet_revive::evm::CallType::Create => ink_revive_types::evm::CallType::Create,
+        pallet_revive::evm::CallType::Create2 => ink_revive_types::evm::CallType::Create2,
     }
 }
 
-/// Convert a `ink_revive::StorageDeposit` into an `ink_revive::StorageDeposit`.
+/// Convert a `pallet_revive::StorageDeposit` into an `ink_revive_types::StorageDeposit`.
 pub fn to_revive_storage_deposit<B>(
     sd: pallet_revive::StorageDeposit<B>,
-) -> ink_revive::StorageDeposit<B> {
+) -> ink_revive_types::StorageDeposit<B> {
     match sd {
-        pallet_revive::StorageDeposit::Charge(b) => ink_revive::StorageDeposit::Charge(b),
-        pallet_revive::StorageDeposit::Refund(b) => ink_revive::StorageDeposit::Refund(b),
+        pallet_revive::StorageDeposit::Charge(b) => {
+            ink_revive_types::StorageDeposit::Charge(b)
+        }
+        pallet_revive::StorageDeposit::Refund(b) => {
+            ink_revive_types::StorageDeposit::Refund(b)
+        }
     }
 }

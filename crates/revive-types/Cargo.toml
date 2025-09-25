@@ -1,5 +1,5 @@
 [package]
-name = "ink_revive"
+name = "ink_revive_types"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true

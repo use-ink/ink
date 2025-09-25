@@ -12,7 +12,7 @@ members = [
     "crates/ink/ir",
     "crates/ink/macro",
     "crates/metadata",
-    "crates/revive",
+    "crates/revive-types",
     "crates/prelude",
     "crates/primitives",
     "crates/storage",
@@ -123,7 +123,7 @@ ink_macro = { version = "=6.0.0-alpha.4", path = "crates/ink/macro", default-fea
 ink_metadata = { version = "=6.0.0-alpha.4", path = "crates/metadata", default-features = false }
 ink_prelude = { version = "=6.0.0-alpha.4", path = "crates/prelude", default-features = false }
 ink_primitives = { version = "=6.0.0-alpha.4", path = "crates/primitives", default-features = false }
-ink_revive = {  version = "=6.0.0-alpha.4", path = "crates/revive", default-features = false }
+ink_revive_types = {  version = "=6.0.0-alpha.4", path = "crates/revive-types", default-features = false }
 ink_storage = { version = "=6.0.0-alpha.4", path = "crates/storage", default-features = false }
 ink_storage_traits = { version = "=6.0.0-alpha.4", path = "crates/storage/traits", default-features = false }
 

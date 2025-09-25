@@ -3485,7 +3485,7 @@ dependencies = [
  "ink_e2e_macro",
  "ink_env",
  "ink_primitives 6.0.0-alpha.4",
- "ink_revive",
+ "ink_revive_types",
  "ink_sandbox",
  "itertools 0.14.0",
  "jsonrpsee",
@@ -3714,7 +3714,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "ink_revive"
+name = "ink_revive_types"
 version = "6.0.0-alpha.4"
 dependencies = [
  "alloy-core",
@@ -3737,7 +3737,7 @@ dependencies = [
  "frame-support",
  "frame-system",
  "ink_primitives 6.0.0-alpha.4",
- "ink_revive",
+ "ink_revive_types",
  "pallet-balances",
  "pallet-revive",
  "pallet-timestamp",

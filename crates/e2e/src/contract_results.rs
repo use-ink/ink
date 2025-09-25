@@ -36,7 +36,7 @@ use ink_primitives::{
     H256,
     MessageResult,
 };
-use ink_revive::{
+use ink_revive_types::{
     CodeUploadResult,
     ExecReturnValue,
     InstantiateReturnValue,
