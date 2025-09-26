@@ -127,16 +127,7 @@ where
     }
 
     fn encode_to_slice(&self, buffer: &mut [u8]) -> usize {
-        let encoded = SolEncode::encode(self);
-        let len = encoded.len();
-        debug_assert!(
-            len <= buffer.len(),
-            "encode scope buffer overflowed, encoded len is {} but buffer len is {}",
-            len,
-            buffer.len()
-        );
-        buffer[..len].copy_from_slice(&encoded);
-        len
+        SolEncode::encode_to(self, buffer)
     }
 
     fn encode_to_vec(&self, buffer: &mut Vec<u8>) {
