@@ -1,10 +1,10 @@
 [package]
 name = "ink_revive_types"
 version.workspace = true
-authors.workspace = true
+authors = ["Use Ink <ink@use.ink>", "Parity Technologies <admin@parity.io>"]
 edition.workspace = true
 license.workspace = true
-description = "ink! revive primitives (placeholder)"
+description = "Primitives copied from Parity's Polkadot SDK module `pallet-revive`. Copied to reduce the build times of ink! contracts."
 repository.workspace = true
 homepage.workspace = true
 keywords.workspace = true
