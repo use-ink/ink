@@ -11,11 +11,11 @@ keywords = ["polkavm", "ink", "riscv", "blockchain", "edsl"]
 publish = false
 
 [workspace.dependencies]
-frame-support = { version = "42.0.0", default-features = false }
-frame-system = { version = "42.0.0", default-features = false }
-pallet-balances = { version = "43.0.1", default-features = false }
+frame-support = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
+frame-system = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
+pallet-balances = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
 pallet-revive = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
-sp-runtime = { version = "43.0.0", default-features = false  }
+sp-runtime = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false  }
 
 # todo
 codec = { package = "parity-scale-codec", version =  "3.7.4", default-features = false }
@@ -38,7 +38,7 @@ sandbox-runtime = { path = "sandbox-runtime", default-features = false }
 scale-value = "0.18.0"
 # can't use workspace dependency because of `cargo-contract` build not
 # working with workspace dependencies
-frame-support = { version = "42.0.0", default-features = false }
+frame-support = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
 
 [lib]
 path = "lib.rs"
