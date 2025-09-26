@@ -60,6 +60,7 @@ use ink_primitives::{
     DepositLimit,
     H160,
     U256,
+    Weight,
     abi::AbiEncodeWith,
 };
 use ink_revive_types::{
@@ -72,7 +73,6 @@ use ink_sandbox::{
     AccountIdFor,
     RuntimeCall,
     Sandbox,
-    Weight,
     api::prelude::*,
     frame_system,
     frame_system::pallet_prelude::OriginFor,
@@ -351,7 +351,10 @@ where
                 data,
                 salt(),
                 caller_to_origin::<S>(caller),
-                gas_limit,
+                sp_runtime::Weight::from_parts(
+                    gas_limit.ref_time(),
+                    gas_limit.proof_size(),
+                ),
                 storage_deposit_limit,
             )
         });
@@ -563,7 +566,10 @@ where
                     value,
                     input_data,
                     caller_to_origin::<S>(signer),
-                    gas_limit,
+                    sp_runtime::Weight::from_parts(
+                        gas_limit.ref_time(),
+                        gas_limit.proof_size(),
+                    ),
                     storage_deposit_limit,
                 )
                 .result

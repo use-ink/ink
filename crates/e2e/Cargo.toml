@@ -46,7 +46,6 @@ sp-core = { workspace = true }
 sp-keyring = { workspace = true }
 sp-runtime = { workspace = true }
 sp-weights = { workspace = true }
-pallet-revive = { workspace = true, optional = true }
 regex = "1.11.2"
 itertools = "0.14.0"
 
@@ -75,12 +74,10 @@ std = [
 	"ink_revive_types/std",
 	"ink_sandbox?/std",
 	"frame-support/std",
-	"pallet-revive?/std",
 ]
 
 sandbox = [
     "dep:ink_sandbox",
     "dep:subxt-metadata",
-	"dep:pallet-revive",
     "ink_e2e_macro/sandbox",
 ]

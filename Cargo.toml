@@ -98,7 +98,7 @@ sp-runtime-interface = { version = "31.0.0", default-features = false, features 
 sp-core = { version = "38.0.0", default-features = false }
 sp-keyring = {version = "43.0.0", default-features = false }
 sp-runtime = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1" }
-sp-weights = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
+sp-weights = { version = "33.0.0", default-features = false }
 xcm = { package = "staging-xcm", version = "18.0.0", default-features = false }
 
 # PolkaVM dependencies

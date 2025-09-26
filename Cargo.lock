@@ -3650,7 +3650,6 @@ dependencies = [
  "ink_sandbox",
  "itertools 0.14.0",
  "jsonrpsee",
- "pallet-revive",
  "parity-scale-codec",
  "regex",
  "scale-info",
@@ -3662,7 +3661,7 @@ dependencies = [
  "sp-keyring",
  "sp-runtime 31.0.1",
  "sp-runtime-interface 31.0.0",
- "sp-weights 27.0.0",
+ "sp-weights 33.0.0",
  "subxt",
  "subxt-metadata 0.44.0",
  "subxt-signer 0.44.0",
@@ -3844,7 +3843,7 @@ dependencies = [
  "sp-core 38.0.0",
  "sp-io 30.0.0",
  "sp-runtime-interface 31.0.0",
- "sp-weights 27.0.0",
+ "sp-weights 33.0.0",
  "xxhash-rust",
 ]
 
