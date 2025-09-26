@@ -18,8 +18,11 @@
 #![cfg_attr(not(feature = "std"), allow(unused_imports))]
 
 use alloc::vec::Vec;
-use frame_support::weights::Weight;
-use ink_primitives::H160;
+use ink_primitives::{
+    H160,
+    H256,
+    Weight,
+};
 use pallet_revive_uapi::ReturnFlags;
 use scale::{
     Decode,
@@ -215,7 +218,7 @@ pub struct InstantiateReturnValue {
 #[derive(Clone, PartialEq, Eq, Encode, Decode, MaxEncodedLen, RuntimeDebug, TypeInfo)]
 pub struct CodeUploadReturnValue<Balance> {
     /// The key under which the new code is stored.
-    pub code_hash: sp_core::H256,
+    pub code_hash: H256,
     /// The deposit that was reserved at the caller. Is zero when the code already
     /// existed.
     pub deposit: Balance,

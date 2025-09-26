@@ -15,12 +15,10 @@ path = "src/lib.rs"
 
 [dependencies]
 scale = { workspace = true }
-frame-support = { workspace = true }
 scale-info = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 ink_primitives = { workspace = true }
 derive_more = { workspace = true, features = ["from", "try_into"] }
-sp-core = { workspace = true }
 sp-runtime = { workspace = true }
 pallet-revive-uapi = { workspace = true, features = ["scale"] }
 alloy-core = { workspace = true, features = ["sol-types"] }
@@ -31,9 +29,7 @@ std = [
     "alloy-core/std",
     "scale/std",
     "scale-info/std",
-    "frame-support/std",
     "ink_primitives/std",
-    "sp-core/std",
     "sp-runtime/std",
     "serde/std",
 ]

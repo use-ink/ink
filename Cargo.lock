@@ -3719,13 +3719,11 @@ version = "6.0.0-alpha.4"
 dependencies = [
  "alloy-core",
  "derive_more 2.0.1",
- "frame-support",
  "ink_primitives 6.0.0-alpha.4",
  "pallet-revive-uapi",
  "parity-scale-codec",
  "scale-info",
  "serde",
- "sp-core",
  "sp-runtime",
 ]
 
