@@ -447,8 +447,14 @@ where
         };
 
         let result = ContractResult::<InstantiateReturnValue, E::Balance> {
-            gas_consumed: dry_run_result.gas_consumed,
-            gas_required: dry_run_result.gas_required,
+            gas_consumed: sp_runtime::Weight::from_parts(
+                dry_run_result.gas_consumed.ref_time(),
+                dry_run_result.gas_consumed.proof_size(),
+            ),
+            gas_required: sp_runtime::Weight::from_parts(
+                dry_run_result.gas_required.ref_time(),
+                dry_run_result.gas_required.proof_size(),
+            ),
             storage_deposit: to_revive_storage_deposit(dry_run_result.storage_deposit),
             result: dry_run_result.result.map(|res| {
                 InstantiateReturnValue {
@@ -636,8 +642,14 @@ where
         // todo error when `AccountUnmapped`
         Ok(CallDryRunResult {
             exec_result: ContractExecResultFor::<E> {
-                gas_consumed: result.gas_consumed,
-                gas_required: result.gas_required,
+                gas_consumed: sp_runtime::Weight::from_parts(
+                    result.gas_consumed.ref_time(),
+                    result.gas_consumed.proof_size(),
+                ),
+                gas_required: sp_runtime::Weight::from_parts(
+                    result.gas_required.ref_time(),
+                    result.gas_required.proof_size(),
+                ),
                 storage_deposit: to_revive_storage_deposit(result.storage_deposit),
                 result: result.result.map(|res| {
                     ExecReturnValue {

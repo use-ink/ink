@@ -84,21 +84,21 @@ const_env = { version = "0.1" }
 
 # Substrate dependencies
 frame-metadata = { version = "23.0.0", default-features = false }
-frame-system = { version = "42.0.0", default-features = false }
-frame-support = { version = "42.0.0", default-features = false }
-pallet-balances = { version = "43.0.1", default-features = false }
-pallet-timestamp = { version = "41.0.0", default-features = false }
+frame-system = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
+frame-support = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
+pallet-balances = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
+pallet-timestamp = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
 
 pallet-revive = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
 pallet-revive-uapi = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false, features = ["unstable-hostfn"] }
 
-sp-externalities = { version = "0.30.0", default-features = false }
-sp-io = { version = "42.0.0", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-externalities = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
+sp-io = {git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
 sp-runtime-interface = { version = "31.0.0", default-features = false, features = ["disable_target_static_assertions"] }
 sp-core = { version = "38.0.0", default-features = false }
 sp-keyring = {version = "43.0.0", default-features = false }
-sp-runtime = "43.0.0"
-sp-weights = { version = "33.0.0", default-features = false }
+sp-runtime = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1" }
+sp-weights = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
 xcm = { package = "staging-xcm", version = "18.0.0", default-features = false }
 
 # PolkaVM dependencies
