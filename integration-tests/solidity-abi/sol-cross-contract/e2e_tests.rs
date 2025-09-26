@@ -12,8 +12,8 @@ use ink::{
     SolEncode,
     primitives::DepositLimit,
 };
+use ink_revive_types::ExecReturnValue;
 use ink_sandbox::frame_system::pallet_prelude::OriginFor;
-use pallet_revive::ExecReturnValue;
 
 const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::UnsafeOnlyForDryRun;
 
@@ -172,7 +172,11 @@ impl ContractSandbox {
             STORAGE_DEPOSIT_LIMIT,
         );
 
-        result.result.expect("sandbox call contract failed")
+        let call_raw = result.result.expect("sandbox call contract failed");
+        ExecReturnValue {
+            flags: call_raw.flags,
+            data: call_raw.data,
+        }
     }
 }
 

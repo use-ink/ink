@@ -59,7 +59,14 @@ use ink_env::{
 use ink_primitives::{
     DepositLimit,
     H160,
+    U256,
     abi::AbiEncodeWith,
+};
+use ink_revive_types::{
+    CodeUploadReturnValue,
+    ExecReturnValue,
+    InstantiateReturnValue,
+    evm::CallTrace,
 };
 use ink_sandbox::{
     AccountIdFor,
@@ -71,21 +78,19 @@ use ink_sandbox::{
     frame_system::pallet_prelude::OriginFor,
     pallet_balances,
     pallet_revive,
+    pallet_revive::{
+        AddressMapper,
+        MomentOf,
+        evm::{
+            CallTracerConfig,
+            Trace,
+            TracerType,
+        },
+    },
+    to_revive_storage_deposit,
+    to_revive_trace,
 };
 use jsonrpsee::core::async_trait;
-use pallet_revive::{
-    AddressMapper,
-    CodeUploadReturnValue,
-    InstantiateReturnValue,
-    MomentOf,
-    evm::{
-        CallTrace,
-        CallTracerConfig,
-        Trace,
-        TracerType,
-        U256,
-    },
-};
 use scale::Decode;
 use sp_core::{
     Pair as _,
@@ -360,7 +365,7 @@ where
         };
 
         let trace = match tracer.collect_trace() {
-            Some(Trace::Call(call_trace)) => Some(call_trace),
+            Some(Trace::Call(call_trace)) => Some(to_revive_trace(call_trace)),
             _ => None,
         };
 
@@ -444,10 +449,13 @@ where
         let result = ContractResult::<InstantiateReturnValue, E::Balance> {
             gas_consumed: dry_run_result.gas_consumed,
             gas_required: dry_run_result.gas_required,
-            storage_deposit: dry_run_result.storage_deposit,
+            storage_deposit: to_revive_storage_deposit(dry_run_result.storage_deposit),
             result: dry_run_result.result.map(|res| {
                 InstantiateReturnValue {
-                    result: res.result,
+                    result: ExecReturnValue {
+                        flags: res.result.flags,
+                        data: res.result.data,
+                    },
                     addr: res.addr,
                 }
             }),
@@ -556,7 +564,7 @@ where
                 .map_err(|err| SandboxErr::new(format!("bare_call: {err:?}")))
         })?;
         let trace = match tracer.collect_trace() {
-            Some(Trace::Call(call_trace)) => Some(call_trace),
+            Some(Trace::Call(call_trace)) => Some(to_revive_trace(call_trace)),
             _ => None,
         };
 
@@ -630,8 +638,13 @@ where
             exec_result: ContractExecResultFor::<E> {
                 gas_consumed: result.gas_consumed,
                 gas_required: result.gas_required,
-                storage_deposit: result.storage_deposit,
-                result: result.result,
+                storage_deposit: to_revive_storage_deposit(result.storage_deposit),
+                result: result.result.map(|res| {
+                    ExecReturnValue {
+                        flags: res.flags,
+                        data: res.data,
+                    }
+                }),
             },
             trace: None, // todo
             _marker: Default::default(),

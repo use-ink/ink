@@ -19,11 +19,11 @@ ink_e2e_macro = { workspace = true, default-features = true }
 ink = { workspace = true, default-features = true }
 ink_env = { workspace = true, default-features = true }
 ink_primitives = { workspace = true, default-features = true }
+ink_revive_types = { workspace = true, default-features = true }
 ink_sandbox = { version = "=6.0.0-alpha.4", path = "./sandbox", optional = true }
 
 cargo_metadata = { workspace = true }
 contract-build = { workspace = true }
-pallet-revive = { workspace = true }
 funty = { workspace = true }
 impl-serde = { workspace = true }
 jsonrpsee = { workspace = true, features = ["ws-client"] }
@@ -61,7 +61,6 @@ default = [ "std" ]
 std = [
 	"impl-serde/std",
 	"ink_e2e_macro/std",
-	"pallet-revive/std",
 	"scale-info/std",
 	"scale/std",
 	"serde/std",
@@ -72,6 +71,7 @@ std = [
     "sp-runtime-interface/std",
 	"sp-weights/std",
 	"ink_e2e_macro/std",
+	"ink_revive_types/std",
 	"ink_sandbox?/std",
 	"frame-support/std",
 ]

@@ -1224,9 +1224,9 @@ dependencies = [
 
 [[package]]
 name = "blst"
-version = "0.3.15"
+version = "0.3.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4fd49896f12ac9b6dcd7a5998466b9b58263a695a3dd1ecc1aaca2e12a90b080"
+checksum = "dcdb4c7013139a150f9fc55d123186dbfaba0d912817466282c73ac49e71fb45"
 dependencies = [
  "cc",
  "glob",
@@ -1336,9 +1336,9 @@ dependencies = [
 
 [[package]]
 name = "c-kzg"
-version = "2.1.1"
+version = "2.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7318cfa722931cb5fe0838b98d3ce5621e75f6a6408abc21721d80de9223f2e4"
+checksum = "137a2a2878ed823ef1bd73e5441e245602aae5360022113b8ad259ca4b5b8727"
 dependencies = [
  "blst",
  "cc",
@@ -1538,7 +1538,7 @@ version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fde0e0ec90c9dfb3b4b1a0891a7dcd0e2bffde2f7efed5fe7c9bb00e5bfb915e"
 dependencies = [
- "windows-sys 0.59.0",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
@@ -2346,7 +2346,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.61.0",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -3485,10 +3485,10 @@ dependencies = [
  "ink_e2e_macro",
  "ink_env",
  "ink_primitives 6.0.0-alpha.4",
+ "ink_revive_types",
  "ink_sandbox",
  "itertools 0.14.0",
  "jsonrpsee",
- "pallet-revive",
  "parity-scale-codec",
  "regex",
  "scale-info",
@@ -3714,6 +3714,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "ink_revive_types"
+version = "6.0.0-alpha.4"
+dependencies = [
+ "alloy-core",
+ "derive_more 2.0.1",
+ "ink_primitives 6.0.0-alpha.4",
+ "pallet-revive-uapi",
+ "parity-scale-codec",
+ "scale-info",
+ "serde",
+ "sp-runtime",
+]
+
+[[package]]
 name = "ink_sandbox"
 version = "6.0.0-alpha.4"
 dependencies = [
@@ -3721,6 +3735,7 @@ dependencies = [
  "frame-support",
  "frame-system",
  "ink_primitives 6.0.0-alpha.4",
+ "ink_revive_types",
  "pallet-balances",
  "pallet-revive",
  "pallet-timestamp",
@@ -5836,7 +5851,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.61.0",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -7847,7 +7862,7 @@ dependencies = [
  "getrandom 0.3.3",
  "once_cell",
  "rustix",
- "windows-sys 0.61.0",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -8747,7 +8762,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.61.0",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
