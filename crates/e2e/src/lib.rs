@@ -61,6 +61,7 @@ pub use contract_results::{
     InstantiationResult,
     UploadResult,
 };
+pub use ink_e2e_macro::test;
 pub use ink_revive_types::evm::CallTrace;
 pub use node_proc::{
     TestNodeProcess,

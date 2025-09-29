@@ -64,19 +64,20 @@ impl Node {
 
 /// The runtime emulator that should be used within `TestExternalities`
 #[derive(Clone, Eq, PartialEq, Debug, darling::FromMeta)]
-pub enum RuntimeOnly {
-    #[darling(word)]
-    #[darling(skip)]
-    Default,
-    Sandbox(syn::Path),
+pub struct RuntimeOnly {
+    /// The sandbox runtime type (e.g., `ink_sandbox::DefaultSandbox`)
+    pub sandbox: syn::Path,
+    /// The client type implementing the backend traits (e.g.,
+    /// `ink_sandbox::SandboxClient`)
+    pub client: syn::Path,
 }
 
-impl From<RuntimeOnly> for syn::Path {
-    fn from(value: RuntimeOnly) -> Self {
-        match value {
-            RuntimeOnly::Default => syn::parse_quote! { ::ink_e2e::DefaultSandbox },
-            RuntimeOnly::Sandbox(path) => path,
-        }
+impl RuntimeOnly {
+    pub fn runtime_path(&self) -> syn::Path {
+        self.sandbox.clone()
+    }
+    pub fn client_path(&self) -> syn::Path {
+        self.client.clone()
     }
 }
 
@@ -153,7 +154,13 @@ mod tests {
             Some(syn::parse_quote! { crate::CustomEnvironment })
         );
 
-        assert_eq!(config.backend(), Backend::RuntimeOnly(RuntimeOnly::Default));
+        assert_eq!(
+            config.backend(),
+            Backend::RuntimeOnly(RuntimeOnlyArgs {
+                sandbox: syn::parse_quote! { ::ink_sandbox::DefaultSandbox },
+                client: syn::parse_quote! { ::ink_sandbox::SandboxClient },
+            })
+        );
     }
 
     #[test]
@@ -165,7 +172,13 @@ mod tests {
         let config =
             E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
 
-        assert_eq!(config.backend(), Backend::RuntimeOnly(RuntimeOnly::Default));
+        assert_eq!(
+            config.backend(),
+            Backend::RuntimeOnly(RuntimeOnlyArgs {
+                sandbox: syn::parse_quote! { ::ink_sandbox::DefaultSandbox },
+                client: syn::parse_quote! { ::ink_sandbox::SandboxClient },
+            })
+        );
     }
 
     #[test]
@@ -178,9 +191,10 @@ mod tests {
 
         assert_eq!(
             config.backend(),
-            Backend::RuntimeOnly(RuntimeOnly::Sandbox(
-                syn::parse_quote! { ::ink_e2e::DefaultSandbox }
-            ))
+            Backend::RuntimeOnly(RuntimeOnlyArgs {
+                sandbox: syn::parse_quote! { ::ink_e2e::DefaultSandbox },
+                client: syn::parse_quote! { ::ink_e2e::SandboxClient },
+            })
         );
     }
 

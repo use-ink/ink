@@ -3482,6 +3482,7 @@ dependencies = [
  "funty",
  "impl-serde",
  "ink",
+ "ink_e2e_macro",
  "ink_env",
  "ink_primitives 6.0.0-alpha.4",
  "ink_revive_types",

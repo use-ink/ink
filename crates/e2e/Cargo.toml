@@ -15,6 +15,7 @@ categories.workspace = true
 include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
+ink_e2e_macro = { workspace = true, default-features = true }
 ink = { workspace = true, default-features = true }
 ink_env = { workspace = true, default-features = true }
 ink_primitives = { workspace = true, default-features = true }
@@ -67,6 +68,7 @@ std = [
     "sp-io/std",
     "sp-runtime-interface/std",
 	"sp-weights/std",
+	"ink_e2e_macro/std",
 	"ink_revive_types/std",
 	"frame-support/std",
 ]
