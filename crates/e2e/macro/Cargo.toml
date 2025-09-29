@@ -31,9 +31,8 @@ tracing = { workspace = true }
 
 [dev-dependencies]
 ink = { path = "../../ink" }
-ink_e2e = { path = "../", features = ["sandbox"] }
+ink_e2e = { path = "../" }
 temp-env = "0.3.6"
 
 [features]
 std = ["derive_more/std"]
-sandbox = []

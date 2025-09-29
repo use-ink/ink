@@ -24,9 +24,17 @@ sp-runtime = { workspace = true }
 sp-io = { workspace = true }
 ink_primitives = { workspace = true }
 ink_revive_types = { workspace = true }
+ink_env = { workspace = true, default-features = true }
+ink_e2e = { path = "../e2e" }
+ink_e2e_macro = { workspace = true, default-features = true }
 
+jsonrpsee = { workspace = true, features = ["ws-client"] }
+thiserror = { workspace = true }
 paste = { workspace = true }
 scale-info = { workspace = true }
+subxt = { workspace = true }
+subxt-metadata = { workspace = true }
+subxt-signer = { workspace = true, features = ["subxt", "sr25519", "unstable-eth"] }
 
 [features]
 default = [
@@ -46,5 +54,6 @@ std = [
 	"scale-info/std",
 	"sp-core/std",
 	"sp-externalities/std",
-	"sp-io/std"
+	"sp-io/std",
+	"ink_e2e_macro/std",
 ]

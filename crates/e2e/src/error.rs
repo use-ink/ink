@@ -70,29 +70,3 @@ where
         <Self as fmt::Debug>::fmt(self, f)
     }
 }
-
-/// Dummy error type for sandbox_client
-#[derive(Debug, thiserror::Error)]
-pub struct SandboxErr {
-    msg: String,
-}
-
-impl SandboxErr {
-    /// Create a new `SandboxErr` with the given message.
-    #[allow(dead_code)]
-    pub fn new(msg: String) -> Self {
-        Self { msg }
-    }
-}
-
-impl From<String> for SandboxErr {
-    fn from(msg: String) -> Self {
-        Self { msg }
-    }
-}
-
-impl fmt::Display for SandboxErr {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "SandboxErr: {}", self.msg)
-    }
-}

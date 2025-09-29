@@ -24,7 +24,6 @@ pub enum Backend {
     ///
     /// This runs a runtime emulator within `TestExternalities`
     /// the same process as the test.
-    #[cfg(any(test, feature = "sandbox"))]
     RuntimeOnly(RuntimeOnly),
 }
 
@@ -64,7 +63,6 @@ impl Node {
 }
 
 /// The runtime emulator that should be used within `TestExternalities`
-#[cfg(any(test, feature = "sandbox"))]
 #[derive(Clone, Eq, PartialEq, Debug, darling::FromMeta)]
 pub enum RuntimeOnly {
     #[darling(word)]
@@ -73,7 +71,6 @@ pub enum RuntimeOnly {
     Sandbox(syn::Path),
 }
 
-#[cfg(any(test, feature = "sandbox"))]
 impl From<RuntimeOnly> for syn::Path {
     fn from(value: RuntimeOnly) -> Self {
         match value {

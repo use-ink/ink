@@ -15,12 +15,10 @@ categories.workspace = true
 include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
-ink_e2e_macro = { workspace = true, default-features = true }
 ink = { workspace = true, default-features = true }
 ink_env = { workspace = true, default-features = true }
 ink_primitives = { workspace = true, default-features = true }
 ink_revive_types = { workspace = true, default-features = true }
-ink_sandbox = { version = "=6.0.0-alpha.4", path = "../sandbox", optional = true }
 
 cargo_metadata = { workspace = true }
 contract-build = { workspace = true }
@@ -60,7 +58,6 @@ scale-info = { workspace = true, features = ["derive"] }
 default = [ "std" ]
 std = [
 	"impl-serde/std",
-	"ink_e2e_macro/std",
 	"scale-info/std",
 	"scale/std",
 	"serde/std",
@@ -70,14 +67,6 @@ std = [
     "sp-io/std",
     "sp-runtime-interface/std",
 	"sp-weights/std",
-	"ink_e2e_macro/std",
 	"ink_revive_types/std",
-	"ink_sandbox?/std",
 	"frame-support/std",
-]
-
-sandbox = [
-    "dep:ink_sandbox",
-    "dep:subxt-metadata",
-    "ink_e2e_macro/sandbox",
 ]

@@ -1,6 +1,8 @@
 use core::any::Any;
 
 pub mod api;
+pub mod client;
+mod error;
 pub mod macros;
 
 pub use frame_metadata::RuntimeMetadataPrefixed;
@@ -53,6 +55,12 @@ pub use {
     },
     sp_io::TestExternalities,
 };
+
+pub use client::{
+    Client as SandboxClient,
+    preset,
+};
+pub use ink_e2e_macro::test;
 
 /// A snapshot of the storage.
 #[derive(Clone, Debug)]
