@@ -144,7 +144,7 @@ mod tests {
     fn config_works_backend_runtime_only() {
         let input = quote! {
             environment = crate::CustomEnvironment,
-            backend(runtime_only),
+            backend(runtime_only(sandbox = ::ink_sandbox::DefaultSandbox, client = ::ink_sandbox::SandboxClient)),
         };
         let config =
             E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
@@ -156,7 +156,7 @@ mod tests {
 
         assert_eq!(
             config.backend(),
-            Backend::RuntimeOnly(RuntimeOnlyArgs {
+            Backend::RuntimeOnly(RuntimeOnly {
                 sandbox: syn::parse_quote! { ::ink_sandbox::DefaultSandbox },
                 client: syn::parse_quote! { ::ink_sandbox::SandboxClient },
             })
@@ -174,7 +174,7 @@ mod tests {
 
         assert_eq!(
             config.backend(),
-            Backend::RuntimeOnly(RuntimeOnlyArgs {
+            Backend::RuntimeOnly(RuntimeOnly {
                 sandbox: syn::parse_quote! { ::ink_sandbox::DefaultSandbox },
                 client: syn::parse_quote! { ::ink_sandbox::SandboxClient },
             })
@@ -184,16 +184,16 @@ mod tests {
     #[test]
     fn config_works_runtime_only_with_custom_backend() {
         let input = quote! {
-            backend(runtime_only(sandbox = ::ink_e2e::DefaultSandbox)),
+            backend(runtime_only(sandbox = ::ink_sandbox::DefaultSandbox, client = ::ink_sandbox::SandboxClient)),
         };
         let config =
             E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
 
         assert_eq!(
             config.backend(),
-            Backend::RuntimeOnly(RuntimeOnlyArgs {
-                sandbox: syn::parse_quote! { ::ink_e2e::DefaultSandbox },
-                client: syn::parse_quote! { ::ink_e2e::SandboxClient },
+            Backend::RuntimeOnly(RuntimeOnly {
+                sandbox: syn::parse_quote! { ::ink_sandbox::DefaultSandbox },
+                client: syn::parse_quote! { ::ink_sandbox::SandboxClient },
             })
         );
     }
