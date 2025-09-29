@@ -20,7 +20,7 @@ ink = { workspace = true, default-features = true }
 ink_env = { workspace = true, default-features = true }
 ink_primitives = { workspace = true, default-features = true }
 ink_revive_types = { workspace = true, default-features = true }
-ink_sandbox = { version = "=6.0.0-alpha.4", path = "./sandbox", optional = true }
+ink_sandbox = { version = "=6.0.0-alpha.4", path = "../sandbox", optional = true }
 
 cargo_metadata = { workspace = true }
 contract-build = { workspace = true }
