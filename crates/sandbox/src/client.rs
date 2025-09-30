@@ -61,6 +61,15 @@ use ink_e2e::{
     keypair_to_account,
     log_error,
     salt,
+    subxt::{
+        self,
+        dynamic::Value,
+        tx::Payload,
+    },
+    subxt_signer::sr25519::{
+        Keypair,
+        dev,
+    },
 };
 use ink_env::{
     Environment,
@@ -89,22 +98,6 @@ use sp_runtime::traits::Bounded;
 use std::{
     marker::PhantomData,
     path::PathBuf,
-};
-pub use subxt::{
-    self,
-    backend::rpc::RpcClient,
-};
-use subxt::{
-    dynamic::Value,
-    tx::Payload,
-};
-pub use subxt_signer::{
-    self,
-    sr25519::{
-        self,
-        Keypair,
-        dev::*,
-    },
 };
 
 type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
@@ -143,14 +136,14 @@ where
         const TOKENS: u128 = 1_000_000_000_000_000;
 
         let accounts = [
-            subxt_signer::sr25519::dev::alice(),
-            subxt_signer::sr25519::dev::bob(),
-            subxt_signer::sr25519::dev::charlie(),
-            subxt_signer::sr25519::dev::dave(),
-            subxt_signer::sr25519::dev::eve(),
-            subxt_signer::sr25519::dev::ferdie(),
-            subxt_signer::sr25519::dev::one(),
-            subxt_signer::sr25519::dev::two(),
+            dev::alice(),
+            dev::bob(),
+            dev::charlie(),
+            dev::dave(),
+            dev::eve(),
+            dev::ferdie(),
+            dev::one(),
+            dev::two(),
         ]
         .map(|kp| kp.public_key().0)
         .map(From::from);

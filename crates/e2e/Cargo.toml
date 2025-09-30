@@ -24,16 +24,13 @@ ink_revive_types = { workspace = true, default-features = true }
 cargo_metadata = { workspace = true }
 contract-build = { workspace = true }
 funty = { workspace = true }
-impl-serde = { workspace = true }
 jsonrpsee = { workspace = true, features = ["ws-client"] }
 serde = { workspace = true, features = ["derive"] }
-serde_json = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread"] }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true, features = ["env-filter"] }
 scale = { workspace = true }
 subxt = { workspace = true }
-subxt-metadata = { workspace = true, optional = true }
 subxt-signer = { workspace = true, features = ["subxt", "sr25519", "unstable-eth"] }
 thiserror = { workspace = true }
 which = { workspace = true }
@@ -48,9 +45,6 @@ sp-weights = { workspace = true }
 regex = "1.11.2"
 itertools = "0.14.0"
 
-sp-io = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
-sp-runtime-interface = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false, features = ["disable_target_static_assertions"] }
-
 [dev-dependencies]
 # Required for the doctest of `MessageBuilder::call`
 scale-info = { workspace = true, features = ["derive"] }
@@ -58,15 +52,12 @@ scale-info = { workspace = true, features = ["derive"] }
 [features]
 default = [ "std" ]
 std = [
-	"impl-serde/std",
 	"scale-info/std",
 	"scale/std",
 	"serde/std",
 	"sp-core/std",
 	"sp-keyring/std",
 	"sp-runtime/std",
-    "sp-io/std",
-    "sp-runtime-interface/std",
 	"sp-weights/std",
 	"ink_e2e_macro/std",
 	"ink_revive_types/std",

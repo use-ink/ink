@@ -32,9 +32,7 @@ jsonrpsee = { workspace = true, features = ["ws-client"] }
 thiserror = { workspace = true }
 paste = { workspace = true }
 scale-info = { workspace = true }
-subxt = { workspace = true }
 subxt-metadata = { workspace = true }
-subxt-signer = { workspace = true, features = ["subxt", "sr25519", "unstable-eth"] }
 
 [features]
 default = [
