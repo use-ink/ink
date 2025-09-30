@@ -57,10 +57,10 @@ use syn::Result;
 /// You can switch the E2E test to use the [DRink!](https://use.ink/basics/contract-testing/drink)
 /// testing framework with this syntax:
 ///
-/// ```
+/// ```no_compile
 /// type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 ///
-/// #[ink_e2e::test(backend(runtime_only))]
+/// #[ink_sandbox::test(backend(runtime_only(sandbox = ink_sandbox::DefaultSandbox, client = ink_sandbox::SandboxClient)))]
 /// async fn runtime_call_works() -> E2EResult<()> {
 ///     // ...
 /// }

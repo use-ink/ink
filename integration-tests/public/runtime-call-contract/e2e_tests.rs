@@ -2,16 +2,12 @@ use super::{
     Flipper,
     FlipperRef,
 };
-use ink_e2e::{
-    ChainBackend,
-    ContractsBackend,
-};
 
 type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 
 /// Just instantiate a contract using non-default runtime.
 #[ink_sandbox::test(backend(runtime_only(
-    sandbox = sandbox_runtime::ContractCallerSandbox
+    sandbox = sandbox_runtime::ContractCallerSandbox,
     client  = ink_sandbox::SandboxClient
 )))]
 async fn instantiate_and_get<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
