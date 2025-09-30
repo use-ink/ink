@@ -21,7 +21,7 @@ sp-runtime = { workspace = true, default-features = false }
 
 pallet-revive = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false, features = ["try-runtime"] }
 flipper-traits = { path = "../../traits", default-features = false }
-ink = { path = "../../../../../crates/ink", features = ["no-panic-handler", "no-allocator"] }
+ink = { git = "https://github.com/use-ink/ink", tag = "v6.0.0-alpha.4", features = ["no-panic-handler", "no-allocator"] }
 ink_sandbox = { path = "../../../../../crates/sandbox" }
 
 [features]
