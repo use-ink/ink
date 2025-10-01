@@ -18,11 +18,10 @@ pallet-balances = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "
 pallet-revive = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
 pallet-timestamp = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false  }
 scale = { workspace = true }
-sp-core = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
+sp-core = { workspace = true, default-features = false }
 sp-externalities = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false  }
-sp-runtime = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false  }
-sp-io = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false  }
-sp-runtime-cratesio = { package = "sp-runtime", version = "43.0.0", default-features = false }
+sp-runtime = { version = "43.0.0", default-features = false  }
+sp-io = {  git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false  }
 
 ink_primitives = { workspace = true }
 ink_revive_types = { workspace = true }

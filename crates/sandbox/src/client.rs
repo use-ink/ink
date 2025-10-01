@@ -95,7 +95,6 @@ use sp_core::{
     sr25519::Pair,
 };
 use sp_runtime::traits::Bounded;
-use sp_runtime_cratesio as sp_runtime_v43;
 use std::{
     marker::PhantomData,
     path::PathBuf,
@@ -349,7 +348,7 @@ where
                 data,
                 salt(),
                 caller_to_origin::<S>(caller),
-                sp_runtime::Weight::from_parts(
+                pallet_revive::Weight::from_parts(
                     gas_limit.ref_time(),
                     gas_limit.proof_size(),
                 ),
@@ -459,7 +458,7 @@ where
             storage_deposit: to_revive_storage_deposit(dry_run_result.storage_deposit),
             result: dry_run_result
                 .result
-                .map_err(|_e| sp_runtime_v43::DispatchError::Other("SandboxError"))
+                .map_err(|_e| sp_runtime::DispatchError::Other("SandboxError"))
                 .map(|res| {
                     InstantiateReturnValue {
                         result: ExecReturnValue {
@@ -567,7 +566,7 @@ where
                     value,
                     input_data,
                     caller_to_origin::<S>(signer),
-                    sp_runtime::Weight::from_parts(
+                    pallet_revive::Weight::from_parts(
                         gas_limit.ref_time(),
                         gas_limit.proof_size(),
                     ),
@@ -660,7 +659,7 @@ where
                 storage_deposit: to_revive_storage_deposit(result.storage_deposit),
                 result: result
                     .result
-                    .map_err(|_e| sp_runtime_v43::DispatchError::Other("SandboxError"))
+                    .map_err(|_e| sp_runtime::DispatchError::Other("SandboxError"))
                     .map(|res| {
                         ExecReturnValue {
                             flags: res.flags,

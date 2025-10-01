@@ -6,10 +6,10 @@ edition = "2024"
 publish = false
 
 [dependencies]
-ink = { git = "https://github.com/use-ink/ink", tag = "v6.0.0-alpha.4", default-features = false }
+ink = { path = "../../../crates/ink", default-features = false }
 
 [dev-dependencies]
-ink_e2e = { git = "https://github.com/use-ink/ink", tag = "v6.0.0-alpha.4" }
+ink_e2e = { path = "../../../crates/e2e"}
 ink_sandbox = { path = "../../../crates/sandbox" }
 
 [lib]
