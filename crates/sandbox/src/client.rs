@@ -348,6 +348,7 @@ where
                 data,
                 salt(),
                 caller_to_origin::<S>(caller),
+                // TODO: mismatch in dependencies
                 pallet_revive::Weight::from_parts(
                     gas_limit.ref_time(),
                     gas_limit.proof_size(),
@@ -447,6 +448,7 @@ where
         };
 
         let result = ContractResult::<InstantiateReturnValue, E::Balance> {
+            // TODO: mismatch in dependencies
             gas_consumed: Weight::from_parts(
                 dry_run_result.gas_consumed.ref_time(),
                 dry_run_result.gas_consumed.proof_size(),
@@ -458,11 +460,12 @@ where
             storage_deposit: to_revive_storage_deposit(dry_run_result.storage_deposit),
             result: dry_run_result
                 .result
-                .map_err(|_e| sp_runtime::DispatchError::Other("SandboxError"))
+                .map_err(|_e| sp_runtime::DispatchError::Other("SandboxError")) // TODO: mismatch in dependencies
                 .map(|res| {
                     InstantiateReturnValue {
                         result: ExecReturnValue {
-                            flags: res.result.flags,
+                            // TODO: mismatch in dependencies
+                            flags: ink_env::ReturnFlags::from_bits_truncate(res.result.flags.bits()),
                             data: res.result.data,
                         },
                         addr: res.addr,
@@ -566,6 +569,7 @@ where
                     value,
                     input_data,
                     caller_to_origin::<S>(signer),
+                    // TODO: mismatch in dependencies
                     pallet_revive::Weight::from_parts(
                         gas_limit.ref_time(),
                         gas_limit.proof_size(),
@@ -648,6 +652,7 @@ where
         // todo error when `AccountUnmapped`
         Ok(CallDryRunResult {
             exec_result: ContractExecResultFor::<E> {
+                // TODO: mismatch in dependencies
                 gas_consumed: Weight::from_parts(
                     result.gas_consumed.ref_time(),
                     result.gas_consumed.proof_size(),
@@ -659,10 +664,11 @@ where
                 storage_deposit: to_revive_storage_deposit(result.storage_deposit),
                 result: result
                     .result
-                    .map_err(|_e| sp_runtime::DispatchError::Other("SandboxError"))
+                    .map_err(|_e| sp_runtime::DispatchError::Other("SandboxError")) // TODO: mismatch in dependencies
                     .map(|res| {
                         ExecReturnValue {
-                            flags: res.flags,
+                            // TODO: mismatch in dependencies
+                            flags: ink_env::ReturnFlags::from_bits_truncate(res.flags.bits()),
                             data: res.data,
                         }
                     }),
