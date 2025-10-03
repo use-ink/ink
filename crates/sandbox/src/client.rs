@@ -12,68 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::{
-    marker::PhantomData,
-    path::PathBuf,
-};
-
 use crate::{
-    CallBuilderFinal,
-    CallDryRunResult,
-    ChainBackend,
-    ContractsBackend,
-    E2EBackend,
-    H256,
-    InstantiateDryRunResult,
-    UploadResult,
-    backend::BuilderClient,
-    builders::{
-        CreateBuilderPartial,
-        constructor_exec_input,
-    },
-    client_utils::{
-        ContractsRegistry,
-        salt,
-    },
-    contract_results::{
-        BareInstantiationResult,
-        ContractExecResultFor,
-        ContractResult,
-    },
-    error::SandboxErr,
-    keypair_to_account,
-    log_error,
-};
-use frame_support::{
-    dispatch::RawOrigin,
-    pallet_prelude::DispatchError,
-    traits::{
-        IsType,
-        fungible::Inspect,
-    },
-};
-use ink_env::{
-    Environment,
-    call::utils::DecodeMessageResult,
-};
-use ink_primitives::{
-    DepositLimit,
-    H160,
-    U256,
-    abi::AbiEncodeWith,
-};
-use ink_revive_types::{
-    CodeUploadReturnValue,
-    ExecReturnValue,
-    InstantiateReturnValue,
-    evm::CallTrace,
-};
-use ink_sandbox::{
     AccountIdFor,
     RuntimeCall,
     Sandbox,
     Weight,
     api::prelude::*,
+    error::SandboxErr,
     frame_system,
     frame_system::pallet_prelude::OriginFor,
     pallet_balances,
@@ -90,6 +35,59 @@ use ink_sandbox::{
     to_revive_storage_deposit,
     to_revive_trace,
 };
+use frame_support::{
+    dispatch::RawOrigin,
+    pallet_prelude::DispatchError,
+    traits::{
+        IsType,
+        fungible::Inspect,
+    },
+};
+use ink_e2e::{
+    BareInstantiationResult,
+    BuilderClient,
+    CallBuilderFinal,
+    CallDryRunResult,
+    ChainBackend,
+    ContractExecResultFor,
+    ContractResult,
+    ContractsBackend,
+    ContractsRegistry,
+    CreateBuilderPartial,
+    E2EBackend,
+    InstantiateDryRunResult,
+    UploadResult,
+    constructor_exec_input,
+    keypair_to_account,
+    log_error,
+    salt,
+    subxt::{
+        self,
+        dynamic::Value,
+        tx::Payload,
+    },
+    subxt_signer::sr25519::{
+        Keypair,
+        dev,
+    },
+};
+use ink_env::{
+    Environment,
+    call::utils::DecodeMessageResult,
+};
+use ink_primitives::{
+    DepositLimit,
+    H160,
+    H256,
+    U256,
+    abi::AbiEncodeWith,
+};
+use ink_revive_types::{
+    CodeUploadReturnValue,
+    ExecReturnValue,
+    InstantiateReturnValue,
+    evm::CallTrace,
+};
 use jsonrpsee::core::async_trait;
 use scale::Decode;
 use sp_core::{
@@ -97,11 +95,10 @@ use sp_core::{
     sr25519::Pair,
 };
 use sp_runtime::traits::Bounded;
-use subxt::{
-    dynamic::Value,
-    tx::Payload,
+use std::{
+    marker::PhantomData,
+    path::PathBuf,
 };
-use subxt_signer::sr25519::Keypair;
 
 type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
 type ContractsBalanceOf<R> =
@@ -139,14 +136,14 @@ where
         const TOKENS: u128 = 1_000_000_000_000_000;
 
         let accounts = [
-            crate::alice(),
-            crate::bob(),
-            crate::charlie(),
-            crate::dave(),
-            crate::eve(),
-            crate::ferdie(),
-            crate::one(),
-            crate::two(),
+            dev::alice(),
+            dev::bob(),
+            dev::charlie(),
+            dev::dave(),
+            dev::eve(),
+            dev::ferdie(),
+            dev::one(),
+            dev::two(),
         ]
         .map(|kp| kp.public_key().0)
         .map(From::from);
@@ -344,7 +341,7 @@ where
 
         let mut code_hash: Option<H256> = None;
         let result = pallet_revive::tracing::trace(tracer.as_tracing(), || {
-            code_hash = Some(H256(crate::client_utils::code_hash(&code[..])));
+            code_hash = Some(H256(ink_e2e::code_hash(&code[..])));
             self.sandbox.deploy_contract(
                 code,
                 value,
@@ -729,7 +726,7 @@ pub mod preset {
         /// with a mock network of relay chain and parachains.
         ///
         /// ```no_compile
-        /// #[ink_e2e::test(backend(runtime_only(sandbox = MockNetworkSandbox)))]
+        /// #[ink_e2e::test(backend(runtime_only(sandbox = MockNetworkSandbox, client = ink_sandbox::SandboxClient)))]
         /// async fn my_test<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
         ///   // ...
         /// }

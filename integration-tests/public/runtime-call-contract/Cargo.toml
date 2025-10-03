@@ -33,7 +33,8 @@ ink = { path = "../../../crates/ink", default-features = false }
 flipper-traits = { path = "traits", default-features = false }
 
 [dev-dependencies]
-ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
+ink_e2e = { path = "../../../crates/e2e" }
+ink_sandbox = { path = "../../../crates/sandbox" }
 sandbox-runtime = { path = "sandbox-runtime", default-features = false }
 scale-value = "0.18.0"
 # can't use workspace dependency because of `cargo-contract` build not

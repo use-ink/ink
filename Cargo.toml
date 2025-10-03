@@ -4,7 +4,6 @@ members = [
     "crates/allocator",
     "crates/e2e",
     "crates/e2e/macro",
-    "crates/e2e/sandbox",
     "crates/engine",
     "crates/env",
     "crates/ink",
@@ -15,6 +14,7 @@ members = [
     "crates/revive-types",
     "crates/prelude",
     "crates/primitives",
+    "crates/sandbox",
     "crates/storage",
     "crates/storage/traits"
 ]

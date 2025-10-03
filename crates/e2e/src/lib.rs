@@ -28,8 +28,6 @@ mod contract_results;
 mod error;
 pub mod events;
 mod node_proc;
-#[cfg(feature = "sandbox")]
-mod sandbox_client;
 mod subxt_client;
 mod xts;
 
@@ -44,10 +42,21 @@ pub use backend_calls::{
     CallBuilder,
     InstantiateBuilder,
 };
-pub use client_utils::ContractsRegistry;
+pub use builders::{
+    CreateBuilderPartial,
+    constructor_exec_input,
+};
+pub use client_utils::{
+    ContractsRegistry,
+    code_hash,
+    salt,
+};
 pub use contract_results::{
+    BareInstantiationResult,
     CallDryRunResult,
     CallResult,
+    ContractExecResultFor,
+    ContractResult,
     InstantiateDryRunResult,
     InstantiationResult,
     UploadResult,
@@ -57,11 +66,6 @@ pub use ink_revive_types::evm::CallTrace;
 pub use node_proc::{
     TestNodeProcess,
     TestNodeProcessBuilder,
-};
-#[cfg(feature = "sandbox")]
-pub use sandbox_client::{
-    Client as SandboxClient,
-    preset,
 };
 pub use sp_keyring::Sr25519Keyring;
 pub use subxt::{
@@ -84,9 +88,6 @@ pub use subxt_signer::{
 pub use tokio;
 pub use tracing;
 pub use tracing_subscriber;
-
-#[cfg(feature = "sandbox")]
-pub use ink_sandbox::DefaultSandbox;
 
 use ink::codegen::ContractCallBuilder;
 use ink_env::{

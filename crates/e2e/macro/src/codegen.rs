@@ -78,9 +78,10 @@ impl InkE2ETest {
             Backend::Node(node_config) => {
                 build_full_client(&environment, exec_build_contracts, node_config)
             }
-            #[cfg(any(test, feature = "sandbox"))]
-            Backend::RuntimeOnly(runtime) => {
-                build_runtime_client(exec_build_contracts, runtime.into())
+            Backend::RuntimeOnly(args) => {
+                let runtime: syn::Path = args.runtime_path();
+                let client: syn::Path = args.client_path();
+                build_runtime_client(exec_build_contracts, runtime, client)
             }
         };
 
@@ -170,10 +171,13 @@ fn build_full_client(
     }
 }
 
-#[cfg(any(test, feature = "sandbox"))]
-fn build_runtime_client(contracts: TokenStream2, runtime: syn::Path) -> TokenStream2 {
+fn build_runtime_client(
+    contracts: TokenStream2,
+    runtime: syn::Path,
+    client: syn::Path,
+) -> TokenStream2 {
     quote! {
         let contracts = #contracts;
-        let mut client = ::ink_e2e::SandboxClient::<_, #runtime>::new(contracts);
+        let mut client = #client::<_, #runtime>::new(contracts);
     }
 }

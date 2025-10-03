@@ -10,8 +10,8 @@ ink = { path = "../../../crates/ink", default-features = false }
 sha3 = { version = "0.10", default-features = false }
 
 [dev-dependencies]
-ink_e2e = { path = "../../../crates/e2e", features = ["sandbox"] }
-ink_sandbox = { path = "../../../crates/e2e/sandbox" }
+ink_e2e = { path = "../../../crates/e2e" }
+ink_sandbox = { path = "../../../crates/sandbox" }
 ink_revive_types = { path = "../../../crates/revive-types" }
 sha3 = { version = "0.10" }
 other-contract-sol = { path = "other-contract-sol" }
