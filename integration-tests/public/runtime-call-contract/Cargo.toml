@@ -15,8 +15,7 @@ frame-support = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a7
 frame-system = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
 pallet-balances = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
 pallet-revive = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
-sp-runtime = { version = "43.0.0", default-features = false  }
-
+sp-runtime = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false  }
 # todo
 codec = { package = "parity-scale-codec", version =  "3.7.4", default-features = false }
 scale-info = { version = "2.11.1", default-features = false }
@@ -29,11 +28,11 @@ edition = "2024"
 publish = false
 
 [dependencies]
-ink = { git = "https://github.com/use-ink/ink", tag = "v6.0.0-alpha.4", default-features = false }
+ink = { path = "../../../crates/ink", default-features = false }
 flipper-traits = { path = "traits", default-features = false }
 
 [dev-dependencies]
-ink_e2e = { git = "https://github.com/use-ink/ink", tag = "v6.0.0-alpha.4"}
+ink_e2e = { path = "../../../crates/e2e" }
 ink_sandbox = { path = "../../../crates/sandbox" }
 sandbox-runtime = { path = "sandbox-runtime", default-features = false }
 scale-value = "0.18.0"

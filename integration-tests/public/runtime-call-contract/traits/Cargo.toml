@@ -6,7 +6,7 @@ edition = "2024"
 publish = false
 
 [dependencies]
-ink = { git = "https://github.com/use-ink/ink", tag = "v6.0.0-alpha.4", default-features = false }
+ink = { path = "../../../../crates/ink", default-features = false }
 
 [lib]
 path = "lib.rs"
