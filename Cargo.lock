@@ -1236,9 +1236,9 @@ dependencies = [
 
 [[package]]
 name = "bollard"
-version = "0.18.1"
+version = "0.19.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "97ccca1260af6a459d75994ad5acc1651bcabcbdbc41467cc9786519ab854c30"
+checksum = "ec7646ee90964aa59e9f832a67182791396a19a5b1d76eb17599a8310a7e2e09"
 dependencies = [
  "base64",
  "bollard-stubs",
@@ -1269,11 +1269,12 @@ dependencies = [
 
 [[package]]
 name = "bollard-stubs"
-version = "1.47.1-rc.27.3.1"
+version = "1.49.1-rc.28.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3f179cfbddb6e77a5472703d4b30436bff32929c0aa8a9008ecf23d1d3cdd0da"
+checksum = "5731fe885755e92beff1950774068e0cae67ea6ec7587381536fca84f1779623"
 dependencies = [
  "serde",
+ "serde_json",
  "serde_repr",
  "serde_with",
 ]
@@ -1377,6 +1378,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "cargo-platform"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "122ec45a44b270afd1402f351b782c676b173e3c3fb28d86ff7ebfb4d86a4ee4"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "cargo-util-schemas"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1414,6 +1424,21 @@ checksum = "5cfca2aaa699835ba88faf58a06342a314a950d2b9686165e038286c30316868"
 dependencies = [
  "camino",
  "cargo-platform 0.2.0",
+ "cargo-util-schemas",
+ "semver 1.0.26",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.16",
+]
+
+[[package]]
+name = "cargo_metadata"
+version = "0.22.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0c3f56c207c76c07652489840ff98687dcf213de178ac0974660d6fefeaf5ec6"
+dependencies = [
+ "camino",
+ "cargo-platform 0.3.1",
  "cargo-util-schemas",
  "semver 1.0.26",
  "serde",
@@ -1488,9 +1513,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.5.47"
+version = "4.5.48"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7eac00902d9d136acd712710d71823fb8ac8004ca445a89e73a41d45aa712931"
+checksum = "e2134bb3ea021b78629caa971416385309e0131b351b25e01dc16fb54e1b5fae"
 dependencies = [
  "clap_builder",
  "clap_derive",
@@ -1498,9 +1523,9 @@ dependencies = [
 
 [[package]]
 name = "clap_builder"
-version = "4.5.47"
+version = "4.5.48"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2ad9bbf750e73b5884fb8a211a9424a1906c1e156724260fdae972f31d70e1d6"
+checksum = "c2ba64afa3c0a6df7fa517765e31314e983f51dda798ffba27b988194fb65dc9"
 dependencies = [
  "anstream",
  "anstyle",
@@ -1538,7 +1563,7 @@ version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fde0e0ec90c9dfb3b4b1a0891a7dcd0e2bffde2f7efed5fe7c9bb00e5bfb915e"
 dependencies = [
- "windows-sys 0.48.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -1670,14 +1695,14 @@ checksum = "7c74b8349d32d297c9134b8c88677813a227df8f779daa29bfc29c183fe3dca6"
 
 [[package]]
 name = "contract-build"
-version = "6.0.0-alpha.3"
-source = "git+https://github.com/use-ink/cargo-contract?branch=master#226c0e61f7f4fdefa7f1e21eed711ced287dc3ac"
+version = "6.0.0-alpha.4"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#e7ba3e82a6c0dc5d49d927deb4725be23c27d99b"
 dependencies = [
  "alloy-json-abi",
  "anyhow",
  "blake2",
  "bollard",
- "cargo_metadata 0.21.0",
+ "cargo_metadata 0.22.0",
  "clap",
  "colored",
  "contract-metadata",
@@ -1686,12 +1711,13 @@ dependencies = [
  "heck",
  "hex",
  "impl-serde",
- "ink_metadata 6.0.0-alpha.3",
+ "ink_metadata 6.0.0-alpha.4 (git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.4)",
  "itertools 0.14.0",
  "parity-scale-codec",
  "polkavm-linker 0.29.0",
  "regex",
  "rustc_version 0.4.1",
+ "rustversion",
  "semver 1.0.26",
  "serde",
  "serde_json",
@@ -1700,20 +1726,18 @@ dependencies = [
  "term_size",
  "tokio",
  "tokio-stream",
- "toml 0.8.23",
+ "toml 0.9.5",
  "tracing",
  "url",
  "uzers",
  "walkdir",
- "which",
- "zip 3.0.0",
- "zip 4.6.1",
+ "zip",
 ]
 
 [[package]]
 name = "contract-metadata"
-version = "6.0.0-alpha.3"
-source = "git+https://github.com/use-ink/cargo-contract?branch=master#226c0e61f7f4fdefa7f1e21eed711ced287dc3ac"
+version = "6.0.0-alpha.4"
+source = "git+https://github.com/use-ink/cargo-contract?branch=master#e7ba3e82a6c0dc5d49d927deb4725be23c27d99b"
 dependencies = [
  "anyhow",
  "impl-serde",
@@ -2346,7 +2370,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.0",
 ]
 
 [[package]]
@@ -3608,21 +3632,6 @@ dependencies = [
 
 [[package]]
 name = "ink_metadata"
-version = "6.0.0-alpha.3"
-source = "git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.3#5dee03ccdc5bf3d26a53dfd287385eedb3d3a695"
-dependencies = [
- "derive_more 2.0.1",
- "impl-serde",
- "ink_prelude 6.0.0-alpha.3",
- "ink_primitives 6.0.0-alpha.3",
- "parity-scale-codec",
- "scale-info",
- "schemars 0.8.22",
- "serde",
-]
-
-[[package]]
-name = "ink_metadata"
 version = "6.0.0-alpha.4"
 dependencies = [
  "derive_more 2.0.1",
@@ -3638,11 +3647,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "ink_prelude"
-version = "6.0.0-alpha.3"
-source = "git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.3#5dee03ccdc5bf3d26a53dfd287385eedb3d3a695"
+name = "ink_metadata"
+version = "6.0.0-alpha.4"
+source = "git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.4#fc608bfa1a78f7068a64907c616c40749fbb7723"
 dependencies = [
- "cfg-if",
+ "derive_more 2.0.1",
+ "impl-serde",
+ "ink_prelude 6.0.0-alpha.4 (git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.4)",
+ "ink_primitives 6.0.0-alpha.4 (git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.4)",
+ "parity-scale-codec",
+ "scale-info",
+ "schemars 0.8.22",
+ "serde",
 ]
 
 [[package]]
@@ -3653,15 +3669,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "ink_prelude"
+version = "6.0.0-alpha.4"
+source = "git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.4#fc608bfa1a78f7068a64907c616c40749fbb7723"
+dependencies = [
+ "cfg-if",
+]
+
+[[package]]
 name = "ink_primitives"
-version = "6.0.0-alpha.3"
-source = "git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.3#5dee03ccdc5bf3d26a53dfd287385eedb3d3a695"
+version = "6.0.0-alpha.4"
 dependencies = [
  "alloy-sol-types",
  "cfg-if",
  "derive_more 2.0.1",
  "impl-trait-for-tuples",
- "ink_prelude 6.0.0-alpha.3",
+ "ink",
+ "ink_env",
+ "ink_prelude 6.0.0-alpha.4",
  "itertools 0.14.0",
  "num-traits",
  "pallet-revive-uapi",
@@ -3682,14 +3707,13 @@ dependencies = [
 [[package]]
 name = "ink_primitives"
 version = "6.0.0-alpha.4"
+source = "git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.4#fc608bfa1a78f7068a64907c616c40749fbb7723"
 dependencies = [
  "alloy-sol-types",
  "cfg-if",
  "derive_more 2.0.1",
  "impl-trait-for-tuples",
- "ink",
- "ink_env",
- "ink_prelude 6.0.0-alpha.4",
+ "ink_prelude 6.0.0-alpha.4 (git+https://github.com/use-ink/ink?tag=v6.0.0-alpha.4)",
  "itertools 0.14.0",
  "num-traits",
  "pallet-revive-uapi",
@@ -4991,7 +5015,7 @@ dependencies = [
 [[package]]
 name = "polkavm-common"
 version = "0.29.0"
-source = "git+https://github.com/paritytech/polkavm.git#db1df41408242e6a29fd5c0ef658e5b319ef8bb4"
+source = "git+https://github.com/paritytech/polkavm.git#92b31b1587aeefc32057016bf52ed97e05f8e4fd"
 
 [[package]]
 name = "polkavm-derive"
@@ -5074,7 +5098,7 @@ dependencies = [
 [[package]]
 name = "polkavm-linker"
 version = "0.29.0"
-source = "git+https://github.com/paritytech/polkavm.git#db1df41408242e6a29fd5c0ef658e5b319ef8bb4"
+source = "git+https://github.com/paritytech/polkavm.git#92b31b1587aeefc32057016bf52ed97e05f8e4fd"
 dependencies = [
  "dirs",
  "gimli",
@@ -5851,7 +5875,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.0",
 ]
 
 [[package]]
@@ -6387,10 +6411,11 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.219"
+version = "1.0.228"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f0e2c6ed6606019b4e29e69dbaba95b11854410e5347d525002456dbbb786b6"
+checksum = "9a8e94ea7f378bd32cbbd37198a4a91436180c5bb472411e48b5ec2e2124ae9e"
 dependencies = [
+ "serde_core",
  "serde_derive",
 ]
 
@@ -6425,10 +6450,19 @@ dependencies = [
 ]
 
 [[package]]
-name = "serde_derive"
-version = "1.0.219"
+name = "serde_core"
+version = "1.0.228"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5b0276cf7f2c73365f7157c8123c21cd9a50fbbd844757af28ca1f5925fc2a00"
+checksum = "41d385c7d4ca58e59fc732af25c3983b67ac852c1a25000afe1175de458b67ad"
+dependencies = [
+ "serde_derive",
+]
+
+[[package]]
+name = "serde_derive"
+version = "1.0.228"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d540f220d3187173da220f885ab66608367b6574e925011a9353e4badda91d79"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -6448,15 +6482,16 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.143"
+version = "1.0.145"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d401abef1d108fbd9cbaebc3e46611f4b1021f714a0597a71f41ee463f5f4a5a"
+checksum = "402a6f66d8c709116cf22f558eab210f5a50187f702eb4d7e5ef38d9a7f1c79c"
 dependencies = [
  "indexmap 2.11.1",
  "itoa",
  "memchr",
  "ryu",
  "serde",
+ "serde_core",
 ]
 
 [[package]]
@@ -7854,15 +7889,15 @@ dependencies = [
 
 [[package]]
 name = "tempfile"
-version = "3.22.0"
+version = "3.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "84fa4d11fadde498443cca10fd3ac23c951f0dc59e080e9f4b93d4df4e4eea53"
+checksum = "2d31c77bdf42a745371d260a26ca7163f1e0924b64afa0b688e61b5a9fa02f16"
 dependencies = [
  "fastrand",
  "getrandom 0.3.3",
  "once_cell",
  "rustix",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.0",
 ]
 
 [[package]]
@@ -8762,7 +8797,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.48.0",
+ "windows-sys 0.61.0",
 ]
 
 [[package]]
@@ -9330,21 +9365,9 @@ dependencies = [
 
 [[package]]
 name = "zip"
-version = "3.0.0"
+version = "5.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "12598812502ed0105f607f941c386f43d441e00148fce9dec3ca5ffb0bde9308"
-dependencies = [
- "arbitrary",
- "crc32fast",
- "indexmap 2.11.1",
- "memchr",
-]
-
-[[package]]
-name = "zip"
-version = "4.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "caa8cd6af31c3b31c6631b8f483848b91589021b28fffe50adada48d4f4d2ed1"
+checksum = "2f852905151ac8d4d06fdca66520a661c09730a74c6d4e2b0f27b436b382e532"
 dependencies = [
  "arbitrary",
  "crc32fast",
