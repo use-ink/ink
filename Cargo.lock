@@ -3514,6 +3514,7 @@ dependencies = [
  "ink",
  "ink_e2e",
  "ink_ir",
+ "ink_sandbox",
  "proc-macro2",
  "quote",
  "syn 2.0.106",
