@@ -60,7 +60,7 @@
 <a href=#60 id=60 data-nosnippet>60</a>/// ```
 <a href=#61 id=61 data-nosnippet>61</a>/// type E2EResult&lt;T&gt; = std::result::Result&lt;T, Box&lt;dyn std::error::Error&gt;&gt;;
 <a href=#62 id=62 data-nosnippet>62</a>///
-<a href=#63 id=63 data-nosnippet>63</a>/// #[ink_e2e::test(backend(runtime_only))]
+<a href=#63 id=63 data-nosnippet>63</a>/// #[ink_sandbox::test(backend(runtime_only(sandbox = ink_sandbox::DefaultSandbox, client = ink_sandbox::SandboxClient)))]
 <a href=#64 id=64 data-nosnippet>64</a>/// async fn runtime_call_works() -&gt; E2EResult&lt;()&gt; {
 <a href=#65 id=65 data-nosnippet>65</a>///     // ...
 <a href=#66 id=66 data-nosnippet>66</a>/// }

@@ -12,7 +12,7 @@
     client: <a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.reference.html">&amp;'a mut B</a>,
     caller: &amp;'a <a class="struct" href="struct.Keypair.html" title="struct ink_e2e::Keypair">Keypair</a>,
     contract_name: &amp;'a <a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.str.html">str</a>,
-    constructor: &amp;'a mut CreateBuilder&lt;E, Contract, Set&lt;LimitParamsV2&gt;, Set&lt;ExecutionInput&lt;Args, Abi&gt;&gt;, Set&lt;ReturnType&lt;R&gt;&gt;, Abi&gt;,
+    constructor: &amp;'a mut <a class="type" href="type.CreateBuilderPartial.html" title="type ink_e2e::CreateBuilderPartial">CreateBuilderPartial</a>&lt;E, Contract, Args, R, Abi&gt;,
 ) -&gt; <a class="struct" href="struct.InstantiateBuilder.html" title="struct ink_e2e::InstantiateBuilder">InstantiateBuilder</a>&lt;'a, E, Contract, Args, R, B, Abi&gt;<div class="where">where
     E::Balance: <a class="trait" href="https://doc.rust-lang.org/1.88.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.u32.html">u32</a>&gt;,</div></h4></section></summary><div class="docblock"><p>Initialize a call builder with essential values.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.value" class="method"><a class="src rightside" href="../src/ink_e2e/backend_calls.rs.html#252-255">Source</a><h4 class="code-header">pub fn <a href="#method.value" class="fn">value</a>(&amp;mut self, value: E::Balance) -&gt; &amp;mut Self</h4></section></summary><div class="docblock"><p>Provide value with a call</p>

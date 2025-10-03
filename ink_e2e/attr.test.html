@@ -22,7 +22,7 @@ testing framework with this syntax:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">type </span>E2EResult&lt;T&gt; = std::result::Result&lt;T, Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt;;
 
-<span class="attr">#[ink_e2e::test(backend(runtime_only))]
+<span class="attr">#[ink_sandbox::test(backend(runtime_only(sandbox = ink_sandbox::DefaultSandbox, client = ink_sandbox::SandboxClient)))]
 </span><span class="kw">async fn </span>runtime_call_works() -&gt; E2EResult&lt;()&gt; {
     <span class="comment">// ...
 </span>}</code></pre></div>
