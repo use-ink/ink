@@ -1538,7 +1538,7 @@ version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fde0e0ec90c9dfb3b4b1a0891a7dcd0e2bffde2f7efed5fe7c9bb00e5bfb915e"
 dependencies = [
- "windows-sys 0.48.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -2346,7 +2346,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.0",
 ]
 
 [[package]]
@@ -3695,7 +3695,7 @@ dependencies = [
  "pallet-revive-uapi",
  "parity-scale-codec",
  "paste",
- "primitive-types 0.13.1",
+ "primitive-types 0.14.0",
  "scale-decode",
  "scale-encode",
  "scale-info",
@@ -5197,6 +5197,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "primitive-types"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "721a1da530b5a2633218dc9f75713394c983c352be88d2d7c9ee85e2c4c21794"
+dependencies = [
+ "fixed-hash",
+ "impl-codec 0.7.1",
+ "scale-info",
+ "uint 0.10.0",
+]
+
+[[package]]
 name = "proc-macro-crate"
 version = "3.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5851,7 +5863,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.0",
 ]
 
 [[package]]
@@ -7862,7 +7874,7 @@ dependencies = [
  "getrandom 0.3.3",
  "once_cell",
  "rustix",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.0",
 ]
 
 [[package]]
@@ -8762,7 +8774,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.48.0",
+ "windows-sys 0.61.0",
 ]
 
 [[package]]
