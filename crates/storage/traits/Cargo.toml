@@ -21,9 +21,6 @@ ink_prelude = { workspace = true }
 scale = { workspace = true }
 scale-info = { workspace = true, features = ["derive"], optional = true }
 
-sp-io = { workspace = true, default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
-sp-runtime-interface = { workspace = true, default-features = false, features = ["disable_target_static_assertions"] }
-
 [dev-dependencies]
 paste = { workspace = true }
 
@@ -33,8 +30,6 @@ std = [
 	"ink_metadata/std",
 	"ink_prelude/std",
 	"ink_primitives/std",
-    "sp-io/std",
-    "sp-runtime-interface/std",
 	"scale-info/std",
 	"scale/std",
 ]

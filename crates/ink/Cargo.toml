@@ -33,9 +33,6 @@ linkme = { workspace = true, optional = true }
 polkavm-derive = { workspace = true }
 xcm = { workspace = true, optional = true }
 
-sp-io = { workspace = true, default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
-sp-runtime-interface = { workspace = true, default-features = false, features = ["disable_target_static_assertions"] }
-
 [dev-dependencies]
 ink_ir = { workspace = true, default-features = true }
 ink_metadata = { workspace = true } # todo why here too?
@@ -54,8 +51,6 @@ std = [
     "scale/std",
     "xcm?/std",
     "derive_more/std",
-    "sp-runtime-interface/std",
-    "sp-io/std",
     "dep:linkme"
 ]
 
