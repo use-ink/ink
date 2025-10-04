@@ -12,7 +12,7 @@ ink = { path = "../../../crates/ink", default-features = false }
 #
 # If we don't we will end up with linking errors!
 other-contract = { path = "other-contract", default-features = false, features = ["ink-as-dependency"] }
-pallet-revive-uapi = { version = "0.4.0", default-features = false }
+pallet-revive-uapi = { version = "0.8.0", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }

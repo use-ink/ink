@@ -10,6 +10,7 @@ ink = { path = "../../../crates/ink", default-features = false }
 sha3 = { version = "0.10", default-features = false }
 
 [dev-dependencies]
+ink_env = { path = "../../../crates/env" }
 ink_e2e = { path = "../../../crates/e2e" }
 ink_sandbox = { path = "../../../crates/sandbox" }
 ink_revive_types = { path = "../../../crates/revive-types" }

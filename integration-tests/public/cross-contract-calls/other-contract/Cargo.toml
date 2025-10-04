@@ -7,7 +7,7 @@ publish = false
 
 [dependencies]
 ink = { path = "../../../../crates/ink", default-features = false }
-pallet-revive-uapi = { version = "0.4.0", default-features = false }
+pallet-revive-uapi = { version = "0.8.0", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../../crates/e2e" }

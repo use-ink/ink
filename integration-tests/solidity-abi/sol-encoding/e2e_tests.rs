@@ -126,7 +126,7 @@ impl ContractSandbox {
         .result
         .expect("sandbox call contract failed");
         ExecReturnValue {
-            flags: call_raw.flags,
+            flags: ink_env::ReturnFlags::from_bits_truncate(call_raw.flags.bits()),
             data: call_raw.data,
         }
     }

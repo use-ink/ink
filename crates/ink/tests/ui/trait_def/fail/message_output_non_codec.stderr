@@ -65,7 +65,7 @@ note: required by a bound in `Execution::<Args, Output, Abi>::new`
   |     pub fn new(input: ExecutionInput<Args, Abi>) -> Self {
   |            --- required by a bound in this associated function
 
-error[E0599]: the method `try_invoke` exists for struct `CallBuilder<E, Set<Call>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd, Ink>, Ink>>, Set<ReturnType<NonCodec>>>`, but its trait bounds were not satisfied
+error[E0599]: the method `try_invoke` exists for struct `CallBuilder<E, Set<Call>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd, ink::abi::Ink>, ink::abi::Ink>>, Set<ReturnType<NonCodec>>>`, but its trait bounds were not satisfied
  --> tests/ui/trait_def/fail/message_output_non_codec.rs:5:5
   |
 1 |   pub struct NonCodec;
@@ -87,7 +87,7 @@ error[E0599]: the method `try_invoke` exists for struct `CallBuilder<E, Set<Call
           `NonCodec: WrapperTypeDecode`
           which is required by `NonCodec: DecodeMessageResult<ink::abi::Ink>`
 note: the trait `WrapperTypeDecode` must be implemented
- --> $CARGO/parity-scale-codec-3.7.5/src/codec.rs
+ --> $CARGO/parity-scale-codec-$VERSION/src/codec.rs
   |
   | pub trait WrapperTypeDecode: Sized {
   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -16,7 +16,6 @@ use crate::{
     AccountIdFor,
     RuntimeCall,
     Sandbox,
-    Weight,
     api::prelude::*,
     error::SandboxErr,
     frame_system,
@@ -80,6 +79,7 @@ use ink_primitives::{
     H160,
     H256,
     U256,
+    Weight,
     abi::AbiEncodeWith,
 };
 use ink_revive_types::{
@@ -348,7 +348,11 @@ where
                 data,
                 salt(),
                 caller_to_origin::<S>(caller),
-                gas_limit,
+                // TODO: mismatch in dependencies
+                pallet_revive::Weight::from_parts(
+                    gas_limit.ref_time(),
+                    gas_limit.proof_size(),
+                ),
                 storage_deposit_limit,
             )
         });
@@ -444,18 +448,29 @@ where
         };
 
         let result = ContractResult::<InstantiateReturnValue, E::Balance> {
-            gas_consumed: dry_run_result.gas_consumed,
-            gas_required: dry_run_result.gas_required,
+            // TODO: mismatch in dependencies
+            gas_consumed: Weight::from_parts(
+                dry_run_result.gas_consumed.ref_time(),
+                dry_run_result.gas_consumed.proof_size(),
+            ),
+            gas_required: Weight::from_parts(
+                dry_run_result.gas_required.ref_time(),
+                dry_run_result.gas_required.proof_size(),
+            ),
             storage_deposit: to_revive_storage_deposit(dry_run_result.storage_deposit),
-            result: dry_run_result.result.map(|res| {
-                InstantiateReturnValue {
-                    result: ExecReturnValue {
-                        flags: res.result.flags,
-                        data: res.result.data,
-                    },
-                    addr: res.addr,
-                }
-            }),
+            result: dry_run_result
+                .result
+                .map_err(|_e| sp_runtime::DispatchError::Other("SandboxError")) // TODO: mismatch in dependencies
+                .map(|res| {
+                    InstantiateReturnValue {
+                        result: ExecReturnValue {
+                            // TODO: mismatch in dependencies
+                            flags: ink_env::ReturnFlags::from_bits_truncate(res.result.flags.bits()),
+                            data: res.result.data,
+                        },
+                        addr: res.addr,
+                    }
+                }),
         };
         Ok(result.into())
     }
@@ -554,7 +569,11 @@ where
                     value,
                     input_data,
                     caller_to_origin::<S>(signer),
-                    gas_limit,
+                    // TODO: mismatch in dependencies
+                    pallet_revive::Weight::from_parts(
+                        gas_limit.ref_time(),
+                        gas_limit.proof_size(),
+                    ),
                     storage_deposit_limit,
                 )
                 .result
@@ -633,15 +652,26 @@ where
         // todo error when `AccountUnmapped`
         Ok(CallDryRunResult {
             exec_result: ContractExecResultFor::<E> {
-                gas_consumed: result.gas_consumed,
-                gas_required: result.gas_required,
+                // TODO: mismatch in dependencies
+                gas_consumed: Weight::from_parts(
+                    result.gas_consumed.ref_time(),
+                    result.gas_consumed.proof_size(),
+                ),
+                gas_required: Weight::from_parts(
+                    result.gas_required.ref_time(),
+                    result.gas_required.proof_size(),
+                ),
                 storage_deposit: to_revive_storage_deposit(result.storage_deposit),
-                result: result.result.map(|res| {
-                    ExecReturnValue {
-                        flags: res.flags,
-                        data: res.data,
-                    }
-                }),
+                result: result
+                    .result
+                    .map_err(|_e| sp_runtime::DispatchError::Other("SandboxError")) // TODO: mismatch in dependencies
+                    .map(|res| {
+                        ExecReturnValue {
+                            // TODO: mismatch in dependencies
+                            flags: ink_env::ReturnFlags::from_bits_truncate(res.flags.bits()),
+                            data: res.data,
+                        }
+                    }),
             },
             trace: None, // todo
             _marker: Default::default(),
