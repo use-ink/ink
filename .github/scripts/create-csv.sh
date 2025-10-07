@@ -18,7 +18,7 @@ master=$(egrep "^$contract\s+" $master | head -n1 | cut -d " " -f2)
 def=$(egrep "^$contract\s+" $default_abi | head -n1 | cut -d " " -f2)
 sol=$(egrep "^$contract\s+" $sol_abi | head -n1 | cut -d " " -f2)
 all=$(egrep "^$contract\s+" $all_abi | head -n1 | cut -d " " -f2)
-v5=$(egrep "^$contract\s+" $v5 | head -n1 | cut -d " " -f2)
+v5=$(egrep "^$contract\s+" $v5 | head -n1 | cut -d ";" -f2)
 
 if [ -z "$master" ]; then
     master="0";
