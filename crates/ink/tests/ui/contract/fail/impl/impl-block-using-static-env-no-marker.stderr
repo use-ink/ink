@@ -20,5 +20,5 @@ note: if you're trying to build a new `contract::Contract` consider using one of
    = help: items from traits can only be used if the trait is in scope
 help: trait `StaticEnv` which provides `env` is implemented but not in scope; perhaps you want to import it
    |
-3  + use ink::codegen::env::StaticEnv;
+3  + use ink::codegen::StaticEnv;
    |

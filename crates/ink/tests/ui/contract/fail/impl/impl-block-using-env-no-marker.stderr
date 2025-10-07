@@ -7,5 +7,5 @@ error[E0599]: no method named `env` found for reference `&contract::Contract` in
    = help: items from traits can only be used if the trait is in scope
 help: trait `Env` which provides `env` is implemented but not in scope; perhaps you want to import it
    |
-3  + use ink::codegen::env::Env;
+3  + use ink::codegen::Env;
    |
