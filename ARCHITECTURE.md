@@ -212,7 +212,7 @@ exports an implementation of the `Environment` trait for that:
 
 If you are developing for a chain that uses different types than the
 Polkadot SDK default types you can configure a different environment in
-the contract macro ([documentation here](https://use-ink.github.io/ink/ink/attr.contract.html#header-arguments)):
+the contract macro ([documentation here](https://use.ink/docs/v6/macros-attributes/contract/#header-arguments)):
 
 ```rust
 #[ink::contract(env = MyCustomTypes)]
