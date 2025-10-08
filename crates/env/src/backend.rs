@@ -397,7 +397,7 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// For more details visit: [`code_hash`][`crate::code_hash`]
     fn code_hash(&mut self, account: &Address)
-        -> core::result::Result<H256, CodeHashErr>;
+    -> core::result::Result<H256, CodeHashErr>;
 
     /// Retrieves the code hash of the currently executing contract.
     ///
