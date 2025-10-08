@@ -16,21 +16,28 @@ mod own_code_hash {
         /// Returns the code hash of the contract
         #[ink(message)]
         pub fn own_code_hash(&self) -> H256 {
-            self.env().own_code_hash().unwrap()
+            self.env().own_code_hash()
         }
 
-        /// Returns the code hash of the contract by providing its `account_id`
+        /// Returns the address of the contract
         #[ink(message)]
-        pub fn get_code(&self) -> H256 {
-            self.env()
-                .code_hash(&self.env().address())
-                .expect("Failed to get code hash")
+        pub fn own_address(&self) -> Address {
+            self.env().address()
         }
-    }
 
-    impl Default for OwnCodeHash {
-        fn default() -> Self {
-            Self::new()
+        /// Returns the code hash of this contract by providing its address.
+        #[ink(message)]
+        pub fn code_hash_of_own_address(&self) -> H256 {
+            let own_hash = self
+                .env()
+                .code_hash(&self.env().address())
+                .unwrap_or_else(|err| panic!("Failed to get : {err:?}"));
+            assert_eq!(
+                own_hash,
+                self.env().own_code_hash(),
+                "mismatch in code hashes"
+            );
+            own_hash
         }
     }
 
@@ -82,10 +89,34 @@ mod own_code_hash {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn get_own_code_hash(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        async fn get_own_address(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             let mut constructor = OwnCodeHashRef::new();
             let contract = client
                 .instantiate("own_code_hash", &ink_e2e::bob(), &mut constructor)
+                .submit()
+                .await
+                .expect("instantiate failed");
+
+            let call_builder = contract.call_builder::<OwnCodeHash>();
+            let own_code_hash_res = client
+                .call(&ink_e2e::bob(), &call_builder.own_address())
+                .submit()
+                .await
+                .expect("own_code_hash failed");
+
+            let addr = own_code_hash_res.return_value();
+            assert_eq!(addr, contract.addr);
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn get_own_code_hash_from_address(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            let mut constructor = OwnCodeHashRef::new();
+            let contract = client
+                .instantiate("own_code_hash", &ink_e2e::alice(), &mut constructor)
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -99,8 +130,8 @@ mod own_code_hash {
 
             // Compare codes obtained differently with own_code_hash and code_hash
             let get_code_res = client
-                .call(&ink_e2e::alice(), &call_builder.get_code())
-                .submit()
+                .call(&ink_e2e::bob(), &call_builder.code_hash_of_own_address())
+                .dry_run()
                 .await
                 .expect("get_code failed");
 

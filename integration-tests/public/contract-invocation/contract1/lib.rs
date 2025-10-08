@@ -32,15 +32,6 @@ mod contract1 {
         pub fn own_addr(&self) -> Address {
             self.env().address()
         }
-
-        /*
-        // todo
-        /// Returns the hash code of the contract through the function 'own_code_hash'.
-        #[ink(message)]
-        pub fn own_code_hash(&self) -> ink::H256 {
-            self.env().own_code_hash().unwrap()
-        }
-         */
     }
 
     impl Default for Contract1 {

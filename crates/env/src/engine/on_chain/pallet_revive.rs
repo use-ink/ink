@@ -14,6 +14,7 @@
 
 use ink_primitives::{
     Address,
+    CodeHashErr,
     H256,
     U256,
     abi::{
@@ -75,6 +76,19 @@ use crate::{
     },
     types::FromLittleEndian,
 };
+
+/// The code hash of an existing account without code.
+/// This is the `keccak256` hash of empty data.
+/// ```no_compile
+/// const EMPTY_CODE_HASH: H256 =
+///     H256(sp_core::hex2array!("c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"));
+/// ````
+const EMPTY_CODE_HASH: H256 = H256([
+    197, 210, 70, 1, 134, 247, 35, 60, 146, 126, 125, 178, 220, 199, 3, 192, 229, 0, 182,
+    83, 202, 130, 39, 59, 123, 250, 216, 4, 93, 133, 164, 112,
+]);
+
+const H256_ZERO: H256 = H256::zero();
 
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
@@ -927,12 +941,9 @@ impl TypedEnvBackend for EnvInstance {
 
     fn address(&mut self) -> Address {
         let mut scope = self.scoped_buffer();
-
         let h160: &mut [u8; 20] = scope.take(20).try_into().unwrap();
         ext::address(h160);
-
-        scale::Decode::decode(&mut &h160[..])
-            .expect("A contract being executed must have a valid address.")
+        Address::from_slice(h160)
     }
 
     fn balance(&mut self) -> U256 {
@@ -1193,54 +1204,49 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
-    fn weight_to_fee<E: Environment>(&mut self, gas: u64) -> E::Balance {
+    fn weight_to_fee(&mut self, gas: u64) -> U256 {
         let mut scope = self.scoped_buffer();
         let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();
-        // TODO: needs ref and proof
         ext::weight_to_fee(gas, gas, u256);
-        let mut result = <E::Balance as FromLittleEndian>::Bytes::default();
-        let len = result.as_ref().len();
-        result.as_mut().copy_from_slice(&u256[..len]);
-        <E::Balance as FromLittleEndian>::from_le_bytes(result)
+        U256::from_le_bytes(*u256)
     }
 
     fn is_contract(&mut self, addr: &Address) -> bool {
         ext::code_size(&addr.0) > 0
     }
 
-    fn caller_is_origin<E>(&mut self) -> bool
-    where
-        E: Environment,
-    {
+    fn caller_is_origin(&mut self) -> bool {
         let sel = const { solidity_selector("callerIsOrigin()") };
         let output: &mut [u8; 32] =
             &mut self.scoped_buffer().take(32).try_into().unwrap();
         call_bool_precompile(sel, output)
     }
 
-    fn caller_is_root<E>(&mut self) -> bool
-    where
-        E: Environment,
-    {
+    fn caller_is_root(&mut self) -> bool {
         let sel = const { solidity_selector("callerIsRoot()") };
         let output: &mut [u8; 32] =
             &mut self.scoped_buffer().take(32).try_into().unwrap();
         call_bool_precompile(sel, output)
     }
 
-    fn code_hash(&mut self, addr: &Address) -> Result<H256> {
+    fn code_hash(&mut self, addr: &Address) -> core::result::Result<H256, CodeHashErr> {
         let mut scope = self.scoped_buffer();
-        // todo can be simplified
-        let enc_addr: &mut [u8; 20] =
-            scope.take_encoded(addr)[..20].as_mut().try_into().unwrap();
         let output: &mut [u8; 32] =
             scope.take_max_encoded_len::<H256>().try_into().unwrap();
-        ext::code_hash(enc_addr, output);
-        let hash = scale::Decode::decode(&mut &output[..])?;
-        Ok(hash)
+        ext::code_hash(&addr.0, output);
+        let hash = H256::from_slice(output);
+        // If not a contract, but account exists, then `keccak_256([])` is returned.
+        // Otherwise `zero`.
+        if hash == H256_ZERO {
+            Err(CodeHashErr::AddressNotFound)
+        } else if hash == EMPTY_CODE_HASH {
+            Err(CodeHashErr::NotContractButAccount)
+        } else {
+            Ok(hash)
+        }
     }
 
-    fn own_code_hash(&mut self) -> Result<H256> {
+    fn own_code_hash(&mut self) -> H256 {
         let sel = const { solidity_selector("ownCodeHash()") };
         let output: &mut [u8; 32] = &mut self
             .scoped_buffer()
@@ -1260,8 +1266,7 @@ impl TypedEnvBackend for EnvInstance {
             Some(&mut &mut output[..]),
         );
         call_result.expect("call host function failed");
-        let hash = scale::Decode::decode(&mut &output[..])?;
-        Ok(hash)
+        H256::from_slice(output)
     }
 
     #[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]

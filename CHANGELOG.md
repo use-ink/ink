@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fix decoding of `HostFn::minimum_balance` return value - [#2656](https://github.com/use-ink/ink/pull/2656)
+- Fix handling of `HostFn::code_hash` and `HostFn::weight_to_fee` - [#2672](https://github.com/use-ink/ink/pull/2672)
 
 ### Fixed
 - `name` override fixes for message id computation and trait definitions - [#2649](https://github.com/use-ink/ink/pull/2649)

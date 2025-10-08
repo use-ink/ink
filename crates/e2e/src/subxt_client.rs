@@ -800,6 +800,10 @@ where
                     DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::Decoding(e.to_string()))?;
                 log_error(&format!(
+                    "Attempt to stringify returned data: {:?}",
+                    String::from_utf8_lossy(&trace.clone().unwrap().output[..])
+                ));
+                log_error(&format!(
                     "extrinsic for `raw_call` failed: {dispatch_error} {trace:?}"
                 ));
                 return Err(Error::CallExtrinsic(dispatch_error, trace))
@@ -840,6 +844,14 @@ where
             .call_dry_run(dest, exec_input, value, storage_deposit_limit, caller)
             .await;
         log_info(&format!("call dry run result: {:?}", &exec_result.result));
+
+        if exec_result.result.is_ok() && exec_result.clone().result.unwrap().did_revert()
+        {
+            log_error(&format!(
+                "Attempt to stringify returned data: {:?}",
+                String::from_utf8_lossy(&exec_result.clone().result.unwrap().data[..])
+            ));
+        }
 
         let exec_result = self
             .contract_result_to_result(exec_result)
