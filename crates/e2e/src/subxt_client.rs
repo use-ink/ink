@@ -801,7 +801,7 @@ where
                         .map_err(|e| Error::Decoding(e.to_string()))?;
                 log_error(&format!(
                     "Attempt to stringify returned data: {:?}",
-                    String::from_utf8_lossy(&trace.clone().unwrap().output.0[..])
+                    String::from_utf8_lossy(&trace.clone().unwrap().output[..])
                 ));
                 log_error(&format!(
                     "extrinsic for `raw_call` failed: {dispatch_error} {trace:?}"
