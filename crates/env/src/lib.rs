@@ -60,7 +60,7 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
     #[cfg(any(feature = "ink-debug", feature = "std"))]
     self::return_value(
         ReturnFlags::REVERT,
-        &ink_prelude::format!("foo: {}", info.message()).as_bytes(),
+        &ink_prelude::format!("{}", info.message()).as_bytes(),
     );
 
     // If contract is compiled with `cargo contract --release`, it will
