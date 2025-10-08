@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Abi"],"struct":["Ink","Sol"],"trait":["AbiDecodeWith","AbiEncodeWith"]};

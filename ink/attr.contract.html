@@ -1,0 +1,302 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Entry point for writing ink! smart contracts."><title>contract in ink - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-1a91846b.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="ink" data-themes="" data-resource-suffix="" data-rustdoc-version="1.88.0 (6b00bc388 2025-06-23)" data-channel="1.88.0" data-search-js="search-f7877310.js" data-settings-js="settings-5514c975.js" ><script src="../static.files/storage-4e99c027.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-7ef8a74a.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button><a class="logo-container" href="../ink/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt=""></a></nav><nav class="sidebar"><div class="sidebar-crate"><a class="logo-container" href="../ink/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><h2><a href="../ink/index.html">ink</a><span class="version">6.0.0-alpha.4</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">contract</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#description" title="Description">Description</a></li><li><a href="#usage" title="Usage">Usage</a><ul><li><a href="#header-arguments" title="Header Arguments">Header Arguments</a></li><li><a href="#analysis" title="Analysis">Analysis</a></li><li><a href="#interacting-with-the-contract-executor" title="Interacting with the Contract Executor">Interacting with the Contract Executor</a></li><li><a href="#events" title="Events">Events</a></li><li><a href="#example-flipper" title="Example: Flipper">Example: Flipper</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate ink</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">ink</a></div><h1>Attribute Macro <span class="attr">contract</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><pre class="rust item-decl"><code>#[contract]</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Entry point for writing ink! smart contracts.</p>
+<p>If you are a beginner trying to learn ink! we recommend you to check out
+our extensive <a href="https://docs.substrate.io/tutorials/v3/ink-workshop/pt1">ink! workshop</a>.</p>
+<h2 id="description"><a class="doc-anchor" href="#description">§</a>Description</h2>
+<p>The macro does analysis on the provided smart contract code and generates
+proper code.</p>
+<p>ink! smart contracts can compile in several different modes.
+There are two main compilation models using either</p>
+<ul>
+<li>on-chain mode: <code>no_std</code> and WebAssembly as target</li>
+<li>off-chain mode: <code>std</code></li>
+</ul>
+<p>We generally use the on-chain mode for actual smart contract instantiation
+whereas we use the off-chain mode for smart contract testing using the
+off-chain environment provided by the <code>ink_env</code> crate.</p>
+<h2 id="usage"><a class="doc-anchor" href="#usage">§</a>Usage</h2><h3 id="header-arguments"><a class="doc-anchor" href="#header-arguments">§</a>Header Arguments</h3>
+<p>The <code>#[ink::contract]</code> macro can be provided with some additional comma-separated
+header arguments:</p>
+<ul>
+<li>
+<p><code>keep_attr: String</code></p>
+<p>Tells the ink! code generator which attributes should be passed to call builders.
+Call builders are used for making cross-contract calls and are automatically
+generated for contracts.</p>
+<p><strong>Usage Example:</strong></p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[ink::contract(keep_attr = <span class="string">"foo, bar"</span>)]
+</span><span class="kw">mod </span>my_contract {
+    <span class="comment">//    #[bar]
+    //    #[foo]
+    // ...
+</span>}</code></pre></div>
+<p><strong>Allowed attributes by default:</strong> <code>cfg</code>, <code>cfg_attr</code>, <code>allow</code>, <code>warn</code>, <code>deny</code>,
+<code>forbid</code>, <code>deprecated</code>, <code>must_use</code>, <code>doc</code>, <code>rustfmt</code>.</p>
+</li>
+<li>
+<p><code>env: impl Environment</code></p>
+<p>Tells the ink! code generator which environment to use for the ink! smart
+contract. The environment must implement the <code>Environment</code> (defined in <code>ink_env</code>)
+trait and provides all the necessary fundamental type definitions for <code>Balance</code>,
+<code>AccountId</code> etc.</p>
+<p>When using a custom <code>Environment</code> implementation for a smart contract all types
+that it exposes to the ink! smart contract and the mirrored types used in the
+runtime must be aligned with respect to SCALE encoding and semantics.</p>
+<p><strong>Usage Example:</strong></p>
+<p>Given a custom <code>Environment</code> implementation:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Clone)]
+</span><span class="kw">pub struct </span>MyEnvironment;
+
+<span class="kw">impl </span>ink_env::Environment <span class="kw">for </span>MyEnvironment {
+    <span class="kw">const </span>NATIVE_TO_ETH_RATIO: u32 = <span class="number">100_000_000</span>;
+    <span class="kw">type </span>AccountId = [u8; <span class="number">16</span>];
+    <span class="kw">type </span>Balance = u128;
+    <span class="kw">type </span>Hash = [u8; <span class="number">32</span>];
+    <span class="kw">type </span>Timestamp = u64;
+    <span class="kw">type </span>BlockNumber = u32;
+    <span class="kw">type </span>EventRecord = ();
+}</code></pre></div>
+<p>A user might implement their ink! smart contract using the above custom
+<code>Environment</code> implementation as demonstrated below:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[ink::contract(env = MyEnvironment)]
+</span><span class="kw">mod </span>my_contract {
+    <span class="comment">// ...
+</span>}</code></pre></div>
+<p><strong>Default value:</strong> <code>DefaultEnvironment</code> defined in <code>ink_env</code> crate.</p>
+</li>
+</ul>
+<h3 id="analysis"><a class="doc-anchor" href="#analysis">§</a>Analysis</h3>
+<p>The <code>#[ink::contract]</code> macro fully analyses its input smart contract
+against invalid arguments and structure.</p>
+<p>Some example rules include but are not limited to:</p>
+<ul>
+<li>
+<p>There must be exactly one <code>#[ink(storage)]</code> struct.</p>
+<p>This struct defines the layout of the storage that the ink! smart contract
+operates on. The user is able to use a variety of built-in facilities, combine
+them in various ways or even provide their own implementations of storage data
+structures.</p>
+<p>For more information visit the <code>ink::storage</code> crate documentation.</p>
+<p><strong>Example:</strong></p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[ink::contract]
+</span><span class="kw">mod </span>flipper {
+    <span class="attr">#[ink(storage)]
+    </span><span class="kw">pub struct </span>Flipper {
+        value: bool,
+    }
+}</code></pre></div>
+</li>
+<li>
+<p>There must be at least one <code>#[ink(constructor)]</code> defined method.</p>
+<p>Methods flagged with <code>#[ink(constructor)]</code> are special in that they are
+dispatchable upon contract instantiation. A contract may define multiple such
+constructors which allow users of the contract to instantiate a contract in
+multiple different ways.</p>
+<p><strong>Example:</strong></p>
+<p>Given the <code>Flipper</code> contract definition above we add an <code>#[ink(constructor)]</code>
+as follows:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl </span>Flipper {
+    <span class="attr">#[ink(constructor)]
+    </span><span class="kw">pub fn </span>new(initial_value: bool) -&gt; <span class="self">Self </span>{
+        Flipper { value: <span class="bool-val">false </span>}
+    }
+}</code></pre></div>
+</li>
+<li>
+<p>There must be at least one <code>#[ink(message)]</code> defined method.</p>
+<p>Methods flagged with <code>#[ink(message)]</code> are special in that they are dispatchable
+upon contract invocation. The set of ink! messages defined for an ink! smart
+contract define its API surface with which users are allowed to interact.</p>
+<p>An ink! smart contract can have multiple such ink! messages defined.</p>
+<p><strong>Note:</strong></p>
+<ul>
+<li>An ink! message with a <code>&amp;self</code> receiver may only read state whereas an ink!
+message with a <code>&amp;mut self</code> receiver may mutate the contract’s storage.</li>
+</ul>
+<p><strong>Example:</strong></p>
+<p>Given the <code>Flipper</code> contract definition above we add some <code>#[ink(message)]</code>
+definitions as follows:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl </span>Flipper {
+    <span class="doccomment">/// Flips the current value.
+    </span><span class="attr">#[ink(message)]
+    </span><span class="kw">pub fn </span>flip(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.value = !<span class="self">self</span>.value;
+    }
+
+    <span class="doccomment">/// Returns the current value.
+    </span><span class="attr">#[ink(message)]
+    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.value
+    }
+}</code></pre></div>
+<p><strong>Payable Messages:</strong></p>
+<p>An ink! message by default will reject calls that additional fund the smart
+contract. Authors of ink! smart contracts can make an ink! message payable by
+adding the <code>payable</code> flag to it. An example below:</p>
+<p>Note that ink! constructors are always implicitly payable and thus cannot be
+flagged as such.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl </span>Flipper {
+    <span class="doccomment">/// Flips the current value.
+    </span><span class="attr">#[ink(message)]
+    #[ink(payable)] </span><span class="comment">// You can either specify payable out-of-line.
+    </span><span class="kw">pub fn </span>flip(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.value = !<span class="self">self</span>.value;
+    }
+
+    <span class="doccomment">/// Flips the current value.
+    </span><span class="attr">#[ink(message, payable)] </span><span class="comment">// ...or specify payable inline.
+    </span><span class="kw">pub fn </span>flip_2(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.value = !<span class="self">self</span>.value;
+    }
+
+    <span class="doccomment">/// Returns the current value.
+    </span><span class="attr">#[ink(message)]
+    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.value
+    }
+}</code></pre></div>
+<p><strong>Controlling the messages selector:</strong></p>
+<p>Every ink! message and ink! constructor has a unique selector with which the
+message or constructor can be uniquely identified within the ink! smart contract.
+These selectors are mainly used to drive the contract’s dispatch upon calling it.</p>
+<p>An ink! smart contract author can control the selector of an ink! message or ink!
+constructor using the <code>selector</code> flag. An example is shown below:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl </span>Flipper {
+    <span class="attr">#[ink(constructor)]
+    #[ink(selector = <span class="number">0xDEADBEEF</span>)] </span><span class="comment">// Works on constructors as well.
+    </span><span class="kw">pub fn </span>new(initial_value: bool) -&gt; <span class="self">Self </span>{
+        Flipper { value: <span class="bool-val">false </span>}
+    }
+
+    <span class="doccomment">/// Flips the current value.
+    </span><span class="attr">#[ink(message)]
+    #[ink(selector = <span class="number">0xCAFEBABE</span>)] </span><span class="comment">// You can either specify selector out-of-line.
+    </span><span class="kw">pub fn </span>flip(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.value = !<span class="self">self</span>.value;
+    }
+
+    <span class="doccomment">/// Returns the current value.
+    </span><span class="attr">#[ink(message, selector = <span class="number">0xFEEDBEEF</span>)] </span><span class="comment">// ...or specify selector inline.
+    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.value
+    }
+}</code></pre></div>
+</li>
+</ul>
+<h3 id="interacting-with-the-contract-executor"><a class="doc-anchor" href="#interacting-with-the-contract-executor">§</a>Interacting with the Contract Executor</h3>
+<p>The <code>ink_env</code> crate provides facilities to interact with the contract executor that
+connects ink! smart contracts with the outer world.</p>
+<p>For example it is possible to query the current call’s caller via:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>caller = ink_env::caller();</code></pre></div>
+<p>However, ink! provides a much simpler way to interact with the contract executor
+via its environment accessor. An example below:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[ink::contract]
+</span><span class="kw">mod </span>greeter {
+    <span class="attr">#[ink(storage)]
+    </span><span class="kw">pub struct </span>Greeter;
+
+    <span class="kw">impl </span>Greeter {
+        <span class="attr">#[ink(constructor)]
+        </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+            <span class="kw">let </span>caller = <span class="self">Self</span>::env().caller();
+            Greeter {}
+        }
+
+        <span class="attr">#[ink(message, payable)]
+        </span><span class="kw">pub fn </span>fund(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+            <span class="kw">let </span>caller = <span class="self">self</span>.env().caller();
+            <span class="kw">let </span>value = <span class="self">self</span>.env().transferred_value();
+        }
+    }
+}</code></pre></div>
+<h3 id="events"><a class="doc-anchor" href="#events">§</a>Events</h3>
+<p>An ink! smart contract may define events that it can emit during contract execution.
+Emitting events can be used by third party tools to query information about a
+contract’s execution and state.</p>
+<p>The following example ink! contract shows how an event <code>Transferred</code> is defined and
+emitted in the <code>#[ink(constructor)]</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[ink::contract]
+</span><span class="kw">mod </span>erc20 {
+    <span class="kw">use </span>ink::U256;
+
+    <span class="doccomment">/// Defines an event that is emitted every time value is transferred.
+    </span><span class="attr">#[ink(event)]
+    </span><span class="kw">pub struct </span>Transferred {
+        from: <span class="prelude-ty">Option</span>&lt;Address&gt;,
+        to: <span class="prelude-ty">Option</span>&lt;Address&gt;,
+        value: U256,
+    }
+
+    <span class="attr">#[ink(storage)]
+    </span><span class="kw">pub struct </span>Erc20 {
+        total_supply: U256,
+        <span class="comment">// more fields...
+    </span>}
+
+    <span class="kw">impl </span>Erc20 {
+        <span class="attr">#[ink(constructor)]
+        </span><span class="kw">pub fn </span>new(initial_supply: U256) -&gt; <span class="self">Self </span>{
+            <span class="kw">let </span>caller = <span class="self">Self</span>::env().caller();
+            <span class="self">Self</span>::env().emit_event(Transferred {
+                from: <span class="prelude-val">None</span>,
+                to: <span class="prelude-val">Some</span>(caller),
+                value: initial_supply,
+            });
+            <span class="self">Self </span>{
+                total_supply: initial_supply,
+            }
+        }
+
+        <span class="attr">#[ink(message)]
+        </span><span class="kw">pub fn </span>total_supply(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; U256 {
+            <span class="self">self</span>.total_supply
+        }
+    }
+}</code></pre></div>
+<h3 id="example-flipper"><a class="doc-anchor" href="#example-flipper">§</a>Example: Flipper</h3>
+<p>The below code shows the complete implementation of the so-called Flipper
+ink! smart contract.
+For us it acts as the “Hello, World!” of the ink! smart contracts because
+it is minimal while still providing some more or less useful functionality.</p>
+<p>It controls a single <code>bool</code> value that can be either <code>false</code> or <code>true</code>
+and allows the user to flip this value using the <code>Flipper::flip</code> message
+or retrieve the current value using <code>Flipper::get</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[ink::contract]
+</span><span class="kw">pub mod </span>flipper {
+    <span class="attr">#[ink(storage)]
+    </span><span class="kw">pub struct </span>Flipper {
+        value: bool,
+    }
+
+    <span class="kw">impl </span>Flipper {
+        <span class="doccomment">/// Creates a new flipper smart contract initialized with the given value.
+        </span><span class="attr">#[ink(constructor)]
+        </span><span class="kw">pub fn </span>new(init_value: bool) -&gt; <span class="self">Self </span>{
+            <span class="self">Self </span>{ value: init_value }
+        }
+
+        <span class="doccomment">/// Flips the current value of the Flipper's boolean.
+        </span><span class="attr">#[ink(message)]
+        </span><span class="kw">pub fn </span>flip(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+            <span class="self">self</span>.value = !<span class="self">self</span>.value;
+        }
+
+        <span class="doccomment">/// Returns the current value of the Flipper's boolean.
+        </span><span class="attr">#[ink(message)]
+        </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+            <span class="self">self</span>.value
+        }
+    }
+}</code></pre></div>
+</div></details></section></div></main></body></html>

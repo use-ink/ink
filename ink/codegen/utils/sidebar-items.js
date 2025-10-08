@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["consume_type"],"macro":["const_concat","const_format"],"struct":["IsSameType"]};

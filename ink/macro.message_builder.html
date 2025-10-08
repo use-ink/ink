@@ -1,0 +1,133 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Creates an instance of a message builder for an `#[ink::trait_definition]`."><title>message_builder in ink - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-1a91846b.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="ink" data-themes="" data-resource-suffix="" data-rustdoc-version="1.88.0 (6b00bc388 2025-06-23)" data-channel="1.88.0" data-search-js="search-f7877310.js" data-settings-js="settings-5514c975.js" ><script src="../static.files/storage-4e99c027.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-7ef8a74a.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button><a class="logo-container" href="../ink/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt=""></a></nav><nav class="sidebar"><div class="sidebar-crate"><a class="logo-container" href="../ink/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><h2><a href="../ink/index.html">ink</a><span class="version">6.0.0-alpha.4</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">message_<wbr>builder</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#usage" title="Usage">Usage</a></li><li><a href="#note" title="Note">Note</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate ink</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">ink</a></div><h1>Macro <span class="macro">message_builder</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/ink/message_builder.rs.html#152-168">Source</a> </span></div><pre class="rust item-decl"><code>macro_rules! message_builder {
+    ( $trait_path:path ) =&gt; { ... };
+    ( $trait_path:path, $env:ty ) =&gt; { ... };
+    ( $trait_path:path, $env:ty, $abi:ty ) =&gt; { ... };
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Creates an instance of a message builder for an <code>#[ink::trait_definition]</code>.</p>
+<p>This is done by creating a wrapper around the trait defined with the
+<a href="attr.trait_definition.html" title="attr ink::trait_definition"><code>ink::trait_definition</code></a> macro.</p>
+<p>The macro returns an instance of the generated message builder type which implements
+the trait, allowing the user to create and invoke messages on the trait.</p>
+<p>This is similar to the call builder syntax accessible via the
+<a href="macro.contract_ref_from_path.html" title="macro ink::contract_ref_from_path"><code>crate::contract_ref_from_path!</code></a> macro, except that it is decoupled from the callee
+account id, as well as the underlying execution environment. This allows it to be used
+in execution contexts other than cross-contract calls.</p>
+<h2 id="usage"><a class="doc-anchor" href="#usage">§</a>Usage</h2>
+<p>The macro expects up to three arguments:</p>
+<ul>
+<li>The first argument is the path to the trait, e.g. <code>Erc20</code> or <code>erc20::Erc20</code>.</li>
+<li>The second argument is the type of the [<code>ink_env::Environment</code>].</li>
+<li>The third argument is the marker type for the ABI (i.e.
+<a href="abi/struct.Ink.html" title="struct ink::abi::Ink"><code>ink::abi::Ink</code></a> or <a href="abi/struct.Sol.html" title="struct ink::abi::Sol"><code>ink::abi::Sol</code></a>).</li>
+</ul>
+<p>If the second argument is not specified, the macro uses the
+[<code>ink_env::DefaultEnvironment</code>].
+If the third argument is not specified, the macro uses the “default” ABI for calls
+for the ink! project.</p>
+<h2 id="note"><a class="doc-anchor" href="#note">§</a>Note</h2>
+<p>The “default” ABI for calls is “ink”, unless the ABI is set to “sol”
+in the ink! project’s manifest file (i.e. <code>Cargo.toml</code>).</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>ink::message_builder;
+<span class="kw">use </span>ink_env::{
+    DefaultEnvironment,
+    call::{
+        ExecutionInput,
+        Executor,
+    },
+};
+<span class="kw">use </span>ink_primitives::{
+    AccountId,
+    Address,
+    MessageResult,
+};
+<span class="kw">use </span>scale::{
+    Decode,
+    Encode,
+};
+
+<span class="attr">#[ink::trait_definition]
+</span><span class="kw">pub trait </span>Erc20 {
+    <span class="doccomment">/// Returns the total supply of the ERC-20 smart contract.
+    </span><span class="attr">#[ink(message)]
+    </span><span class="kw">fn </span>total_supply(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u128;
+
+    <span class="doccomment">/// Transfers balance from the caller to the given address.
+    </span><span class="attr">#[ink(message)]
+    </span><span class="kw">fn </span>transfer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, amount: u128, to: Address) -&gt; bool;
+}
+
+<span class="attr">#[derive(Clone)]
+</span><span class="kw">pub struct </span>CustomEnv;
+
+<span class="kw">impl </span>ink_env::Environment <span class="kw">for </span>CustomEnv {
+    <span class="kw">const </span>NATIVE_TO_ETH_RATIO: u32 = <span class="number">100_000_000</span>;
+    <span class="kw">type </span>AccountId = [u8; <span class="number">32</span>];
+    <span class="kw">type </span>Balance = u64;
+    <span class="kw">type </span>Hash = [u8; <span class="number">32</span>];
+    <span class="kw">type </span>Timestamp = u64;
+    <span class="kw">type </span>BlockNumber = u64;
+    <span class="kw">type </span>EventRecord = ();
+}
+
+<span class="doccomment">/// To demonstrate implementing an execution environment agnostic executor
+</span><span class="kw">pub struct </span>ExampleExecutor&lt;E&gt; {
+    marker: core::marker::PhantomData&lt;E&gt;,
+}
+
+<span class="kw">impl</span>&lt;E&gt; ExampleExecutor&lt;E&gt; {
+    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            marker: core::marker::PhantomData,
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;E&gt; Executor&lt;E&gt; <span class="kw">for </span>ExampleExecutor&lt;E&gt;
+<span class="kw">where
+    </span>E: ink_env::Environment,
+{
+    <span class="kw">type </span>Error = ();
+    <span class="kw">fn </span>exec&lt;Args, Output, Abi&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        input: <span class="kw-2">&amp;</span>ExecutionInput&lt;Args, Abi&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;MessageResult&lt;Output&gt;, <span class="self">Self</span>::Error&gt;
+    <span class="kw">where
+        </span>Args: ink::abi::AbiEncodeWith&lt;Abi&gt;,
+        Output: ink::env::call::utils::DecodeMessageResult&lt;Abi&gt;,
+    {
+        <span class="macro">println!</span>(<span class="string">"Executing contract with input: {:?}"</span>, input.encode());
+        <span class="macro">unimplemented!</span>(<span class="string">"Decode contract execution output"</span>)
+    }
+}
+
+<span class="kw">fn </span>default(to: Address) {
+    <span class="kw">let </span>executor = ExampleExecutor::&lt;DefaultEnvironment&gt;::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>contract = <span class="macro">message_builder!</span>(Erc20);
+    <span class="kw">let </span>total_supply = contract.total_supply().exec(<span class="kw-2">&amp;</span>executor).unwrap().unwrap();
+    contract.transfer(total_supply, to).exec(<span class="kw-2">&amp;</span>executor).unwrap();
+}
+
+<span class="kw">fn </span>custom(to: Address) {
+    <span class="kw">let </span>executor = ExampleExecutor::&lt;CustomEnv&gt;::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>contract = <span class="macro">message_builder!</span>(Erc20, CustomEnv);
+    <span class="kw">let </span>total_supply = contract.total_supply().exec(<span class="kw-2">&amp;</span>executor).unwrap().unwrap();
+    contract.transfer(total_supply, to).exec(<span class="kw-2">&amp;</span>executor).unwrap();
+}
+
+<span class="kw">fn </span>custom_abi(to: Address) {
+    <span class="kw">let </span>executor = ExampleExecutor::&lt;DefaultEnvironment&gt;::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>contract = <span class="macro">message_builder!</span>(Erc20, DefaultEnvironment, ink::abi::Ink);
+    <span class="kw">let </span>total_supply = contract.total_supply().exec(<span class="kw-2">&amp;</span>executor).unwrap().unwrap();
+    contract.transfer(total_supply, to).exec(<span class="kw-2">&amp;</span>executor).unwrap();
+}
+
+<span class="kw">fn </span>generic&lt;E&gt;(to: Address)
+<span class="kw">where
+    </span>E: ink_env::Environment,
+{
+    <span class="kw">let </span>executor = ExampleExecutor::&lt;E&gt;::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>contract = <span class="macro">message_builder!</span>(Erc20, E);
+    <span class="kw">let </span>total_supply = contract.total_supply().exec(<span class="kw-2">&amp;</span>executor).unwrap().unwrap();
+    contract.transfer(total_supply, to).exec(<span class="kw-2">&amp;</span>executor).unwrap();
+}</code></pre></div>
+</div></details></section></div></main></body></html>

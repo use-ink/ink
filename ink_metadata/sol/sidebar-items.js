@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["ConstructorMetadata","ContractMetadata","ErrorMetadata","ErrorParamMetadata","EventMetadata","EventParamMetadata","FunctionMetadata","ParamMetadata"],"trait":["SolErrorMetadata"]};

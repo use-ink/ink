@@ -1,0 +1,140 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Prepares the type to be fully compatible and usable with the storage. It implements all necessary traits and calculates the storage key for types. `Packed` types don’t have a storage key, but non-packed types (like `Mapping`, `Lazy` etc.) require calculating the storage key during compilation."><title>storage_item in ink - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-1a91846b.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="ink" data-themes="" data-resource-suffix="" data-rustdoc-version="1.88.0 (6b00bc388 2025-06-23)" data-channel="1.88.0" data-search-js="search-f7877310.js" data-settings-js="settings-5514c975.js" ><script src="../static.files/storage-4e99c027.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-7ef8a74a.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button><a class="logo-container" href="../ink/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt=""></a></nav><nav class="sidebar"><div class="sidebar-crate"><a class="logo-container" href="../ink/index.html"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><h2><a href="../ink/index.html">ink</a><span class="version">6.0.0-alpha.4</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">storage_<wbr>item</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#example" title="Example">Example</a><ul><li><a href="#trait-implementation" title="Trait implementation">Trait implementation</a></li><li><a href="#header-arguments" title="Header Arguments">Header Arguments</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate ink</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">ink</a></div><h1>Attribute Macro <span class="attr">storage_item</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"></span></div><pre class="rust item-decl"><code>#[storage_item]</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Prepares the type to be fully compatible and usable with the storage.
+It implements all necessary traits and calculates the storage key for types.
+<code>Packed</code> types don’t have a storage key, but non-packed types (like <code>Mapping</code>, <code>Lazy</code>
+etc.) require calculating the storage key during compilation.</p>
+<p>Consider annotating structs and enums that are intended to be a part of
+the storage with this macro. If the type is packed then the usage of the
+macro is optional.</p>
+<p>If the type is non-packed it is best to rely on automatic storage key
+calculation via <code>ink::storage_item</code>.</p>
+<p>The usage of <code>KEY: StorageKey</code> generic allows to propagate the parent’s storage key to
+the type and offset the storage key of the type. It is helpful for non-packed types
+that can be used several times in the contract. Each field should have a unique
+storage key, so propagation of the parent’s storage key allows one to achieve it.</p>
+<p>The macro should be called before <code>derive</code> macros because it can change the type.</p>
+<p>All required traits can be:</p>
+<ul>
+<li>Derived manually via <code>#[derive(...)]</code>.</li>
+<li>Derived automatically via deriving of <code>scale::Decode</code> and <code>scale::Encode</code>.</li>
+<li>Derived via this macro.</li>
+</ul>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2><h3 id="trait-implementation"><a class="doc-anchor" href="#trait-implementation">§</a>Trait implementation</h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>ink_prelude::vec::Vec;
+<span class="kw">use </span>ink::storage::{
+    Lazy,
+    Mapping,
+};
+<span class="kw">use </span>ink::storage::traits::{
+    StorageKey,
+    StorableHint,
+};
+<span class="kw">use </span>ink::storage::traits::Storable;
+
+<span class="comment">// Deriving `scale::Decode` and `scale::Encode` also derives blanket implementation of all
+// required traits to be storable.
+</span><span class="attr">#[derive(scale::Decode, scale::Encode)]
+#[cfg_attr(
+    feature = <span class="string">"std"</span>,
+    derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
+)]
+#[derive(Default, Debug)]
+</span><span class="kw">struct </span>Packed {
+    s1: u128,
+    s2: Vec&lt;u128&gt;,
+    <span class="comment">// Fails because `StorableHint` is only implemented for `Vec` where `T: Packed`.
+    // s3: Vec&lt;NonPacked&gt;,
+</span>}
+
+<span class="comment">// Example of how to define the packed type with generic.
+</span><span class="attr">#[derive(scale::Decode, scale::Encode)]
+#[cfg_attr(
+    feature = <span class="string">"std"</span>,
+    derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
+)]
+#[derive(Default, Debug)]
+</span><span class="kw">struct </span>PackedGeneric&lt;T: ink::storage::traits::Packed&gt; {
+    s1: (u128, bool),
+    s2: Vec&lt;T&gt;,
+    s3: String,
+}
+
+<span class="comment">// Example of how to define the non-packed type.
+</span><span class="attr">#[ink::storage_item]
+#[derive(Default, Debug)]
+</span><span class="kw">struct </span>NonPacked {
+    s1: Mapping&lt;u32, u128&gt;,
+    s2: Lazy&lt;u128&gt;,
+}
+
+<span class="comment">// Example of how to define the non-packed generic type.
+</span><span class="attr">#[ink::storage_item(derive = <span class="bool-val">false</span>)]
+#[derive(Storable, StorableHint, StorageKey)]
+#[cfg_attr(
+    feature = <span class="string">"std"</span>,
+    derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
+)]
+#[derive(Default, Debug)]
+</span><span class="kw">struct </span>NonPackedGeneric&lt;T&gt;
+<span class="kw">where
+    </span>T: Default + core::fmt::Debug,
+    T: ink::storage::traits::Packed,
+{
+    s1: u32,
+    s2: T,
+    s3: Mapping&lt;u128, T&gt;,
+}
+
+<span class="comment">// Example of how to define a complex packed type.
+</span><span class="attr">#[derive(scale::Decode, scale::Encode)]
+#[cfg_attr(
+    feature = <span class="string">"std"</span>,
+    derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
+)]
+#[derive(Default, Debug)]
+</span><span class="kw">struct </span>PackedComplex {
+    s1: u128,
+    s2: Vec&lt;u128&gt;,
+    s3: Vec&lt;Packed&gt;,
+}
+
+<span class="comment">// Example of how to define a complex non-packed type.
+</span><span class="attr">#[ink::storage_item]
+#[derive(Default, Debug)]
+</span><span class="kw">struct </span>NonPackedComplex&lt;KEY: StorageKey&gt; {
+    s1: (String, u128, Packed),
+    s2: Mapping&lt;u128, u128&gt;,
+    s3: Lazy&lt;u128&gt;,
+    s4: Mapping&lt;u128, Packed&gt;,
+    s5: Lazy&lt;NonPacked&gt;,
+    s6: PackedGeneric&lt;Packed&gt;,
+    s7: NonPackedGeneric&lt;Packed&gt;,
+    <span class="comment">// Fails because: the trait `ink::storage::traits::Packed` is not implemented for `NonPacked`
+    // s8: Mapping&lt;u128, NonPacked&gt;,
+</span>}</code></pre></div>
+<h3 id="header-arguments"><a class="doc-anchor" href="#header-arguments">§</a>Header Arguments</h3>
+<p>The <code>#[ink::storage_item]</code> macro can be provided with an additional comma-separated
+header argument:</p>
+<ul>
+<li>
+<p><code>derive: bool</code></p>
+<p>The <code>derive</code> configuration parameter is used to enable/disable auto deriving of
+all required storage traits.</p>
+<p><strong>Usage Example:</strong></p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>ink::storage::Mapping;
+<span class="kw">use </span>ink::storage::traits::{
+    StorableHint,
+    StorageKey,
+    Storable,
+};
+
+<span class="attr">#[ink::storage_item(derive = <span class="bool-val">false</span>)]
+#[derive(StorableHint, Storable, StorageKey)]
+</span><span class="kw">struct </span>NonPackedGeneric&lt;T: ink::storage::traits::Packed&gt; {
+    s1: u32,
+    s2: Mapping&lt;u128, T&gt;,
+}</code></pre></div>
+<p><strong>Default value:</strong> true.</p>
+</li>
+</ul>
+</div></details></section></div></main></body></html>

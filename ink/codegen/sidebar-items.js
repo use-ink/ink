@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["deny_payment"],"mod":["sol","utils"],"struct":["DispatchInput","DispatchInputSol","DispatchOutput","DispatchOutputSol","TraitMessagePayable","TraitMessageSelector"],"trait":["ContractCallBuilder","Env","ImpliesReturn","StaticEnv","TraitCallBuilder","TraitCallForwarder","TraitCallForwarderFor","TraitMessageBuilder"]};
