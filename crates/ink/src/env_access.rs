@@ -1168,8 +1168,7 @@ where
     /// #
     /// #[ink(message)]
     /// pub fn own_code_hash(&mut self) -> ink::H256 {
-    ///     self.env()
-    ///         .own_code_hash()
+    ///     self.env().own_code_hash()
     /// }
     /// #    }
     /// # }
