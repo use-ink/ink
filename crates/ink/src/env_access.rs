@@ -1015,7 +1015,7 @@ where
     ///
     /// If `addr` references a precompile address, the return value will be `true`.
     ///
-    /// The function [`caller_is_origin`] performs better when checking whether your
+    /// The function [`Self::caller_is_origin`] performs better when checking whether your
     /// contract is being called by a contract or an account. It performs better
     /// for this case as it does not require any storage lookups.
     ///

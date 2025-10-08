@@ -518,6 +518,7 @@ jobs:
           RUSTDOCFLAGS:                  -Dwarnings
         with:
           command: |
+            set -e
             for package in $(cargo metadata --format-version 1 | jq -r '.workspace_members[]' | awk '{print $1}'); do
               # Run cargo doc for each workspace member
               cargo doc --no-deps --all-features -p ${package}
