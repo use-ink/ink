@@ -34,6 +34,7 @@ use ink_env::{
 };
 use ink_primitives::{
     Address,
+    CodeHashErr,
     H256,
     U256,
     abi::{
@@ -180,9 +181,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::weight_to_fee`]
-    /// todo: there is now also `gas_price`
-    pub fn weight_to_fee(self, gas: u64) -> E::Balance {
-        ink_env::weight_to_fee::<E>(gas)
+    pub fn weight_to_fee(self, gas: u64) -> U256 {
+        ink_env::weight_to_fee(gas)
     }
 
     /// Returns the timestamp of the current block.
@@ -1084,7 +1084,7 @@ where
     ///
     /// For more details visit: [`ink_env::caller_is_origin`]
     pub fn caller_is_origin(self) -> bool {
-        ink_env::caller_is_origin::<E>()
+        ink_env::caller_is_origin()
     }
 
     /// Checks whether the caller of the current contract is root.
@@ -1115,7 +1115,7 @@ where
     ///
     /// For more details visit: [`ink_env::caller_is_root`]
     pub fn caller_is_root(self) -> bool {
-        ink_env::caller_is_root::<E>()
+        ink_env::caller_is_root()
     }
 
     /// Returns the code hash of the contract at the given `account` id.
@@ -1146,7 +1146,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::code_hash`]
-    pub fn code_hash(self, addr: &Address) -> Result<H256> {
+    pub fn code_hash(self, addr: &Address) -> core::result::Result<H256, CodeHashErr> {
         ink_env::code_hash(addr)
     }
 
@@ -1179,7 +1179,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::own_code_hash`]
-    pub fn own_code_hash(self) -> Result<H256> {
+    pub fn own_code_hash(self) -> H256 {
         ink_env::own_code_hash()
     }
 

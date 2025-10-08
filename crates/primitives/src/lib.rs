@@ -81,6 +81,13 @@ pub enum LangError {
     CouldNotReadInput = 1u32,
 }
 
+/// Error encountered while trying to look up a contract's hash.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum CodeHashErr {
+    NotContractButAccount,
+    AddressNotFound,
+}
+
 /// The `Result` type for ink! messages.
 pub type MessageResult<T> = ::core::result::Result<T, LangError>;
 

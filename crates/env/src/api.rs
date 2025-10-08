@@ -16,6 +16,7 @@
 
 use ink_primitives::{
     Address,
+    CodeHashErr,
     H256,
     U256,
     abi::{
@@ -702,7 +703,7 @@ pub fn is_contract(account: &Address) -> bool {
 ///
 /// - If no code hash was found for the specified account id.
 /// - If the returned value cannot be properly decoded.
-pub fn code_hash(addr: &Address) -> Result<H256> {
+pub fn code_hash(addr: &Address) -> core::result::Result<H256, CodeHashErr> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::code_hash(instance, addr)
     })
@@ -713,7 +714,7 @@ pub fn code_hash(addr: &Address) -> Result<H256> {
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn own_code_hash() -> Result<H256> {
+pub fn own_code_hash() -> H256 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::own_code_hash(instance)
     })

@@ -14,6 +14,7 @@
 
 use ink_primitives::{
     Address,
+    CodeHashErr,
     H256,
     U256,
     abi::AbiEncodeWith,
@@ -395,14 +396,15 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`code_hash`][`crate::code_hash`]
-    fn code_hash(&mut self, account: &Address) -> Result<H256>;
+    fn code_hash(&mut self, account: &Address)
+        -> core::result::Result<H256, CodeHashErr>;
 
     /// Retrieves the code hash of the currently executing contract.
     ///
     /// # Note
     ///
     /// For more details visit: [`own_code_hash`][`crate::own_code_hash`]
-    fn own_code_hash(&mut self) -> Result<H256>;
+    fn own_code_hash(&mut self) -> H256;
 
     /// Execute an XCM message locally, using the contract's address as the origin.
     ///
