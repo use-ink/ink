@@ -194,30 +194,13 @@ where
 }
 
 /// Result of a contract upload.
-pub struct UploadResult<E: Environment, EventLog> {
+pub struct UploadResult<EventLog> {
     /// The hash with which the contract can be instantiated.
     pub code_hash: H256,
     /// The result of the dry run, contains debug messages if there were any.
-    pub dry_run: CodeUploadResult<E::Balance>,
+    pub dry_run: CodeUploadResult,
     /// Events that happened with the contract instantiation.
     pub events: EventLog,
-}
-
-/// We implement a custom `Debug` here, to avoid requiring the trait bound `Debug` for
-/// `E`.
-impl<E: Environment, EventLog> Debug for UploadResult<E, EventLog>
-where
-    E::Balance: Debug,
-    H256: Debug,
-    EventLog: Debug,
-{
-    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        f.debug_struct("UploadResult")
-            .field("code_hash", &self.code_hash)
-            .field("dry_run", &self.dry_run)
-            .field("events", &self.events)
-            .finish()
-    }
 }
 
 /// Result of a contract call.

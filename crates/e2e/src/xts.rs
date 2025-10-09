@@ -25,9 +25,13 @@ use crate::contract_results::{
 };
 use core::marker::PhantomData;
 use funty::Fundamental;
-use ink_primitives::Address;
+use ink_primitives::{
+    Address,
+    U256,
+};
 use ink_revive_types::{
     CodeUploadResult,
+    CodeUploadReturnValue,
     evm::{
         CallTrace,
         CallTracerConfig,
@@ -248,14 +252,14 @@ where
         &self,
         origin: &Keypair,
         dest: C::AccountId,
-        value: E::Balance,
+        value: U256,
     ) -> Result<(), subxt::Error> {
         let call = subxt::tx::DefaultPayload::new(
             "Balances",
             "transfer_allow_death",
             Transfer::<E, C> {
                 dest: subxt::utils::Static(dest.into()),
-                value,
+                value: E::eth_to_native(value),
             },
         )
         .unvalidated();
@@ -544,7 +548,7 @@ where
         signer: &Keypair,
         code: Vec<u8>,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> CodeUploadResult<E::Balance> {
+    ) -> CodeUploadResult {
         let call_request = RpcCodeUploadRequest::<C, E> {
             origin: Signer::<C>::account_id(signer),
             code,
@@ -559,8 +563,29 @@ where
             .unwrap_or_else(|err| {
                 panic!("error on ws request `upload_code`: {err:?}");
             });
-        scale::Decode::decode(&mut bytes.as_ref())
-            .unwrap_or_else(|err| panic!("decoding CodeUploadResult failed: {err}"))
+
+        /// The result of successfully uploading a contract.
+        //#[derive(Clone, PartialEq, Eq, Encode, Decode, MaxEncodedLen, RuntimeDebug,
+        //#[derive(Clone, TypeInfo)]
+        #[derive(scale::Encode, scale::Decode)]
+        struct PrCodeUploadReturnValue<Balance> {
+            /// The key under which the new code is stored.
+            pub code_hash: H256,
+            /// The deposit that was reserved at the caller. Is zero when the code
+            /// already existed.
+            pub deposit: Balance,
+        }
+        let res: Result<PrCodeUploadReturnValue<E::Balance>, sp_runtime::DispatchError> =
+            scale::Decode::decode(&mut bytes.as_ref())
+                .unwrap_or_else(|err| panic!("decoding CodeUploadResult failed: {err}"));
+
+        let ret: CodeUploadResult = res.map(|c: PrCodeUploadReturnValue<E::Balance>| {
+            CodeUploadReturnValue {
+                code_hash: c.code_hash,
+                deposit: E::native_to_eth(c.deposit),
+            }
+        });
+        ret
     }
 
     /// Submits an extrinsic to upload a given code.

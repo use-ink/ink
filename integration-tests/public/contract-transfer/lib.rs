@@ -197,7 +197,7 @@ pub mod give_me {
             let mut constructor = GiveMeRef::new();
             let contract = client
                 .instantiate("contract_transfer", &ink_e2e::alice(), &mut constructor)
-                .value(1_000_000_000)
+                .value(1_000_000_000.into())
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -208,7 +208,7 @@ pub mod give_me {
 
             let call_res = client
                 .call(&ink_e2e::bob(), &transfer)
-                .value(10_000_000)
+                .value(10_000_000_000u128.into())
                 .submit()
                 .await;
 
@@ -236,8 +236,7 @@ pub mod give_me {
             let mut constructor = GiveMeRef::new();
             let contract = client
                 .instantiate("contract_transfer", &ink_e2e::bob(), &mut constructor)
-                // todo convert the argument type to U256
-                .value(1_337_000_000)
+                .value(1_337_000_000_000u128.into())
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -245,18 +244,15 @@ pub mod give_me {
 
             assert_eq!(
                 contract.trace.clone().unwrap().value,
-                Some(ink::env::DefaultEnvironment::native_to_eth(1_337_000_000))
+                //Some(ink::env::DefaultEnvironment::native_to_eth(1_337_000_000))
+                Some(1_337_000_000_000u128.into())
             );
             let mut call_builder = contract.call_builder::<GiveMe>();
 
-            let balance_before: Balance = client
-                .free_balance(contract.account_id)
-                .await
-                .expect("getting balance failed");
+            let balance_before = client.evm_balance(contract.addr).await;
 
             // when
-            let transfer = call_builder.give_me(U256::from(120_000_000_0));
-
+            let transfer = call_builder.give_me(120_000_000_000u128.into());
             let call_res = client
                 .call(&ink_e2e::eve(), &transfer)
                 .submit()
@@ -265,18 +261,15 @@ pub mod give_me {
 
             // then
             let outgoing_trace = &call_res.trace.unwrap().calls[0];
-            assert_eq!(outgoing_trace.value, Some(U256::from(120_000_000_0)));
+            assert_eq!(outgoing_trace.value, Some(120_000_000_000u128.into()));
             assert_eq!(outgoing_trace.from, contract_addr);
             assert_eq!(
                 outgoing_trace.to,
                 ink_e2e::address_from_keypair::<AccountId>(&ink_e2e::eve())
             );
 
-            let balance_after: Balance = client
-                .free_balance(contract.account_id)
-                .await
-                .expect("getting balance failed");
-            assert_eq!(balance_before - balance_after, 12);
+            let balance_after = client.evm_balance(contract.addr).await;
+            assert_eq!(balance_before - balance_after, 120_000_000_000u128.into());
 
             Ok(())
         }
