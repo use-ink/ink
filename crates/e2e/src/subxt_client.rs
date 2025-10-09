@@ -134,7 +134,7 @@ where
     E: Environment,
     E::AccountId: Debug,
     E::EventRecord: Debug,
-    E::Balance: Debug + scale::HasCompact + serde::Serialize,
+    E::Balance: Debug + scale::HasCompact + serde::Serialize, // todo can be removed?
     H256: Debug + scale::Encode,
 {
     /// Creates a new [`Client`] instance using a `subxt` client.
@@ -155,7 +155,7 @@ where
         &mut self,
         signer: &Keypair,
         code: Vec<u8>,
-        storage_deposit_limit: Option<E::Balance>,
+        storage_deposit_limit: Option<U256>,
     ) -> Result<UploadResult<E, ExtrinsicEvents<C>>, Error> {
         let dry_run = self
             .api

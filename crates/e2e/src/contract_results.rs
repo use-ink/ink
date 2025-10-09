@@ -179,7 +179,6 @@ impl<E: Environment, EventLog, Abi> InstantiationResult<E, EventLog, Abi> {
 impl<E: Environment, EventLog, Abi> Debug for InstantiationResult<E, EventLog, Abi>
 where
     E::AccountId: Debug,
-    E::Balance: Debug,
     E::EventRecord: Debug,
     EventLog: Debug,
 {
@@ -198,7 +197,7 @@ pub struct UploadResult<E: Environment, EventLog> {
     /// The hash with which the contract can be instantiated.
     pub code_hash: H256,
     /// The result of the dry run, contains debug messages if there were any.
-    pub dry_run: CodeUploadResult<E::Balance>,
+    pub dry_run: CodeUploadResult,
     /// Events that happened with the contract instantiation.
     pub events: EventLog,
 }
@@ -207,7 +206,6 @@ pub struct UploadResult<E: Environment, EventLog> {
 /// `E`.
 impl<E: Environment, EventLog> Debug for UploadResult<E, EventLog>
 where
-    E::Balance: Debug,
     H256: Debug,
     EventLog: Debug,
 {
@@ -265,7 +263,6 @@ impl<E: Environment, V, EventLog, Abi> CallResult<E, V, EventLog, Abi> {
 impl<E: Environment, V, EventLog, Abi> Debug for CallResult<E, V, EventLog, Abi>
 where
     E: Debug,
-    E::Balance: Debug,
     E::EventRecord: Debug,
     V: Debug,
     EventLog: Debug,
@@ -293,7 +290,6 @@ pub struct CallDryRunResult<E: Environment, V, Abi> {
 /// `E`.
 impl<E: Environment, V, Abi> Debug for CallDryRunResult<E, V, Abi>
 where
-    E::Balance: Debug,
     E::EventRecord: Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
@@ -434,7 +430,6 @@ impl<E, Abi> Debug for InstantiateDryRunResult<E, Abi>
 where
     E: Environment,
     E::AccountId: Debug,
-    E::Balance: Debug,
     E::EventRecord: Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

@@ -551,7 +551,7 @@ where
         signer: &Keypair,
         code: Vec<u8>,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> CodeUploadResult<E::Balance> {
+    ) -> CodeUploadResult {
         let call_request = RpcCodeUploadRequest::<C, E> {
             origin: Signer::<C>::account_id(signer),
             code,
