@@ -21,7 +21,6 @@ use ink_primitives::{
     DepositLimit,
 };
 use pallet_revive::{
-    BumpNonce,
     Code,
     CodeUploadResult,
     evm::{
@@ -183,7 +182,10 @@ where
                 Code::Upload(contract_bytes),
                 data,
                 salt,
-                BumpNonce::Yes,
+                ExecConfig {
+                    bump_nonce: true,
+                    ..
+                }
             )
         })
     }
@@ -196,7 +198,7 @@ where
         salt: Option<[u8; 32]>,
         origin: OriginFor<Self::T>,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
+        storage_deposit_limit: BalanceOf<Self::T>,
     ) -> ContractResultInstantiate<Self::T> {
         let storage_deposit_limit = storage_deposit_limit_fn(storage_deposit_limit);
         self.execute_with(|| {
@@ -208,7 +210,10 @@ where
                 Code::Existing(code_hash),
                 data,
                 salt,
-                BumpNonce::Yes,
+                ExecConfig {
+                    bump_nonce: true,
+                    ..
+                }
             )
         })
     }

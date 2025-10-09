@@ -188,12 +188,13 @@ mod construct_runtime {
         type ChainId = ConstU64<1>;
         type NativeToEthRatio = ConstU32<100_000_000>;
         type Time = Timestamp;
+        type Balance = Balance;
         type Currency = Balances;
         type RuntimeEvent = RuntimeEvent;
         type RuntimeCall = RuntimeCall;
+        type RuntimeOrigin = RuntimeOrigin;
         type DepositPerItem = ConstU128<1>;
         type DepositPerByte = ConstU128<1>;
-        type WeightPrice = Self;
         type WeightInfo = ();
         type RuntimeMemory = ConstU32<{ 128 * 1024 * 1024 }>;
         type PVFMemory = ConstU32<{ 512 * 1024 * 1024 }>;
@@ -202,7 +203,6 @@ mod construct_runtime {
         type RuntimeHoldReason = RuntimeHoldReason;
         type UploadOrigin = $crate::frame_system::EnsureSigned<Self::AccountId>;
         type InstantiateOrigin = $crate::frame_system::EnsureSigned<Self::AccountId>;
-        type EthGasEncoder = ();
         type FindAuthor = ();
         type Precompiles = (
             // todo
@@ -211,6 +211,9 @@ mod construct_runtime {
             //XcmPrecompile<Self>,
         );
         type AllowEVMBytecode = ConstBool<false>;
+        type FeeInfo = $crate::pallet_revive::evm::fees::Info<Address, Signature, EthExtraImpl>;
+        type MaxEthExtrinsicWeight = MaxEthExtrinsicWeight;
+        type DebugEnabled = ConstBool<false>;
     }
 
     /// Default initial balance for the default account.

@@ -26,4 +26,5 @@ pub use primitives::{
     ExecReturnValue,
     InstantiateReturnValue,
     StorageDeposit,
+    ExecConfig,
 };
