@@ -470,12 +470,13 @@ impl EnvInstance {
 fn call_bool_precompile(selector: [u8; 4], output: &mut [u8]) -> bool {
     debug_assert_eq!(output.len(), 32);
     const ADDR: [u8; 20] = hex_literal::hex!("0000000000000000000000000000000000000900");
-    let _ = ext::delegate_call(
+    let _ = ext::call(
         CallFlags::empty(),
         &ADDR,
         u64::MAX,       // `ref_time` to devote for execution. `u64::MAX` = all
         u64::MAX,       // `proof_size` to devote for execution. `u64::MAX` = all
         &[u8::MAX; 32], // No deposit limit.
+        &U256::zero().to_little_endian(), // Value transferred to the contract.
         &selector[..],
         Some(&mut &mut output[..]),
     )
@@ -964,12 +965,13 @@ impl TypedEnvBackend for EnvInstance {
 
         const ADDR: [u8; 20] =
             hex_literal::hex!("0000000000000000000000000000000000000900");
-        let _ = ext::delegate_call(
+        let _ = ext::call(
             CallFlags::empty(),
             &ADDR,
             u64::MAX,       // `ref_time` to devote for execution. `u64::MAX` = all
             u64::MAX,       // `proof_size` to devote for execution. `u64::MAX` = all
             &[u8::MAX; 32], // No deposit limit.
+            &U256::zero().to_little_endian(), // Value transferred to the contract.
             &selector[..],
             Some(&mut &mut output[..]),
         )
@@ -1256,12 +1258,13 @@ impl TypedEnvBackend for EnvInstance {
 
         const ADDR: [u8; 20] =
             hex_literal::hex!("0000000000000000000000000000000000000900");
-        let call_result = ext::delegate_call(
+        let call_result = ext::call(
             CallFlags::empty(),
             &ADDR,
             u64::MAX,       // `ref_time` to devote for execution. `u64::MAX` = all
             u64::MAX,       // `proof_size` to devote for execution. `u64::MAX` = all
             &[u8::MAX; 32], // No deposit limit.
+            &U256::zero().to_little_endian(), // Value transferred to the contract.
             &sel[..],
             Some(&mut &mut output[..]),
         );
