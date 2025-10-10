@@ -227,7 +227,6 @@ mod construct_runtime {
             //XcmPrecompile<Self>,
         );
         type AllowEVMBytecode = ConstBool<false>;
-        //type FeeInfo = $crate::pallet_revive::evm::fees::Info<Address, Signature, EthExtraImpl>;
         type FeeInfo = ();
         type MaxEthExtrinsicWeight = MaxEthExtrinsicWeight;
         type DebugEnabled = ConstBool<false>;

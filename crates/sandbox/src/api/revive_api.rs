@@ -181,7 +181,11 @@ where
         self.execute_with(|| {
             let acc = pallet_revive::Pallet::<Self::T>::account_id();
             let ed = pallet_balances::Pallet::<Self::T>::minimum_balance();
-            let _ = pallet_balances::Pallet::<Self::T>::mint_into(&acc, ed);
+
+            // we only fund the account if need be
+            if pallet_balances::Pallet::<Self::T>::free_balance(&acc) < ed {
+                let _ = pallet_balances::Pallet::<Self::T>::mint_into(&acc, ed);
+            }
         });
     }
 
