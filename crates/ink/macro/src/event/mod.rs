@@ -204,10 +204,15 @@ fn event_derive_struct(s: synstructure::Structure) -> syn::Result<TokenStream2> 
             }
         );
 
-        let encode_data = match abi {
-            Abi::Ink => quote! {
-                ::ink::abi::AbiEncodeWith::<::ink::abi::Ink>::encode_with(self)
-            },
+        let (encode_data, encode_data_to) = match abi {
+            Abi::Ink => (
+                quote! {
+                    ::ink::abi::AbiEncodeWith::<::ink::abi::Ink>::encode_with(self)
+                },
+                quote! {
+                    ::ink::abi::AbiEncodeWith::<::ink::abi::Ink>::encode_to_slice(self, buffer)
+                }
+            ),
             Abi::Sol => {
                 // For Solidity ABI encoding, only un-indexed fields are encoded as data.
                 let data_field_tys = data_fields.iter().map(|field| {
@@ -217,15 +222,24 @@ fn event_derive_struct(s: synstructure::Structure) -> syn::Result<TokenStream2> 
                 let data_field_values = data_fields.iter().map(|field| {
                     &field.binding
                 });
-                quote! {
-                    match self {
-                        #pat => {
-                            ::ink::sol::encode_sequence::<( #( #data_field_tys, )* )>(
-                                &( #( #data_field_values, )* ),
-                            )
+                let ty = quote! { ( #( #data_field_tys, )* ) };
+                let val = quote! { ( #( #data_field_values, )* ) };
+                (
+                    quote! {
+                        match self {
+                            #pat => {
+                                ::ink::sol::encode_sequence::<#ty>(&#val)
+                            }
+                        }
+                    },
+                    quote! {
+                        match self {
+                            #pat => {
+                                ::ink::sol::encode_sequence_to::<#ty>(&#val, buffer)
+                            }
                         }
                     }
-                }
+                )
             },
         };
 
@@ -247,6 +261,10 @@ fn event_derive_struct(s: synstructure::Structure) -> syn::Result<TokenStream2> 
 
             fn encode_data(&self) -> ::ink::prelude::vec::Vec<::core::primitive::u8> {
                 #encode_data
+            }
+
+            fn encode_data_to(&self, buffer: &mut [::core::primitive::u8]) -> ::core::primitive::usize {
+                #encode_data_to
             }
         })
     }))

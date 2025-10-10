@@ -1161,14 +1161,7 @@ impl TypedEnvBackend for EnvInstance {
         let topics = unsafe {
             core::slice::from_raw_parts(enc_topics.as_ptr() as *const [u8; 32], n_topics)
         };
-        let enc_data = scope.take_encoded_with(|buffer| {
-            let encoded = event.encode_data();
-            let len = encoded.len();
-            // NOTE: panics if buffer isn't large enough.
-            // This behavior is similar to `ScopedBuffer::take_encoded`.
-            buffer[..len].copy_from_slice(&encoded);
-            len
-        });
+        let enc_data = scope.take_encoded_with(|buffer| event.encode_data_to(buffer));
 
         ext::deposit_event(topics, enc_data);
     }

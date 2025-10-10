@@ -250,6 +250,10 @@ pub trait Event<Abi = crate::DefaultAbi>: AbiEncodeWith<Abi> {
 
     /// ABI encode the dynamic data of this event.
     fn encode_data(&self) -> ink_prelude::vec::Vec<u8>;
+
+    /// ABI encode the dynamic data of this event into the given buffer, and returns the
+    /// number of bytes written.
+    fn encode_data_to(&self, buffer: &mut [u8]) -> usize;
 }
 
 mod private {
