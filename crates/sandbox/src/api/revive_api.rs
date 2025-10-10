@@ -11,7 +11,10 @@ use frame_support::{
     sp_runtime::traits::Bounded,
     traits::{
         Time,
-        fungible::Inspect,
+        fungible::{
+            Inspect,
+            Mutate,
+        },
     },
     weights::Weight,
 };
@@ -53,6 +56,14 @@ pub trait ContractAPI {
     /// * `storage_deposit_limit` - The storage deposit limit for the contract call.
     #[allow(clippy::type_complexity, clippy::too_many_arguments)]
     fn map_account(&mut self, account: OriginFor<Self::T>) -> Result<(), DispatchError>;
+
+    /// `pallet-revive` uses a dedicated "pallet" account for tracking
+    /// storage deposits. The static account is returned by the
+    /// `pallet_revive::Pallet::account_id()` function.
+    ///
+    /// This function funds the account with the existential deposit
+    /// (i.e. minimum balance).
+    fn warm_up(&mut self);
 
     /// Interface for `bare_instantiate` contract call with a simultaneous upload.
     ///
@@ -143,7 +154,7 @@ pub trait ContractAPI {
 impl<T> ContractAPI for T
 where
     T: Sandbox,
-    T::Runtime: pallet_revive::Config,
+    T::Runtime: pallet_balances::Config + pallet_revive::Config,
     BalanceOf<T::Runtime>: Into<U256> + TryFrom<U256> + Bounded,
     MomentOf<T::Runtime>: Into<U256>,
     <<T as Sandbox>::Runtime as frame_system::Config>::Nonce: Into<u32>,
@@ -160,6 +171,20 @@ where
         self.execute_with(|| pallet_revive::Pallet::<Self::T>::map_account(account_id))
     }
 
+    /// `pallet-revive` uses a dedicated "pallet" account for tracking
+    /// storage deposits. The static account is returned by the
+    /// `pallet_revive::Pallet::account_id()` function.
+    ///
+    /// This function funds the account with the existential deposit
+    /// (i.e. minimum balance).
+    fn warm_up(&mut self) {
+        self.execute_with(|| {
+            let acc = pallet_revive::Pallet::<Self::T>::account_id();
+            let ed = pallet_balances::Pallet::<Self::T>::minimum_balance();
+            let _ = pallet_balances::Pallet::<Self::T>::mint_into(&acc, ed);
+        });
+    }
+
     fn deploy_contract(
         &mut self,
         contract_bytes: Vec<u8>,
@@ -170,6 +195,7 @@ where
         gas_limit: Weight,
         storage_deposit_limit: BalanceOf<Self::T>,
     ) -> ContractResultInstantiate<Self::T> {
+        self.warm_up();
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_instantiate(
                 origin,
