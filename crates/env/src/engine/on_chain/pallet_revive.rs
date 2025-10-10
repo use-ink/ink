@@ -167,6 +167,9 @@ fn encode_bool(value: bool, out: &mut [u8]) {
 const STORAGE_PRECOMPILE_ADDR: [u8; 20] =
     hex_literal::hex!("0000000000000000000000000000000000000901");
 
+const XCM_PRECOMPILE_ADDR: [u8; 20] =
+    hex_literal::hex!("0000000000000000000000000000000000000010");
+
 /// Four bytes are required to encode a Solidity selector;
 const SOL_ENCODED_SELECTOR_LEN: usize = 4;
 
@@ -1278,34 +1281,50 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
         Call: scale::Encode,
     {
-        panic!(
-            "todo Native ink! XCM functions are not supported yet, you have to call the pre-compile contracts for XCM directly until then."
-        );
-        /*
         let mut scope = self.scoped_buffer();
-
         let enc_msg = scope.take_encoded(msg);
 
+
+        //let mut buffer = [0u8; 32];
+        let mut buffer = scope.take_rest();
+        //let mut output_buffer = [0u8; 32];
+
+        let sel = const { solidity_selector("execute(bytes,(uint64,uint64))") };
+        buffer[..4].copy_from_slice(&sel[..4]);
+
+        let n = solidity_encode_bytes(input, 32, &mut buffer[4..]);
+
+        const ADDR: [u8; 20] =
+            hex_literal::hex!("0000000000000000000000000000000000000010");
+        let call_result = ext::delegate_call(
+            CallFlags::empty(),
+            &ADDR,
+            u64::MAX,       // `ref_time` to devote for execution. `u64::MAX` = all
+            u64::MAX,       // `proof_size` to devote for execution. `u64::MAX` = all
+            &[u8::MAX; 32], // No deposit limit.
+            &buffer[..4 + n],
+            //Some(&mut &mut output_buffer[..]),
+            None
+        );
+        call_result.expect("call host function failed");
+        //output[..].copy_from_slice(&output_buffer[16..]);
+
+        /*
         #[allow(deprecated)]
         ext::xcm_execute(enc_msg).map_err(Into::into)
         */
     }
 
     #[cfg(feature = "xcm")]
-    // todo
     fn xcm_send<E, Call>(
         &mut self,
-        _dest: &xcm::VersionedLocation,
-        _msg: &VersionedXcm<Call>,
+        dest: &xcm::VersionedLocation,
+        msg: &VersionedXcm<Call>,
     ) -> Result<xcm::v4::XcmHash>
     where
         E: Environment,
         Call: scale::Encode,
     {
-        panic!(
-            "todo Native ink! XCM functions are not supported yet, you have to call the pre-compile contracts for XCM directly until then."
-        );
-        /*
         let mut scope = self.scoped_buffer();
         let output = scope.take(32);
         scope.append_encoded(dest);
@@ -1313,6 +1332,32 @@ impl TypedEnvBackend for EnvInstance {
 
         scope.append_encoded(msg);
         let enc_msg = scope.take_appended();
+
+        //let mut buffer = [0u8; 32];
+        let mut buffer = scope.take_rest();
+        //let mut output_buffer = [0u8; 32];
+
+        let sel = const { solidity_selector("send(bytes,bytes)") };
+        buffer[..4].copy_from_slice(&sel[..4]);
+
+        let n = solidity_encode_bytes(input, 32, &mut buffer[4..]);
+
+        const ADDR: [u8; 20] =
+            hex_literal::hex!("0000000000000000000000000000000000000010");
+        let call_result = ext::delegate_call(
+            CallFlags::empty(),
+            &ADDR,
+            u64::MAX,       // `ref_time` to devote for execution. `u64::MAX` = all
+            u64::MAX,       // `proof_size` to devote for execution. `u64::MAX` = all
+            &[u8::MAX; 32], // No deposit limit.
+            &buffer[..4 + n],
+            //Some(&mut &mut output_buffer[..]),
+            None
+        );
+        call_result.expect("call host function failed");
+        //output[..].copy_from_slice(&output_buffer[16..])
+
+        /*
         #[allow(deprecated)]
         ext::xcm_send(enc_dest, enc_msg, output.try_into().unwrap())?;
         let hash: xcm::v4::XcmHash = scale::Decode::decode(&mut &output[..])?;
