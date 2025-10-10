@@ -15,6 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::byte::Bytes;
 use alloc::{
     collections::BTreeMap,
     string::String,
@@ -55,10 +56,10 @@ pub struct CallTrace<Gas = U256> {
     /// Address of the receiver.
     pub to: H160,
     /// Call input data.
-    pub input: Vec<u8>,
+    pub input: Bytes,
     /// Return data.
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub output: Vec<u8>,
+    #[serde(skip_serializing_if = "Bytes::is_empty")]
+    pub output: Bytes,
     /// The error message if the call failed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<String>,
@@ -77,6 +78,9 @@ pub struct CallTrace<Gas = U256> {
     /// Type of call.
     #[serde(rename = "type")]
     pub call_type: CallType,
+    /// Number of child calls entered (for log position calculation)
+    #[serde(skip)]
+    pub child_call_count: u32,
 }
 
 /// A log emitted during a call.
