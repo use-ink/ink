@@ -47,6 +47,7 @@ pub use {
     pallet_balances,
     pallet_revive,
     pallet_timestamp,
+    pallet_transaction_payment,
     paste,
     sp_core::crypto::Ss58Codec,
     sp_externalities::{

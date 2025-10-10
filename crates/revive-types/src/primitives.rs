@@ -251,10 +251,8 @@ pub struct ExecConfig {
     /// the instantiating contract's nonce.
     pub bump_nonce: bool,
     /// Whether deposits will be withdrawn from the pallet_transaction_payment credit
-    /// (`Some`) free balance (`None`).
-    ///
-    /// Contains the encoded_len + base weight.
-    pub collect_deposit_from_hold: Option<(u32, Weight)>,
+    /// (true) or free balance (false).
+    pub collect_deposit_from_hold: bool,
     /// The gas price that was chosen for this transaction.
     ///
     /// It is determined when transforming `eth_transact` into a proper extrinsic.

@@ -3910,6 +3910,7 @@ dependencies = [
  "pallet-balances",
  "pallet-revive",
  "pallet-timestamp",
+ "pallet-transaction-payment",
  "parity-scale-codec",
  "paste",
  "scale-info",

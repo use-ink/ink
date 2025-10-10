@@ -17,10 +17,10 @@ use frame_support::{
 };
 use frame_system::pallet_prelude::OriginFor;
 use ink_primitives::Address;
-use ink_revive_types::ExecConfig;
 use pallet_revive::{
     Code,
     CodeUploadResult,
+    ExecConfig,
     evm::{
         Tracer,
         TracerType,
@@ -181,7 +181,8 @@ where
                 salt,
                 ExecConfig {
                     bump_nonce: true,
-                    ..
+                    collect_deposit_from_hold: false,
+                    effective_gas_price: None,
                 },
             )
         })
@@ -208,7 +209,8 @@ where
                 salt,
                 ExecConfig {
                     bump_nonce: true,
-                    ..
+                    collect_deposit_from_hold: false,
+                    effective_gas_price: None,
                 },
             )
         })
@@ -246,6 +248,11 @@ where
                 gas_limit,
                 storage_deposit_limit,
                 data,
+                ExecConfig {
+                    bump_nonce: true,
+                    collect_deposit_from_hold: false,
+                    effective_gas_price: None,
+                },
             )
         })
     }
