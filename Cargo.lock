@@ -3843,7 +3843,7 @@ dependencies = [
  "pallet-revive-uapi 0.8.0",
  "parity-scale-codec",
  "paste",
- "primitive-types 0.13.1",
+ "primitive-types 0.14.0",
  "scale-decode",
  "scale-encode",
  "scale-info",
@@ -5458,6 +5458,18 @@ dependencies = [
  "impl-num-traits",
  "impl-rlp",
  "impl-serde",
+ "scale-info",
+ "uint 0.10.0",
+]
+
+[[package]]
+name = "primitive-types"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "721a1da530b5a2633218dc9f75713394c983c352be88d2d7c9ee85e2c4c21794"
+dependencies = [
+ "fixed-hash",
+ "impl-codec 0.7.1",
  "scale-info",
  "uint 0.10.0",
 ]

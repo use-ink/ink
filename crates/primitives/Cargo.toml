@@ -23,7 +23,7 @@ scale-decode = { workspace = true, features = ["derive"] }
 scale-encode = { workspace = true, features = ["derive"], optional = true }
 pallet-revive-uapi = { workspace = true }
 paste = { workspace = true }
-primitive-types = { version = "0.13.1", default-features = false, features = ["codec"] }
+primitive-types = { version = "0.14.0", default-features = false, features = ["codec"] }
 scale-info = { workspace = true, features = ["derive"], optional = true }
 xxhash-rust = { workspace = true, features = ["const_xxh32"] }
 serde = { version = "1.0.215", features = ["derive"], default-features = false, optional = true }
