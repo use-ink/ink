@@ -792,7 +792,7 @@ impl TypedEnvBackend for EnvInstance {
             .expect("own code hash not found")
     }
 
-    #[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
+    #[cfg(feature = "xcm")]
     fn xcm_execute<E, Call>(&mut self, _msg: &xcm::VersionedXcm<Call>) -> Result<()>
     where
         E: Environment,
@@ -800,7 +800,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `xcm_execute`")
     }
 
-    #[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
+    #[cfg(feature = "xcm")]
     fn xcm_send<E, Call>(
         &mut self,
         _dest: &xcm::VersionedLocation,

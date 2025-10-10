@@ -36,7 +36,7 @@ use pallet_revive_uapi::{
     ReturnFlags,
     StorageFlags,
 };
-#[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
+#[cfg(feature = "xcm")]
 use xcm::VersionedXcm;
 
 use crate::{
@@ -1272,7 +1272,7 @@ impl TypedEnvBackend for EnvInstance {
         H256::from_slice(output)
     }
 
-    #[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
+    #[cfg(feature = "xcm")]
     fn xcm_execute<E, Call>(&mut self, _msg: &VersionedXcm<Call>) -> Result<()>
     where
         E: Environment,
@@ -1291,7 +1291,7 @@ impl TypedEnvBackend for EnvInstance {
         */
     }
 
-    #[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
+    #[cfg(feature = "xcm")]
     // todo
     fn xcm_send<E, Call>(
         &mut self,

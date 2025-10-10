@@ -878,7 +878,7 @@ where
 /// # Panics
 ///
 /// Panics in the off-chain environment.
-#[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
+#[cfg(feature = "xcm")]
 pub fn xcm_execute<E, Call>(msg: &xcm::VersionedXcm<Call>) -> Result<()>
 where
     E: Environment,
@@ -904,7 +904,7 @@ where
 /// # Panics
 ///
 /// Panics in the off-chain environment.
-#[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
+#[cfg(feature = "xcm")]
 pub fn xcm_send<E, Call>(
     dest: &xcm::VersionedLocation,
     msg: &xcm::VersionedXcm<Call>,
