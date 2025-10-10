@@ -147,6 +147,7 @@ where
             .stderr(process::Stdio::piped())
             .arg("--port=0")
             .arg("--rpc-port=0")
+            .arg("--chain ink-parachain-local")
             .arg("-lruntime::revive=debug");
 
         if let Some(authority) = self.authority {

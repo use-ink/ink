@@ -1284,15 +1284,39 @@ impl TypedEnvBackend for EnvInstance {
         let mut scope = self.scoped_buffer();
         let enc_msg = scope.take_encoded(msg);
 
-
         //let mut buffer = [0u8; 32];
-        let mut buffer = scope.take_rest();
-        //let mut output_buffer = [0u8; 32];
+        let mut output_buffer = [0u8; 64];
 
+
+        // call weighMessage
+
+        let sel = const { solidity_selector("weighMessage(bytes)") };
+
+        let n = solidity_encode_bytes(enc_msg, 32, &mut buffer[4..]);
+
+        const ADDR: [u8; 20] =
+            hex_literal::hex!("0000000000000000000000000000000000000010");
+        let call_result = ext::delegate_call(
+            CallFlags::empty(),
+            &ADDR,
+            u64::MAX,       // `ref_time` to devote for execution. `u64::MAX` = all
+            u64::MAX,       // `proof_size` to devote for execution. `u64::MAX` = all
+            &[u8::MAX; 32], // No deposit limit.
+            &buffer[..4+n],
+            Some(&mut &mut output_buffer[..]),
+            //None
+        );
+        call_result.expect("call host function failed");
+
+
+
+
+        let mut buffer = scope.take_rest();
         let sel = const { solidity_selector("execute(bytes,(uint64,uint64))") };
         buffer[..4].copy_from_slice(&sel[..4]);
 
-        let n = solidity_encode_bytes(input, 32, &mut buffer[4..]);
+        let n = solidity_encode_bytes(enc_msg, 32, &mut buffer[4..]);
+        buffer[4+n..4+n+64].copy_from_slice(&output_buffer[..64]);
 
         const ADDR: [u8; 20] =
             hex_literal::hex!("0000000000000000000000000000000000000010");
@@ -1340,7 +1364,8 @@ impl TypedEnvBackend for EnvInstance {
         let sel = const { solidity_selector("send(bytes,bytes)") };
         buffer[..4].copy_from_slice(&sel[..4]);
 
-        let n = solidity_encode_bytes(input, 32, &mut buffer[4..]);
+        let n_dest = solidity_encode_bytes(enc_dest, 32, &mut buffer[4..]);
+        let n_msg = solidity_encode_bytes(enc_msg, 32, &mut buffer[4+n..]);
 
         const ADDR: [u8; 20] =
             hex_literal::hex!("0000000000000000000000000000000000000010");
@@ -1350,11 +1375,11 @@ impl TypedEnvBackend for EnvInstance {
             u64::MAX,       // `ref_time` to devote for execution. `u64::MAX` = all
             u64::MAX,       // `proof_size` to devote for execution. `u64::MAX` = all
             &[u8::MAX; 32], // No deposit limit.
-            &buffer[..4 + n],
+            &buffer[..4 + n_dest + n_msg],
             //Some(&mut &mut output_buffer[..]),
             None
         );
-        call_result.expect("call host function failed");
+        call_result.expect("calling host function failed");
         //output[..].copy_from_slice(&output_buffer[16..])
 
         /*
