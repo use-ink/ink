@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["StorageDeposit"],"mod":["evm"],"struct":["CodeUploadReturnValue","ContractResult","ExecReturnValue","InstantiateReturnValue"],"type":["CodeUploadResult"]};
+window.SIDEBAR_ITEMS = {"enum":["StorageDeposit"],"mod":["evm"],"struct":["Bytes","CodeUploadReturnValue","ContractResult","ExecConfig","ExecReturnValue","InstantiateReturnValue"],"type":["CodeUploadResult"]};
