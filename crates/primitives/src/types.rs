@@ -207,30 +207,6 @@ impl Clear for Hash {
 // }
 // }
 
-#[derive(Debug, Clone, Eq, PartialEq, Encode, Decode)]
-#[cfg_attr(
-    feature = "std",
-    derive(
-        scale_info::TypeInfo,
-        EncodeAsType,
-        serde::Serialize,
-        serde::Deserialize
-    )
-)]
-pub enum DepositLimit<Balance> {
-    /// Allows bypassing all balance transfer checks.
-    UnsafeOnlyForDryRun,
-
-    /// Specifies a maximum allowable balance for a deposit.
-    Balance(Balance),
-}
-
-impl<T> From<T> for DepositLimit<T> {
-    fn from(value: T) -> Self {
-        Self::Balance(value)
-    }
-}
-
 /// Allows to instantiate a type from its little-endian bytes representation.
 pub trait FromLittleEndian {
     /// The little-endian bytes representation.

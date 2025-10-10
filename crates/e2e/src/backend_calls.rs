@@ -18,17 +18,12 @@ use ink_env::{
     Environment,
     call::utils::DecodeMessageResult,
 };
-use ink_primitives::{
-    DepositLimit,
-    abi::AbiEncodeWith,
-};
+use ink_primitives::abi::AbiEncodeWith;
 use sp_weights::Weight;
 
 use super::{
     InstantiateDryRunResult,
     Keypair,
-    balance_to_deposit_limit,
-    balance_to_deposit_limit_dry_run,
 };
 use crate::{
     CallBuilderFinal,
@@ -152,7 +147,7 @@ where
             self.caller,
             self.message,
             self.value,
-            balance_to_deposit_limit_dry_run::<E>(self.storage_deposit_limit),
+            self.storage_deposit_limit,
         )
         .await?;
 
@@ -171,8 +166,7 @@ where
             self.message,
             self.value,
             gas_limit,
-            // todo: the `bare_call` converts this value back, this is unnecessary work
-            DepositLimit::Balance(dry_run.exec_result.storage_deposit.charge_or_zero()),
+            dry_run.exec_result.storage_deposit.charge_or_zero(),
         )
         .await?;
 
@@ -193,7 +187,7 @@ where
             self.caller,
             self.message,
             self.value,
-            balance_to_deposit_limit_dry_run::<E>(self.storage_deposit_limit),
+            self.storage_deposit_limit,
         )
         .await
     }
@@ -214,7 +208,7 @@ where
     value: E::Balance,
     extra_gas_portion: Option<u64>,
     gas_limit: Option<Weight>,
-    storage_deposit_limit: DepositLimit<E::Balance>,
+    storage_deposit_limit: Option<E::Balance>,
 }
 
 impl<'a, E, Contract, Args, R, B, Abi>
@@ -244,7 +238,7 @@ where
             value: 0u32.into(),
             extra_gas_portion: None,
             gas_limit: None,
-            storage_deposit_limit: DepositLimit::UnsafeOnlyForDryRun,
+            storage_deposit_limit: None,
         }
     }
 
@@ -287,9 +281,11 @@ where
     }
 
     /// Specify the max amount of funds that can be charged for storage.
+    ///
+    /// *Important*: `None` means charging the maximum!
     pub fn storage_deposit_limit(
         &mut self,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> &mut Self {
         self.storage_deposit_limit = storage_deposit_limit;
         self
@@ -331,9 +327,7 @@ where
             self.constructor,
             self.value,
             gas_limit,
-            balance_to_deposit_limit::<E>(Some(
-                dry_run.contract_result.storage_deposit.charge_or_zero(),
-            )),
+            dry_run.contract_result.storage_deposit.charge_or_zero(),
         )
         .await?;
 

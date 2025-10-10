@@ -23,6 +23,9 @@ sp-runtime = { workspace = true }
 pallet-revive-uapi = { workspace = true, features = ["scale"] }
 alloy-core = { workspace = true, features = ["sol-types"] }
 
+[dev-dependencies]
+serde_json = { workspace = true }
+
 [features]
 default = ["std"]
 std = [

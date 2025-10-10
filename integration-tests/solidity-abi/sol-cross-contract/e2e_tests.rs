@@ -10,12 +10,11 @@ use ink::{
     Address,
     SolDecode,
     SolEncode,
-    primitives::DepositLimit,
 };
 use ink_revive_types::ExecReturnValue;
 use ink_sandbox::frame_system::pallet_prelude::OriginFor;
 
-const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::UnsafeOnlyForDryRun;
+const STORAGE_DEPOSIT_LIMIT: u128 = u128::MAX;
 
 #[test]
 fn call_sol_encoded_message() {

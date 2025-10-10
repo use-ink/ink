@@ -15,14 +15,18 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 extern crate alloc;
 
+mod byte;
 pub mod evm;
 mod hex_serde;
 mod primitives;
+
+pub use byte::Bytes;
 
 pub use primitives::{
     CodeUploadResult,
     CodeUploadReturnValue,
     ContractResult,
+    ExecConfig,
     ExecReturnValue,
     InstantiateReturnValue,
     StorageDeposit,

@@ -25,7 +25,6 @@ use super::{
         CreateBuilderPartial,
         constructor_exec_input,
     },
-    deposit_limit_to_balance,
     events::{
         CodeStoredEvent,
         EventWithTopics,
@@ -69,10 +68,7 @@ use ink_env::{
         },
     },
 };
-use ink_primitives::{
-    DepositLimit,
-    abi::AbiEncodeWith,
-};
+use ink_primitives::abi::AbiEncodeWith;
 use ink_revive_types::evm::CallTrace;
 use jsonrpsee::core::async_trait;
 use scale::{
@@ -530,7 +526,7 @@ where
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: E::Balance,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
         let data = constructor_exec_input(constructor.clone());
         let ret = self
@@ -546,9 +542,8 @@ where
         constructor: Vec<u8>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: E::Balance,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
-        let storage_deposit_limit = deposit_limit_to_balance::<E>(storage_deposit_limit);
         let (events, trace) = self
             .api
             .instantiate_with_code(
@@ -618,15 +613,8 @@ where
         storage_deposit_limit: E::Balance,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
-        self.raw_instantiate(
-            code,
-            signer,
-            data,
-            value,
-            gas_limit,
-            DepositLimit::Balance(storage_deposit_limit),
-        )
-        .await
+        self.raw_instantiate(code, signer, data, value, gas_limit, storage_deposit_limit)
+            .await
     }
 
     /// Important: For an uncomplicated UX of the E2E testing environment we
@@ -644,7 +632,7 @@ where
         caller: &Keypair,
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
         value: E::Balance,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
@@ -662,7 +650,7 @@ where
         caller: &Keypair,
         data: Vec<u8>,
         value: E::Balance,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error> {
         // There's a side effect here!
         let _ = self.map_account(caller).await;
@@ -749,7 +737,7 @@ where
         message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: E::Balance,
     ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error>
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone,
@@ -774,7 +762,7 @@ where
         input_data: Vec<u8>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: E::Balance,
         signer: &Keypair,
     ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error> {
         let (tx_events, trace) = self
@@ -783,7 +771,7 @@ where
                 dest,
                 value,
                 gas_limit.into(),
-                deposit_limit_to_balance::<E>(storage_deposit_limit),
+                storage_deposit_limit,
                 input_data,
                 signer,
             )
@@ -801,7 +789,7 @@ where
                         .map_err(|e| Error::Decoding(e.to_string()))?;
                 log_error(&format!(
                     "Attempt to stringify returned data: {:?}",
-                    String::from_utf8_lossy(&trace.clone().unwrap().output[..])
+                    String::from_utf8_lossy(&trace.clone().unwrap().output.0[..])
                 ));
                 log_error(&format!(
                     "extrinsic for `raw_call` failed: {dispatch_error} {trace:?}"
@@ -828,7 +816,7 @@ where
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone,
@@ -872,7 +860,7 @@ where
         dest: H160,
         input_data: Vec<u8>,
         value: E::Balance,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
         signer: &Keypair,
     ) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error> {
         let (exec_result, trace) = self
