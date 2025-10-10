@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Marks the `pallet-revive` host function `account_id` stable - [#2578](https://github.com/use-ink/ink/pull/2578)
 - Stabilize `is_contract` - [#2654](https://github.com/use-ink/ink/pull/2654)
 - Extract `sandbox` from `ink_e2e` into a new `ink_sandbox` crate - [#2659](https://github.com/use-ink/ink/pull/2659)
+- Synchronize with `polkadot-sdk/1b1cef306d9ceebf963fd15a04b5c79ee2618bce` ‒ [2675](https://github.com/use-ink/ink/pull/2675)
 
 ### Fixed
 - Fix decoding of `HostFn::minimum_balance` return value - [#2656](https://github.com/use-ink/ink/pull/2656)
