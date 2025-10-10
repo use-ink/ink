@@ -17,12 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Stabilize `is_contract` - [#2654](https://github.com/use-ink/ink/pull/2654)
 - Extract `sandbox` from `ink_e2e` into a new `ink_sandbox` crate - [#2659](https://github.com/use-ink/ink/pull/2659)
 - Synchronize with `polkadot-sdk/1b1cef306d9ceebf963fd15a04b5c79ee2618bce` ‒ [2675](https://github.com/use-ink/ink/pull/2675)
+- Refactor `AbiEncodeWith::encode_to_slice` - [#2676](https://github.com/use-ink/ink/pull/2676)
 
 ### Fixed
 - Fix decoding of `HostFn::minimum_balance` return value - [#2656](https://github.com/use-ink/ink/pull/2656)
 - Fix handling of `HostFn::code_hash` and `HostFn::weight_to_fee` - [#2672](https://github.com/use-ink/ink/pull/2672)
-
-### Fixed
 - `name` override fixes for message id computation and trait definitions - [#2649](https://github.com/use-ink/ink/pull/2649)
 
 ## Version 6.0.0-alpha.4
