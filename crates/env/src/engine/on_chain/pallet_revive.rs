@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#[cfg(feature = "xcm")]
+use ink_primitives::Weight;
 use ink_primitives::{
     Address,
     CodeHashErr,
@@ -36,7 +38,7 @@ use pallet_revive_uapi::{
     ReturnFlags,
     StorageFlags,
 };
-#[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
+#[cfg(feature = "xcm")]
 use xcm::VersionedXcm;
 
 use crate::{
@@ -108,7 +110,10 @@ impl CryptoHash for Blake2x128 {
         let sel = const { solidity_selector("hashBlake128(bytes)") };
         buffer[..4].copy_from_slice(&sel[..4]);
 
-        let n = solidity_encode_bytes(input, 32, &mut buffer[4..]);
+        // we pass `offset = 32`, as the `bytes` payload starts there (right after the
+        // offset word) we pass `data_pos = 32`, as the payload starts right after
+        // the offset word
+        let n = solidity_encode_bytes(input, 32, 0, 32, &mut buffer[4..]);
 
         const ADDR: [u8; 20] =
             hex_literal::hex!("0000000000000000000000000000000000000900");
@@ -170,6 +175,9 @@ fn encode_bool(value: bool, out: &mut [u8]) {
 const STORAGE_PRECOMPILE_ADDR: [u8; 20] =
     hex_literal::hex!("0000000000000000000000000000000000000901");
 
+const XCM_PRECOMPILE_ADDR: [u8; 20] =
+    hex_literal::hex!("00000000000000000000000000000000000A0000");
+
 /// Four bytes are required to encode a Solidity selector;
 const SOL_ENCODED_SELECTOR_LEN: usize = 4;
 
@@ -195,13 +203,20 @@ const SOL_BYTES_ENCODING_OVERHEAD: usize = 64;
 ///
 /// Returns the number of bytes written.
 ///
+/// # Arguments
+/// - `input`: the bytes to encode.
+/// - `offset`: the position in `out` where the data segment of `input` starts.
+/// - `offset_pos`: the position in `out` where to write the `offset` word to.
+/// - `data_pos`: the position in `out` where to write the encoded `bytes` to.
+/// - `out`: the output buffer.
+///
 /// # Developer Note
 ///
 /// The returned layout will be
 ///
 ///     `[offset (32 bytes)] [len (32 bytes)] [data (padded to 32)]`
 ///
-/// The `out` byte array need to be able to hold
+/// The `out` byte array needs to be able to hold
 /// (in the worst case) 95 bytes more than `input.len()`.
 ///
 /// This is because we write the following to `out`:
@@ -209,27 +224,47 @@ const SOL_BYTES_ENCODING_OVERHEAD: usize = 64;
 ///   * The length word → always 32 bytes.
 ///   * The input itself → exactly `input.len()` bytes.
 ///   * We pad the input to a multiple of 32 → between 0 and 31 extra bytes.
-fn solidity_encode_bytes(input: &[u8], offset: u32, out: &mut [u8]) -> usize {
-    let len = input.len();
-    let padded_len = solidity_padded_len(len);
+fn solidity_encode_bytes(
+    input: &[u8],
+    offset: u32,
+    offset_pos: usize,
+    data_pos: usize,
+    out: &mut [u8],
+) -> usize {
+    // Number of bytes required to encode the length of the `bytes` array
+    // (i.e. the "length word").
+    const BYTES_LEN_WORD: usize = 32;
+
+    let input_len = input.len();
+    let padded_len = solidity_padded_len(input_len);
 
     // out_len = 32 + padded_len
     //         = 32 + ceil(input_len / 32) * 32
     assert!(out.len() >= padded_len + SOL_BYTES_ENCODING_OVERHEAD);
 
     // Encode offset as a 32-byte big-endian word
-    out[28..32].copy_from_slice(&offset.to_be_bytes()[..4]);
-    out[..28].copy_from_slice(&[0u8; 28]); // make sure the first bytes are zeroed
+    out[offset_pos + 28..offset_pos + 32].copy_from_slice(&offset.to_be_bytes()[..4]);
+    out[offset_pos..offset_pos + 28].copy_from_slice(&[0u8; 28]); // make sure the first bytes are zeroed
 
     // Encode length as a 32-byte big-endian word
     let mut len_word = [0u8; 32];
     // We are at most on a 64-bit architecture, hence we can safely assume `len < 2^64`.
-    let len_bytes = (len as u64).to_be_bytes();
+    let len_bytes = (input_len as u64).to_be_bytes();
     len_word[24..32].copy_from_slice(&len_bytes);
-    out[32..64].copy_from_slice(&len_word);
 
-    // Write data after `offset` and `len` word
-    out[64..64 + len].copy_from_slice(input);
+    // The offset is a 32 byte word
+    out[data_pos..data_pos + 32].copy_from_slice(&len_word);
+
+    // Write the `input` at `offset_pos`, after the 32 byte `len` word
+    out[data_pos + BYTES_LEN_WORD..data_pos + BYTES_LEN_WORD + input_len]
+        .copy_from_slice(input);
+
+    /*
+    // Make sure any padded bytes are zeroed
+    let padded_amount = padded_len - input_len;
+    out[data_pos + BYTES_LEN_WORD + input_len..data_pos + BYTES_LEN_WORD + padded_len]
+        .copy_from_slice(&[0u8; 28]); // make sure the first bytes are zeroed
+     */
 
     64 + padded_len
 }
@@ -261,7 +296,10 @@ impl CryptoHash for Blake2x256 {
         let sel = const { solidity_selector("hashBlake256(bytes)") };
         buffer[..4].copy_from_slice(&sel[..4]);
 
-        let n = solidity_encode_bytes(input, 32, &mut buffer[4..]);
+        // we pass `offset = 32`, as the `bytes` payload starts there (right after the
+        // offset word) we pass `data_pos = 32`, as the payload starts right after
+        // the offset word
+        let n = solidity_encode_bytes(input, 32, 0, 32, &mut buffer[4..]);
 
         const ADDR: [u8; 20] =
             hex_literal::hex!("0000000000000000000000000000000000000900");
@@ -271,7 +309,7 @@ impl CryptoHash for Blake2x256 {
             u64::MAX,       // `ref_time` to devote for execution. `u64::MAX` = all
             u64::MAX,       // `proof_size` to devote for execution. `u64::MAX` = all
             &[u8::MAX; 32], // No deposit limit.
-            &buffer[..4 + n],
+            &buffer[..4 + n + 64],
             Some(&mut &mut output[..]),
         );
         call_result.expect("call host function failed");
@@ -538,6 +576,8 @@ fn call_storage_precompile(
         // 96 then points to the `len|data` segment of `bytes`
         (SOL_ENCODED_FLAGS_LEN + SOL_ENCODED_IS_FIXED_KEY_LEN + SOL_BYTES_OFFSET_WORD_LEN)
             as u32,
+        0,
+        32,
         // encode the `bytes` starting at the appropriate position in the slice
         &mut input_buf[SOL_ENCODED_SELECTOR_LEN
             + SOL_ENCODED_FLAGS_LEN
@@ -1275,52 +1315,126 @@ impl TypedEnvBackend for EnvInstance {
         H256::from_slice(output)
     }
 
-    #[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
-    fn xcm_execute<E, Call>(&mut self, _msg: &VersionedXcm<Call>) -> Result<()>
+    #[cfg(feature = "xcm")]
+    fn xcm_weigh<Call>(&mut self, msg: &VersionedXcm<Call>) -> Result<Weight>
     where
-        E: Environment,
         Call: scale::Encode,
     {
-        panic!(
-            "todo Native ink! XCM functions are not supported yet, you have to call the pre-compile contracts for XCM directly until then."
-        );
-        /*
         let mut scope = self.scoped_buffer();
-
         let enc_msg = scope.take_encoded(msg);
+        let buffer = scope.take_rest();
 
-        #[allow(deprecated)]
-        ext::xcm_execute(enc_msg).map_err(Into::into)
-        */
+        let mut output_buffer = [0u8; 64];
+
+        let sel = const { solidity_selector("weighMessage(bytes)") };
+        buffer[..4].copy_from_slice(&sel[..4]);
+
+        let n = solidity_encode_bytes(enc_msg, 32, 0, 32, &mut buffer[4..]);
+
+        let call_result = ext::call(
+            CallFlags::empty(),
+            &XCM_PRECOMPILE_ADDR,
+            u64::MAX,       // `ref_time` to devote for execution. `u64::MAX` = all
+            u64::MAX,       // `proof_size` to devote for execution. `u64::MAX` = all
+            &[u8::MAX; 32], // No deposit limit.
+            &U256::zero().to_little_endian(), // Value transferred to the contract.
+            &buffer[..4 + n],
+            Some(&mut &mut output_buffer[..]),
+        );
+        call_result.expect("call host function failed");
+
+        let mut ref_time_bytes = [0u8; 8];
+        ref_time_bytes.copy_from_slice(&output_buffer[24..32]);
+        let mut proof_size_bytes = [0u8; 8];
+        proof_size_bytes.copy_from_slice(&output_buffer[56..64]);
+
+        let weight: Weight = Weight::from_parts(
+            u64::from_be_bytes(ref_time_bytes),
+            u64::from_be_bytes(proof_size_bytes),
+        );
+        Ok(weight)
     }
 
-    #[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
-    // todo
-    fn xcm_send<E, Call>(
+    #[cfg(feature = "xcm")]
+    fn xcm_execute<Call>(
         &mut self,
-        _dest: &xcm::VersionedLocation,
-        _msg: &VersionedXcm<Call>,
-    ) -> Result<xcm::v4::XcmHash>
+        msg: &VersionedXcm<Call>,
+        weight: Weight,
+    ) -> Result<()>
     where
-        E: Environment,
         Call: scale::Encode,
     {
-        panic!(
-            "todo Native ink! XCM functions are not supported yet, you have to call the pre-compile contracts for XCM directly until then."
-        );
-        /*
         let mut scope = self.scoped_buffer();
-        let output = scope.take(32);
-        scope.append_encoded(dest);
-        let enc_dest = scope.take_appended();
+        let enc_msg = scope.take_encoded(msg);
+        let buffer = scope.take_rest();
 
-        scope.append_encoded(msg);
-        let enc_msg = scope.take_appended();
-        #[allow(deprecated)]
-        ext::xcm_send(enc_dest, enc_msg, output.try_into().unwrap())?;
-        let hash: xcm::v4::XcmHash = scale::Decode::decode(&mut &output[..])?;
-        Ok(hash)
-        */
+        let sel = const { solidity_selector("execute(bytes,(uint64,uint64))") };
+        buffer[..4].copy_from_slice(&sel[..4]);
+
+        // 96 because 64 for `Weight` and 32 for `bytes` offset
+        let n = solidity_encode_bytes(enc_msg, 96, 0, 96, &mut buffer[4..]);
+
+        let mut weight_bytes = [0u8; 64];
+        weight_bytes[24..32].copy_from_slice(&weight.ref_time().to_be_bytes());
+        weight_bytes[56..64].copy_from_slice(&weight.proof_size().to_be_bytes());
+        // put the `Weight` after the `bytes` offset word
+        buffer[4 + 32..4 + 32 + 64].copy_from_slice(&weight_bytes[..]);
+
+        let _call_result = ext::call(
+            CallFlags::empty(),
+            &XCM_PRECOMPILE_ADDR,
+            u64::MAX,       // `ref_time` to devote for execution. `u64::MAX` = all
+            u64::MAX,       // `proof_size` to devote for execution. `u64::MAX` = all
+            &[u8::MAX; 32], // No deposit limit.
+            &U256::zero().to_little_endian(), // Value transferred to the contract.
+            &buffer[..4 + n + 64],
+            None,
+        )?;
+        Ok(())
+    }
+
+    #[cfg(feature = "xcm")]
+    fn xcm_send<Call>(
+        &mut self,
+        dest: &xcm::VersionedLocation,
+        msg: &VersionedXcm<Call>,
+    ) -> Result<()>
+    where
+        Call: scale::Encode,
+    {
+        let mut scope = self.scoped_buffer();
+        let enc_dest = scope.take_encoded(dest);
+        let enc_msg = scope.take_encoded(msg);
+
+        let buffer = scope.take_rest();
+
+        let sel = const { solidity_selector("send(bytes,bytes)") };
+        buffer[..4].copy_from_slice(&sel[..4]);
+
+        let n_dest = solidity_encode_bytes(enc_dest, 64, 0, 64, &mut buffer[4..]);
+        let n_msg = solidity_encode_bytes(
+            enc_msg,
+            32 /* first `bytes` offset word  */ +
+            32 /* second `bytes` offset word */ +
+            (n_dest  - 32usize) as u32, /* we have to subtract 32, because that's the
+                                         * length of the `offset` word */
+            32, // the offset word is written right after the offset word for `dest`
+            64 + (n_dest - 32usize),
+            &mut buffer[4..],
+        );
+
+        let call_result = ext::call(
+            CallFlags::empty(),
+            &XCM_PRECOMPILE_ADDR,
+            u64::MAX,       // `ref_time` to devote for execution. `u64::MAX` = all
+            u64::MAX,       // `proof_size` to devote for execution. `u64::MAX` = all
+            &[u8::MAX; 32], // No deposit limit.
+            &U256::zero().to_little_endian(), // Value transferred to the contract.
+            &buffer[..4 + n_dest + n_msg],
+            None,
+        );
+        call_result.expect("calling host function failed");
+        Ok(())
     }
 }
 
