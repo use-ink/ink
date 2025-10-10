@@ -23,8 +23,8 @@ pub use primitives::{
     CodeUploadResult,
     CodeUploadReturnValue,
     ContractResult,
+    ExecConfig,
     ExecReturnValue,
     InstantiateReturnValue,
     StorageDeposit,
-    ExecConfig,
 };

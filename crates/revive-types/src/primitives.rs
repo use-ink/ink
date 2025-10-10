@@ -21,6 +21,7 @@ use alloc::vec::Vec;
 use ink_primitives::{
     H160,
     H256,
+    U256,
     Weight,
 };
 use pallet_revive_uapi::ReturnFlags;
@@ -231,25 +232,26 @@ pub type CodeUploadResult<Balance> =
 /// `Stack` wide configuration options.
 #[derive(Debug, Clone)]
 pub struct ExecConfig {
-    /// Indicates whether the account nonce should be incremented after instantiating a new
-    /// contract.
+    /// Indicates whether the account nonce should be incremented after instantiating a
+    /// new contract.
     ///
-    /// In Substrate, where transactions can be batched, the account's nonce should be incremented
-    /// after each instantiation, ensuring that each instantiation uses a unique nonce.
+    /// In Substrate, where transactions can be batched, the account's nonce should be
+    /// incremented after each instantiation, ensuring that each instantiation uses a
+    /// unique nonce.
     ///
-    /// For transactions sent from Ethereum wallets, which cannot be batched, the nonce should only
-    /// be incremented once. In these cases, set this to `false` to suppress an extra nonce
-    /// increment.
+    /// For transactions sent from Ethereum wallets, which cannot be batched, the nonce
+    /// should only be incremented once. In these cases, set this to `false` to
+    /// suppress an extra nonce increment.
     ///
     /// Note:
-    /// The origin's nonce is already incremented pre-dispatch by the `CheckNonce` transaction
-    /// extension.
+    /// The origin's nonce is already incremented pre-dispatch by the `CheckNonce`
+    /// transaction extension.
     ///
-    /// This does not apply to contract initiated instantiations. Those will always bump the
-    /// instantiating contract's nonce.
+    /// This does not apply to contract initiated instantiations. Those will always bump
+    /// the instantiating contract's nonce.
     pub bump_nonce: bool,
-    /// Whether deposits will be withdrawn from the pallet_transaction_payment credit (`Some`)
-    /// free balance (`None`).
+    /// Whether deposits will be withdrawn from the pallet_transaction_payment credit
+    /// (`Some`) free balance (`None`).
     ///
     /// Contains the encoded_len + base weight.
     pub collect_deposit_from_hold: Option<(u32, Weight)>,

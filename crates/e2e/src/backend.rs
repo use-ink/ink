@@ -17,7 +17,6 @@ use ink_env::{
     call::utils::DecodeMessageResult,
 };
 use ink_primitives::{
-    DepositLimit,
     H160,
     abi::AbiEncodeWith,
 };
@@ -242,8 +241,8 @@ pub trait ContractsBackend<E: Environment> {
 
 #[async_trait]
 pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
-    /// Executes a bare `call` for the contract at `account_id`. This function does not
-    /// perform a dry-run, and the user is expected to provide the gas limit.
+    /// Executes a bare `call` for the contract at `account_id`. This function does
+    /// _not_ perform a dry-run, and the user is expected to provide the gas limit.
     ///
     /// Use it when you want to have a more precise control over submitting extrinsic.
     ///
@@ -259,7 +258,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: E::Balance,
     ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error>
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone;
@@ -282,7 +281,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone;
@@ -304,7 +303,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         dest: H160,
         input_data: Vec<u8>,
         value: E::Balance,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
         signer: &Keypair,
     ) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error>;
 
@@ -318,7 +317,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         input_data: Vec<u8>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: E::Balance,
         signer: &Keypair,
     ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error>;
 
@@ -368,7 +367,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: E::Balance,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error>;
 
     async fn raw_instantiate(
@@ -378,7 +377,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         constructor: Vec<u8>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: E::Balance,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error>;
 
     async fn raw_instantiate_dry_run<Abi: Sync + Clone>(
@@ -387,7 +386,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         caller: &Keypair,
         constructor: Vec<u8>,
         value: E::Balance,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error>;
 
     async fn exec_instantiate(
@@ -417,7 +416,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         caller: &Keypair,
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
         value: E::Balance,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error>;
 
     /// Checks if `caller` was already mapped in `pallet-revive`. If not, it will do so

@@ -7,7 +7,6 @@ use ink::{
         Balance,
         DefaultEnvironment,
     },
-    primitives::DepositLimit,
 };
 use ink_e2e::{
     BuilderClient,
@@ -142,7 +141,7 @@ where
             ink_addr,
             data_sol,
             0u32.into(),
-            ink::primitives::DepositLimit::UnsafeOnlyForDryRun,
+            u128::MAX, // `u128` is the default `Balance` type
             &signer,
         )
         .await
@@ -163,7 +162,7 @@ async fn call_ink_no_return(
             data_sol,
             Balance::from(0u128),
             DEFAULT_GAS.into(),
-            DepositLimit::Balance(Balance::MAX),
+            Balance::MAX,
             &signer,
         )
         .await;

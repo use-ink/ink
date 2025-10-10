@@ -19,7 +19,6 @@ use ink::{
     primitives::U256,
 };
 use pallet_revive::{
-    DepositLimit,
     MomentOf,
 };
 use sp_runtime::traits::Bounded;
@@ -61,7 +60,7 @@ where
             ink_sandbox::balance_to_evm_value::<R>(self.value),
             self.gas_limit,
             // self.storage_deposit_limit,
-            DepositLimit::UnsafeOnlyForDryRun, // todo
+            BalanceOf<R>::max_value(), // todo
             data,
         );
 

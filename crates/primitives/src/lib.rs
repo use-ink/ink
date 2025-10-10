@@ -54,7 +54,6 @@ pub use self::{
         AccountIdMapper,
         Address,
         Clear,
-        DepositLimit,
         Hash,
     },
 };

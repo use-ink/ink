@@ -25,10 +25,7 @@ use crate::contract_results::{
 };
 use core::marker::PhantomData;
 use funty::Fundamental;
-use ink_primitives::{
-    Address,
-    DepositLimit,
-};
+use ink_primitives::Address;
 use ink_revive_types::{
     CodeUploadResult,
     evm::{
@@ -200,7 +197,7 @@ struct RpcCallRequest<C: subxt::Config, E: Environment> {
     dest: Address,
     value: E::Balance,
     gas_limit: Option<Weight>,
-    storage_deposit_limit: DepositLimit<E::Balance>,
+    storage_deposit_limit: Option<E::Balance>,
     input_data: Vec<u8>,
 }
 
@@ -272,17 +269,13 @@ where
     pub async fn instantiate_with_code_dry_run(
         &self,
         value: E::Balance,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
         code: Vec<u8>,
         data: Vec<u8>,
         salt: Option<[u8; 32]>,
         signer: &Keypair,
     ) -> ContractInstantiateResultFor<E> {
         let code = Code::Upload(code);
-        let storage_deposit_limit = match storage_deposit_limit {
-            DepositLimit::Balance(v) => Some(v),
-            DepositLimit::UnsafeOnlyForDryRun => None,
-        };
         let call_request = RpcInstantiateRequest::<C, E> {
             origin: Signer::<C>::account_id(signer),
             value,
@@ -618,7 +611,7 @@ where
         dest: Address,
         data: Vec<u8>,
         value: E::Balance,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
         signer: &Keypair,
     ) -> (ContractExecResultFor<E>, Option<CallTrace>) {
         let origin = Signer::<C>::account_id(signer);
@@ -651,10 +644,8 @@ where
         // we still take the return value of the dry run for submitting the extrinsic
         // that will take effect.
         let storage_deposit_limit = match storage_deposit_limit {
-            DepositLimit::UnsafeOnlyForDryRun => {
-                dry_run_result.storage_deposit.charge_or_zero()
-            }
-            DepositLimit::Balance(limit) => limit,
+            None => dry_run_result.storage_deposit.charge_or_zero(),
+            Some(limit) => limit,
         };
 
         let call = subxt::tx::DefaultPayload::new(

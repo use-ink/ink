@@ -16,10 +16,8 @@ use frame_support::{
     weights::Weight,
 };
 use frame_system::pallet_prelude::OriginFor;
-use ink_primitives::{
-    Address,
-    DepositLimit,
-};
+use ink_primitives::Address;
+use ink_revive_types::ExecConfig;
 use pallet_revive::{
     Code,
     CodeUploadResult,
@@ -77,7 +75,7 @@ pub trait ContractAPI {
         salt: Option<[u8; 32]>,
         origin: OriginFor<Self::T>,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
+        storage_deposit_limit: BalanceOf<Self::T>,
     ) -> ContractResultInstantiate<Self::T>;
 
     /// Interface for `bare_instantiate` contract call for a previously uploaded contract.
@@ -101,7 +99,7 @@ pub trait ContractAPI {
         salt: Option<[u8; 32]>,
         origin: OriginFor<Self::T>,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
+        storage_deposit_limit: BalanceOf<Self::T>,
     ) -> ContractResultInstantiate<Self::T>;
 
     /// Interface for `bare_upload_code` contract call.
@@ -136,7 +134,7 @@ pub trait ContractAPI {
         data: Vec<u8>,
         origin: OriginFor<Self::T>,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
+        storage_deposit_limit: BalanceOf<Self::T>,
     ) -> ContractExecResultFor<Self::T>;
 
     fn evm_tracer(&mut self, tracer_type: TracerType) -> Tracer<Self::T>;
@@ -170,9 +168,8 @@ where
         salt: Option<[u8; 32]>,
         origin: OriginFor<Self::T>,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
+        storage_deposit_limit: BalanceOf<Self::T>,
     ) -> ContractResultInstantiate<Self::T> {
-        let storage_deposit_limit = storage_deposit_limit_fn(storage_deposit_limit);
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_instantiate(
                 origin,
@@ -185,7 +182,7 @@ where
                 ExecConfig {
                     bump_nonce: true,
                     ..
-                }
+                },
             )
         })
     }
@@ -200,7 +197,6 @@ where
         gas_limit: Weight,
         storage_deposit_limit: BalanceOf<Self::T>,
     ) -> ContractResultInstantiate<Self::T> {
-        let storage_deposit_limit = storage_deposit_limit_fn(storage_deposit_limit);
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_instantiate(
                 origin,
@@ -213,7 +209,7 @@ where
                 ExecConfig {
                     bump_nonce: true,
                     ..
-                }
+                },
             )
         })
     }
@@ -240,9 +236,8 @@ where
         data: Vec<u8>,
         origin: OriginFor<Self::T>,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
+        storage_deposit_limit: BalanceOf<Self::T>,
     ) -> ContractExecResultFor<Self::T> {
-        let storage_deposit_limit = storage_deposit_limit_fn(storage_deposit_limit);
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_call(
                 origin,
@@ -257,18 +252,6 @@ where
 
     fn evm_tracer(&mut self, tracer_type: TracerType) -> Tracer<Self::T> {
         self.execute_with(|| pallet_revive::Pallet::<Self::T>::evm_tracer(tracer_type))
-    }
-}
-
-/// todo
-fn storage_deposit_limit_fn<Balance>(
-    limit: DepositLimit<Balance>,
-) -> pallet_revive::DepositLimit<Balance> {
-    match limit {
-        DepositLimit::UnsafeOnlyForDryRun => {
-            pallet_revive::DepositLimit::UnsafeOnlyForDryRun
-        }
-        DepositLimit::Balance(v) => pallet_revive::DepositLimit::Balance(v),
     }
 }
 
@@ -291,7 +274,7 @@ mod tests {
         api::prelude::*,
     };
 
-    const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::UnsafeOnlyForDryRun;
+    const STORAGE_DEPOSIT_LIMIT: u128 = u128::MAX;
 
     fn compile_module(contract_name: &str) -> Vec<u8> {
         // todo compile the contract, instead of reading the binary
@@ -364,7 +347,7 @@ mod tests {
             None,
             origin.clone(),
             DefaultSandbox::default_gas_limit(),
-            DepositLimit::Balance(100000000000000),
+            100000000000000,
         );
         assert!(result.result.is_ok());
         assert!(!result.result.unwrap().result.did_revert());
@@ -377,7 +360,7 @@ mod tests {
             None,
             origin,
             DefaultSandbox::default_gas_limit(),
-            DepositLimit::Balance(100000000000000),
+            100000000000000,
         );
         assert!(result.result.is_err());
         let dispatch_err = result.result.unwrap_err();
