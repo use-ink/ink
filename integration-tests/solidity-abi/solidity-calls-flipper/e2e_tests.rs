@@ -141,7 +141,7 @@ where
             ink_addr,
             data_sol,
             0u32.into(),
-            u128::MAX, // `u128` is the default `Balance` type
+            None,
             &signer,
         )
         .await
