@@ -9,7 +9,7 @@ mod erc20 {
 
     /// The ERC-20 error types.
     #[derive(Debug, PartialEq, Eq)]
-    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[ink::error]
     pub enum Error {
         /// Returned if not enough balance to fulfill a request is available.
         InsufficientBalance,
