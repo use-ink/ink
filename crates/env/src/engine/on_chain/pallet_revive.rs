@@ -1276,17 +1276,17 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     #[cfg(feature = "xcm")]
-    fn xcm_execute<E, Call>(&mut self, _msg: &VersionedXcm<Call>) -> Result<()>
+    fn xcm_execute<E, Call>(&mut self, msg: &VersionedXcm<Call>) -> Result<()>
     where
         E: Environment,
         Call: scale::Encode,
     {
         let mut scope = self.scoped_buffer();
         let enc_msg = scope.take_encoded(msg);
+        let mut buffer = scope.take_rest();
 
         //let mut buffer = [0u8; 32];
         let mut output_buffer = [0u8; 64];
-
 
         // call weighMessage
 
@@ -1311,15 +1311,12 @@ impl TypedEnvBackend for EnvInstance {
 
 
 
-        let mut buffer = scope.take_rest();
         let sel = const { solidity_selector("execute(bytes,(uint64,uint64))") };
         buffer[..4].copy_from_slice(&sel[..4]);
 
         let n = solidity_encode_bytes(enc_msg, 32, &mut buffer[4..]);
         buffer[4+n..4+n+64].copy_from_slice(&output_buffer[..64]);
 
-        const ADDR: [u8; 20] =
-            hex_literal::hex!("0000000000000000000000000000000000000010");
         let call_result = ext::delegate_call(
             CallFlags::empty(),
             &ADDR,
@@ -1337,6 +1334,7 @@ impl TypedEnvBackend for EnvInstance {
         #[allow(deprecated)]
         ext::xcm_execute(enc_msg).map_err(Into::into)
         */
+        Ok(())
     }
 
     #[cfg(feature = "xcm")]
@@ -1350,25 +1348,27 @@ impl TypedEnvBackend for EnvInstance {
         Call: scale::Encode,
     {
         let mut scope = self.scoped_buffer();
-        let output = scope.take(32);
-        scope.append_encoded(dest);
-        let enc_dest = scope.take_appended();
+        //let output = scope.take(32);
+        let enc_dest = scope.take_encoded(dest);
+        let enc_msg = scope.take_encoded(msg);
 
-        scope.append_encoded(msg);
-        let enc_msg = scope.take_appended();
+        //let enc_dest = scope.take_appended();
+
+        //scope.append_encoded(msg);
+        //let enc_msg = scope.take_appended();
 
         //let mut buffer = [0u8; 32];
         let mut buffer = scope.take_rest();
-        //let mut output_buffer = [0u8; 32];
 
         let sel = const { solidity_selector("send(bytes,bytes)") };
         buffer[..4].copy_from_slice(&sel[..4]);
 
         let n_dest = solidity_encode_bytes(enc_dest, 32, &mut buffer[4..]);
-        let n_msg = solidity_encode_bytes(enc_msg, 32, &mut buffer[4+n..]);
+        let n_msg = solidity_encode_bytes(enc_msg, 32, &mut buffer[4+n_dest..]);
 
         const ADDR: [u8; 20] =
             hex_literal::hex!("0000000000000000000000000000000000000010");
+        let mut output_buffer = [0u8; 32];
         let call_result = ext::delegate_call(
             CallFlags::empty(),
             &ADDR,
@@ -1376,8 +1376,8 @@ impl TypedEnvBackend for EnvInstance {
             u64::MAX,       // `proof_size` to devote for execution. `u64::MAX` = all
             &[u8::MAX; 32], // No deposit limit.
             &buffer[..4 + n_dest + n_msg],
-            //Some(&mut &mut output_buffer[..]),
-            None
+            Some(&mut &mut output_buffer[..]),
+            //None
         );
         call_result.expect("calling host function failed");
         //output[..].copy_from_slice(&output_buffer[16..])
@@ -1388,6 +1388,8 @@ impl TypedEnvBackend for EnvInstance {
         let hash: xcm::v4::XcmHash = scale::Decode::decode(&mut &output[..])?;
         Ok(hash)
         */
+        let hash: xcm::v4::XcmHash = scale::Decode::decode(&mut &output_buffer[..])?;
+        Ok(hash)
     }
 }
 

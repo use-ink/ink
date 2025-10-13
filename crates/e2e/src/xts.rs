@@ -287,6 +287,8 @@ where
         };
         let func = "ReviveApi_instantiate";
         let params = scale::Encode::encode(&call_request);
+        //use subxt::utils::to_hex;
+        //eprintln!("params: {}", to_hex(&params));
         let bytes = self
             .rpc
             .state_call(func, Some(&params), None)

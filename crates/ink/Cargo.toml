@@ -32,6 +32,7 @@ linkme = { workspace = true, optional = true }
 
 polkavm-derive = { workspace = true }
 xcm = { workspace = true, optional = true }
+#sp-runtime-interface = { version = "31.0.0", features = ["disable_target_static_assertions"] }
 
 [dev-dependencies]
 ink_ir = { workspace = true, default-features = true }

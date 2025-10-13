@@ -1,5 +1,3 @@
-// todo example needs to be fixed, but this requires the map `AccountId` -> `Address`
-// function
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
@@ -166,6 +164,9 @@ mod contract_xcm {
                 .free_balance(receiver)
                 .await
                 .expect("Failed to get account balance");
+
+            eprintln!("contract_balance_before {:?}", contract_balance_before);
+            eprintln!("contract_balance_after {:?}", contract_balance_after);
 
             assert_eq!(contract_balance_before, contract_balance_after + amount);
             assert_eq!(receiver_balance_before, receiver_balance_after - amount);

@@ -8,6 +8,9 @@ publish = false
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false, features = ["xcm"] }
 
+sp-runtime-interface = { version = "31.0.0", features = ["disable_target_static_assertions"], default-features = false }
+sp-io = { version = "42.0.0", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
 
