@@ -59,6 +59,7 @@ pub use self::{
     params::{
         SolParamsDecode,
         SolParamsEncode,
+        SolTypeParamsEncode,
     },
     result::{
         SolResultDecode,
