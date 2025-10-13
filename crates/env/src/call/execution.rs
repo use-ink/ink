@@ -22,6 +22,8 @@ use ink_primitives::{
         SizedOutput,
         Sol,
     },
+    impl_all_tuples,
+    sol::SolTypeParamsEncode,
 };
 
 use super::{
@@ -405,43 +407,17 @@ impl EncodeArgsWith<Sol> for EmptyArgumentList<Sol> {
 
 impl<Head, Rest> EncodeArgsWith<Sol> for ArgumentList<Argument<Head>, Rest, Sol>
 where
-    Self: SolEncodeArgsList,
+    for<'a> Self: ArgsListNestedTuple<'a>,
+    for<'a> <Self as ArgsListNestedTuple<'a>>::OutputType: ArgsListFlatTuple,
+    for<'a> <<Self as ArgsListNestedTuple<'a>>::OutputType as ArgsListFlatTuple>::OutputType:
+        SolTypeParamsEncode,
 {
     fn encode(&self) -> Vec<u8> {
-        // Collects encoding info for each arg in `Argument list`.
-        let mut head = Vec::new();
-        let mut tail = Vec::new();
-        let mut offset = self.encode_args(&mut head, &mut tail);
-
-        // Composes the head and tail of the argument list encoding.
-        // Ref: <https://docs.soliditylang.org/en/latest/abi-spec.html#function-selector-and-argument-encoding>
-        head.into_iter()
-            .flat_map(|info| {
-                match info {
-                    SolEncodeHeadInfo::Bytes(encoded) => encoded,
-                    SolEncodeHeadInfo::Size(size) => {
-                        let encoded_offset = SolEncode::encode(&(offset as u128));
-                        offset += size;
-                        encoded_offset
-                    }
-                }
-            })
-            .chain(tail)
-            .collect()
+        SolTypeParamsEncode::encode(&self.nested_tuple().flat_tuple())
     }
 
     fn encode_to(&self, buffer: &mut [u8]) -> usize {
-        // TODO: (@davidsemakula) Optimized implementation.
-        let encoded = self.encode();
-        let len = encoded.len();
-        debug_assert!(
-            len <= buffer.len(),
-            "encode scope buffer overflowed, encoded len is {} but buffer len is {}",
-            len,
-            buffer.len()
-        );
-        buffer[..len].copy_from_slice(&encoded);
-        len
+        SolTypeParamsEncode::encode_to(&self.nested_tuple().flat_tuple(), buffer)
     }
 
     fn encode_to_vec(&self, buffer: &mut Vec<u8>) {
@@ -449,58 +425,73 @@ where
     }
 }
 
-/// Helper trait for Solidity ABI encoding `ArgumentList`.
-trait SolEncodeArgsList {
-    /// Solidity ABI encodes each arg in `ArgumentList`,
-    /// and returns the current `offset` for dynamic data for the entire list.
-    ///
-    /// Ref: <https://docs.soliditylang.org/en/latest/abi-spec.html#function-selector-and-argument-encoding>
-    fn encode_args(&self, head: &mut Vec<SolEncodeHeadInfo>, tail: &mut Vec<u8>)
-    -> usize;
+/// Converts `ArgumentList` into a nested tuple representation.
+trait ArgsListNestedTuple<'a> {
+    type OutputType;
+
+    fn nested_tuple(&'a self) -> Self::OutputType;
 }
 
-/// Head info for Solidity ABI encoding `ArgumentList`.
-enum SolEncodeHeadInfo {
-    /// Encoded bytes for a static type.
-    Bytes(Vec<u8>),
-    /// Encoded size for a dynamic type.
-    Size(usize),
+impl ArgsListNestedTuple<'_> for EmptyArgumentList<Sol> {
+    type OutputType = ();
+
+    fn nested_tuple(&self) {}
 }
 
-impl SolEncodeArgsList for EmptyArgumentList<Sol> {
-    fn encode_args(&self, _: &mut Vec<SolEncodeHeadInfo>, _: &mut Vec<u8>) -> usize {
-        0
-    }
-}
-
-impl<Head, Rest> SolEncodeArgsList for ArgumentList<Argument<Head>, Rest, Sol>
+impl<'a, Head, Rest> ArgsListNestedTuple<'a> for ArgumentList<Argument<Head>, Rest, Sol>
 where
-    Head: for<'a> SolEncode<'a>,
-    Rest: SolEncodeArgsList,
+    Rest: ArgsListNestedTuple<'a>,
+    Head: SolEncode<'a>,
 {
-    fn encode_args(
-        &self,
-        head: &mut Vec<SolEncodeHeadInfo>,
-        tail: &mut Vec<u8>,
-    ) -> usize {
-        let mut offset = self.rest.encode_args(head, tail);
-        let encoded = self.head.arg.encode();
-        if <Head as SolEncode>::DYNAMIC {
-            // Dynamic types are represented (in the head) by their offset,
-            // which is always 32 bytes long.
-            offset += 32;
-            // Standalone encoding for dynamic types includes a 32 bytes offset.
-            let data = &encoded[32..];
-            head.push(SolEncodeHeadInfo::Size(data.len()));
-            tail.extend(data);
-        } else {
-            offset += encoded.len();
-            head.push(SolEncodeHeadInfo::Bytes(encoded));
-        }
+    type OutputType = (Rest::OutputType, <Head as SolEncode<'a>>::SolType);
 
-        offset
+    fn nested_tuple(&'a self) -> Self::OutputType {
+        (self.rest.nested_tuple(), self.head.arg.to_sol_type())
     }
 }
+
+/// Converts an `ArgumentList` nested tuple into a flat tuple.
+trait ArgsListFlatTuple {
+    type OutputType;
+
+    fn flat_tuple(self) -> Self::OutputType;
+}
+
+impl ArgsListFlatTuple for () {
+    type OutputType = ();
+
+    fn flat_tuple(self) {}
+}
+
+// Converts from `A, B, C` to `((((), A), B), C)`
+macro_rules! args_list_nested_tuple {
+    // Initialize.
+    ($($ty:ident),* $(,)?) => {
+        args_list_nested_tuple!(($($ty),*) @out: ())
+    };
+    // Process.
+    (($Head:ident $(, $Rest:ident)*) @out: $Out:tt) => {
+        args_list_nested_tuple!(($($Rest),*) @out: ($Out, $Head))
+    };
+    // Finalize.
+    (() @out: $Out:tt) => { $Out };
+}
+
+macro_rules! impl_flat_tuple {
+    ($( $ty: ident ),*) => {
+        impl<$( $ty ),*> ArgsListFlatTuple for args_list_nested_tuple!($( $ty ),*) {
+            type OutputType = ( $( $ty, )* );
+
+            fn flat_tuple(self) -> Self::OutputType {
+                #[allow(bad_style)]
+                let args_list_nested_tuple!($( $ty ),*) = self;
+                ( $( $ty, )* )
+            }
+        }
+    };
+}
+
+impl_all_tuples!(@nonempty impl_flat_tuple);
 
 #[cfg(test)]
 mod tests {
