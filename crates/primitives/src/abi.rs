@@ -155,6 +155,7 @@ impl<'a> From<&'a mut [u8]> for SizedOutput<'a> {
     }
 }
 
+#[allow(clippy::len_without_is_empty)]
 impl<'a> SizedOutput<'a> {
     /// Returns the number of bytes written to the buffer.
     pub fn len(&self) -> usize {
