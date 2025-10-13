@@ -63,12 +63,12 @@ use ink_env::{
         ExecutionInput,
         utils::{
             DecodeMessageResult,
+            EncodeArgsWith,
             ReturnType,
             Set,
         },
     },
 };
-use ink_primitives::abi::AbiEncodeWith;
 use ink_revive_types::evm::CallTrace;
 use jsonrpsee::core::async_trait;
 use scale::{
@@ -267,7 +267,7 @@ where
     // copied from `pallet-revive`
     fn derive_keypair_address(&self, signer: &Keypair) -> H160 {
         let account_id = <Keypair as subxt::tx::Signer<C>>::account_id(signer);
-        let account_bytes = account_id.encode();
+        let account_bytes = Encode::encode(&account_id);
         crate::AccountIdMapper::to_address(account_bytes.as_ref())
     }
 
@@ -476,7 +476,7 @@ where
         dest: Self::AccountId,
         value: Self::Balance,
     ) -> Result<(), Self::Error> {
-        let dest = dest.encode();
+        let dest = Encode::encode(&dest);
         let dest: C::AccountId = Decode::decode(&mut &dest[..]).unwrap();
         self.api
             .transfer_allow_death(origin, dest, value)
@@ -516,7 +516,7 @@ where
 
     async fn bare_instantiate<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Send + Sync + EncodeArgsWith<Abi> + Clone,
         R,
         Abi: Send + Sync + Clone,
     >(
@@ -623,7 +623,7 @@ where
     /// on-chain and the user incurs costs!
     async fn bare_instantiate_dry_run<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Send + Sync + EncodeArgsWith<Abi> + Clone,
         R,
         Abi: Send + Sync + Clone,
     >(
@@ -728,7 +728,7 @@ where
     }
 
     async fn bare_call<
-        Args: Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Sync + EncodeArgsWith<Abi> + Clone,
         RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(
@@ -808,7 +808,7 @@ where
     /// yet mapped. This is a side effect, as a transaction is then issued
     /// on-chain and the user incurs costs!
     async fn bare_call_dry_run<
-        Args: Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Sync + EncodeArgsWith<Abi> + Clone,
         RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(
