@@ -28,7 +28,7 @@ pub type TokenId = u128;
 
 // The ERC-1155 error types.
 #[derive(Debug, PartialEq, Eq)]
-#[ink::scale_derive(Encode, Decode, TypeInfo)]
+#[ink::error]
 pub enum Error {
     /// This token ID has not yet been created by the contract.
     UnexistentToken,
