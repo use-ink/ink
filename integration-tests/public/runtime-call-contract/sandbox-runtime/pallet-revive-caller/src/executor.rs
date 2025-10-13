@@ -7,13 +7,15 @@ use frame_system::pallet_prelude::OriginFor;
 use ink::{
     Address,
     MessageResult,
-    abi::AbiEncodeWith,
     env::{
         Environment,
         call::{
             ExecutionInput,
             Executor,
-            utils::DecodeMessageResult,
+            utils::{
+                DecodeMessageResult,
+                EncodeArgsWith,
+            },
         },
     },
     primitives::U256,
@@ -50,7 +52,7 @@ where
         input: &ExecutionInput<Args, Abi>,
     ) -> Result<MessageResult<Output>, Self::Error>
     where
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         Output: DecodeMessageResult<Abi>,
     {
         let data = input.encode();
