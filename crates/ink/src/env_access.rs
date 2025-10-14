@@ -25,7 +25,10 @@ use ink_env::{
         DelegateCall,
         FromAddr,
         LimitParamsV2,
-        utils::DecodeMessageResult,
+        utils::{
+            DecodeMessageResult,
+            EncodeArgsWith,
+        },
     },
     hash::{
         CryptoHash,
@@ -38,7 +41,6 @@ use ink_primitives::{
     H256,
     U256,
     abi::{
-        AbiEncodeWith,
         Ink,
         Sol,
     },
@@ -554,7 +556,7 @@ where
         ContractRef: FromAddr + ink_env::ContractReverseReference,
         <ContractRef as ink_env::ContractReverseReference>::Type:
             ink_env::reflect::ContractConstructorDecoder,
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         R: ConstructorReturnType<ContractRef, Abi>,
     {
         ink_env::instantiate_contract::<E, ContractRef, Args, R, Abi>(params)
@@ -623,7 +625,7 @@ where
         params: &CallParams<E, Call, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         R: DecodeMessageResult<Abi>,
     {
         ink_env::invoke_contract::<E, Args, R, Abi>(params)
@@ -691,7 +693,7 @@ where
         params: &CallParams<E, DelegateCall, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         R: DecodeMessageResult<Abi>,
     {
         ink_env::invoke_contract_delegate::<E, Args, R, Abi>(params)

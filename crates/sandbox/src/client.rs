@@ -72,14 +72,16 @@ use ink_e2e::{
 };
 use ink_env::{
     Environment,
-    call::utils::DecodeMessageResult,
+    call::utils::{
+        DecodeMessageResult,
+        EncodeArgsWith,
+    },
 };
 use ink_primitives::{
     H160,
     H256,
     U256,
     Weight,
-    abi::AbiEncodeWith,
 };
 use ink_revive_types::{
     CodeUploadReturnValue,
@@ -296,7 +298,7 @@ where
 
     async fn bare_instantiate<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Send + Sync + EncodeArgsWith<Abi> + Clone,
         R,
         Abi: Send + Sync + Clone,
     >(
@@ -384,7 +386,7 @@ where
     /// on-chain and the user incurs costs!
     async fn bare_instantiate_dry_run<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Send + Sync + EncodeArgsWith<Abi> + Clone,
         R,
         Abi: Send + Sync + Clone,
     >(
@@ -510,7 +512,7 @@ where
     /// yet mapped. This is a side effect, as a transaction is then issued
     /// on-chain and the user incurs costs!
     async fn bare_call<
-        Args: Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Sync + EncodeArgsWith<Abi> + Clone,
         RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(
@@ -584,7 +586,7 @@ where
     /// yet mapped. This is a side effect, as a transaction is then issued
     /// on-chain and the user incurs costs!
     async fn bare_call_dry_run<
-        Args: Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Sync + EncodeArgsWith<Abi> + Clone,
         RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(

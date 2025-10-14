@@ -14,12 +14,12 @@
 
 use ink_env::{
     Environment,
-    call::utils::DecodeMessageResult,
+    call::utils::{
+        DecodeMessageResult,
+        EncodeArgsWith,
+    },
 };
-use ink_primitives::{
-    H160,
-    abi::AbiEncodeWith,
-};
+use ink_primitives::H160;
 use ink_revive_types::evm::CallTrace;
 use jsonrpsee::core::async_trait;
 use sp_weights::Weight;
@@ -139,7 +139,7 @@ pub trait ContractsBackend<E: Environment> {
     fn instantiate<
         'a,
         Contract: Clone,
-        Args: Send + Clone + AbiEncodeWith<Abi> + Sync,
+        Args: Send + Clone + EncodeArgsWith<Abi> + Sync,
         R,
         Abi: Send + Sync + Clone,
     >(
@@ -224,7 +224,7 @@ pub trait ContractsBackend<E: Environment> {
     /// ```
     fn call<
         'a,
-        Args: Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Sync + EncodeArgsWith<Abi> + Clone,
         RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(
@@ -249,7 +249,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
     async fn bare_call<
-        Args: Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Sync + EncodeArgsWith<Abi> + Clone,
         RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(
@@ -273,7 +273,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     /// yet mapped. This is a side effect, as a transaction is then issued
     /// on-chain and the user incurs costs!
     async fn bare_call_dry_run<
-        Args: Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Sync + EncodeArgsWith<Abi> + Clone,
         RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(
@@ -357,7 +357,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     /// instance is reused!
     async fn bare_instantiate<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Send + Sync + EncodeArgsWith<Abi> + Clone,
         R,
         Abi: Send + Sync + Clone,
     >(
@@ -407,7 +407,7 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
     /// on-chain and the user incurs costs!
     async fn bare_instantiate_dry_run<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Send + Sync + EncodeArgsWith<Abi> + Clone,
         R,
         Abi: Send + Sync + Clone,
     >(

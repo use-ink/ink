@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_primitives::{
-    Address,
-    abi::AbiEncodeWith,
-};
+use ink_primitives::Address;
 use pallet_revive_uapi::CallFlags;
 
 use crate::{
@@ -29,7 +26,10 @@ use crate::{
             Set,
             Unset,
         },
-        execution::EmptyArgumentList,
+        execution::{
+            EmptyArgumentList,
+            EncodeArgsWith,
+        },
         utils::DecodeMessageResult,
     },
     types::Environment,
@@ -131,7 +131,7 @@ impl<E, RetType, Abi>
     >
 where
     E: Environment,
-    EmptyArgumentList<Abi>: AbiEncodeWith<Abi>,
+    EmptyArgumentList<Abi>: EncodeArgsWith<Abi>,
     (): DecodeMessageResult<Abi>,
     Abi: Default,
 {
@@ -155,7 +155,7 @@ impl<E, Abi>
     >
 where
     E: Environment,
-    EmptyArgumentList<Abi>: AbiEncodeWith<Abi>,
+    EmptyArgumentList<Abi>: EncodeArgsWith<Abi>,
     (): DecodeMessageResult<Abi>,
     Abi: Default,
 {
@@ -185,7 +185,7 @@ impl<E, Args, R, Abi>
     CallBuilder<E, Set<DelegateCall>, Set<ExecutionInput<Args, Abi>>, Set<ReturnType<R>>>
 where
     E: Environment,
-    Args: AbiEncodeWith<Abi>,
+    Args: EncodeArgsWith<Abi>,
     R: DecodeMessageResult<Abi>,
 {
     /// Invokes the cross-chain function call using Delegate Call semantics and returns
@@ -251,7 +251,7 @@ where
 impl<E, Args, R, Abi> CallParams<E, DelegateCall, Args, R, Abi>
 where
     E: Environment,
-    Args: AbiEncodeWith<Abi>,
+    Args: EncodeArgsWith<Abi>,
     R: DecodeMessageResult<Abi>,
 {
     /// Invoke the contract using Delegate Call semantics with the given built-up call

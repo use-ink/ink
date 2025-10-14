@@ -16,9 +16,11 @@ use std::marker::PhantomData;
 
 use ink_env::{
     Environment,
-    call::utils::DecodeMessageResult,
+    call::utils::{
+        DecodeMessageResult,
+        EncodeArgsWith,
+    },
 };
-use ink_primitives::abi::AbiEncodeWith;
 use sp_weights::Weight;
 
 use super::{
@@ -41,7 +43,7 @@ use crate::{
 pub struct CallBuilder<'a, E, Args, RetType, B, Abi>
 where
     E: Environment,
-    Args: AbiEncodeWith<Abi> + Clone,
+    Args: EncodeArgsWith<Abi> + Clone,
     RetType: Send + DecodeMessageResult<Abi>,
     B: BuilderClient<E>,
     Abi: Clone,
@@ -58,7 +60,7 @@ where
 impl<'a, E, Args, RetType, B, Abi> CallBuilder<'a, E, Args, RetType, B, Abi>
 where
     E: Environment,
-    Args: Sync + AbiEncodeWith<Abi> + Clone,
+    Args: Sync + EncodeArgsWith<Abi> + Clone,
     RetType: Send + DecodeMessageResult<Abi>,
     B: BuilderClient<E>,
     Abi: Sync + Clone,
@@ -197,7 +199,7 @@ where
 pub struct InstantiateBuilder<'a, E, Contract, Args, R, B, Abi>
 where
     E: Environment,
-    Args: AbiEncodeWith<Abi> + Clone,
+    Args: EncodeArgsWith<Abi> + Clone,
     Contract: Clone,
     B: ContractsBackend<E>,
 {
@@ -215,7 +217,7 @@ impl<'a, E, Contract, Args, R, B, Abi>
     InstantiateBuilder<'a, E, Contract, Args, R, B, Abi>
 where
     E: Environment,
-    Args: AbiEncodeWith<Abi> + Clone + Send + Sync,
+    Args: EncodeArgsWith<Abi> + Clone + Send + Sync,
     Contract: Clone,
     B: BuilderClient<E>,
     Abi: Send + Sync + Clone,

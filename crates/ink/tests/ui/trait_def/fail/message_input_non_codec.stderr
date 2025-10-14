@@ -38,7 +38,7 @@ note: required by a bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, Arg
   |         T: AbiEncodeWith<Abi>,
   |            ^^^^^^^^^^^^^^^^^^ required by this bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, ArgumentListEnd, Abi>, Abi>::push_arg`
 
-error[E0277]: the trait bound `ArgumentList<Argument<NonCodec>, ArgumentList<ArgumentListEnd, ArgumentListEnd, ink::abi::Ink>, ink::abi::Ink>: AbiEncodeWith<ink::abi::Ink>` is not satisfied
+error[E0277]: the trait bound `ArgumentList<Argument<NonCodec>, ArgumentList<ArgumentListEnd, ArgumentListEnd, ink::abi::Ink>, ink::abi::Ink>: EncodeArgsWith<ink::abi::Ink>` is not satisfied
  --> tests/ui/trait_def/fail/message_input_non_codec.rs:5:5
   |
 5 | /     #[ink(message)]
@@ -49,12 +49,12 @@ error[E0277]: the trait bound `ArgumentList<Argument<NonCodec>, ArgumentList<Arg
   = help: the following other types implement trait `Encode`:
             ArgumentList<Argument<Head>, Rest, ink::abi::Ink>
             ArgumentList<ArgumentListEnd, ArgumentListEnd, ink::abi::Ink>
-  = note: required for `ArgumentList<Argument<NonCodec>, ArgumentList<ArgumentListEnd, ArgumentListEnd, ink::abi::Ink>, ink::abi::Ink>` to implement `AbiEncodeWith<ink::abi::Ink>`
+  = note: required for `ArgumentList<Argument<NonCodec>, ArgumentList<ArgumentListEnd, ArgumentListEnd, ink::abi::Ink>, ink::abi::Ink>` to implement `EncodeArgsWith<ink::abi::Ink>`
 note: required by a bound in `Execution::<Args, Output, Abi>::new`
  --> $WORKSPACE/crates/env/src/call/execution.rs
   |
-  |     Args: AbiEncodeWith<Abi>,
-  |           ^^^^^^^^^^^^^^^^^^ required by this bound in `Execution::<Args, Output, Abi>::new`
+  |     Args: EncodeArgsWith<Abi>,
+  |           ^^^^^^^^^^^^^^^^^^^ required by this bound in `Execution::<Args, Output, Abi>::new`
 ...
   |     pub fn new(input: ExecutionInput<Args, Abi>) -> Self {
   |            --- required by a bound in this associated function
@@ -70,8 +70,8 @@ error[E0599]: the method `try_invoke` exists for struct `CallBuilder<E, Set<Call
  ::: $WORKSPACE/crates/env/src/call/execution.rs
   |
   |   pub struct ArgumentList<Head, Rest, Abi> {
-  |   ---------------------------------------- doesn't satisfy `_: AbiEncodeWith<Ink>` or `_: Encode`
+  |   ---------------------------------------- doesn't satisfy `_: EncodeArgsWith<Ink>` or `_: Encode`
   |
   = note: the following trait bounds were not satisfied:
           `ArgumentList<Argument<NonCodec>, ArgumentList<ArgumentListEnd, ArgumentListEnd, ink::abi::Ink>, ink::abi::Ink>: Encode`
-          which is required by `ArgumentList<Argument<NonCodec>, ArgumentList<ArgumentListEnd, ArgumentListEnd, ink::abi::Ink>, ink::abi::Ink>: AbiEncodeWith<ink::abi::Ink>`
+          which is required by `ArgumentList<Argument<NonCodec>, ArgumentList<ArgumentListEnd, ArgumentListEnd, ink::abi::Ink>, ink::abi::Ink>: EncodeArgsWith<ink::abi::Ink>`
