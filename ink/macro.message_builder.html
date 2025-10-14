@@ -92,7 +92,7 @@ in the ink! project’s manifest file (i.e. <code>Cargo.toml</code>).</p>
         input: <span class="kw-2">&amp;</span>ExecutionInput&lt;Args, Abi&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;MessageResult&lt;Output&gt;, <span class="self">Self</span>::Error&gt;
     <span class="kw">where
-        </span>Args: ink::abi::AbiEncodeWith&lt;Abi&gt;,
+        </span>Args: ink::env::call::utils::EncodeArgsWith&lt;Abi&gt;,
         Output: ink::env::call::utils::DecodeMessageResult&lt;Abi&gt;,
     {
         <span class="macro">println!</span>(<span class="string">"Executing contract with input: {:?}"</span>, input.encode());

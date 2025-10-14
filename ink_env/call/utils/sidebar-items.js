@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["ConstructorError"],"struct":["Argument","ArgumentList","ArgumentListEnd","ReturnType","Set","Unset"],"trait":["DecodeConstructorError","DecodeMessageResult","Unwrap"],"type":["ArgsList","EmptyArgumentList"]};
+window.SIDEBAR_ITEMS = {"enum":["ConstructorError"],"struct":["Argument","ArgumentList","ArgumentListEnd","ReturnType","Set","Unset"],"trait":["DecodeConstructorError","DecodeMessageResult","EncodeArgsWith","Unwrap"],"type":["ArgsList","EmptyArgumentList"]};

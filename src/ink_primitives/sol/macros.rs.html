@@ -22,25 +22,27 @@
 <a href=#22 id=22 data-nosnippet>22</a>/// to twelve items long.
 <a href=#23 id=23 data-nosnippet>23</a>///
 <a href=#24 id=24 data-nosnippet>24</a>/// Ref: &lt;https://doc.rust-lang.org/std/primitive.tuple.html#trait-implementations&gt;
-<a href=#25 id=25 data-nosnippet>25</a></span><span class="macro">macro_rules!</span> impl_all_tuples {
-<a href=#26 id=26 data-nosnippet>26</a>    <span class="comment">// Call direct to omit unit `()`.
-<a href=#27 id=27 data-nosnippet>27</a>    </span>(@nonempty <span class="macro-nonterminal">$</span><span class="kw">macro</span>: <span class="macro-nonterminal">path</span>) =&gt; {
-<a href=#28 id=28 data-nosnippet>28</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>(<span class="macro-nonterminal">T1</span>);
-<a href=#29 id=29 data-nosnippet>29</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>(<span class="macro-nonterminal">T1</span>, T2);
-<a href=#30 id=30 data-nosnippet>30</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>(<span class="macro-nonterminal">T1</span>,T2,T3);
-<a href=#31 id=31 data-nosnippet>31</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>(<span class="macro-nonterminal">T1</span>,T2,T3,T4);
-<a href=#32 id=32 data-nosnippet>32</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>(<span class="macro-nonterminal">T1</span>,T2,T3,T4,T5);
-<a href=#33 id=33 data-nosnippet>33</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>(<span class="macro-nonterminal">T1</span>,T2,T3,T4,T5,T6);
-<a href=#34 id=34 data-nosnippet>34</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>(<span class="macro-nonterminal">T1</span>,T2,T3,T4,T5,T6,T7);
-<a href=#35 id=35 data-nosnippet>35</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>(<span class="macro-nonterminal">T1</span>,T2,T3,T4,T5,T6,T7,T8);
-<a href=#36 id=36 data-nosnippet>36</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>(<span class="macro-nonterminal">T1</span>,T2,T3,T4,T5,T6,T7,T8,T9);
-<a href=#37 id=37 data-nosnippet>37</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>(<span class="macro-nonterminal">T1</span>,T2,T3,T4,T5,T6,T7,T8,T9,T10);
-<a href=#38 id=38 data-nosnippet>38</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>(<span class="macro-nonterminal">T1</span>,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11);
-<a href=#39 id=39 data-nosnippet>39</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>(<span class="macro-nonterminal">T1</span>,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12);
-<a href=#40 id=40 data-nosnippet>40</a>    };
-<a href=#41 id=41 data-nosnippet>41</a>    <span class="comment">// Default, include `()`.
-<a href=#42 id=42 data-nosnippet>42</a>    </span>(<span class="macro-nonterminal">$</span><span class="kw">macro</span>: <span class="macro-nonterminal">path</span>) =&gt; {
-<a href=#43 id=43 data-nosnippet>43</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>();
-<a href=#44 id=44 data-nosnippet>44</a>        <span class="macro">impl_all_tuples!</span>(@<span class="macro-nonterminal">nonempty $</span><span class="kw">macro</span>);
-<a href=#45 id=45 data-nosnippet>45</a>    };
-<a href=#46 id=46 data-nosnippet>46</a>}</code></pre></div></section></main></body></html>
+<a href=#25 id=25 data-nosnippet>25</a></span><span class="attr">#[macro_export]
+<a href=#26 id=26 data-nosnippet>26</a>#[doc(hidden)]
+<a href=#27 id=27 data-nosnippet>27</a></span><span class="macro">macro_rules!</span> impl_all_tuples {
+<a href=#28 id=28 data-nosnippet>28</a>    <span class="comment">// Call direct to omit unit `()`.
+<a href=#29 id=29 data-nosnippet>29</a>    </span>(@nonempty <span class="macro-nonterminal">$</span><span class="kw">macro</span>: <span class="macro-nonterminal">path</span>) =&gt; {
+<a href=#30 id=30 data-nosnippet>30</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>(<span class="macro-nonterminal">T1</span>);
+<a href=#31 id=31 data-nosnippet>31</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>(<span class="macro-nonterminal">T1</span>, T2);
+<a href=#32 id=32 data-nosnippet>32</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>(<span class="macro-nonterminal">T1</span>,T2,T3);
+<a href=#33 id=33 data-nosnippet>33</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>(<span class="macro-nonterminal">T1</span>,T2,T3,T4);
+<a href=#34 id=34 data-nosnippet>34</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>(<span class="macro-nonterminal">T1</span>,T2,T3,T4,T5);
+<a href=#35 id=35 data-nosnippet>35</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>(<span class="macro-nonterminal">T1</span>,T2,T3,T4,T5,T6);
+<a href=#36 id=36 data-nosnippet>36</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>(<span class="macro-nonterminal">T1</span>,T2,T3,T4,T5,T6,T7);
+<a href=#37 id=37 data-nosnippet>37</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>(<span class="macro-nonterminal">T1</span>,T2,T3,T4,T5,T6,T7,T8);
+<a href=#38 id=38 data-nosnippet>38</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>(<span class="macro-nonterminal">T1</span>,T2,T3,T4,T5,T6,T7,T8,T9);
+<a href=#39 id=39 data-nosnippet>39</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>(<span class="macro-nonterminal">T1</span>,T2,T3,T4,T5,T6,T7,T8,T9,T10);
+<a href=#40 id=40 data-nosnippet>40</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>(<span class="macro-nonterminal">T1</span>,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11);
+<a href=#41 id=41 data-nosnippet>41</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>(<span class="macro-nonterminal">T1</span>,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12);
+<a href=#42 id=42 data-nosnippet>42</a>    };
+<a href=#43 id=43 data-nosnippet>43</a>    <span class="comment">// Default, include `()`.
+<a href=#44 id=44 data-nosnippet>44</a>    </span>(<span class="macro-nonterminal">$</span><span class="kw">macro</span>: <span class="macro-nonterminal">path</span>) =&gt; {
+<a href=#45 id=45 data-nosnippet>45</a>        <span class="macro-nonterminal">$</span><span class="macro">macro!</span>();
+<a href=#46 id=46 data-nosnippet>46</a>        <span class="macro">impl_all_tuples!</span>(@<span class="macro-nonterminal">nonempty $</span><span class="kw">macro</span>);
+<a href=#47 id=47 data-nosnippet>47</a>    };
+<a href=#48 id=48 data-nosnippet>48</a>}</code></pre></div></section></main></body></html>

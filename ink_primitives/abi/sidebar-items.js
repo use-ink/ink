@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Abi"],"struct":["Ink","Sol"],"trait":["AbiDecodeWith","AbiEncodeWith"]};
+window.SIDEBAR_ITEMS = {"enum":["Abi"],"struct":["Ink","SizedOutput","Sol"],"trait":["AbiDecodeWith","AbiEncodeWith"]};

@@ -63,12 +63,12 @@
 <a href=#63 id=63 data-nosnippet>63</a>        ExecutionInput,
 <a href=#64 id=64 data-nosnippet>64</a>        utils::{
 <a href=#65 id=65 data-nosnippet>65</a>            DecodeMessageResult,
-<a href=#66 id=66 data-nosnippet>66</a>            ReturnType,
-<a href=#67 id=67 data-nosnippet>67</a>            Set,
-<a href=#68 id=68 data-nosnippet>68</a>        },
-<a href=#69 id=69 data-nosnippet>69</a>    },
-<a href=#70 id=70 data-nosnippet>70</a>};
-<a href=#71 id=71 data-nosnippet>71</a><span class="kw">use </span>ink_primitives::abi::AbiEncodeWith;
+<a href=#66 id=66 data-nosnippet>66</a>            EncodeArgsWith,
+<a href=#67 id=67 data-nosnippet>67</a>            ReturnType,
+<a href=#68 id=68 data-nosnippet>68</a>            Set,
+<a href=#69 id=69 data-nosnippet>69</a>        },
+<a href=#70 id=70 data-nosnippet>70</a>    },
+<a href=#71 id=71 data-nosnippet>71</a>};
 <a href=#72 id=72 data-nosnippet>72</a><span class="kw">use </span>ink_revive_types::evm::CallTrace;
 <a href=#73 id=73 data-nosnippet>73</a><span class="kw">use </span>jsonrpsee::core::async_trait;
 <a href=#74 id=74 data-nosnippet>74</a><span class="kw">use </span>scale::{
@@ -267,7 +267,7 @@
 <a href=#267 id=267 data-nosnippet>267</a>    </span><span class="comment">// copied from `pallet-revive`
 <a href=#268 id=268 data-nosnippet>268</a>    </span><span class="kw">fn </span>derive_keypair_address(<span class="kw-2">&amp;</span><span class="self">self</span>, signer: <span class="kw-2">&amp;</span>Keypair) -&gt; H160 {
 <a href=#269 id=269 data-nosnippet>269</a>        <span class="kw">let </span>account_id = &lt;Keypair <span class="kw">as </span>subxt::tx::Signer&lt;C&gt;&gt;::account_id(signer);
-<a href=#270 id=270 data-nosnippet>270</a>        <span class="kw">let </span>account_bytes = account_id.encode();
+<a href=#270 id=270 data-nosnippet>270</a>        <span class="kw">let </span>account_bytes = Encode::encode(<span class="kw-2">&amp;</span>account_id);
 <a href=#271 id=271 data-nosnippet>271</a>        <span class="kw">crate</span>::AccountIdMapper::to_address(account_bytes.as_ref())
 <a href=#272 id=272 data-nosnippet>272</a>    }
 <a href=#273 id=273 data-nosnippet>273</a>
@@ -476,7 +476,7 @@
 <a href=#476 id=476 data-nosnippet>476</a>        dest: <span class="self">Self</span>::AccountId,
 <a href=#477 id=477 data-nosnippet>477</a>        value: <span class="self">Self</span>::Balance,
 <a href=#478 id=478 data-nosnippet>478</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
-<a href=#479 id=479 data-nosnippet>479</a>        <span class="kw">let </span>dest = dest.encode();
+<a href=#479 id=479 data-nosnippet>479</a>        <span class="kw">let </span>dest = Encode::encode(<span class="kw-2">&amp;</span>dest);
 <a href=#480 id=480 data-nosnippet>480</a>        <span class="kw">let </span>dest: C::AccountId = Decode::decode(<span class="kw-2">&amp;mut &amp;</span>dest[..]).unwrap();
 <a href=#481 id=481 data-nosnippet>481</a>        <span class="self">self</span>.api
 <a href=#482 id=482 data-nosnippet>482</a>            .transfer_allow_death(origin, dest, value)
@@ -516,7 +516,7 @@
 <a href=#516 id=516 data-nosnippet>516</a>
 <a href=#517 id=517 data-nosnippet>517</a>    <span class="kw">async fn </span>bare_instantiate&lt;
 <a href=#518 id=518 data-nosnippet>518</a>        Contract: Clone,
-<a href=#519 id=519 data-nosnippet>519</a>        Args: Send + Sync + AbiEncodeWith&lt;Abi&gt; + Clone,
+<a href=#519 id=519 data-nosnippet>519</a>        Args: Send + Sync + EncodeArgsWith&lt;Abi&gt; + Clone,
 <a href=#520 id=520 data-nosnippet>520</a>        R,
 <a href=#521 id=521 data-nosnippet>521</a>        Abi: Send + Sync + Clone,
 <a href=#522 id=522 data-nosnippet>522</a>    &gt;(
@@ -623,7 +623,7 @@
 <a href=#623 id=623 data-nosnippet>623</a>    /// on-chain and the user incurs costs!
 <a href=#624 id=624 data-nosnippet>624</a>    </span><span class="kw">async fn </span>bare_instantiate_dry_run&lt;
 <a href=#625 id=625 data-nosnippet>625</a>        Contract: Clone,
-<a href=#626 id=626 data-nosnippet>626</a>        Args: Send + Sync + AbiEncodeWith&lt;Abi&gt; + Clone,
+<a href=#626 id=626 data-nosnippet>626</a>        Args: Send + Sync + EncodeArgsWith&lt;Abi&gt; + Clone,
 <a href=#627 id=627 data-nosnippet>627</a>        R,
 <a href=#628 id=628 data-nosnippet>628</a>        Abi: Send + Sync + Clone,
 <a href=#629 id=629 data-nosnippet>629</a>    &gt;(
@@ -728,7 +728,7 @@
 <a href=#728 id=728 data-nosnippet>728</a>    }
 <a href=#729 id=729 data-nosnippet>729</a>
 <a href=#730 id=730 data-nosnippet>730</a>    <span class="kw">async fn </span>bare_call&lt;
-<a href=#731 id=731 data-nosnippet>731</a>        Args: Sync + AbiEncodeWith&lt;Abi&gt; + Clone,
+<a href=#731 id=731 data-nosnippet>731</a>        Args: Sync + EncodeArgsWith&lt;Abi&gt; + Clone,
 <a href=#732 id=732 data-nosnippet>732</a>        RetType: Send + DecodeMessageResult&lt;Abi&gt;,
 <a href=#733 id=733 data-nosnippet>733</a>        Abi: Sync + Clone,
 <a href=#734 id=734 data-nosnippet>734</a>    &gt;(
@@ -808,7 +808,7 @@
 <a href=#808 id=808 data-nosnippet>808</a>    /// yet mapped. This is a side effect, as a transaction is then issued
 <a href=#809 id=809 data-nosnippet>809</a>    /// on-chain and the user incurs costs!
 <a href=#810 id=810 data-nosnippet>810</a>    </span><span class="kw">async fn </span>bare_call_dry_run&lt;
-<a href=#811 id=811 data-nosnippet>811</a>        Args: Sync + AbiEncodeWith&lt;Abi&gt; + Clone,
+<a href=#811 id=811 data-nosnippet>811</a>        Args: Sync + EncodeArgsWith&lt;Abi&gt; + Clone,
 <a href=#812 id=812 data-nosnippet>812</a>        RetType: Send + DecodeMessageResult&lt;Abi&gt;,
 <a href=#813 id=813 data-nosnippet>813</a>        Abi: Sync + Clone,
 <a href=#814 id=814 data-nosnippet>814</a>    &gt;(

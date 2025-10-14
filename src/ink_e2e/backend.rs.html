@@ -14,12 +14,12 @@
 <a href=#14 id=14 data-nosnippet>14</a>
 <a href=#15 id=15 data-nosnippet>15</a></span><span class="kw">use </span>ink_env::{
 <a href=#16 id=16 data-nosnippet>16</a>    Environment,
-<a href=#17 id=17 data-nosnippet>17</a>    call::utils::DecodeMessageResult,
-<a href=#18 id=18 data-nosnippet>18</a>};
-<a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>ink_primitives::{
-<a href=#20 id=20 data-nosnippet>20</a>    H160,
-<a href=#21 id=21 data-nosnippet>21</a>    abi::AbiEncodeWith,
-<a href=#22 id=22 data-nosnippet>22</a>};
+<a href=#17 id=17 data-nosnippet>17</a>    call::utils::{
+<a href=#18 id=18 data-nosnippet>18</a>        DecodeMessageResult,
+<a href=#19 id=19 data-nosnippet>19</a>        EncodeArgsWith,
+<a href=#20 id=20 data-nosnippet>20</a>    },
+<a href=#21 id=21 data-nosnippet>21</a>};
+<a href=#22 id=22 data-nosnippet>22</a><span class="kw">use </span>ink_primitives::H160;
 <a href=#23 id=23 data-nosnippet>23</a><span class="kw">use </span>ink_revive_types::evm::CallTrace;
 <a href=#24 id=24 data-nosnippet>24</a><span class="kw">use </span>jsonrpsee::core::async_trait;
 <a href=#25 id=25 data-nosnippet>25</a><span class="kw">use </span>sp_weights::Weight;
@@ -139,7 +139,7 @@
 <a href=#139 id=139 data-nosnippet>139</a>    </span><span class="kw">fn </span>instantiate&lt;
 <a href=#140 id=140 data-nosnippet>140</a>        <span class="lifetime">'a</span>,
 <a href=#141 id=141 data-nosnippet>141</a>        Contract: Clone,
-<a href=#142 id=142 data-nosnippet>142</a>        Args: Send + Clone + AbiEncodeWith&lt;Abi&gt; + Sync,
+<a href=#142 id=142 data-nosnippet>142</a>        Args: Send + Clone + EncodeArgsWith&lt;Abi&gt; + Sync,
 <a href=#143 id=143 data-nosnippet>143</a>        R,
 <a href=#144 id=144 data-nosnippet>144</a>        Abi: Send + Sync + Clone,
 <a href=#145 id=145 data-nosnippet>145</a>    &gt;(
@@ -224,7 +224,7 @@
 <a href=#224 id=224 data-nosnippet>224</a>    /// ```
 <a href=#225 id=225 data-nosnippet>225</a>    </span><span class="kw">fn </span>call&lt;
 <a href=#226 id=226 data-nosnippet>226</a>        <span class="lifetime">'a</span>,
-<a href=#227 id=227 data-nosnippet>227</a>        Args: Sync + AbiEncodeWith&lt;Abi&gt; + Clone,
+<a href=#227 id=227 data-nosnippet>227</a>        Args: Sync + EncodeArgsWith&lt;Abi&gt; + Clone,
 <a href=#228 id=228 data-nosnippet>228</a>        RetType: Send + DecodeMessageResult&lt;Abi&gt;,
 <a href=#229 id=229 data-nosnippet>229</a>        Abi: Sync + Clone,
 <a href=#230 id=230 data-nosnippet>230</a>    &gt;(
@@ -249,7 +249,7 @@
 <a href=#249 id=249 data-nosnippet>249</a>    /// Returns when the transaction is included in a block. The return value
 <a href=#250 id=250 data-nosnippet>250</a>    /// contains all events that are associated with this transaction.
 <a href=#251 id=251 data-nosnippet>251</a>    </span><span class="kw">async fn </span>bare_call&lt;
-<a href=#252 id=252 data-nosnippet>252</a>        Args: Sync + AbiEncodeWith&lt;Abi&gt; + Clone,
+<a href=#252 id=252 data-nosnippet>252</a>        Args: Sync + EncodeArgsWith&lt;Abi&gt; + Clone,
 <a href=#253 id=253 data-nosnippet>253</a>        RetType: Send + DecodeMessageResult&lt;Abi&gt;,
 <a href=#254 id=254 data-nosnippet>254</a>        Abi: Sync + Clone,
 <a href=#255 id=255 data-nosnippet>255</a>    &gt;(
@@ -273,7 +273,7 @@
 <a href=#273 id=273 data-nosnippet>273</a>    /// yet mapped. This is a side effect, as a transaction is then issued
 <a href=#274 id=274 data-nosnippet>274</a>    /// on-chain and the user incurs costs!
 <a href=#275 id=275 data-nosnippet>275</a>    </span><span class="kw">async fn </span>bare_call_dry_run&lt;
-<a href=#276 id=276 data-nosnippet>276</a>        Args: Sync + AbiEncodeWith&lt;Abi&gt; + Clone,
+<a href=#276 id=276 data-nosnippet>276</a>        Args: Sync + EncodeArgsWith&lt;Abi&gt; + Clone,
 <a href=#277 id=277 data-nosnippet>277</a>        RetType: Send + DecodeMessageResult&lt;Abi&gt;,
 <a href=#278 id=278 data-nosnippet>278</a>        Abi: Sync + Clone,
 <a href=#279 id=279 data-nosnippet>279</a>    &gt;(
@@ -357,7 +357,7 @@
 <a href=#357 id=357 data-nosnippet>357</a>    /// instance is reused!
 <a href=#358 id=358 data-nosnippet>358</a>    </span><span class="kw">async fn </span>bare_instantiate&lt;
 <a href=#359 id=359 data-nosnippet>359</a>        Contract: Clone,
-<a href=#360 id=360 data-nosnippet>360</a>        Args: Send + Sync + AbiEncodeWith&lt;Abi&gt; + Clone,
+<a href=#360 id=360 data-nosnippet>360</a>        Args: Send + Sync + EncodeArgsWith&lt;Abi&gt; + Clone,
 <a href=#361 id=361 data-nosnippet>361</a>        R,
 <a href=#362 id=362 data-nosnippet>362</a>        Abi: Send + Sync + Clone,
 <a href=#363 id=363 data-nosnippet>363</a>    &gt;(
@@ -407,7 +407,7 @@
 <a href=#407 id=407 data-nosnippet>407</a>    /// on-chain and the user incurs costs!
 <a href=#408 id=408 data-nosnippet>408</a>    </span><span class="kw">async fn </span>bare_instantiate_dry_run&lt;
 <a href=#409 id=409 data-nosnippet>409</a>        Contract: Clone,
-<a href=#410 id=410 data-nosnippet>410</a>        Args: Send + Sync + AbiEncodeWith&lt;Abi&gt; + Clone,
+<a href=#410 id=410 data-nosnippet>410</a>        Args: Send + Sync + EncodeArgsWith&lt;Abi&gt; + Clone,
 <a href=#411 id=411 data-nosnippet>411</a>        R,
 <a href=#412 id=412 data-nosnippet>412</a>        Abi: Send + Sync + Clone,
 <a href=#413 id=413 data-nosnippet>413</a>    &gt;(

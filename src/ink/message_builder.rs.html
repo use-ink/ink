@@ -109,7 +109,7 @@
 <a href=#109 id=109 data-nosnippet>109</a>///         input: &amp;ExecutionInput&lt;Args, Abi&gt;,
 <a href=#110 id=110 data-nosnippet>110</a>///     ) -&gt; Result&lt;MessageResult&lt;Output&gt;, Self::Error&gt;
 <a href=#111 id=111 data-nosnippet>111</a>///     where
-<a href=#112 id=112 data-nosnippet>112</a>///         Args: ink::abi::AbiEncodeWith&lt;Abi&gt;,
+<a href=#112 id=112 data-nosnippet>112</a>///         Args: ink::env::call::utils::EncodeArgsWith&lt;Abi&gt;,
 <a href=#113 id=113 data-nosnippet>113</a>///         Output: ink::env::call::utils::DecodeMessageResult&lt;Abi&gt;,
 <a href=#114 id=114 data-nosnippet>114</a>///     {
 <a href=#115 id=115 data-nosnippet>115</a>///         println!("Executing contract with input: {:?}", input.encode());

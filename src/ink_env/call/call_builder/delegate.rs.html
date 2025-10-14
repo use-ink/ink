@@ -12,24 +12,24 @@
 <a href=#12 id=12 data-nosnippet>12</a>// See the License for the specific language governing permissions and
 <a href=#13 id=13 data-nosnippet>13</a>// limitations under the License.
 <a href=#14 id=14 data-nosnippet>14</a>
-<a href=#15 id=15 data-nosnippet>15</a></span><span class="kw">use </span>ink_primitives::{
-<a href=#16 id=16 data-nosnippet>16</a>    Address,
-<a href=#17 id=17 data-nosnippet>17</a>    abi::AbiEncodeWith,
-<a href=#18 id=18 data-nosnippet>18</a>};
-<a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>pallet_revive_uapi::CallFlags;
-<a href=#20 id=20 data-nosnippet>20</a>
-<a href=#21 id=21 data-nosnippet>21</a><span class="kw">use crate</span>::{
-<a href=#22 id=22 data-nosnippet>22</a>    Error,
-<a href=#23 id=23 data-nosnippet>23</a>    call::{
-<a href=#24 id=24 data-nosnippet>24</a>        CallBuilder,
-<a href=#25 id=25 data-nosnippet>25</a>        CallParams,
-<a href=#26 id=26 data-nosnippet>26</a>        ExecutionInput,
-<a href=#27 id=27 data-nosnippet>27</a>        common::{
-<a href=#28 id=28 data-nosnippet>28</a>            ReturnType,
-<a href=#29 id=29 data-nosnippet>29</a>            Set,
-<a href=#30 id=30 data-nosnippet>30</a>            Unset,
-<a href=#31 id=31 data-nosnippet>31</a>        },
-<a href=#32 id=32 data-nosnippet>32</a>        execution::EmptyArgumentList,
+<a href=#15 id=15 data-nosnippet>15</a></span><span class="kw">use </span>ink_primitives::Address;
+<a href=#16 id=16 data-nosnippet>16</a><span class="kw">use </span>pallet_revive_uapi::CallFlags;
+<a href=#17 id=17 data-nosnippet>17</a>
+<a href=#18 id=18 data-nosnippet>18</a><span class="kw">use crate</span>::{
+<a href=#19 id=19 data-nosnippet>19</a>    Error,
+<a href=#20 id=20 data-nosnippet>20</a>    call::{
+<a href=#21 id=21 data-nosnippet>21</a>        CallBuilder,
+<a href=#22 id=22 data-nosnippet>22</a>        CallParams,
+<a href=#23 id=23 data-nosnippet>23</a>        ExecutionInput,
+<a href=#24 id=24 data-nosnippet>24</a>        common::{
+<a href=#25 id=25 data-nosnippet>25</a>            ReturnType,
+<a href=#26 id=26 data-nosnippet>26</a>            Set,
+<a href=#27 id=27 data-nosnippet>27</a>            Unset,
+<a href=#28 id=28 data-nosnippet>28</a>        },
+<a href=#29 id=29 data-nosnippet>29</a>        execution::{
+<a href=#30 id=30 data-nosnippet>30</a>            EmptyArgumentList,
+<a href=#31 id=31 data-nosnippet>31</a>            EncodeArgsWith,
+<a href=#32 id=32 data-nosnippet>32</a>        },
 <a href=#33 id=33 data-nosnippet>33</a>        utils::DecodeMessageResult,
 <a href=#34 id=34 data-nosnippet>34</a>    },
 <a href=#35 id=35 data-nosnippet>35</a>    types::Environment,
@@ -131,7 +131,7 @@
 <a href=#131 id=131 data-nosnippet>131</a>    &gt;
 <a href=#132 id=132 data-nosnippet>132</a><span class="kw">where
 <a href=#133 id=133 data-nosnippet>133</a>    </span>E: Environment,
-<a href=#134 id=134 data-nosnippet>134</a>    EmptyArgumentList&lt;Abi&gt;: AbiEncodeWith&lt;Abi&gt;,
+<a href=#134 id=134 data-nosnippet>134</a>    EmptyArgumentList&lt;Abi&gt;: EncodeArgsWith&lt;Abi&gt;,
 <a href=#135 id=135 data-nosnippet>135</a>    (): DecodeMessageResult&lt;Abi&gt;,
 <a href=#136 id=136 data-nosnippet>136</a>    Abi: Default,
 <a href=#137 id=137 data-nosnippet>137</a>{
@@ -155,7 +155,7 @@
 <a href=#155 id=155 data-nosnippet>155</a>    &gt;
 <a href=#156 id=156 data-nosnippet>156</a><span class="kw">where
 <a href=#157 id=157 data-nosnippet>157</a>    </span>E: Environment,
-<a href=#158 id=158 data-nosnippet>158</a>    EmptyArgumentList&lt;Abi&gt;: AbiEncodeWith&lt;Abi&gt;,
+<a href=#158 id=158 data-nosnippet>158</a>    EmptyArgumentList&lt;Abi&gt;: EncodeArgsWith&lt;Abi&gt;,
 <a href=#159 id=159 data-nosnippet>159</a>    (): DecodeMessageResult&lt;Abi&gt;,
 <a href=#160 id=160 data-nosnippet>160</a>    Abi: Default,
 <a href=#161 id=161 data-nosnippet>161</a>{
@@ -185,7 +185,7 @@
 <a href=#185 id=185 data-nosnippet>185</a>    CallBuilder&lt;E, Set&lt;DelegateCall&gt;, Set&lt;ExecutionInput&lt;Args, Abi&gt;&gt;, Set&lt;ReturnType&lt;R&gt;&gt;&gt;
 <a href=#186 id=186 data-nosnippet>186</a><span class="kw">where
 <a href=#187 id=187 data-nosnippet>187</a>    </span>E: Environment,
-<a href=#188 id=188 data-nosnippet>188</a>    Args: AbiEncodeWith&lt;Abi&gt;,
+<a href=#188 id=188 data-nosnippet>188</a>    Args: EncodeArgsWith&lt;Abi&gt;,
 <a href=#189 id=189 data-nosnippet>189</a>    R: DecodeMessageResult&lt;Abi&gt;,
 <a href=#190 id=190 data-nosnippet>190</a>{
 <a href=#191 id=191 data-nosnippet>191</a>    <span class="doccomment">/// Invokes the cross-chain function call using Delegate Call semantics and returns
@@ -251,7 +251,7 @@
 <a href=#251 id=251 data-nosnippet>251</a><span class="kw">impl</span>&lt;E, Args, R, Abi&gt; CallParams&lt;E, DelegateCall, Args, R, Abi&gt;
 <a href=#252 id=252 data-nosnippet>252</a><span class="kw">where
 <a href=#253 id=253 data-nosnippet>253</a>    </span>E: Environment,
-<a href=#254 id=254 data-nosnippet>254</a>    Args: AbiEncodeWith&lt;Abi&gt;,
+<a href=#254 id=254 data-nosnippet>254</a>    Args: EncodeArgsWith&lt;Abi&gt;,
 <a href=#255 id=255 data-nosnippet>255</a>    R: DecodeMessageResult&lt;Abi&gt;,
 <a href=#256 id=256 data-nosnippet>256</a>{
 <a href=#257 id=257 data-nosnippet>257</a>    <span class="doccomment">/// Invoke the contract using Delegate Call semantics with the given built-up call
