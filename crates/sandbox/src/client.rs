@@ -72,15 +72,16 @@ use ink_e2e::{
 };
 use ink_env::{
     Environment,
-    call::utils::DecodeMessageResult,
+    call::utils::{
+        DecodeMessageResult,
+        EncodeArgsWith,
+    },
 };
 use ink_primitives::{
-    DepositLimit,
     H160,
     H256,
     U256,
     Weight,
-    abi::AbiEncodeWith,
 };
 use ink_revive_types::{
     CodeUploadReturnValue,
@@ -291,20 +292,13 @@ where
         storage_deposit_limit: E::Balance,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
-        self.raw_instantiate(
-            code,
-            signer,
-            data,
-            value,
-            gas_limit,
-            DepositLimit::Balance(storage_deposit_limit),
-        )
-        .await
+        self.raw_instantiate(code, signer, data, value, gas_limit, storage_deposit_limit)
+            .await
     }
 
     async fn bare_instantiate<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Send + Sync + EncodeArgsWith<Abi> + Clone,
         R,
         Abi: Send + Sync + Clone,
     >(
@@ -314,7 +308,7 @@ where
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: E::Balance,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
         let data = constructor_exec_input(constructor.clone());
         self.raw_instantiate(code, caller, data, value, gas_limit, storage_deposit_limit)
@@ -328,7 +322,7 @@ where
         data: Vec<u8>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: E::Balance,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
         let _ =
             <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
@@ -392,7 +386,7 @@ where
     /// on-chain and the user incurs costs!
     async fn bare_instantiate_dry_run<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Send + Sync + EncodeArgsWith<Abi> + Clone,
         R,
         Abi: Send + Sync + Clone,
     >(
@@ -401,7 +395,7 @@ where
         caller: &Keypair,
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
         value: E::Balance,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
         let exec_input = constructor.clone().params().exec_input().encode();
@@ -425,7 +419,7 @@ where
         caller: &Keypair,
         data: Vec<u8>,
         value: E::Balance,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error> {
         // There's a side effect here!
         let _ =
@@ -439,7 +433,7 @@ where
                 salt(),
                 caller_to_origin::<S>(caller),
                 S::default_gas_limit(),
-                storage_deposit_limit,
+                storage_deposit_limit.unwrap_or(E::Balance::max_value()),
             )
         });
 
@@ -518,7 +512,7 @@ where
     /// yet mapped. This is a side effect, as a transaction is then issued
     /// on-chain and the user incurs costs!
     async fn bare_call<
-        Args: Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Sync + EncodeArgsWith<Abi> + Clone,
         RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(
@@ -527,7 +521,7 @@ where
         message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: E::Balance,
     ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error>
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone,
@@ -556,7 +550,7 @@ where
         input_data: Vec<u8>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: E::Balance,
         signer: &Keypair,
     ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error> {
         // todo
@@ -592,7 +586,7 @@ where
     /// yet mapped. This is a side effect, as a transaction is then issued
     /// on-chain and the user incurs costs!
     async fn bare_call_dry_run<
-        Args: Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Sync + EncodeArgsWith<Abi> + Clone,
         RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(
@@ -600,7 +594,7 @@ where
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone,
@@ -623,7 +617,7 @@ where
         dest: H160,
         input_data: Vec<u8>,
         value: E::Balance,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
         caller: &Keypair,
     ) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error> {
         // There's a side effect here!
@@ -637,7 +631,7 @@ where
                 input_data,
                 caller_to_origin::<S>(caller),
                 S::default_gas_limit(),
-                storage_deposit_limit,
+                storage_deposit_limit.unwrap_or(E::Balance::max_value()),
             )
         });
         if result.result.is_err() {

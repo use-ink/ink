@@ -25,7 +25,6 @@ use super::{
         CreateBuilderPartial,
         constructor_exec_input,
     },
-    deposit_limit_to_balance,
     events::{
         CodeStoredEvent,
         EventWithTopics,
@@ -64,14 +63,11 @@ use ink_env::{
         ExecutionInput,
         utils::{
             DecodeMessageResult,
+            EncodeArgsWith,
             ReturnType,
             Set,
         },
     },
-};
-use ink_primitives::{
-    DepositLimit,
-    abi::AbiEncodeWith,
 };
 use ink_revive_types::evm::CallTrace;
 use jsonrpsee::core::async_trait;
@@ -271,7 +267,7 @@ where
     // copied from `pallet-revive`
     fn derive_keypair_address(&self, signer: &Keypair) -> H160 {
         let account_id = <Keypair as subxt::tx::Signer<C>>::account_id(signer);
-        let account_bytes = account_id.encode();
+        let account_bytes = Encode::encode(&account_id);
         crate::AccountIdMapper::to_address(account_bytes.as_ref())
     }
 
@@ -480,7 +476,7 @@ where
         dest: Self::AccountId,
         value: Self::Balance,
     ) -> Result<(), Self::Error> {
-        let dest = dest.encode();
+        let dest = Encode::encode(&dest);
         let dest: C::AccountId = Decode::decode(&mut &dest[..]).unwrap();
         self.api
             .transfer_allow_death(origin, dest, value)
@@ -520,7 +516,7 @@ where
 
     async fn bare_instantiate<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Send + Sync + EncodeArgsWith<Abi> + Clone,
         R,
         Abi: Send + Sync + Clone,
     >(
@@ -530,7 +526,7 @@ where
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: E::Balance,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
         let data = constructor_exec_input(constructor.clone());
         let ret = self
@@ -546,9 +542,8 @@ where
         constructor: Vec<u8>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: E::Balance,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
-        let storage_deposit_limit = deposit_limit_to_balance::<E>(storage_deposit_limit);
         let (events, trace) = self
             .api
             .instantiate_with_code(
@@ -618,15 +613,8 @@ where
         storage_deposit_limit: E::Balance,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
-        self.raw_instantiate(
-            code,
-            signer,
-            data,
-            value,
-            gas_limit,
-            DepositLimit::Balance(storage_deposit_limit),
-        )
-        .await
+        self.raw_instantiate(code, signer, data, value, gas_limit, storage_deposit_limit)
+            .await
     }
 
     /// Important: For an uncomplicated UX of the E2E testing environment we
@@ -635,7 +623,7 @@ where
     /// on-chain and the user incurs costs!
     async fn bare_instantiate_dry_run<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Send + Sync + EncodeArgsWith<Abi> + Clone,
         R,
         Abi: Send + Sync + Clone,
     >(
@@ -644,7 +632,7 @@ where
         caller: &Keypair,
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
         value: E::Balance,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
@@ -662,7 +650,7 @@ where
         caller: &Keypair,
         data: Vec<u8>,
         value: E::Balance,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error> {
         // There's a side effect here!
         let _ = self.map_account(caller).await;
@@ -740,7 +728,7 @@ where
     }
 
     async fn bare_call<
-        Args: Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Sync + EncodeArgsWith<Abi> + Clone,
         RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(
@@ -749,7 +737,7 @@ where
         message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: E::Balance,
     ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error>
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone,
@@ -774,7 +762,7 @@ where
         input_data: Vec<u8>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: E::Balance,
         signer: &Keypair,
     ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error> {
         let (tx_events, trace) = self
@@ -783,7 +771,7 @@ where
                 dest,
                 value,
                 gas_limit.into(),
-                deposit_limit_to_balance::<E>(storage_deposit_limit),
+                storage_deposit_limit,
                 input_data,
                 signer,
             )
@@ -799,6 +787,10 @@ where
                 let dispatch_error =
                     DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::Decoding(e.to_string()))?;
+                log_error(&format!(
+                    "Attempt to stringify returned data: {:?}",
+                    String::from_utf8_lossy(&trace.clone().unwrap().output.0[..])
+                ));
                 log_error(&format!(
                     "extrinsic for `raw_call` failed: {dispatch_error} {trace:?}"
                 ));
@@ -816,7 +808,7 @@ where
     /// yet mapped. This is a side effect, as a transaction is then issued
     /// on-chain and the user incurs costs!
     async fn bare_call_dry_run<
-        Args: Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Sync + EncodeArgsWith<Abi> + Clone,
         RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(
@@ -824,7 +816,7 @@ where
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone,
@@ -840,6 +832,14 @@ where
             .call_dry_run(dest, exec_input, value, storage_deposit_limit, caller)
             .await;
         log_info(&format!("call dry run result: {:?}", &exec_result.result));
+
+        if exec_result.result.is_ok() && exec_result.clone().result.unwrap().did_revert()
+        {
+            log_error(&format!(
+                "Attempt to stringify returned data: {:?}",
+                String::from_utf8_lossy(&exec_result.clone().result.unwrap().data[..])
+            ));
+        }
 
         let exec_result = self
             .contract_result_to_result(exec_result)
@@ -860,7 +860,7 @@ where
         dest: H160,
         input_data: Vec<u8>,
         value: E::Balance,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
         signer: &Keypair,
     ) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error> {
         let (exec_result, trace) = self

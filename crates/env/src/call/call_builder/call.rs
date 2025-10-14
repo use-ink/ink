@@ -15,7 +15,6 @@
 use ink_primitives::{
     Address,
     U256,
-    abi::AbiEncodeWith,
 };
 use pallet_revive_uapi::CallFlags;
 
@@ -30,7 +29,10 @@ use crate::{
             Set,
             Unset,
         },
-        execution::EmptyArgumentList,
+        execution::{
+            EmptyArgumentList,
+            EncodeArgsWith,
+        },
         utils::DecodeMessageResult,
     },
     types::{
@@ -202,7 +204,7 @@ impl<E, Abi>
     >
 where
     E: Environment,
-    EmptyArgumentList<Abi>: AbiEncodeWith<Abi>,
+    EmptyArgumentList<Abi>: EncodeArgsWith<Abi>,
     (): DecodeMessageResult<Abi>,
     Abi: Default,
 {
@@ -233,7 +235,7 @@ impl<E, Args, R, Abi>
     CallBuilder<E, Set<Call>, Set<ExecutionInput<Args, Abi>>, Set<ReturnType<R>>>
 where
     E: Environment,
-    Args: AbiEncodeWith<Abi>,
+    Args: EncodeArgsWith<Abi>,
     R: DecodeMessageResult<Abi>,
     Abi: Default,
 {
@@ -305,7 +307,7 @@ where
 impl<E, Args, R, Abi> CallParams<E, Call, Args, R, Abi>
 where
     E: Environment,
-    Args: AbiEncodeWith<Abi>,
+    Args: EncodeArgsWith<Abi>,
     R: DecodeMessageResult<Abi>,
 {
     /// Invokes the contract with the given built-up call parameters.

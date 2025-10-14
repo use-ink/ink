@@ -299,6 +299,7 @@ where
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("CallDryRunResult")
             .field("exec_result", &self.exec_result)
+            .field("trace", &self.trace)
             .finish()
     }
 }

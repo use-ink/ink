@@ -14,9 +14,9 @@
 
 use ink_primitives::{
     Address,
+    CodeHashErr,
     H256,
     U256,
-    abi::AbiEncodeWith,
     sol::SolResultEncode,
     types::Environment,
 };
@@ -35,7 +35,10 @@ use crate::{
         DelegateCall,
         FromAddr,
         LimitParamsV2,
-        utils::DecodeMessageResult,
+        utils::{
+            DecodeMessageResult,
+            EncodeArgsWith,
+        },
     },
     event::{
         Event,
@@ -237,7 +240,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`weight_to_fee`][`crate::weight_to_fee`]
-    fn weight_to_fee<E: Environment>(&mut self, gas: u64) -> E::Balance;
+    fn weight_to_fee(&mut self, gas: u64) -> U256;
 
     /// Returns the timestamp of the current block.
     ///
@@ -312,7 +315,7 @@ pub trait TypedEnvBackend: EnvBackend {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         R: DecodeMessageResult<Abi>;
 
     /// Invokes a contract message via delegate call and returns its result.
@@ -327,7 +330,7 @@ pub trait TypedEnvBackend: EnvBackend {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         R: DecodeMessageResult<Abi>;
 
     /// Instantiates another contract.
@@ -348,7 +351,7 @@ pub trait TypedEnvBackend: EnvBackend {
         ContractRef: FromAddr + crate::ContractReverseReference,
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         R: ConstructorReturnType<ContractRef, Abi>;
 
     /// Terminates a smart contract.
@@ -381,32 +384,29 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`caller_is_origin`][`crate::caller_is_origin`]
-    fn caller_is_origin<E>(&mut self) -> bool
-    where
-        E: Environment;
+    fn caller_is_origin(&mut self) -> bool;
 
     /// Checks whether the caller of the current contract is root.
     ///
     /// # Note
     ///
     /// For more details visit: [`caller_is_root`][`crate::caller_is_root`]
-    fn caller_is_root<E>(&mut self) -> bool
-    where
-        E: Environment;
+    fn caller_is_root(&mut self) -> bool;
 
     /// Retrieves the code hash of the contract at the given `account` id.
     ///
     /// # Note
     ///
     /// For more details visit: [`code_hash`][`crate::code_hash`]
-    fn code_hash(&mut self, account: &Address) -> Result<H256>;
+    fn code_hash(&mut self, account: &Address)
+    -> core::result::Result<H256, CodeHashErr>;
 
     /// Retrieves the code hash of the currently executing contract.
     ///
     /// # Note
     ///
     /// For more details visit: [`own_code_hash`][`crate::own_code_hash`]
-    fn own_code_hash(&mut self) -> Result<H256>;
+    fn own_code_hash(&mut self) -> H256;
 
     /// Execute an XCM message locally, using the contract's address as the origin.
     ///

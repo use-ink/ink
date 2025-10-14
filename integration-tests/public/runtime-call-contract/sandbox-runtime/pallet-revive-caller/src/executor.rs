@@ -7,19 +7,21 @@ use frame_system::pallet_prelude::OriginFor;
 use ink::{
     Address,
     MessageResult,
-    abi::AbiEncodeWith,
     env::{
         Environment,
         call::{
             ExecutionInput,
             Executor,
-            utils::DecodeMessageResult,
+            utils::{
+                DecodeMessageResult,
+                EncodeArgsWith,
+            },
         },
     },
     primitives::U256,
 };
 use pallet_revive::{
-    DepositLimit,
+    ExecConfig,
     MomentOf,
 };
 use sp_runtime::traits::Bounded;
@@ -50,7 +52,7 @@ where
         input: &ExecutionInput<Args, Abi>,
     ) -> Result<MessageResult<Output>, Self::Error>
     where
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         Output: DecodeMessageResult<Abi>,
     {
         let data = input.encode();
@@ -61,8 +63,13 @@ where
             ink_sandbox::balance_to_evm_value::<R>(self.value),
             self.gas_limit,
             // self.storage_deposit_limit,
-            DepositLimit::UnsafeOnlyForDryRun, // todo
+            BalanceOf::<R>::max_value(), // todo
             data,
+            ExecConfig {
+                bump_nonce: true,
+                collect_deposit_from_hold: false,
+                effective_gas_price: None,
+            },
         );
 
         let output = result.result?;

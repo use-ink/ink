@@ -25,7 +25,10 @@ use ink_env::{
         DelegateCall,
         FromAddr,
         LimitParamsV2,
-        utils::DecodeMessageResult,
+        utils::{
+            DecodeMessageResult,
+            EncodeArgsWith,
+        },
     },
     hash::{
         CryptoHash,
@@ -34,10 +37,10 @@ use ink_env::{
 };
 use ink_primitives::{
     Address,
+    CodeHashErr,
     H256,
     U256,
     abi::{
-        AbiEncodeWith,
         Ink,
         Sol,
     },
@@ -180,9 +183,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::weight_to_fee`]
-    /// todo: there is now also `gas_price`
-    pub fn weight_to_fee(self, gas: u64) -> E::Balance {
-        ink_env::weight_to_fee::<E>(gas)
+    pub fn weight_to_fee(self, gas: u64) -> U256 {
+        ink_env::weight_to_fee(gas)
     }
 
     /// Returns the timestamp of the current block.
@@ -554,7 +556,7 @@ where
         ContractRef: FromAddr + ink_env::ContractReverseReference,
         <ContractRef as ink_env::ContractReverseReference>::Type:
             ink_env::reflect::ContractConstructorDecoder,
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         R: ConstructorReturnType<ContractRef, Abi>,
     {
         ink_env::instantiate_contract::<E, ContractRef, Args, R, Abi>(params)
@@ -623,7 +625,7 @@ where
         params: &CallParams<E, Call, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         R: DecodeMessageResult<Abi>,
     {
         ink_env::invoke_contract::<E, Args, R, Abi>(params)
@@ -691,7 +693,7 @@ where
         params: &CallParams<E, DelegateCall, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         R: DecodeMessageResult<Abi>,
     {
         ink_env::invoke_contract_delegate::<E, Args, R, Abi>(params)
@@ -1084,7 +1086,7 @@ where
     ///
     /// For more details visit: [`ink_env::caller_is_origin`]
     pub fn caller_is_origin(self) -> bool {
-        ink_env::caller_is_origin::<E>()
+        ink_env::caller_is_origin()
     }
 
     /// Checks whether the caller of the current contract is root.
@@ -1115,7 +1117,7 @@ where
     ///
     /// For more details visit: [`ink_env::caller_is_root`]
     pub fn caller_is_root(self) -> bool {
-        ink_env::caller_is_root::<E>()
+        ink_env::caller_is_root()
     }
 
     /// Returns the code hash of the contract at the given `account` id.
@@ -1146,7 +1148,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::code_hash`]
-    pub fn code_hash(self, addr: &Address) -> Result<H256> {
+    pub fn code_hash(self, addr: &Address) -> core::result::Result<H256, CodeHashErr> {
         ink_env::code_hash(addr)
     }
 
@@ -1168,9 +1170,7 @@ where
     /// #
     /// #[ink(message)]
     /// pub fn own_code_hash(&mut self) -> ink::H256 {
-    ///     self.env()
-    ///         .own_code_hash()
-    ///         .unwrap_or_else(|err| panic!("contract should have a code hash: {:?}", err))
+    ///     self.env().own_code_hash()
     /// }
     /// #    }
     /// # }
@@ -1179,7 +1179,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::own_code_hash`]
-    pub fn own_code_hash(self) -> Result<H256> {
+    pub fn own_code_hash(self) -> H256 {
         ink_env::own_code_hash()
     }
 

@@ -19,9 +19,12 @@ use frame_system::{
     },
 };
 use ink_primitives::U256;
-use ink_revive_types::evm::{
-    CallLog,
-    CallTrace,
+use ink_revive_types::{
+    Bytes,
+    evm::{
+        CallLog,
+        CallTrace,
+    },
 };
 pub use macros::{
     BlockBuilder,
@@ -47,6 +50,7 @@ pub use {
     pallet_balances,
     pallet_revive,
     pallet_timestamp,
+    pallet_transaction_payment,
     paste,
     sp_core::crypto::Ss58Codec,
     sp_externalities::{
@@ -191,8 +195,8 @@ pub fn to_revive_trace(t: pallet_revive::evm::CallTrace) -> CallTrace {
         gas: t.gas,
         gas_used: t.gas_used,
         to: t.to,
-        input: t.input.0,
-        output: t.output.0,
+        input: Bytes(t.input.0),
+        output: Bytes(t.output.0),
         error: t.error,
         revert_reason: t.revert_reason,
         calls: t.calls.into_iter().map(to_revive_trace).collect(),
@@ -210,6 +214,7 @@ pub fn to_revive_trace(t: pallet_revive::evm::CallTrace) -> CallTrace {
             .collect(),
         value: t.value,
         call_type: to_revive_call_type(t.call_type),
+        child_call_count: t.child_call_count,
     }
 }
 

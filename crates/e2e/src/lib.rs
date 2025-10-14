@@ -97,7 +97,6 @@ use ink_env::{
 };
 use ink_primitives::{
     Address,
-    DepositLimit,
     H256,
     types::AccountIdMapper,
 };
@@ -206,46 +205,4 @@ where
     <Contract as ContractCallBuilder>::Type<Abi>: FromAddr,
 {
     <<Contract as ContractCallBuilder>::Type<Abi> as FromAddr>::from_addr(acc_id)
-}
-
-/// Transforms `Option<<E as Environment>::Balance>>` into `DepositLimit`.
-///
-/// This function must only be used for dry-runs, a `None` will
-/// become an unrestricted deposit limit (`DepositLimit::UnsafeOnlyForDryRun`).
-fn balance_to_deposit_limit_dry_run<E: Environment>(
-    b: Option<<E as Environment>::Balance>,
-) -> DepositLimit<<E as Environment>::Balance> {
-    match b {
-        Some(v) => DepositLimit::Balance(v),
-        None => DepositLimit::UnsafeOnlyForDryRun,
-    }
-}
-
-/// Transforms `Option<<E as Environment>::Balance>>` into `DepositLimit`.
-/// This function must be used for submitting extrinsics on-chain.
-///
-/// Panics if `limit` is `None`. Make sure to execute a dry-run
-/// beforehand and use the `storage_deposit_limit` result of it here.
-fn balance_to_deposit_limit<E: Environment>(
-    limit: Option<<E as Environment>::Balance>,
-) -> DepositLimit<<E as Environment>::Balance> {
-    match limit {
-        Some(val) => DepositLimit::Balance(val),
-        None => panic!("Deposit limit must be specified for on-chain submissions."),
-    }
-}
-
-/// Transforms `DepositLimit<<E as Environment>::Balance>` into `<E as
-/// Environment>::Balance>`.
-///
-/// Panics if `limit` is unrestricted (`DepositLimit::UnsafeOnlyForDryRun`).
-fn deposit_limit_to_balance<E: Environment>(
-    limit: DepositLimit<<E as Environment>::Balance>,
-) -> <E as Environment>::Balance {
-    match limit {
-        DepositLimit::Balance(val) => val,
-        DepositLimit::UnsafeOnlyForDryRun => {
-            panic!("Unrestricted deposit limit not allowed for balance conversion!")
-        }
-    }
 }

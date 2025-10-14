@@ -59,6 +59,7 @@ pub use self::{
     params::{
         SolParamsDecode,
         SolParamsEncode,
+        SolTypeParamsEncode,
     },
     result::{
         SolResultDecode,
@@ -178,12 +179,7 @@ pub trait SolEncode<'a> {
     const SOL_NAME: &'static str =
         <<Self::SolType as SolTypeEncode>::AlloyType as AlloySolType>::SOL_NAME;
 
-    /// Whether the ABI encoded size is dynamic.
-    #[doc(hidden)]
-    const DYNAMIC: bool =
-        <<Self::SolType as SolTypeEncode>::AlloyType as AlloySolType>::DYNAMIC;
-
-    /// Solidity ABI encode the value
+    /// Solidity ABI encode the value.
     fn encode(&'a self) -> Vec<u8> {
         <Self::SolType as SolTypeEncode>::encode(&self.to_sol_type())
     }

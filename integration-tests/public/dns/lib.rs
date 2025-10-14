@@ -82,7 +82,7 @@ mod dns {
 
     /// Errors that can occur upon calling this contract.
     #[derive(Debug, PartialEq, Eq)]
-    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[ink::error]
     pub enum Error {
         /// Returned if the name already exists upon registration.
         NameAlreadyExists,

@@ -15,6 +15,7 @@
 use ink_engine::ext::Engine;
 use ink_primitives::{
     Address,
+    CodeHashErr,
     H256,
     U256,
     abi::{
@@ -57,7 +58,10 @@ use crate::{
         DelegateCall,
         FromAddr,
         LimitParamsV2,
-        utils::DecodeMessageResult,
+        utils::{
+            DecodeMessageResult,
+            EncodeArgsWith,
+        },
     },
     event::{
         Event,
@@ -620,7 +624,7 @@ impl TypedEnvBackend for EnvInstance {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         R: DecodeMessageResult<Abi>,
     {
         let call_flags = params.call_flags().bits();
@@ -644,7 +648,7 @@ impl TypedEnvBackend for EnvInstance {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         R: DecodeMessageResult<Abi>,
     {
         let _addr = params.address(); // todo remove
@@ -674,7 +678,7 @@ impl TypedEnvBackend for EnvInstance {
         ContractRef: FromAddr + crate::ContractReverseReference,
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         R: ConstructorReturnType<ContractRef, Abi>,
     {
         let endowment = params.endowment();
@@ -752,7 +756,7 @@ impl TypedEnvBackend for EnvInstance {
             .map_err(Into::into)
     }
 
-    fn weight_to_fee<E: Environment>(&mut self, gas: u64) -> E::Balance {
+    fn weight_to_fee(&mut self, gas: u64) -> U256 {
         let mut output: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
         self.engine.weight_to_fee(gas, &mut &mut output[..]);
         scale::Decode::decode(&mut &output[..]).unwrap_or_else(|error| {
@@ -764,39 +768,31 @@ impl TypedEnvBackend for EnvInstance {
         self.engine.is_contract(account)
     }
 
-    fn caller_is_origin<E>(&mut self) -> bool
-    where
-        E: Environment,
-    {
+    fn caller_is_origin(&mut self) -> bool {
         unimplemented!("off-chain environment does not support cross-contract calls")
     }
 
-    fn caller_is_root<E>(&mut self) -> bool
-    where
-        E: Environment,
-    {
+    fn caller_is_root(&mut self) -> bool {
         unimplemented!("off-chain environment does not support `caller_is_root`")
     }
 
-    fn code_hash(&mut self, addr: &Address) -> Result<H256> {
+    fn code_hash(&mut self, addr: &Address) -> core::result::Result<H256, CodeHashErr> {
         let code_hash = self.engine.database.get_code_hash(addr);
         if let Some(code_hash) = code_hash {
             // todo
             let code_hash = H256::decode(&mut &code_hash[..]).unwrap();
             Ok(code_hash)
         } else {
-            Err(ReturnErrorCode::KeyNotFound.into())
+            Err(CodeHashErr::AddressNotFound)
         }
     }
 
-    fn own_code_hash(&mut self) -> Result<H256> {
+    fn own_code_hash(&mut self) -> H256 {
         let callee = &self.engine.get_callee();
-        let code_hash = self.engine.database.get_code_hash(callee);
-        if let Some(code_hash) = code_hash {
-            Ok(code_hash)
-        } else {
-            Err(ReturnErrorCode::KeyNotFound.into())
-        }
+        self.engine
+            .database
+            .get_code_hash(callee)
+            .expect("own code hash not found")
     }
 
     #[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]

@@ -12,16 +12,17 @@ homepage.workspace = true
 [dependencies]
 sha3 = "0.10.8"
 frame-metadata = { workspace = true }
-frame-system = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
-frame-support = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
-pallet-balances = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
-pallet-revive = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
-pallet-timestamp = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false  }
+frame-system = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "1b1cef306d9ceebf963fd15a04b5c79ee2618bce", default-features = false }
+frame-support = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "1b1cef306d9ceebf963fd15a04b5c79ee2618bce", default-features = false }
+pallet-balances = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "1b1cef306d9ceebf963fd15a04b5c79ee2618bce", default-features = false }
+pallet-transaction-payment = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "1b1cef306d9ceebf963fd15a04b5c79ee2618bce", default-features = false }
+pallet-revive = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "1b1cef306d9ceebf963fd15a04b5c79ee2618bce", default-features = false }
+pallet-timestamp = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "1b1cef306d9ceebf963fd15a04b5c79ee2618bce", default-features = false  }
 scale = { workspace = true }
 sp-core = { workspace = true, default-features = false }
-sp-externalities = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false  }
+sp-externalities = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "1b1cef306d9ceebf963fd15a04b5c79ee2618bce", default-features = false  }
 sp-runtime = { version = "43.0.0", default-features = false  }
-sp-io = {  git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false  }
+sp-io = {  git = "https://github.com/use-ink/polkadot-sdk.git", rev = "1b1cef306d9ceebf963fd15a04b5c79ee2618bce", default-features = false  }
 
 ink_primitives = { workspace = true }
 ink_revive_types = { workspace = true }
@@ -47,6 +48,7 @@ std = [
 	"ink_primitives/std",
 	"ink_revive_types/std",
 	"pallet-balances/std",
+    "pallet-transaction-payment/std",
 	"pallet-revive/std",
 	"pallet-timestamp/std",
 	"scale/std",

@@ -16,10 +16,10 @@
 
 use ink_primitives::{
     Address,
+    CodeHashErr,
     H256,
     U256,
     abi::{
-        AbiEncodeWith,
         Ink,
         Sol,
     },
@@ -44,7 +44,10 @@ use crate::{
         DelegateCall,
         FromAddr,
         LimitParamsV2,
-        utils::DecodeMessageResult,
+        utils::{
+            DecodeMessageResult,
+            EncodeArgsWith,
+        },
     },
     engine::{
         EnvInstance,
@@ -86,12 +89,9 @@ pub fn transferred_value() -> U256 {
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn weight_to_fee<E>(gas: Gas) -> E::Balance
-where
-    E: Environment,
-{
+pub fn weight_to_fee(gas: Gas) -> U256 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::weight_to_fee::<E>(instance, gas)
+        TypedEnvBackend::weight_to_fee(instance, gas)
     })
 }
 
@@ -343,7 +343,7 @@ pub fn invoke_contract<E, Args, R, Abi>(
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
-    Args: AbiEncodeWith<Abi>,
+    Args: EncodeArgsWith<Abi>,
     R: DecodeMessageResult<Abi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
@@ -368,7 +368,7 @@ pub fn invoke_contract_delegate<E, Args, R, Abi>(
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
-    Args: AbiEncodeWith<Abi>,
+    Args: EncodeArgsWith<Abi>,
     R: DecodeMessageResult<Abi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
@@ -407,7 +407,7 @@ where
     ContractRef: FromAddr + crate::ContractReverseReference,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractConstructorDecoder,
-    Args: AbiEncodeWith<Abi>,
+    Args: EncodeArgsWith<Abi>,
     R: ConstructorReturnType<ContractRef, Abi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
@@ -705,7 +705,7 @@ pub fn is_contract(account: &Address) -> bool {
 ///
 /// - If no code hash was found for the specified account id.
 /// - If the returned value cannot be properly decoded.
-pub fn code_hash(addr: &Address) -> Result<H256> {
+pub fn code_hash(addr: &Address) -> core::result::Result<H256, CodeHashErr> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::code_hash(instance, addr)
     })
@@ -716,7 +716,7 @@ pub fn code_hash(addr: &Address) -> Result<H256> {
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn own_code_hash() -> Result<H256> {
+pub fn own_code_hash() -> H256 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::own_code_hash(instance)
     })
@@ -735,12 +735,9 @@ pub fn own_code_hash() -> Result<H256> {
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn caller_is_origin<E>() -> bool
-where
-    E: Environment,
-{
+pub fn caller_is_origin() -> bool {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::caller_is_origin::<E>(instance)
+        TypedEnvBackend::caller_is_origin(instance)
     })
 }
 
@@ -755,12 +752,9 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn caller_is_root<E>() -> bool
-where
-    E: Environment,
-{
+pub fn caller_is_root() -> bool {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::caller_is_root::<E>(instance)
+        TypedEnvBackend::caller_is_root(instance)
     })
 }
 
