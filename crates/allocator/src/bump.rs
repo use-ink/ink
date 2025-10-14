@@ -168,7 +168,7 @@ impl InnerAlloc {
     ///
     /// We inductively calculate the start index
     /// of a layout in the linear memory.
-    /// - Initially `self.next` is `0`` and aligned
+    /// - Initially `self.next` is `0` and aligned
     /// - `layout.align() - 1` accounts for `0` as the first index.
     /// - the binary with the inverse of the align creates a bitmask that is used to zero
     ///   out bits, ensuring alignment according to type requirements and ensures that the
