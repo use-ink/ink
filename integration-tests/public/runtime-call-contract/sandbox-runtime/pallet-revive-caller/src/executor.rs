@@ -5,28 +5,28 @@ use frame_support::{
 };
 use frame_system::pallet_prelude::OriginFor;
 use ink::{
-    abi::AbiEncodeWith,
-    env::{
-        call::{
-            utils::DecodeMessageResult,
-            ExecutionInput,
-            Executor,
-        },
-        Environment,
-    },
-    primitives::U256,
     Address,
     MessageResult,
+    env::{
+        Environment,
+        call::{
+            ExecutionInput,
+            Executor,
+            utils::{
+                DecodeMessageResult,
+                EncodeArgsWith,
+            },
+        },
+    },
+    primitives::U256,
 };
 use pallet_revive::{
-    DepositLimit,
+    ExecConfig,
     MomentOf,
 };
 use sp_runtime::traits::Bounded;
 
 pub struct PalletReviveExecutor<E: Environment, Runtime: pallet_revive::Config> {
-    // todo
-    //pub origin: AccountIdOf<Runtime>,
     pub origin: OriginFor<Runtime>,
     pub contract: Address,
     pub value: BalanceOf<Runtime>,
@@ -41,7 +41,6 @@ impl<E, R> Executor<E> for PalletReviveExecutor<E, R>
 where
     E: Environment,
     R: pallet_revive::Config,
-
     BalanceOf<R>: Into<U256> + TryFrom<U256> + Bounded,
     MomentOf<R>: Into<U256>,
     <R as frame_system::Config>::Hash: IsType<sp_runtime::testing::H256>,
@@ -53,7 +52,7 @@ where
         input: &ExecutionInput<Args, Abi>,
     ) -> Result<MessageResult<Output>, Self::Error>
     where
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         Output: DecodeMessageResult<Abi>,
     {
         let data = input.encode();
@@ -64,8 +63,13 @@ where
             ink_sandbox::balance_to_evm_value::<R>(self.value),
             self.gas_limit,
             // self.storage_deposit_limit,
-            DepositLimit::UnsafeOnlyForDryRun, // todo
+            BalanceOf::<R>::max_value(), // todo
             data,
+            ExecConfig {
+                bump_nonce: true,
+                collect_deposit_from_hold: false,
+                effective_gas_price: None,
+            },
         );
 
         let output = result.result?;

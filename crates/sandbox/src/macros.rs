@@ -23,7 +23,9 @@ impl<
 > BlockBuilder<T>
 {
     /// Create a new externalities with the given balances.
-    pub fn new_ext(balances: Vec<(T::AccountId, T::Balance)>) -> TestExternalities {
+    pub fn new_ext(
+        balances: Vec<(T::AccountId, <T as pallet_balances::Config>::Balance)>,
+    ) -> TestExternalities {
         let mut storage = frame_system::GenesisConfig::<T>::default()
             .build_storage()
             .unwrap();
@@ -116,12 +118,17 @@ mod construct_runtime {
         sp_runtime::{
             traits::Convert,
             AccountId32, Perbill,
+            FixedU128,
         },
-        traits::{ConstBool, ConstU128, ConstU32, ConstU64, Currency},
-        weights::Weight,
+        traits::{ConstBool, ConstU8, ConstU128, ConstU32, ConstU64, Currency},
+        weights::{Weight, IdentityFee},
     };
 
+    use $crate::pallet_transaction_payment::{FungibleAdapter};
+
     use $crate::Snapshot;
+
+    pub type Balance = u128;
 
     // Define the runtime type as a collection of pallets
     construct_runtime!(
@@ -130,13 +137,13 @@ mod construct_runtime {
             Balances: $crate::pallet_balances,
             Timestamp: $crate::pallet_timestamp,
             Revive: $crate::pallet_revive,
+            TransactionPayment: $crate::pallet_transaction_payment,
             $(
                 $pallet_name: $pallet,
             )*
         }
     );
 
-    // Configure pallet system
     #[derive_impl($crate::frame_system::config_preludes::SolochainDefaultConfig as $crate::frame_system::DefaultConfig)]
     impl $crate::frame_system::Config for $runtime {
         type Block = $crate::frame_system::mocking::MockBlockU32<$runtime>;
@@ -145,11 +152,10 @@ mod construct_runtime {
         type AccountData = $crate::pallet_balances::AccountData<<$runtime as $crate::pallet_balances::Config>::Balance>;
     }
 
-    // Configure pallet balances
     impl $crate::pallet_balances::Config for $runtime {
         type RuntimeEvent = RuntimeEvent;
         type WeightInfo = ();
-        type Balance = u128;
+        type Balance = Balance;
         type DustRemoval = ();
         type ExistentialDeposit = ConstU128<1>;
         type AccountStore = System;
@@ -163,7 +169,6 @@ mod construct_runtime {
         type DoneSlashHandler = ();
     }
 
-    // Configure pallet timestamp
     impl $crate::pallet_timestamp::Config for $runtime {
         type Moment = u64;
         type OnTimestampSet = ();
@@ -171,7 +176,17 @@ mod construct_runtime {
         type WeightInfo = ();
     }
 
-    // Configure pallet revive
+    impl $crate::pallet_transaction_payment::Config for $runtime {
+        type RuntimeEvent = RuntimeEvent;
+        type OnChargeTransaction = FungibleAdapter<Balances, ()>;
+        type OperationalFeeMultiplier = ConstU8<5>;
+        type WeightToFee = $crate::pallet_revive::evm::fees::BlockRatioFee<1, 1, Self>;
+        type LengthToFee = IdentityFee<Balance>;
+        type FeeMultiplierUpdate = ();
+        type WeightInfo = $crate::pallet_transaction_payment::weights::SubstrateWeight<$runtime>;
+    }
+
+    // Configure `pallet-revive`
     type BalanceOf = <Balances as Currency<AccountId32>>::Balance;
     impl Convert<Weight, BalanceOf> for $runtime {
         fn convert(w: Weight) -> BalanceOf {
@@ -180,24 +195,22 @@ mod construct_runtime {
     }
 
     parameter_types! {
-        // TODO can we delete some?
-        pub DeletionWeightLimit: Weight = Weight::zero();
-        pub DefaultDepositLimit: BalanceOf = 10_000_000;
         pub CodeHashLockupDepositPercent: Perbill = Perbill::from_percent(0);
-        pub MaxDelegateDependencies: u32 = 32;
+        pub const MaxEthExtrinsicWeight: FixedU128 = FixedU128::from_rational(1,2);
     }
 
     impl $crate::pallet_revive::Config for $runtime {
         type AddressMapper = $crate::pallet_revive::AccountId32Mapper<Self>;
-        type ChainId = ConstU64<1>; // TODO
+        type ChainId = ConstU64<1>;
         type NativeToEthRatio = ConstU32<100_000_000>;
         type Time = Timestamp;
+        type Balance = Balance;
         type Currency = Balances;
         type RuntimeEvent = RuntimeEvent;
         type RuntimeCall = RuntimeCall;
+        type RuntimeOrigin = RuntimeOrigin;
         type DepositPerItem = ConstU128<1>;
         type DepositPerByte = ConstU128<1>;
-        type WeightPrice = Self;
         type WeightInfo = ();
         type RuntimeMemory = ConstU32<{ 128 * 1024 * 1024 }>;
         type PVFMemory = ConstU32<{ 512 * 1024 * 1024 }>;
@@ -206,7 +219,6 @@ mod construct_runtime {
         type RuntimeHoldReason = RuntimeHoldReason;
         type UploadOrigin = $crate::frame_system::EnsureSigned<Self::AccountId>;
         type InstantiateOrigin = $crate::frame_system::EnsureSigned<Self::AccountId>;
-        type EthGasEncoder = ();
         type FindAuthor = ();
         type Precompiles = (
             // todo
@@ -215,9 +227,10 @@ mod construct_runtime {
             //XcmPrecompile<Self>,
         );
         type AllowEVMBytecode = ConstBool<false>;
+        type FeeInfo = ();
+        type MaxEthExtrinsicWeight = MaxEthExtrinsicWeight;
+        type DebugEnabled = ConstBool<false>;
     }
-
-    // Implement `crate::Sandbox` trait
 
     /// Default initial balance for the default account.
     pub const INITIAL_BALANCE: u128 = 1_000_000_000_000_000;
@@ -237,6 +250,7 @@ mod construct_runtime {
         }
     }
 
+    // Implement `crate::Sandbox` trait
     impl $crate::Sandbox for $sandbox {
         type Runtime = $runtime;
 

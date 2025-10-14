@@ -19,8 +19,11 @@ use ink_primitives::{
     abi::{
         AbiEncodeWith,
         Ink,
+        SizedOutput,
         Sol,
     },
+    impl_all_tuples,
+    sol::SolTypeParamsEncode,
 };
 
 use super::{
@@ -42,7 +45,7 @@ pub struct Execution<Args, Output, Abi> {
 
 impl<Args, Output, Abi> Execution<Args, Output, Abi>
 where
-    Args: AbiEncodeWith<Abi>,
+    Args: EncodeArgsWith<Abi>,
     Output: DecodeMessageResult<Abi>,
 {
     /// Construct a new contract execution with the given input data.
@@ -76,7 +79,7 @@ pub trait Executor<E: Environment> {
         input: &ExecutionInput<Args, Abi>,
     ) -> Result<ink_primitives::MessageResult<Output>, Self::Error>
     where
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         Output: DecodeMessageResult<Abi>;
 }
 
@@ -167,7 +170,7 @@ impl<Args, Abi> ExecutionInput<Args, Abi> {
 
 impl<Args, Abi> ExecutionInput<Args, Abi>
 where
-    Args: AbiEncodeWith<Abi>,
+    Args: EncodeArgsWith<Abi>,
 {
     /// Encodes the execution input into a dynamic vector by combining the selector and
     /// encoded arguments.
@@ -191,7 +194,7 @@ where
         } else {
             0
         };
-        let args_len = self.args.encode_to_slice(&mut buffer[selector_len..]);
+        let args_len = self.args.encode_to(&mut buffer[selector_len..]);
         selector_len + args_len
     }
 }
@@ -362,103 +365,133 @@ where
     }
 }
 
-impl SolEncode<'_> for EmptyArgumentList<Sol> {
-    type SolType = ();
+/// Trait for encoding an arguments list as per the specified ABI.
+pub trait EncodeArgsWith<Abi> {
+    /// Encodes the data into a new vector.
+    fn encode(&self) -> Vec<u8>;
 
+    /// Encodes the data into a fixed-size buffer, returning the number of bytes written.
+    fn encode_to(&self, buffer: &mut [u8]) -> usize;
+
+    /// Encodes the data into a dynamically resizing vector.
+    fn encode_to_vec(&self, buffer: &mut Vec<u8>);
+}
+
+impl<T: scale::Encode> EncodeArgsWith<Ink> for T {
+    fn encode(&self) -> Vec<u8> {
+        scale::Encode::encode(self)
+    }
+
+    fn encode_to(&self, buffer: &mut [u8]) -> usize {
+        let mut sized_output = SizedOutput::from(buffer);
+        scale::Encode::encode_to(self, &mut sized_output);
+        sized_output.len()
+    }
+
+    fn encode_to_vec(&self, buffer: &mut Vec<u8>) {
+        scale::Encode::encode_to(self, buffer);
+    }
+}
+
+impl EncodeArgsWith<Sol> for EmptyArgumentList<Sol> {
     fn encode(&self) -> Vec<u8> {
         Vec::new()
     }
 
-    // NOTE: Not actually used for encoding because of `encode` override above.
-    fn to_sol_type(&self) {}
-}
-
-impl<Head, Rest> SolEncode<'_> for ArgumentList<Argument<Head>, Rest, Sol>
-where
-    Self: SolEncodeArgsList,
-{
-    // NOTE: Not actually used for encoding because of `encode` override below.
-    type SolType = ();
-
-    fn encode(&self) -> Vec<u8> {
-        // Collects encoding info for each arg in `Argument list`.
-        let mut head = Vec::new();
-        let mut tail = Vec::new();
-        let mut offset = self.encode_args(&mut head, &mut tail);
-
-        // Composes the head and tail of the argument list encoding.
-        // Ref: <https://docs.soliditylang.org/en/latest/abi-spec.html#function-selector-and-argument-encoding>
-        head.into_iter()
-            .flat_map(|info| {
-                match info {
-                    SolEncodeHeadInfo::Bytes(encoded) => encoded,
-                    SolEncodeHeadInfo::Size(size) => {
-                        let encoded_offset = SolEncode::encode(&(offset as u128));
-                        offset += size;
-                        encoded_offset
-                    }
-                }
-            })
-            .chain(tail)
-            .collect()
-    }
-
-    // NOTE: Not actually used for encoding because of `encode` override above.
-    fn to_sol_type(&self) {}
-}
-
-/// Helper trait for Solidity ABI encoding `ArgumentList`.
-trait SolEncodeArgsList {
-    /// Solidity ABI encodes each arg in `ArgumentList`,
-    /// and returns the current `offset` for dynamic data for the entire list.
-    ///
-    /// Ref: <https://docs.soliditylang.org/en/latest/abi-spec.html#function-selector-and-argument-encoding>
-    fn encode_args(&self, head: &mut Vec<SolEncodeHeadInfo>, tail: &mut Vec<u8>)
-    -> usize;
-}
-
-/// Head info for Solidity ABI encoding `ArgumentList`.
-enum SolEncodeHeadInfo {
-    /// Encoded bytes for a static type.
-    Bytes(Vec<u8>),
-    /// Encoded size for a dynamic type.
-    Size(usize),
-}
-
-impl SolEncodeArgsList for EmptyArgumentList<Sol> {
-    fn encode_args(&self, _: &mut Vec<SolEncodeHeadInfo>, _: &mut Vec<u8>) -> usize {
+    fn encode_to(&self, _buffer: &mut [u8]) -> usize {
         0
     }
+
+    fn encode_to_vec(&self, _buffer: &mut Vec<u8>) {}
 }
 
-impl<Head, Rest> SolEncodeArgsList for ArgumentList<Argument<Head>, Rest, Sol>
+impl<Head, Rest> EncodeArgsWith<Sol> for ArgumentList<Argument<Head>, Rest, Sol>
 where
-    Head: for<'a> SolEncode<'a>,
-    Rest: SolEncodeArgsList,
+    for<'a> Self: ArgsListNestedTuple<'a>,
+    for<'a> <Self as ArgsListNestedTuple<'a>>::OutputType: ArgsListFlatTuple,
+    for<'a> <<Self as ArgsListNestedTuple<'a>>::OutputType as ArgsListFlatTuple>::OutputType:
+        SolTypeParamsEncode,
 {
-    fn encode_args(
-        &self,
-        head: &mut Vec<SolEncodeHeadInfo>,
-        tail: &mut Vec<u8>,
-    ) -> usize {
-        let mut offset = self.rest.encode_args(head, tail);
-        let encoded = self.head.arg.encode();
-        if <Head as SolEncode>::DYNAMIC {
-            // Dynamic types are represented (in the head) by their offset,
-            // which is always 32 bytes long.
-            offset += 32;
-            // Standalone encoding for dynamic types includes a 32 bytes offset.
-            let data = &encoded[32..];
-            head.push(SolEncodeHeadInfo::Size(data.len()));
-            tail.extend(data);
-        } else {
-            offset += encoded.len();
-            head.push(SolEncodeHeadInfo::Bytes(encoded));
-        }
+    fn encode(&self) -> Vec<u8> {
+        SolTypeParamsEncode::encode(&self.nested_tuple().flat_tuple())
+    }
 
-        offset
+    fn encode_to(&self, buffer: &mut [u8]) -> usize {
+        SolTypeParamsEncode::encode_to(&self.nested_tuple().flat_tuple(), buffer)
+    }
+
+    fn encode_to_vec(&self, buffer: &mut Vec<u8>) {
+        buffer.extend(self.encode());
     }
 }
+
+/// Converts `ArgumentList` into a nested tuple representation.
+trait ArgsListNestedTuple<'a> {
+    type OutputType;
+
+    fn nested_tuple(&'a self) -> Self::OutputType;
+}
+
+impl ArgsListNestedTuple<'_> for EmptyArgumentList<Sol> {
+    type OutputType = ();
+
+    fn nested_tuple(&self) {}
+}
+
+impl<'a, Head, Rest> ArgsListNestedTuple<'a> for ArgumentList<Argument<Head>, Rest, Sol>
+where
+    Rest: ArgsListNestedTuple<'a>,
+    Head: SolEncode<'a>,
+{
+    type OutputType = (Rest::OutputType, <Head as SolEncode<'a>>::SolType);
+
+    fn nested_tuple(&'a self) -> Self::OutputType {
+        (self.rest.nested_tuple(), self.head.arg.to_sol_type())
+    }
+}
+
+/// Converts an `ArgumentList` nested tuple into a flat tuple.
+trait ArgsListFlatTuple {
+    type OutputType;
+
+    fn flat_tuple(self) -> Self::OutputType;
+}
+
+impl ArgsListFlatTuple for () {
+    type OutputType = ();
+
+    fn flat_tuple(self) {}
+}
+
+// Converts from `A, B, C` to `((((), A), B), C)`
+macro_rules! args_list_nested_tuple {
+    // Initialize.
+    ($($ty:ident),* $(,)?) => {
+        args_list_nested_tuple!(($($ty),*) @out: ())
+    };
+    // Process.
+    (($Head:ident $(, $Rest:ident)*) @out: $Out:tt) => {
+        args_list_nested_tuple!(($($Rest),*) @out: ($Out, $Head))
+    };
+    // Finalize.
+    (() @out: $Out:tt) => { $Out };
+}
+
+macro_rules! impl_flat_tuple {
+    ($( $ty: ident ),*) => {
+        impl<$( $ty ),*> ArgsListFlatTuple for args_list_nested_tuple!($( $ty ),*) {
+            type OutputType = ( $( $ty, )* );
+
+            fn flat_tuple(self) -> Self::OutputType {
+                #[allow(bad_style)]
+                let args_list_nested_tuple!($( $ty ),*) = self;
+                ( $( $ty, )* )
+            }
+        }
+    };
+}
+
+impl_all_tuples!(@nonempty impl_flat_tuple);
 
 #[cfg(test)]
 mod tests {
@@ -504,17 +537,33 @@ mod tests {
     }
 
     #[test]
+    fn sol_empty_args_works() {
+        let empty_list = ArgumentList::empty();
+        let encoded = EncodeArgsWith::<Sol>::encode(&empty_list);
+        assert_eq!(encoded, Vec::<u8>::new());
+    }
+
+    #[test]
+    fn sol_single_argument_works() {
+        let args_list = ArgumentList::empty().push_arg(&1i32);
+        let encoded = EncodeArgsWith::<Sol>::encode(&args_list);
+        assert!(!encoded.is_empty());
+        let (decoded,) =
+            ink_primitives::sol::decode_sequence::<(i32,)>(&encoded).unwrap();
+        assert_eq!(decoded, 1i32);
+    }
+
+    #[test]
     fn sol_encoding_arguments_works() {
         let args_list = EmptyArgumentList::<Sol>::empty()
             .push_arg(100u8)
             .push_arg(vec![1, 2, 3, 4])
             .push_arg(String::from("Hello, world!"))
             .push_arg(true);
-        let encoded_args_list = SolEncode::encode(&args_list);
+        let encoded_args_list = EncodeArgsWith::<Sol>::encode(&args_list);
 
         let args_tuple = (100u8, vec![1, 2, 3, 4], String::from("Hello, world!"), true);
-        let encoded_args_tuple =
-            ink_primitives::sol::SolParamsEncode::encode(&args_tuple);
+        let encoded_args_tuple = ink_primitives::sol::encode_sequence(&args_tuple);
 
         assert_eq!(encoded_args_list, encoded_args_tuple);
     }

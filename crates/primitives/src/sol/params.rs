@@ -14,10 +14,7 @@
 
 use alloy_sol_types::{
     SolType as AlloySolType,
-    abi::{
-        self,
-        Encoder,
-    },
+    abi,
 };
 use impl_trait_for_tuples::impl_for_tuples;
 use ink_prelude::vec::Vec;
@@ -32,6 +29,8 @@ use super::{
         Encodable,
         EncodableParams,
     },
+    encoder::Encoder,
+    types::SolTokenType,
 };
 
 /// Solidity ABI decode from parameter data (e.g. function, event or error parameters).
@@ -59,6 +58,10 @@ pub trait SolParamsEncode<'a>: SolEncode<'a> + private::Sealed {
 
     /// Solidity ABI encode the value as a parameter sequence.
     fn encode(&'a self) -> Vec<u8>;
+
+    /// Solidity ABI encode the value into the given buffer as a parameter sequence, and
+    /// returns the number of bytes written.
+    fn encode_to(&'a self, buffer: &mut [u8]) -> usize;
 }
 
 // We follow the Rust standard library's convention of implementing traits for tuples up
@@ -80,12 +83,14 @@ impl SolParamsDecode for Tuple {
 #[impl_for_tuples(1, 12)]
 #[tuple_types_custom_trait_bound(SolEncode<'a>)]
 impl<'a> SolParamsEncode<'a> for Tuple {
+    #[inline]
     fn encode(&'a self) -> Vec<u8> {
-        let params = self.to_sol_type();
-        let token = <<Self as SolEncode>::SolType as SolTypeEncode>::tokenize(&params);
-        let mut encoder = Encoder::with_capacity(token.total_words());
-        EncodableParams::encode_params(&token, &mut encoder);
-        encoder.into_bytes()
+        SolTypeParamsEncode::encode(&self.to_sol_type())
+    }
+
+    #[inline]
+    fn encode_to(&'a self, buffer: &mut [u8]) -> usize {
+        SolTypeParamsEncode::encode_to(&self.to_sol_type(), buffer)
     }
 }
 
@@ -101,11 +106,82 @@ impl SolParamsEncode<'_> for () {
     fn encode(&self) -> Vec<u8> {
         Vec::new()
     }
+
+    fn encode_to(&self, _: &mut [u8]) -> usize {
+        0
+    }
 }
 
 #[impl_for_tuples(12)]
 #[tuple_types_no_default_trait_bound]
 impl private::Sealed for Tuple {}
+
+/// Same as `SolParamsEncode` but with a `SolTypeEncode` instead of `SolEncode` bound.
+///
+/// # Note
+///
+/// This trait is sealed and cannot be implemented for types outside `ink_primitives`.
+//
+// Design Notes
+//
+// This trait is useful for cases where we want to skip the conversion from `SolEncode` to
+// `SolTypeEncode`.
+#[doc(hidden)]
+pub trait SolTypeParamsEncode: SolTypeEncode + private::Sealed {
+    /// Solidity ABI encode the value as a parameter sequence.
+    fn encode(&self) -> Vec<u8>;
+
+    /// Solidity ABI encode the value into the given buffer as a parameter sequence, and
+    /// returns the number of bytes written.
+    fn encode_to(&self, buffer: &mut [u8]) -> usize;
+}
+
+#[impl_for_tuples(1, 12)]
+#[tuple_types_custom_trait_bound(SolTypeEncode)]
+impl SolTypeParamsEncode for Tuple {
+    fn encode(&self) -> Vec<u8> {
+        let token = <Self as SolTypeEncode>::tokenize(self);
+        // NOTE: Parameter encoding excludes the top-level offset for a tuple with any
+        // dynamic type member(s).
+        let encoded_size =
+            if <<Self as SolTokenType>::TokenType<'_> as Encodable>::DYNAMIC {
+                token.tail_words()
+            } else {
+                token.head_words()
+            }
+            .checked_mul(32)
+            .unwrap();
+        let mut buffer = ink_prelude::vec![0u8; encoded_size];
+        let mut encoder = Encoder::new(buffer.as_mut_slice());
+        EncodableParams::encode_params(&token, &mut encoder);
+        buffer
+    }
+
+    fn encode_to(&self, buffer: &mut [u8]) -> usize {
+        let token = <Self as SolTypeEncode>::tokenize(self);
+        let mut encoder = Encoder::new(buffer);
+        EncodableParams::encode_params(&token, &mut encoder);
+        // NOTE: Parameter encoding excludes the top-level offset for a tuple with any
+        // dynamic type member(s).
+        let encoded_words =
+            if <<Self as SolTokenType>::TokenType<'_> as Encodable>::DYNAMIC {
+                token.tail_words()
+            } else {
+                token.head_words()
+            };
+        encoded_words.checked_mul(32).unwrap()
+    }
+}
+
+impl SolTypeParamsEncode for () {
+    fn encode(&self) -> Vec<u8> {
+        Vec::new()
+    }
+
+    fn encode_to(&self, _: &mut [u8]) -> usize {
+        0
+    }
+}
 
 mod private {
     /// Seals implementations of `SolParamsEncode` and `SolParamsDecode`.

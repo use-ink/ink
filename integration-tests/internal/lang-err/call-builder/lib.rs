@@ -115,7 +115,7 @@ mod call_builder {
 
             let result = params
                 .try_instantiate()
-                .expect("Error from the Contracts pallet.");
+                .expect("Error from the `pallet-revive`.");
 
             match result {
                 Ok(_) => None,

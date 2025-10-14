@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use alloy_sol_types::SolType as AlloySolType;
 use ink_prelude::vec::Vec;
 
 use crate::sol::{
@@ -20,15 +21,39 @@ use crate::sol::{
     SolEncode,
     SolErrorDecode,
     SolErrorEncode,
+    SolTypeDecode,
+    SolTypeEncode,
 };
 
-impl<'a, T, E> SolEncode<'a> for Result<T, E>
+/// Solidity ABI encode return data.
+pub trait SolResultEncode<'a> {
+    /// Equivalent Solidity ABI type representation.
+    type SolType: SolTypeEncode;
+
+    /// Name of equivalent Solidity ABI type.
+    const SOL_NAME: &'static str =
+        <<Self::SolType as SolTypeEncode>::AlloyType as AlloySolType>::SOL_NAME;
+
+    /// Solidity ABI encode this type as return data.
+    fn encode(&'a self) -> Vec<u8>;
+}
+
+impl<'a, T> SolResultEncode<'a> for T
+where
+    T: SolEncode<'a>,
+{
+    type SolType = <T as SolEncode<'a>>::SolType;
+
+    fn encode(&'a self) -> Vec<u8> {
+        T::encode(self)
+    }
+}
+
+impl<'a, T, E> SolResultEncode<'a> for Result<T, E>
 where
     T: SolEncode<'a>,
     E: SolErrorEncode,
 {
-    // NOTE: Not actually used for encoding because of `encode` override below.
-    // However, it's used for metadata generation, so the unwrapped type is used.
     type SolType = <T as SolEncode<'a>>::SolType;
 
     fn encode(&'a self) -> Vec<u8> {
@@ -37,30 +62,32 @@ where
             Err(err) => err.encode(),
         }
     }
-
-    // NOTE: Not actually used for encoding because of `encode` override above.
-    fn to_sol_type(&self) -> Self::SolType {
-        unimplemented!("Use the `encode` function directly instead.")
-    }
 }
 
-/// Solidity ABI decode result data.
+/// Solidity ABI decode return data.
 // Note: We define and implement this here (e.g. as opposed to an implementation
 // in `ink_env`) because we need 2 generic implementations for `T: SolEncode` and
-// `Result<T: SolEncode, E>` which `rustc` only allows if `Result<T, E>: !SolEncode`
+// `Result<T: SolEncode, E>` which Rust only allows if `Result<T, E>: !SolEncode`
 // (i.e. `Result<T, E>` doesn't implement `SolEncode`). The latter negative condition is
 // only allowed in this crate (because `SolEncode` is defined in this crate) as per Rust's
 // coherence/orphan rules.
 //
 // Ref: <https://doc.rust-lang.org/reference/items/implementations.html#orphan-rules>
 pub trait SolResultDecode {
-    /// Solidity ABI decode result data into this type.
+    /// Equivalent Solidity ABI type representation.
+    type SolType: SolTypeDecode;
+
+    /// Name of equivalent Solidity ABI type.
+    const SOL_NAME: &'static str =
+        <<Self::SolType as SolTypeDecode>::AlloyType as AlloySolType>::SOL_NAME;
+
+    /// Solidity ABI decode return data into this type.
     fn decode(data: &[u8], did_revert: bool) -> Result<Self, SolResultDecodeError>
     where
         Self: Sized;
 }
 
-/// Error representing reason for failing to decode Solidity ABI encoded result data.
+/// Error representing reason for failing to decode Solidity ABI encoded return data.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum SolResultDecodeError {
     /// Tried to decode revert/error data into a non-Result type.
@@ -79,6 +106,8 @@ impl<T> SolResultDecode for T
 where
     T: SolDecode,
 {
+    type SolType = <T as SolDecode>::SolType;
+
     fn decode(data: &[u8], did_revert: bool) -> Result<Self, SolResultDecodeError>
     where
         Self: Sized,
@@ -96,6 +125,8 @@ where
     T: SolDecode,
     E: SolErrorDecode,
 {
+    type SolType = <T as SolDecode>::SolType;
+
     fn decode(data: &[u8], did_revert: bool) -> Result<Self, SolResultDecodeError>
     where
         Self: Sized,

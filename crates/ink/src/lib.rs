@@ -45,6 +45,7 @@ pub use ink_primitives::abi;
 pub use scale;
 #[cfg(feature = "std")]
 pub use scale_info;
+#[cfg(feature = "xcm")]
 pub use xcm;
 
 pub extern crate polkavm_derive;
@@ -83,6 +84,7 @@ pub use ink_macro::{
     SolErrorMetadata,
     blake2x256,
     contract,
+    contract_ref,
     error,
     event,
     scale_derive,

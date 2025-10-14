@@ -59,8 +59,8 @@ error[E0599]: the method `try_invoke` exists for struct `CallBuilder<DefaultEnvi
   ::: $WORKSPACE/crates/env/src/call/execution.rs
    |
    | pub struct ArgumentList<Head, Rest, Abi> {
-   | ---------------------------------------- doesn't satisfy `_: AbiEncodeWith<Ink>` or `_: Encode`
+   | ---------------------------------------- doesn't satisfy `_: EncodeArgsWith<Ink>` or `_: Encode`
    |
    = note: the following trait bounds were not satisfied:
            `ArgumentList<Argument<NonCodecType>, ArgumentList<ArgumentListEnd, ArgumentListEnd, ink::abi::Ink>, ink::abi::Ink>: Encode`
-           which is required by `ArgumentList<Argument<NonCodecType>, ArgumentList<ArgumentListEnd, ArgumentListEnd, ink::abi::Ink>, ink::abi::Ink>: AbiEncodeWith<ink::abi::Ink>`
+           which is required by `ArgumentList<Argument<NonCodecType>, ArgumentList<ArgumentListEnd, ArgumentListEnd, ink::abi::Ink>, ink::abi::Ink>: EncodeArgsWith<ink::abi::Ink>`

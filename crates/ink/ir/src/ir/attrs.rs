@@ -1385,7 +1385,7 @@ mod tests {
     /// Asserts that the given sequence of [`syn::Attribute`] is correctly
     /// partitioned into the expected tuple of ink! and non-ink! attributes
     /// or that the expected error is returned.
-    fn assert_parition_attributes(
+    fn assert_partition_attributes(
         input: Vec<syn::Attribute>,
         expected: Result<(Vec<test::InkAttribute>, Vec<syn::Attribute>), &'static str>,
     ) {
@@ -1406,8 +1406,8 @@ mod tests {
     }
 
     #[test]
-    fn parition_attributes_works() {
-        assert_parition_attributes(
+    fn partition_attributes_works() {
+        assert_partition_attributes(
             vec![
                 syn::parse_quote! { #[ink(message)] },
                 syn::parse_quote! { #[non_ink_attribute] },
@@ -1420,8 +1420,8 @@ mod tests {
     }
 
     #[test]
-    fn parition_duplicates_fails() {
-        assert_parition_attributes(
+    fn partition_duplicates_fails() {
+        assert_partition_attributes(
             vec![
                 syn::parse_quote! { #[ink(message)] },
                 syn::parse_quote! { #[ink(message)] },

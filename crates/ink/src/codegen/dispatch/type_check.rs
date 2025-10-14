@@ -14,7 +14,7 @@
 
 use ink_primitives::{
     SolDecode,
-    SolEncode,
+    sol::SolResultEncode,
 };
 
 /// Used to check if `T` is allowed as ink! input parameter type.
@@ -105,8 +105,9 @@ where
 ///
 /// # Note
 ///
-/// An ink! input parameter type must implement [`ink::SolEncode`][crate::SolEncode]
-/// and must have a `'static` lifetime.
+/// An ink! input parameter type must implement
+/// [`ink::sol::SolResultEncode`][crate::sol::SolResultEncode] and must have a `'static`
+/// lifetime.
 ///
 /// # Example
 ///
@@ -127,4 +128,4 @@ where
 /// ```
 pub struct DispatchOutputSol<T>(T)
 where
-    T: for<'a> SolEncode<'a> + 'static;
+    T: for<'a> SolResultEncode<'a> + 'static;

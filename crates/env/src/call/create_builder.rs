@@ -19,7 +19,6 @@ use ink_primitives::{
     H256,
     U256,
     abi::{
-        AbiEncodeWith,
         Ink,
         Sol,
     },
@@ -34,6 +33,7 @@ use crate::{
         utils::{
             DecodeConstructorError,
             EmptyArgumentList,
+            EncodeArgsWith,
             ReturnType,
             Set,
             Unset,
@@ -281,7 +281,7 @@ where
         crate::reflect::ContractConstructorDecoder,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractMessageDecoder,
-    Args: AbiEncodeWith<Abi>,
+    Args: EncodeArgsWith<Abi>,
     R: ConstructorReturnType<ContractRef, Abi>,
 {
     /// todo
@@ -756,7 +756,7 @@ where
         crate::reflect::ContractConstructorDecoder,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractMessageDecoder,
-    Args: AbiEncodeWith<Abi>,
+    Args: EncodeArgsWith<Abi>,
     RetType: ConstructorReturnType<ContractRef, Abi>,
 {
     /// todo check comment

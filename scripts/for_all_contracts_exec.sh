@@ -24,6 +24,13 @@ OPTIONS
   -p, --path
       Path to recursively find contract projects for which to execute the supplied command
 
+      *Important:* This argument is overwritten if input is piped to `stdin` of this script!
+      The script then assumes that instead of finding contracts recursively, the contracts
+      to use are already fed line-by-line to it.
+
+  -o, --output
+      File to write the output to.
+
   --partition
       Test partition, e.g. 1/2 or 2/3
 
@@ -45,26 +52,30 @@ EXAMPLES
 EOF
 }
 
-# enable recursive globs
-shopt -s globstar
-
 command=( "${@:2}" )
 
-options=$(getopt -o p:i:q --long path:,ignore:,quiet,partition: -- "$@")
+options=$(getopt -o p:o:i:q --long path:,output:,ignore:,quiet,partition: -- "$@")
 [ $? -eq 0 ] || {
     >&2 echo "Incorrect option provided"
     usage
     exit 1
 }
+
 eval set -- "$options"
+path=""
 ignore=()
 quiet=false
 partitioning=false
+output="/tmp/output"
 while true; do
     case "$1" in
     -p|--path)
         shift; # The arg is next in position args
         path="$1"
+        ;;
+    -o|--output)
+        shift; # The arg is next in position args
+        output="$1"
         ;;
     -i|--ignore)
         shift; # The arg is next in position args
@@ -90,7 +101,7 @@ done
 
 command=("${@}")
 
-if [ -z "$path" ] || ([ "$partitioning" = true ] && \
+if ([ "$partitioning" = true ] && \
   (! [[ "$m" =~ ^[0-9]+$ ]] || ! [[ "$n" =~ ^[0-9]+$ ]] || [ "$m" -gt "$n" ] || [ "$m" -le 0 ] || [ "$n" -le 0 ])) || \
   [ "${#command[@]}" -le 0 ]; then
   usage
@@ -113,30 +124,69 @@ done
 
 # filter out ignored paths and check if each manifest is a contract
 filtered_manifests=()
-for manifest_path in "$path"/**/Cargo.toml; do
-  manifest_parent="$(dirname "$manifest_path" | cut -d'/' -f2-)"
-  if [[ "${ignore[*]}" =~ ${manifest_parent} ]]; then
-    if [ "$quiet" = false ]; then
-      >&2 echo "Ignoring $manifest_path"
-    fi
-  elif ! "$scripts_path"/is_contract.sh "$manifest_path"; then
-    if [ "$quiet" = false ]; then
-      >&2 echo "Skipping non contract: $manifest_path"
-    fi
-  else
-    filtered_manifests+=("$manifest_path")
+while IFS= read -r line; do
+  ignore_line="false"
+  for i in "${ignore[@]}"
+  do
+      if echo "$line" | grep -q "$i"; then
+        >&2 echo "Ignoring $line";
+        ignore_line=true;
+        break;
+      fi
+  done
+
+  if [[ "$ignore_line" == "false" ]]; then
+      >&2 echo "Using $line";
+      filtered_manifests+=("$line");
   fi
 done
+
+if [ ${#filtered_manifests[@]} -eq 0 ]; then
+    for manifest_path in $(fdfind Cargo.toml "$path"); do
+      manifest_parent="$(dirname "$manifest_path" | cut -d'/' -f2-)"
+      >&2 echo "Looking at " $manifest_parent
+      if [[ "${ignore[*]-}" =~ ${manifest_parent} ]]; then
+        if [ "$quiet" = false ]; then
+          >&2 echo "Ignoring $manifest_path"
+        fi
+      else
+            # `is_contract.sh` is using exit codes to communicate
+            # its outcome. We have to disable `set -e` here, as
+            # this script would otherwise exit immediately if
+            # `is_contract.sh` were to report `exit 1`.
+            set +e
+
+            >&2 echo "Checking: $manifest_path"
+            "$scripts_path"/is_contract.sh "$manifest_path";
+            check_exit=$?
+            >&2 echo "check_exit " $check_exit
+            if [ "$check_exit" -eq 3 ]; then
+                if [ "$quiet" = false ]; then
+                  >&2 echo "Skipping non contract: $manifest_path"
+                fi
+            elif [ "$check_exit" -eq 0 ]; then
+                >&2 echo "Found contract: $manifest_path"
+                filtered_manifests+=("$manifest_path")
+            else
+                if [ "$quiet" = false ]; then
+                  >&2 echo "Error while checking: $manifest_path"
+                  failures+=("$manifest_path")
+                fi
+            fi
+            set -e
+      fi
+    done
+fi
 
 # determine the total number of filtered Cargo.toml files
 total_manifests=${#filtered_manifests[@]}
 if [ "$partitioning" = true ]; then
     # calculate the partition start and end index
-    partition_size=$(( total_manifests / n ))
+    partition_size=$(( (total_manifests + n - 1) / n ))
     start=$(( (m - 1) * partition_size ))
     end=$(( m * partition_size - 1 ))
     if [ "$m" -eq "$n" ]; then
-    # last partition
+      # last partition
       end=$(( total_manifests - 1 ))
     fi
 else
@@ -146,12 +196,14 @@ fi
 
 for (( i = start; i <= end; i++ )); do
   manifest_path="${filtered_manifests[$i]}"
-  export MANIFEST_PATH="$manifest_path"
+  example="$(dirname "$manifest_path" | cut -d'/' -f3)"
+  echo "example" $example >&2
   command[$arg_index]="$manifest_path"
   if [ "$quiet" = false ]; then
     >&2 echo Running: "${command[@]}"
   fi
-  eval "${command[@]}";
+  echo "evaluating command" ${command[@]} >&2
+  eval "${command[@]}" >> "$output"
 
   if [ $? -eq 0 ]; then
     successes+=("$manifest_path")
@@ -166,12 +218,12 @@ NC='\033[0m' # No Color
 
 if [ "$quiet" = false ]; then
   printf "\nSucceeded: %s\n" ${#successes[@]}
-  for success in "${successes[@]}"; do
+  for success in "${successes[@]-}"; do
     printf "  ${GREEN}\u2713${NC} %s \n" "$success"
   done
 
   printf "\nFailed: %s\n" ${#failures[@]}
-  for failure in "${failures[@]}"; do
+  for failure in "${failures[@]-}"; do
     printf "  ${RED}\u2717${NC} %s \n" "$failure"
   done
 fi

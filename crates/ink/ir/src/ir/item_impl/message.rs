@@ -227,6 +227,16 @@ impl TryFrom<syn::ImplItemFn> for Message {
                 "ink! messages with a `payable` attribute argument must have a `&mut self` receiver",
             ));
         }
+        #[cfg(ink_abi = "sol")]
+        if selector.is_some() {
+            let selector_span = ink_attrs.args().find_map(|arg| {
+                matches!(arg.kind(), ir::AttributeArg::Selector(_)).then_some(arg.span())
+            });
+            return Err(format_err!(
+                selector_span.unwrap_or_else(|| method_item.span()),
+                "message `selector` attributes are not supported in Solidity ABI compatibility mode",
+            ));
+        }
         Ok(Self {
             is_payable,
             is_default,
@@ -295,6 +305,10 @@ impl Callable for Message {
     fn name(&self) -> Option<&str> {
         self.name.as_deref()
     }
+
+    fn normalized_name(&self) -> String {
+        self.normalized_name()
+    }
 }
 
 impl Message {
@@ -360,7 +374,7 @@ impl Message {
     /// Although the above scenario is very unlikely since the local ID is computed
     /// solely by the identifier of the ink! message.
     pub fn local_id(&self) -> u32 {
-        utils::local_message_id(self.ident())
+        utils::local_message_id(&self.normalized_name())
     }
 
     /// Returns the identifier of the message with an additional `try_` prefix attached.
@@ -371,6 +385,17 @@ impl Message {
     /// Returns the function name override (if any).
     pub fn name(&self) -> Option<&str> {
         self.name.as_deref()
+    }
+
+    /// Returns the "normalized" function name
+    ///
+    /// # Note
+    /// This returns the name override (if provided), otherwise the identifier is
+    /// returned.
+    pub fn normalized_name(&self) -> String {
+        self.name()
+            .map(ToString::to_string)
+            .unwrap_or_else(|| self.ident().to_string())
     }
 }
 

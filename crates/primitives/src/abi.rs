@@ -69,6 +69,7 @@ pub trait AbiEncodeWith<Abi> {
 pub trait AbiDecodeWith<Abi>: Sized {
     /// The error type that can occur during decoding.
     type Error: core::fmt::Debug;
+
     /// Decodes the data from a buffer using the provided ABI.
     fn decode_with(buffer: &[u8]) -> Result<Self, Self::Error>;
 }
@@ -79,16 +80,9 @@ impl<T: scale::Encode> AbiEncodeWith<Ink> for T {
     }
 
     fn encode_to_slice(&self, buffer: &mut [u8]) -> usize {
-        let encoded = scale::Encode::encode(self);
-        let len = encoded.len();
-        debug_assert!(
-            len <= buffer.len(),
-            "encode scope buffer overflowed, encoded len is {} but buffer len is {}",
-            len,
-            buffer.len()
-        );
-        buffer[..len].copy_from_slice(&encoded);
-        len
+        let mut sized_output = SizedOutput::from(buffer);
+        scale::Encode::encode_to(self, &mut sized_output);
+        sized_output.len()
     }
 
     fn encode_to_vec(&self, buffer: &mut Vec<u8>) {
@@ -127,20 +121,11 @@ where
     }
 
     fn encode_to_slice(&self, buffer: &mut [u8]) -> usize {
-        let encoded = SolEncode::encode(self);
-        let len = encoded.len();
-        debug_assert!(
-            len <= buffer.len(),
-            "encode scope buffer overflowed, encoded len is {} but buffer len is {}",
-            len,
-            buffer.len()
-        );
-        buffer[..len].copy_from_slice(&encoded);
-        len
+        SolEncode::encode_to(self, buffer)
     }
 
     fn encode_to_vec(&self, buffer: &mut Vec<u8>) {
-        buffer.extend_from_slice(&T::encode(self));
+        buffer.extend(SolEncode::encode(self));
     }
 
     fn encode_topic<H>(&self, hasher: H) -> [u8; 32]
@@ -155,5 +140,40 @@ impl<T: SolDecode> AbiDecodeWith<Sol> for T {
     type Error = crate::sol::Error;
     fn decode_with(buffer: &[u8]) -> Result<Self, Self::Error> {
         T::decode(buffer)
+    }
+}
+
+/// A `scale::Output` implementing buffer that tracks the number of bytes written.
+pub struct SizedOutput<'a> {
+    buffer: &'a mut [u8],
+    offset: usize,
+}
+
+impl<'a> From<&'a mut [u8]> for SizedOutput<'a> {
+    fn from(buffer: &'a mut [u8]) -> Self {
+        Self { buffer, offset: 0 }
+    }
+}
+
+#[allow(clippy::len_without_is_empty)]
+impl<'a> SizedOutput<'a> {
+    /// Returns the number of bytes written to the buffer.
+    pub fn len(&self) -> usize {
+        self.offset
+    }
+}
+
+impl scale::Output for SizedOutput<'_> {
+    fn write(&mut self, bytes: &[u8]) {
+        let start = self.offset;
+        let len = bytes.len();
+        debug_assert!(
+            len <= self.buffer.len(),
+            "output buffer overflowed, encoded len is {} but buffer len is {}",
+            len,
+            self.buffer.len()
+        );
+        self.buffer[start..start.checked_add(len).unwrap()].copy_from_slice(bytes);
+        self.offset = self.offset.checked_add(len).unwrap();
     }
 }

@@ -14,10 +14,10 @@
 
 use ink_primitives::{
     Address,
+    CodeHashErr,
     H256,
-    SolEncode,
     U256,
-    abi::AbiEncodeWith,
+    sol::SolResultEncode,
     types::Environment,
 };
 use ink_storage_traits::Storable;
@@ -35,7 +35,10 @@ use crate::{
         DelegateCall,
         FromAddr,
         LimitParamsV2,
-        utils::DecodeMessageResult,
+        utils::{
+            DecodeMessageResult,
+            EncodeArgsWith,
+        },
     },
     event::{
         Event,
@@ -146,10 +149,15 @@ pub trait EnvBackend {
     where
         R: scale::Encode;
 
-    /// todo: comment
+    /// Returns the *Solidity ABI encoded* value back to the caller of the executed
+    /// contract.
+    ///
+    /// # Note
+    ///
+    /// This function stops the execution of the contract immediately.
     fn return_value_solidity<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
-        R: for<'a> SolEncode<'a>;
+        R: for<'a> SolResultEncode<'a>;
 
     /// Conducts the crypto hash of the given input and stores the result in `output`.
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
@@ -232,7 +240,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`weight_to_fee`][`crate::weight_to_fee`]
-    fn weight_to_fee<E: Environment>(&mut self, gas: u64) -> E::Balance;
+    fn weight_to_fee(&mut self, gas: u64) -> U256;
 
     /// Returns the timestamp of the current block.
     ///
@@ -240,6 +248,13 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// For more details visit: [`block_timestamp`][`crate::block_timestamp`]
     fn block_timestamp<E: Environment>(&mut self) -> E::Timestamp;
+
+    /// Retrieves the account id for a specified address.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`to_account_id`][`crate::to_account_id`]
+    fn to_account_id<E: Environment>(&mut self, addr: Address) -> E::AccountId;
 
     /// Returns the address of the executed contract.
     ///
@@ -300,7 +315,7 @@ pub trait TypedEnvBackend: EnvBackend {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         R: DecodeMessageResult<Abi>;
 
     /// Invokes a contract message via delegate call and returns its result.
@@ -315,7 +330,7 @@ pub trait TypedEnvBackend: EnvBackend {
     ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         R: DecodeMessageResult<Abi>;
 
     /// Instantiates another contract.
@@ -336,7 +351,7 @@ pub trait TypedEnvBackend: EnvBackend {
         ContractRef: FromAddr + crate::ContractReverseReference,
         <ContractRef as crate::ContractReverseReference>::Type:
             crate::reflect::ContractConstructorDecoder,
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         R: ConstructorReturnType<ContractRef, Abi>;
 
     /// Terminates a smart contract.
@@ -361,8 +376,6 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`is_contract`][`crate::is_contract`]
-    #[allow(clippy::wrong_self_convention)]
-    #[cfg(feature = "unstable-hostfn")]
     fn is_contract(&mut self, account: &Address) -> bool;
 
     /// Checks whether the caller of the current contract is the origin of the whole call
@@ -371,39 +384,36 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`caller_is_origin`][`crate::caller_is_origin`]
-    fn caller_is_origin<E>(&mut self) -> bool
-    where
-        E: Environment;
+    fn caller_is_origin(&mut self) -> bool;
 
     /// Checks whether the caller of the current contract is root.
     ///
     /// # Note
     ///
     /// For more details visit: [`caller_is_root`][`crate::caller_is_root`]
-    fn caller_is_root<E>(&mut self) -> bool
-    where
-        E: Environment;
+    fn caller_is_root(&mut self) -> bool;
 
     /// Retrieves the code hash of the contract at the given `account` id.
     ///
     /// # Note
     ///
     /// For more details visit: [`code_hash`][`crate::code_hash`]
-    fn code_hash(&mut self, account: &Address) -> Result<H256>;
+    fn code_hash(&mut self, account: &Address)
+    -> core::result::Result<H256, CodeHashErr>;
 
     /// Retrieves the code hash of the currently executing contract.
     ///
     /// # Note
     ///
     /// For more details visit: [`own_code_hash`][`crate::own_code_hash`]
-    fn own_code_hash(&mut self) -> Result<H256>;
+    fn own_code_hash(&mut self) -> H256;
 
     /// Execute an XCM message locally, using the contract's address as the origin.
     ///
     /// # Note
     ///
     /// For more details visit: [`xcm`][`crate::xcm_execute`].
-    #[cfg(feature = "unstable-hostfn")]
+    #[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
     fn xcm_execute<E, Call>(&mut self, msg: &xcm::VersionedXcm<Call>) -> Result<()>
     where
         E: Environment,
@@ -414,7 +424,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`xcm`][`crate::xcm_send`].
-    #[cfg(feature = "unstable-hostfn")]
+    #[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
     fn xcm_send<E, Call>(
         &mut self,
         dest: &xcm::VersionedLocation,

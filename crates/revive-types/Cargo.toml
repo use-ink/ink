@@ -1,0 +1,39 @@
+[package]
+name = "ink_revive_types"
+version.workspace = true
+authors = ["Use Ink <ink@use.ink>", "Parity Technologies <admin@parity.io>"]
+edition.workspace = true
+license.workspace = true
+description = "Primitives copied from Parity's Polkadot SDK module `pallet-revive`. Copied to reduce the build times of ink! contracts."
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+scale = { workspace = true }
+scale-info = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+ink_primitives = { workspace = true }
+derive_more = { workspace = true, features = ["from", "try_into"] }
+sp-runtime = { workspace = true }
+pallet-revive-uapi = { workspace = true, features = ["scale"] }
+alloy-core = { workspace = true, features = ["sol-types"] }
+
+[dev-dependencies]
+serde_json = { workspace = true }
+
+[features]
+default = ["std"]
+std = [
+    "alloy-core/std",
+    "scale/std",
+    "scale-info/std",
+    "ink_primitives/std",
+    "sp-runtime/std",
+    "serde/std",
+]
+

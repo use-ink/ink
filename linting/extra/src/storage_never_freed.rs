@@ -26,19 +26,6 @@ use ink_linting_utils::{
 };
 use rustc_hir::{
     self as hir,
-    def::{
-        DefKind,
-        Res,
-    },
-    def_id::{
-        DefId,
-        LocalDefId,
-    },
-    intravisit::{
-        walk_body,
-        walk_expr,
-        Visitor,
-    },
     Expr,
     ExprKind,
     ImplItemKind,
@@ -48,6 +35,19 @@ use rustc_hir::{
     Path,
     QPath,
     TyKind,
+    def::{
+        DefKind,
+        Res,
+    },
+    def_id::{
+        DefId,
+        LocalDefId,
+    },
+    intravisit::{
+        Visitor,
+        walk_body,
+        walk_expr,
+    },
 };
 use rustc_lint::{
     LateContext,
@@ -58,8 +58,8 @@ use rustc_session::{
     declare_lint_pass,
 };
 use std::collections::{
-    btree_map::Entry,
     BTreeMap,
+    btree_map::Entry,
 };
 
 declare_lint! {

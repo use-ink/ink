@@ -4,7 +4,6 @@ members = [
     "crates/allocator",
     "crates/e2e",
     "crates/e2e/macro",
-    "crates/e2e/sandbox",
     "crates/engine",
     "crates/env",
     "crates/ink",
@@ -12,8 +11,10 @@ members = [
     "crates/ink/ir",
     "crates/ink/macro",
     "crates/metadata",
+    "crates/revive-types",
     "crates/prelude",
     "crates/primitives",
+    "crates/sandbox",
     "crates/storage",
     "crates/storage/traits"
 ]
@@ -30,7 +31,7 @@ homepage = "https://use.ink"
 keywords = ["polkavm", "ink", "riscv", "blockchain", "edsl"]
 license = "Apache-2.0"
 repository = "https://github.com/use-ink/ink"
-version = "6.0.0-alpha.3"
+version = "6.0.0-alpha.4"
 rust-version = "1.88"
 
 [workspace.dependencies]
@@ -63,7 +64,7 @@ scale-info = { version = "2.11", default-features = false }
 schemars = { version = "0.8" }
 secp256k1 = { version = "0.30.0" }
 serde = { version = "1.0.215", default-features = false }
-serde_json = { version = "1.0.137" }
+serde_json = { version = "1.0.145" }
 sha2 = { version = "0.10" }
 sha3 = { version = "0.10" }
 static_assertions = { version = "1.1" }
@@ -83,46 +84,42 @@ const_env = { version = "0.1" }
 
 # Substrate dependencies
 frame-metadata = { version = "23.0.0", default-features = false }
-frame-system = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
-frame-support = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
-pallet-balances = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
-pallet-timestamp = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
+frame-system = { version = "42.0.0", default-features = false }
+frame-support = { version = "42.0.0", default-features = false }
 
-pallet-revive = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
-pallet-revive-uapi = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false, features = ["unstable-hostfn"] }
+pallet-revive-uapi = { version = "0.8.0", default-features = false, features = ["unstable-hostfn"] }
 
-sp-externalities = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
-sp-io = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
-sp-runtime-interface = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false, features = ["disable_target_static_assertions"] }
-sp-core = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
-sp-keyring = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
-sp-runtime = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1" }
-sp-weights = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
-xcm = { package = "staging-xcm", git = "https://github.com/use-ink/polkadot-sdk.git", rev = "a71ec19a94702ea71767ba5ac97603ea6c6305c1", default-features = false }
+sp-core = { version = "38.0.0", default-features = false }
+sp-keyring = { version = "43.0.0", default-features = false }
+sp-runtime = { version = "43.0.0" }
+sp-weights = { version = "33.0.0", default-features = false }
+xcm = { package = "staging-xcm", version = "18.0.0", default-features = false }
 
 # PolkaVM dependencies
 polkavm-derive = { version = "0.26.0", default-features = false }
 
 # Solidity dependencies
+alloy-core = { version = "1.1.0", default-features = false }
 alloy-sol-types = { version = "1.3.0", default-features = false }
 const_format = { version = "0.2.34", features = ["fmt"] }
 keccak-const = "0.2.0"
 impl-trait-for-tuples = "0.2.3"
 
 # Local dependencies
-ink = { version = "=6.0.0-alpha.3", path = "crates/ink", default-features = false }
-ink_allocator = { version = "=6.0.0-alpha.3", path = "crates/allocator", default-features = false }
-ink_codegen = { version = "=6.0.0-alpha.3", path = "crates/ink/codegen", default-features = false }
-ink_e2e_macro = { version = "=6.0.0-alpha.3", path = "crates/e2e/macro", default-features = false }
-ink_engine = { version = "=6.0.0-alpha.3", path = "crates/engine", default-features = false }
-ink_env = { version = "=6.0.0-alpha.3", path = "crates/env", default-features = false }
-ink_ir = { version = "=6.0.0-alpha.3", path = "crates/ink/ir", default-features = false }
-ink_macro = { version = "=6.0.0-alpha.3", path = "crates/ink/macro", default-features = false }
-ink_metadata = { version = "=6.0.0-alpha.3", path = "crates/metadata", default-features = false }
-ink_prelude = { version = "=6.0.0-alpha.3", path = "crates/prelude", default-features = false }
-ink_primitives = { version = "=6.0.0-alpha.3", path = "crates/primitives", default-features = false }
-ink_storage = { version = "=6.0.0-alpha.3", path = "crates/storage", default-features = false }
-ink_storage_traits = { version = "=6.0.0-alpha.3", path = "crates/storage/traits", default-features = false }
+ink = { version = "=6.0.0-alpha.4", path = "crates/ink", default-features = false }
+ink_allocator = { version = "=6.0.0-alpha.4", path = "crates/allocator", default-features = false }
+ink_codegen = { version = "=6.0.0-alpha.4", path = "crates/ink/codegen", default-features = false }
+ink_e2e_macro = { version = "=6.0.0-alpha.4", path = "crates/e2e/macro", default-features = false }
+ink_engine = { version = "=6.0.0-alpha.4", path = "crates/engine", default-features = false }
+ink_env = { version = "=6.0.0-alpha.4", path = "crates/env", default-features = false }
+ink_ir = { version = "=6.0.0-alpha.4", path = "crates/ink/ir", default-features = false }
+ink_macro = { version = "=6.0.0-alpha.4", path = "crates/ink/macro", default-features = false }
+ink_metadata = { version = "=6.0.0-alpha.4", path = "crates/metadata", default-features = false }
+ink_prelude = { version = "=6.0.0-alpha.4", path = "crates/prelude", default-features = false }
+ink_primitives = { version = "=6.0.0-alpha.4", path = "crates/primitives", default-features = false }
+ink_revive_types = {  version = "=6.0.0-alpha.4", path = "crates/revive-types", default-features = false }
+ink_storage = { version = "=6.0.0-alpha.4", path = "crates/storage", default-features = false }
+ink_storage_traits = { version = "=6.0.0-alpha.4", path = "crates/storage/traits", default-features = false }
 
 [profile.release]
 panic = "abort"

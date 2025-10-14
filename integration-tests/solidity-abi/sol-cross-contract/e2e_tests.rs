@@ -10,19 +10,18 @@ use ink::{
     Address,
     SolDecode,
     SolEncode,
-    primitives::DepositLimit,
 };
+use ink_revive_types::ExecReturnValue;
 use ink_sandbox::frame_system::pallet_prelude::OriginFor;
-use pallet_revive::ExecReturnValue;
 
-const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::UnsafeOnlyForDryRun;
+const STORAGE_DEPOSIT_LIMIT: u128 = u128::MAX;
 
 #[test]
 fn call_sol_encoded_message() {
     let built_contracts = ::ink_e2e::build_root_and_contract_dependencies(vec![]);
     let contracts = ContractsRegistry::new(built_contracts);
 
-    let mut sandbox = ink_e2e::DefaultSandbox::default();
+    let mut sandbox = ink_sandbox::DefaultSandbox::default();
     let caller = ink_e2e::alice();
     let origin =
         DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
@@ -118,7 +117,7 @@ fn call_sol_encoded_message() {
 }
 
 struct ContractSandbox {
-    sandbox: ink_e2e::DefaultSandbox,
+    sandbox: ink_sandbox::DefaultSandbox,
 }
 
 impl ContractSandbox {
@@ -172,7 +171,11 @@ impl ContractSandbox {
             STORAGE_DEPOSIT_LIMIT,
         );
 
-        result.result.expect("sandbox call contract failed")
+        let call_raw = result.result.expect("sandbox call contract failed");
+        ExecReturnValue {
+            flags: ink_env::ReturnFlags::from_bits_truncate(call_raw.flags.bits()),
+            data: call_raw.data,
+        }
     }
 }
 

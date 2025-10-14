@@ -7,7 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [Unreleased]
 
 ### Added
+- Implements the API for the `pallet-revive` host function `to_account_id` - [#2578](https://github.com/use-ink/ink/pull/2578)
+- Add `#[ink::contract_ref]` attribute - [#2648](https://github.com/use-ink/ink/pull/2648)
+- Add `ink_revive_types` (and remove `pallet-revive` dependency from `ink_e2e`) - [#2657](https://github.com/use-ink/ink/pull/2657)
+- non-allocating Solidity ABI encoder - [#2655](https://github.com/use-ink/ink/pull/2655)
+
+### Changed
+- Marks the `pallet-revive` host function `account_id` stable - [#2578](https://github.com/use-ink/ink/pull/2578)
+- Stabilize `is_contract` - [#2654](https://github.com/use-ink/ink/pull/2654)
+- Extract `sandbox` from `ink_e2e` into a new `ink_sandbox` crate - [#2659](https://github.com/use-ink/ink/pull/2659)
+- Synchronize with `polkadot-sdk/1b1cef306d9ceebf963fd15a04b5c79ee2618bce` ‒ [2675](https://github.com/use-ink/ink/pull/2675)
+- Refactor `AbiEncodeWith::encode_to_slice` - [#2676](https://github.com/use-ink/ink/pull/2676)
+- Refactor `ArgumentList` encoding and abstractions - [#2678](https://github.com/use-ink/ink/pull/2678)
+
+### Fixed
+- Fix decoding of `HostFn::minimum_balance` return value - [#2656](https://github.com/use-ink/ink/pull/2656)
+- Fix handling of `HostFn::code_hash` and `HostFn::weight_to_fee` - [#2672](https://github.com/use-ink/ink/pull/2672)
+- `name` override fixes for message id computation and trait definitions - [#2649](https://github.com/use-ink/ink/pull/2649)
+
+## Version 6.0.0-alpha.4
+
+### Added
 - Add integration test for arithmetic overflow checks - [#2631](https://github.com/use-ink/ink/pull/2631)
+- E2E: Misc quality of life improvements, new API functions, better debuggability ‒ [2634](https://github.com/use-ink/ink/pull/2634)
+
+### Changed
+- Error on message and constructor `selector` overrides in Solidity ABI mode - [#2638](https://github.com/use-ink/ink/pull/2638)
+- Improve abstractions for Solidity ABI encoding `Result` types - [#2635](https://github.com/use-ink/ink/pull/2635)
+- Feature gate `xcm` - [#2641](https://github.com/use-ink/ink/pull/2641)
+- Refactor multi ABI interfaces for event emission via `ink_env` - [#2643](https://github.com/use-ink/ink/pull/2643)
+
+### Fixed
+- Bring intended panic handler behavior back ‒ [2636](https://github.com/use-ink/ink/pull/2636)
+- Support `name` attribute in trait definitions - [#2644](https://github.com/use-ink/ink/pull/2644)
 
 ## Version 6.0.0-alpha.3
 

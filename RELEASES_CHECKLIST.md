@@ -109,5 +109,7 @@ in the future.
    `Create release`.
 10. Paste the release notes that appear in the [`CHANGELOG.md`](https://github.com/use-ink/ink/blob/master/CHANGELOG.md)
    there. The title of the release should be `vX.X.X`.
-11. Post an announcement to those Element channels:
-    * [Smart Contracts & Parity ink!](https://matrix.to/#/#ink:matrix.parity.io)
+11. Post an announcement to the Telegram channel: https://t.me/inkathon/1
+12. Update the documentation with the new release:
+    - In setup page: https://github.com/use-ink/ink-docs/blob/master/docs/getting-started/setup.md#rust--cargo
+    - In contract template page: https://github.com/use-ink/ink-docs/blob/master/docs/basics/contract-template.md#cargotoml

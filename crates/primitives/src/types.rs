@@ -207,30 +207,6 @@ impl Clear for Hash {
 // }
 // }
 
-#[derive(Debug, Clone, Eq, PartialEq, Encode, Decode)]
-#[cfg_attr(
-    feature = "std",
-    derive(
-        scale_info::TypeInfo,
-        EncodeAsType,
-        serde::Serialize,
-        serde::Deserialize
-    )
-)]
-pub enum DepositLimit<Balance> {
-    /// Allows bypassing all balance transfer checks.
-    UnsafeOnlyForDryRun,
-
-    /// Specifies a maximum allowable balance for a deposit.
-    Balance(Balance),
-}
-
-impl<T> From<T> for DepositLimit<T> {
-    fn from(value: T) -> Self {
-        Self::Balance(value)
-    }
-}
-
 /// Allows to instantiate a type from its little-endian bytes representation.
 pub trait FromLittleEndian {
     /// The little-endian bytes representation.
@@ -321,6 +297,10 @@ cfg_if::cfg_if! {
 }
 
 /// The environmental types usable by contracts defined with ink!.
+///
+/// The types and consts in this trait must be the same as the chain to which
+/// the contract is deployed to. We have a mechanism in `cargo-contract` that
+/// attempts to check for type equality, but not everything can be compared.
 pub trait Environment: Clone {
     /// The ratio between the decimal representation of the native `Balance` token
     /// and the ETH token.
@@ -474,6 +454,7 @@ pub enum Origin<E: Environment> {
     Signed(E::AccountId),
 }
 
+/// Copied from `pallet-revive`.
 pub struct AccountIdMapper {}
 impl AccountIdMapper {
     pub fn to_address(account_id: &[u8]) -> Address {

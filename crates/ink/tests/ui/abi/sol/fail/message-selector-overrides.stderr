@@ -1,0 +1,5 @@
+error: message `selector` attributes are not supported in Solidity ABI compatibility mode
+  --> tests/ui/abi/sol/fail/message-selector-overrides.rs:14:24
+   |
+14 |         #[ink(message, selector = 1)]
+   |                        ^^^^^^^^^^^^

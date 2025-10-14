@@ -25,11 +25,8 @@ use crate::contract_results::{
 };
 use core::marker::PhantomData;
 use funty::Fundamental;
-use ink_primitives::{
-    Address,
-    DepositLimit,
-};
-use pallet_revive::{
+use ink_primitives::Address;
+use ink_revive_types::{
     CodeUploadResult,
     evm::{
         CallTrace,
@@ -77,8 +74,6 @@ use subxt::{
     scale::Decode,
     scale::MaxEncodedLen,
     scale_encode::EncodeAsType,
-    serde::Serialize,
-    serde::Deserialize,
 )]
 #[encode_as_type(crate_path = "subxt::ext::scale_encode")]
 pub struct Weight {
@@ -174,8 +169,6 @@ pub struct UploadCode<E: Environment> {
 
 /// A struct that encodes RPC parameters required to instantiate a new smart contract.
 #[derive(scale::Encode)]
-// todo: #[derive(serde::Serialize, scale::Encode)]
-// todo: #[serde(rename_all = "camelCase")]
 struct RpcInstantiateRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
     value: E::Balance,
@@ -188,8 +181,6 @@ struct RpcInstantiateRequest<C: subxt::Config, E: Environment> {
 
 /// A struct that encodes RPC parameters required to upload a new smart contract.
 #[derive(scale::Encode)]
-// todo: #[derive(serde::Serialize, scale::Encode)]
-// todo: #[serde(rename_all = "camelCase")]
 struct RpcCodeUploadRequest<C: subxt::Config, E: Environment>
 where
     E::Balance: serde::Serialize,
@@ -201,20 +192,17 @@ where
 
 /// A struct that encodes RPC parameters required for a call to a smart contract.
 #[derive(scale::Encode)]
-// todo: #[derive(serde::Serialize, scale::Encode)]
-// todo: #[serde(rename_all = "camelCase")]
 struct RpcCallRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
     dest: Address,
     value: E::Balance,
     gas_limit: Option<Weight>,
-    storage_deposit_limit: DepositLimit<E::Balance>,
+    storage_deposit_limit: Option<E::Balance>,
     input_data: Vec<u8>,
 }
 
 /// Reference to an existing code hash or a new contract binary.
-#[derive(serde::Serialize, scale::Encode)]
-#[serde(rename_all = "camelCase")]
+#[derive(scale::Encode)]
 enum Code {
     /// A contract binary as raw bytes.
     Upload(Vec<u8>),
@@ -239,7 +227,7 @@ where
     <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
     E: Environment,
-    E::Balance: scale::HasCompact + serde::Serialize,
+    E::Balance: scale::HasCompact + serde::Serialize + std::fmt::Debug,
 {
     /// Creates a new [`ReviveApi`] instance.
     pub async fn new(rpc: RpcClient) -> Result<Self, subxt::Error> {
@@ -256,7 +244,7 @@ where
     ///
     /// Returns `Ok` on success, and a [`subxt::Error`] if the extrinsic is
     /// invalid (e.g. out of date nonce)
-    pub async fn try_transfer_balance(
+    pub async fn transfer_allow_death(
         &self,
         origin: &Keypair,
         dest: C::AccountId,
@@ -281,17 +269,13 @@ where
     pub async fn instantiate_with_code_dry_run(
         &self,
         value: E::Balance,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
         code: Vec<u8>,
         data: Vec<u8>,
         salt: Option<[u8; 32]>,
         signer: &Keypair,
     ) -> ContractInstantiateResultFor<E> {
         let code = Code::Upload(code);
-        let storage_deposit_limit = match storage_deposit_limit {
-            DepositLimit::Balance(v) => Some(v),
-            DepositLimit::UnsafeOnlyForDryRun => None,
-        };
         let call_request = RpcInstantiateRequest::<C, E> {
             origin: Signer::<C>::account_id(signer),
             value,
@@ -543,7 +527,7 @@ where
             InstantiateWithCode::<E> {
                 value,
                 gas_limit,
-                storage_deposit_limit, // todo
+                storage_deposit_limit,
                 code,
                 data,
                 salt,
@@ -559,13 +543,12 @@ where
         &self,
         signer: &Keypair,
         code: Vec<u8>,
-        // todo
-        _storage_deposit_limit: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> CodeUploadResult<E::Balance> {
         let call_request = RpcCodeUploadRequest::<C, E> {
             origin: Signer::<C>::account_id(signer),
             code,
-            storage_deposit_limit: None,
+            storage_deposit_limit,
         };
         let func = "ReviveApi_upload_code";
         let params = scale::Encode::encode(&call_request);
@@ -589,7 +572,7 @@ where
         signer: &Keypair,
         code: Vec<u8>,
         storage_deposit_limit: E::Balance,
-    ) -> ExtrinsicEvents<C> {
+    ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
         let call = subxt::tx::DefaultPayload::new(
             "Revive",
             "upload_code",
@@ -600,7 +583,7 @@ where
         )
         .unvalidated();
 
-        self.submit_extrinsic(&call, signer).await.0
+        self.submit_extrinsic(&call, signer).await
     }
 
     /// Submits an extrinsic to remove the code at the given hash.
@@ -611,7 +594,7 @@ where
         &self,
         signer: &Keypair,
         code_hash: H256,
-    ) -> ExtrinsicEvents<C> {
+    ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
         let call = subxt::tx::DefaultPayload::new(
             "Revive",
             "remove_code",
@@ -619,19 +602,19 @@ where
         )
         .unvalidated();
 
-        self.submit_extrinsic(&call, signer).await.0
+        self.submit_extrinsic(&call, signer).await
     }
 
     /// Dry runs a call of the contract at `contract` with the given parameters.
     pub async fn call_dry_run(
         &self,
-        origin: C::AccountId,
         dest: Address,
-        input_data: Vec<u8>,
+        data: Vec<u8>,
         value: E::Balance,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
         signer: &Keypair,
     ) -> (ContractExecResultFor<E>, Option<CallTrace>) {
+        let origin = Signer::<C>::account_id(signer);
         let call_request = RpcCallRequest::<C, E> {
             origin,
             dest,
@@ -641,7 +624,7 @@ where
                 proof_size: u64::MAX,
             }),
             storage_deposit_limit: storage_deposit_limit.clone(),
-            input_data: input_data.clone(),
+            input_data: data.clone(),
         };
         let func = "ReviveApi_call";
         let params = scale::Encode::encode(&call_request);
@@ -650,19 +633,19 @@ where
             .state_call(func, Some(&params), None)
             .await
             .unwrap_or_else(|err| {
-                panic!("error on ws request `contracts_call`: {err:?}");
+                panic!("error on ws request `ReviveApi_call`: {err:?}");
             });
-        let res: ContractExecResultFor<E> = scale::Decode::decode(&mut bytes.as_ref())
-            .unwrap_or_else(|err| panic!("decoding ContractExecResult failed: {err}"));
-
-        // todo for gas_limit we should use the value returned by a successful call above.
+        let dry_run_result: ContractExecResultFor<E> =
+            scale::Decode::decode(&mut bytes.as_ref()).unwrap_or_else(|err| {
+                panic!("decoding `ContractExecResult` failed: {err}")
+            });
 
         // Even if the `storage_deposit_limit` to this function was set as `Unchecked`,
         // we still take the return value of the dry run for submitting the extrinsic
         // that will take effect.
         let storage_deposit_limit = match storage_deposit_limit {
-            DepositLimit::UnsafeOnlyForDryRun => res.storage_deposit.charge_or_zero(),
-            DepositLimit::Balance(limit) => limit,
+            None => dry_run_result.storage_deposit.charge_or_zero(),
+            Some(limit) => limit,
         };
 
         let call = subxt::tx::DefaultPayload::new(
@@ -672,11 +655,11 @@ where
                 dest,
                 value,
                 gas_limit: Weight {
-                    ref_time: u64::MAX,
-                    proof_size: u64::MAX,
+                    ref_time: dry_run_result.gas_required.ref_time(),
+                    proof_size: dry_run_result.gas_required.proof_size(),
                 },
                 storage_deposit_limit,
-                data: input_data,
+                data,
             },
         )
         .unvalidated();
@@ -700,7 +683,7 @@ where
             .trace(block_hash, None, parent_hash, Some(xt.into_encoded()))
             .await;
 
-        (res, trace)
+        (dry_run_result, trace)
     }
 
     /// Submits an extrinsic to call a contract with the given parameters.
@@ -729,20 +712,25 @@ where
             },
         )
         .unvalidated();
-
         self.submit_extrinsic(&call, signer).await
     }
 
-    /// todo
-    /// Submits an extrinsic to call a contract with the given parameters.
+    /// Maps the `signer` to an `H160` account.
     ///
-    /// Returns when the transaction is included in a block. The return value
-    /// contains all events that are associated with this transaction.
-    pub async fn map_account(&self, signer: &Keypair) -> ExtrinsicEvents<C> {
+    /// This is a `pallet-revive` concept, whereby a storage entry is created on-chain.
+    /// The entry maps the account id from `signer` to an `H160` account. This is
+    /// a necessity for any operation interacting with the contracts part of
+    /// `pallet-revive`.
+    pub async fn map_account(
+        &self,
+        signer: &Keypair,
+    ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
+        // todo check if the account is unmapped! otherwise
+        // we submit a costly extrinisc which is guaranteed to fail.
         let call = subxt::tx::DefaultPayload::new("Revive", "map_account", MapAccount {})
             .unvalidated();
 
-        self.submit_extrinsic(&call, signer).await.0
+        self.submit_extrinsic(&call, signer).await
     }
 
     /// Submit an extrinsic `call_name` for the `pallet_name`.
@@ -757,9 +745,8 @@ where
         pallet_name: &'a str,
         call_name: &'a str,
         call_data: Vec<subxt::dynamic::Value>,
-    ) -> ExtrinsicEvents<C> {
+    ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
         let call = subxt::dynamic::tx(pallet_name, call_name, call_data);
-
-        self.submit_extrinsic(&call, signer).await.0
+        self.submit_extrinsic(&call, signer).await
     }
 }

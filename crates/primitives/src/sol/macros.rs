@@ -22,6 +22,8 @@
 /// to twelve items long.
 ///
 /// Ref: <https://doc.rust-lang.org/std/primitive.tuple.html#trait-implementations>
+#[macro_export]
+#[doc(hidden)]
 macro_rules! impl_all_tuples {
     // Call direct to omit unit `()`.
     (@nonempty $macro: path) => {

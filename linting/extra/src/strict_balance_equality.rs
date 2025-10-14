@@ -23,9 +23,9 @@ use ink_linting_utils::{
 use rustc_errors::Applicability;
 use rustc_hir::{
     self as hir,
-    def_id::DefId,
     AssocItemKind,
     ItemKind,
+    def_id::DefId,
 };
 use rustc_index::bit_set::DenseBitSet;
 use rustc_lint::{
@@ -34,8 +34,6 @@ use rustc_lint::{
 };
 use rustc_middle::{
     mir::{
-        traversal,
-        visit::Visitor,
         BasicBlock,
         BinOp,
         Body,
@@ -52,6 +50,8 @@ use rustc_middle::{
         Terminator,
         TerminatorEdges,
         TerminatorKind,
+        traversal,
+        visit::Visitor,
     },
     ty as mir_ty,
 };
@@ -61,8 +61,8 @@ use rustc_session::{
     declare_lint_pass,
 };
 use rustc_span::{
-    source_map::Spanned,
     Span,
+    source_map::Spanned,
 };
 use std::collections::{
     HashMap,

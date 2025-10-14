@@ -38,13 +38,19 @@ SOURCE_PATH=$(cargo metadata --format-version=1 --manifest-path "$MANIFEST_PATH"
 
 # Check if SOURCE_PATH is empty
 if [ -z "$SOURCE_PATH" ]; then
-  echo "Error: Source path is empty."
-  exit 1
+  >&2 echo "Error: Source path is empty for $MANIFEST_PATH."
+  # we exit with 0 as this happens e.g. for the `Cargo.toml` that
+  # denotes a workspace (or e2e/macro/Cargo.toml, linting/Cargo.toml,
+  # ink/macro/Cargo.toml).
+  # so it's not an error per se, we just don't consider this a contract then.
+  exit 0
 fi
 
 # Check for the #[ink::contract] macro in the source file
 if grep -qE '^#\[(::)?ink::contract([^]]*)\]' "$SOURCE_PATH"; then
     exit 0
 else
-    exit 1
+    # we exit with a defined error code > 1, to allow a distinction
+    # between `is_contract == false` and "error while checking".
+    exit 3
 fi

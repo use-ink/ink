@@ -28,8 +28,6 @@ mod contract_results;
 mod error;
 pub mod events;
 mod node_proc;
-#[cfg(feature = "sandbox")]
-mod sandbox_client;
 mod subxt_client;
 mod xts;
 
@@ -44,24 +42,30 @@ pub use backend_calls::{
     CallBuilder,
     InstantiateBuilder,
 };
-pub use client_utils::ContractsRegistry;
+pub use builders::{
+    CreateBuilderPartial,
+    constructor_exec_input,
+};
+pub use client_utils::{
+    ContractsRegistry,
+    code_hash,
+    salt,
+};
 pub use contract_results::{
+    BareInstantiationResult,
     CallDryRunResult,
     CallResult,
+    ContractExecResultFor,
+    ContractResult,
     InstantiateDryRunResult,
     InstantiationResult,
     UploadResult,
 };
 pub use ink_e2e_macro::test;
+pub use ink_revive_types::evm::CallTrace;
 pub use node_proc::{
     TestNodeProcess,
     TestNodeProcessBuilder,
-};
-pub use pallet_revive::evm::CallTrace;
-#[cfg(feature = "sandbox")]
-pub use sandbox_client::{
-    Client as SandboxClient,
-    preset,
 };
 pub use sp_keyring::Sr25519Keyring;
 pub use subxt::{
@@ -85,9 +89,6 @@ pub use tokio;
 pub use tracing;
 pub use tracing_subscriber;
 
-#[cfg(feature = "sandbox")]
-pub use ink_sandbox::DefaultSandbox;
-
 use ink::codegen::ContractCallBuilder;
 use ink_env::{
     ContractEnv,
@@ -96,8 +97,8 @@ use ink_env::{
 };
 use ink_primitives::{
     Address,
-    DepositLimit,
     H256,
+    types::AccountIdMapper,
 };
 pub use sp_weights::Weight;
 use std::{
@@ -106,7 +107,6 @@ use std::{
 };
 use xts::ReviveApi;
 
-use ink_primitives::types::AccountIdMapper;
 pub use subxt::PolkadotConfig;
 
 /// We use this to only initialize `env_logger` once.
@@ -153,6 +153,34 @@ pub fn address<E: Environment>(account: Sr25519Keyring) -> Address {
     AccountIdMapper::to_address(account.to_account_id().as_ref())
 }
 
+/// Returns the [`ink::Address`] for a given account id.
+///
+/// # Developer Note
+///
+/// We take the `AccountId` and return only the first twenty bytes, this
+/// is what `pallet-revive` does as well.
+pub fn address_from_account_id<AccountId: AsRef<[u8]>>(account_id: AccountId) -> Address {
+    AccountIdMapper::to_address(account_id.as_ref())
+}
+
+/// Returns the [`ink::Address`] for a given `Keypair`.
+///
+/// # Developer Note
+///
+/// We take the `AccountId` and return only the first twenty bytes, this
+/// is what `pallet-revive` does as well.
+pub fn address_from_keypair<AccountId: From<[u8; 32]> + AsRef<[u8]>>(
+    keypair: &Keypair,
+) -> Address {
+    let account_id: AccountId = keypair_to_account(keypair);
+    address_from_account_id(account_id)
+}
+
+/// Transforms a `Keypair` into an account id.
+pub fn keypair_to_account<AccountId: From<[u8; 32]>>(keypair: &Keypair) -> AccountId {
+    AccountId::from(keypair.public_key().0)
+}
+
 /// Creates a call builder for `Contract`, based on an account id.
 pub fn create_call_builder<Contract>(
     acc_id: Address,
@@ -177,46 +205,4 @@ where
     <Contract as ContractCallBuilder>::Type<Abi>: FromAddr,
 {
     <<Contract as ContractCallBuilder>::Type<Abi> as FromAddr>::from_addr(acc_id)
-}
-
-/// Transforms `Option<<E as Environment>::Balance>>` into `DepositLimit`.
-///
-/// This function must only be used for dry-runs, a `None` will
-/// become an unrestricted deposit limit (`DepositLimit::UnsafeOnlyForDryRun`).
-fn balance_to_deposit_limit_dry_run<E: Environment>(
-    b: Option<<E as Environment>::Balance>,
-) -> DepositLimit<<E as Environment>::Balance> {
-    match b {
-        Some(v) => DepositLimit::Balance(v),
-        None => DepositLimit::UnsafeOnlyForDryRun,
-    }
-}
-
-/// Transforms `Option<<E as Environment>::Balance>>` into `DepositLimit`.
-/// This function must be used for submitting extrinsics on-chain.
-///
-/// Panics if `limit` is `None`. Make sure to execute a dry-run
-/// beforehand and use the `storage_deposit_limit` result of it here.
-fn balance_to_deposit_limit<E: Environment>(
-    limit: Option<<E as Environment>::Balance>,
-) -> DepositLimit<<E as Environment>::Balance> {
-    match limit {
-        Some(val) => DepositLimit::Balance(val),
-        None => panic!("Deposit limit must be specified for on-chain submissions."),
-    }
-}
-
-/// Transforms `DepositLimit<<E as Environment>::Balance>` into `<E as
-/// Environment>::Balance>`.
-///
-/// Panics if `limit` is unrestricted (`DepositLimit::UnsafeOnlyForDryRun`).
-fn deposit_limit_to_balance<E: Environment>(
-    limit: DepositLimit<<E as Environment>::Balance>,
-) -> <E as Environment>::Balance {
-    match limit {
-        DepositLimit::Balance(val) => val,
-        DepositLimit::UnsafeOnlyForDryRun => {
-            panic!("Unrestricted deposit limit not allowed for balance conversion!")
-        }
-    }
 }

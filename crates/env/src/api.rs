@@ -16,10 +16,14 @@
 
 use ink_primitives::{
     Address,
+    CodeHashErr,
     H256,
-    SolEncode,
     U256,
-    abi::AbiEncodeWith,
+    abi::{
+        Ink,
+        Sol,
+    },
+    sol::SolResultEncode,
 };
 use ink_storage_traits::Storable;
 use pallet_revive_uapi::ReturnFlags;
@@ -40,16 +44,16 @@ use crate::{
         DelegateCall,
         FromAddr,
         LimitParamsV2,
-        utils::DecodeMessageResult,
+        utils::{
+            DecodeMessageResult,
+            EncodeArgsWith,
+        },
     },
     engine::{
         EnvInstance,
         OnInstance,
     },
-    event::{
-        Event,
-        TopicEncoder,
-    },
+    event::Event,
     hash::{
         CryptoHash,
         HashOutput,
@@ -85,12 +89,9 @@ pub fn transferred_value() -> U256 {
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn weight_to_fee<E>(gas: Gas) -> E::Balance
-where
-    E: Environment,
-{
+pub fn weight_to_fee(gas: Gas) -> U256 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::weight_to_fee::<E>(instance, gas)
+        TypedEnvBackend::weight_to_fee(instance, gas)
     })
 }
 
@@ -105,6 +106,20 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::block_timestamp::<E>(instance)
+    })
+}
+
+/// Retrieves the account id for a specified address.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+pub fn to_account_id<E>(addr: Address) -> E::AccountId
+where
+    E: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::to_account_id::<E>(instance, addr)
     })
 }
 
@@ -175,13 +190,59 @@ pub fn minimum_balance() -> U256 {
 }
 
 /// Emits an event with the given event data.
-pub fn emit_event<Evt, Abi>(event: &Evt)
+///
+/// # Note
+///
+/// In "all" ABI mode, both an ink! and Solidity ABI event are emitted.
+#[cfg(not(ink_abi = "all"))]
+pub fn emit_event<Evt>(event: Evt)
 where
-    Evt: Event<Abi>,
-    Abi: TopicEncoder,
+    Evt: Event<crate::DefaultAbi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::emit_event::<Evt, Abi>(instance, event)
+        TypedEnvBackend::emit_event::<Evt, crate::DefaultAbi>(instance, &event)
+    })
+}
+
+/// Emits an event with the given event data.
+///
+/// # Note
+///
+/// In "all" ABI mode, both an ink! and Solidity ABI event are emitted.
+#[cfg(ink_abi = "all")]
+pub fn emit_event<Evt>(event: Evt)
+where
+    Evt: Event<Ink> + Event<Sol>,
+{
+    // Emits ink! ABI encoded event.
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::emit_event::<Evt, Ink>(instance, &event)
+    });
+
+    // Emits Solidity ABI encoded event.
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::emit_event::<Evt, Sol>(instance, &event)
+    });
+}
+
+/// Emits an event with the given event data using the ink! ABI encoding (i.e. with SCALE
+/// codec for event data encode/decode).
+pub fn emit_event_ink<Evt>(event: Evt)
+where
+    Evt: Event<Ink>,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::emit_event::<Evt, Ink>(instance, &event)
+    })
+}
+
+/// Emits an event with the given event data using the Solidity ABI encoding.
+pub fn emit_event_sol<Evt>(event: Evt)
+where
+    Evt: Event<Sol>,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::emit_event::<Evt, Sol>(instance, &event)
     })
 }
 
@@ -282,7 +343,7 @@ pub fn invoke_contract<E, Args, R, Abi>(
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
-    Args: AbiEncodeWith<Abi>,
+    Args: EncodeArgsWith<Abi>,
     R: DecodeMessageResult<Abi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
@@ -307,7 +368,7 @@ pub fn invoke_contract_delegate<E, Args, R, Abi>(
 ) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
-    Args: AbiEncodeWith<Abi>,
+    Args: EncodeArgsWith<Abi>,
     R: DecodeMessageResult<Abi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
@@ -346,7 +407,7 @@ where
     ContractRef: FromAddr + crate::ContractReverseReference,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractConstructorDecoder,
-    Args: AbiEncodeWith<Abi>,
+    Args: EncodeArgsWith<Abi>,
     R: ConstructorReturnType<ContractRef, Abi>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
@@ -431,7 +492,7 @@ where
 ///
 /// # Note
 ///
-/// This function  stops the execution of the contract immediately.
+/// This function stops the execution of the contract immediately.
 #[cfg(not(feature = "std"))]
 pub fn return_value<R>(return_flags: ReturnFlags, return_value: &R) -> !
 where
@@ -462,10 +523,10 @@ where
 ///
 /// # Note
 ///
-/// This function  stops the execution of the contract immediately.
+/// This function stops the execution of the contract immediately.
 pub fn return_value_solidity<R>(return_flags: ReturnFlags, return_value: &R) -> !
 where
-    R: for<'a> SolEncode<'a>,
+    R: for<'a> SolResultEncode<'a>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         EnvBackend::return_value_solidity::<R>(instance, return_flags, return_value)
@@ -619,12 +680,19 @@ pub fn sr25519_verify(
     })
 }
 
-/// Checks whether the specified account is a contract.
+/// Checks whether `addr` is a contract.
+///
+/// # Notes
+///
+/// If `addr` references a precompile address, the return value will be `true`.
+///
+/// The function [`caller_is_origin`] performs better when checking whether your
+/// contract is being called by a contract or an account. It performs better
+/// for this case as it does not require any storage lookups.
 ///
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-#[cfg(feature = "unstable-hostfn")]
 pub fn is_contract(account: &Address) -> bool {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::is_contract(instance, account)
@@ -637,7 +705,7 @@ pub fn is_contract(account: &Address) -> bool {
 ///
 /// - If no code hash was found for the specified account id.
 /// - If the returned value cannot be properly decoded.
-pub fn code_hash(addr: &Address) -> Result<H256> {
+pub fn code_hash(addr: &Address) -> core::result::Result<H256, CodeHashErr> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::code_hash(instance, addr)
     })
@@ -648,7 +716,7 @@ pub fn code_hash(addr: &Address) -> Result<H256> {
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn own_code_hash() -> Result<H256> {
+pub fn own_code_hash() -> H256 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::own_code_hash(instance)
     })
@@ -667,12 +735,9 @@ pub fn own_code_hash() -> Result<H256> {
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn caller_is_origin<E>() -> bool
-where
-    E: Environment,
-{
+pub fn caller_is_origin() -> bool {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::caller_is_origin::<E>(instance)
+        TypedEnvBackend::caller_is_origin(instance)
     })
 }
 
@@ -687,12 +752,9 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn caller_is_root<E>() -> bool
-where
-    E: Environment,
-{
+pub fn caller_is_root() -> bool {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::caller_is_root::<E>(instance)
+        TypedEnvBackend::caller_is_root(instance)
     })
 }
 
@@ -818,7 +880,7 @@ where
 /// # Panics
 ///
 /// Panics in the off-chain environment.
-#[cfg(feature = "unstable-hostfn")]
+#[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
 pub fn xcm_execute<E, Call>(msg: &xcm::VersionedXcm<Call>) -> Result<()>
 where
     E: Environment,
@@ -844,7 +906,7 @@ where
 /// # Panics
 ///
 /// Panics in the off-chain environment.
-#[cfg(feature = "unstable-hostfn")]
+#[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
 pub fn xcm_send<E, Call>(
     dest: &xcm::VersionedLocation,
     msg: &xcm::VersionedXcm<Call>,

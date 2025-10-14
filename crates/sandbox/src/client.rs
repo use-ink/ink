@@ -12,11 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::{
-    marker::PhantomData,
-    path::PathBuf,
+use crate::{
+    AccountIdFor,
+    RuntimeCall,
+    Sandbox,
+    api::prelude::*,
+    error::SandboxErr,
+    frame_system,
+    frame_system::pallet_prelude::OriginFor,
+    pallet_balances,
+    pallet_revive,
+    pallet_revive::{
+        AddressMapper,
+        MomentOf,
+        evm::{
+            CallTracerConfig,
+            Trace,
+            TracerType,
+        },
+    },
+    to_revive_storage_deposit,
+    to_revive_trace,
 };
-
 use frame_support::{
     dispatch::RawOrigin,
     pallet_prelude::DispatchError,
@@ -25,75 +42,63 @@ use frame_support::{
         fungible::Inspect,
     },
 };
-use ink_env::{
-    Environment,
-    call::utils::DecodeMessageResult,
-};
-use ink_primitives::{
-    DepositLimit,
-    abi::AbiEncodeWith,
-};
-use ink_sandbox::{
-    AccountIdFor,
-    RuntimeCall,
-    Sandbox,
-    Weight,
-    api::prelude::*,
-    frame_system,
-    frame_system::pallet_prelude::OriginFor,
-    pallet_balances,
-    pallet_revive,
-};
-use jsonrpsee::core::async_trait;
-use pallet_revive::{
-    CodeUploadReturnValue,
-    InstantiateReturnValue,
-    MomentOf,
-    evm::{
-        CallTrace,
-        CallTracerConfig,
-        Trace,
-        TracerType,
-        U256,
+use ink_e2e::{
+    BareInstantiationResult,
+    BuilderClient,
+    CallBuilderFinal,
+    CallDryRunResult,
+    ChainBackend,
+    ContractExecResultFor,
+    ContractResult,
+    ContractsBackend,
+    ContractsRegistry,
+    CreateBuilderPartial,
+    E2EBackend,
+    InstantiateDryRunResult,
+    UploadResult,
+    constructor_exec_input,
+    keypair_to_account,
+    log_error,
+    salt,
+    subxt::{
+        self,
+        dynamic::Value,
+        tx::Payload,
+    },
+    subxt_signer::sr25519::{
+        Keypair,
+        dev,
     },
 };
+use ink_env::{
+    Environment,
+    call::utils::{
+        DecodeMessageResult,
+        EncodeArgsWith,
+    },
+};
+use ink_primitives::{
+    H160,
+    H256,
+    U256,
+    Weight,
+};
+use ink_revive_types::{
+    CodeUploadReturnValue,
+    ExecReturnValue,
+    InstantiateReturnValue,
+    evm::CallTrace,
+};
+use jsonrpsee::core::async_trait;
 use scale::Decode;
 use sp_core::{
     Pair as _,
     sr25519::Pair,
 };
 use sp_runtime::traits::Bounded;
-use subxt::{
-    dynamic::Value,
-    tx::Payload,
-};
-use subxt_signer::sr25519::Keypair;
-
-use crate::{
-    CallBuilderFinal,
-    CallDryRunResult,
-    ChainBackend,
-    ContractsBackend,
-    E2EBackend,
-    H256,
-    InstantiateDryRunResult,
-    UploadResult,
-    backend::BuilderClient,
-    builders::{
-        CreateBuilderPartial,
-        constructor_exec_input,
-    },
-    client_utils::{
-        ContractsRegistry,
-        salt,
-    },
-    contract_results::{
-        BareInstantiationResult,
-        ContractExecResultFor,
-        ContractResult,
-    },
-    error::SandboxErr,
-    log_error,
+use std::{
+    marker::PhantomData,
+    path::PathBuf,
 };
 
 type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
@@ -132,14 +137,14 @@ where
         const TOKENS: u128 = 1_000_000_000_000_000;
 
         let accounts = [
-            crate::alice(),
-            crate::bob(),
-            crate::charlie(),
-            crate::dave(),
-            crate::eve(),
-            crate::ferdie(),
-            crate::one(),
-            crate::two(),
+            dev::alice(),
+            dev::bob(),
+            dev::charlie(),
+            dev::dave(),
+            dev::eve(),
+            dev::ferdie(),
+            dev::one(),
+            dev::two(),
         ]
         .map(|kp| kp.public_key().0)
         .map(From::from);
@@ -233,6 +238,26 @@ where
 
         Ok(())
     }
+
+    async fn transfer_allow_death(
+        &mut self,
+        origin: &Keypair,
+        dest: Self::AccountId,
+        value: Self::Balance,
+    ) -> Result<(), Self::Error> {
+        let caller = keypair_to_account(origin);
+        let origin = RawOrigin::Signed(caller);
+        let origin = OriginFor::<S::Runtime>::from(origin);
+
+        let dest = dest.as_ref();
+        let dest = Decode::decode(&mut dest.as_slice()).unwrap();
+
+        self.sandbox
+            .transfer_allow_death(&origin, &dest, value)
+            .map_err(|err| {
+                SandboxErr::new(format!("transfer_allow_death failed: {err:?}"))
+            })
+    }
 }
 
 #[async_trait]
@@ -252,22 +277,53 @@ where
     // todo
     <<S as Sandbox>::Runtime as frame_system::Config>::Hash:
         frame_support::traits::IsType<sp_core::H256>,
-    //S: ink_sandbox::api::revive_api::ContractAPI,
 {
+    fn load_code(&self, contract_name: &str) -> Vec<u8> {
+        self.contracts.load_code(contract_name)
+    }
+
+    async fn exec_instantiate(
+        &mut self,
+        signer: &Keypair,
+        contract_name: &str,
+        data: Vec<u8>,
+        value: E::Balance,
+        gas_limit: Weight,
+        storage_deposit_limit: E::Balance,
+    ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
+        let code = self.contracts.load_code(contract_name);
+        self.raw_instantiate(code, signer, data, value, gas_limit, storage_deposit_limit)
+            .await
+    }
+
     async fn bare_instantiate<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Send + Sync + EncodeArgsWith<Abi> + Clone,
         R,
         Abi: Send + Sync + Clone,
     >(
         &mut self,
-        contract_name: &str,
+        code: Vec<u8>,
         caller: &Keypair,
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<E::Balance>,
-    ) -> Result<BareInstantiationResult<Self::EventLog>, Self::Error> {
+        storage_deposit_limit: E::Balance,
+    ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
+        let data = constructor_exec_input(constructor.clone());
+        self.raw_instantiate(code, caller, data, value, gas_limit, storage_deposit_limit)
+            .await
+    }
+
+    async fn raw_instantiate(
+        &mut self,
+        code: Vec<u8>,
+        caller: &Keypair,
+        data: Vec<u8>,
+        value: E::Balance,
+        gas_limit: Weight,
+        storage_deposit_limit: E::Balance,
+    ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
         let _ =
             <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 
@@ -279,44 +335,58 @@ where
 
         let mut code_hash: Option<H256> = None;
         let result = pallet_revive::tracing::trace(tracer.as_tracing(), || {
-            let code = self.contracts.load_code(contract_name);
-            code_hash = Some(H256(crate::client_utils::code_hash(&code[..])));
-            let data = constructor_exec_input(constructor.clone());
+            code_hash = Some(H256(ink_e2e::code_hash(&code[..])));
             self.sandbox.deploy_contract(
                 code,
                 value,
                 data,
                 salt(),
                 caller_to_origin::<S>(caller),
-                gas_limit,
+                // TODO: mismatch in dependencies
+                pallet_revive::Weight::from_parts(
+                    gas_limit.ref_time(),
+                    gas_limit.proof_size(),
+                ),
                 storage_deposit_limit,
             )
         });
 
         let addr_raw = match &result.result {
             Err(err) => {
-                log_error(&format!("Instantiation failed: {err:?}"));
+                log_error(&format!("instantiation failed: {err:?}"));
                 return Err(SandboxErr::new(format!("bare_instantiate: {err:?}")));
             }
             Ok(res) => res.addr,
         };
 
         let trace = match tracer.collect_trace() {
-            Some(Trace::Call(call_trace)) => Some(call_trace),
+            Some(Trace::Call(call_trace)) => Some(to_revive_trace(call_trace)),
             _ => None,
         };
 
+        let account_id =
+            <S::Runtime as pallet_revive::Config>::AddressMapper::to_fallback_account_id(
+                &addr_raw,
+            )
+            .as_ref()
+            .to_owned();
+
         Ok(BareInstantiationResult {
             addr: addr_raw,
+            account_id: account_id.into(),
             events: (), // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
             trace,
             code_hash: code_hash.expect("code_hash must have been calculated"),
         })
     }
 
+    /// Important: For an uncomplicated UX of the E2E testing environment we
+    /// decided to automatically map the account in `pallet-revive`, if not
+    /// yet mapped. This is a side effect, as a transaction is then issued
+    /// on-chain and the user incurs costs!
     async fn bare_instantiate_dry_run<
         Contract: Clone,
-        Args: Send + Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Send + Sync + EncodeArgsWith<Abi> + Clone,
         R,
         Abi: Send + Sync + Clone,
     >(
@@ -325,16 +395,37 @@ where
         caller: &Keypair,
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
         value: E::Balance,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error> {
-        // todo has to be: let _ = <Client<AccountId, S> as
-        // BuilderClient<E>>::map_account_dry_run(self, &caller).await;
+        let code = self.contracts.load_code(contract_name);
+        let exec_input = constructor.clone().params().exec_input().encode();
+        self.raw_instantiate_dry_run(
+            code,
+            caller,
+            exec_input,
+            value,
+            storage_deposit_limit,
+        )
+        .await
+    }
+
+    /// Important: For an uncomplicated UX of the E2E testing environment we
+    /// decided to automatically map the account in `pallet-revive`, if not
+    /// yet mapped. This is a side effect, as a transaction is then issued
+    /// on-chain and the user incurs costs!
+    async fn raw_instantiate_dry_run<Abi: Sync + Clone>(
+        &mut self,
+        code: Vec<u8>,
+        caller: &Keypair,
+        data: Vec<u8>,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error> {
+        // There's a side effect here!
         let _ =
             <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 
-        let code = self.contracts.load_code(contract_name);
-        let data = constructor_exec_input(constructor.clone());
-        let result = self.sandbox.dry_run(|sandbox| {
+        let dry_run_result = self.sandbox.dry_run(|sandbox| {
             sandbox.deploy_contract(
                 code,
                 value,
@@ -342,27 +433,38 @@ where
                 salt(),
                 caller_to_origin::<S>(caller),
                 S::default_gas_limit(),
-                storage_deposit_limit,
+                storage_deposit_limit.unwrap_or(E::Balance::max_value()),
             )
         });
 
-        let addr_id_raw = match &result.result {
-            Err(err) => {
-                panic!("Instantiate dry-run failed: {err:?}!")
-            }
-            Ok(res) => res.addr,
+        if let Err(err) = dry_run_result.result {
+            panic!("Instantiate dry-run failed: {err:?}!")
         };
 
         let result = ContractResult::<InstantiateReturnValue, E::Balance> {
-            gas_consumed: result.gas_consumed,
-            gas_required: result.gas_required,
-            storage_deposit: result.storage_deposit,
-            result: result.result.map(|r| {
-                InstantiateReturnValue {
-                    result: r.result,
-                    addr: addr_id_raw, // todo
-                }
-            }),
+            // TODO: mismatch in dependencies
+            gas_consumed: Weight::from_parts(
+                dry_run_result.gas_consumed.ref_time(),
+                dry_run_result.gas_consumed.proof_size(),
+            ),
+            gas_required: Weight::from_parts(
+                dry_run_result.gas_required.ref_time(),
+                dry_run_result.gas_required.proof_size(),
+            ),
+            storage_deposit: to_revive_storage_deposit(dry_run_result.storage_deposit),
+            result: dry_run_result
+                .result
+                .map_err(|_e| sp_runtime::DispatchError::Other("SandboxError")) // TODO: mismatch in dependencies
+                .map(|res| {
+                    InstantiateReturnValue {
+                        result: ExecReturnValue {
+                            // TODO: mismatch in dependencies
+                            flags: ink_env::ReturnFlags::from_bits_truncate(res.result.flags.bits()),
+                            data: res.result.data,
+                        },
+                        addr: res.addr,
+                    }
+                }),
         };
         Ok(result.into())
     }
@@ -371,18 +473,18 @@ where
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        storage_deposit_limit: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
 
         let result = match self.sandbox.upload_contract(
             code,
             caller_to_origin::<S>(caller),
-            storage_deposit_limit,
+            storage_deposit_limit.unwrap_or_else(|| E::Balance::max_value()),
         ) {
             Ok(result) => result,
             Err(err) => {
-                log_error(&format!("Upload failed: {err:?}"));
+                log_error(&format!("upload failed: {err:?}"));
                 return Err(SandboxErr::new(format!("bare_upload: {err:?}")))
             }
         };
@@ -405,8 +507,12 @@ where
         unimplemented!("sandbox does not yet support remove_code")
     }
 
+    /// Important: For an uncomplicated UX of the E2E testing environment we
+    /// decided to automatically map the account in `pallet-revive`, if not
+    /// yet mapped. This is a side effect, as a transaction is then issued
+    /// on-chain and the user incurs costs!
     async fn bare_call<
-        Args: Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Sync + EncodeArgsWith<Abi> + Clone,
         RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(
@@ -415,44 +521,72 @@ where
         message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: E::Balance,
     ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error>
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {
+        // There's a side effect here!
         let _ =
             <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 
-        // todo rename any account_id coming back from callee
         let addr = *message.clone().params().callee();
         let exec_input = message.clone().params().exec_input().encode();
+        <Client<AccountId, S> as BuilderClient<E>>::raw_call::<'_, '_, '_>(
+            self,
+            addr,
+            exec_input,
+            value,
+            gas_limit,
+            storage_deposit_limit,
+            caller,
+        )
+        .await
+    }
 
+    async fn raw_call(
+        &mut self,
+        dest: H160,
+        input_data: Vec<u8>,
+        value: E::Balance,
+        gas_limit: Weight,
+        storage_deposit_limit: E::Balance,
+        signer: &Keypair,
+    ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error> {
         // todo
         let tracer_type = TracerType::CallTracer(Some(CallTracerConfig::default()));
         let mut tracer = self.sandbox.evm_tracer(tracer_type);
         let _result = pallet_revive::tracing::trace(tracer.as_tracing(), || {
             self.sandbox
                 .call_contract(
-                    addr,
+                    dest,
                     value,
-                    exec_input,
-                    caller_to_origin::<S>(caller),
-                    gas_limit,
+                    input_data,
+                    caller_to_origin::<S>(signer),
+                    // TODO: mismatch in dependencies
+                    pallet_revive::Weight::from_parts(
+                        gas_limit.ref_time(),
+                        gas_limit.proof_size(),
+                    ),
                     storage_deposit_limit,
                 )
                 .result
                 .map_err(|err| SandboxErr::new(format!("bare_call: {err:?}")))
         })?;
         let trace = match tracer.collect_trace() {
-            Some(Trace::Call(call_trace)) => Some(call_trace),
+            Some(Trace::Call(call_trace)) => Some(to_revive_trace(call_trace)),
             _ => None,
         };
 
         Ok(((), trace))
     }
 
+    /// Important: For an uncomplicated UX of the E2E testing environment we
+    /// decided to automatically map the account in `pallet-revive`, if not
+    /// yet mapped. This is a side effect, as a transaction is then issued
+    /// on-chain and the user incurs costs!
     async fn bare_call_dry_run<
-        Args: Sync + AbiEncodeWith<Abi> + Clone,
+        Args: Sync + EncodeArgsWith<Abi> + Clone,
         RetType: Send + DecodeMessageResult<Abi>,
         Abi: Sync + Clone,
     >(
@@ -460,26 +594,44 @@ where
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType, Abi>,
         value: E::Balance,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone,
     {
-        // todo there's side effects here
+        let addr = *message.clone().params().callee();
+        let exec_input = message.clone().params().exec_input().encode();
+        self.raw_call_dry_run(addr, exec_input, value, storage_deposit_limit, caller)
+            .await
+    }
+
+    /// Important: For an uncomplicated UX of the E2E testing environment we
+    /// decided to automatically map the account in `pallet-revive`, if not
+    /// yet mapped. This is a side effect, as a transaction is then issued
+    /// on-chain and the user incurs costs!
+    async fn raw_call_dry_run<
+        RetType: Send + DecodeMessageResult<Abi>,
+        Abi: Sync + Clone,
+    >(
+        &mut self,
+        dest: H160,
+        input_data: Vec<u8>,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
+        caller: &Keypair,
+    ) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error> {
+        // There's a side effect here!
         let _ =
             <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 
-        let addr = *message.clone().params().callee();
-        let exec_input = message.clone().params().exec_input().encode();
-
         let result = self.sandbox.dry_run(|sandbox| {
             sandbox.call_contract(
-                addr,
+                dest,
                 value,
-                exec_input,
+                input_data,
                 caller_to_origin::<S>(caller),
                 S::default_gas_limit(),
-                storage_deposit_limit,
+                storage_deposit_limit.unwrap_or(E::Balance::max_value()),
             )
         });
         if result.result.is_err() {
@@ -494,36 +646,53 @@ where
         // todo error when `AccountUnmapped`
         Ok(CallDryRunResult {
             exec_result: ContractExecResultFor::<E> {
-                gas_consumed: result.gas_consumed,
-                gas_required: result.gas_required,
-                storage_deposit: result.storage_deposit,
-                result: result.result,
+                // TODO: mismatch in dependencies
+                gas_consumed: Weight::from_parts(
+                    result.gas_consumed.ref_time(),
+                    result.gas_consumed.proof_size(),
+                ),
+                gas_required: Weight::from_parts(
+                    result.gas_required.ref_time(),
+                    result.gas_required.proof_size(),
+                ),
+                storage_deposit: to_revive_storage_deposit(result.storage_deposit),
+                result: result
+                    .result
+                    .map_err(|_e| sp_runtime::DispatchError::Other("SandboxError")) // TODO: mismatch in dependencies
+                    .map(|res| {
+                        ExecReturnValue {
+                            // TODO: mismatch in dependencies
+                            flags: ink_env::ReturnFlags::from_bits_truncate(res.flags.bits()),
+                            data: res.data,
+                        }
+                    }),
             },
             trace: None, // todo
             _marker: Default::default(),
         })
     }
 
-    async fn map_account_dry_run(&mut self, caller: &Keypair) -> Result<(), Self::Error> {
+    async fn map_account(
+        &mut self,
+        caller: &Keypair,
+    ) -> Result<Option<Self::EventLog>, Self::Error> {
         let caller = keypair_to_account(caller);
         let origin = RawOrigin::Signed(caller);
         let origin = OriginFor::<S::Runtime>::from(origin);
 
         self.sandbox
-            .dry_run(|sandbox| sandbox.map_account(origin))
+            .map_account(origin)
             .map_err(|err| {
-                SandboxErr::new(format!("map_account_dry_run: execution error {err:?}"))
+                SandboxErr::new(format!("map_account: execution error {err:?}"))
             })
+            .map(|_| None)
     }
 
-    async fn map_account(&mut self, caller: &Keypair) -> Result<(), Self::Error> {
-        let caller = keypair_to_account(caller);
-        let origin = RawOrigin::Signed(caller);
-        let origin = OriginFor::<S::Runtime>::from(origin);
-
-        self.sandbox.map_account(origin).map_err(|err| {
-            SandboxErr::new(format!("map_account: execution error {err:?}"))
-        })
+    async fn to_account_id(&mut self, addr: &H160) -> Result<E::AccountId, Self::Error> {
+        use pallet_revive::AddressMapper;
+        let account_id =
+            <S::Runtime as pallet_revive::Config>::AddressMapper::to_account_id(addr);
+        Ok(E::AccountId::from(*account_id.as_ref()))
     }
 }
 
@@ -543,21 +712,6 @@ where
     // todo
     <Config::Runtime as frame_system::Config>::Hash: IsType<sp_core::H256>,
 {
-}
-
-fn keypair_to_account<AccountId: From<[u8; 32]>>(keypair: &Keypair) -> AccountId {
-    AccountId::from(keypair.public_key().0)
-}
-
-fn caller_to_origin<S>(caller: &Keypair) -> OriginFor<S::Runtime>
-where
-    S: Sandbox,
-    S::Runtime: pallet_balances::Config + pallet_revive::Config,
-    AccountIdFor<S::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
-{
-    let caller = keypair_to_account(caller);
-    let origin = RawOrigin::Signed(caller);
-    OriginFor::<S::Runtime>::from(origin)
 }
 
 #[async_trait]
@@ -596,7 +750,7 @@ pub mod preset {
         /// with a mock network of relay chain and parachains.
         ///
         /// ```no_compile
-        /// #[ink_e2e::test(backend(runtime_only(sandbox = MockNetworkSandbox)))]
+        /// #[ink_e2e::test(backend(runtime_only(sandbox = MockNetworkSandbox, client = ink_sandbox::SandboxClient)))]
         /// async fn my_test<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
         ///   // ...
         /// }
@@ -696,4 +850,16 @@ pub mod preset {
         }
     }
      */
+}
+
+/// Transforms a `Keypair` into an origin.
+pub fn caller_to_origin<S>(caller: &Keypair) -> OriginFor<S::Runtime>
+where
+    S: Sandbox,
+    S::Runtime: pallet_balances::Config + pallet_revive::Config,
+    AccountIdFor<S::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+{
+    let caller = keypair_to_account(caller);
+    let origin = RawOrigin::Signed(caller);
+    OriginFor::<S::Runtime>::from(origin)
 }

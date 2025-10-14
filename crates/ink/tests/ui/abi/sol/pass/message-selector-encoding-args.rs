@@ -16,10 +16,10 @@ mod contract {
         #[ink(message)]
         pub fn message_0(&self, _input_1: bool) {}
 
-        #[ink(message, selector = 1)]
+        #[ink(message)]
         pub fn message_1(&self, _input_1: u8) {}
 
-        #[ink(message, selector = 0xC0DE_CAFE)]
+        #[ink(message)]
         pub fn message_2(&self, _input_1: ink::sol::FixedBytes<32>) {}
 
         #[ink(message)]
@@ -28,12 +28,12 @@ mod contract {
 
     #[ink::trait_definition]
     pub trait Messages {
-        #[ink(message, selector = 0x12345678)]
+        #[ink(message)]
         fn message_4(&self, _input_1: ink::sol::DynBytes);
     }
 
     impl Messages for Contract {
-        #[ink(message, selector = 0x12345678)]
+        #[ink(message)]
         fn message_4(&self, _input_1: ink::sol::DynBytes) {}
     }
 

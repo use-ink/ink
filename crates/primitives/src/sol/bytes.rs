@@ -19,10 +19,6 @@ use core::{
 
 use alloy_sol_types::{
     SolType as AlloySolType,
-    abi::token::{
-        PackedSeqToken,
-        WordToken,
-    },
     sol_data,
 };
 use ink_prelude::{
@@ -46,6 +42,7 @@ use crate::sol::{
     encodable::{
         DynSizeDefault,
         FixedSizeDefault,
+        Word,
     },
     types::SolTokenType,
     utils::{
@@ -108,7 +105,7 @@ where
         // requirement for `SolTypeValue<Self::AlloyType>`.
         let mut word = [0; 32];
         word[..N].copy_from_slice(self.0.as_slice());
-        WordToken::from(word)
+        Word(word)
     }
 }
 
@@ -120,11 +117,11 @@ where
     where
         H: Fn(&[u8], &mut [u8; 32]),
     {
-        self.tokenize().0.0
+        self.tokenize().0
     }
 
     fn topic_preimage(&self, buffer: &mut Vec<u8>) {
-        buffer.extend(self.tokenize().0.0);
+        buffer.extend(self.tokenize().0);
     }
 
     fn default_topic_preimage(buffer: &mut Vec<u8>) {
@@ -144,7 +141,7 @@ impl<const N: usize> SolTokenType for FixedBytes<N>
 where
     sol_data::ByteCount<N>: sol_data::SupportedFixedBytes,
 {
-    type TokenType<'enc> = WordToken;
+    type TokenType<'enc> = Word;
 
     type DefaultType = FixedSizeDefault;
 }
@@ -256,9 +253,7 @@ impl SolTypeEncode for DynBytes {
     const DEFAULT_VALUE: Self::DefaultType = DynSizeDefault;
 
     fn tokenize(&self) -> Self::TokenType<'_> {
-        // Direct implementation simplifies generic implementations by removing
-        // requirement for `SolTypeValue<Self::AlloyType>`.
-        PackedSeqToken(self.0.as_slice())
+        self.0.as_slice()
     }
 }
 
@@ -290,7 +285,7 @@ impl SolTopicEncode for DynBytes {
 }
 
 impl SolTokenType for DynBytes {
-    type TokenType<'enc> = PackedSeqToken<'enc>;
+    type TokenType<'enc> = &'enc [u8];
 
     type DefaultType = DynSizeDefault;
 }
@@ -369,9 +364,7 @@ impl SolTypeEncode for ByteSlice<'_> {
     const DEFAULT_VALUE: Self::DefaultType = DynSizeDefault;
 
     fn tokenize(&self) -> Self::TokenType<'_> {
-        // Direct implementation simplifies generic implementations by removing
-        // requirement for `SolTypeValue<Self::AlloyType>`.
-        PackedSeqToken(self.0)
+        self.0
     }
 }
 
@@ -403,7 +396,7 @@ impl SolTopicEncode for ByteSlice<'_> {
 }
 
 impl SolTokenType for ByteSlice<'_> {
-    type TokenType<'enc> = PackedSeqToken<'enc>;
+    type TokenType<'enc> = &'enc [u8];
 
     type DefaultType = DynSizeDefault;
 }

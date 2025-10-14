@@ -22,8 +22,7 @@ pub mod flipper {
             Self { value: init_value }
         }
 
-        // solidity compatible selector (`keccack256("flip()")`)
-        #[ink(message, selector = 0xcde4efa9)]
+        #[ink(message)]
         pub fn flip(&mut self) {
             self.value = !self.value;
         }
@@ -44,8 +43,7 @@ pub mod flipper {
             self.value
         }
 
-        // solidity compatible selector (`keccack256("get_2()")`)
-        #[ink(message, selector = 0x6d4ce63c)]
+        #[ink(message)]
         pub fn get_2(&self) -> bool {
             self.value
         }

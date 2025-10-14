@@ -25,7 +25,10 @@ use ink_env::{
         DelegateCall,
         FromAddr,
         LimitParamsV2,
-        utils::DecodeMessageResult,
+        utils::{
+            DecodeMessageResult,
+            EncodeArgsWith,
+        },
     },
     hash::{
         CryptoHash,
@@ -34,10 +37,10 @@ use ink_env::{
 };
 use ink_primitives::{
     Address,
+    CodeHashErr,
     H256,
     U256,
     abi::{
-        AbiEncodeWith,
         Ink,
         Sol,
     },
@@ -158,6 +161,7 @@ where
     /// #[ink(message)]
     /// pub fn foo(&self) {}
     ///
+    /// // todo
     /// // /// Returns a tuple of
     /// // ///   - the result of adding the `rhs` to the `lhs`
     /// // ///   - the gas costs of this addition operation
@@ -179,9 +183,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::weight_to_fee`]
-    /// todo: there is now also `gas_price`
-    pub fn weight_to_fee(self, gas: u64) -> E::Balance {
-        ink_env::weight_to_fee::<E>(gas)
+    pub fn weight_to_fee(self, gas: u64) -> U256 {
+        ink_env::weight_to_fee(gas)
     }
 
     /// Returns the timestamp of the current block.
@@ -224,17 +227,57 @@ where
         ink_env::block_timestamp::<E>()
     }
 
-    /// Returns the account ID of the executed contract.
+    /// Retrieves the account id for a specified address.
     ///
     /// # Example
     ///
-    /// todo this code example doesn't use `account_id()`.
     /// ```
     /// #[ink::contract]
     /// pub mod only_owner {
     ///     #[ink(storage)]
     ///     pub struct OnlyOwner {
-    ///         owner: ink::Address,
+    ///         owner: AccountId,
+    ///         value: u32,
+    ///     }
+    ///
+    ///     impl OnlyOwner {
+    ///         #[ink(constructor)]
+    ///         pub fn new(owner: AccountId) -> Self {
+    ///             Self { owner, value: 0 }
+    ///         }
+    ///
+    ///         /// Allows incrementing the contract's `value` only
+    ///         /// for the owner.
+    ///         ///
+    ///         /// The contract panics if the caller is not the owner.
+    ///         #[ink(message)]
+    ///         pub fn increment(&mut self) {
+    ///             let caller = self.env().address();
+    ///             let caller_acc = self.env().to_account_id(caller);
+    ///             assert!(self.owner == caller_acc);
+    ///             self.value = self.value + 1;
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::to_account_id`]
+    pub fn to_account_id(self, addr: Address) -> E::AccountId {
+        ink_env::to_account_id::<E>(addr)
+    }
+
+    /// Returns the account ID of the executed contract.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// pub mod only_owner {
+    ///     #[ink(storage)]
+    ///     pub struct OnlyOwner {
+    ///         owner: AccountId,
     ///         value: u32,
     ///     }
     ///
@@ -242,19 +285,18 @@ where
     ///         #[ink(constructor)]
     ///         pub fn new() -> Self {
     ///             Self {
-    ///                 owner: Self::env().caller(),
+    ///                 owner: Self::env().account_id(),
     ///                 value: 0,
     ///             }
     ///         }
     ///
     ///         /// Allows incrementing the contract's `value` only
-    ///         /// for the owner (i.e. the account which instantiated
-    ///         /// this contract.
+    ///         /// for the owner.
     ///         ///
     ///         /// The contract panics if the caller is not the owner.
     ///         #[ink(message)]
     ///         pub fn increment(&mut self) {
-    ///             let caller = self.env().caller();
+    ///             let caller = self.env().account_id();
     ///             assert!(self.owner == caller);
     ///             self.value = self.value + 1;
     ///         }
@@ -384,31 +426,26 @@ where
     ///
     /// # Note
     ///
-    /// In "all" ABI mode, both an in ink! and Solidity ABI event are emitted.
+    /// In "all" ABI mode, both an ink! and Solidity ABI event are emitted.
     #[cfg(not(ink_abi = "all"))]
     pub fn emit_event<Evt>(self, event: Evt)
     where
         Evt: ink_env::Event<crate::env::DefaultAbi>,
     {
-        ink_env::emit_event::<Evt, crate::env::DefaultAbi>(&event)
+        ink_env::emit_event::<Evt>(event)
     }
 
     /// Emits an event.
     ///
     /// # Note
     ///
-    /// In "all" ABI mode, both an in ink! and Solidity ABI event are emitted by this
-    /// method.
+    /// In "all" ABI mode, both an ink! and Solidity ABI event are emitted.
     #[cfg(ink_abi = "all")]
     pub fn emit_event<Evt>(self, event: Evt)
     where
         Evt: ink_env::Event<crate::abi::Ink> + ink_env::Event<crate::abi::Sol>,
     {
-        // Emits ink! ABI encoded event.
-        ink_env::emit_event::<Evt, crate::abi::Ink>(&event);
-
-        // Emits Solidity ABI encoded event.
-        ink_env::emit_event::<Evt, crate::abi::Sol>(&event);
+        ink_env::emit_event::<Evt>(event)
     }
 
     /// Emits an event using the ink! ABI encoding (i.e. with SCALE codec for event data
@@ -417,7 +454,7 @@ where
     where
         Evt: ink_env::Event<Ink>,
     {
-        ink_env::emit_event::<Evt, Ink>(&event)
+        ink_env::emit_event_ink::<Evt>(event)
     }
 
     /// Emits an event using the Solidity ABI encoding.
@@ -425,7 +462,7 @@ where
     where
         Evt: ink_env::Event<Sol>,
     {
-        ink_env::emit_event::<Evt, Sol>(&event)
+        ink_env::emit_event_sol::<Evt>(event)
     }
 
     /// Instantiates another contract using the supplied code hash.
@@ -519,7 +556,7 @@ where
         ContractRef: FromAddr + ink_env::ContractReverseReference,
         <ContractRef as ink_env::ContractReverseReference>::Type:
             ink_env::reflect::ContractConstructorDecoder,
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         R: ConstructorReturnType<ContractRef, Abi>,
     {
         ink_env::instantiate_contract::<E, ContractRef, Args, R, Abi>(params)
@@ -588,7 +625,7 @@ where
         params: &CallParams<E, Call, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         R: DecodeMessageResult<Abi>,
     {
         ink_env::invoke_contract::<E, Args, R, Abi>(params)
@@ -656,7 +693,7 @@ where
         params: &CallParams<E, DelegateCall, Args, R, Abi>,
     ) -> Result<ink_primitives::MessageResult<R>>
     where
-        Args: AbiEncodeWith<Abi>,
+        Args: EncodeArgsWith<Abi>,
         R: DecodeMessageResult<Abi>,
     {
         ink_env::invoke_contract_delegate::<E, Args, R, Abi>(params)
@@ -974,8 +1011,15 @@ where
             .map_err(|_| ReturnErrorCode::Sr25519VerifyFailed.into())
     }
 
-    /// Checks whether a contract lives under `addr`.
-    /// todo update comment
+    /// Checks whether `addr` is a contract.
+    ///
+    /// # Notes
+    ///
+    /// If `addr` references a precompile address, the return value will be `true`.
+    ///
+    /// The function [`Self::caller_is_origin`] performs better when checking whether your
+    /// contract is being called by a contract or an account. It performs better
+    /// for this case as it does not require any storage lookups.
     ///
     /// # Example
     ///
@@ -995,6 +1039,13 @@ where
     /// pub fn is_contract(&mut self, addr: ink::Address) -> bool {
     ///     self.env().is_contract(&addr)
     /// }
+    ///
+    /// #[ink(message)]
+    /// pub fn check(&mut self) {
+    ///     let this_contract = self.env().address();
+    ///     assert!(self.env().is_contract(&this_contract));
+    ///     assert!(!self.env().is_contract(&self.env().caller()));
+    /// }
     /// #    }
     /// # }
     /// ```
@@ -1002,7 +1053,6 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::is_contract`]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn is_contract(self, addr: &Address) -> bool {
         ink_env::is_contract(addr)
     }
@@ -1036,7 +1086,7 @@ where
     ///
     /// For more details visit: [`ink_env::caller_is_origin`]
     pub fn caller_is_origin(self) -> bool {
-        ink_env::caller_is_origin::<E>()
+        ink_env::caller_is_origin()
     }
 
     /// Checks whether the caller of the current contract is root.
@@ -1067,7 +1117,7 @@ where
     ///
     /// For more details visit: [`ink_env::caller_is_root`]
     pub fn caller_is_root(self) -> bool {
-        ink_env::caller_is_root::<E>()
+        ink_env::caller_is_root()
     }
 
     /// Returns the code hash of the contract at the given `account` id.
@@ -1098,7 +1148,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::code_hash`]
-    pub fn code_hash(self, addr: &Address) -> Result<H256> {
+    pub fn code_hash(self, addr: &Address) -> core::result::Result<H256, CodeHashErr> {
         ink_env::code_hash(addr)
     }
 
@@ -1120,9 +1170,7 @@ where
     /// #
     /// #[ink(message)]
     /// pub fn own_code_hash(&mut self) -> ink::H256 {
-    ///     self.env()
-    ///         .own_code_hash()
-    ///         .unwrap_or_else(|err| panic!("contract should have a code hash: {:?}", err))
+    ///     self.env().own_code_hash()
     /// }
     /// #    }
     /// # }
@@ -1131,7 +1179,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::own_code_hash`]
-    pub fn own_code_hash(self) -> Result<H256> {
+    pub fn own_code_hash(self) -> H256 {
         ink_env::own_code_hash()
     }
 
@@ -1169,7 +1217,7 @@ where
         ink_env::set_code_hash::<E>(code_hash)
     }
 
-    #[cfg(feature = "unstable-hostfn")]
+    #[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
     pub fn xcm_execute<Call: scale::Encode>(
         self,
         msg: &xcm::VersionedXcm<Call>,
@@ -1177,7 +1225,7 @@ where
         ink_env::xcm_execute::<E, _>(msg)
     }
 
-    #[cfg(feature = "unstable-hostfn")]
+    #[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
     pub fn xcm_send<Call: scale::Encode>(
         self,
         dest: &xcm::VersionedLocation,

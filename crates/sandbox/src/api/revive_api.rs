@@ -11,19 +11,19 @@ use frame_support::{
     sp_runtime::traits::Bounded,
     traits::{
         Time,
-        fungible::Inspect,
+        fungible::{
+            Inspect,
+            Mutate,
+        },
     },
     weights::Weight,
 };
 use frame_system::pallet_prelude::OriginFor;
-use ink_primitives::{
-    Address,
-    DepositLimit,
-};
+use ink_primitives::Address;
 use pallet_revive::{
-    BumpNonce,
     Code,
     CodeUploadResult,
+    ExecConfig,
     evm::{
         Tracer,
         TracerType,
@@ -57,6 +57,14 @@ pub trait ContractAPI {
     #[allow(clippy::type_complexity, clippy::too_many_arguments)]
     fn map_account(&mut self, account: OriginFor<Self::T>) -> Result<(), DispatchError>;
 
+    /// `pallet-revive` uses a dedicated "pallet" account for tracking
+    /// storage deposits. The static account is returned by the
+    /// `pallet_revive::Pallet::account_id()` function.
+    ///
+    /// This function funds the account with the existential deposit
+    /// (i.e. minimum balance).
+    fn warm_up(&mut self);
+
     /// Interface for `bare_instantiate` contract call with a simultaneous upload.
     ///
     /// # Arguments
@@ -78,7 +86,7 @@ pub trait ContractAPI {
         salt: Option<[u8; 32]>,
         origin: OriginFor<Self::T>,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
+        storage_deposit_limit: BalanceOf<Self::T>,
     ) -> ContractResultInstantiate<Self::T>;
 
     /// Interface for `bare_instantiate` contract call for a previously uploaded contract.
@@ -102,7 +110,7 @@ pub trait ContractAPI {
         salt: Option<[u8; 32]>,
         origin: OriginFor<Self::T>,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
+        storage_deposit_limit: BalanceOf<Self::T>,
     ) -> ContractResultInstantiate<Self::T>;
 
     /// Interface for `bare_upload_code` contract call.
@@ -137,7 +145,7 @@ pub trait ContractAPI {
         data: Vec<u8>,
         origin: OriginFor<Self::T>,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
+        storage_deposit_limit: BalanceOf<Self::T>,
     ) -> ContractExecResultFor<Self::T>;
 
     fn evm_tracer(&mut self, tracer_type: TracerType) -> Tracer<Self::T>;
@@ -146,7 +154,7 @@ pub trait ContractAPI {
 impl<T> ContractAPI for T
 where
     T: Sandbox,
-    T::Runtime: pallet_revive::Config,
+    T::Runtime: pallet_balances::Config + pallet_revive::Config,
     BalanceOf<T::Runtime>: Into<U256> + TryFrom<U256> + Bounded,
     MomentOf<T::Runtime>: Into<U256>,
     <<T as Sandbox>::Runtime as frame_system::Config>::Nonce: Into<u32>,
@@ -163,6 +171,24 @@ where
         self.execute_with(|| pallet_revive::Pallet::<Self::T>::map_account(account_id))
     }
 
+    /// `pallet-revive` uses a dedicated "pallet" account for tracking
+    /// storage deposits. The static account is returned by the
+    /// `pallet_revive::Pallet::account_id()` function.
+    ///
+    /// This function funds the account with the existential deposit
+    /// (i.e. minimum balance).
+    fn warm_up(&mut self) {
+        self.execute_with(|| {
+            let acc = pallet_revive::Pallet::<Self::T>::account_id();
+            let ed = pallet_balances::Pallet::<Self::T>::minimum_balance();
+
+            // we only fund the account if need be
+            if pallet_balances::Pallet::<Self::T>::free_balance(&acc) < ed {
+                let _ = pallet_balances::Pallet::<Self::T>::mint_into(&acc, ed);
+            }
+        });
+    }
+
     fn deploy_contract(
         &mut self,
         contract_bytes: Vec<u8>,
@@ -171,9 +197,9 @@ where
         salt: Option<[u8; 32]>,
         origin: OriginFor<Self::T>,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
+        storage_deposit_limit: BalanceOf<Self::T>,
     ) -> ContractResultInstantiate<Self::T> {
-        let storage_deposit_limit = storage_deposit_limit_fn(storage_deposit_limit);
+        self.warm_up();
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_instantiate(
                 origin,
@@ -183,7 +209,11 @@ where
                 Code::Upload(contract_bytes),
                 data,
                 salt,
-                BumpNonce::Yes,
+                ExecConfig {
+                    bump_nonce: true,
+                    collect_deposit_from_hold: false,
+                    effective_gas_price: None,
+                },
             )
         })
     }
@@ -196,9 +226,8 @@ where
         salt: Option<[u8; 32]>,
         origin: OriginFor<Self::T>,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
+        storage_deposit_limit: BalanceOf<Self::T>,
     ) -> ContractResultInstantiate<Self::T> {
-        let storage_deposit_limit = storage_deposit_limit_fn(storage_deposit_limit);
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_instantiate(
                 origin,
@@ -208,7 +237,11 @@ where
                 Code::Existing(code_hash),
                 data,
                 salt,
-                BumpNonce::Yes,
+                ExecConfig {
+                    bump_nonce: true,
+                    collect_deposit_from_hold: false,
+                    effective_gas_price: None,
+                },
             )
         })
     }
@@ -235,9 +268,8 @@ where
         data: Vec<u8>,
         origin: OriginFor<Self::T>,
         gas_limit: Weight,
-        storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
+        storage_deposit_limit: BalanceOf<Self::T>,
     ) -> ContractExecResultFor<Self::T> {
-        let storage_deposit_limit = storage_deposit_limit_fn(storage_deposit_limit);
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_call(
                 origin,
@@ -246,24 +278,17 @@ where
                 gas_limit,
                 storage_deposit_limit,
                 data,
+                ExecConfig {
+                    bump_nonce: true,
+                    collect_deposit_from_hold: false,
+                    effective_gas_price: None,
+                },
             )
         })
     }
 
     fn evm_tracer(&mut self, tracer_type: TracerType) -> Tracer<Self::T> {
         self.execute_with(|| pallet_revive::Pallet::<Self::T>::evm_tracer(tracer_type))
-    }
-}
-
-/// todo
-fn storage_deposit_limit_fn<Balance>(
-    limit: DepositLimit<Balance>,
-) -> pallet_revive::DepositLimit<Balance> {
-    match limit {
-        DepositLimit::UnsafeOnlyForDryRun => {
-            pallet_revive::DepositLimit::UnsafeOnlyForDryRun
-        }
-        DepositLimit::Balance(v) => pallet_revive::DepositLimit::Balance(v),
     }
 }
 
@@ -286,7 +311,7 @@ mod tests {
         api::prelude::*,
     };
 
-    const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::UnsafeOnlyForDryRun;
+    const STORAGE_DEPOSIT_LIMIT: u128 = u128::MAX;
 
     fn compile_module(contract_name: &str) -> Vec<u8> {
         // todo compile the contract, instead of reading the binary
@@ -359,7 +384,7 @@ mod tests {
             None,
             origin.clone(),
             DefaultSandbox::default_gas_limit(),
-            DepositLimit::Balance(100000000000000),
+            100000000000000,
         );
         assert!(result.result.is_ok());
         assert!(!result.result.unwrap().result.did_revert());
@@ -372,7 +397,7 @@ mod tests {
             None,
             origin,
             DefaultSandbox::default_gas_limit(),
-            DepositLimit::Balance(100000000000000),
+            100000000000000,
         );
         assert!(result.result.is_err());
         let dispatch_err = result.result.unwrap_err();
