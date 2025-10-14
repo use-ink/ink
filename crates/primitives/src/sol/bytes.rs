@@ -404,7 +404,7 @@ impl SolTokenType for ByteSlice<'_> {
 impl crate::sol::types::private::Sealed for ByteSlice<'_> {}
 
 // Implements `SolEncode` for `ByteSlice`.
-impl<'a> SolEncode<'a> for ByteSlice<'a> {
+impl<'a> SolEncode<'a> for ByteSlice<'_> {
     type SolType = &'a ByteSlice<'a>;
 
     fn to_sol_type(&'a self) -> Self::SolType {
