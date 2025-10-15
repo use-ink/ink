@@ -170,9 +170,9 @@ impl InnerAlloc {
     /// of a layout in the linear memory.
     /// - Initially `self.next` is `0` and aligned
     /// - `layout.align() - 1` accounts for `0` as the first index.
-    /// - the binary with the inverse of the align creates a bitmask that is used to zero
-    ///   out bits, ensuring alignment according to type requirements and ensures that the
-    ///   next allocated pointer address is of the power of 2.
+    /// - the bitwise AND with the inverse of the align creates a bitmask that is used
+    ///   to zero out bits, ensuring alignment according to type requirements and ensures 
+    ///   that the next allocated pointer address is of the power of 2.
     #[allow(clippy::arithmetic_side_effects)] // todo
     fn align_ptr(&self, layout: &Layout) -> usize {
         (self.next + layout.align() - 1) & !(layout.align() - 1)
