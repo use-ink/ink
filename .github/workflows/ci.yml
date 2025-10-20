@@ -623,6 +623,7 @@ jobs:
             scripts/for_all_contracts_exec.sh \
               --ignore internal/static-buffer \
               --ignore internal/mapping \
+              --ignore public/contract-xcm \
               --partition ${{ matrix.partition }}/4 -- \
               cargo contract test --all-features --manifest-path {}
 
@@ -653,7 +654,6 @@ jobs:
           with:
             command: |
                 cargo contract test --all-features --manifest-path integration-tests/internal/mapping/Cargo.toml
-
                 INK_STATIC_BUFFER_SIZE=256 cargo test --all-features --manifest-path integration-tests/internal/mapping/Cargo.toml -- --ignored fallible_storage_methods_work
 
   examples-custom-test:
@@ -693,6 +693,33 @@ jobs:
               --manifest-path integration-tests/public/flipper/Cargo.toml \
               e2e_test_deployed_contract \
               -- --ignored --nocapture
+
+  examples-xcm-test:
+      runs-on: ubuntu-latest
+      needs: [clippy, clippy-examples]
+      steps:
+          - name: Checkout
+            uses: actions/checkout@v5
+            with:
+                fetch-depth: 1
+
+          - name: Initialize runner
+            uses: ./.github/init
+            with:
+                cache: true
+                cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
+                cache-on-failure: true
+
+          - name: Run E2E test with Westend runtime
+            uses: ./.github/run-container-command
+            env:
+                # Fix linking of `linkme`: https://github.com/dtolnay/linkme/issues/49
+                RUSTFLAGS: -Clink-arg=-z -Clink-arg=nostart-stop-gc -Clink-dead-code
+            with:
+                command: |
+                    polkadot-parachain --chain westend.json --dev -lruntime::revive=trace,xcm=trace &;
+                    sleep 5m;
+                    CONTRACTS_NODE_URL=ws://127.0.0.1:9944 cargo test --all-features --manifest-path integration-tests/public/contract-xcm/Cargo.toml
 
       - name: Test static-buffer example
         uses: ./.github/run-container-command
