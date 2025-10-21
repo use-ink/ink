@@ -27,8 +27,10 @@ use ink_revive_types::{
     },
 };
 pub use macros::{
+    AssetIdForTrustBackedAssets,
     BlockBuilder,
     DefaultSandbox,
+    TrustBackedAssetsInstance,
 };
 use pallet_revive::{
     ContractResult,
@@ -47,6 +49,8 @@ pub use {
         },
     },
     frame_system,
+    pallet_assets,
+    pallet_assets_precompiles,
     pallet_balances,
     pallet_revive,
     pallet_timestamp,
@@ -247,4 +251,27 @@ pub fn to_revive_storage_deposit<B>(
             ink_revive_types::StorageDeposit::Refund(b)
         }
     }
+}
+
+/// Returns Alice's `AccountId32` for testing.
+pub fn alice() -> AccountId32 {
+    AccountId32::from(ink_e2e::alice().public_key().0)
+}
+
+/// Returns Bob's `AccountId32` for testing.
+pub fn bob() -> AccountId32 {
+    AccountId32::from(ink_e2e::bob().public_key().0)
+}
+
+/// Returns Charlie's `AccountId32` for testing.
+pub fn charlie() -> AccountId32 {
+    AccountId32::from(ink_e2e::charlie().public_key().0)
+}
+
+/// Creates an `AccountId32` from an ink contract account ID.
+///
+/// This is a convenience function for e2e tests that need to convert contract
+/// account IDs to the `AccountId32` type used by the sandbox runtime.
+pub fn account_id_from_contract(account_id: &ink_primitives::AccountId) -> AccountId32 {
+    AccountId32::from(*AsRef::<[u8; 32]>::as_ref(account_id))
 }

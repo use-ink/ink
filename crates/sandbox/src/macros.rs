@@ -136,6 +136,7 @@ mod construct_runtime {
             System: $crate::frame_system,
             Balances: $crate::pallet_balances,
             Timestamp: $crate::pallet_timestamp,
+            Assets: $crate::pallet_assets::<Instance1>,
             Revive: $crate::pallet_revive,
             TransactionPayment: $crate::pallet_transaction_payment,
             $(
@@ -174,6 +175,34 @@ mod construct_runtime {
         type OnTimestampSet = ();
         type MinimumPeriod = ConstU64<1>;
         type WeightInfo = ();
+    }
+
+    // Configure pallet-assets (Instance1 for Trust Backed Assets)
+    pub type TrustBackedAssetsInstance = $crate::pallet_assets::Instance1;
+    pub type AssetIdForTrustBackedAssets = u32;
+
+    impl $crate::pallet_assets::Config<TrustBackedAssetsInstance> for $runtime {
+        type RuntimeEvent = RuntimeEvent;
+        type Balance = Balance;
+        type AssetId = AssetIdForTrustBackedAssets;
+        type AssetIdParameter = scale::Compact<AssetIdForTrustBackedAssets>;
+        type Currency = Balances;
+        type CreateOrigin = $crate::frame_support::traits::AsEnsureOriginWithArg<$crate::frame_system::EnsureSigned<AccountId32>>;
+        type ForceOrigin = $crate::frame_system::EnsureRoot<AccountId32>;
+        type AssetDeposit = ConstU128<1>;
+        type AssetAccountDeposit = ConstU128<1>;
+        type MetadataDepositBase = ConstU128<1>;
+        type MetadataDepositPerByte = ConstU128<1>;
+        type ApprovalDeposit = ConstU128<1>;
+        type StringLimit = ConstU32<50>;
+        type Freezer = ();
+        type Holder = ();
+        type Extra = ();
+        type WeightInfo = ();
+        type CallbackHandle = $crate::pallet_assets::AutoIncAssetId<$runtime, TrustBackedAssetsInstance>;
+        type RemoveItemsLimit = ConstU32<1000>;
+        #[cfg(feature = "runtime-benchmarks")]
+        type BenchmarkHelper = ();
     }
 
     impl $crate::pallet_transaction_payment::Config for $runtime {
@@ -231,10 +260,7 @@ mod construct_runtime {
         type InstantiateOrigin = $crate::frame_system::EnsureSigned<Self::AccountId>;
         type FindAuthor = ();
         type Precompiles = (
-            // todo
-            //ERC20<Self, InlineIdConfig<0x120>, TrustBackedAssetsInstance>,
-            //ERC20<Self, InlineIdConfig<0x320>, PoolAssetsInstance>,
-            //XcmPrecompile<Self>,
+            $crate::pallet_assets_precompiles::ERC20<Self, $crate::pallet_assets_precompiles::InlineIdConfig<0x120>, TrustBackedAssetsInstance>,
         );
         type AllowEVMBytecode = ConstBool<false>;
         type FeeInfo = ();
@@ -339,8 +365,9 @@ mod construct_runtime {
 
 // Export runtime type itself, pallets and useful types from the auxiliary module
 pub use construct_runtime::{
-    $sandbox, $runtime, Balances, Revive, PalletInfo, RuntimeCall, RuntimeEvent, RuntimeHoldReason,
-    RuntimeOrigin, System, Timestamp,
+    $sandbox, $runtime, Assets, AssetIdForTrustBackedAssets, Balances, Revive, PalletInfo,
+    RuntimeCall, RuntimeEvent, RuntimeHoldReason, RuntimeOrigin, System, Timestamp,
+    TrustBackedAssetsInstance,
 };
     };
 }

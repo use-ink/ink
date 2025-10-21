@@ -133,6 +133,14 @@ where
         }
     }
 
+    /// Get a mutable reference to the underlying sandbox.
+    ///
+    /// This allows direct access to all sandbox methods and traits, making it easy to
+    /// interact with runtime pallets like `pallet-assets`:
+    pub fn sandbox(&mut self) -> &mut S {
+        &mut self.sandbox
+    }
+
     fn fund_accounts(sandbox: &mut S) {
         const TOKENS: u128 = 1_000_000_000_000_000;
 
@@ -485,7 +493,7 @@ where
             Ok(result) => result,
             Err(err) => {
                 log_error(&format!("upload failed: {err:?}"));
-                return Err(SandboxErr::new(format!("bare_upload: {err:?}")))
+                return Err(SandboxErr::new(format!("bare_upload: {err:?}")));
             }
         };
 

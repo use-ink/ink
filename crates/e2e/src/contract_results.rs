@@ -259,6 +259,31 @@ impl<E: Environment, V, EventLog, Abi> CallResult<E, V, EventLog, Abi> {
     pub fn return_data(&self) -> &[u8] {
         &self.dry_run.exec_return_value().data
     }
+
+    /// Returns the root cause error from nested contract calls (e.g., precompile errors)
+    /// if available in the trace, otherwise returns the raw error data.
+    pub fn extract_error(&self) -> Option<String> {
+        if !self.dry_run.did_revert() {
+            return None;
+        }
+
+        // Check trace for error information
+        if let Some(trace) = &self.trace {
+            // // Check nested calls first (more specific errors)
+            for call in &trace.calls {
+                if let Some(error) = &call.error {
+                    return Some(error.clone());
+                }
+            }
+
+            // Then check top-level error
+            if let Some(error) = &trace.error {
+                return Some(error.clone());
+            }
+        }
+        // Fallback to raw data
+        Some(format!("{:?}", self.return_data()))
+    }
 }
 
 // TODO(#xxx) Improve the `Debug` implementation.

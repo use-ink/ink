@@ -1,0 +1,25 @@
+[package]
+name = "ink_precompiles"
+version.workspace = true
+authors = ["Use Ink <ink@use.ink>"]
+edition.workspace = true
+
+license.workspace = true
+readme = "README.md"
+repository.workspace = true
+documentation = "https://docs.rs/ink_precompiles/"
+homepage.workspace = true
+description = "[ink!] Precompile interfaces for pallet-revive smart contracts."
+keywords.workspace = true
+categories.workspace = true
+include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
+
+[dependencies]
+ink = { workspace = true, default-features = false }
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+]
+
