@@ -112,3 +112,5 @@ Use the scripts provided under `scripts/check-*` directory in order to run check
 ## License
 
 The entire code within this repository is licensed under the [Apache License 2.0](LICENSE).
+<br>## Welcome to Ink! Contract Development<br>Ink!'s Rust macros simplify WASM contracts for Polkadot—new contributors, start with the flipper example for your first pallet. Tip: Use cargo-contract for deployment! <br>
+
