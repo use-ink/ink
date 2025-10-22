@@ -876,7 +876,7 @@ where
 ///
 /// # Errors
 ///
-/// - If the message cannot be properly decoded on the `pallet-revive` side.
+/// - If the message cannot be properly decoded in the XCM precompile.
 /// - If the XCM execution fails because of the runtime's XCM configuration.
 ///
 /// # Panics
@@ -899,7 +899,7 @@ where
 ///
 /// # Errors
 ///
-/// - If the message cannot be properly decoded on the `pallet-revive` side.
+/// - If the message cannot be properly decoded in the XCM precompile.
 /// - If the XCM execution fails because of the runtime's XCM configuration.
 ///
 /// # Panics
@@ -925,7 +925,7 @@ where
 ///
 /// # Errors
 ///
-/// - If the message cannot be properly decoded on the `pallet-revive` side.
+/// - If the message cannot be properly decoded in the XCM precompile.
 ///
 /// # Panics
 ///

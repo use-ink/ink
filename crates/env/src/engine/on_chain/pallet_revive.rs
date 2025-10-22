@@ -204,17 +204,19 @@ const SOL_BYTES_ENCODING_OVERHEAD: usize = 64;
 /// Returns the number of bytes written.
 ///
 /// # Arguments
+///
 /// - `input`: the bytes to encode.
-/// - `offset`: the position in `out` where the data segment of `input` starts.
+/// - `offset`: the position in `out` where the data segment of `input` starts. The data
+///   segment is composed of [length word (32 bytes)] [input (padded to 32)]`.
 /// - `offset_pos`: the position in `out` where to write the `offset` word to.
-/// - `data_pos`: the position in `out` where to write the encoded `bytes` to.
+/// - `data_pos`: the position in `out` where to write the data segment to.
 /// - `out`: the output buffer.
 ///
 /// # Developer Note
 ///
 /// The returned layout will be
 ///
-///     `[offset (32 bytes)] [len (32 bytes)] [data (padded to 32)]`
+///     `... [offset (32 bytes)] ... [len (32 bytes)] [data (padded to 32)] ...`
 ///
 /// The `out` byte array needs to be able to hold
 /// (in the worst case) 95 bytes more than `input.len()`.
@@ -258,13 +260,6 @@ fn solidity_encode_bytes(
     // Write the `input` at `offset_pos`, after the 32 byte `len` word
     out[data_pos + BYTES_LEN_WORD..data_pos + BYTES_LEN_WORD + input_len]
         .copy_from_slice(input);
-
-    /*
-    // Make sure any padded bytes are zeroed
-    let padded_amount = padded_len - input_len;
-    out[data_pos + BYTES_LEN_WORD + input_len..data_pos + BYTES_LEN_WORD + padded_len]
-        .copy_from_slice(&[0u8; 28]); // make sure the first bytes are zeroed
-     */
 
     64 + padded_len
 }
