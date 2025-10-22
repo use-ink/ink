@@ -260,7 +260,7 @@ impl<E: Environment, V, EventLog, Abi> CallResult<E, V, EventLog, Abi> {
         &self.dry_run.exec_return_value().data
     }
 
-    /// Returns the root cause error from nested contract calls (e.g., precompile errors)
+    /// Returns the error from nested contract calls (e.g., precompile errors)
     /// if available in the trace, otherwise returns the raw error data.
     pub fn extract_error(&self) -> Option<String> {
         if !self.dry_run.did_revert() {

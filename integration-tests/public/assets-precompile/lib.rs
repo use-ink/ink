@@ -1,8 +1,8 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 pub use ink_precompiles::erc20::{
-    erc20,
     AssetId,
+    erc20,
 };
 
 #[ink::contract]
@@ -87,7 +87,6 @@ mod asset_hub_precompile {
             Ok(precompile.transferFrom(from, to, amount))
         }
     }
-
 }
 
 #[cfg(test)]
@@ -108,7 +107,13 @@ mod tests {
 mod e2e_tests {
     use super::*;
     use ink_e2e::ContractsBackend;
-    use ink_sandbox::{Sandbox, api::prelude::{ContractAPI, AssetsAPI}};
+    use ink_sandbox::{
+        Sandbox,
+        api::prelude::{
+            AssetsAPI,
+            ContractAPI,
+        },
+    };
 
     type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -118,8 +123,7 @@ mod e2e_tests {
     )))]
     async fn deployment_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
         let asset_id: u32 = 1;
-        let mut constructor =
-            asset_hub_precompile::AssetHubPrecompileRef::new(asset_id);
+        let mut constructor = asset_hub_precompile::AssetHubPrecompileRef::new(asset_id);
 
         let contract = client
             .instantiate("assets_precompile", &ink_e2e::alice(), &mut constructor)
@@ -148,12 +152,17 @@ mod e2e_tests {
     async fn total_supply_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
         let asset_id: u32 = 1;
         let admin = ink_sandbox::alice();
-        
-        client.sandbox().create(&asset_id, &admin, 1u128).expect("Failed to create asset");
-        client.sandbox().mint_into(&asset_id, &admin, 1000u128).expect("Failed to mint asset");
 
-        let mut constructor =
-            asset_hub_precompile::AssetHubPrecompileRef::new(asset_id);
+        client
+            .sandbox()
+            .create(&asset_id, &admin, 1u128)
+            .expect("Failed to create asset");
+        client
+            .sandbox()
+            .mint_into(&asset_id, &admin, 1000u128)
+            .expect("Failed to mint asset");
+
+        let mut constructor = asset_hub_precompile::AssetHubPrecompileRef::new(asset_id);
         let contract = client
             .instantiate("assets_precompile", &ink_e2e::alice(), &mut constructor)
             .submit()
@@ -182,10 +191,19 @@ mod e2e_tests {
         let asset_id: u32 = 1;
         let alice = ink_sandbox::alice();
         let bob = ink_sandbox::bob();
-        
-        client.sandbox().create(&asset_id, &alice, 1u128).expect("Failed to create asset");
-        client.sandbox().mint_into(&asset_id, &alice, 1000u128).expect("Failed to mint to alice");
-        client.sandbox().mint_into(&asset_id, &bob, 500u128).expect("Failed to mint to bob");
+
+        client
+            .sandbox()
+            .create(&asset_id, &alice, 1u128)
+            .expect("Failed to create asset");
+        client
+            .sandbox()
+            .mint_into(&asset_id, &alice, 1000u128)
+            .expect("Failed to mint to alice");
+        client
+            .sandbox()
+            .mint_into(&asset_id, &bob, 500u128)
+            .expect("Failed to mint to bob");
 
         let mut constructor = asset_hub_precompile::AssetHubPrecompileRef::new(asset_id);
         let contract = client
@@ -193,15 +211,20 @@ mod e2e_tests {
             .submit()
             .await
             .expect("instantiate failed");
-        let call_builder = contract.call_builder::<asset_hub_precompile::AssetHubPrecompile>();
+        let call_builder =
+            contract.call_builder::<asset_hub_precompile::AssetHubPrecompile>();
 
         let alice_address = ink_e2e::address_from_account_id(&alice);
         let bob_address = ink_e2e::address_from_account_id(&bob);
-        
+
         // Map bob's account so the precompile can find his assets.
         // (alice is already mapped during instantiate)
-        let bob_origin = ink_sandbox::DefaultSandbox::convert_account_to_origin(bob.clone());
-        client.sandbox().map_account(bob_origin).expect("Failed to map bob's account");
+        let bob_origin =
+            ink_sandbox::DefaultSandbox::convert_account_to_origin(bob.clone());
+        client
+            .sandbox()
+            .map_account(bob_origin)
+            .expect("Failed to map bob's account");
 
         let alice_balance_call = call_builder.balance_of(alice_address);
         let alice_result = client
@@ -209,7 +232,7 @@ mod e2e_tests {
             .dry_run()
             .await?;
         let alice_balance = alice_result.return_value();
-            
+
         let bob_balance_call = call_builder.balance_of(bob_address);
         let bob_result = client
             .call(&ink_e2e::alice(), &bob_balance_call)
@@ -231,8 +254,11 @@ mod e2e_tests {
         let asset_id: u32 = 1;
         let alice = ink_sandbox::alice();
         let bob = ink_sandbox::bob();
-        
-        client.sandbox().create(&asset_id, &alice, 1u128).expect("Failed to create asset");
+
+        client
+            .sandbox()
+            .create(&asset_id, &alice, 1u128)
+            .expect("Failed to create asset");
 
         let mut constructor = asset_hub_precompile::AssetHubPrecompileRef::new(asset_id);
         let contract = client
@@ -240,17 +266,26 @@ mod e2e_tests {
             .submit()
             .await
             .expect("instantiate failed");
-        let mut call_builder = contract.call_builder::<asset_hub_precompile::AssetHubPrecompile>();
+        let mut call_builder =
+            contract.call_builder::<asset_hub_precompile::AssetHubPrecompile>();
 
         let bob_address = ink_e2e::address_from_account_id(&bob);
         let transfer_amount = ink::U256::from(1_000);
-        
+
         // Get contract's AccountId32 - the precompile will see the contract as caller!
-        let contract_account = ink_sandbox::account_id_from_contract(&contract.account_id);
-        client.sandbox().mint_into(&asset_id, &contract_account, 100_000u128).expect("Failed to mint to contract");
-        
-        let bob_origin = ink_sandbox::DefaultSandbox::convert_account_to_origin(bob.clone());
-        client.sandbox().map_account(bob_origin).expect("Failed to map bob's account");
+        let contract_account =
+            ink_sandbox::account_id_from_contract(&contract.account_id);
+        client
+            .sandbox()
+            .mint_into(&asset_id, &contract_account, 100_000u128)
+            .expect("Failed to mint to contract");
+
+        let bob_origin =
+            ink_sandbox::DefaultSandbox::convert_account_to_origin(bob.clone());
+        client
+            .sandbox()
+            .map_account(bob_origin)
+            .expect("Failed to map bob's account");
 
         let transfer = call_builder.transfer(bob_address, transfer_amount);
         let result = client.call(&ink_e2e::alice(), &transfer).submit().await?;
@@ -259,8 +294,8 @@ mod e2e_tests {
         assert!(transfer_result.is_ok());
         let contract_balance = client.sandbox().balance_of(&asset_id, &contract_account);
         let bob_balance = client.sandbox().balance_of(&asset_id, &bob);
-        assert_eq!(contract_balance, 99_000u128);  // Contract had 100_000, transferred 1_000
-        assert_eq!(bob_balance, 1_000u128);  // Bob received 1_000
+        assert_eq!(contract_balance, 99_000u128); // Contract had 100_000, transferred 1_000
+        assert_eq!(bob_balance, 1_000u128); // Bob received 1_000
 
         // Show error case with transferring too many tokens.
         let transfer = call_builder.transfer(bob_address, ink::U256::from(1_000_000));
@@ -278,8 +313,11 @@ mod e2e_tests {
         let asset_id: u32 = 1;
         let alice = ink_sandbox::alice();
         let bob = ink_sandbox::bob();
-        
-        client.sandbox().create(&asset_id, &alice, 1u128).expect("Failed to create asset");
+
+        client
+            .sandbox()
+            .create(&asset_id, &alice, 1u128)
+            .expect("Failed to create asset");
 
         let mut constructor = asset_hub_precompile::AssetHubPrecompileRef::new(asset_id);
         let contract = client
@@ -289,26 +327,41 @@ mod e2e_tests {
             .submit()
             .await
             .expect("instantiate failed");
-        let mut call_builder = contract.call_builder::<asset_hub_precompile::AssetHubPrecompile>();
+        let mut call_builder =
+            contract.call_builder::<asset_hub_precompile::AssetHubPrecompile>();
 
-        let contract_account = ink_sandbox::account_id_from_contract(&contract.account_id);
-        client.sandbox().mint_into(&asset_id, &contract_account, 100_000u128).expect("Failed to mint to contract");
+        let contract_account =
+            ink_sandbox::account_id_from_contract(&contract.account_id);
+        client
+            .sandbox()
+            .mint_into(&asset_id, &contract_account, 100_000u128)
+            .expect("Failed to mint to contract");
 
         let bob_address = ink_e2e::address_from_account_id(&bob);
         let approve_amount = ink::U256::from(200);
-        
-        let bob_origin = ink_sandbox::DefaultSandbox::convert_account_to_origin(bob.clone());
-        client.sandbox().map_account(bob_origin).expect("Failed to map bob's account");
 
-        let bob_allowance_before = client.sandbox().allowance(&asset_id, &contract_account, &bob);
-        assert_eq!(bob_allowance_before, 0u128);  // Bob's allowance is 0
+        let bob_origin =
+            ink_sandbox::DefaultSandbox::convert_account_to_origin(bob.clone());
+        client
+            .sandbox()
+            .map_account(bob_origin)
+            .expect("Failed to map bob's account");
+
+        let bob_allowance_before =
+            client
+                .sandbox()
+                .allowance(&asset_id, &contract_account, &bob);
+        assert_eq!(bob_allowance_before, 0u128); // Bob's allowance is 0
 
         let approve = call_builder.approve(bob_address, approve_amount);
         let result = client.call(&ink_e2e::alice(), &approve).submit().await?;
 
         assert!(result.return_value().is_ok());
-        let bob_allowance = client.sandbox().allowance(&asset_id, &contract_account, &bob);
-        assert_eq!(bob_allowance, 200u128);  // Bob's allowance is 200
+        let bob_allowance =
+            client
+                .sandbox()
+                .allowance(&asset_id, &contract_account, &bob);
+        assert_eq!(bob_allowance, 200u128); // Bob's allowance is 200
 
         Ok(())
     }
@@ -321,8 +374,11 @@ mod e2e_tests {
         let asset_id: u32 = 1;
         let alice = ink_sandbox::alice();
         let bob = ink_sandbox::bob();
-        
-        client.sandbox().create(&asset_id, &alice, 1u128).expect("Failed to create asset");
+
+        client
+            .sandbox()
+            .create(&asset_id, &alice, 1u128)
+            .expect("Failed to create asset");
 
         let mut constructor = asset_hub_precompile::AssetHubPrecompileRef::new(asset_id);
         let contract = client
@@ -330,14 +386,22 @@ mod e2e_tests {
             .submit()
             .await
             .expect("instantiate failed");
-        let call_builder = contract.call_builder::<asset_hub_precompile::AssetHubPrecompile>();
+        let call_builder =
+            contract.call_builder::<asset_hub_precompile::AssetHubPrecompile>();
 
-        client.sandbox().mint_into(&asset_id, &alice, 100_000u128).expect("Failed to mint to bob");
-        
+        client
+            .sandbox()
+            .mint_into(&asset_id, &alice, 100_000u128)
+            .expect("Failed to mint to bob");
+
         let alice_address = ink_e2e::address_from_account_id(&alice);
         let bob_address = ink_e2e::address_from_account_id(&bob);
-        let bob_origin = ink_sandbox::DefaultSandbox::convert_account_to_origin(bob.clone());
-        client.sandbox().map_account(bob_origin).expect("Failed to map bob's account");
+        let bob_origin =
+            ink_sandbox::DefaultSandbox::convert_account_to_origin(bob.clone());
+        client
+            .sandbox()
+            .map_account(bob_origin)
+            .expect("Failed to map bob's account");
 
         let allowance_call = call_builder.allowance(alice_address, bob_address);
         let result = client
@@ -349,7 +413,10 @@ mod e2e_tests {
         assert_eq!(allowance_before, ink::U256::from(0));
 
         // Approve bob to spend alice's tokens
-        client.sandbox().approve(&asset_id, &alice, &bob, 300u128).expect("Failed to approve");
+        client
+            .sandbox()
+            .approve(&asset_id, &alice, &bob, 300u128)
+            .expect("Failed to approve");
 
         let result = client
             .call(&ink_e2e::alice(), &allowance_call)
@@ -367,13 +434,18 @@ mod e2e_tests {
         sandbox = ink_sandbox::DefaultSandbox,
         client  = ink_sandbox::SandboxClient
     )))]
-    async fn transfer_from_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+    async fn transfer_from_works<Client: E2EBackend>(
+        mut client: Client,
+    ) -> E2EResult<()> {
         let asset_id: u32 = 1;
         let alice = ink_sandbox::alice();
         let bob = ink_sandbox::bob();
         let charlie = ink_sandbox::charlie();
-        
-        client.sandbox().create(&asset_id, &alice, 1u128).expect("Failed to create asset");
+
+        client
+            .sandbox()
+            .create(&asset_id, &alice, 1u128)
+            .expect("Failed to create asset");
 
         let mut constructor = asset_hub_precompile::AssetHubPrecompileRef::new(asset_id);
         let contract = client
@@ -381,40 +453,70 @@ mod e2e_tests {
             .submit()
             .await
             .expect("instantiate failed");
-        let mut call_builder = contract.call_builder::<asset_hub_precompile::AssetHubPrecompile>();
+        let mut call_builder =
+            contract.call_builder::<asset_hub_precompile::AssetHubPrecompile>();
 
-        let contract_account = ink_sandbox::account_id_from_contract(&contract.account_id);
-        client.sandbox().mint_into(&asset_id, &bob, 100_000u128).expect("Failed to mint to contract");
-        
+        let contract_account =
+            ink_sandbox::account_id_from_contract(&contract.account_id);
+        client
+            .sandbox()
+            .mint_into(&asset_id, &bob, 100_000u128)
+            .expect("Failed to mint to contract");
+
         // Approve bob to spend contract's tokens
-        client.sandbox().approve(&asset_id, &bob, &contract_account, 50_000u128).expect("Failed to approve");
+        client
+            .sandbox()
+            .approve(&asset_id, &bob, &contract_account, 50_000u128)
+            .expect("Failed to approve");
 
         let bob_address = ink_e2e::address_from_account_id(&bob);
         let charlie_address = ink_e2e::address_from_account_id(&charlie);
         let transfer_amount = ink::U256::from(1_500);
-        
-        let bob_origin = ink_sandbox::DefaultSandbox::convert_account_to_origin(bob.clone());
-        client.sandbox().map_account(bob_origin).expect("Failed to map bob's account");
-        
-        let charlie_origin = ink_sandbox::DefaultSandbox::convert_account_to_origin(charlie.clone());
-        client.sandbox().map_account(charlie_origin).expect("Failed to map charlie's account");
 
-        let transfer_from = call_builder.transfer_from(bob_address, charlie_address, transfer_amount);
-        let result = client.call(&ink_e2e::bob(), &transfer_from).submit().await?;
+        let bob_origin =
+            ink_sandbox::DefaultSandbox::convert_account_to_origin(bob.clone());
+        client
+            .sandbox()
+            .map_account(bob_origin)
+            .expect("Failed to map bob's account");
+
+        let charlie_origin =
+            ink_sandbox::DefaultSandbox::convert_account_to_origin(charlie.clone());
+        client
+            .sandbox()
+            .map_account(charlie_origin)
+            .expect("Failed to map charlie's account");
+
+        let transfer_from =
+            call_builder.transfer_from(bob_address, charlie_address, transfer_amount);
+        let result = client
+            .call(&ink_e2e::bob(), &transfer_from)
+            .submit()
+            .await?;
 
         assert!(result.return_value().is_ok());
-        
+
         let bob_balance = client.sandbox().balance_of(&asset_id, &bob);
         let charlie_balance = client.sandbox().balance_of(&asset_id, &charlie);
-        let contract_allowance = client.sandbox().allowance(&asset_id, &bob, &contract_account);
-        
-        assert_eq!(bob_balance, 98_500u128);  // 100_000 - 1_500
+        let contract_allowance =
+            client
+                .sandbox()
+                .allowance(&asset_id, &bob, &contract_account);
+
+        assert_eq!(bob_balance, 98_500u128); // 100_000 - 1_500
         assert_eq!(charlie_balance, 1_500u128);
         assert_eq!(contract_allowance, 48_500u128);
 
         // Show error case with transferring more tokens than approved.
-        let transfer_from = call_builder.transfer_from(bob_address, charlie_address, ink::U256::from(1_000_000));
-        let result = client.call(&ink_e2e::bob(), &transfer_from).submit().await?;
+        let transfer_from = call_builder.transfer_from(
+            bob_address,
+            charlie_address,
+            ink::U256::from(1_000_000),
+        );
+        let result = client
+            .call(&ink_e2e::bob(), &transfer_from)
+            .submit()
+            .await?;
         assert_eq!(result.extract_error(), Some("Unapproved".to_string()));
 
         Ok(())
