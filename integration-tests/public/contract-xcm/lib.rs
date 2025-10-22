@@ -159,6 +159,13 @@ mod contract_xcm {
         async fn xcm_execute_failure_detection_works<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
+            // todo @cmichi: This sleep is necessary until we have our `ink-node`
+            // support a parachain/relaychain setup. For the moment we use the
+            // Rococo runtime for testing the examples locally. That runtime
+            // only has Alice and Bob endowed. Due to the nature of the tests
+            // we have to use Alice for sending the transactions. If the tests
+            // run at the same time, we'll get an error because the nonce
+            // of Alice is the same for all transactions.
             std::thread::sleep(std::time::Duration::from_secs(10));
 
             // given
@@ -190,6 +197,13 @@ mod contract_xcm {
 
         #[ink_e2e::test]
         async fn xcm_send_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+            // todo @cmichi: This sleep is necessary until we have our `ink-node`
+            // support a parachain/relaychain setup. For the moment we use the
+            // Rococo runtime for testing the examples locally. That runtime
+            // only has Alice and Bob endowed. Due to the nature of the tests
+            // we have to use Alice for sending the transactions. If the tests
+            // run at the same time, we'll get an error because the nonce
+            // of Alice is the same for all transactions.
             std::thread::sleep(std::time::Duration::from_secs(30));
 
             // given
