@@ -617,14 +617,14 @@ jobs:
             QUICKCHECK_TESTS: 2
         with:
           # Run all tests with --all-features, which will run the `e2e-tests` feature if present.
+          # todo @cmichi: We ignore `contract-xcm` until we can run a relaychain + parachain
+          # setup with `ink-node`. This is required for testing XCM.
           command: |
             cat ./all-contracts | \
             grep integration-tests | \
             scripts/for_all_contracts_exec.sh \
               --ignore internal/static-buffer \
               --ignore internal/mapping \
-              # We ignore `contract-xcm` until we can run a relaychain + parachain
-              # setup with `ink-node`. This is required for testing XCM.
               --ignore public/contract-xcm \
               --partition ${{ matrix.partition }}/4 -- \
               cargo contract test --all-features --manifest-path {}
