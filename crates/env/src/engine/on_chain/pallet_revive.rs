@@ -175,6 +175,7 @@ fn encode_bool(value: bool, out: &mut [u8]) {
 const STORAGE_PRECOMPILE_ADDR: [u8; 20] =
     hex_literal::hex!("0000000000000000000000000000000000000901");
 
+#[cfg(feature = "xcm")]
 const XCM_PRECOMPILE_ADDR: [u8; 20] =
     hex_literal::hex!("00000000000000000000000000000000000A0000");
 
@@ -268,7 +269,7 @@ fn solidity_encode_bytes(
 /// of 32 for the given number).
 #[inline(always)]
 const fn solidity_padded_len(len: usize) -> usize {
-    ((len + 31) / 32) * 32
+    ((len + 31).div_ceil(32)) * 32
 }
 
 impl CryptoHash for Blake2x256 {
@@ -506,7 +507,7 @@ impl EnvInstance {
 fn call_bool_precompile(selector: [u8; 4], output: &mut [u8]) -> bool {
     debug_assert_eq!(output.len(), 32);
     const ADDR: [u8; 20] = hex_literal::hex!("0000000000000000000000000000000000000900");
-    let _ = ext::call(
+    ext::call(
         CallFlags::empty(),
         &ADDR,
         u64::MAX,       // `ref_time` to devote for execution. `u64::MAX` = all
@@ -522,7 +523,7 @@ fn call_bool_precompile(selector: [u8; 4], output: &mut [u8]) -> bool {
         return true;
     }
     debug_assert_eq!(&output[..32], [0u8; 32]);
-    return false;
+    false
 }
 
 /// Calls a function on the `pallet-revive` `Storage` pre-compile "contract".
@@ -532,7 +533,9 @@ fn call_bool_precompile(selector: [u8; 4], output: &mut [u8]) -> bool {
 /// This function assumes that the called pre-compiles all have this function
 /// signature for the arguments:
 ///
-///     function containsStorage(uint32 flags, bool isFixedKey, bytes memory key)
+/// ```no_compile
+/// function containsStorage(uint32 flags, bool isFixedKey, bytes memory key)
+/// ```
 ///
 /// The function makes heavy use of operating on byte slices and the positions
 /// in the slice are calculated based on the size of these three arguments.
@@ -624,8 +627,8 @@ fn decode_bytes(input: &[u8], out: &mut [u8]) -> usize {
     buf[..].copy_from_slice(&input[28..32]);
     debug_assert_eq!(
         {
-            let offset = u32::from_be_bytes(buf) as usize;
-            offset
+            // offset
+            u32::from_be_bytes(buf) as usize
         },
         64
     );
@@ -678,8 +681,10 @@ impl EnvBackend for EnvInstance {
 
     /// Calls the following function on the `pallet-revive` `Storage` pre-compile:
     ///
-    ///     function takeStorage(uint32 flags, bool isFixedKey, bytes memory key)
-    ///         external returns (bytes memory)
+    /// ```no_compile
+    /// function takeStorage(uint32 flags, bool isFixedKey, bytes memory key)
+    ///     external returns (bytes memory)
+    /// ```
     fn take_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
         K: scale::Encode,
@@ -700,7 +705,7 @@ impl EnvBackend for EnvInstance {
         let output = &mut buffer.take_rest();
 
         let sel = const { solidity_selector("takeStorage(uint32,bool,bytes)") };
-        let _ = call_storage_precompile(&mut &mut buf[..], sel, key, output)
+        call_storage_precompile(&mut &mut buf[..], sel, key, output)
             .expect("failed calling Storage pre-compile (take)");
 
         debug_assert!(
@@ -734,8 +739,10 @@ impl EnvBackend for EnvInstance {
 
     /// Calls the following function on the `pallet-revive` `Storage` pre-compile:
     ///
-    ///	    function containsStorage(uint32 flags, bool isFixedKey, bytes memory key)
-    ///     	external returns (bool containedKey, uint valueLen)
+    /// ```no_compile
+    /// function containsStorage(uint32 flags, bool isFixedKey, bytes memory key)
+    ///     external returns (bool containedKey, uint valueLen)
+    /// ```
     fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,
@@ -753,7 +760,7 @@ impl EnvBackend for EnvInstance {
         );
         let output = buffer.take(64);
         let sel = const { solidity_selector("containsStorage(uint32,bool,bytes)") };
-        call_storage_precompile(&mut &mut buf[..], sel, key, &mut &mut output[..])
+        call_storage_precompile(&mut &mut buf[..], sel, key, &mut output[..])
             .expect("failed calling Storage pre-compile (contains)");
 
         // Check the returned `containedKey` boolean value
@@ -772,8 +779,10 @@ impl EnvBackend for EnvInstance {
 
     /// Calls the following function on the `pallet-revive` `Storage` pre-compile:
     ///
-    ///     function clearStorage(uint32 flags, bool isFixedKey, bytes memory key)
-    ///     	external returns (bool containedKey, uint valueLen);
+    /// ```no_compile
+    /// function clearStorage(uint32 flags, bool isFixedKey, bytes memory key)
+    ///     external returns (bool containedKey, uint valueLen);
+    /// ```
     fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,
@@ -792,7 +801,7 @@ impl EnvBackend for EnvInstance {
         let output = buffer.take(64);
 
         let sel = const { solidity_selector("clearStorage(uint32,bool,bytes)") };
-        let _ = call_storage_precompile(&mut &mut buf[..], sel, key, &mut output[..])
+        call_storage_precompile(&mut &mut buf[..], sel, key, &mut output[..])
             .expect("failed calling Storage pre-compile (clear)");
 
         // Check the returned `containedKey` boolean value
@@ -939,7 +948,7 @@ impl TypedEnvBackend for EnvInstance {
             let mut scope = self.scoped_buffer();
             let h160: &mut [u8; 20] = scope.take(20).try_into().unwrap();
             ext::address(h160);
-            h160.clone()
+            *h160
         };
         self.to_account_id::<E>(h160.into())
     }
@@ -1003,7 +1012,7 @@ impl TypedEnvBackend for EnvInstance {
 
         const ADDR: [u8; 20] =
             hex_literal::hex!("0000000000000000000000000000000000000900");
-        let _ = ext::call(
+        ext::call(
             CallFlags::empty(),
             &ADDR,
             u64::MAX,       // `ref_time` to devote for execution. `u64::MAX` = all
