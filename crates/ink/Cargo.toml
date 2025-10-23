@@ -37,6 +37,11 @@ xcm = { workspace = true, optional = true }
 sp-runtime-interface = { version = "31.0.0", features = ["disable_target_static_assertions"], default-features = false, optional = true }
 sp-io = { version = "42.0.0", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"], optional = true }
 
+# Hotfix for https://github.com/fizyk20/generic-array/issues/158.
+# Can be removed once there is a new release of https://github.com/RustCrypto,
+# from which we use some hashing crates (`sha3`, `sha2`, etc.).
+generic-array = "=0.14.7"
+
 [dev-dependencies]
 ink_ir = { workspace = true, default-features = true }
 ink_metadata = { workspace = true } # todo why here too?

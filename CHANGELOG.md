@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix decoding of `HostFn::minimum_balance` return value - [#2656](https://github.com/use-ink/ink/pull/2656)
 - Fix handling of `HostFn::code_hash` and `HostFn::weight_to_fee` - [#2672](https://github.com/use-ink/ink/pull/2672)
 - `name` override fixes for message id computation and trait definitions - [#2649](https://github.com/use-ink/ink/pull/2649)
+- Add hotfix for `generic-array` breakage ([issue](https://github.com/fizyk20/generic-array/issues/158)) - [#2688](https://github.com/use-ink/ink/pull/2688)
 
 ## Version 6.0.0-alpha.4
 

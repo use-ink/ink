@@ -3603,6 +3603,7 @@ version = "6.0.0-alpha.4"
 dependencies = [
  "const_format",
  "derive_more 2.0.1",
+ "generic-array",
  "ink_env",
  "ink_ir",
  "ink_macro",
@@ -5501,9 +5502,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.101"
+version = "1.0.102"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "89ae43fd86e4158d6db51ad8e2b80f313af9cc74f5c0e03ccb87de09998732de"
+checksum = "8e0f6df8eaa422d97d72edcd152e1451618fed47fabbdbd5a8864167b1d4aff7"
 dependencies = [
  "unicode-ident",
 ]
