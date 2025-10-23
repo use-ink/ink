@@ -17,48 +17,6 @@
 //! This module provides the standard ERC-20 token interface for interacting with
 //! assets managed by `pallet-assets` through the precompile mechanism.
 //!
-//! # Overview
-//!
-//! The ERC-20 Assets precompile allows smart contracts to interact with fungible assets
-//! from `pallet-assets` using the ERC-20 interface. Each asset gets its own
-//! precompile address, calculated by encoding the asset ID in the address.
-//!
-//! # Precompile Address
-//!
-//! - **Index**: `0x0120`
-//! - **Address Format**: `[asset_id][...zeros...][0x0120]0000`
-//!
-//! Use [`crate::prefixed_address`] to calculate the correct address for a specific asset.
-//!
-//! # Example
-//!
-//! ```rust,ignore
-//! use ink_precompiles::{erc20::{Erc20Ref, PRECOMPILE_INDEX}, prefixed_address};
-//!
-//! #[ink::contract]
-//! mod my_contract {
-//!     use super::*;
-//!
-//!     #[ink(storage)]
-//!     pub struct MyContract {
-//!         asset_id: u32,
-//!     }
-//!
-//!     impl MyContract {
-//!         #[ink(constructor)]
-//!         pub fn new(asset_id: u32) -> Self {
-//!             Self { asset_id }
-//!         }
-//!
-//!         pub fn get_balance(&self, account: ink::Address) -> ink::U256 {
-//!             let precompile_addr = prefixed_address(PRECOMPILE_INDEX, self.asset_id);
-//!             let erc20: Erc20Ref = precompile_addr.into();
-//!             erc20.balanceOf(account)
-//!         }
-//!     }
-//! }
-//! ```
-//!
 //! # References
 //!
 //! - [Polkadot SDK Assets Precompile](https://github.com/paritytech/polkadot-sdk/blob/master/substrate/frame/assets/src/precompiles.rs)

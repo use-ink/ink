@@ -725,16 +725,6 @@ where
     <S::Runtime as frame_system::Config>::RuntimeEvent:
         TryInto<pallet_revive::Event<S::Runtime>>,
 {
-    /// Returns true if any events were emitted during the last operation.
-    pub fn has_events(&mut self) -> bool {
-        !self.sandbox.events().is_empty()
-    }
-
-    /// Returns the last event that was emitted, if any.
-    pub fn last_event(&mut self) -> Option<EventRecordOf<S::Runtime>> {
-        self.sandbox.events().last().cloned()
-    }
-
     pub fn contract_events(&mut self) -> Vec<Vec<u8>>
     where
         S::Runtime: pallet_revive::Config,

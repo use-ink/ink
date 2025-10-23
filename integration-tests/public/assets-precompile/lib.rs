@@ -1,21 +1,31 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-use ink::prelude::string::ToString;
-use ink::{H160, U256};
-pub use ink_precompiles::erc20::{AssetId, erc20};
+use ink::{
+    H160,
+    U256,
+    prelude::string::ToString,
+};
+pub use ink_precompiles::erc20::{
+    AssetId,
+    erc20,
+};
 
 #[ink::contract]
 mod asset_hub_precompile {
     use super::*;
     use ink::prelude::string::String;
-    use ink_precompiles::erc20::{Erc20, Erc20Ref};
+    use ink_precompiles::erc20::{
+        Erc20,
+        Erc20Ref,
+    };
 
     #[ink(storage)]
     pub struct AssetHubPrecompile {
         asset_id: AssetId,
-        /// The owner of this contract. Only the owner can call transfer, approve, and transfer_from.
-        /// This is necessary because the contract holds tokens and without access control,
-        /// anyone could transfer tokens that the contract holds, which would be a security issue.
+        /// The owner of this contract. Only the owner can call transfer, approve, and
+        /// transfer_from. This is necessary because the contract holds tokens
+        /// and without access control, anyone could transfer tokens that the
+        /// contract holds, which would be a security issue.
         owner: H160,
         precompile: Erc20Ref,
     }
@@ -167,11 +177,23 @@ mod tests {
 #[cfg(all(test, feature = "e2e-tests"))]
 mod e2e_tests {
     use super::*;
-    use crate::asset_hub_precompile::{Transfer, Approval, AssetHubPrecompile, AssetHubPrecompileRef};
+    use crate::asset_hub_precompile::{
+        Approval,
+        AssetHubPrecompile,
+        AssetHubPrecompileRef,
+        Transfer,
+    };
     use ink_e2e::ContractsBackend;
     use ink_sandbox::{
-        Sandbox, assert_last_contract_event, DefaultSandbox, SandboxClient, account_id_from_contract,
-        api::prelude::{AssetsAPI, ContractAPI},
+        DefaultSandbox,
+        Sandbox,
+        SandboxClient,
+        account_id_from_contract,
+        api::prelude::{
+            AssetsAPI,
+            ContractAPI,
+        },
+        assert_last_contract_event,
     };
 
     type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -191,8 +213,7 @@ mod e2e_tests {
             .await
             .expect("instantiate failed");
 
-        let call_builder =
-            contract.call_builder::<AssetHubPrecompile>();
+        let call_builder = contract.call_builder::<AssetHubPrecompile>();
         let asset_id_call = call_builder.asset_id();
         let result = client
             .call(&ink_e2e::alice(), &asset_id_call)
@@ -278,8 +299,7 @@ mod e2e_tests {
 
         // Map bob's account so the precompile can find his assets.
         // (alice is already mapped during instantiate)
-        let bob_origin =
-            DefaultSandbox::convert_account_to_origin(bob.clone());
+        let bob_origin = DefaultSandbox::convert_account_to_origin(bob.clone());
         client
             .sandbox()
             .map_account(bob_origin)
@@ -332,16 +352,14 @@ mod e2e_tests {
         let transfer_amount = U256::from(1_000);
 
         // Get contract's AccountId32 - the precompile will see the contract as caller!
-        let contract_account =
-            account_id_from_contract(&contract.account_id);
+        let contract_account = account_id_from_contract(&contract.account_id);
         let contract_address = ink_e2e::address_from_account_id(&contract_account);
         client
             .sandbox()
             .mint_into(&asset_id, &contract_account, 100_000u128)
             .expect("Failed to mint to contract");
 
-        let bob_origin =
-            DefaultSandbox::convert_account_to_origin(bob.clone());
+        let bob_origin = DefaultSandbox::convert_account_to_origin(bob.clone());
         client
             .sandbox()
             .map_account(bob_origin)
@@ -398,8 +416,7 @@ mod e2e_tests {
         let mut call_builder =
             contract.call_builder::<asset_hub_precompile::AssetHubPrecompile>();
 
-        let contract_account =
-            account_id_from_contract(&contract.account_id);
+        let contract_account = account_id_from_contract(&contract.account_id);
         let contract_address = ink_e2e::address_from_account_id(&contract_account);
         client
             .sandbox()
@@ -409,8 +426,7 @@ mod e2e_tests {
         let bob_address = ink_e2e::address_from_account_id(&bob);
         let approve_amount = U256::from(200);
 
-        let bob_origin =
-            DefaultSandbox::convert_account_to_origin(bob.clone());
+        let bob_origin = DefaultSandbox::convert_account_to_origin(bob.clone());
         client
             .sandbox()
             .map_account(bob_origin)
@@ -473,8 +489,7 @@ mod e2e_tests {
 
         let alice_address = ink_e2e::address_from_account_id(&alice);
         let bob_address = ink_e2e::address_from_account_id(&bob);
-        let bob_origin =
-            DefaultSandbox::convert_account_to_origin(bob.clone());
+        let bob_origin = DefaultSandbox::convert_account_to_origin(bob.clone());
         client
             .sandbox()
             .map_account(bob_origin)
@@ -532,8 +547,7 @@ mod e2e_tests {
         let mut call_builder =
             contract.call_builder::<asset_hub_precompile::AssetHubPrecompile>();
 
-        let contract_account =
-            account_id_from_contract(&contract.account_id);
+        let contract_account = account_id_from_contract(&contract.account_id);
         client
             .sandbox()
             .mint_into(&asset_id, &alice, 100_000u128)
@@ -549,8 +563,7 @@ mod e2e_tests {
         let bob_address = ink_e2e::address_from_account_id(&bob);
         let transfer_amount = U256::from(1_500);
 
-        let bob_origin =
-            DefaultSandbox::convert_account_to_origin(bob.clone());
+        let bob_origin = DefaultSandbox::convert_account_to_origin(bob.clone());
         client
             .sandbox()
             .map_account(bob_origin)
@@ -585,11 +598,8 @@ mod e2e_tests {
         assert_eq!(contract_allowance, 48_500u128);
 
         // Show error case with transferring more tokens than approved.
-        let transfer_from = call_builder.transfer_from(
-            alice_address,
-            bob_address,
-            U256::from(1_000_000),
-        );
+        let transfer_from =
+            call_builder.transfer_from(alice_address, bob_address, U256::from(1_000_000));
         let result = client
             .call(&ink_e2e::alice(), &transfer_from)
             .submit()
