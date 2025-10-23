@@ -64,6 +64,11 @@
 //! - [Polkadot SDK Assets Precompile](https://github.com/paritytech/polkadot-sdk/blob/master/substrate/frame/assets/src/precompiles.rs)
 //! - [ERC-20 Token Standard](https://eips.ethereum.org/EIPS/eip-20)
 
+use ink::{
+    Address,
+    U256,
+};
+
 /// ERC-20 Assets precompile index.
 pub const PRECOMPILE_INDEX: u16 = 0x0120;
 
@@ -82,7 +87,7 @@ pub trait Erc20 {
     /// ```
     #[ink(message)]
     #[allow(non_snake_case)]
-    fn totalSupply(&self) -> ink::U256;
+    fn totalSupply(&self) -> U256;
 
     /// Returns the balance of an account.
     ///
@@ -96,7 +101,7 @@ pub trait Erc20 {
     /// ```
     #[ink(message)]
     #[allow(non_snake_case)]
-    fn balanceOf(&self, account: ink::Address) -> ink::U256;
+    fn balanceOf(&self, account: Address) -> U256;
 
     /// Transfers tokens to another account.
     ///
@@ -114,7 +119,7 @@ pub trait Erc20 {
     /// function transfer(address to, uint256 value) external returns (bool);
     /// ```
     #[ink(message)]
-    fn transfer(&mut self, to: ink::Address, value: ink::U256) -> bool;
+    fn transfer(&mut self, to: Address, value: U256) -> bool;
 
     /// Returns the allowance for a spender on behalf of an owner.
     ///
@@ -130,7 +135,7 @@ pub trait Erc20 {
     /// function allowance(address owner, address spender) external view returns (uint256);
     /// ```
     #[ink(message)]
-    fn allowance(&self, owner: ink::Address, spender: ink::Address) -> ink::U256;
+    fn allowance(&self, owner: Address, spender: Address) -> U256;
 
     /// Approves a spender to spend tokens on behalf of the caller.
     ///
@@ -148,7 +153,7 @@ pub trait Erc20 {
     /// function approve(address spender, uint256 value) external returns (bool);
     /// ```
     #[ink(message)]
-    fn approve(&mut self, spender: ink::Address, value: ink::U256) -> bool;
+    fn approve(&mut self, spender: Address, value: U256) -> bool;
 
     /// Transfers tokens from one account to another using allowance.
     ///
@@ -170,12 +175,7 @@ pub trait Erc20 {
     /// ```
     #[ink(message)]
     #[allow(non_snake_case)]
-    fn transferFrom(
-        &mut self,
-        from: ink::Address,
-        to: ink::Address,
-        value: ink::U256,
-    ) -> bool;
+    fn transferFrom(&mut self, from: Address, to: Address, value: U256) -> bool;
 }
 
 /// Creates a new ERC-20 precompile reference for the given asset ID.

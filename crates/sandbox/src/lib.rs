@@ -70,6 +70,45 @@ pub use client::{
 };
 pub use ink_e2e_macro::test;
 
+/// Asserts that the latest contract event matches an expected event.
+///
+/// This macro verifies that the last emitted contract event from the sandbox
+/// matches the provided expected event.
+///
+/// # Example
+///
+/// ```no_run
+/// use ink_sandbox::{
+///     DefaultSandbox,
+///     SandboxClient,
+///     assert_last_contract_event,
+/// };
+///
+/// # async fn test() {
+/// let mut client: SandboxClient<_, DefaultSandbox> = todo!();
+///
+/// // After a contract call that emits an event...
+/// assert_last_contract_event!(
+///     &mut client,
+///     Transfer {
+///         from: alice_address,
+///         to: bob_address,
+///         value: 100u128,
+///     }
+/// );
+/// # }
+/// ```
+///
+/// # Parameters
+/// - `client` - Mutable reference to the sandbox client
+/// - `event` - The expected event (must implement `Encode`, `Decode`, and `Debug`)
+#[macro_export]
+macro_rules! assert_last_contract_event {
+    ($client:expr, $event:expr $(,)?) => {
+        $crate::client::assert_last_contract_event_inner($client, $event)
+    };
+}
+
 /// A snapshot of the storage.
 #[derive(Clone, Debug)]
 pub struct Snapshot {
