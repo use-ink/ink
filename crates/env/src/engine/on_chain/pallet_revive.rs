@@ -305,7 +305,7 @@ impl CryptoHash for Blake2x256 {
             u64::MAX,       // `ref_time` to devote for execution. `u64::MAX` = all
             u64::MAX,       // `proof_size` to devote for execution. `u64::MAX` = all
             &[u8::MAX; 32], // No deposit limit.
-            &buffer[..4 + n + 64],
+            &buffer[..4 + n],
             Some(&mut &mut output[..]),
         );
         call_result.expect("call host function failed");
