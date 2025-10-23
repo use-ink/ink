@@ -33,6 +33,11 @@ linkme = { workspace = true, optional = true }
 polkavm-derive = { workspace = true }
 xcm = { workspace = true, optional = true }
 
+# Hotfix for https://github.com/fizyk20/generic-array/issues/158.
+# Can be removed once there is a new release of https://github.com/RustCrypto,
+# from which we use some hashing crates (`sha3`, `sha2`, etc.).
+generic-array = "=0.14.7"
+
 [dev-dependencies]
 ink_ir = { workspace = true, default-features = true }
 ink_metadata = { workspace = true } # todo why here too?
