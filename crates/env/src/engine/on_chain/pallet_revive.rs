@@ -887,6 +887,10 @@ impl TypedEnvBackend for EnvInstance {
             .expect("The executed contract must have a caller with a valid account id.")
     }
 
+    fn gas_limit(&mut self) -> u64 {
+        ext::gas_limit()
+    }
+
     fn transferred_value(&mut self) -> U256 {
         let mut scope = self.scoped_buffer();
         let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();
