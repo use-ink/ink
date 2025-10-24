@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactor `AbiEncodeWith::encode_to_slice` - [#2676](https://github.com/use-ink/ink/pull/2676)
 - Refactor `ArgumentList` encoding and abstractions - [#2678](https://github.com/use-ink/ink/pull/2678)
 - More flexible `SolEncode` implementation for `ByteSlice` - [#2681](https://github.com/use-ink/ink/pull/2681)
+- Synchronize with `polkadot-sdk/cbab8ed4be1941420dd25dc81102fb79d8e2a7f0` ‒ [2689](https://github.com/use-ink/ink/pull/2689)
 
 ### Fixed
 - Fix decoding of `HostFn::minimum_balance` return value - [#2656](https://github.com/use-ink/ink/pull/2656)

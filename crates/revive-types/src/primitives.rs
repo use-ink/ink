@@ -250,9 +250,11 @@ pub struct ExecConfig {
     /// This does not apply to contract initiated instantiations. Those will always bump
     /// the instantiating contract's nonce.
     pub bump_nonce: bool,
-    /// Whether deposits will be withdrawn from the pallet_transaction_payment credit
-    /// (true) or free balance (false).
-    pub collect_deposit_from_hold: bool,
+    /// Whether deposits will be withdrawn from the `pallet_transaction_payment` credit
+    /// (`Some`) free balance (`None`).
+    ///
+    /// Contains the encoded_len + base weight.
+    pub collect_deposit_from_hold: Option<(u32, Weight)>,
     /// The gas price that was chosen for this transaction.
     ///
     /// It is determined when transforming `eth_transact` into a proper extrinsic.
