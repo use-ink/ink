@@ -34,11 +34,6 @@ pub use parity_clippy_utils as clippy;
 
 use if_chain::if_chain;
 use rustc_hir::{
-    def::DefKind,
-    def_id::{
-        DefId,
-        LOCAL_CRATE,
-    },
     ExprKind,
     HirId,
     ItemId,
@@ -47,11 +42,16 @@ use rustc_hir::{
     StmtKind,
     Ty,
     TyKind,
+    def::DefKind,
+    def_id::{
+        DefId,
+        LOCAL_CRATE,
+    },
 };
 use rustc_lint::LateContext;
 use rustc_middle::ty::{
-    fast_reject::SimplifiedType,
     TyCtxt,
+    fast_reject::SimplifiedType,
 };
 use rustc_span::Symbol;
 

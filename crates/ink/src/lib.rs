@@ -31,7 +31,6 @@ pub mod codegen;
 
 pub use ink_env::reflect;
 
-mod chain_extension;
 mod contract_ref;
 mod env_access;
 mod message_builder;
@@ -46,6 +45,7 @@ pub use ink_primitives::abi;
 pub use scale;
 #[cfg(feature = "std")]
 pub use scale_info;
+#[cfg(feature = "xcm")]
 pub use xcm;
 
 pub extern crate polkavm_derive;
@@ -70,28 +70,11 @@ pub mod storage {
 }
 
 pub use self::{
-    chain_extension::{
-        ChainExtensionInstance,
-        IsResultType,
-        Output,
-        ValueReturned,
-    },
     contract_ref::ToAddr,
     env_access::EnvAccess,
     prelude::IIP2_WILDCARD_COMPLEMENT_SELECTOR,
 };
-#[allow(unused)]
-pub use ink_macro::chain_extension;
 pub use ink_macro::{
-    blake2x256,
-    contract,
-    event,
-    scale_derive,
-    selector_bytes,
-    selector_id,
-    storage_item,
-    test,
-    trait_definition,
     Event,
     EventMetadata,
     SolDecode,
@@ -99,16 +82,27 @@ pub use ink_macro::{
     SolErrorDecode,
     SolErrorEncode,
     SolErrorMetadata,
+    blake2x256,
+    contract,
+    contract_ref,
+    error,
+    event,
+    scale_derive,
+    selector_bytes,
+    selector_id,
+    storage_item,
+    test,
+    trait_definition,
 };
 pub use ink_primitives::{
     Address,
     ConstructorResult,
+    H160,
+    H256,
     LangError,
     MessageResult,
     SolDecode,
     SolEncode,
-    H160,
-    H256,
     U256,
 };
 

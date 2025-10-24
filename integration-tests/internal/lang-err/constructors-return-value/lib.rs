@@ -134,7 +134,8 @@ pub mod constructors_return_value {
                 .await?;
 
             // Infallible constructors return `Result<(), ()>`.
-            let decoded_result = infallible_constructor_result.constructor_result::<Result<(), ()>>();
+            let decoded_result =
+                infallible_constructor_result.constructor_result::<Result<(), ()>>();
             assert!(
                 decoded_result.is_ok(),
                 "Constructor dispatch should have succeeded"
@@ -246,7 +247,7 @@ pub mod constructors_return_value {
                 .await;
 
             assert!(
-                matches!(result, Err(ink_e2e::Error::InstantiateExtrinsic(_))),
+                matches!(result, Err(ink_e2e::Error::InstantiateExtrinsic(_, _))),
                 "Constructor should fail"
             );
 

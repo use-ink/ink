@@ -35,6 +35,14 @@ pub mod events {
         pub field_1: u32,
     }
 
+    #[ink(event)]
+    #[ink(anonymous)]
+    pub struct InlineAnonymousEventHashedTopic {
+        #[ink(topic)]
+        pub topic: [u8; 64],
+        pub field_1: u32,
+    }
+
     impl Events {
         /// Creates a new events smart contract initialized with the given value.
         #[ink(constructor)]
@@ -83,13 +91,21 @@ pub mod events {
             })
         }
 
-        /// Emit a inline and standalone anonymous events
+        /// Emit an inline and standalone anonymous events
         #[ink(message)]
         pub fn emit_anonymous_events(&self, topic: [u8; 32]) {
             self.env()
                 .emit_event(InlineAnonymousEvent { topic, field_1: 42 });
             self.env()
                 .emit_event(super::AnonymousEvent { topic, field_1: 42 });
+
+            let mut twotopics = [0u8; 64];
+            twotopics[..32].copy_from_slice(&topic[..32]);
+            twotopics[32..].copy_from_slice(&topic[..32]);
+            self.env().emit_event(InlineAnonymousEventHashedTopic {
+                topic: twotopics,
+                field_1: 42,
+            });
         }
     }
 
@@ -111,35 +127,56 @@ pub mod events {
         fn collects_specs_for_all_linked_and_used_events() {
             let event_specs = ink::collect_events();
 
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"ForeignFlipped"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"InlineFlipped"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"InlineCustomFlipped"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"ThirtyTwoByteTopics"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"EventDefAnotherCrate"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"AnonymousEvent"));
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"InlineAnonymousEvent"));
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"ForeignFlipped")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"InlineFlipped")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"InlineCustomFlipped")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"ThirtyTwoByteTopics")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"EventDefAnotherCrate")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"AnonymousEvent")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"InlineAnonymousEvent")
+            );
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"InlineAnonymousEventHashedTopic")
+            );
 
-            // The event is not used in the code by being included in the metadata,
-            // byt because we implement the trait from the `event_def_unused` crate.
-            assert!(event_specs
-                .iter()
-                .any(|evt| evt.label() == &"EventDefUnused"));
+            // The event is not used directly in the code, but is included in the metadata
+            // because we implement the trait from the `event_def_unused` crate.
+            assert!(
+                event_specs
+                    .iter()
+                    .any(|evt| evt.label() == &"EventDefUnused")
+            );
 
-            assert_eq!(8, event_specs.len());
+            assert_eq!(9, event_specs.len());
         }
 
         #[ink::test]
@@ -147,7 +184,7 @@ pub mod events {
             let mut events = Events::new(false);
             events.flip_with_foreign_event();
 
-            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events = ink::env::test::recorded_events();
             assert_eq!(1, emitted_events.len());
             let event = &emitted_events[0];
 
@@ -161,14 +198,13 @@ pub mod events {
             let events = Events::new(false);
             events.emit_32_byte_topic_event(Some([0xAA; 32]));
 
-            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events = ink::env::test::recorded_events();
             assert_eq!(1, emitted_events.len());
             let event = &emitted_events[0];
 
             assert_eq!(event.topics.len(), 3);
             let signature_topic =
-                <event_def::ThirtyTwoByteTopics as ink::env::Event>::SIGNATURE_TOPIC
-                    .map(|topic| topic.to_vec());
+                <event_def::ThirtyTwoByteTopics as ink::env::Event>::SIGNATURE_TOPIC;
             assert_eq!(Some(&event.topics[0]), signature_topic.as_ref());
             assert_eq!(event.topics[1], [0x42; 32]);
             assert_eq!(
@@ -182,19 +218,18 @@ pub mod events {
             let events = Events::new(false);
             events.emit_32_byte_topic_event(None);
 
-            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events = ink::env::test::recorded_events();
             assert_eq!(1, emitted_events.len());
             let event = &emitted_events[0];
 
             let signature_topic =
                 <event_def::ThirtyTwoByteTopics as ink::env::Event>::SIGNATURE_TOPIC
-                    .map(|topic| topic.to_vec())
                     .unwrap();
 
             let expected_topics = vec![
                 signature_topic,
-                [0x42; 32].to_vec(),
-                [0x00; 32].to_vec(), // None is encoded as 0x00
+                [0x42; 32],
+                [0x00; 32], // None is encoded as 0x00
             ];
             assert_eq!(expected_topics, event.topics);
         }
@@ -204,7 +239,7 @@ pub mod events {
             let mut events = Events::new(false);
             events.flip_with_inline_custom_event();
 
-            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events = ink::env::test::recorded_events();
             assert_eq!(1, emitted_events.len());
 
             let signature_topic =
@@ -219,8 +254,8 @@ pub mod events {
             let topic = [0x42; 32];
             events.emit_anonymous_events(topic);
 
-            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
-            assert_eq!(2, emitted_events.len());
+            let emitted_events = ink::env::test::recorded_events();
+            assert_eq!(3, emitted_events.len());
 
             let event = &emitted_events[0];
             assert_eq!(event.topics.len(), 1);
@@ -325,6 +360,72 @@ pub mod events {
 
             let expected_topics = vec![signature_topic];
             assert_eq!(expected_topics, contract_event.topics);
+
+            Ok(())
+        }
+
+        #[ink_e2e::test()]
+        async fn emits_inline_anonymous_event<Client: E2EBackend>(
+            mut client: Client,
+        ) -> E2EResult<()> {
+            use ink::env::hash::{
+                Blake2x256,
+                CryptoHash,
+                HashOutput,
+            };
+            // given
+            let init_value = false;
+            let mut constructor = EventsRef::new(init_value);
+            let contract = client
+                .instantiate("events", &ink_e2e::alice(), &mut constructor)
+                .submit()
+                .await
+                .expect("instantiate failed");
+            let call_builder = contract.call_builder::<Events>();
+
+            // when
+            let topic = [1u8; 32];
+            let emit = call_builder.emit_anonymous_events(topic);
+            let flip_res = client
+                .call(&ink_e2e::bob(), &emit)
+                .submit()
+                .await
+                .expect("emit_anonymous_event failed");
+            let contract_events = flip_res.contract_emitted_events()?;
+
+            // then
+            assert_eq!(3, contract_events.len());
+
+            let contract_event = &contract_events[0];
+            let evt: InlineAnonymousEvent =
+                ink::scale::Decode::decode(&mut &contract_event.event.data[..])
+                    .expect("encountered invalid contract event data buffer");
+            assert_eq!(evt.topic, topic);
+            assert_eq!(evt.field_1, 42);
+
+            let contract_event = &contract_events[1];
+            let evt: crate::AnonymousEvent =
+                ink::scale::Decode::decode(&mut &contract_event.event.data[..])
+                    .expect("encountered invalid contract event data buffer");
+            assert_eq!(evt.topic, topic);
+            assert_eq!(evt.field_1, 42);
+
+            let contract_event = &contract_events[2];
+            let evt: InlineAnonymousEventHashedTopic =
+                ink::scale::Decode::decode(&mut &contract_event.event.data[..])
+                    .expect("encountered invalid contract event data buffer");
+
+            // Using 64 bytes will trigger the `Blake2x_256` hashing for the topic
+            let two_topics = [1u8; 64];
+            let mut hash_output =
+                <<Blake2x256 as HashOutput>::Type as Default>::default();
+            <Blake2x256 as CryptoHash>::hash(&two_topics, &mut hash_output);
+            // We need to check the `topics[0]` field, as it will contain the hash
+            // of `two_topics`
+            assert_eq!(contract_event.topics[0], ink::H256(hash_output));
+
+            assert_eq!(evt.topic, two_topics);
+            assert_eq!(evt.field_1, 42);
 
             Ok(())
         }

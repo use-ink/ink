@@ -1,7 +1,7 @@
 [package]
 name = "instantiate_contract"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 authors = ["Víctor M. González <victor.gonzalez@coinfabrik.com>"]
 
 [lib]
@@ -23,7 +23,7 @@ ink-as-dependency = []
 e2e-tests = []
 
 [dependencies]
-ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
+ink = { path = "../../../crates/ink", default-features = false }
 scale = { package = "parity-scale-codec", version = "3.7.4", default-features = false, features = [
     "derive",
 ] }

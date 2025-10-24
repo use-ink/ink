@@ -128,8 +128,7 @@ impl<'a> ScopedBuffer<'a> {
     /// Splits the scoped buffer into yet another piece to operate on it temporarily.
     ///
     /// The split buffer will have an offset of 0 but be offset by `self`'s offset.
-    #[cfg(feature = "unstable-hostfn")] // only usages are when unstable-hostfn is enabled
-    pub fn split(&mut self) -> ScopedBuffer {
+    pub fn split(&mut self) -> ScopedBuffer<'_> {
         ScopedBuffer {
             offset: 0,
             buffer: &mut self.buffer[self.offset..],
@@ -203,24 +202,18 @@ impl<'a> ScopedBuffer<'a> {
         self.take(encode_len)
     }
 
-    /// Appends the encoding of `value` to the scoped buffer.
+    /// Appends the given bytes to the scoped buffer.
     ///
     /// Does not return the buffer immediately so that other values can be appended
-    /// afterwards. The [`take_appended`] method shall be used to return the buffer
+    /// afterward. The [`take_appended`] method shall be used to return the buffer
     /// that includes all appended encodings as a single buffer.
     #[inline(always)]
-    #[cfg(feature = "unstable-hostfn")] // only usages are when unstable-hostfn is enabled
-    pub fn append_encoded<T>(&mut self, value: &T)
-    where
-        T: scale::Encode,
-    {
+    pub fn append_bytes(&mut self, bytes: &[u8]) {
         let offset = self.offset;
-        let buffer = core::mem::take(&mut self.buffer);
-        let mut encode_scope = EncodeScope::from(&mut buffer[offset..]);
-        scale::Encode::encode_to(&value, &mut encode_scope);
-        let encode_len = encode_scope.len();
-        self.offset = self.offset.checked_add(encode_len).unwrap();
-        let _ = core::mem::replace(&mut self.buffer, buffer);
+        let len = bytes.len();
+        let end_offset = offset.checked_add(len).unwrap();
+        self.buffer[offset..end_offset].copy_from_slice(bytes);
+        self.offset = end_offset;
     }
 
     /// Returns the buffer containing all encodings appended via [`append_encoded`]
@@ -232,10 +225,22 @@ impl<'a> ScopedBuffer<'a> {
         self.take(offset)
     }
 
-    /// Returns all of the remaining bytes of the buffer as mutable slice.
+    /// Returns all remaining bytes of the buffer as a mutable slice.
     pub fn take_rest(self) -> &'a mut [u8] {
         debug_assert_eq!(self.offset, 0);
         debug_assert!(!self.buffer.is_empty());
         self.buffer
+    }
+
+    /// Returns the size of all remaining bytes in the buffer.
+    ///
+    /// # Developer Note
+    ///
+    /// The function requires `&mut self` because `self.buffer` is
+    /// already a mutable reference in the struct.
+    ///
+    /// _The function does not actually mutate state._
+    pub fn remaining_buffer(&mut self) -> usize {
+        self.buffer.len()
     }
 }

@@ -56,7 +56,7 @@ mod contract {
 #[cfg(test)]
 mod tests {
     fn generate_metadata() -> ink_metadata::InkProject {
-        extern "Rust" {
+        unsafe extern "Rust" {
             fn __ink_generate_metadata() -> ink_metadata::InkProject;
         }
 

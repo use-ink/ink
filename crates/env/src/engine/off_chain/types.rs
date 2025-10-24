@@ -16,10 +16,10 @@
 //! of this crate.
 
 use super::{
-    test_api::EmittedEvent,
     AccountError,
     Error,
     OffChainError,
+    test_api::EmittedEvent,
 };
 
 impl From<ink_engine::test_api::EmittedEvent> for EmittedEvent {
@@ -38,9 +38,6 @@ impl From<ink_engine::Error> for Error {
             ink_engine::Error::UninitializedBlocks => OffChainError::UninitializedBlocks,
             ink_engine::Error::UninitializedExecutionContext => {
                 OffChainError::UninitializedExecutionContext
-            }
-            ink_engine::Error::UnregisteredChainExtension => {
-                OffChainError::UnregisteredChainExtension
             }
         };
         Error::OffChain(e)

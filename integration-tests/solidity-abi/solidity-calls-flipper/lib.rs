@@ -4,11 +4,11 @@
 pub mod flipper {
     use crate::keccak_selector;
     use ink::env::{
-        call::{
-            build_call_solidity,
-            ExecutionInput,
-        },
         CallFlags,
+        call::{
+            ExecutionInput,
+            build_call_sol,
+        },
     };
     #[ink(storage)]
     pub struct Flipper {
@@ -22,8 +22,7 @@ pub mod flipper {
             Self { value: init_value }
         }
 
-        // solidity compatible selector (`keccack256("flip()")`)
-        #[ink(message, selector = 0xcde4efa9)]
+        #[ink(message)]
         pub fn flip(&mut self) {
             self.value = !self.value;
         }
@@ -44,8 +43,7 @@ pub mod flipper {
             self.value
         }
 
-        // solidity compatible selector (`keccack256("get_2()")`)
-        #[ink(message, selector = 0x6d4ce63c)]
+        #[ink(message)]
         pub fn get_2(&self) -> bool {
             self.value
         }
@@ -54,7 +52,7 @@ pub mod flipper {
         pub fn call_solidity_set(&mut self, callee: Address) {
             let selector = keccak_selector(b"set_value(uint16)");
 
-            let result = build_call_solidity::<<Self as ::ink::env::ContractEnv>::Env>()
+            let result = build_call_sol::<<Self as ::ink::env::ContractEnv>::Env>()
                 .call(callee)
                 .ref_time_limit(1000000000)
                 .transferred_value(ink::U256::zero())
@@ -70,7 +68,7 @@ pub mod flipper {
         pub fn call_solidity_get(&mut self, callee: Address) -> u16 {
             let selector = crate::keccak_selector(b"get_value()");
 
-            build_call_solidity::<<Self as ::ink::env::ContractEnv>::Env>()
+            build_call_sol::<<Self as ::ink::env::ContractEnv>::Env>()
                 .call(callee)
                 .ref_time_limit(1000000000)
                 .transferred_value(ink::U256::zero())
@@ -85,8 +83,8 @@ pub mod flipper {
 fn keccak_selector(input: &[u8]) -> [u8; 4] {
     let mut output = [0; 32];
     use sha3::{
-        digest::generic_array::GenericArray,
         Digest as _,
+        digest::generic_array::GenericArray,
     };
     let mut hasher = sha3::Keccak256::new();
     hasher.update(input);

@@ -19,12 +19,12 @@
 #[ink::contract]
 mod call_builder {
     use ink::env::{
+        DefaultEnvironment,
         call::{
-            build_call,
             ExecutionInput,
             Selector,
+            build_call,
         },
-        DefaultEnvironment,
     };
 
     #[ink(storage)]
@@ -172,7 +172,9 @@ mod call_builder {
             let call_result = client.call(&origin, &call).dry_run().await?;
             assert!(call_result.did_revert());
             let err_msg = String::from_utf8_lossy(call_result.return_data());
-            assert!(err_msg.contains("Cross-contract call failed with CouldNotReadInput"));
+            assert!(
+                err_msg.contains("Cross-contract call failed with CouldNotReadInput")
+            );
 
             Ok(())
         }

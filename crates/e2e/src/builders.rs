@@ -13,18 +13,18 @@
 // limitations under the License.
 
 use ink_env::{
+    Environment,
     call::{
-        utils::{
-            ReturnType,
-            Set,
-        },
         CreateBuilder,
         ExecutionInput,
         LimitParamsV2,
+        utils::{
+            EncodeArgsWith,
+            ReturnType,
+            Set,
+        },
     },
-    Environment,
 };
-use ink_primitives::abi::AbiEncodeWith;
 
 use crate::H256;
 
@@ -40,11 +40,12 @@ pub type CreateBuilderPartial<E, ContractRef, Args, R, Abi> = CreateBuilder<
 >;
 
 /// Get the encoded constructor arguments from the partially initialized `CreateBuilder`
-pub fn constructor_exec_input<E, ContractRef, Args: AbiEncodeWith<Abi>, R, Abi>(
+pub fn constructor_exec_input<E, ContractRef, Args, R, Abi>(
     builder: CreateBuilderPartial<E, ContractRef, Args, R, Abi>,
 ) -> Vec<u8>
 where
     E: Environment,
+    Args: EncodeArgsWith<Abi>,
 {
     // set all the other properties to default values, we only require the `exec_input`.
     builder

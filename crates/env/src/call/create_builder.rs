@@ -15,31 +15,31 @@
 use core::marker::PhantomData;
 
 use ink_primitives::{
-    abi::{
-        AbiEncodeWith,
-        Sol,
-    },
     Address,
     H256,
     U256,
+    abi::{
+        Ink,
+        Sol,
+    },
 };
 
-#[cfg(feature = "unstable-hostfn")]
-use crate::Error;
 use crate::{
+    ContractEnv,
+    Error,
     call::{
+        ExecutionInput,
+        Selector,
         utils::{
             DecodeConstructorError,
             EmptyArgumentList,
+            EncodeArgsWith,
             ReturnType,
             Set,
             Unset,
         },
-        ExecutionInput,
-        Selector,
     },
     types::Environment,
-    ContractEnv,
 };
 
 pub mod state {
@@ -281,7 +281,7 @@ where
         crate::reflect::ContractConstructorDecoder,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractMessageDecoder,
-    Args: AbiEncodeWith<Abi>,
+    Args: EncodeArgsWith<Abi>,
     R: ConstructorReturnType<ContractRef, Abi>,
 {
     /// todo
@@ -294,7 +294,6 @@ where
     /// those use the [`try_instantiate`][`CreateParams::try_instantiate`] method
     /// instead.
     #[inline]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn instantiate(&self) -> <R as ConstructorReturnType<ContractRef, Abi>>::Output {
         crate::instantiate_contract(self)
             .unwrap_or_else(|env_error| {
@@ -313,7 +312,6 @@ where
     /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
     /// handled by the caller.
     #[inline]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn try_instantiate(
         &self,
     ) -> Result<
@@ -475,17 +473,19 @@ where
     }
 }
 
-/// Returns a new [`CreateBuilder`] for the specified ABI to build up the parameters to a
-/// cross-contract instantiation.
+/// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract
+/// instantiation that uses ink! ABI Encoding (i.e. with SCALE codec for input/output
+/// encode/decode).
+///
 /// See [`build_create`] for more details on usage.
 #[allow(clippy::type_complexity)]
-pub fn build_create_abi<ContractRef, Abi>() -> CreateBuilder<
+pub fn build_create_ink<ContractRef>() -> CreateBuilder<
     <ContractRef as ContractEnv>::Env,
     ContractRef,
     Set<LimitParamsV2>,
-    Unset<ExecutionInput<EmptyArgumentList<Abi>, Abi>>,
+    Unset<ExecutionInput<EmptyArgumentList<Ink>, Ink>>,
     Unset<ReturnType<()>>,
-    Abi,
+    Ink,
 >
 where
     ContractRef: ContractEnv,
@@ -507,9 +507,10 @@ where
 
 /// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract
 /// instantiation that uses Solidity ABI Encoding.
+///
 /// See [`build_create`] for more details on usage.
 #[allow(clippy::type_complexity)]
-pub fn build_create_solidity<ContractRef>() -> CreateBuilder<
+pub fn build_create_sol<ContractRef>() -> CreateBuilder<
     <ContractRef as ContractEnv>::Env,
     ContractRef,
     Set<LimitParamsV2>,
@@ -755,7 +756,7 @@ where
         crate::reflect::ContractConstructorDecoder,
     <ContractRef as crate::ContractReverseReference>::Type:
         crate::reflect::ContractMessageDecoder,
-    Args: AbiEncodeWith<Abi>,
+    Args: EncodeArgsWith<Abi>,
     RetType: ConstructorReturnType<ContractRef, Abi>,
 {
     /// todo check comment
@@ -768,7 +769,6 @@ where
     /// those use the [`try_instantiate`][`CreateBuilder::try_instantiate`] method
     /// instead.
     #[inline]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn instantiate(
         self,
     ) -> <RetType as ConstructorReturnType<ContractRef, Abi>>::Output {
@@ -784,7 +784,6 @@ where
     /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
     /// handled by the caller.
     #[inline]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn try_instantiate(
         self,
     ) -> Result<

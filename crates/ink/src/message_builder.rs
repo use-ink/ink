@@ -20,10 +20,10 @@
 /// The macro returns an instance of the generated message builder type which implements
 /// the trait, allowing the user to create and invoke messages on the trait.
 ///
-/// This is similar to the call builder syntax accessible via the [`crate::contract_ref!`]
-/// macro, except that it is decoupled from the callee account id, as well as the
-/// underlying execution environment. This allows it to be used in execution contexts
-/// other than cross-contract calls.
+/// This is similar to the call builder syntax accessible via the
+/// [`crate::contract_ref_from_path!`] macro, except that it is decoupled from the callee
+/// account id, as well as the underlying execution environment. This allows it to be used
+/// in execution contexts other than cross-contract calls.
 ///
 /// # Usage
 ///
@@ -46,11 +46,11 @@
 /// ```rust
 /// use ink::message_builder;
 /// use ink_env::{
+///     DefaultEnvironment,
 ///     call::{
 ///         ExecutionInput,
 ///         Executor,
 ///     },
-///     DefaultEnvironment,
 /// };
 /// use ink_primitives::{
 ///     AccountId,
@@ -77,13 +77,12 @@
 /// pub struct CustomEnv;
 ///
 /// impl ink_env::Environment for CustomEnv {
-///     const MAX_EVENT_TOPICS: usize = 3;
+///     const NATIVE_TO_ETH_RATIO: u32 = 100_000_000;
 ///     type AccountId = [u8; 32];
 ///     type Balance = u64;
 ///     type Hash = [u8; 32];
 ///     type Timestamp = u64;
 ///     type BlockNumber = u64;
-///     type ChainExtension = ();
 ///     type EventRecord = ();
 /// }
 ///
@@ -110,7 +109,7 @@
 ///         input: &ExecutionInput<Args, Abi>,
 ///     ) -> Result<MessageResult<Output>, Self::Error>
 ///     where
-///         Args: ink::abi::AbiEncodeWith<Abi>,
+///         Args: ink::env::call::utils::EncodeArgsWith<Abi>,
 ///         Output: ink::env::call::utils::DecodeMessageResult<Abi>,
 ///     {
 ///         println!("Executing contract with input: {:?}", input.encode());

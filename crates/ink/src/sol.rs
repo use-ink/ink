@@ -16,6 +16,18 @@
 
 pub use ink_primitives::sol::*;
 
+/// Computes the Keccak-256 hash of the given string.
+///
+/// # Note
+///
+/// The input can be a const expression.
+#[macro_export]
+macro_rules! keccak_256 {
+    ($input: expr) => {
+        const { $crate::codegen::sol::keccak_256($input.as_bytes()) }
+    };
+}
+
 /// Returns the selector of the equivalent [Solidity custom error][sol-error]
 /// for given the name (as a `const` expression) and a tuple type
 /// representing the error parameters types.

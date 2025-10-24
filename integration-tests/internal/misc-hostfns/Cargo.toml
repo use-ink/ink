@@ -1,0 +1,28 @@
+[package]
+name = "misc_hostfns"
+description = "E2E tests for various host functions"
+version = "6.0.0-alpha.1"
+authors = ["Use Ink <ink@use.ink>"]
+edition = "2021"
+publish = false
+
+[dependencies]
+ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
+hex-literal = "1"
+
+[dev-dependencies]
+ink_e2e = { path = "../../../crates/e2e" }
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+]
+ink-as-dependency = []
+e2e-tests = []
+
+[package.metadata.ink-lang]
+abi = "ink"

@@ -12,7 +12,7 @@ mod contract {
         #[ink(message)]
         fn message_0(&self);
 
-        #[ink(message, selector = 1)]
+        #[ink(message)]
         fn message_1(&self);
     }
 
@@ -20,7 +20,7 @@ mod contract {
         #[ink(message)]
         fn message_0(&self) {}
 
-        #[ink(message, selector = 1)]
+        #[ink(message)]
         fn message_1(&self) {}
     }
 
@@ -30,7 +30,7 @@ mod contract {
             Self {}
         }
 
-        #[ink(message, selector = 0xC0DE_CAFE)]
+        #[ink(message)]
         pub fn message_2(&self) {}
 
         #[ink(message)]
@@ -39,12 +39,12 @@ mod contract {
 
     #[ink::trait_definition]
     pub trait Messages2 {
-        #[ink(message, selector = 0x12345678)]
+        #[ink(message)]
         fn message_4(&self);
     }
 
     impl Messages2 for Contract {
-        #[ink(message, selector = 0x12345678)]
+        #[ink(message)]
         fn message_4(&self) {}
     }
 }

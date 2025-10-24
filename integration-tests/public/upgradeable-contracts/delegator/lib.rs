@@ -4,19 +4,19 @@
 pub mod delegator {
     use ink::{
         env::{
-            call::{
-                build_call,
-                ExecutionInput,
-                Selector,
-            },
             CallFlags,
             DefaultEnvironment,
+            call::{
+                ExecutionInput,
+                Selector,
+                build_call,
+            },
         },
         primitives::H256,
         storage::{
-            traits::ManualKey,
             Lazy,
             Mapping,
+            traits::ManualKey,
         },
     };
 
@@ -141,6 +141,7 @@ pub mod delegator {
                 .await;
 
             /*
+            // todo
             let code_hash = client
                 .upload("delegatee", &origin)
                 .submit()
@@ -284,6 +285,7 @@ pub mod delegator {
                 .await;
 
             /*
+            // todo
             let code_hash = client
                 .upload("delegatee", &origin)
                 .submit()
@@ -308,6 +310,7 @@ pub mod delegator {
             let delegatee_addr = contract.addr;
 
             /*
+            // todo
             let code_hash2 = client
                 .upload("delegatee2", &origin)
                 .submit()

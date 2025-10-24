@@ -1,20 +1,19 @@
 use crate::sol_encoding::SolEncodingRef;
 use ink::{
-    primitives::DepositLimit,
     Address,
     SolDecode,
     SolEncode,
 };
 use ink_e2e::ContractsRegistry;
+use ink_revive_types::ExecReturnValue;
 use ink_sandbox::{
-    api::prelude::*,
-    frame_system::pallet_prelude::OriginFor,
     DefaultSandbox,
     Sandbox,
+    api::prelude::*,
+    frame_system::pallet_prelude::OriginFor,
 };
-use pallet_revive::ExecReturnValue;
 
-const STORAGE_DEPOSIT_LIMIT: DepositLimit<u128> = DepositLimit::UnsafeOnlyForDryRun;
+const STORAGE_DEPOSIT_LIMIT: u128 = u128::MAX;
 
 #[test]
 fn call_solidity_encoded_message() {
@@ -114,7 +113,7 @@ impl ContractSandbox {
         data: Vec<u8>,
         origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
     ) -> ExecReturnValue {
-        <DefaultSandbox as ContractAPI>::call_contract(
+        let call_raw = <DefaultSandbox as ContractAPI>::call_contract(
             &mut self.sandbox,
             self.contract_addr,
             0,
@@ -124,15 +123,19 @@ impl ContractSandbox {
             STORAGE_DEPOSIT_LIMIT,
         )
         .result
-        .expect("sandbox call contract failed")
+        .expect("sandbox call contract failed");
+        ExecReturnValue {
+            flags: ink_env::ReturnFlags::from_bits_truncate(call_raw.flags.bits()),
+            data: call_raw.data,
+        }
     }
 }
 
 fn keccak_selector(input: &[u8]) -> Vec<u8> {
     let mut output = [0; 32];
     use sha3::{
-        digest::generic_array::GenericArray,
         Digest as _,
+        digest::generic_array::GenericArray,
     };
     let mut hasher = sha3::Keccak256::new();
     hasher.update(input);

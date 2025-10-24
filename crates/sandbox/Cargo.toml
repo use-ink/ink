@@ -1,0 +1,60 @@
+[package]
+name = "ink_sandbox"
+version = "6.0.0-alpha.4"
+authors = ["Use Ink <ink@use.ink>", "Cardinal Cryptography"]
+edition.workspace = true
+license.workspace = true
+description = "Sandbox runtime environment for ink! e2e tests"
+repository.workspace = true
+documentation = "https://docs.rs/ink_sandbox"
+homepage.workspace = true
+
+[dependencies]
+sha3 = "0.10.8"
+frame-metadata = { workspace = true }
+frame-system = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
+frame-support = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
+pallet-balances = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
+pallet-transaction-payment = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
+pallet-revive = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
+pallet-timestamp = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false  }
+scale = { workspace = true }
+sp-core = { workspace = true, default-features = false }
+sp-externalities = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false  }
+sp-runtime = { version = "43.0.0", default-features = false  }
+sp-io = {  git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false  }
+
+ink_primitives = { workspace = true }
+ink_revive_types = { workspace = true }
+ink_env = { workspace = true, default-features = true }
+ink_e2e = { path = "../e2e" }
+ink_e2e_macro = { workspace = true, default-features = true }
+
+jsonrpsee = { workspace = true, features = ["ws-client"] }
+thiserror = { workspace = true }
+paste = { workspace = true }
+scale-info = { workspace = true }
+subxt-metadata = { workspace = true }
+
+[features]
+default = [
+    # This is required for the runtime-interface to work properly in the std env.
+    "std",
+]
+std = [
+	"frame-support/std",
+	"frame-system/std",
+	"frame-metadata/std",
+	"ink_primitives/std",
+	"ink_revive_types/std",
+	"pallet-balances/std",
+    "pallet-transaction-payment/std",
+	"pallet-revive/std",
+	"pallet-timestamp/std",
+	"scale/std",
+	"scale-info/std",
+	"sp-core/std",
+	"sp-externalities/std",
+	"sp-io/std",
+	"ink_e2e_macro/std",
+]

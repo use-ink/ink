@@ -22,11 +22,7 @@ if_chain = "1.0.2"
 log = "0.4.14"
 regex = "1.5.4"
 ink_linting_utils = { workspace = true }
-ink_env = { version = "=6.0.0-alpha.1", path = "../../crates/env" }
-
-# todo Remove once the `polkadot-sdk` compilation error
-# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
-tokio = { workspace = true, features = ["net"] }
+ink_env = { version = "=6.0.0-alpha.4", path = "../../crates/env" }
 
 [dev-dependencies]
 dylint_testing = "4.1.0"
@@ -36,17 +32,8 @@ dylint_testing = "4.1.0"
 #
 # These cannot be moved to the workspace level because `cargo` does not provide
 # the `[[workspace.dev-dependencies]]` directive.
-ink = { version = "=6.0.0-alpha.1", path = "../../crates/ink" }
-ink_primitives = { version = "=6.0.0-alpha.1", path = "../../crates/primitives" }
-
-# todo Remove once the `polkadot-sdk` compilation error
-# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
-tokio = { workspace = true, features = ["net"] }
-
-# todo Remove once the `polkadot-sdk` compilation error
-# for `tokio` is fixed (https://github.com/use-ink/ink/pull/2557).
-[build-dependencies]
-tokio = { workspace = true, features = ["net"] }
+ink = { version = "=6.0.0-alpha.4", path = "../../crates/ink" }
+ink_primitives = { version = "=6.0.0-alpha.4", path = "../../crates/primitives" }
 
 # For the moment we have to include the tests as examples and
 # then use `dylint_testing::ui_test_examples`.

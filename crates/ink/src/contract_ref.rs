@@ -31,8 +31,8 @@ use ink_primitives::Address;
 /// #[ink::contract]
 /// mod trait_caller {
 ///     use ink::{
-///         contract_ref,
 ///         U256,
+///         contract_ref_from_path,
 ///     };
 ///
 ///     #[ink::trait_definition]
@@ -48,34 +48,34 @@ use ink_primitives::Address;
 ///
 ///     #[ink(storage)]
 ///     pub struct Caller {
-///         /// The example of `contract_ref!` as a struct type.
-///         erc20: contract_ref!(Erc20),
+///         /// The example of `contract_ref_from_path!` as a struct type.
+///         erc20: contract_ref_from_path!(Erc20),
 ///     }
 ///
 ///     impl Caller {
-///         /// Example of `contract_ref!` as an argument type.
+///         /// Example of `contract_ref_from_path!` as an argument type.
 ///         #[ink(constructor)]
-///         pub fn new(erc20: contract_ref!(Erc20)) -> Self {
+///         pub fn new(erc20: contract_ref_from_path!(Erc20)) -> Self {
 ///             Self { erc20 }
 ///         }
 ///
-///         /// Example of converting `AccountId` into `contract_ref!` implicitly.
+///         /// Example of converting `AccountId` into `contract_ref_from_path!` implicitly.
 ///         #[ink(message)]
 ///         pub fn change_account_id_1(&mut self, new_erc20: Address) {
 ///             self.erc20 = new_erc20.into();
 ///         }
 ///
-///         /// Example of converting `AccountId` into `contract_ref!` explicitly.
+///         /// Example of converting `AccountId` into `contract_ref_from_path!` explicitly.
 ///         #[ink(message)]
 ///         pub fn change_account_id_2(&mut self, new_erc20: Address) {
-///             let erc20: contract_ref!(Erc20) = new_erc20.into();
+///             let erc20: contract_ref_from_path!(Erc20) = new_erc20.into();
 ///             self.erc20 = erc20;
 ///         }
 ///
-///         /// Example of converting `AccountId` into an alias from `contract_ref!`.
+///         /// Example of converting `AccountId` into an alias from `contract_ref_from_path!`.
 ///         #[ink(message)]
 ///         pub fn change_account_id_3(&mut self, new_erc20: Address) {
-///             type Erc20Wrapper = contract_ref!(Erc20);
+///             type Erc20Wrapper = contract_ref_from_path!(Erc20);
 ///             let erc20: Erc20Wrapper = new_erc20.into();
 ///             self.erc20 = erc20;
 ///         }
@@ -92,7 +92,7 @@ use ink_primitives::Address;
 ///             self.erc20.total_supply()
 ///         }
 ///
-///         /// Example of how to use the call builder with `contract_ref!`.
+///         /// Example of how to use the call builder with `contract_ref_from_path!`.
 ///         #[ink(message)]
 ///         pub fn total_supply_3(&self) -> U256 {
 ///             use ink::codegen::TraitCallBuilder;
@@ -105,7 +105,7 @@ use ink_primitives::Address;
 ///         }
 ///
 ///         /// Example of how to do common calls and convert
-///         /// the `contract_ref!` into `AccountId`.
+///         /// the `contract_ref_from_path!` into `AccountId`.
 ///         #[ink(message)]
 ///         pub fn transfer_to_erc20(&mut self, amount: U256) -> bool {
 ///             let erc20_as_account_id = self.erc20.as_ref().clone();
@@ -133,7 +133,7 @@ use ink_primitives::Address;
 /// in the ink! project's manifest file (i.e. `Cargo.toml`).
 ///
 /// ```rust
-/// use ink::contract_ref;
+/// use ink::contract_ref_from_path;
 /// use ink_env::DefaultEnvironment;
 /// use ink_primitives::Address;
 ///
@@ -152,22 +152,22 @@ use ink_primitives::Address;
 /// pub struct CustomEnv;
 ///
 /// impl ink_env::Environment for CustomEnv {
-///     const MAX_EVENT_TOPICS: usize = 3;
+///     const NATIVE_TO_ETH_RATIO: u32 = 100_000_000;
 ///     type AccountId = [u8; 32];
 ///     type Balance = u64;
 ///     type Hash = [u8; 32];
 ///     type Timestamp = u64;
 ///     type BlockNumber = u64;
-///     type ChainExtension = ();
 ///     type EventRecord = ();
 /// }
 ///
-/// type AliasWithDefaultEnv = contract_ref!(Erc20, DefaultEnvironment);
-/// type AliasWithCustomEnv = contract_ref!(Erc20, CustomEnv);
-/// type AliasWithGenericEnv<E> = contract_ref!(Erc20, E);
-/// type AliasWithCustomAbi = contract_ref!(Erc20, DefaultEnvironment, ink::abi::Ink);
+/// type AliasWithDefaultEnv = contract_ref_from_path!(Erc20, DefaultEnvironment);
+/// type AliasWithCustomEnv = contract_ref_from_path!(Erc20, CustomEnv);
+/// type AliasWithGenericEnv<E> = contract_ref_from_path!(Erc20, E);
+/// type AliasWithCustomAbi =
+///     contract_ref_from_path!(Erc20, DefaultEnvironment, ink::abi::Ink);
 ///
-/// fn default(mut contract: contract_ref!(Erc20, DefaultEnvironment)) {
+/// fn default(mut contract: contract_ref_from_path!(Erc20, DefaultEnvironment)) {
 ///     let total_supply = contract.total_supply();
 ///     let to: Address = contract.as_ref().clone();
 ///     contract.transfer(total_supply, to);
@@ -177,7 +177,7 @@ use ink_primitives::Address;
 ///     default(contract)
 /// }
 ///
-/// fn custom(mut contract: contract_ref!(Erc20, CustomEnv)) {
+/// fn custom(mut contract: contract_ref_from_path!(Erc20, CustomEnv)) {
 ///     let total_supply = contract.total_supply();
 ///     contract.transfer(total_supply, contract.as_ref().clone());
 /// }
@@ -186,7 +186,7 @@ use ink_primitives::Address;
 ///     custom(contract)
 /// }
 ///
-/// fn generic<E, A>(mut contract: contract_ref!(Erc20, E))
+/// fn generic<E, A>(mut contract: contract_ref_from_path!(Erc20, E))
 /// where
 ///     E: ink_env::Environment<AccountId = A>,
 ///     A: Into<Address> + Clone,
@@ -204,7 +204,9 @@ use ink_primitives::Address;
 ///     generic(contract)
 /// }
 ///
-/// fn custom_abi(mut contract: contract_ref!(Erc20, DefaultEnvironment, ink::abi::Ink)) {
+/// fn custom_abi(
+///     mut contract: contract_ref_from_path!(Erc20, DefaultEnvironment, ink::abi::Ink),
+/// ) {
 ///     let total_supply = contract.total_supply();
 ///     contract.transfer(total_supply, contract.as_ref().clone());
 /// }
@@ -215,21 +217,21 @@ use ink_primitives::Address;
 ///
 /// type Environment = DefaultEnvironment;
 ///
-/// fn contract_ref_default_behaviour(mut contract: contract_ref!(Erc20)) {
+/// fn contract_ref_default_behaviour(mut contract: contract_ref_from_path!(Erc20)) {
 ///     let total_supply = contract.total_supply();
 ///     let to: Address = contract.as_ref().clone();
 ///     contract.transfer(total_supply, to);
 /// }
 /// ```
 #[macro_export]
-macro_rules! contract_ref {
+macro_rules! contract_ref_from_path {
     // The case of the default `Environment` and ABI
     ( $trait_path:path ) => {
-        $crate::contract_ref!($trait_path, Environment)
+        $crate::contract_ref_from_path!($trait_path, Environment)
     };
     // The case of the custom `Environment` and default ABI
     ( $trait_path:path, $env:ty ) => {
-        $crate::contract_ref!($trait_path, $env, $crate::env::DefaultAbi)
+        $crate::contract_ref_from_path!($trait_path, $env, $crate::env::DefaultAbi)
     };
     // The case of the custom `Environment` and ABI
     ( $trait_path:path, $env:ty, $abi:ty ) => {

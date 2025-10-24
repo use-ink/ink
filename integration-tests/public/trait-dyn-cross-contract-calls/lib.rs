@@ -3,7 +3,7 @@
 //!
 //! The `Caller` doesn't use the `trait_incrementer::IncrementerRef`. Instead,
 //! all interactions with the `Incrementer` is done through the wrapper from
-//! `ink::contract_ref!` and the trait `dyn_traits::Increment`.
+//! `ink::contract_ref_from_path!` and the trait `dyn_traits::Increment`.
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 #![allow(clippy::new_without_default)]
 
@@ -15,7 +15,7 @@ pub mod caller {
     #[ink(storage)]
     pub struct Caller {
         /// Here we accept a type which implements the `Incrementer` ink! trait.
-        incrementer: ink::contract_ref!(Increment),
+        incrementer: ink::contract_ref_from_path!(Increment),
     }
 
     impl Caller {
@@ -120,7 +120,7 @@ mod e2e_tests {
             .expect("calling `inc` failed");
 
         // Ask the `trait-increment` about a value. It should be updated by the caller.
-        // Also use `contract_ref!(Increment)` instead of `IncrementerRef`
+        // Also use `contract_ref_from_path!(Increment)` instead of `IncrementerRef`
         // to check that it also works with e2e testing.
         let get = incrementer_call.get();
         let value = client

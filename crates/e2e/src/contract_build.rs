@@ -14,8 +14,8 @@
 
 use std::{
     collections::{
-        hash_map::Entry,
         HashMap,
+        hash_map::Entry,
     },
     env,
     path::{
@@ -162,6 +162,7 @@ fn build_contracts(
     contract_manifests: &[(PathBuf, Vec<String>)],
     target_dir: PathBuf,
 ) -> Vec<PathBuf> {
+    #[allow(clippy::type_complexity)]
     static CONTRACT_BUILD_JOBS: OnceLock<
         Mutex<HashMap<(PathBuf, Vec<String>), PathBuf>>,
     > = OnceLock::new();
@@ -191,7 +192,7 @@ fn build_contracts(
 
 fn add_features_to_filename(
     contract_binary_path: PathBuf,
-    features: &Vec<String>,
+    features: &[String],
 ) -> PathBuf {
     // add features to file name
     let mut path_with_features = contract_binary_path.clone();

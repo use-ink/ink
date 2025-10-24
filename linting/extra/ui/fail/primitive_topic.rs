@@ -6,7 +6,7 @@ pub type TyAlias2 = TyAlias1;
 #[ink::contract]
 pub mod primitive_topic {
 
-    #[ink(event)]
+    #[ink(event, anonymous)]
     pub struct Transaction {
         // Bad
         #[ink(topic)]

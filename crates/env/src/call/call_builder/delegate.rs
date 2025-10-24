@@ -12,27 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_primitives::{
-    abi::AbiEncodeWith,
-    Address,
-};
+use ink_primitives::Address;
 use pallet_revive_uapi::CallFlags;
 
 use crate::{
+    Error,
     call::{
+        CallBuilder,
+        CallParams,
+        ExecutionInput,
         common::{
             ReturnType,
             Set,
             Unset,
         },
-        execution::EmptyArgumentList,
+        execution::{
+            EmptyArgumentList,
+            EncodeArgsWith,
+        },
         utils::DecodeMessageResult,
-        CallBuilder,
-        CallParams,
-        ExecutionInput,
     },
     types::Environment,
-    Error,
 };
 
 /// The `delegatecall` call type. Performs a call with the given code hash.
@@ -131,7 +131,7 @@ impl<E, RetType, Abi>
     >
 where
     E: Environment,
-    EmptyArgumentList<Abi>: AbiEncodeWith<Abi>,
+    EmptyArgumentList<Abi>: EncodeArgsWith<Abi>,
     (): DecodeMessageResult<Abi>,
     Abi: Default,
 {
@@ -155,7 +155,7 @@ impl<E, Abi>
     >
 where
     E: Environment,
-    EmptyArgumentList<Abi>: AbiEncodeWith<Abi>,
+    EmptyArgumentList<Abi>: EncodeArgsWith<Abi>,
     (): DecodeMessageResult<Abi>,
     Abi: Default,
 {
@@ -174,8 +174,8 @@ where
     ///
     /// # Note
     ///
-    /// On failure this returns an [`ink::env::Error`][`crate::Error`] which can be handled by the
-    /// caller.
+    /// On failure this returns an [`ink::env::Error`][`crate::Error`] which can be
+    /// handled by the caller.
     pub fn try_invoke(self) -> Result<ink_primitives::MessageResult<()>, Error> {
         self.params().try_invoke()
     }
@@ -185,7 +185,7 @@ impl<E, Args, R, Abi>
     CallBuilder<E, Set<DelegateCall>, Set<ExecutionInput<Args, Abi>>, Set<ReturnType<R>>>
 where
     E: Environment,
-    Args: AbiEncodeWith<Abi>,
+    Args: EncodeArgsWith<Abi>,
     R: DecodeMessageResult<Abi>,
 {
     /// Invokes the cross-chain function call using Delegate Call semantics and returns
@@ -251,7 +251,7 @@ where
 impl<E, Args, R, Abi> CallParams<E, DelegateCall, Args, R, Abi>
 where
     E: Environment,
-    Args: AbiEncodeWith<Abi>,
+    Args: EncodeArgsWith<Abi>,
     R: DecodeMessageResult<Abi>,
 {
     /// Invoke the contract using Delegate Call semantics with the given built-up call

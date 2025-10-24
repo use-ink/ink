@@ -165,12 +165,6 @@ fn ui_tests_trait_def_fail() {
 }
 
 #[test]
-fn ui_tests_chain_extension_pass() {
-    let t = trybuild::TestCases::new();
-    t.pass("tests/ui/chain_extension/E-01-simple.rs");
-}
-
-#[test]
 fn ui_tests_pay_with_call_pass() {
     let t = trybuild::TestCases::new();
     t.pass("tests/ui/pay_with_call/pass/multiple_args.rs");
@@ -285,14 +279,13 @@ fn trybuild_wrapper_test(
     cmd.env("CARGO", wrapper);
 
     // Set ABI `cfg` flags that will be passed to `cargo` by the `trybuild` wrapper.
-    let abi_cfg = format!("--cfg\x1fink_abi=\"{abi}\"\x1f--check-cfg\x1fcfg(ink_abi,values(\"ink\",\"sol\",\"all\"))");
+    let abi_cfg = format!(
+        "--cfg\x1fink_abi=\"{abi}\"\x1f--check-cfg\x1fcfg(ink_abi,values(\"ink\",\"sol\",\"all\"))"
+    );
     cmd.env("TRYBUILD_WRAPPER_ENCODED_FLAGS", abi_cfg);
 
     // Enable `std` and `unstable-hostfn` features (needed by events and metadata tests).
-    cmd.env(
-        "TRYBUILD_WRAPPER_CARGO_ARGS",
-        "--features std,unstable-hostfn",
-    );
+    cmd.env("TRYBUILD_WRAPPER_CARGO_ARGS", "--features std");
 
     let exit_status = cmd.status().unwrap();
     if !exit_status.success() {

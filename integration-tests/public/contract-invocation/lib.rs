@@ -5,13 +5,13 @@ mod instantiate_contract {
     use contract1::Contract1Ref;
     use contract2::Contract2Ref;
     use ink::{
+        H256,
         env::call::{
-            build_call,
-            build_create,
             ExecutionInput,
             Selector,
+            build_call,
+            build_create,
         },
-        H256,
     };
 
     #[ink(storage)]
@@ -267,12 +267,11 @@ mod instantiate_contract {
             let addr2 = ink::env::instantiate_contract(&create_params)
                 .unwrap_or_else(|error| {
                     panic!(
-                        "Received an error from `pallet-revive` while instantiating: {:?}",
-                        error
+                        "Received an error from `pallet-revive` while instantiating: {error:?}"
                     )
                 })
                 .unwrap_or_else(|error| {
-                    panic!("Received a `LangError` while instantiating: {:?}", error)
+                    panic!("Received a `LangError` while instantiating: {error:?}")
                 });
 
             use ink::ToAddr;
@@ -290,12 +289,11 @@ mod instantiate_contract {
             let addr3 = ink::env::instantiate_contract(&create_params)
                 .unwrap_or_else(|error| {
                     panic!(
-                        "Received an error from `pallet-revive` while instantiating: {:?}",
-                        error
+                        "Received an error from `pallet-revive` while instantiating: {error:?}"
                     )
                 })
                 .unwrap_or_else(|error| {
-                    panic!("Received a `LangError` while instantiating: {:?}", error)
+                    panic!("Received a `LangError` while instantiating: {error:?}")
                 });
             let addr3: Address = addr3.to_addr();
 
@@ -320,12 +318,11 @@ mod instantiate_contract {
                 ink::env::instantiate_contract(&create_params)
                     .unwrap_or_else(|error| {
                         panic!(
-                            "Received an error from `pallet-revive` while instantiating: {:?}",
-                            error
+                            "Received an error from `pallet-revive` while instantiating: {error:?}"
                         )
                     })
                     .unwrap_or_else(|error| {
-                        panic!("Received a `LangError` while instantiating: {:?}", error)
+                        panic!("Received a `LangError` while instantiating: {error:?}")
                     })
             };
 
@@ -365,8 +362,8 @@ mod instantiate_contract {
             InstantiationResult,
         };
         use virtual_contract::{
-            virtual_contract::VirtualContract,
             VirtualContractRef,
+            virtual_contract::VirtualContract,
         };
         use virtual_contract_ver1::VirtualContractVer1Ref;
         use virtual_contract_ver2::VirtualContractVer2Ref;
@@ -385,7 +382,7 @@ mod instantiate_contract {
             c: u32,
             d: u32,
         ) where
-            Client: E2EBackend,
+            Client: E2EBackend<ink::env::DefaultEnvironment>,
             E: ink::env::Environment,
         {
             let r1 = ver1.call_builder::<VirtualContract>();

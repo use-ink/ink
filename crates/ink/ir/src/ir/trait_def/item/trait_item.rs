@@ -14,22 +14,22 @@
 
 use super::super::InkAttribute;
 use crate::{
+    InputsIter,
+    Receiver,
     ir::{
         self,
         attrs::SelectorOrWildcard,
         utils,
         utils::extract_cfg_attributes,
     },
-    InputsIter,
-    Receiver,
 };
 use proc_macro2::{
     Span,
     TokenStream,
 };
 use syn::{
-    spanned::Spanned as _,
     Result,
+    spanned::Spanned as _,
 };
 
 /// An ink! item within an ink! trait definition.
@@ -57,6 +57,24 @@ impl<'a> InkTraitItem<'a> {
     pub fn filter_map_message(self) -> Option<InkTraitMessage<'a>> {
         match self {
             Self::Message(ink_trait_message) => Some(ink_trait_message),
+        }
+    }
+
+    /// Returns the function name override (if any).
+    pub fn name(&self) -> Option<String> {
+        match self {
+            Self::Message(message) => message.name(),
+        }
+    }
+
+    /// Returns the "normalized" function name
+    ///
+    /// # Note
+    /// This returns the name override (if provided), otherwise the identifier is
+    /// returned.
+    pub fn normalized_name(&self) -> String {
+        match self {
+            Self::Message(message) => message.normalized_name(),
         }
     }
 }
@@ -88,12 +106,17 @@ impl<'a> InkTraitMessage<'a> {
             &ir::AttributeArgKind::Message,
             |arg| {
                 match arg.kind() {
-                    ir::AttributeArg::Selector(SelectorOrWildcard::Wildcard) =>
-                        Err(Some(format_err!(arg.span(), "wildcard selectors are only supported for inherent ink! messages or constructors, not for traits."))),
+                    ir::AttributeArg::Selector(SelectorOrWildcard::Wildcard) => {
+                        Err(Some(format_err!(
+                            arg.span(),
+                            "wildcard selectors are only supported for inherent ink! messages or constructors, not for traits."
+                        )))
+                    }
                     ir::AttributeArg::Message
                     | ir::AttributeArg::Payable
                     | ir::AttributeArg::Default
-                    | ir::AttributeArg::Selector(_) => Ok(()),
+                    | ir::AttributeArg::Selector(_)
+                    | ir::AttributeArg::Name(_) => Ok(()),
                     _ => Err(None),
                 }
             },
@@ -168,7 +191,7 @@ impl<'a> InkTraitMessage<'a> {
     /// Although the above scenario is very unlikely since the local ID is computed
     /// solely by the identifier of the ink! message.
     pub fn local_id(&self) -> u32 {
-        utils::local_message_id(self.ident())
+        utils::local_message_id(&self.normalized_name())
     }
 
     /// Returns the span of the ink! message.
@@ -182,6 +205,20 @@ impl<'a> InkTraitMessage<'a> {
             .receiver()
             .map(|receiver| receiver.mutability.is_some())
             .expect("encountered missing receiver for ink! message")
+    }
+
+    /// Returns the function name override (if any).
+    pub fn name(&self) -> Option<String> {
+        self.ink_attrs().name()
+    }
+
+    /// Returns the "normalized" function name
+    ///
+    /// # Note
+    /// This returns the name override (if provided), otherwise the identifier is
+    /// returned.
+    pub fn normalized_name(&self) -> String {
+        self.name().unwrap_or_else(|| self.ident().to_string())
     }
 }
 

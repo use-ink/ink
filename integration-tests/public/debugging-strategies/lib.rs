@@ -12,10 +12,10 @@
 #[ink::contract]
 mod debugging_strategies {
     use ink::env::call::{
-        build_call,
-        build_create,
         ExecutionInput,
         Selector,
+        build_call,
+        build_create,
     };
     #[cfg(feature = "debug")]
     use ink::prelude::{
@@ -109,6 +109,7 @@ mod debugging_strategies {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink::env::Environment;
         use ink_e2e::ContractsBackend;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -139,7 +140,7 @@ mod debugging_strategies {
                 .expect("calling `get` message failed");
 
             // then
-            // the contract wil have emitted an event
+            // the contract will have emitted an event
             assert!(call_res.contains_event("Revive", "ContractEmitted"));
             let contract_events = call_res.contract_emitted_events()?;
             assert_eq!(1, contract_events.len());
@@ -221,8 +222,11 @@ mod debugging_strategies {
             let return_data = call_res.return_data();
             assert!(call_res.did_revert());
             let revert_msg = String::from_utf8_lossy(return_data);
-            assert!(revert_msg
-                .contains("dispatching ink! message failed: paid an unpayable message"));
+            assert!(
+                revert_msg.contains(
+                    "dispatching ink! message failed: paid an unpayable message"
+                )
+            );
 
             Ok(())
         }
@@ -299,12 +303,9 @@ mod debugging_strategies {
             // ```
 
             // then
-            // todo make `NativeToEthRatio` part of  the `Environment`
-            #[allow(non_upper_case_globals)]
-            const NativeToEthRatio: u128 = 100_000_000;
             assert_eq!(
                 trace.value,
-                Some(ink::U256::from(1_337_000_000 * NativeToEthRatio))
+                Some(ink::env::DefaultEnvironment::native_to_eth(1_337_000_000))
             );
 
             Ok(())

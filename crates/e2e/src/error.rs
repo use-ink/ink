@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use ink_revive_types::evm::CallTrace;
 use std::fmt;
 
 /// An error occurred while interacting with the E2E backend.
@@ -27,23 +28,23 @@ pub enum Error<DispatchError: fmt::Debug + fmt::Display> {
     /// The `instantiate_with_code` dry run failed.
     #[error("Instantiate dry-run error: {0}")]
     InstantiateDryRun(DryRunError<DispatchError>),
-    #[error("Instantiate extrinsic error: {0}")]
-    InstantiateExtrinsic(DispatchError),
+    #[error("Instantiate extrinsic error: {0} {1:?}")]
+    InstantiateExtrinsic(DispatchError, Option<CallTrace>),
     /// The `upload` dry run failed.
     #[error("Upload dry-run error: {0}")]
     UploadDryRun(DispatchError),
     /// The `upload` extrinsic failed.
     #[error("Upload extrinsic error: {0}")]
-    UploadExtrinsic(DispatchError),
+    UploadExtrinsic(DispatchError, Option<CallTrace>),
     /// The `call` dry run failed.
     #[error("Call dry-run error: {0}")]
     CallDryRun(DryRunError<DispatchError>),
     /// The `call` extrinsic failed.
     #[error("Call extrinsic error: {0}")]
-    CallExtrinsic(DispatchError),
+    CallExtrinsic(DispatchError, Option<CallTrace>),
     /// The `remove_code` extrinsic failed.
     #[error("Remove code extrinsic error: {0}")]
-    RemoveCodeExtrinsic(DispatchError),
+    RemoveCodeExtrinsic(DispatchError, Option<CallTrace>),
     /// Error fetching account balance.
     #[error("Fetching account Balance error: {0}")]
     Balance(String),
@@ -67,31 +68,5 @@ where
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         <Self as fmt::Debug>::fmt(self, f)
-    }
-}
-
-/// Dummy error type for sandbox_client
-#[derive(Debug, thiserror::Error)]
-pub struct SandboxErr {
-    msg: String,
-}
-
-impl SandboxErr {
-    /// Create a new `SandboxErr` with the given message.
-    #[allow(dead_code)]
-    pub fn new(msg: String) -> Self {
-        Self { msg }
-    }
-}
-
-impl From<String> for SandboxErr {
-    fn from(msg: String) -> Self {
-        Self { msg }
-    }
-}
-
-impl fmt::Display for SandboxErr {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "SandboxErr: {}", self.msg)
     }
 }

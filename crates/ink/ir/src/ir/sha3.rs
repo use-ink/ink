@@ -15,8 +15,8 @@
 /// Computes the KECCAK 256-bit hash for the given input and stores it in output.
 pub fn keccak_256(input: &[u8], output: &mut [u8; 32]) {
     use sha3::{
-        digest::generic_array::GenericArray,
         Digest as _,
+        digest::generic_array::GenericArray,
     };
     let mut hasher = sha3::Keccak256::new();
     hasher.update(input);

@@ -15,9 +15,9 @@
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use syn::{
-    spanned::Spanned,
     Field,
     Fields,
+    spanned::Spanned,
 };
 
 /// Ensures that the given item has at least one variant.

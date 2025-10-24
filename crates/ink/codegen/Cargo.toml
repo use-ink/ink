@@ -18,7 +18,7 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
 ink_primitives = { workspace = true }
-ir = { version = "=6.0.0-alpha.1", package = "ink_ir", path = "../ir", default-features = false }
+ir = { version = "=6.0.0-alpha.4", package = "ink_ir", path = "../ir", default-features = false }
 quote = { workspace = true }
 syn = { workspace = true, features = ["parsing", "full", "extra-traits"] }
 proc-macro2 = { workspace = true }

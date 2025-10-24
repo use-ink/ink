@@ -66,14 +66,14 @@ use crate::types::Environment;
 /// pub struct CustomEnvironment {}
 ///
 /// impl Environment for CustomEnvironment {
-///     const MAX_EVENT_TOPICS: usize = 4;
+///     const NATIVE_TO_ETH_RATIO: u32 =
+///         <DefaultEnvironment as Environment>::NATIVE_TO_ETH_RATIO;
 ///
 ///     type AccountId = <DefaultEnvironment as Environment>::AccountId;
 ///     type Balance = u64;
 ///     type Hash = <DefaultEnvironment as Environment>::Hash;
 ///     type BlockNumber = u32;
 ///     type Timestamp = u64;
-///     type ChainExtension = <DefaultEnvironment as Environment>::ChainExtension;
 ///     type EventRecord = <DefaultEnvironment as Environment>::EventRecord;
 /// }
 ///

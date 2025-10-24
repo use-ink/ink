@@ -40,16 +40,18 @@ unsafe impl GlobalAlloc for BumpAllocator {
     #[inline]
     #[allow(static_mut_refs)]
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        if INNER.is_none() {
-            INNER = Some(InnerAlloc::new());
-        };
-        match INNER
-            .as_mut()
-            .expect("We just set the value above; qed")
-            .alloc(layout)
-        {
-            Some(start) => start as *mut u8,
-            None => core::ptr::null_mut(),
+        unsafe {
+            if INNER.is_none() {
+                INNER = Some(InnerAlloc::new());
+            };
+            match INNER
+                .as_mut()
+                .expect("We just set the value above; qed")
+                .alloc(layout)
+            {
+                Some(start) => start as *mut u8,
+                None => core::ptr::null_mut(),
+            }
         }
     }
 
@@ -60,7 +62,7 @@ unsafe impl GlobalAlloc for BumpAllocator {
         // use our regular `alloc` call here and save a bit of work.
         //
         // See: https://webassembly.github.io/spec/core/exec/modules.html#growing-memories
-        self.alloc(layout)
+        unsafe { self.alloc(layout) }
     }
 
     #[inline]
@@ -166,7 +168,7 @@ impl InnerAlloc {
     ///
     /// We inductively calculate the start index
     /// of a layout in the linear memory.
-    /// - Initially `self.next` is `0`` and aligned
+    /// - Initially `self.next` is `0` and aligned
     /// - `layout.align() - 1` accounts for `0` as the first index.
     /// - the binary with the inverse of the align creates a bitmask that is used to zero
     ///   out bits, ensuring alignment according to type requirements and ensures that the
@@ -330,8 +332,8 @@ mod tests {
 mod fuzz_tests {
     use super::*;
     use quickcheck::{
-        quickcheck,
         TestResult,
+        quickcheck,
     };
     use std::mem::size_of;
 

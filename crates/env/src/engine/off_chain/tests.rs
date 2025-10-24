@@ -13,13 +13,13 @@
 // limitations under the License.
 
 use crate::{
-    engine::off_chain::{
-        impls::TopicsBuilder,
-        test_api::set_account_balance,
-    },
-    event::TopicsBuilderBackend,
     DefaultEnvironment,
     Result,
+    engine::off_chain::{
+        impls::TopicsBuilder,
+        test_api::set_contract_balance,
+    },
+    event::TopicsBuilderBackend,
 };
 use ink::{
     Address,
@@ -33,39 +33,39 @@ fn topics_builder() -> Result<()> {
         let mut builder = TopicsBuilder::default();
 
         // when
-        TopicsBuilderBackend::<crate::DefaultEnvironment>::push_topic(&mut builder, &13);
-        TopicsBuilderBackend::<crate::DefaultEnvironment>::push_topic(&mut builder, &17);
+        TopicsBuilderBackend::<ink::abi::Ink>::push_topic(&mut builder, &13);
+        TopicsBuilderBackend::<ink::abi::Ink>::push_topic(&mut builder, &17);
 
         // then
         assert_eq!(builder.topics.len(), 2);
 
-        let topics_len_compact = &scale::Compact(2u32);
-        let topics_len_encoded = scale::Encode::encode(&topics_len_compact);
-        let output = TopicsBuilderBackend::<crate::DefaultEnvironment>::output(builder);
+        let output = TopicsBuilderBackend::<ink::abi::Ink>::output(builder);
         #[rustfmt::skip]
-        let expected = vec![topics_len_encoded[0], 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        let expected = vec![
+            [13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ];
         assert_eq!(output, expected);
-
         Ok(())
     })
 }
 
 #[test]
-fn test_set_account_balance() -> Result<()> {
+fn test_set_contract_balance() -> Result<()> {
     pub use ink_engine::ext::ChainSpec;
 
     crate::test::run_test::<DefaultEnvironment, _>(|_| {
         let minimum_balance = ChainSpec::default().minimum_balance;
 
         let result = std::panic::catch_unwind(|| {
-            set_account_balance(Address::from([0x1; 20]), minimum_balance - 1)
+            set_contract_balance(Address::from([0x1; 20]), minimum_balance - 1)
         });
 
         assert!(result.is_err());
 
-        set_account_balance(Address::from([0x1; 20]), U256::zero());
+        set_contract_balance(Address::from([0x1; 20]), U256::zero());
 
-        set_account_balance(Address::from([0x1; 20]), minimum_balance + 1);
+        set_contract_balance(Address::from([0x1; 20]), minimum_balance + 1);
 
         Ok(())
     })

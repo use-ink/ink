@@ -41,21 +41,15 @@ mod literal;
 
 pub use self::{
     ir::{
-        blake2b_256,
-        marker,
-        utils,
         Blake2x256Macro,
         Callable,
         CallableKind,
         CallableWithSelector,
-        ChainExtension,
-        ChainExtensionMethod,
         Config,
         Constructor,
         Contract,
         Event,
         EventConfig,
-        ExtensionId,
         ImplItem,
         InkItem,
         InkItemTrait,
@@ -82,6 +76,9 @@ pub use self::{
         Storage,
         StorageItem,
         Visibility,
+        blake2b_256,
+        marker,
+        utils,
     },
     literal::HexLiteral,
 };

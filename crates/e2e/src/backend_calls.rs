@@ -15,37 +15,35 @@
 use std::marker::PhantomData;
 
 use ink_env::{
-    call::utils::DecodeMessageResult,
     Environment,
-};
-use ink_primitives::{
-    abi::AbiEncodeWith,
-    DepositLimit,
+    call::utils::{
+        DecodeMessageResult,
+        EncodeArgsWith,
+    },
 };
 use sp_weights::Weight;
 
 use super::{
-    balance_to_deposit_limit,
     InstantiateDryRunResult,
     Keypair,
 };
 use crate::{
-    backend::BuilderClient,
-    builders::CreateBuilderPartial,
     CallBuilderFinal,
     CallDryRunResult,
     CallResult,
     ContractsBackend,
+    H256,
     InstantiationResult,
     UploadResult,
-    H256,
+    backend::BuilderClient,
+    builders::CreateBuilderPartial,
 };
 
 /// Allows to build an end-to-end call using a builder pattern.
 pub struct CallBuilder<'a, E, Args, RetType, B, Abi>
 where
     E: Environment,
-    Args: AbiEncodeWith<Abi> + Clone,
+    Args: EncodeArgsWith<Abi> + Clone,
     RetType: Send + DecodeMessageResult<Abi>,
     B: BuilderClient<E>,
     Abi: Clone,
@@ -56,13 +54,13 @@ where
     value: E::Balance,
     extra_gas_portion: Option<u64>,
     gas_limit: Option<Weight>,
-    storage_deposit_limit: E::Balance,
+    storage_deposit_limit: Option<E::Balance>,
 }
 
 impl<'a, E, Args, RetType, B, Abi> CallBuilder<'a, E, Args, RetType, B, Abi>
 where
     E: Environment,
-    Args: Sync + AbiEncodeWith<Abi> + Clone,
+    Args: Sync + EncodeArgsWith<Abi> + Clone,
     RetType: Send + DecodeMessageResult<Abi>,
     B: BuilderClient<E>,
     Abi: Sync + Clone,
@@ -83,7 +81,7 @@ where
             value: 0u32.into(),
             extra_gas_portion: None,
             gas_limit: None,
-            storage_deposit_limit: 0u32.into(),
+            storage_deposit_limit: None,
         }
     }
 
@@ -130,7 +128,7 @@ where
         &mut self,
         storage_deposit_limit: E::Balance,
     ) -> &mut Self {
-        self.storage_deposit_limit = storage_deposit_limit;
+        self.storage_deposit_limit = Some(storage_deposit_limit);
         self
     }
 
@@ -151,7 +149,7 @@ where
             self.caller,
             self.message,
             self.value,
-            balance_to_deposit_limit::<E>(self.storage_deposit_limit),
+            self.storage_deposit_limit,
         )
         .await?;
 
@@ -170,8 +168,7 @@ where
             self.message,
             self.value,
             gas_limit,
-            // todo: the `bare_call` converts this value back, this is unnecessary work
-            DepositLimit::Balance(dry_run.exec_result.storage_deposit.charge_or_zero()),
+            dry_run.exec_result.storage_deposit.charge_or_zero(),
         )
         .await?;
 
@@ -192,7 +189,7 @@ where
             self.caller,
             self.message,
             self.value,
-            balance_to_deposit_limit::<E>(self.storage_deposit_limit),
+            self.storage_deposit_limit,
         )
         .await
     }
@@ -202,7 +199,7 @@ where
 pub struct InstantiateBuilder<'a, E, Contract, Args, R, B, Abi>
 where
     E: Environment,
-    Args: AbiEncodeWith<Abi> + Clone,
+    Args: EncodeArgsWith<Abi> + Clone,
     Contract: Clone,
     B: ContractsBackend<E>,
 {
@@ -213,14 +210,14 @@ where
     value: E::Balance,
     extra_gas_portion: Option<u64>,
     gas_limit: Option<Weight>,
-    storage_deposit_limit: DepositLimit<E::Balance>,
+    storage_deposit_limit: Option<E::Balance>,
 }
 
 impl<'a, E, Contract, Args, R, B, Abi>
     InstantiateBuilder<'a, E, Contract, Args, R, B, Abi>
 where
     E: Environment,
-    Args: AbiEncodeWith<Abi> + Clone + Send + Sync,
+    Args: EncodeArgsWith<Abi> + Clone + Send + Sync,
     Contract: Clone,
     B: BuilderClient<E>,
     Abi: Send + Sync + Clone,
@@ -243,7 +240,7 @@ where
             value: 0u32.into(),
             extra_gas_portion: None,
             gas_limit: None,
-            storage_deposit_limit: DepositLimit::UnsafeOnlyForDryRun,
+            storage_deposit_limit: None,
         }
     }
 
@@ -286,9 +283,11 @@ where
     }
 
     /// Specify the max amount of funds that can be charged for storage.
+    ///
+    /// *Important*: `None` means charging the maximum!
     pub fn storage_deposit_limit(
         &mut self,
-        storage_deposit_limit: DepositLimit<E::Balance>,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> &mut Self {
         self.storage_deposit_limit = storage_deposit_limit;
         self
@@ -325,19 +324,18 @@ where
 
         let instantiate_result = B::bare_instantiate(
             self.client,
-            self.contract_name,
+            B::load_code(self.client, self.contract_name),
             self.caller,
             self.constructor,
             self.value,
             gas_limit,
-            balance_to_deposit_limit::<E>(
-                dry_run.contract_result.storage_deposit.charge_or_zero(),
-            ),
+            dry_run.contract_result.storage_deposit.charge_or_zero(),
         )
         .await?;
 
         Ok(InstantiationResult {
             addr: instantiate_result.addr,
+            account_id: instantiate_result.account_id,
             dry_run,
             events: instantiate_result.events,
             trace: instantiate_result.trace,
@@ -368,7 +366,7 @@ where
     client: &'a mut B,
     contract_name: &'a str,
     caller: &'a Keypair,
-    storage_deposit_limit: E::Balance,
+    storage_deposit_limit: Option<E::Balance>,
 }
 
 impl<'a, E, B> UploadBuilder<'a, E, B>
@@ -382,14 +380,14 @@ where
             client,
             contract_name,
             caller,
-            storage_deposit_limit: 0u32.into(),
+            storage_deposit_limit: None,
         }
     }
 
     /// Specify the max amount of funds that can be charged for storage.
     pub fn storage_deposit_limit(
         &mut self,
-        storage_deposit_limit: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
     ) -> &mut Self {
         self.storage_deposit_limit = storage_deposit_limit;
         self

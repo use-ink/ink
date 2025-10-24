@@ -22,10 +22,10 @@ use ir::Callable as _;
 use ir::HexLiteral;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
+    ToTokens,
     format_ident,
     quote,
     quote_spanned,
-    ToTokens,
 };
 use syn::spanned::Spanned as _;
 

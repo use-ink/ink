@@ -68,8 +68,8 @@ use scale::{
 /// # #[ink::contract]
 /// # mod my_module {
 /// use ink::storage::{
-///     traits::ManualKey,
 ///     Lazy,
+///     traits::ManualKey,
 /// };
 ///
 /// #[ink(storage)]
@@ -157,7 +157,6 @@ where
     /// - `Some(Ok(_))` if `value` was received from storage and could be decoded.
     /// - `Some(Err(_))` if retrieving the `value` would exceed the static buffer size.
     /// - `None` if there was no value under this storage key.
-    #[cfg(feature = "unstable-hostfn")]
     pub fn try_get(&self) -> Option<ink_env::Result<V>> {
         let key_size = <Key as Storable>::encoded_size(&KeyType::KEY);
 

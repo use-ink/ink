@@ -58,9 +58,9 @@ pub fn ensure_pub_visibility(
 ///
 /// - The returned value is equal to the selector of the message identifier.
 /// - Used from within ink! trait definitions as well as ink! trait implementation blocks.
-pub fn local_message_id(ident: &syn::Ident) -> u32 {
-    let input = ident.to_string().into_bytes();
-    let selector = Selector::compute(&input);
+pub fn local_message_id(ident: &str) -> u32 {
+    let input = ident.as_bytes();
+    let selector = Selector::compute(input);
     selector.into_be_u32()
 }
 
@@ -153,16 +153,15 @@ where
 /// In most cases it is the parent storage key or the auto-generated storage key.
 pub fn find_storage_key_salt(input: &syn::DeriveInput) -> Option<syn::TypeParam> {
     input.generics.params.iter().find_map(|param| {
-        if let syn::GenericParam::Type(type_param) = param {
-            if let Some(syn::TypeParamBound::Trait(trait_bound)) =
+        if let syn::GenericParam::Type(type_param) = param
+            && let Some(syn::TypeParamBound::Trait(trait_bound)) =
                 type_param.bounds.first()
+        {
+            let segments = &trait_bound.path.segments;
+            if let Some(last) = segments.last()
+                && last.ident == "StorageKey"
             {
-                let segments = &trait_bound.path.segments;
-                if let Some(last) = segments.last() {
-                    if last.ident == "StorageKey" {
-                        return Some(type_param.clone())
-                    }
-                }
+                return Some(type_param.clone())
             }
         }
         None

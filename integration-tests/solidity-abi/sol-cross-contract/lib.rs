@@ -7,14 +7,14 @@
 mod sol_cross_contract {
     use crate::keccak_selector;
     use ink::{
-        env::{
-            call::{
-                build_call_solidity,
-                ExecutionInput,
-            },
-            CallFlags,
-        },
         U256,
+        env::{
+            CallFlags,
+            call::{
+                ExecutionInput,
+                build_call_sol,
+            },
+        },
     };
 
     #[ink(storage)]
@@ -31,7 +31,7 @@ mod sol_cross_contract {
         pub fn call_contract_sol_encoding(&mut self, callee: Address) {
             let selector = keccak_selector(b"set_value(bool)");
 
-            let result = build_call_solidity::<<Self as ::ink::env::ContractEnv>::Env>()
+            let result = build_call_sol::<<Self as ::ink::env::ContractEnv>::Env>()
                 .call(callee)
                 .ref_time_limit(1000000000)
                 .transferred_value(U256::zero())
@@ -48,8 +48,8 @@ mod sol_cross_contract {
 fn keccak_selector(input: &[u8]) -> [u8; 4] {
     let mut output = [0; 32];
     use sha3::{
-        digest::generic_array::GenericArray,
         Digest as _,
+        digest::generic_array::GenericArray,
     };
     let mut hasher = sha3::Keccak256::new();
     hasher.update(input);

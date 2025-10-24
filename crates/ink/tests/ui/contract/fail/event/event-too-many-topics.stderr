@@ -1,0 +1,15 @@
+error: Events can only have up to 3 fields annotated with an `#[ink(topic)]` attribute
+ --> tests/ui/contract/fail/event/event-too-many-topics.rs:3:1
+  |
+3 | #[ink::contract]
+  | ^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the attribute macro `ink::contract` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `contract::Event: ink::ink_env::Event` is not satisfied
+ --> tests/ui/contract/fail/event/event-too-many-topics.rs:3:1
+  |
+3 | #[ink::contract]
+  | ^^^^^^^^^^^^^^^^ the trait `ink::ink_env::Event` is not implemented for `contract::Event`
+  |
+  = note: this error originates in the attribute macro `ink::contract` (in Nightly builds, run with -Z macro-backtrace for more info)

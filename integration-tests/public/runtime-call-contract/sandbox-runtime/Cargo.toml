@@ -9,7 +9,7 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-ink_sandbox = { path = "../../../../crates/e2e/sandbox" }
+ink_sandbox = { path = "../../../../crates/sandbox" }
 pallet-revive-caller = { path = "pallet-revive-caller", default-features = false }
 frame-support = { workspace = true }
 frame-system = { workspace = true }

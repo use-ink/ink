@@ -12,11 +12,8 @@ use ink::env::{
 pub enum EnvironmentWithManyTopics {}
 
 impl Environment for EnvironmentWithManyTopics {
-    // We allow for 3 topics in the event, including the implicit topic for the event
-    // signature. Therefore, the contract pallet's schedule must also allow for at
-    // least 3 of them.
-    const MAX_EVENT_TOPICS: usize =
-        <DefaultEnvironment as Environment>::MAX_EVENT_TOPICS - 1;
+    const NATIVE_TO_ETH_RATIO: u32 =
+        <DefaultEnvironment as Environment>::NATIVE_TO_ETH_RATIO;
 
     type AccountId = <DefaultEnvironment as Environment>::AccountId;
     type Balance = <DefaultEnvironment as Environment>::Balance;
@@ -24,8 +21,6 @@ impl Environment for EnvironmentWithManyTopics {
     type BlockNumber = <DefaultEnvironment as Environment>::BlockNumber;
     type Timestamp = <DefaultEnvironment as Environment>::Timestamp;
     type EventRecord = <DefaultEnvironment as Environment>::EventRecord;
-
-    type ChainExtension = <DefaultEnvironment as Environment>::ChainExtension;
 }
 
 #[ink::contract(env = crate::EnvironmentWithManyTopics)]
@@ -68,7 +63,7 @@ mod runtime_call {
             let mut contract = Topics::new();
             contract.trigger();
 
-            let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events = ink::env::test::recorded_events();
             assert_eq!(emitted_events.len(), 1);
 
             let emitted_event = <EventWithTopics as ink::scale::Decode>::decode(

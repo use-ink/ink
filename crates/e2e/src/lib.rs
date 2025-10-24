@@ -28,8 +28,6 @@ mod contract_results;
 mod error;
 pub mod events;
 mod node_proc;
-#[cfg(feature = "sandbox")]
-mod sandbox_client;
 mod subxt_client;
 mod xts;
 
@@ -44,24 +42,30 @@ pub use backend_calls::{
     CallBuilder,
     InstantiateBuilder,
 };
-pub use client_utils::ContractsRegistry;
+pub use builders::{
+    CreateBuilderPartial,
+    constructor_exec_input,
+};
+pub use client_utils::{
+    ContractsRegistry,
+    code_hash,
+    salt,
+};
 pub use contract_results::{
+    BareInstantiationResult,
     CallDryRunResult,
     CallResult,
+    ContractExecResultFor,
+    ContractResult,
     InstantiateDryRunResult,
     InstantiationResult,
     UploadResult,
 };
 pub use ink_e2e_macro::test;
+pub use ink_revive_types::evm::CallTrace;
 pub use node_proc::{
     TestNodeProcess,
     TestNodeProcessBuilder,
-};
-pub use pallet_revive::evm::CallTrace;
-#[cfg(feature = "sandbox")]
-pub use sandbox_client::{
-    preset,
-    Client as SandboxClient,
 };
 pub use sp_keyring::Sr25519Keyring;
 pub use subxt::{
@@ -77,27 +81,24 @@ pub use subxt_signer::{
     self,
     sr25519::{
         self,
-        dev::*,
         Keypair,
+        dev::*,
     },
 };
 pub use tokio;
 pub use tracing;
 pub use tracing_subscriber;
 
-#[cfg(feature = "sandbox")]
-pub use ink_sandbox::DefaultSandbox;
-
 use ink::codegen::ContractCallBuilder;
 use ink_env::{
-    call::FromAddr,
     ContractEnv,
     Environment,
+    call::FromAddr,
 };
 use ink_primitives::{
     Address,
-    DepositLimit,
     H256,
+    types::AccountIdMapper,
 };
 pub use sp_weights::Weight;
 use std::{
@@ -106,7 +107,6 @@ use std::{
 };
 use xts::ReviveApi;
 
-use ink_primitives::types::AccountIdMapper;
 pub use subxt::PolkadotConfig;
 
 /// We use this to only initialize `env_logger` once.
@@ -153,6 +153,34 @@ pub fn address<E: Environment>(account: Sr25519Keyring) -> Address {
     AccountIdMapper::to_address(account.to_account_id().as_ref())
 }
 
+/// Returns the [`ink::Address`] for a given account id.
+///
+/// # Developer Note
+///
+/// We take the `AccountId` and return only the first twenty bytes, this
+/// is what `pallet-revive` does as well.
+pub fn address_from_account_id<AccountId: AsRef<[u8]>>(account_id: AccountId) -> Address {
+    AccountIdMapper::to_address(account_id.as_ref())
+}
+
+/// Returns the [`ink::Address`] for a given `Keypair`.
+///
+/// # Developer Note
+///
+/// We take the `AccountId` and return only the first twenty bytes, this
+/// is what `pallet-revive` does as well.
+pub fn address_from_keypair<AccountId: From<[u8; 32]> + AsRef<[u8]>>(
+    keypair: &Keypair,
+) -> Address {
+    let account_id: AccountId = keypair_to_account(keypair);
+    address_from_account_id(account_id)
+}
+
+/// Transforms a `Keypair` into an account id.
+pub fn keypair_to_account<AccountId: From<[u8; 32]>>(keypair: &Keypair) -> AccountId {
+    AccountId::from(keypair.public_key().0)
+}
+
 /// Creates a call builder for `Contract`, based on an account id.
 pub fn create_call_builder<Contract>(
     acc_id: Address,
@@ -177,20 +205,4 @@ where
     <Contract as ContractCallBuilder>::Type<Abi>: FromAddr,
 {
     <<Contract as ContractCallBuilder>::Type<Abi> as FromAddr>::from_addr(acc_id)
-}
-
-fn balance_to_deposit_limit<E: Environment>(
-    b: <E as Environment>::Balance,
-) -> DepositLimit<<E as Environment>::Balance> {
-    DepositLimit::Balance(b)
-}
-
-fn deposit_limit_to_balance<E: Environment>(
-    l: DepositLimit<<E as Environment>::Balance>,
-) -> <E as Environment>::Balance {
-    match l {
-        DepositLimit::Balance(l) => l,
-        // todo
-        DepositLimit::UnsafeOnlyForDryRun => panic!("`Unchecked` is not supported"),
-    }
 }

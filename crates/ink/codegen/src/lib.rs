@@ -35,7 +35,10 @@
     html_favicon_url = "https://use.ink/crate-docs/favicon.png"
 )]
 
-pub use ink_primitives::reflect;
+pub use ink_primitives::{
+    abi::Abi,
+    reflect,
+};
 mod enforced_error;
 mod generator;
 mod traits;
@@ -73,12 +76,12 @@ impl<'a> CodeGenerator for &'a ir::InkTraitDefinition {
     type Generator = generator::TraitDefinition<'a>;
 }
 
-impl<'a> CodeGenerator for &'a ir::InkTest {
-    type Generator = generator::InkTest<'a>;
+impl<'a> CodeGenerator for (&'a ir::InkTraitDefinition, Option<Abi>) {
+    type Generator = generator::TraitDefinition<'a>;
 }
 
-impl<'a> CodeGenerator for &'a ir::ChainExtension {
-    type Generator = generator::ChainExtension<'a>;
+impl<'a> CodeGenerator for &'a ir::InkTest {
+    type Generator = generator::InkTest<'a>;
 }
 
 impl<'a> CodeGenerator for &'a ir::SelectorMacro<ir::marker::SelectorId> {

@@ -19,20 +19,19 @@ mod macros;
 
 mod bytes;
 mod encodable;
+mod encoder;
 mod error;
 mod params;
 mod result;
 mod types;
+mod utils;
 
 #[cfg(test)]
 mod tests;
 
 use core::ops::Deref;
 
-use alloy_sol_types::{
-    sol_data,
-    SolType as AlloySolType,
-};
+use alloy_sol_types::SolType as AlloySolType;
 use impl_trait_for_tuples::impl_for_tuples;
 use ink_prelude::{
     borrow::Cow,
@@ -49,6 +48,7 @@ use sp_weights::Weight;
 
 pub use self::{
     bytes::{
+        ByteSlice,
         DynBytes,
         FixedBytes,
     },
@@ -59,12 +59,15 @@ pub use self::{
     params::{
         SolParamsDecode,
         SolParamsEncode,
+        SolTypeParamsEncode,
     },
     result::{
         SolResultDecode,
         SolResultDecodeError,
+        SolResultEncode,
     },
     types::{
+        SolTopicEncode,
         SolTypeDecode,
         SolTypeEncode,
     },
@@ -92,8 +95,8 @@ use crate::types::{
 ///
 /// ```
 /// use ink_primitives::{
-///     sol::Error,
 ///     SolDecode,
+///     sol::Error,
 /// };
 ///
 /// // Example arbitrary type.
@@ -170,20 +173,33 @@ pub trait SolEncode<'a> {
     /// # Note
     ///
     /// Prefer reference based representation for better performance.
-    type SolType: SolTypeEncode;
+    type SolType: SolTypeEncode + SolTopicEncode;
 
     /// Name of equivalent Solidity ABI type.
     const SOL_NAME: &'static str =
         <<Self::SolType as SolTypeEncode>::AlloyType as AlloySolType>::SOL_NAME;
 
-    /// Whether the ABI encoded size is dynamic.
-    #[doc(hidden)]
-    const DYNAMIC: bool =
-        <<Self::SolType as SolTypeEncode>::AlloyType as AlloySolType>::DYNAMIC;
-
     /// Solidity ABI encode the value.
     fn encode(&'a self) -> Vec<u8> {
         <Self::SolType as SolTypeEncode>::encode(&self.to_sol_type())
+    }
+
+    /// Solidity ABI encode the value into the given buffer, and returns the number of
+    /// bytes written.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the buffer is not large enough.
+    fn encode_to(&'a self, buffer: &mut [u8]) -> usize {
+        <Self::SolType as SolTypeEncode>::encode_to(&self.to_sol_type(), buffer)
+    }
+
+    /// Solidity ABI encode the value as a topic (i.e. an indexed event parameter).
+    fn encode_topic<H>(&'a self, hasher: H) -> [u8; 32]
+    where
+        H: Fn(&[u8], &mut [u8; 32]),
+    {
+        <Self::SolType as SolTopicEncode>::encode_topic(&self.to_sol_type(), hasher)
     }
 
     /// Converts from `Self` to `Self::SolType` via either a borrow (if possible), or
@@ -191,8 +207,51 @@ pub trait SolEncode<'a> {
     fn to_sol_type(&'a self) -> Self::SolType;
 }
 
+/// Solidity ABI encode the given value as a parameter sequence.
+///
+/// # Note
+///
+/// - `T` must be a tuple type where each member implements [`SolEncode`].
+/// - The result can be different from [`SolEncode::encode`] for the given tuple because
+///   this function always returns the encoded data in place, even for tuples containing
+///   dynamic types (i.e. no top-level offset is included for dynamic tuples).
+///
+/// This function is a convenience wrapper for [`SolParamsEncode::encode`].
+pub fn encode_sequence<T: for<'a> SolParamsEncode<'a>>(value: &T) -> Vec<u8> {
+    SolParamsEncode::encode(value)
+}
+
+/// Solidity ABI encode the given value into the given buffer as a parameter sequence, and
+/// returns the number of bytes written.
+///
+/// # Note
+///
+/// - `T` must be a tuple type where each member implements [`SolEncode`].
+/// - The result can be different from [`SolEncode::encode_to`] for the given tuple
+///   because this function always returns the encoded data in place, even for tuples
+///   containing dynamic types (i.e. no top-level offset is included for dynamic tuples).
+///
+/// This function is a convenience wrapper for [`SolParamsEncode::encode_to`].
+pub fn encode_sequence_to<T: for<'a> SolParamsEncode<'a>>(
+    value: &T,
+    buffer: &mut [u8],
+) -> usize {
+    SolParamsEncode::encode_to(value, buffer)
+}
+
+/// Solidity ABI decode the given data as a parameter sequence.
+///
+/// # Note
+///
+/// - `T` must be a tuple type where each member implements [`SolDecode`].
+/// - See notes for [`encode_sequence`] for the difference between this function and
+///   [`SolDecode::decode`] for the given tuple.
+pub fn decode_sequence<T: SolParamsDecode>(data: &[u8]) -> Result<T, Error> {
+    SolParamsDecode::decode(data)
+}
+
 /// Solidity ABI encoding/decoding error.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Error;
 
 impl From<alloy_sol_types::Error> for Error {
@@ -335,10 +394,8 @@ impl<T: SolDecode> SolDecode for Box<[T]> {
     type SolType = Box<[T::SolType]>;
 
     fn from_sol_type(value: Self::SolType) -> Result<Self, Error> {
-        // TODO: (@davidsemakula) Switch to method call syntax when edition is 2024
-        // (i.e. `value.into_iter()`).
-        // See <https://doc.rust-lang.org/edition-guide/rust-2024/intoiterator-box-slice.html> for details.
-        core::iter::IntoIterator::into_iter(value)
+        value
+            .into_iter()
             .map(<T as SolDecode>::from_sol_type)
             .process_results(|iter| iter.collect())
     }
@@ -492,15 +549,12 @@ where
 impl<T> SolDecode for core::marker::PhantomData<T> {
     type SolType = ();
 
-    fn decode(data: &[u8]) -> Result<Self, Error>
+    fn decode(_: &[u8]) -> Result<Self, Error>
     where
         Self: Sized,
     {
-        if data.is_empty() {
-            Ok(core::marker::PhantomData)
-        } else {
-            Err(Error)
-        }
+        // NOTE: Solidity ABI decoding doesn't validate input length.
+        Ok(core::marker::PhantomData)
     }
 
     fn from_sol_type(_: Self::SolType) -> Result<Self, Error> {
@@ -527,21 +581,11 @@ impl SolDecode for AccountId {
     }
 }
 
-impl SolEncode<'_> for AccountId {
-    type SolType = FixedBytes<32>;
+impl<'a> SolEncode<'a> for AccountId {
+    type SolType = &'a FixedBytes<32>;
 
-    fn encode(&self) -> Vec<u8> {
-        // Override for better performance.
-        sol_data::FixedBytes::abi_encode(self)
-    }
-
-    fn to_sol_type(&self) -> Self::SolType {
-        // NOTE: Not actually used for encoding because of `encode` override above (for
-        // better performance).
-        // Arbitrary newtype wrappers can achieve similar performance (without overriding
-        // `encode`) by using `FixedBytes<32>` as the inner type and returning
-        // `&self.0`.
-        FixedBytes(self.0)
+    fn to_sol_type(&'a self) -> Self::SolType {
+        FixedBytes::from_ref(self.as_ref())
     }
 }
 
@@ -554,21 +598,12 @@ impl SolDecode for Hash {
     }
 }
 
-impl SolEncode<'_> for Hash {
-    type SolType = FixedBytes<32>;
+impl<'a> SolEncode<'a> for Hash {
+    type SolType = &'a FixedBytes<32>;
 
-    fn encode(&self) -> Vec<u8> {
-        // Override for better performance.
-        sol_data::FixedBytes::abi_encode(self)
-    }
-
-    fn to_sol_type(&self) -> Self::SolType {
-        // NOTE: Not actually used for encoding because of `encode` override above (for
-        // better performance).
-        // Arbitrary newtype wrappers can achieve similar performance (without overriding
-        // `encode`) by using `FixedBytes<32>` as the inner type and returning
-        // `&self.0`.
-        FixedBytes((*self).into())
+    fn to_sol_type(&'a self) -> Self::SolType {
+        use core::borrow::Borrow;
+        FixedBytes::from_ref(self.borrow())
     }
 }
 
@@ -581,21 +616,11 @@ impl SolDecode for H256 {
     }
 }
 
-impl SolEncode<'_> for H256 {
-    type SolType = FixedBytes<32>;
+impl<'a> SolEncode<'a> for H256 {
+    type SolType = &'a FixedBytes<32>;
 
-    fn encode(&self) -> Vec<u8> {
-        // Override for better performance.
-        sol_data::FixedBytes::abi_encode(&self.0)
-    }
-
-    fn to_sol_type(&self) -> Self::SolType {
-        // NOTE: Not actually used for encoding because of `encode` override above (for
-        // better performance).
-        // Arbitrary newtype wrappers can achieve similar performance (without overriding
-        // `encode`) by using `FixedBytes<32>` as the inner type and returning
-        // `&self.0`.
-        FixedBytes(self.0)
+    fn to_sol_type(&'a self) -> Self::SolType {
+        FixedBytes::from_ref(self.as_fixed_bytes())
     }
 }
 

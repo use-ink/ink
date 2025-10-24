@@ -1,0 +1,40 @@
+[package]
+name = "events"
+version = "6.0.0-alpha.4"
+authors = ["Use Ink <ink@use.ink>"]
+edition = "2024"
+publish = false
+
+[dependencies]
+ink = { path = "../../../crates/ink", default-features = false }
+
+event-def = { path = "event-def", default-features = false }
+event-def2 = { path = "event-def2", default-features = false }
+event-def-unused = { path = "event-def-unused", default-features = false }
+
+[dev-dependencies]
+ink_e2e = { path = "../../../crates/e2e" }
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    "event-def/std",
+    "event-def2/std",
+    "event-def-unused/std",
+]
+ink-as-dependency = []
+e2e-tests = []
+
+[profile.test]
+# Need this for linkme crate to work for the event metadata collection unit test.
+# See https://github.com/dtolnay/linkme/issues/61#issuecomment-1503653702
+# NOTE: `cargo-contract` also sets this flag when generating metadata for the same reason.
+# See https://github.com/use-ink/cargo-contract/pull/1200
+lto = "thin"
+
+[package.metadata.ink-lang]
+abi = "all"

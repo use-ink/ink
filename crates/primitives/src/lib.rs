@@ -54,7 +54,6 @@ pub use self::{
         AccountIdMapper,
         Address,
         Clear,
-        DepositLimit,
         Hash,
     },
 };
@@ -79,6 +78,13 @@ pub use sp_weights::Weight;
 pub enum LangError {
     /// Failed to read execution input for the dispatchable.
     CouldNotReadInput = 1u32,
+}
+
+/// Error encountered while trying to look up a contract's hash.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum CodeHashErr {
+    NotContractButAccount,
+    AddressNotFound,
 }
 
 /// The `Result` type for ink! messages.

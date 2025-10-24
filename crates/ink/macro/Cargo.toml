@@ -47,11 +47,12 @@ std = [
     "scale-info/std",
 ]
 
-unstable-hostfn = ["ink_env/unstable-hostfn", "ink_storage/unstable-hostfn"]
+unstable-hostfn = ["ink_env/unstable-hostfn"]
 
 # For the ui tests, which use this `Cargo.toml`
 [lints.rust.unexpected_cfgs]
 level = "warn"
 check-cfg = [
     'cfg(feature, values(any()))',
+    'cfg(ink_abi, values("ink", "sol", "all"))'
 ]

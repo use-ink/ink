@@ -21,11 +21,11 @@ use ink_primitives::{
     U256,
 };
 use secp256k1::{
-    ecdsa::RecoverableSignature,
     Message,
     PublicKey,
-    SecretKey,
     SECP256K1,
+    SecretKey,
+    ecdsa::RecoverableSignature,
 };
 
 /// The public methods of the `contracts` pallet write their result into an
@@ -129,18 +129,19 @@ fn transfer() {
 fn events() {
     // given
     let mut engine = Engine::new();
-    let topics_count: scale::Compact<u32> = scale::Compact(2u32);
-    let mut enc_topics_count = scale::Encode::encode(&topics_count);
-    let topic1 = vec![12u8, 13];
-    let topic2 = vec![14u8, 15];
+    let topic1 = [
+        12, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0,
+    ];
+    let topic2 = [
+        14, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0,
+    ];
     let data = &vec![21, 22, 23];
 
     // when
-    let mut enc_topics_info: Vec<u8> = Vec::new();
-    enc_topics_info.append(&mut enc_topics_count);
-    enc_topics_info.append(&mut topic1.clone());
-    enc_topics_info.append(&mut topic2.clone());
-    engine.deposit_event(&enc_topics_info, data);
+    let enc_topics = vec![topic1, topic2];
+    engine.deposit_event(&enc_topics, data);
 
     // then
     let mut events = engine.get_emitted_events();

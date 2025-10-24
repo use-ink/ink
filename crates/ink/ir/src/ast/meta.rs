@@ -18,6 +18,10 @@ use proc_macro2::{
 };
 use quote::ToTokens;
 use syn::{
+    LitBool,
+    LitInt,
+    LitStr,
+    Token,
     ext::IdentExt as _,
     parse::{
         Parse,
@@ -25,10 +29,6 @@ use syn::{
     },
     punctuated::Punctuated,
     spanned::Spanned,
-    LitBool,
-    LitInt,
-    LitStr,
-    Token,
 };
 
 /// Content of a compile-time structured attribute.

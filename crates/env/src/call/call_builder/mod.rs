@@ -21,20 +21,23 @@ pub use delegate::DelegateCall;
 use core::marker::PhantomData;
 
 use ink_primitives::{
-    abi::Sol,
     Address,
+    abi::{
+        Ink,
+        Sol,
+    },
 };
 
 use crate::{
     call::{
+        Execution,
+        ExecutionInput,
         utils::{
             EmptyArgumentList,
             ReturnType,
             Set,
             Unset,
         },
-        Execution,
-        ExecutionInput,
     },
     types::Environment,
 };
@@ -232,14 +235,15 @@ where
     }
 }
 
-/// Returns a new [`CallBuilder`] for the specified ABI to build up the parameters to a
-/// cross-contract call.
+/// Returns a new [`CallBuilder`] to build up the parameters to a cross-contract call
+/// that uses ink! ABI Encoding (i.e. with SCALE codec for input/output encode/decode).
+///
 /// See [`build_call`] for more details on usage.
 #[allow(clippy::type_complexity)]
-pub fn build_call_abi<E, Abi>() -> CallBuilder<
+pub fn build_call_ink<E>() -> CallBuilder<
     E,
     Unset<Call>,
-    Unset<ExecutionInput<EmptyArgumentList<Abi>, Abi>>,
+    Unset<ExecutionInput<EmptyArgumentList<Ink>, Ink>>,
     Unset<ReturnType<()>>,
 >
 where
@@ -255,9 +259,10 @@ where
 
 /// Returns a new [`CallBuilder`] to build up the parameters to a cross-contract call
 /// that uses Solidity ABI Encoding.
+///
 /// See [`build_call`] for more details on usage.
 #[allow(clippy::type_complexity)]
-pub fn build_call_solidity<E>() -> CallBuilder<
+pub fn build_call_sol<E>() -> CallBuilder<
     E,
     Unset<Call>,
     Unset<ExecutionInput<EmptyArgumentList<Sol>, Sol>>,

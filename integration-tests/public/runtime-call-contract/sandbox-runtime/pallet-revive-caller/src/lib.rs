@@ -12,7 +12,6 @@ use frame_support::{
 };
 pub use pallet::*;
 
-//type AccountIdOf<R> = <R as frame_system::Config>::AccountId;
 type BalanceOf<R> = <<R as pallet_revive::Config>::Currency as Inspect<
     <R as frame_system::Config>::AccountId,
 >>::Balance;
@@ -27,8 +26,8 @@ pub mod pallet {
     };
     use frame_system::pallet_prelude::*;
     use pallet_revive::{
-        evm::*,
         MomentOf,
+        evm::*,
     };
     use sp_runtime::traits::Bounded;
 
@@ -48,7 +47,6 @@ pub mod pallet {
         <<T as pallet_revive::Config>::Currency as Inspect<
             <T as frame_system::Config>::AccountId,
         >>::Balance: From<u128>,
-
         BalanceOf<T>: Into<U256> + TryFrom<U256> + Bounded,
         MomentOf<T>: Into<U256>,
         <T as frame_system::Config>::Hash: IsType<sp_runtime::testing::H256>,
@@ -60,9 +58,6 @@ pub mod pallet {
             origin: OriginFor<T>,
             contract: H160,
             gas_limit: Weight,
-            // todo remove
-            _storage_deposit_limit: u128,
-            //storage_deposit_limit: Option<BalanceOf<T>>,
         ) -> DispatchResult {
             let _who = ensure_signed(origin.clone())?;
 
@@ -72,7 +67,6 @@ pub mod pallet {
                     contract,
                     value: 0.into(),
                     gas_limit,
-                    //storage_deposit_limit,
                     marker: Default::default(),
                 };
 
