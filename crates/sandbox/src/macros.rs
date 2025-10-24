@@ -194,9 +194,18 @@ mod construct_runtime {
         }
     }
 
+    // Unit = the base number of indivisible units for balances
+    const UNIT: Balance = 1_000_000_000_000;
+    const MILLIUNIT: Balance = 1_000_000_000;
+
+    const fn deposit(items: u32, bytes: u32) -> Balance {
+        (items as Balance * UNIT + (bytes as Balance) * (5 * MILLIUNIT / 100)) / 10
+    }
+
     parameter_types! {
         pub CodeHashLockupDepositPercent: Perbill = Perbill::from_percent(0);
         pub const MaxEthExtrinsicWeight: FixedU128 = FixedU128::from_rational(1,2);
+        pub const DepositPerChildTrieItem: Balance = deposit(1, 0) / 100;
     }
 
     impl $crate::pallet_revive::Config for $runtime {
@@ -210,6 +219,7 @@ mod construct_runtime {
         type RuntimeCall = RuntimeCall;
         type RuntimeOrigin = RuntimeOrigin;
         type DepositPerItem = ConstU128<1>;
+        type DepositPerChildTrieItem = DepositPerChildTrieItem;
         type DepositPerByte = ConstU128<1>;
         type WeightInfo = ();
         type RuntimeMemory = ConstU32<{ 128 * 1024 * 1024 }>;

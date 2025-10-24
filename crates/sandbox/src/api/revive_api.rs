@@ -211,7 +211,7 @@ where
                 salt,
                 ExecConfig {
                     bump_nonce: true,
-                    collect_deposit_from_hold: false,
+                    collect_deposit_from_hold: None,
                     effective_gas_price: None,
                 },
             )
@@ -239,7 +239,7 @@ where
                 salt,
                 ExecConfig {
                     bump_nonce: true,
-                    collect_deposit_from_hold: false,
+                    collect_deposit_from_hold: None,
                     effective_gas_price: None,
                 },
             )
@@ -280,7 +280,7 @@ where
                 data,
                 ExecConfig {
                     bump_nonce: true,
-                    collect_deposit_from_hold: false,
+                    collect_deposit_from_hold: None,
                     effective_gas_price: None,
                 },
             )

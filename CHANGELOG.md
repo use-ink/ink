@@ -20,11 +20,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactor `AbiEncodeWith::encode_to_slice` - [#2676](https://github.com/use-ink/ink/pull/2676)
 - Refactor `ArgumentList` encoding and abstractions - [#2678](https://github.com/use-ink/ink/pull/2678)
 - More flexible `SolEncode` implementation for `ByteSlice` - [#2681](https://github.com/use-ink/ink/pull/2681)
+- Synchronize with `polkadot-sdk/cbab8ed4be1941420dd25dc81102fb79d8e2a7f0` ‒ [2689](https://github.com/use-ink/ink/pull/2689)
 
 ### Fixed
 - Fix decoding of `HostFn::minimum_balance` return value - [#2656](https://github.com/use-ink/ink/pull/2656)
 - Fix handling of `HostFn::code_hash` and `HostFn::weight_to_fee` - [#2672](https://github.com/use-ink/ink/pull/2672)
 - `name` override fixes for message id computation and trait definitions - [#2649](https://github.com/use-ink/ink/pull/2649)
+- Add hotfix for `generic-array` breakage ([issue](https://github.com/fizyk20/generic-array/issues/158)) - [#2688](https://github.com/use-ink/ink/pull/2688)
 
 ## Version 6.0.0-alpha.4
 
