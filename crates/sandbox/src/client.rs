@@ -699,12 +699,11 @@ where
         &mut self,
         caller: &Keypair,
     ) -> Result<Option<Self::EventLog>, Self::Error> {
-        let caller = keypair_to_account(caller);
-        let origin = RawOrigin::Signed(caller);
-        let origin = OriginFor::<S::Runtime>::from(origin);
+        let caller_account: AccountIdFor<S::Runtime> = keypair_to_account(caller);
+        let origin = S::convert_account_to_origin(caller_account);
 
         self.sandbox
-            .map_account(origin)
+            .execute_with(|| pallet_revive::Pallet::<S::Runtime>::map_account(origin))
             .map_err(|err| {
                 SandboxErr::new(format!("map_account: execution error {err:?}"))
             })

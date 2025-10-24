@@ -55,7 +55,10 @@ pub trait ContractAPI {
     /// * `gas_limit` - The gas limit for the contract call.
     /// * `storage_deposit_limit` - The storage deposit limit for the contract call.
     #[allow(clippy::type_complexity, clippy::too_many_arguments)]
-    fn map_account(&mut self, account: OriginFor<Self::T>) -> Result<(), DispatchError>;
+    fn map_account(
+        &mut self,
+        account: impl crate::IntoAccountId<AccountIdFor<Self::T>>,
+    ) -> Result<(), DispatchError>;
 
     /// `pallet-revive` uses a dedicated "pallet" account for tracking
     /// storage deposits. The static account is returned by the
@@ -166,9 +169,11 @@ where
 
     fn map_account(
         &mut self,
-        account_id: OriginFor<Self::T>,
+        account: impl crate::IntoAccountId<AccountIdFor<Self::T>>,
     ) -> Result<(), DispatchError> {
-        self.execute_with(|| pallet_revive::Pallet::<Self::T>::map_account(account_id))
+        let account_id = account.into_account_id();
+        let origin = Self::convert_account_to_origin(account_id);
+        self.execute_with(|| pallet_revive::Pallet::<Self::T>::map_account(origin))
     }
 
     /// `pallet-revive` uses a dedicated "pallet" account for tracking
@@ -374,9 +379,9 @@ mod tests {
 
         warm_up::<DefaultSandbox>(&mut sandbox);
 
-        let origin =
-            DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
-        sandbox.map_account(origin.clone()).expect("cannot map");
+        let default_actor = DefaultSandbox::default_actor();
+        sandbox.map_account(default_actor.clone()).expect("cannot map");
+        let origin = DefaultSandbox::convert_account_to_origin(default_actor);
         let result = sandbox.deploy_contract(
             contract_binary.clone(),
             0,
@@ -411,9 +416,9 @@ mod tests {
         let contract_binary = compile_module("dummy");
         warm_up::<DefaultSandbox>(&mut sandbox);
 
-        let origin =
-            DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
-        sandbox.map_account(origin.clone()).expect("unable to map");
+        let default_actor = DefaultSandbox::default_actor();
+        sandbox.map_account(default_actor.clone()).expect("unable to map");
+        let origin = DefaultSandbox::convert_account_to_origin(default_actor);
         let result = sandbox.deploy_contract(
             contract_binary,
             0,

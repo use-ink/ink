@@ -269,25 +269,67 @@ pub fn to_revive_storage_deposit<B>(
     }
 }
 
-/// Returns Alice's `AccountId32` for testing.
-pub fn alice() -> AccountId32 {
-    AccountId32::from(ink_e2e::alice().public_key().0)
-}
-
-/// Returns Bob's `AccountId32` for testing.
-pub fn bob() -> AccountId32 {
-    AccountId32::from(ink_e2e::bob().public_key().0)
-}
-
-/// Returns Charlie's `AccountId32` for testing.
-pub fn charlie() -> AccountId32 {
-    AccountId32::from(ink_e2e::charlie().public_key().0)
-}
-
-/// Creates an `AccountId32` from an ink contract account ID.
+/// Trait for types that can be converted into a runtime AccountId.
 ///
-/// This is a convenience function for e2e tests that need to convert contract
-/// account IDs to the `AccountId32` type used by the sandbox runtime.
-pub fn account_id_from_contract(account_id: &ink_primitives::AccountId) -> AccountId32 {
-    AccountId32::from(*AsRef::<[u8; 32]>::as_ref(account_id))
+/// This allows sandbox APIs to accept various account types (ink! `AccountId`,
+/// `Keypair`, `AccountId32`, raw bytes) without requiring manual conversion.
+///
+pub trait IntoAccountId<AccountId> {
+    fn into_account_id(self) -> AccountId;
+}
+
+// Identity conversion for AccountId32
+impl IntoAccountId<AccountId32> for AccountId32 {
+    fn into_account_id(self) -> AccountId32 {
+        self
+    }
+}
+
+// Borrowed AccountId32
+impl IntoAccountId<AccountId32> for &AccountId32 {
+    fn into_account_id(self) -> AccountId32 {
+        self.clone()
+    }
+}
+
+// ink!'s AccountId
+impl IntoAccountId<AccountId32> for ink_primitives::AccountId {
+    fn into_account_id(self) -> AccountId32 {
+        AccountId32::from(*AsRef::<[u8; 32]>::as_ref(&self))
+    }
+}
+
+// Borrowed ink! AccountId
+impl IntoAccountId<AccountId32> for &ink_primitives::AccountId {
+    fn into_account_id(self) -> AccountId32 {
+        AccountId32::from(*AsRef::<[u8; 32]>::as_ref(self))
+    }
+}
+
+// Keypair from e2e tests
+impl IntoAccountId<AccountId32> for ink_e2e::Keypair {
+    fn into_account_id(self) -> AccountId32 {
+        AccountId32::from(self.public_key().0)
+    }
+}
+
+// Borrowed Keypair from e2e tests
+impl IntoAccountId<AccountId32> for &ink_e2e::Keypair {
+    fn into_account_id(self) -> AccountId32 {
+        AccountId32::from(self.public_key().0)
+    }
+}
+
+// Raw bytes [u8; 32]
+impl IntoAccountId<AccountId32> for [u8; 32] {
+    fn into_account_id(self) -> AccountId32 {
+        AccountId32::from(self)
+    }
+}
+
+// Borrowed raw bytes
+impl IntoAccountId<AccountId32> for &[u8; 32] {
+    fn into_account_id(self) -> AccountId32 {
+        AccountId32::from(*self)
+    }
 }

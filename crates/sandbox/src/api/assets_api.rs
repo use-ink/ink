@@ -1,5 +1,6 @@
 use crate::{
     AccountIdFor,
+    IntoAccountId,
     Sandbox,
 };
 use frame_support::{
@@ -36,12 +37,12 @@ where
     ///
     /// # Arguments
     /// * `id` - ID of the new asset to be created.
-    /// * `owner` - The owner of the created asset.
+    /// * `owner` - The owner of the created asset (accepts any type convertible to AccountId).
     /// * `min_balance` - The asset amount one account need at least.
     fn create(
         &mut self,
         id: &AssetIdOf<T::Runtime, I>,
-        owner: &AccountIdFor<T::Runtime>,
+        owner: impl IntoAccountId<AccountIdFor<T::Runtime>>,
         min_balance: AssetBalanceOf<T::Runtime, I>,
     ) -> Result<(), DispatchError>;
 
@@ -49,14 +50,14 @@ where
     ///
     /// # Arguments
     /// * `asset` - ID of the asset.
-    /// * `owner` - The owner of the asset.
+    /// * `owner` - The owner of the asset (accepts any type convertible to AccountId).
     /// * `name` - Token name.
     /// * `symbol` - Token symbol.
     /// * `decimals` - Token decimals.
     fn set_metadata(
         &mut self,
         asset: &AssetIdOf<T::Runtime, I>,
-        owner: &AccountIdFor<T::Runtime>,
+        owner: impl IntoAccountId<AccountIdFor<T::Runtime>>,
         name: Vec<u8>,
         symbol: Vec<u8>,
         decimals: u8,
@@ -77,13 +78,14 @@ where
     ///
     /// # Arguments
     /// * `asset` - ID of the asset.
-    /// * `spender` - The account that is allowed to spend the tokens.
-    /// * `value` - The number of tokens to approve.
+    /// * `owner` - The account that owns the tokens (accepts any type convertible to AccountId).
+    /// * `delegate` - The account that is allowed to spend the tokens (accepts any type convertible to AccountId).
+    /// * `amount` - The number of tokens to approve.
     fn approve(
         &mut self,
         asset: &AssetIdOf<T::Runtime, I>,
-        owner: &AccountIdFor<T::Runtime>,
-        delegate: &AccountIdFor<T::Runtime>,
+        owner: impl IntoAccountId<AccountIdFor<T::Runtime>>,
+        delegate: impl IntoAccountId<AccountIdFor<T::Runtime>>,
         amount: AssetBalanceOf<T::Runtime, I>,
     ) -> Result<(), DispatchError>;
 
@@ -92,12 +94,12 @@ where
     ///
     /// # Arguments
     /// * `asset` - ID of the asset.
-    /// * `account` - The account to be credited with the created tokens.
+    /// * `account` - The account to be credited with the created tokens (accepts any type convertible to AccountId).
     /// * `value` - The number of tokens to mint.
     fn mint_into(
         &mut self,
         asset: &AssetIdOf<T::Runtime, I>,
-        account: &AccountIdFor<T::Runtime>,
+        account: impl IntoAccountId<AccountIdFor<T::Runtime>>,
         value: AssetBalanceOf<T::Runtime, I>,
     ) -> Result<AssetBalanceOf<T::Runtime, I>, DispatchError>;
 
@@ -105,25 +107,25 @@ where
     ///
     /// # Arguments
     /// * `asset` - ID of the asset.
-    /// * `source` - The account from which tokens are transferred.
-    /// * `dest` - The account to which tokens are transferred.
+    /// * `source` - The account from which tokens are transferred (accepts any type convertible to AccountId).
+    /// * `dest` - The account to which tokens are transferred (accepts any type convertible to AccountId).
     /// * `amount` - The number of tokens to transfer.
     fn transfer(
         &mut self,
         asset: &AssetIdOf<T::Runtime, I>,
-        source: &AccountIdFor<T::Runtime>,
-        dest: &AccountIdFor<T::Runtime>,
+        source: impl IntoAccountId<AccountIdFor<T::Runtime>>,
+        dest: impl IntoAccountId<AccountIdFor<T::Runtime>>,
         amount: AssetBalanceOf<T::Runtime, I>,
     ) -> Result<(), DispatchError>;
 
     /// Returns the account balance for the specified `owner`.
     ///
     /// # Arguments
-    /// * `owner` - The account whose balance is being queried.
+    /// * `owner` - The account whose balance is being queried (accepts any type convertible to AccountId).
     fn balance_of(
         &mut self,
         asset: &AssetIdOf<T::Runtime, I>,
-        owner: &AccountIdFor<T::Runtime>,
+        owner: impl IntoAccountId<AccountIdFor<T::Runtime>>,
     ) -> AssetBalanceOf<T::Runtime, I>;
 
     /// Returns the total supply of the `asset`.
@@ -139,13 +141,13 @@ where
     ///
     /// # Arguments
     /// * `asset` - ID of the asset.
-    /// * `owner` - The account that owns the tokens.
-    /// * `spender` - The account that is allowed to spend the tokens.
+    /// * `owner` - The account that owns the tokens (accepts any type convertible to AccountId).
+    /// * `delegate` - The account that is allowed to spend the tokens (accepts any type convertible to AccountId).
     fn allowance(
         &mut self,
         asset: &AssetIdOf<T::Runtime, I>,
-        owner: &AccountIdFor<T::Runtime>,
-        delegate: &AccountIdFor<T::Runtime>,
+        owner: impl IntoAccountId<AccountIdFor<T::Runtime>>,
+        delegate: impl IntoAccountId<AccountIdFor<T::Runtime>>,
     ) -> AssetBalanceOf<T::Runtime, I>;
 
     /// Check if the asset exists.
@@ -164,28 +166,30 @@ where
     fn create(
         &mut self,
         id: &AssetIdOf<T::Runtime, I>,
-        owner: &AccountIdFor<T::Runtime>,
+        owner: impl IntoAccountId<AccountIdFor<T::Runtime>>,
         min_balance: AssetBalanceOf<T::Runtime, I>,
     ) -> Result<(), DispatchError> {
+        let owner = owner.into_account_id();
         self.execute_with(|| {
             <pallet_assets::Pallet<T::Runtime, I> as Create<
                 AccountIdFor<T::Runtime>,
-            >>::create(id.clone(), owner.clone(), true, min_balance)
+            >>::create(id.clone(), owner, true, min_balance)
         })
     }
 
     fn set_metadata(
         &mut self,
         asset: &AssetIdOf<T::Runtime, I>,
-        owner: &AccountIdFor<T::Runtime>,
+        owner: impl IntoAccountId<AccountIdFor<T::Runtime>>,
         name: Vec<u8>,
         symbol: Vec<u8>,
         decimals: u8,
     ) -> Result<(), DispatchError> {
+        let owner = owner.into_account_id();
         self.execute_with(|| {
             pallet_assets::Pallet::<T::Runtime, I>::set(
                 asset.clone().into(),
-                owner,
+                &owner,
                 name,
                 symbol,
                 decimals,
@@ -211,13 +215,14 @@ where
     fn mint_into(
         &mut self,
         asset: &AssetIdOf<T::Runtime, I>,
-        account: &AccountIdFor<T::Runtime>,
+        account: impl IntoAccountId<AccountIdFor<T::Runtime>>,
         value: AssetBalanceOf<T::Runtime, I>,
     ) -> Result<AssetBalanceOf<T::Runtime, I>, DispatchError> {
+        let account = account.into_account_id();
         self.execute_with(|| {
             pallet_assets::Pallet::<T::Runtime, I>::mint_into(
                 asset.clone(),
-                account,
+                &account,
                 value,
             )
         })
@@ -226,15 +231,17 @@ where
     fn transfer(
         &mut self,
         asset: &AssetIdOf<T::Runtime, I>,
-        source: &AccountIdFor<T::Runtime>,
-        dest: &AccountIdFor<T::Runtime>,
+        source: impl IntoAccountId<AccountIdFor<T::Runtime>>,
+        dest: impl IntoAccountId<AccountIdFor<T::Runtime>>,
         amount: AssetBalanceOf<T::Runtime, I>,
     ) -> Result<(), DispatchError> {
+        let source = source.into_account_id();
+        let dest = dest.into_account_id();
         self.execute_with(|| {
             <pallet_assets::Pallet<T::Runtime, I> as Mutate<AccountIdFor<T::Runtime>>>::transfer(
                 asset.clone(),
-                source,
-                dest,
+                &source,
+                &dest,
                 amount,
                 frame_support::traits::tokens::Preservation::Preserve,
             ).map(|_| ())
@@ -244,15 +251,17 @@ where
     fn approve(
         &mut self,
         asset: &AssetIdOf<T::Runtime, I>,
-        owner: &AccountIdFor<T::Runtime>,
-        delegate: &AccountIdFor<T::Runtime>,
+        owner: impl IntoAccountId<AccountIdFor<T::Runtime>>,
+        delegate: impl IntoAccountId<AccountIdFor<T::Runtime>>,
         amount: AssetBalanceOf<T::Runtime, I>,
     ) -> Result<(), DispatchError> {
+        let owner = owner.into_account_id();
+        let delegate = delegate.into_account_id();
         self.execute_with(|| {
             pallet_assets::Pallet::<T::Runtime, I>::approve(
                 asset.clone(),
-                owner,
-                delegate,
+                &owner,
+                &delegate,
                 amount,
             )
         })
@@ -261,10 +270,11 @@ where
     fn balance_of(
         &mut self,
         asset: &AssetIdOf<T::Runtime, I>,
-        owner: &AccountIdFor<T::Runtime>,
+        owner: impl IntoAccountId<AccountIdFor<T::Runtime>>,
     ) -> AssetBalanceOf<T::Runtime, I> {
+        let owner = owner.into_account_id();
         self.execute_with(|| {
-            pallet_assets::Pallet::<T::Runtime, I>::balance(asset.clone(), owner)
+            pallet_assets::Pallet::<T::Runtime, I>::balance(asset.clone(), &owner)
         })
     }
 
@@ -280,14 +290,16 @@ where
     fn allowance(
         &mut self,
         asset: &AssetIdOf<T::Runtime, I>,
-        owner: &AccountIdFor<T::Runtime>,
-        delegate: &AccountIdFor<T::Runtime>,
+        owner: impl IntoAccountId<AccountIdFor<T::Runtime>>,
+        delegate: impl IntoAccountId<AccountIdFor<T::Runtime>>,
     ) -> AssetBalanceOf<T::Runtime, I> {
+        let owner = owner.into_account_id();
+        let delegate = delegate.into_account_id();
         self.execute_with(|| {
             pallet_assets::Pallet::<T::Runtime, I>::allowance(
                 asset.clone(),
-                owner,
-                delegate,
+                &owner,
+                &delegate,
             )
         })
     }
@@ -362,7 +374,7 @@ mod tests {
     fn approve_works() {
         let mut sandbox = DefaultSandbox::default();
         let admin = DefaultSandbox::default_actor();
-        let spender = crate::bob();
+        let spender = ink_e2e::bob().into_account_id();
         let asset_id = 1u32;
 
         sandbox.create(&asset_id, &admin, 1u128).unwrap();
@@ -400,7 +412,7 @@ mod tests {
     fn transfer_works() {
         let mut sandbox = DefaultSandbox::default();
         let admin = DefaultSandbox::default_actor();
-        let recipient = crate::bob();
+        let recipient = ink_e2e::bob().into_account_id();
         let asset_id = 1u32;
 
         sandbox.create(&asset_id, &admin, 1u128).unwrap();
@@ -461,7 +473,7 @@ mod tests {
     fn allowance_works() {
         let mut sandbox = DefaultSandbox::default();
         let admin = DefaultSandbox::default_actor();
-        let spender = crate::bob();
+        let spender = ink_e2e::bob().into_account_id();
         let asset_id = 1u32;
 
         sandbox.create(&asset_id, &admin, 1u128).unwrap();
