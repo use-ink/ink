@@ -550,6 +550,11 @@ impl TypedEnvBackend for EnvInstance {
             .unwrap_or_else(|error| panic!("could not read `caller` property: {error:?}"))
     }
 
+    fn gas_limit(&mut self) -> u64 {
+        // Panic because of future depecration / removal
+        panic!();
+    }
+
     fn transferred_value(&mut self) -> U256 {
         self.get_property(Engine::value_transferred)
             .unwrap_or_else(|error| {

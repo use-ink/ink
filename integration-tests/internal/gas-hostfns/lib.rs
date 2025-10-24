@@ -14,20 +14,9 @@ mod gas_hostfns {
 
 		/// Checks that the host function `gas_limit` works
 		#[ink(message)]
-		pub fn gas_limit(self) {
-			self.env.gas_limit()
+		pub fn gas_limit(&self) -> u64 {
+			self.env().gas_limit()
 		}
-    }
-
-    #[cfg(test)]
-    mod tests {
-        use super::*;
-
-        #[ink::test]
-        fn works() {
-            let contract = GasHostfns::new();
-            contract.gas_limit();
-        }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
@@ -61,6 +50,8 @@ mod gas_hostfns {
                 .unwrap_or_else(|err| {
                     panic!("call failed: {:#?}", err);
                 });
+            
+            assert!(_call_res.return_value() > 0);
 
             Ok(())
         }
