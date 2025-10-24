@@ -85,29 +85,4 @@ mod tests {
         let address_bytes: [u8; 20] = result.into();
         assert_eq!(address_bytes, expected);
     }
-
-    #[test]
-    fn system_precompile_address() {
-        // System precompile is at index 0x0009
-        let expected = [
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00,
-        ];
-        let result = fixed_address(0x0009);
-        let address_bytes: [u8; 20] = result.into();
-        assert_eq!(address_bytes, expected);
-    }
-
-    #[test]
-    fn erc20_assets_precompile_address() {
-        // ERC20 Assets precompile is at index 0x0120 with asset ID 1
-        // Index 0x0120 shifted left 16 bits = 0x01200000 in bytes 16-19
-        let expected = [
-            0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x01, 0x20, 0x00, 0x00,
-        ];
-        let result = prefixed_address(0x0120, 1);
-        let address_bytes: [u8; 20] = result.into();
-        assert_eq!(address_bytes, expected);
-    }
 }

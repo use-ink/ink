@@ -6,14 +6,16 @@ use frame_support::{
     pallet_prelude::DispatchError,
     traits::fungibles::{
         Create,
-        Destroy,
         Inspect,
         Mutate,
         approvals::{
             Inspect as _,
             Mutate as _,
         },
-        metadata::Mutate as _,
+        metadata::{
+            Inspect as MetadataInspect,
+            Mutate as _,
+        },
     },
 };
 
@@ -43,19 +45,11 @@ where
         min_balance: AssetBalanceOf<T::Runtime, I>,
     ) -> Result<(), DispatchError>;
 
-    /// Start the destruction an existing fungible asset.
+    /// Sets the metadata for an existing fungible asset.
     ///
     /// # Arguments
     /// * `asset` - ID of the asset.
-    fn start_destroy(
-        &mut self,
-        asset: &AssetIdOf<T::Runtime, I>,
-    ) -> Result<(), DispatchError>;
-
-    /// Start the destruction an existing fungible asset.
-    ///
-    /// # Arguments
-    /// * `asset` - ID of the asset.
+    /// * `owner` - The owner of the asset.
     /// * `name` - Token name.
     /// * `symbol` - Token symbol.
     /// * `decimals` - Token decimals.
@@ -67,6 +61,15 @@ where
         symbol: Vec<u8>,
         decimals: u8,
     ) -> Result<(), DispatchError>;
+
+    /// Returns the metadata for an asset.
+    ///
+    /// # Arguments
+    /// * `asset` - ID of the asset.
+    ///
+    /// # Returns
+    /// A tuple of (name, symbol, decimals).
+    fn metadata(&mut self, asset: &AssetIdOf<T::Runtime, I>) -> (Vec<u8>, Vec<u8>, u8);
 
     /// Approves `spender` to spend `value` amount of tokens on behalf of the caller.
     ///
@@ -171,17 +174,6 @@ where
         })
     }
 
-    fn start_destroy(
-        &mut self,
-        asset: &AssetIdOf<T::Runtime, I>,
-    ) -> Result<(), DispatchError> {
-        self.execute_with(|| {
-            <pallet_assets::Pallet<T::Runtime, I> as Destroy<
-                AccountIdFor<T::Runtime>,
-            >>::start_destroy(asset.clone(), None)
-        })
-    }
-
     fn set_metadata(
         &mut self,
         asset: &AssetIdOf<T::Runtime, I>,
@@ -198,6 +190,21 @@ where
                 symbol,
                 decimals,
             )
+        })
+    }
+
+    fn metadata(&mut self, asset: &AssetIdOf<T::Runtime, I>) -> (Vec<u8>, Vec<u8>, u8) {
+        self.execute_with(|| {
+            let name = <pallet_assets::Pallet<T::Runtime, I> as MetadataInspect<
+                AccountIdFor<T::Runtime>,
+            >>::name(asset.clone());
+            let symbol = <pallet_assets::Pallet<T::Runtime, I> as MetadataInspect<
+                AccountIdFor<T::Runtime>,
+            >>::symbol(asset.clone());
+            let decimals = <pallet_assets::Pallet<T::Runtime, I> as MetadataInspect<
+                AccountIdFor<T::Runtime>,
+            >>::decimals(asset.clone());
+            (name, symbol, decimals)
         })
     }
 
@@ -311,7 +318,69 @@ mod tests {
     }
 
     #[test]
-    fn mint_asset_works() {
+    fn set_metadata_works() {
+        let mut sandbox = DefaultSandbox::default();
+        let admin = DefaultSandbox::default_actor();
+        let asset_id = 1u32;
+
+        sandbox.create(&asset_id, &admin, 1u128).unwrap();
+
+        let name = b"Test Token".to_vec();
+        let symbol = b"TEST".to_vec();
+        let decimals = 18u8;
+
+        let result = sandbox.set_metadata(&asset_id, &admin, name, symbol, decimals);
+
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn metadata_works() {
+        let mut sandbox = DefaultSandbox::default();
+        let admin = DefaultSandbox::default_actor();
+        let asset_id = 1u32;
+
+        sandbox.create(&asset_id, &admin, 1u128).unwrap();
+
+        let name = b"Test Token".to_vec();
+        let symbol = b"TEST".to_vec();
+        let decimals = 18u8;
+
+        sandbox
+            .set_metadata(&asset_id, &admin, name.clone(), symbol.clone(), decimals)
+            .unwrap();
+
+        let (retrieved_name, retrieved_symbol, retrieved_decimals) =
+            sandbox.metadata(&asset_id);
+
+        assert_eq!(retrieved_name, name);
+        assert_eq!(retrieved_symbol, symbol);
+        assert_eq!(retrieved_decimals, decimals);
+    }
+
+    #[test]
+    fn approve_works() {
+        let mut sandbox = DefaultSandbox::default();
+        let admin = DefaultSandbox::default_actor();
+        let spender = crate::bob();
+        let asset_id = 1u32;
+
+        sandbox.create(&asset_id, &admin, 1u128).unwrap();
+        sandbox.mint_into(&asset_id, &admin, 1000u128).unwrap();
+
+        let allowance_before = sandbox.allowance(&asset_id, &admin, &spender);
+        assert_eq!(allowance_before, 0);
+
+        let result = sandbox.approve(&asset_id, &admin, &spender, 500u128);
+
+        assert!(result.is_ok());
+
+        let allowance_after = sandbox.allowance(&asset_id, &admin, &spender);
+        assert_eq!(allowance_after, 500);
+    }
+
+    #[test]
+    fn mint_into_works() {
         let mut sandbox = DefaultSandbox::default();
         let admin = DefaultSandbox::default_actor();
         let asset_id = 1u32;
@@ -325,6 +394,50 @@ mod tests {
 
         let balance_after = sandbox.balance_of(&asset_id, &admin);
         assert_eq!(balance_after, 100);
+    }
+
+    #[test]
+    fn transfer_works() {
+        let mut sandbox = DefaultSandbox::default();
+        let admin = DefaultSandbox::default_actor();
+        let recipient = crate::bob();
+        let asset_id = 1u32;
+
+        sandbox.create(&asset_id, &admin, 1u128).unwrap();
+        sandbox.mint_into(&asset_id, &admin, 1000u128).unwrap();
+
+        let admin_balance_before = sandbox.balance_of(&asset_id, &admin);
+        let recipient_balance_before = sandbox.balance_of(&asset_id, &recipient);
+
+        assert_eq!(admin_balance_before, 1000);
+        assert_eq!(recipient_balance_before, 0);
+
+        let result = sandbox.transfer(&asset_id, &admin, &recipient, 300u128);
+
+        assert!(result.is_ok());
+
+        let admin_balance_after = sandbox.balance_of(&asset_id, &admin);
+        let recipient_balance_after = sandbox.balance_of(&asset_id, &recipient);
+
+        assert_eq!(admin_balance_after, 700);
+        assert_eq!(recipient_balance_after, 300);
+    }
+
+    #[test]
+    fn balance_of_works() {
+        let mut sandbox = DefaultSandbox::default();
+        let admin = DefaultSandbox::default_actor();
+        let asset_id = 1u32;
+
+        sandbox.create(&asset_id, &admin, 1u128).unwrap();
+
+        let balance = sandbox.balance_of(&asset_id, &admin);
+        assert_eq!(balance, 0);
+
+        sandbox.mint_into(&asset_id, &admin, 500u128).unwrap();
+
+        let balance = sandbox.balance_of(&asset_id, &admin);
+        assert_eq!(balance, 500);
     }
 
     #[test]
@@ -342,6 +455,26 @@ mod tests {
 
         let supply_after = sandbox.total_supply(&asset_id);
         assert_eq!(supply_after, 1000);
+    }
+
+    #[test]
+    fn allowance_works() {
+        let mut sandbox = DefaultSandbox::default();
+        let admin = DefaultSandbox::default_actor();
+        let spender = crate::bob();
+        let asset_id = 1u32;
+
+        sandbox.create(&asset_id, &admin, 1u128).unwrap();
+
+        let allowance = sandbox.allowance(&asset_id, &admin, &spender);
+        assert_eq!(allowance, 0);
+
+        sandbox
+            .approve(&asset_id, &admin, &spender, 250u128)
+            .unwrap();
+
+        let allowance = sandbox.allowance(&asset_id, &admin, &spender);
+        assert_eq!(allowance, 250);
     }
 
     #[test]
