@@ -574,12 +574,10 @@ fn call_storage_precompile(
         // 96 then points to the `len|data` segment of `bytes`
         (SOL_ENCODED_FLAGS_LEN + SOL_ENCODED_IS_FIXED_KEY_LEN + SOL_BYTES_OFFSET_WORD_LEN)
             as u32,
-        0,
-        32,
+        64,
+        96,
         // encode the `bytes` starting at the appropriate position in the slice
-        &mut input_buf[SOL_ENCODED_SELECTOR_LEN
-            + SOL_ENCODED_FLAGS_LEN
-            + SOL_ENCODED_IS_FIXED_KEY_LEN..],
+        &mut input_buf[SOL_ENCODED_SELECTOR_LEN..],
     );
 
     // todo @cmichi check if we might better return `None` in this situation. perhaps a
