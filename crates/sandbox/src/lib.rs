@@ -56,6 +56,7 @@ pub use {
     pallet_timestamp,
     pallet_transaction_payment,
     paste,
+    scale,
     sp_core::crypto::Ss58Codec,
     sp_externalities::{
         self,

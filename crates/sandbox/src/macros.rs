@@ -185,7 +185,7 @@ mod construct_runtime {
         type RuntimeEvent = RuntimeEvent;
         type Balance = Balance;
         type AssetId = AssetIdForTrustBackedAssets;
-        type AssetIdParameter = scale::Compact<AssetIdForTrustBackedAssets>;
+        type AssetIdParameter = $crate::scale::Compact<AssetIdForTrustBackedAssets>;
         type Currency = Balances;
         type CreateOrigin = $crate::frame_support::traits::AsEnsureOriginWithArg<$crate::frame_system::EnsureSigned<AccountId32>>;
         type ForceOrigin = $crate::frame_system::EnsureRoot<AccountId32>;
