@@ -194,145 +194,155 @@
 <a href=#194 id=194 data-nosnippet>194</a>        }
 <a href=#195 id=195 data-nosnippet>195</a>    }
 <a href=#196 id=196 data-nosnippet>196</a>
-<a href=#197 id=197 data-nosnippet>197</a>    <span class="macro">parameter_types!</span> {
-<a href=#198 id=198 data-nosnippet>198</a>        <span class="kw">pub </span>CodeHashLockupDepositPercent: Perbill = Perbill::from_percent(<span class="number">0</span>);
-<a href=#199 id=199 data-nosnippet>199</a>        <span class="kw">pub const </span>MaxEthExtrinsicWeight: FixedU128 = FixedU128::from_rational(<span class="number">1</span>,<span class="number">2</span>);
-<a href=#200 id=200 data-nosnippet>200</a>    }
-<a href=#201 id=201 data-nosnippet>201</a>
-<a href=#202 id=202 data-nosnippet>202</a>    <span class="kw">impl </span><span class="macro-nonterminal">$crate::pallet_revive::Config </span><span class="kw">for </span><span class="macro-nonterminal">$runtime </span>{
-<a href=#203 id=203 data-nosnippet>203</a>        <span class="kw">type </span>AddressMapper = <span class="macro-nonterminal">$crate::pallet_revive::AccountId32Mapper</span>&lt;<span class="self">Self</span>&gt;;
-<a href=#204 id=204 data-nosnippet>204</a>        <span class="kw">type </span>ChainId = ConstU64&lt;<span class="number">1</span>&gt;;
-<a href=#205 id=205 data-nosnippet>205</a>        <span class="kw">type </span>NativeToEthRatio = ConstU32&lt;<span class="number">100_000_000</span>&gt;;
-<a href=#206 id=206 data-nosnippet>206</a>        <span class="kw">type </span>Time = Timestamp;
-<a href=#207 id=207 data-nosnippet>207</a>        <span class="kw">type </span>Balance = Balance;
-<a href=#208 id=208 data-nosnippet>208</a>        <span class="kw">type </span>Currency = Balances;
-<a href=#209 id=209 data-nosnippet>209</a>        <span class="kw">type </span>RuntimeEvent = RuntimeEvent;
-<a href=#210 id=210 data-nosnippet>210</a>        <span class="kw">type </span>RuntimeCall = RuntimeCall;
-<a href=#211 id=211 data-nosnippet>211</a>        <span class="kw">type </span>RuntimeOrigin = RuntimeOrigin;
-<a href=#212 id=212 data-nosnippet>212</a>        <span class="kw">type </span>DepositPerItem = ConstU128&lt;<span class="number">1</span>&gt;;
-<a href=#213 id=213 data-nosnippet>213</a>        <span class="kw">type </span>DepositPerByte = ConstU128&lt;<span class="number">1</span>&gt;;
-<a href=#214 id=214 data-nosnippet>214</a>        <span class="kw">type </span>WeightInfo = ();
-<a href=#215 id=215 data-nosnippet>215</a>        <span class="kw">type </span>RuntimeMemory = ConstU32&lt;{ <span class="number">128 </span>* <span class="number">1024 </span>* <span class="number">1024 </span>}&gt;;
-<a href=#216 id=216 data-nosnippet>216</a>        <span class="kw">type </span>PVFMemory = ConstU32&lt;{ <span class="number">512 </span>* <span class="number">1024 </span>* <span class="number">1024 </span>}&gt;;
-<a href=#217 id=217 data-nosnippet>217</a>        <span class="kw">type </span>UnsafeUnstableInterface = ConstBool&lt;<span class="bool-val">true</span>&gt;;
-<a href=#218 id=218 data-nosnippet>218</a>        <span class="kw">type </span>CodeHashLockupDepositPercent = CodeHashLockupDepositPercent;
-<a href=#219 id=219 data-nosnippet>219</a>        <span class="kw">type </span>RuntimeHoldReason = RuntimeHoldReason;
-<a href=#220 id=220 data-nosnippet>220</a>        <span class="kw">type </span>UploadOrigin = <span class="macro-nonterminal">$crate::frame_system::EnsureSigned</span>&lt;<span class="self">Self</span>::AccountId&gt;;
-<a href=#221 id=221 data-nosnippet>221</a>        <span class="kw">type </span>InstantiateOrigin = <span class="macro-nonterminal">$crate::frame_system::EnsureSigned</span>&lt;<span class="self">Self</span>::AccountId&gt;;
-<a href=#222 id=222 data-nosnippet>222</a>        <span class="kw">type </span>FindAuthor = ();
-<a href=#223 id=223 data-nosnippet>223</a>        <span class="kw">type </span>Precompiles = (
-<a href=#224 id=224 data-nosnippet>224</a>            <span class="comment">// todo
-<a href=#225 id=225 data-nosnippet>225</a>            //ERC20&lt;Self, InlineIdConfig&lt;0x120&gt;, TrustBackedAssetsInstance&gt;,
-<a href=#226 id=226 data-nosnippet>226</a>            //ERC20&lt;Self, InlineIdConfig&lt;0x320&gt;, PoolAssetsInstance&gt;,
-<a href=#227 id=227 data-nosnippet>227</a>            //XcmPrecompile&lt;Self&gt;,
-<a href=#228 id=228 data-nosnippet>228</a>        </span>);
-<a href=#229 id=229 data-nosnippet>229</a>        <span class="kw">type </span>AllowEVMBytecode = ConstBool&lt;<span class="bool-val">false</span>&gt;;
-<a href=#230 id=230 data-nosnippet>230</a>        <span class="kw">type </span>FeeInfo = ();
-<a href=#231 id=231 data-nosnippet>231</a>        <span class="kw">type </span>MaxEthExtrinsicWeight = MaxEthExtrinsicWeight;
-<a href=#232 id=232 data-nosnippet>232</a>        <span class="kw">type </span>DebugEnabled = ConstBool&lt;<span class="bool-val">false</span>&gt;;
-<a href=#233 id=233 data-nosnippet>233</a>    }
-<a href=#234 id=234 data-nosnippet>234</a>
-<a href=#235 id=235 data-nosnippet>235</a>    <span class="doccomment">/// Default initial balance for the default account.
-<a href=#236 id=236 data-nosnippet>236</a>    </span><span class="kw">pub const </span>INITIAL_BALANCE: u128 = <span class="number">1_000_000_000_000_000</span>;
-<a href=#237 id=237 data-nosnippet>237</a>    <span class="kw">pub const </span>DEFAULT_ACCOUNT: AccountId32 = AccountId32::new([<span class="number">1u8</span>; <span class="number">32</span>]);
-<a href=#238 id=238 data-nosnippet>238</a>
-<a href=#239 id=239 data-nosnippet>239</a>    <span class="kw">pub struct </span><span class="macro-nonterminal">$sandbox </span>{
-<a href=#240 id=240 data-nosnippet>240</a>        ext: <span class="macro-nonterminal">$crate::TestExternalities</span>,
-<a href=#241 id=241 data-nosnippet>241</a>    }
-<a href=#242 id=242 data-nosnippet>242</a>
-<a href=#243 id=243 data-nosnippet>243</a>    <span class="kw">impl </span>::std::default::Default <span class="kw">for </span><span class="macro-nonterminal">$sandbox </span>{
-<a href=#244 id=244 data-nosnippet>244</a>        <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-<a href=#245 id=245 data-nosnippet>245</a>            <span class="kw">let </span>ext = <span class="macro-nonterminal">$crate::macros::BlockBuilder</span>::&lt;<span class="macro-nonterminal">$runtime</span>&gt;::new_ext(<span class="macro">vec!</span>[(
-<a href=#246 id=246 data-nosnippet>246</a>                DEFAULT_ACCOUNT,
-<a href=#247 id=247 data-nosnippet>247</a>                INITIAL_BALANCE,
-<a href=#248 id=248 data-nosnippet>248</a>            )]);
-<a href=#249 id=249 data-nosnippet>249</a>            <span class="self">Self </span>{ ext }
-<a href=#250 id=250 data-nosnippet>250</a>        }
+<a href=#197 id=197 data-nosnippet>197</a>    <span class="comment">// Unit = the base number of indivisible units for balances
+<a href=#198 id=198 data-nosnippet>198</a>    </span><span class="kw">const </span>UNIT: Balance = <span class="number">1_000_000_000_000</span>;
+<a href=#199 id=199 data-nosnippet>199</a>    <span class="kw">const </span>MILLIUNIT: Balance = <span class="number">1_000_000_000</span>;
+<a href=#200 id=200 data-nosnippet>200</a>
+<a href=#201 id=201 data-nosnippet>201</a>    <span class="kw">const fn </span>deposit(items: u32, bytes: u32) -&gt; Balance {
+<a href=#202 id=202 data-nosnippet>202</a>        (items <span class="kw">as </span>Balance * UNIT + (bytes <span class="kw">as </span>Balance) * (<span class="number">5 </span>* MILLIUNIT / <span class="number">100</span>)) / <span class="number">10
+<a href=#203 id=203 data-nosnippet>203</a>    </span>}
+<a href=#204 id=204 data-nosnippet>204</a>
+<a href=#205 id=205 data-nosnippet>205</a>    <span class="macro">parameter_types!</span> {
+<a href=#206 id=206 data-nosnippet>206</a>        <span class="kw">pub </span>CodeHashLockupDepositPercent: Perbill = Perbill::from_percent(<span class="number">0</span>);
+<a href=#207 id=207 data-nosnippet>207</a>        <span class="kw">pub const </span>MaxEthExtrinsicWeight: FixedU128 = FixedU128::from_rational(<span class="number">1</span>,<span class="number">2</span>);
+<a href=#208 id=208 data-nosnippet>208</a>        <span class="kw">pub const </span>DepositPerChildTrieItem: Balance = deposit(<span class="number">1</span>, <span class="number">0</span>) / <span class="number">100</span>;
+<a href=#209 id=209 data-nosnippet>209</a>    }
+<a href=#210 id=210 data-nosnippet>210</a>
+<a href=#211 id=211 data-nosnippet>211</a>    <span class="kw">impl </span><span class="macro-nonterminal">$crate::pallet_revive::Config </span><span class="kw">for </span><span class="macro-nonterminal">$runtime </span>{
+<a href=#212 id=212 data-nosnippet>212</a>        <span class="kw">type </span>AddressMapper = <span class="macro-nonterminal">$crate::pallet_revive::AccountId32Mapper</span>&lt;<span class="self">Self</span>&gt;;
+<a href=#213 id=213 data-nosnippet>213</a>        <span class="kw">type </span>ChainId = ConstU64&lt;<span class="number">1</span>&gt;;
+<a href=#214 id=214 data-nosnippet>214</a>        <span class="kw">type </span>NativeToEthRatio = ConstU32&lt;<span class="number">100_000_000</span>&gt;;
+<a href=#215 id=215 data-nosnippet>215</a>        <span class="kw">type </span>Time = Timestamp;
+<a href=#216 id=216 data-nosnippet>216</a>        <span class="kw">type </span>Balance = Balance;
+<a href=#217 id=217 data-nosnippet>217</a>        <span class="kw">type </span>Currency = Balances;
+<a href=#218 id=218 data-nosnippet>218</a>        <span class="kw">type </span>RuntimeEvent = RuntimeEvent;
+<a href=#219 id=219 data-nosnippet>219</a>        <span class="kw">type </span>RuntimeCall = RuntimeCall;
+<a href=#220 id=220 data-nosnippet>220</a>        <span class="kw">type </span>RuntimeOrigin = RuntimeOrigin;
+<a href=#221 id=221 data-nosnippet>221</a>        <span class="kw">type </span>DepositPerItem = ConstU128&lt;<span class="number">1</span>&gt;;
+<a href=#222 id=222 data-nosnippet>222</a>        <span class="kw">type </span>DepositPerChildTrieItem = DepositPerChildTrieItem;
+<a href=#223 id=223 data-nosnippet>223</a>        <span class="kw">type </span>DepositPerByte = ConstU128&lt;<span class="number">1</span>&gt;;
+<a href=#224 id=224 data-nosnippet>224</a>        <span class="kw">type </span>WeightInfo = ();
+<a href=#225 id=225 data-nosnippet>225</a>        <span class="kw">type </span>RuntimeMemory = ConstU32&lt;{ <span class="number">128 </span>* <span class="number">1024 </span>* <span class="number">1024 </span>}&gt;;
+<a href=#226 id=226 data-nosnippet>226</a>        <span class="kw">type </span>PVFMemory = ConstU32&lt;{ <span class="number">512 </span>* <span class="number">1024 </span>* <span class="number">1024 </span>}&gt;;
+<a href=#227 id=227 data-nosnippet>227</a>        <span class="kw">type </span>UnsafeUnstableInterface = ConstBool&lt;<span class="bool-val">true</span>&gt;;
+<a href=#228 id=228 data-nosnippet>228</a>        <span class="kw">type </span>CodeHashLockupDepositPercent = CodeHashLockupDepositPercent;
+<a href=#229 id=229 data-nosnippet>229</a>        <span class="kw">type </span>RuntimeHoldReason = RuntimeHoldReason;
+<a href=#230 id=230 data-nosnippet>230</a>        <span class="kw">type </span>UploadOrigin = <span class="macro-nonterminal">$crate::frame_system::EnsureSigned</span>&lt;<span class="self">Self</span>::AccountId&gt;;
+<a href=#231 id=231 data-nosnippet>231</a>        <span class="kw">type </span>InstantiateOrigin = <span class="macro-nonterminal">$crate::frame_system::EnsureSigned</span>&lt;<span class="self">Self</span>::AccountId&gt;;
+<a href=#232 id=232 data-nosnippet>232</a>        <span class="kw">type </span>FindAuthor = ();
+<a href=#233 id=233 data-nosnippet>233</a>        <span class="kw">type </span>Precompiles = (
+<a href=#234 id=234 data-nosnippet>234</a>            <span class="comment">// todo
+<a href=#235 id=235 data-nosnippet>235</a>            //ERC20&lt;Self, InlineIdConfig&lt;0x120&gt;, TrustBackedAssetsInstance&gt;,
+<a href=#236 id=236 data-nosnippet>236</a>            //ERC20&lt;Self, InlineIdConfig&lt;0x320&gt;, PoolAssetsInstance&gt;,
+<a href=#237 id=237 data-nosnippet>237</a>            //XcmPrecompile&lt;Self&gt;,
+<a href=#238 id=238 data-nosnippet>238</a>        </span>);
+<a href=#239 id=239 data-nosnippet>239</a>        <span class="kw">type </span>AllowEVMBytecode = ConstBool&lt;<span class="bool-val">false</span>&gt;;
+<a href=#240 id=240 data-nosnippet>240</a>        <span class="kw">type </span>FeeInfo = ();
+<a href=#241 id=241 data-nosnippet>241</a>        <span class="kw">type </span>MaxEthExtrinsicWeight = MaxEthExtrinsicWeight;
+<a href=#242 id=242 data-nosnippet>242</a>        <span class="kw">type </span>DebugEnabled = ConstBool&lt;<span class="bool-val">false</span>&gt;;
+<a href=#243 id=243 data-nosnippet>243</a>    }
+<a href=#244 id=244 data-nosnippet>244</a>
+<a href=#245 id=245 data-nosnippet>245</a>    <span class="doccomment">/// Default initial balance for the default account.
+<a href=#246 id=246 data-nosnippet>246</a>    </span><span class="kw">pub const </span>INITIAL_BALANCE: u128 = <span class="number">1_000_000_000_000_000</span>;
+<a href=#247 id=247 data-nosnippet>247</a>    <span class="kw">pub const </span>DEFAULT_ACCOUNT: AccountId32 = AccountId32::new([<span class="number">1u8</span>; <span class="number">32</span>]);
+<a href=#248 id=248 data-nosnippet>248</a>
+<a href=#249 id=249 data-nosnippet>249</a>    <span class="kw">pub struct </span><span class="macro-nonterminal">$sandbox </span>{
+<a href=#250 id=250 data-nosnippet>250</a>        ext: <span class="macro-nonterminal">$crate::TestExternalities</span>,
 <a href=#251 id=251 data-nosnippet>251</a>    }
 <a href=#252 id=252 data-nosnippet>252</a>
-<a href=#253 id=253 data-nosnippet>253</a>    <span class="comment">// Implement `crate::Sandbox` trait
-<a href=#254 id=254 data-nosnippet>254</a>    </span><span class="kw">impl </span><span class="macro-nonterminal">$crate::Sandbox </span><span class="kw">for </span><span class="macro-nonterminal">$sandbox </span>{
-<a href=#255 id=255 data-nosnippet>255</a>        <span class="kw">type </span>Runtime = <span class="macro-nonterminal">$runtime</span>;
-<a href=#256 id=256 data-nosnippet>256</a>
-<a href=#257 id=257 data-nosnippet>257</a>        <span class="kw">fn </span>execute_with&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, execute: <span class="kw">impl </span>FnOnce() -&gt; T) -&gt; T {
-<a href=#258 id=258 data-nosnippet>258</a>            <span class="self">self</span>.ext.execute_with(execute)
-<a href=#259 id=259 data-nosnippet>259</a>        }
-<a href=#260 id=260 data-nosnippet>260</a>
-<a href=#261 id=261 data-nosnippet>261</a>        <span class="kw">fn </span>dry_run&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, action: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span><span class="self">Self</span>) -&gt; T) -&gt; T {
-<a href=#262 id=262 data-nosnippet>262</a>            <span class="comment">// Make a backup of the backend.
-<a href=#263 id=263 data-nosnippet>263</a>            </span><span class="kw">let </span>backend_backup = <span class="self">self</span>.ext.as_backend();
-<a href=#264 id=264 data-nosnippet>264</a>            <span class="comment">// Run the action, potentially modifying storage. Ensure, that there are no pending changes
-<a href=#265 id=265 data-nosnippet>265</a>            // that would affect the reverted backend.
-<a href=#266 id=266 data-nosnippet>266</a>            </span><span class="kw">let </span>result = action(<span class="self">self</span>);
-<a href=#267 id=267 data-nosnippet>267</a>            <span class="self">self</span>.ext.commit_all().expect(<span class="string">"Failed to commit changes"</span>);
-<a href=#268 id=268 data-nosnippet>268</a>
-<a href=#269 id=269 data-nosnippet>269</a>            <span class="comment">// Restore the backend.
-<a href=#270 id=270 data-nosnippet>270</a>            </span><span class="self">self</span>.ext.backend = backend_backup;
-<a href=#271 id=271 data-nosnippet>271</a>            result
-<a href=#272 id=272 data-nosnippet>272</a>        }
-<a href=#273 id=273 data-nosnippet>273</a>
-<a href=#274 id=274 data-nosnippet>274</a>        <span class="kw">fn </span>register_extension&lt;E: ::core::any::Any + <span class="macro-nonterminal">$crate::Extension</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ext: E) {
-<a href=#275 id=275 data-nosnippet>275</a>            <span class="self">self</span>.ext.register_extension(ext);
-<a href=#276 id=276 data-nosnippet>276</a>        }
-<a href=#277 id=277 data-nosnippet>277</a>
-<a href=#278 id=278 data-nosnippet>278</a>        <span class="kw">fn </span>initialize_block(
-<a href=#279 id=279 data-nosnippet>279</a>            height: <span class="macro-nonterminal">$crate::frame_system::pallet_prelude::BlockNumberFor</span>&lt;<span class="self">Self</span>::Runtime&gt;,
-<a href=#280 id=280 data-nosnippet>280</a>            parent_hash: &lt;<span class="self">Self</span>::Runtime <span class="kw">as </span><span class="macro-nonterminal">$crate::frame_system::Config</span>&gt;::Hash,
-<a href=#281 id=281 data-nosnippet>281</a>        ) {
-<a href=#282 id=282 data-nosnippet>282</a>            <span class="macro-nonterminal">$crate::macros::BlockBuilder</span>::&lt;<span class="self">Self</span>::Runtime&gt;::initialize_block(height, parent_hash)
-<a href=#283 id=283 data-nosnippet>283</a>        }
-<a href=#284 id=284 data-nosnippet>284</a>
-<a href=#285 id=285 data-nosnippet>285</a>        <span class="kw">fn </span>finalize_block(
-<a href=#286 id=286 data-nosnippet>286</a>            height: <span class="macro-nonterminal">$crate::frame_system::pallet_prelude::BlockNumberFor</span>&lt;<span class="self">Self</span>::Runtime&gt;,
-<a href=#287 id=287 data-nosnippet>287</a>        ) -&gt; &lt;<span class="self">Self</span>::Runtime <span class="kw">as </span><span class="macro-nonterminal">$crate::frame_system::Config</span>&gt;::Hash {
-<a href=#288 id=288 data-nosnippet>288</a>            <span class="macro-nonterminal">$crate::macros::BlockBuilder</span>::&lt;<span class="self">Self</span>::Runtime&gt;::finalize_block(height)
-<a href=#289 id=289 data-nosnippet>289</a>        }
-<a href=#290 id=290 data-nosnippet>290</a>
-<a href=#291 id=291 data-nosnippet>291</a>        <span class="kw">fn </span>default_actor() -&gt; <span class="macro-nonterminal">$crate::AccountIdFor</span>&lt;<span class="self">Self</span>::Runtime&gt; {
-<a href=#292 id=292 data-nosnippet>292</a>            DEFAULT_ACCOUNT
+<a href=#253 id=253 data-nosnippet>253</a>    <span class="kw">impl </span>::std::default::Default <span class="kw">for </span><span class="macro-nonterminal">$sandbox </span>{
+<a href=#254 id=254 data-nosnippet>254</a>        <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+<a href=#255 id=255 data-nosnippet>255</a>            <span class="kw">let </span>ext = <span class="macro-nonterminal">$crate::macros::BlockBuilder</span>::&lt;<span class="macro-nonterminal">$runtime</span>&gt;::new_ext(<span class="macro">vec!</span>[(
+<a href=#256 id=256 data-nosnippet>256</a>                DEFAULT_ACCOUNT,
+<a href=#257 id=257 data-nosnippet>257</a>                INITIAL_BALANCE,
+<a href=#258 id=258 data-nosnippet>258</a>            )]);
+<a href=#259 id=259 data-nosnippet>259</a>            <span class="self">Self </span>{ ext }
+<a href=#260 id=260 data-nosnippet>260</a>        }
+<a href=#261 id=261 data-nosnippet>261</a>    }
+<a href=#262 id=262 data-nosnippet>262</a>
+<a href=#263 id=263 data-nosnippet>263</a>    <span class="comment">// Implement `crate::Sandbox` trait
+<a href=#264 id=264 data-nosnippet>264</a>    </span><span class="kw">impl </span><span class="macro-nonterminal">$crate::Sandbox </span><span class="kw">for </span><span class="macro-nonterminal">$sandbox </span>{
+<a href=#265 id=265 data-nosnippet>265</a>        <span class="kw">type </span>Runtime = <span class="macro-nonterminal">$runtime</span>;
+<a href=#266 id=266 data-nosnippet>266</a>
+<a href=#267 id=267 data-nosnippet>267</a>        <span class="kw">fn </span>execute_with&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, execute: <span class="kw">impl </span>FnOnce() -&gt; T) -&gt; T {
+<a href=#268 id=268 data-nosnippet>268</a>            <span class="self">self</span>.ext.execute_with(execute)
+<a href=#269 id=269 data-nosnippet>269</a>        }
+<a href=#270 id=270 data-nosnippet>270</a>
+<a href=#271 id=271 data-nosnippet>271</a>        <span class="kw">fn </span>dry_run&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, action: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span><span class="self">Self</span>) -&gt; T) -&gt; T {
+<a href=#272 id=272 data-nosnippet>272</a>            <span class="comment">// Make a backup of the backend.
+<a href=#273 id=273 data-nosnippet>273</a>            </span><span class="kw">let </span>backend_backup = <span class="self">self</span>.ext.as_backend();
+<a href=#274 id=274 data-nosnippet>274</a>            <span class="comment">// Run the action, potentially modifying storage. Ensure, that there are no pending changes
+<a href=#275 id=275 data-nosnippet>275</a>            // that would affect the reverted backend.
+<a href=#276 id=276 data-nosnippet>276</a>            </span><span class="kw">let </span>result = action(<span class="self">self</span>);
+<a href=#277 id=277 data-nosnippet>277</a>            <span class="self">self</span>.ext.commit_all().expect(<span class="string">"Failed to commit changes"</span>);
+<a href=#278 id=278 data-nosnippet>278</a>
+<a href=#279 id=279 data-nosnippet>279</a>            <span class="comment">// Restore the backend.
+<a href=#280 id=280 data-nosnippet>280</a>            </span><span class="self">self</span>.ext.backend = backend_backup;
+<a href=#281 id=281 data-nosnippet>281</a>            result
+<a href=#282 id=282 data-nosnippet>282</a>        }
+<a href=#283 id=283 data-nosnippet>283</a>
+<a href=#284 id=284 data-nosnippet>284</a>        <span class="kw">fn </span>register_extension&lt;E: ::core::any::Any + <span class="macro-nonterminal">$crate::Extension</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ext: E) {
+<a href=#285 id=285 data-nosnippet>285</a>            <span class="self">self</span>.ext.register_extension(ext);
+<a href=#286 id=286 data-nosnippet>286</a>        }
+<a href=#287 id=287 data-nosnippet>287</a>
+<a href=#288 id=288 data-nosnippet>288</a>        <span class="kw">fn </span>initialize_block(
+<a href=#289 id=289 data-nosnippet>289</a>            height: <span class="macro-nonterminal">$crate::frame_system::pallet_prelude::BlockNumberFor</span>&lt;<span class="self">Self</span>::Runtime&gt;,
+<a href=#290 id=290 data-nosnippet>290</a>            parent_hash: &lt;<span class="self">Self</span>::Runtime <span class="kw">as </span><span class="macro-nonterminal">$crate::frame_system::Config</span>&gt;::Hash,
+<a href=#291 id=291 data-nosnippet>291</a>        ) {
+<a href=#292 id=292 data-nosnippet>292</a>            <span class="macro-nonterminal">$crate::macros::BlockBuilder</span>::&lt;<span class="self">Self</span>::Runtime&gt;::initialize_block(height, parent_hash)
 <a href=#293 id=293 data-nosnippet>293</a>        }
 <a href=#294 id=294 data-nosnippet>294</a>
-<a href=#295 id=295 data-nosnippet>295</a>        <span class="kw">fn </span>get_metadata() -&gt; <span class="macro-nonterminal">$crate::RuntimeMetadataPrefixed </span>{
-<a href=#296 id=296 data-nosnippet>296</a>            <span class="self">Self</span>::Runtime::metadata()
-<a href=#297 id=297 data-nosnippet>297</a>        }
-<a href=#298 id=298 data-nosnippet>298</a>
-<a href=#299 id=299 data-nosnippet>299</a>        <span class="kw">fn </span>convert_account_to_origin(
-<a href=#300 id=300 data-nosnippet>300</a>            account: <span class="macro-nonterminal">$crate::AccountIdFor</span>&lt;<span class="self">Self</span>::Runtime&gt;,
-<a href=#301 id=301 data-nosnippet>301</a>        ) -&gt; &lt;&lt;<span class="self">Self</span>::Runtime <span class="kw">as </span><span class="macro-nonterminal">$crate::frame_system::Config</span>&gt;::RuntimeCall <span class="kw">as </span><span class="macro-nonterminal">$crate::frame_support::sp_runtime::traits::Dispatchable</span>&gt;::RuntimeOrigin {
-<a href=#302 id=302 data-nosnippet>302</a>            <span class="prelude-val">Some</span>(account).into()
+<a href=#295 id=295 data-nosnippet>295</a>        <span class="kw">fn </span>finalize_block(
+<a href=#296 id=296 data-nosnippet>296</a>            height: <span class="macro-nonterminal">$crate::frame_system::pallet_prelude::BlockNumberFor</span>&lt;<span class="self">Self</span>::Runtime&gt;,
+<a href=#297 id=297 data-nosnippet>297</a>        ) -&gt; &lt;<span class="self">Self</span>::Runtime <span class="kw">as </span><span class="macro-nonterminal">$crate::frame_system::Config</span>&gt;::Hash {
+<a href=#298 id=298 data-nosnippet>298</a>            <span class="macro-nonterminal">$crate::macros::BlockBuilder</span>::&lt;<span class="self">Self</span>::Runtime&gt;::finalize_block(height)
+<a href=#299 id=299 data-nosnippet>299</a>        }
+<a href=#300 id=300 data-nosnippet>300</a>
+<a href=#301 id=301 data-nosnippet>301</a>        <span class="kw">fn </span>default_actor() -&gt; <span class="macro-nonterminal">$crate::AccountIdFor</span>&lt;<span class="self">Self</span>::Runtime&gt; {
+<a href=#302 id=302 data-nosnippet>302</a>            DEFAULT_ACCOUNT
 <a href=#303 id=303 data-nosnippet>303</a>        }
 <a href=#304 id=304 data-nosnippet>304</a>
-<a href=#305 id=305 data-nosnippet>305</a>        <span class="kw">fn </span>take_snapshot(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Snapshot {
-<a href=#306 id=306 data-nosnippet>306</a>            <span class="kw">let </span><span class="kw-2">mut </span>backend = <span class="self">self</span>.ext.as_backend().clone();
-<a href=#307 id=307 data-nosnippet>307</a>            <span class="kw">let </span>raw_key_values = backend
-<a href=#308 id=308 data-nosnippet>308</a>                .backend_storage_mut()
-<a href=#309 id=309 data-nosnippet>309</a>                .drain()
-<a href=#310 id=310 data-nosnippet>310</a>                .into_iter()
-<a href=#311 id=311 data-nosnippet>311</a>                .filter(|(<span class="kw">_</span>, (<span class="kw">_</span>, r))| <span class="kw-2">*</span>r &gt; <span class="number">0</span>)
-<a href=#312 id=312 data-nosnippet>312</a>                .collect::&lt;Vec&lt;(Vec&lt;u8&gt;, (Vec&lt;u8&gt;, i32))&gt;&gt;();
-<a href=#313 id=313 data-nosnippet>313</a>            <span class="kw">let </span>root = backend.root().to_owned();
-<a href=#314 id=314 data-nosnippet>314</a>            Snapshot {
-<a href=#315 id=315 data-nosnippet>315</a>                storage: raw_key_values,
-<a href=#316 id=316 data-nosnippet>316</a>                storage_root: root,
-<a href=#317 id=317 data-nosnippet>317</a>            }
-<a href=#318 id=318 data-nosnippet>318</a>        }
-<a href=#319 id=319 data-nosnippet>319</a>
-<a href=#320 id=320 data-nosnippet>320</a>        <span class="kw">fn </span>restore_snapshot(<span class="kw-2">&amp;mut </span><span class="self">self</span>, snapshot: Snapshot) {
-<a href=#321 id=321 data-nosnippet>321</a>            <span class="self">self</span>.ext = <span class="macro-nonterminal">$crate::TestExternalities::from_raw_snapshot</span>(
-<a href=#322 id=322 data-nosnippet>322</a>                snapshot.storage,
-<a href=#323 id=323 data-nosnippet>323</a>                snapshot.storage_root,
-<a href=#324 id=324 data-nosnippet>324</a>                Default::default(),
-<a href=#325 id=325 data-nosnippet>325</a>            );
-<a href=#326 id=326 data-nosnippet>326</a>        }
-<a href=#327 id=327 data-nosnippet>327</a>    }
-<a href=#328 id=328 data-nosnippet>328</a>}
+<a href=#305 id=305 data-nosnippet>305</a>        <span class="kw">fn </span>get_metadata() -&gt; <span class="macro-nonterminal">$crate::RuntimeMetadataPrefixed </span>{
+<a href=#306 id=306 data-nosnippet>306</a>            <span class="self">Self</span>::Runtime::metadata()
+<a href=#307 id=307 data-nosnippet>307</a>        }
+<a href=#308 id=308 data-nosnippet>308</a>
+<a href=#309 id=309 data-nosnippet>309</a>        <span class="kw">fn </span>convert_account_to_origin(
+<a href=#310 id=310 data-nosnippet>310</a>            account: <span class="macro-nonterminal">$crate::AccountIdFor</span>&lt;<span class="self">Self</span>::Runtime&gt;,
+<a href=#311 id=311 data-nosnippet>311</a>        ) -&gt; &lt;&lt;<span class="self">Self</span>::Runtime <span class="kw">as </span><span class="macro-nonterminal">$crate::frame_system::Config</span>&gt;::RuntimeCall <span class="kw">as </span><span class="macro-nonterminal">$crate::frame_support::sp_runtime::traits::Dispatchable</span>&gt;::RuntimeOrigin {
+<a href=#312 id=312 data-nosnippet>312</a>            <span class="prelude-val">Some</span>(account).into()
+<a href=#313 id=313 data-nosnippet>313</a>        }
+<a href=#314 id=314 data-nosnippet>314</a>
+<a href=#315 id=315 data-nosnippet>315</a>        <span class="kw">fn </span>take_snapshot(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Snapshot {
+<a href=#316 id=316 data-nosnippet>316</a>            <span class="kw">let </span><span class="kw-2">mut </span>backend = <span class="self">self</span>.ext.as_backend().clone();
+<a href=#317 id=317 data-nosnippet>317</a>            <span class="kw">let </span>raw_key_values = backend
+<a href=#318 id=318 data-nosnippet>318</a>                .backend_storage_mut()
+<a href=#319 id=319 data-nosnippet>319</a>                .drain()
+<a href=#320 id=320 data-nosnippet>320</a>                .into_iter()
+<a href=#321 id=321 data-nosnippet>321</a>                .filter(|(<span class="kw">_</span>, (<span class="kw">_</span>, r))| <span class="kw-2">*</span>r &gt; <span class="number">0</span>)
+<a href=#322 id=322 data-nosnippet>322</a>                .collect::&lt;Vec&lt;(Vec&lt;u8&gt;, (Vec&lt;u8&gt;, i32))&gt;&gt;();
+<a href=#323 id=323 data-nosnippet>323</a>            <span class="kw">let </span>root = backend.root().to_owned();
+<a href=#324 id=324 data-nosnippet>324</a>            Snapshot {
+<a href=#325 id=325 data-nosnippet>325</a>                storage: raw_key_values,
+<a href=#326 id=326 data-nosnippet>326</a>                storage_root: root,
+<a href=#327 id=327 data-nosnippet>327</a>            }
+<a href=#328 id=328 data-nosnippet>328</a>        }
 <a href=#329 id=329 data-nosnippet>329</a>
-<a href=#330 id=330 data-nosnippet>330</a><span class="comment">// Export runtime type itself, pallets and useful types from the auxiliary module
-<a href=#331 id=331 data-nosnippet>331</a></span><span class="kw">pub use </span>construct_runtime::{
-<a href=#332 id=332 data-nosnippet>332</a>    <span class="macro-nonterminal">$sandbox</span>, <span class="macro-nonterminal">$runtime</span>, Balances, Revive, PalletInfo, RuntimeCall, RuntimeEvent, RuntimeHoldReason,
-<a href=#333 id=333 data-nosnippet>333</a>    RuntimeOrigin, System, Timestamp,
-<a href=#334 id=334 data-nosnippet>334</a>};
-<a href=#335 id=335 data-nosnippet>335</a>    };
-<a href=#336 id=336 data-nosnippet>336</a>}
-<a href=#337 id=337 data-nosnippet>337</a>
-<a href=#338 id=338 data-nosnippet>338</a><span class="macro">create_sandbox!</span>(DefaultSandbox);</code></pre></div></section></main></body></html>
+<a href=#330 id=330 data-nosnippet>330</a>        <span class="kw">fn </span>restore_snapshot(<span class="kw-2">&amp;mut </span><span class="self">self</span>, snapshot: Snapshot) {
+<a href=#331 id=331 data-nosnippet>331</a>            <span class="self">self</span>.ext = <span class="macro-nonterminal">$crate::TestExternalities::from_raw_snapshot</span>(
+<a href=#332 id=332 data-nosnippet>332</a>                snapshot.storage,
+<a href=#333 id=333 data-nosnippet>333</a>                snapshot.storage_root,
+<a href=#334 id=334 data-nosnippet>334</a>                Default::default(),
+<a href=#335 id=335 data-nosnippet>335</a>            );
+<a href=#336 id=336 data-nosnippet>336</a>        }
+<a href=#337 id=337 data-nosnippet>337</a>    }
+<a href=#338 id=338 data-nosnippet>338</a>}
+<a href=#339 id=339 data-nosnippet>339</a>
+<a href=#340 id=340 data-nosnippet>340</a><span class="comment">// Export runtime type itself, pallets and useful types from the auxiliary module
+<a href=#341 id=341 data-nosnippet>341</a></span><span class="kw">pub use </span>construct_runtime::{
+<a href=#342 id=342 data-nosnippet>342</a>    <span class="macro-nonterminal">$sandbox</span>, <span class="macro-nonterminal">$runtime</span>, Balances, Revive, PalletInfo, RuntimeCall, RuntimeEvent, RuntimeHoldReason,
+<a href=#343 id=343 data-nosnippet>343</a>    RuntimeOrigin, System, Timestamp,
+<a href=#344 id=344 data-nosnippet>344</a>};
+<a href=#345 id=345 data-nosnippet>345</a>    };
+<a href=#346 id=346 data-nosnippet>346</a>}
+<a href=#347 id=347 data-nosnippet>347</a>
+<a href=#348 id=348 data-nosnippet>348</a><span class="macro">create_sandbox!</span>(DefaultSandbox);</code></pre></div></section></main></body></html>

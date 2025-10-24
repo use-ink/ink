@@ -250,11 +250,13 @@
 <a href=#250 id=250 data-nosnippet>250</a>    /// This does not apply to contract initiated instantiations. Those will always bump
 <a href=#251 id=251 data-nosnippet>251</a>    /// the instantiating contract's nonce.
 <a href=#252 id=252 data-nosnippet>252</a>    </span><span class="kw">pub </span>bump_nonce: bool,
-<a href=#253 id=253 data-nosnippet>253</a>    <span class="doccomment">/// Whether deposits will be withdrawn from the pallet_transaction_payment credit
-<a href=#254 id=254 data-nosnippet>254</a>    /// (true) or free balance (false).
-<a href=#255 id=255 data-nosnippet>255</a>    </span><span class="kw">pub </span>collect_deposit_from_hold: bool,
-<a href=#256 id=256 data-nosnippet>256</a>    <span class="doccomment">/// The gas price that was chosen for this transaction.
-<a href=#257 id=257 data-nosnippet>257</a>    ///
-<a href=#258 id=258 data-nosnippet>258</a>    /// It is determined when transforming `eth_transact` into a proper extrinsic.
-<a href=#259 id=259 data-nosnippet>259</a>    </span><span class="kw">pub </span>effective_gas_price: <span class="prelude-ty">Option</span>&lt;U256&gt;,
-<a href=#260 id=260 data-nosnippet>260</a>}</code></pre></div></section></main></body></html>
+<a href=#253 id=253 data-nosnippet>253</a>    <span class="doccomment">/// Whether deposits will be withdrawn from the `pallet_transaction_payment` credit
+<a href=#254 id=254 data-nosnippet>254</a>    /// (`Some`) free balance (`None`).
+<a href=#255 id=255 data-nosnippet>255</a>    ///
+<a href=#256 id=256 data-nosnippet>256</a>    /// Contains the encoded_len + base weight.
+<a href=#257 id=257 data-nosnippet>257</a>    </span><span class="kw">pub </span>collect_deposit_from_hold: <span class="prelude-ty">Option</span>&lt;(u32, Weight)&gt;,
+<a href=#258 id=258 data-nosnippet>258</a>    <span class="doccomment">/// The gas price that was chosen for this transaction.
+<a href=#259 id=259 data-nosnippet>259</a>    ///
+<a href=#260 id=260 data-nosnippet>260</a>    /// It is determined when transforming `eth_transact` into a proper extrinsic.
+<a href=#261 id=261 data-nosnippet>261</a>    </span><span class="kw">pub </span>effective_gas_price: <span class="prelude-ty">Option</span>&lt;U256&gt;,
+<a href=#262 id=262 data-nosnippet>262</a>}</code></pre></div></section></main></body></html>
