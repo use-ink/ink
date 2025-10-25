@@ -267,9 +267,11 @@ fn solidity_encode_bytes(
 
 /// Returns the Solidity word padded length for the given input length (i.e. next multiple
 /// of 32 for the given number).
+// `.div_ceil()` would allocate on the heap
+#[allow(clippy::manual_div_ceil)]
 #[inline(always)]
 const fn solidity_padded_len(len: usize) -> usize {
-    ((len + 31).div_ceil(32)) * 32
+    ((len + 31) / 32) * 32
 }
 
 impl CryptoHash for Blake2x256 {
@@ -574,9 +576,9 @@ fn call_storage_precompile(
         // 96 then points to the `len|data` segment of `bytes`
         (SOL_ENCODED_FLAGS_LEN + SOL_ENCODED_IS_FIXED_KEY_LEN + SOL_BYTES_OFFSET_WORD_LEN)
             as u32,
+        // encode the `bytes` starting at the appropriate position in the slice
         64,
         96,
-        // encode the `bytes` starting at the appropriate position in the slice
         &mut input_buf[SOL_ENCODED_SELECTOR_LEN..],
     );
 
