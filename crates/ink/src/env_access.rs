@@ -117,13 +117,13 @@ where
     /// mod my_contract {
     ///     #[ink(storage)]
     ///     pub struct MyContract;
-    /// 
+    ///
     ///     impl MyContract {
     ///         #[ink(constructor)]
     ///         pub fn new() -> Self {
     ///             Self {}
     ///         }
-    /// 
+    ///
     ///         #[ink(message)]
     ///         pub fn get_limit(&self) -> u64 {
     ///             self.env().gas_limit()

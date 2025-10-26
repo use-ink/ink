@@ -75,7 +75,7 @@ pub fn caller() -> Address {
 
 /// Returns the block ref_time limit.
 pub fn gas_limit() -> u64 {
-     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::gas_limit)
+    <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::gas_limit)
 }
 
 /// Returns the transferred value for the contract execution.
