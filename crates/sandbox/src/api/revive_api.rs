@@ -380,7 +380,7 @@ mod tests {
         warm_up::<DefaultSandbox>(&mut sandbox);
 
         let default_actor = DefaultSandbox::default_actor();
-        sandbox.map_account(default_actor.clone()).expect("cannot map");
+        sandbox.map_account(&default_actor).expect("cannot map");
         let origin = DefaultSandbox::convert_account_to_origin(default_actor);
         let result = sandbox.deploy_contract(
             contract_binary.clone(),
@@ -417,7 +417,7 @@ mod tests {
         warm_up::<DefaultSandbox>(&mut sandbox);
 
         let default_actor = DefaultSandbox::default_actor();
-        sandbox.map_account(default_actor.clone()).expect("unable to map");
+        sandbox.map_account(&default_actor).expect("unable to map");
         let origin = DefaultSandbox::convert_account_to_origin(default_actor);
         let result = sandbox.deploy_contract(
             contract_binary,

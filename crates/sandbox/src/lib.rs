@@ -72,133 +72,6 @@ pub use client::{
 pub use error::E2EError;
 pub use ink_e2e_macro::test;
 
-/// Asserts that a contract call succeeded without reverting.
-///
-/// This macro follows FRAME's `assert_ok!` convention for consistency across
-/// the Polkadot ecosystem. It verifies that a contract call completed successfully
-/// and did not revert. If the call reverted, the macro panics with a detailed
-/// error message extracted from the call trace.
-///
-/// # Behavior
-///
-/// - Takes a `CallResult` as input
-/// - Checks if `dry_run.did_revert()` is `false`
-/// - Panics with error details if the call reverted
-/// - Returns the `CallResult` for further inspection if successful
-///
-/// # Examples
-///
-/// ```ignore
-/// let result = client.call(&alice, &transfer).submit().await?;
-/// assert_ok!(result);
-/// ```
-#[macro_export]
-macro_rules! assert_ok {
-    ($result:expr) => {{
-        let result = $result;
-        if result.dry_run.did_revert() {
-            panic!(
-                "Expected call to succeed but it reverted.\nError: {:?}",
-                result.extract_error()
-            );
-        }
-        result
-    }};
-    ($result:expr, $($msg:tt)+) => {{
-        let result = $result;
-        if result.dry_run.did_revert() {
-            panic!(
-                "{}\nExpected call to succeed but it reverted.\nError: {:?}",
-                format_args!($($msg)+),
-                result.extract_error()
-            );
-        }
-        result
-    }};
-}
-
-/// Asserts that a contract call reverted with a specific error.
-///
-/// This macro follows FRAME's `assert_noop!` convention, which stands for
-/// "assert no operation" - meaning the call should fail without changing state.
-/// It verifies that a contract call reverted and that the revert reason matches
-/// the expected error string.
-///
-/// # Behavior
-///
-/// - Takes a `CallResult` and an expected error string as input
-/// - Checks if `dry_run.did_revert()` is `true`
-/// - Panics if the call succeeded (did not revert)
-/// - Extracts the error from the call trace using `extract_error()`
-/// - Panics if the actual error doesn't match the expected error
-/// - Returns the `CallResult` if both checks pass
-///
-/// # Examples
-///
-/// ```ignore
-/// let result = client.call(&alice, &insufficient_transfer).submit().await?;
-/// assert_noop!(result, "BalanceLow");
-/// ```
-#[macro_export]
-macro_rules! assert_noop {
-    ($result:expr, $expected_error:expr) => {{
-        let result = $result;
-        if !result.dry_run.did_revert() {
-            panic!(
-                "Expected call to revert with '{}' but it succeeded",
-                $expected_error
-            );
-        }
-
-        let actual_error = result.extract_error();
-        if actual_error != Some($expected_error.to_string()) {
-            panic!(
-                "Expected error '{}' but got {:?}",
-                $expected_error,
-                actual_error
-            );
-        }
-
-        result
-    }};
-    ($result:expr, $expected_error:expr, $($msg:tt)+) => {{
-        let result = $result;
-        if !result.dry_run.did_revert() {
-            panic!(
-                "{}\nExpected call to revert with '{}' but it succeeded",
-                format_args!($($msg)+),
-                $expected_error
-            );
-        }
-
-        let actual_error = result.extract_error();
-        if actual_error != Some($expected_error.to_string()) {
-            panic!(
-                "{}\nExpected error '{}' but got {:?}",
-                format_args!($($msg)+),
-                $expected_error,
-                actual_error
-            );
-        }
-
-        result
-    }};
-}
-
-/// Asserts that the latest contract event matches an expected event.
-///
-/// This macro verifies that the last emitted contract event from the sandbox
-/// matches the provided expected event.
-///
-/// # Parameters
-/// - `client` - Mutable reference to the sandbox client
-/// - `event` - The expected event
-#[macro_export]
-macro_rules! assert_last_event {
-    ($client:expr, $event:expr $(,)?) => {
-        $crate::client::assert_last_contract_event_inner($client, $event)
-    };
-}
 
 /// A snapshot of the storage.
 #[derive(Clone, Debug)]
@@ -385,65 +258,25 @@ pub fn to_revive_storage_deposit<B>(
 
 /// Trait for types that can be converted into a runtime AccountId.
 ///
-/// This allows sandbox APIs to accept various account types (ink! `AccountId`,
-/// `Keypair`, `AccountId32`, raw bytes) without requiring manual conversion.
-///
+/// This allows sandbox APIs to accept various account types without requiring manual conversion.
 pub trait IntoAccountId<AccountId> {
     fn into_account_id(self) -> AccountId;
 }
 
-// Identity conversion for AccountId32
-impl IntoAccountId<AccountId32> for AccountId32 {
-    fn into_account_id(self) -> AccountId32 {
-        self
-    }
-}
-
-// Borrowed AccountId32
 impl IntoAccountId<AccountId32> for &AccountId32 {
     fn into_account_id(self) -> AccountId32 {
         self.clone()
     }
 }
 
-// ink!'s AccountId
-impl IntoAccountId<AccountId32> for ink_primitives::AccountId {
-    fn into_account_id(self) -> AccountId32 {
-        AccountId32::from(*AsRef::<[u8; 32]>::as_ref(&self))
-    }
-}
-
-// Borrowed ink! AccountId
 impl IntoAccountId<AccountId32> for &ink_primitives::AccountId {
     fn into_account_id(self) -> AccountId32 {
         AccountId32::from(*AsRef::<[u8; 32]>::as_ref(self))
     }
 }
 
-// Keypair from e2e tests
-impl IntoAccountId<AccountId32> for ink_e2e::Keypair {
-    fn into_account_id(self) -> AccountId32 {
-        AccountId32::from(self.public_key().0)
-    }
-}
-
-// Borrowed Keypair from e2e tests
 impl IntoAccountId<AccountId32> for &ink_e2e::Keypair {
     fn into_account_id(self) -> AccountId32 {
         AccountId32::from(self.public_key().0)
-    }
-}
-
-// Raw bytes [u8; 32]
-impl IntoAccountId<AccountId32> for [u8; 32] {
-    fn into_account_id(self) -> AccountId32 {
-        AccountId32::from(self)
-    }
-}
-
-// Borrowed raw bytes
-impl IntoAccountId<AccountId32> for &[u8; 32] {
-    fn into_account_id(self) -> AccountId32 {
-        AccountId32::from(*self)
     }
 }

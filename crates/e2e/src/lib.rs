@@ -153,23 +153,27 @@ pub fn address<E: Environment>(account: Sr25519Keyring) -> Address {
     AccountIdMapper::to_address(account.to_account_id().as_ref())
 }
 
-/// Extension trait for converting various types to Address (H160).
-pub trait IntoAddress {
-    /// Convert to an Address (H160).
-    fn address(&self) -> Address;
+/// Returns the [`ink::Address`] for a given account id.
+///
+/// # Developer Note
+///
+/// We take the `AccountId` and return only the first twenty bytes, this
+/// is what `pallet-revive` does as well.
+pub fn address_from_account_id<AccountId: AsRef<[u8]>>(account_id: AccountId) -> Address {
+    AccountIdMapper::to_address(account_id.as_ref())
 }
 
-impl IntoAddress for Keypair {
-    fn address(&self) -> Address {
-        AccountIdMapper::to_address(&self.public_key().0)
-    }
-}
-
-impl IntoAddress for ink_primitives::AccountId {
-    fn address(&self) -> Address {
-        let bytes = *AsRef::<[u8; 32]>::as_ref(self);
-        AccountIdMapper::to_address(&bytes)
-    }
+/// Returns the [`ink::Address`] for a given `Keypair`.
+///
+/// # Developer Note
+///
+/// We take the `AccountId` and return only the first twenty bytes, this
+/// is what `pallet-revive` does as well.
+pub fn address_from_keypair<AccountId: From<[u8; 32]> + AsRef<[u8]>>(
+    keypair: &Keypair,
+) -> Address {
+    let account_id: AccountId = keypair_to_account(keypair);
+    address_from_account_id(account_id)
 }
 
 /// Transforms a `Keypair` into an account id.
@@ -201,4 +205,23 @@ where
     <Contract as ContractCallBuilder>::Type<Abi>: FromAddr,
 {
     <<Contract as ContractCallBuilder>::Type<Abi> as FromAddr>::from_addr(acc_id)
+}
+
+/// Extension trait for converting various types to Address (H160).
+pub trait IntoAddress {
+    /// Convert to an Address (H160).
+    fn address(&self) -> Address;
+}
+
+impl IntoAddress for Keypair {
+    fn address(&self) -> Address {
+        AccountIdMapper::to_address(&self.public_key().0)
+    }
+}
+
+impl IntoAddress for ink_primitives::AccountId {
+    fn address(&self) -> Address {
+        let bytes = *AsRef::<[u8; 32]>::as_ref(self);
+        AccountIdMapper::to_address(&bytes)
+    }
 }
