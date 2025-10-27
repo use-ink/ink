@@ -28,6 +28,7 @@ sp-io = {  git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4b
 
 ink_primitives = { workspace = true }
 ink_revive_types = { workspace = true }
+ink_precompiles = { workspace = true }
 ink_env = { workspace = true, default-features = true }
 ink_e2e = { path = "../e2e" }
 ink_e2e_macro = { workspace = true, default-features = true }
