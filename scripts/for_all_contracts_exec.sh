@@ -52,8 +52,6 @@ EXAMPLES
 EOF
 }
 
-command=( "${@:2}" )
-
 options=$(getopt -o p:o:i:q --long path:,output:,ignore:,quiet,partition: -- "$@")
 [ $? -eq 0 ] || {
     >&2 echo "Incorrect option provided"
@@ -99,7 +97,7 @@ while true; do
     shift
 done
 
-command=("${@}")
+command=("$@")
 
 if ([ "$partitioning" = true ] && \
   (! [[ "$m" =~ ^[0-9]+$ ]] || ! [[ "$n" =~ ^[0-9]+$ ]] || [ "$m" -gt "$n" ] || [ "$m" -le 0 ] || [ "$n" -le 0 ])) || \
@@ -203,7 +201,7 @@ for (( i = start; i <= end; i++ )); do
     >&2 echo Running: "${command[@]}"
   fi
   echo "evaluating command" ${command[@]} >&2
-  eval "${command[@]}" >> "$output"
+  "${command[@]}" >> "$output"
 
   if [ $? -eq 0 ]; then
     successes+=("$manifest_path")
