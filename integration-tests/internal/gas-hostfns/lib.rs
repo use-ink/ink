@@ -12,11 +12,11 @@ mod gas_hostfns {
             Self {}
         }
 
-		/// Checks that the host function `gas_limit` works
-		#[ink(message)]
-		pub fn gas_limit(&self) -> u64 {
-			self.env().gas_limit()
-		}
+        /// Checks that the host function `gas_limit` works
+        #[ink(message)]
+        pub fn gas_limit(&self) -> u64 {
+            self.env().gas_limit()
+        }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
@@ -32,11 +32,7 @@ mod gas_hostfns {
         ) -> E2EResult<()> {
             // given
             let contract = client
-                .instantiate(
-                    "gas_hostfns",
-                    &ink_e2e::alice(),
-                    &mut GasHostfnsRef::new(),
-                )
+                .instantiate("gas_hostfns", &ink_e2e::alice(), &mut GasHostfnsRef::new())
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -50,7 +46,7 @@ mod gas_hostfns {
                 .unwrap_or_else(|err| {
                     panic!("call failed: {:#?}", err);
                 });
-            
+
             assert!(_call_res.return_value() > 0);
 
             Ok(())
