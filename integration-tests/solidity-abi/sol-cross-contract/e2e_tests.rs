@@ -3,7 +3,10 @@ use ink_e2e::ContractsRegistry;
 use ink_sandbox::{
     DefaultSandbox,
     Sandbox,
-    api::prelude::{BalanceAPI, ContractAPI},
+    api::prelude::{
+        BalanceAPI,
+        ContractAPI,
+    },
 };
 
 use ink::{
@@ -30,7 +33,9 @@ fn call_sol_encoded_message() {
         .mint_into(&caller.public_key().0.into(), 1_000_000_000_000_000u128)
         .unwrap_or_else(|_| panic!("Failed to mint tokens"));
 
-    sandbox.map_account(&DefaultSandbox::default_actor()).expect("unable to map");
+    sandbox
+        .map_account(&DefaultSandbox::default_actor())
+        .expect("unable to map");
 
     // upload other contract (callee)
     let constructor = other_contract_sol::OtherContractRef::new(false);
