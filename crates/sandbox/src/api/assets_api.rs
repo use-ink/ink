@@ -37,7 +37,8 @@ where
     ///
     /// # Arguments
     /// * `id` - ID of the new asset to be created.
-    /// * `owner` - The owner of the created asset (accepts any type convertible to AccountId).
+    /// * `owner` - The owner of the created asset (accepts any type convertible to
+    ///   AccountId).
     /// * `min_balance` - The asset amount one account need at least.
     fn create(
         &mut self,
@@ -78,8 +79,10 @@ where
     ///
     /// # Arguments
     /// * `asset` - ID of the asset.
-    /// * `owner` - The account that owns the tokens (accepts any type convertible to AccountId).
-    /// * `delegate` - The account that is allowed to spend the tokens (accepts any type convertible to AccountId).
+    /// * `owner` - The account that owns the tokens (accepts any type convertible to
+    ///   AccountId).
+    /// * `delegate` - The account that is allowed to spend the tokens (accepts any type
+    ///   convertible to AccountId).
     /// * `amount` - The number of tokens to approve.
     fn approve(
         &mut self,
@@ -94,7 +97,8 @@ where
     ///
     /// # Arguments
     /// * `asset` - ID of the asset.
-    /// * `account` - The account to be credited with the created tokens (accepts any type convertible to AccountId).
+    /// * `account` - The account to be credited with the created tokens (accepts any type
+    ///   convertible to AccountId).
     /// * `value` - The number of tokens to mint.
     fn mint_into(
         &mut self,
@@ -107,8 +111,10 @@ where
     ///
     /// # Arguments
     /// * `asset` - ID of the asset.
-    /// * `source` - The account from which tokens are transferred (accepts any type convertible to AccountId).
-    /// * `dest` - The account to which tokens are transferred (accepts any type convertible to AccountId).
+    /// * `source` - The account from which tokens are transferred (accepts any type
+    ///   convertible to AccountId).
+    /// * `dest` - The account to which tokens are transferred (accepts any type
+    ///   convertible to AccountId).
     /// * `amount` - The number of tokens to transfer.
     fn transfer(
         &mut self,
@@ -121,7 +127,8 @@ where
     /// Returns the account balance for the specified `owner`.
     ///
     /// # Arguments
-    /// * `owner` - The account whose balance is being queried (accepts any type convertible to AccountId).
+    /// * `owner` - The account whose balance is being queried (accepts any type
+    ///   convertible to AccountId).
     fn balance_of(
         &mut self,
         asset: &AssetIdOf<T::Runtime, I>,
@@ -141,8 +148,10 @@ where
     ///
     /// # Arguments
     /// * `asset` - ID of the asset.
-    /// * `owner` - The account that owns the tokens (accepts any type convertible to AccountId).
-    /// * `delegate` - The account that is allowed to spend the tokens (accepts any type convertible to AccountId).
+    /// * `owner` - The account that owns the tokens (accepts any type convertible to
+    ///   AccountId).
+    /// * `delegate` - The account that is allowed to spend the tokens (accepts any type
+    ///   convertible to AccountId).
     fn allowance(
         &mut self,
         asset: &AssetIdOf<T::Runtime, I>,

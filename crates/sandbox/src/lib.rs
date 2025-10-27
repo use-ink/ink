@@ -72,7 +72,6 @@ pub use client::{
 pub use error::E2EError;
 pub use ink_e2e_macro::test;
 
-
 /// A snapshot of the storage.
 #[derive(Clone, Debug)]
 pub struct Snapshot {
@@ -258,7 +257,8 @@ pub fn to_revive_storage_deposit<B>(
 
 /// Trait for types that can be converted into a runtime AccountId.
 ///
-/// This allows sandbox APIs to accept various account types without requiring manual conversion.
+/// This allows sandbox APIs to accept various account types without requiring manual
+/// conversion.
 pub trait IntoAccountId<AccountId> {
     fn into_account_id(self) -> AccountId;
 }

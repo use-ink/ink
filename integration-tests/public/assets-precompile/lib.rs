@@ -186,7 +186,8 @@ mod e2e_tests {
     use ink_e2e::{
         ContractsBackend,
         IntoAddress,
-        alice, bob,
+        alice,
+        bob,
     };
     use ink_sandbox::{
         DefaultSandbox,
@@ -236,20 +237,19 @@ mod e2e_tests {
         let asset_id: u32 = 1;
         let admin = alice();
 
-        client
-            .sandbox()
-            .create(&asset_id, &admin, 1u128)?;
-        client
-            .sandbox()
-            .mint_into(&asset_id, &admin, 1000u128)?;
+        client.sandbox().create(&asset_id, &admin, 1u128)?;
+        client.sandbox().mint_into(&asset_id, &admin, 1000u128)?;
 
         let contract = client
-            .instantiate("assets_precompile", &admin, &mut AssetHubPrecompileRef::new(asset_id))
+            .instantiate(
+                "assets_precompile",
+                &admin,
+                &mut AssetHubPrecompileRef::new(asset_id),
+            )
             .submit()
             .await?;
 
-        let contract_call =
-            contract.call_builder::<AssetHubPrecompile>();
+        let contract_call = contract.call_builder::<AssetHubPrecompile>();
         let result = client
             .call(&admin, &contract_call.total_supply())
             .submit()
@@ -268,28 +268,23 @@ mod e2e_tests {
         let alice = alice();
         let bob = bob();
 
-        client
-            .sandbox()
-            .create(&asset_id, &alice, 1u128)?;
-        client
-            .sandbox()
-            .mint_into(&asset_id, &alice, 1000u128)?;
-        client
-            .sandbox()
-            .mint_into(&asset_id, &bob, 500u128)?;
+        client.sandbox().create(&asset_id, &alice, 1u128)?;
+        client.sandbox().mint_into(&asset_id, &alice, 1000u128)?;
+        client.sandbox().mint_into(&asset_id, &bob, 500u128)?;
 
         let contract = client
-            .instantiate("assets_precompile", &alice, &mut AssetHubPrecompileRef::new(asset_id))
+            .instantiate(
+                "assets_precompile",
+                &alice,
+                &mut AssetHubPrecompileRef::new(asset_id),
+            )
             .submit()
             .await?;
 
         // Map bob's account otherwise it fails.
-        client
-            .sandbox()
-            .map_account(&bob)?;
+        client.sandbox().map_account(&bob)?;
 
-        let contract_call =
-            contract.call_builder::<AssetHubPrecompile>();
+        let contract_call = contract.call_builder::<AssetHubPrecompile>();
         let alice_balance = client
             .call(&alice, &contract_call.balance_of(alice.address()))
             .dry_run()
@@ -313,28 +308,33 @@ mod e2e_tests {
         let alice = alice();
         let bob = bob();
 
-        client
-            .sandbox()
-            .create(&asset_id, &alice, 1u128)?;
+        client.sandbox().create(&asset_id, &alice, 1u128)?;
 
         let contract = client
-            .instantiate("assets_precompile", &alice, &mut AssetHubPrecompileRef::new(asset_id))
+            .instantiate(
+                "assets_precompile",
+                &alice,
+                &mut AssetHubPrecompileRef::new(asset_id),
+            )
             .submit()
             .await?;
 
         client
             .sandbox()
             .mint_into(&asset_id, &contract.account_id, 100_000u128)?;
-        client
-            .sandbox()
-            .map_account(&bob)?;
+        client.sandbox().map_account(&bob)?;
 
-        let mut contract_call =
-            contract.call_builder::<AssetHubPrecompile>();
+        let mut contract_call = contract.call_builder::<AssetHubPrecompile>();
         let bob_address = bob.address();
         let transfer_amount = U256::from(1_000);
 
-        let result = client.call(&alice, &contract_call.transfer(bob_address, transfer_amount)).submit().await?;
+        let result = client
+            .call(
+                &alice,
+                &contract_call.transfer(bob_address, transfer_amount),
+            )
+            .submit()
+            .await?;
         assert_ok!(result);
         assert_last_event!(
             &mut client,
@@ -345,12 +345,19 @@ mod e2e_tests {
             }
         );
 
-        let contract_balance = client.sandbox().balance_of(&asset_id, &contract.account_id);
+        let contract_balance =
+            client.sandbox().balance_of(&asset_id, &contract.account_id);
         let bob_balance = client.sandbox().balance_of(&asset_id, &bob);
         assert_eq!(contract_balance, 99_000u128);
         assert_eq!(bob_balance, 1_000u128);
 
-        let result = client.call(&alice, &contract_call.transfer(bob_address, U256::from(1_000_000))).submit().await?;
+        let result = client
+            .call(
+                &alice,
+                &contract_call.transfer(bob_address, U256::from(1_000_000)),
+            )
+            .submit()
+            .await?;
         assert_noop!(result, "BalanceLow");
 
         Ok(())
@@ -365,9 +372,7 @@ mod e2e_tests {
         let alice = alice();
         let bob = bob();
 
-        client
-            .sandbox()
-            .create(&asset_id, &alice, 1u128)?;
+        client.sandbox().create(&asset_id, &alice, 1u128)?;
 
         let contract = client
             .instantiate("assets_precompile", &alice, &mut AssetHubPrecompileRef::new(asset_id))
@@ -379,21 +384,21 @@ mod e2e_tests {
         client
             .sandbox()
             .mint_into(&asset_id, &contract.account_id, 100_000u128)?;
-        client
-            .sandbox()
-            .map_account(&bob)?;
+        client.sandbox().map_account(&bob)?;
         let bob_allowance_before =
             client
                 .sandbox()
                 .allowance(&asset_id, &contract.account_id, &bob);
         assert_eq!(bob_allowance_before, 0u128); // Bob's allowance is 0
 
-        let mut contract_call =
-            contract.call_builder::<AssetHubPrecompile>();
+        let mut contract_call = contract.call_builder::<AssetHubPrecompile>();
         let bob_address = bob.address();
         let approve_amount = U256::from(200);
 
-        let result = client.call(&alice, &contract_call.approve(bob_address, approve_amount)).submit().await?;
+        let result = client
+            .call(&alice, &contract_call.approve(bob_address, approve_amount))
+            .submit()
+            .await?;
         assert_ok!(result);
         assert_last_event!(
             &mut client,
@@ -422,40 +427,29 @@ mod e2e_tests {
         let alice = alice();
         let bob = bob();
 
-        client
-            .sandbox()
-            .create(&asset_id, &alice, 1u128)?;
+        client.sandbox().create(&asset_id, &alice, 1u128)?;
 
         let contract = client
-            .instantiate("assets_precompile", &alice, &mut AssetHubPrecompileRef::new(asset_id))
+            .instantiate(
+                "assets_precompile",
+                &alice,
+                &mut AssetHubPrecompileRef::new(asset_id),
+            )
             .submit()
             .await?;
 
-        let contract_call =
-            contract.call_builder::<AssetHubPrecompile>();
-        client
-            .sandbox()
-            .mint_into(&asset_id, &alice, 100_000u128)?;
-        client
-            .sandbox()
-            .map_account(&bob)?;
+        let contract_call = contract.call_builder::<AssetHubPrecompile>();
+        client.sandbox().mint_into(&asset_id, &alice, 100_000u128)?;
+        client.sandbox().map_account(&bob)?;
 
         let allowance_call = &contract_call.allowance(alice.address(), bob.address());
-        let result = client
-            .call(&alice, allowance_call)
-            .dry_run()
-            .await?;
+        let result = client.call(&alice, allowance_call).dry_run().await?;
         assert_eq!(result.return_value(), U256::from(0));
 
         // Approve bob to spend alice's tokens
-        client
-            .sandbox()
-            .approve(&asset_id, &alice, &bob, 300u128)?;
+        client.sandbox().approve(&asset_id, &alice, &bob, 300u128)?;
 
-        let result = client
-            .call(&alice, allowance_call)
-            .dry_run()
-            .await?;
+        let result = client.call(&alice, allowance_call).dry_run().await?;
         assert_eq!(result.return_value(), U256::from(300));
 
         Ok(())
@@ -472,32 +466,35 @@ mod e2e_tests {
         let alice = alice();
         let bob = bob();
 
-        client
-            .sandbox()
-            .create(&asset_id, &alice, 1u128)?;
+        client.sandbox().create(&asset_id, &alice, 1u128)?;
 
         let contract = client
-            .instantiate("assets_precompile", &alice, &mut AssetHubPrecompileRef::new(asset_id))
+            .instantiate(
+                "assets_precompile",
+                &alice,
+                &mut AssetHubPrecompileRef::new(asset_id),
+            )
             .submit()
             .await?;
 
-        client
-            .sandbox()
-            .mint_into(&asset_id, &alice, 100_000u128)?;
+        client.sandbox().mint_into(&asset_id, &alice, 100_000u128)?;
         // Approve alice to spend contract's tokens
         client
             .sandbox()
             .approve(&asset_id, &alice, &contract.account_id, 50_000u128)?;
-        client
-            .sandbox()
-            .map_account(&bob)?;
+        client.sandbox().map_account(&bob)?;
 
-        let mut contract_call =
-            contract.call_builder::<AssetHubPrecompile>();
+        let mut contract_call = contract.call_builder::<AssetHubPrecompile>();
         let alice_address = alice.address();
         let bob_address = bob.address();
         let transfer_amount = U256::from(1_500);
-        let result = client.call(&alice, &contract_call.transfer_from(alice_address, bob_address, transfer_amount)).submit().await?;
+        let result = client
+            .call(
+                &alice,
+                &contract_call.transfer_from(alice_address, bob_address, transfer_amount),
+            )
+            .submit()
+            .await?;
         assert_ok!(result);
         assert_last_event!(
             &mut client,
@@ -518,7 +515,17 @@ mod e2e_tests {
         assert_eq!(bob_balance, 1_500u128);
         assert_eq!(contract_allowance, 48_500u128);
 
-        let result = client.call(&alice, &contract_call.transfer_from(alice_address, bob_address, U256::from(1_000_000))).submit().await?;
+        let result = client
+            .call(
+                &alice,
+                &contract_call.transfer_from(
+                    alice_address,
+                    bob_address,
+                    U256::from(1_000_000),
+                ),
+            )
+            .submit()
+            .await?;
         assert_noop!(result, "Unapproved");
         Ok(())
     }
