@@ -201,8 +201,6 @@ mod construct_runtime {
         type WeightInfo = ();
         type CallbackHandle = $crate::pallet_assets::AutoIncAssetId<$runtime, TrustBackedAssetsInstance>;
         type RemoveItemsLimit = ConstU32<1000>;
-        #[cfg(feature = "runtime-benchmarks")]
-        type BenchmarkHelper = ();
     }
 
     impl $crate::pallet_transaction_payment::Config for $runtime {
