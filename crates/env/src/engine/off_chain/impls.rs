@@ -551,8 +551,7 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn gas_limit(&mut self) -> u64 {
-        // Panic because of future depecration / removal
-        panic!();
+        unimplemented!("not implemented, the off-chain environment will be removed");
     }
 
     fn transferred_value(&mut self) -> U256 {

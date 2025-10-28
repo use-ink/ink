@@ -228,7 +228,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`caller`][`crate::caller`]
     fn caller(&mut self) -> Address;
 
-    /// Returns the block ref_time limit.
+    /// Returns the block's `ref_time` limit.
     ///
     /// # Note
     ///
