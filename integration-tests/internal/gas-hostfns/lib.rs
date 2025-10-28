@@ -39,7 +39,7 @@ mod gas_hostfns {
             let call_builder = contract.call_builder::<GasHostfns>();
 
             // then
-            let _call_res = client
+            let call_res = client
                 .call(&ink_e2e::alice(), &call_builder.gas_limit())
                 .submit()
                 .await
@@ -47,7 +47,7 @@ mod gas_hostfns {
                     panic!("call failed: {:#?}", err);
                 });
 
-            assert!(_call_res.return_value() > 0);
+            assert!(call_res.return_value() > 0);
 
             Ok(())
         }
