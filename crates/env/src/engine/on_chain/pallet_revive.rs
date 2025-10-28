@@ -113,7 +113,7 @@ impl CryptoHash for Blake2x128 {
         // we pass `offset = 32`, as the `bytes` payload starts there (right after the
         // offset word) we pass `data_pos = 32`, as the payload starts right after
         // the offset word
-        let n = solidity_encode_bytes(input, 32, 0, 32, &mut buffer[4..]);
+        let n = solidity_encode_bytes(input, 32, 0, &mut buffer[4..]);
 
         const ADDR: [u8; 20] =
             hex_literal::hex!("0000000000000000000000000000000000000900");
@@ -210,7 +210,6 @@ const SOL_BYTES_ENCODING_OVERHEAD: usize = 64;
 /// - `offset`: the position in `out` where the data segment of `input` starts. The data
 ///   segment is composed of [length word (32 bytes)] [input (padded to 32)]`.
 /// - `offset_pos`: the position in `out` where to write the `offset` word to.
-/// - `data_pos`: the position in `out` where to write the data segment to.
 /// - `out`: the output buffer.
 ///
 /// # Developer Note
@@ -231,7 +230,6 @@ fn solidity_encode_bytes(
     input: &[u8],
     offset: u32,
     offset_pos: usize,
-    data_pos: usize,
     out: &mut [u8],
 ) -> usize {
     // Number of bytes required to encode the length of the `bytes` array
@@ -256,10 +254,10 @@ fn solidity_encode_bytes(
     len_word[24..32].copy_from_slice(&len_bytes);
 
     // The offset is a 32 byte word
-    out[data_pos..data_pos + 32].copy_from_slice(&len_word);
+    out[offset..offset + 32].copy_from_slice(&len_word);
 
     // Write the `input` at `offset_pos`, after the 32 byte `len` word
-    out[data_pos + BYTES_LEN_WORD..data_pos + BYTES_LEN_WORD + input_len]
+    out[offset + BYTES_LEN_WORD..offset + BYTES_LEN_WORD + input_len]
         .copy_from_slice(input);
 
     64 + padded_len
@@ -295,9 +293,8 @@ impl CryptoHash for Blake2x256 {
         buffer[..4].copy_from_slice(&sel[..4]);
 
         // we pass `offset = 32`, as the `bytes` payload starts there (right after the
-        // offset word) we pass `data_pos = 32`, as the payload starts right after
-        // the offset word
-        let n = solidity_encode_bytes(input, 32, 0, 32, &mut buffer[4..]);
+        // offset word)
+        let n = solidity_encode_bytes(input, 32, 0, &mut buffer[4..]);
 
         const ADDR: [u8; 20] =
             hex_literal::hex!("0000000000000000000000000000000000000900");
@@ -578,7 +575,6 @@ fn call_storage_precompile(
             as u32,
         // encode the `bytes` starting at the appropriate position in the slice
         64,
-        96,
         &mut input_buf[SOL_ENCODED_SELECTOR_LEN..],
     );
 
@@ -1333,7 +1329,7 @@ impl TypedEnvBackend for EnvInstance {
         let sel = const { solidity_selector("weighMessage(bytes)") };
         buffer[..4].copy_from_slice(&sel[..4]);
 
-        let n = solidity_encode_bytes(enc_msg, 32, 0, 32, &mut buffer[4..]);
+        let n = solidity_encode_bytes(enc_msg, 32, 0, &mut buffer[4..]);
 
         let call_result = ext::call(
             CallFlags::empty(),
@@ -1376,7 +1372,7 @@ impl TypedEnvBackend for EnvInstance {
         buffer[..4].copy_from_slice(&sel[..4]);
 
         // 96 because 64 for `Weight` and 32 for `bytes` offset
-        let n = solidity_encode_bytes(enc_msg, 96, 0, 96, &mut buffer[4..]);
+        let n = solidity_encode_bytes(enc_msg, 96, 0, &mut buffer[4..]);
 
         let mut weight_bytes = [0u8; 64];
         weight_bytes[24..32].copy_from_slice(&weight.ref_time().to_be_bytes());
@@ -1415,7 +1411,7 @@ impl TypedEnvBackend for EnvInstance {
         let sel = const { solidity_selector("send(bytes,bytes)") };
         buffer[..4].copy_from_slice(&sel[..4]);
 
-        let n_dest = solidity_encode_bytes(enc_dest, 64, 0, 64, &mut buffer[4..]);
+        let n_dest = solidity_encode_bytes(enc_dest, 64, 0, &mut buffer[4..]);
         let n_msg = solidity_encode_bytes(
             enc_msg,
             32 /* first `bytes` offset word  */ +
@@ -1423,7 +1419,6 @@ impl TypedEnvBackend for EnvInstance {
             (n_dest  - 32usize) as u32, /* we have to subtract 32, because that's the
                                          * length of the `offset` word */
             32, // the offset word is written right after the offset word for `dest`
-            64 + (n_dest - 32usize),
             &mut buffer[4..],
         );
 
