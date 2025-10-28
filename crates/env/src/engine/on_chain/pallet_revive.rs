@@ -232,10 +232,6 @@ fn solidity_encode_bytes(
     offset_pos: usize,
     out: &mut [u8],
 ) -> usize {
-    // Number of bytes required to encode the length of the `bytes` array
-    // (i.e. the "length word").
-    const BYTES_LEN_WORD: usize = 32;
-
     let input_len = input.len();
     let padded_len = solidity_padded_len(input_len);
 
@@ -253,8 +249,16 @@ fn solidity_encode_bytes(
     let len_bytes = (input_len as u64).to_be_bytes();
     len_word[24..32].copy_from_slice(&len_bytes);
 
+    // we take `offset: u32` as a parameter of `solidity_encode_bytes`,
+    // as we need to extract the big endian bytes above.
+    let offset = offset as usize;
+
     // The offset is a 32 byte word
     out[offset..offset + 32].copy_from_slice(&len_word);
+
+    // Number of bytes required to encode the length of the `bytes` array
+    // (i.e. the "length word").
+    const BYTES_LEN_WORD: usize = 32;
 
     // Write the `input` at `offset_pos`, after the 32 byte `len` word
     out[offset + BYTES_LEN_WORD..offset + BYTES_LEN_WORD + input_len]
