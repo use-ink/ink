@@ -108,7 +108,7 @@ recommend using our build tool [`cargo-contract`](https://github.com/use-ink/car
 It automatically compiles for the correct PolkaVM target
 architecture and uses an optimal set of compiler flags.
 
-Ann approximation of the build command it will execute is:
+An approximation of the build command it will execute is:
 
 ```bash
 cd ink/integration-tests/public/flipper/
