@@ -73,6 +73,13 @@ pub fn caller() -> Address {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::caller)
 }
 
+/// Returns the block's `ref_time` limit.
+///
+/// See <https://use.ink/docs/v6/basics/gas/#what-is-gas-in-ink> for more information.
+pub fn gas_limit() -> u64 {
+    <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::gas_limit)
+}
+
 /// Returns the transferred value for the contract execution.
 ///
 /// # Errors
