@@ -269,7 +269,11 @@ fn solidity_encode_bytes(
 
 /// Returns the Solidity word padded length for the given input length (i.e. next multiple
 /// of 32 for the given number).
-// `.div_ceil()` would allocate on the heap
+///
+/// # Developer Note
+///
+// The implementation does not use `.div_ceil()`, as that function is more complex
+// and would use up more stack space.
 #[allow(clippy::manual_div_ceil)]
 #[inline(always)]
 const fn solidity_padded_len(len: usize) -> usize {
