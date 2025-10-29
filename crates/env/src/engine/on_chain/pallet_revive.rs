@@ -111,8 +111,7 @@ impl CryptoHash for Blake2x128 {
         buffer[..4].copy_from_slice(&sel[..4]);
 
         // we pass `offset = 32`, as the `bytes` payload starts there (right after the
-        // offset word) we pass `data_pos = 32`, as the payload starts right after
-        // the offset word
+        // offset word), we pass `offset_pos = 0`, as the callee takes only one argument.
         let n = solidity_encode_bytes(input, 32, 0, &mut buffer[4..]);
 
         const ADDR: [u8; 20] =
