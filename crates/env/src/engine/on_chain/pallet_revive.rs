@@ -271,8 +271,8 @@ fn solidity_encode_bytes(
 ///
 /// # Developer Note
 ///
-/// The implementation does not use `.div_ceil()`, as that function is more complex
-/// and would use up more stack space.
+// The implementation does not use `.div_ceil()`, as that function is more complex
+// and would use up more stack space.
 #[allow(clippy::manual_div_ceil)]
 #[inline(always)]
 const fn solidity_padded_len(len: usize) -> usize {
@@ -1381,12 +1381,11 @@ impl TypedEnvBackend for EnvInstance {
         // 96 because 64 for `Weight` and 32 for `bytes` offset
         let n = solidity_encode_bytes(enc_msg, 96, 0, &mut buffer[4..]);
 
+        let mut weight_bytes = [0u8; 64];
+        weight_bytes[24..32].copy_from_slice(&weight.ref_time().to_be_bytes());
+        weight_bytes[56..64].copy_from_slice(&weight.proof_size().to_be_bytes());
         // put the `Weight` after the `bytes` offset word
-        // 4 bytes for the selector + 32 bytes for the `bytes` offset word
-        buffer[4 + 32 + 24..4 + 32 + 32]
-            .copy_from_slice(&weight.ref_time().to_be_bytes()[..]);
-        buffer[4 + 32 + 32 + 24..4 + 32 + 32 + 32]
-            .copy_from_slice(&weight.proof_size().to_be_bytes()[..]);
+        buffer[4 + 32..4 + 32 + 64].copy_from_slice(&weight_bytes[..]);
 
         let _call_result = ext::call(
             CallFlags::empty(),
