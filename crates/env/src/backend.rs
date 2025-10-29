@@ -235,6 +235,13 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`gas_limit`][`crate::gas_limit`]
     fn gas_limit(&mut self) -> u64;
 
+    /// Returns the simulated ethereum `GASPRICE` value.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`gas_price`][`crate::gas_price`]
+    fn gas_price(&mut self) -> u64;
+
     /// Returns the transferred value for the contract execution.
     ///
     /// # Note

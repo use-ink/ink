@@ -80,6 +80,11 @@ pub fn gas_limit() -> u64 {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::gas_limit)
 }
 
+/// Returns the simulated ethereum `GASPRICE` value.
+pub fn gas_price() -> u64 {
+    <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::gas_price)
+}
+
 /// Returns the transferred value for the contract execution.
 ///
 /// # Errors

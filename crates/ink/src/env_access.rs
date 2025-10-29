@@ -139,6 +139,37 @@ where
         ink_env::gas_limit()
     }
 
+    /// Returns the simulated ethereum `GASPRICE` value.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_gas_price(&self) -> u64 {
+    ///             self.env().gas_price()
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::gas_price`]
+    pub fn gas_price(self) -> u64 {
+        ink_env::gas_price()
+    }
+
     /// Returns the transferred value for the contract execution.
     ///
     /// # Example
