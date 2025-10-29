@@ -38,7 +38,11 @@ mod data_hostfns {
         ) -> E2EResult<()> {
             // given
             let contract = client
-                .instantiate("data_hostfns", &ink_e2e::alice(), &mut DataHostfnsRef::new())
+                .instantiate(
+                    "data_hostfns",
+                    &ink_e2e::alice(),
+                    &mut DataHostfnsRef::new(),
+                )
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -64,7 +68,11 @@ mod data_hostfns {
         ) -> E2EResult<()> {
             // given
             let contract = client
-                .instantiate("data_hostfns", &ink_e2e::alice(), &mut DataHostfnsRef::new())
+                .instantiate(
+                    "data_hostfns",
+                    &ink_e2e::alice(),
+                    &mut DataHostfnsRef::new(),
+                )
                 .submit()
                 .await
                 .expect("instantiate failed");
