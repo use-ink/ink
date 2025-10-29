@@ -35,6 +35,8 @@ use ink_env::{
         HashOutput,
     },
 };
+#[cfg(feature = "xcm")]
+use ink_primitives::Weight;
 use ink_primitives::{
     Address,
     CodeHashErr,
@@ -1248,20 +1250,29 @@ where
         ink_env::set_code_hash::<E>(code_hash)
     }
 
-    #[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
+    #[cfg(feature = "xcm")]
+    pub fn xcm_weigh<Call: scale::Encode>(
+        self,
+        msg: &xcm::VersionedXcm<Call>,
+    ) -> Result<Weight> {
+        ink_env::xcm_weigh(msg)
+    }
+
+    #[cfg(feature = "xcm")]
     pub fn xcm_execute<Call: scale::Encode>(
         self,
         msg: &xcm::VersionedXcm<Call>,
+        weight: Weight,
     ) -> Result<()> {
-        ink_env::xcm_execute::<E, _>(msg)
+        ink_env::xcm_execute(msg, weight)
     }
 
-    #[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
+    #[cfg(feature = "xcm")]
     pub fn xcm_send<Call: scale::Encode>(
         self,
         dest: &xcm::VersionedLocation,
         msg: &xcm::VersionedXcm<Call>,
-    ) -> Result<xcm::v4::XcmHash> {
-        ink_env::xcm_send::<E, _>(dest, msg)
+    ) -> Result<()> {
+        ink_env::xcm_send(dest, msg)
     }
 }

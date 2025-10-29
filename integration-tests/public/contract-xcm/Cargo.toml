@@ -6,13 +6,10 @@ edition = "2024"
 publish = false
 
 [dependencies]
-ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
-frame-support = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
-pallet-balances = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
+ink = { path = "../../../crates/ink", default-features = false, features = ["xcm"] }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
-ink_sandbox = { path = "../../../crates/sandbox" }
 
 [lib]
 path = "lib.rs"
@@ -21,8 +18,6 @@ path = "lib.rs"
 default = ["std"]
 std = [
     "ink/std",
-    "pallet-balances/std",
-    "frame-support/std",
 ]
 ink-as-dependency = []
 e2e-tests = []
