@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Unreleased]
 
+## Version 6.0.0-beta
+
 ### Added
 - Implements the API for the `pallet-revive` host function `gas_limit` - [#2691](https://github.com/use-ink/ink/pull/2691)
 - Implements the API for the `pallet-revive` host function `to_account_id` - [#2578](https://github.com/use-ink/ink/pull/2578)
@@ -30,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `name` override fixes for message id computation and trait definitions - [#2649](https://github.com/use-ink/ink/pull/2649)
 - Add hotfix for `generic-array` breakage ([issue](https://github.com/fizyk20/generic-array/issues/158)) - [#2688](https://github.com/use-ink/ink/pull/2688)
 
-## Version 6.0.0-beta
+## Version 6.0.0-alpha.4
 
 ### Added
 - Add integration test for arithmetic overflow checks - [#2631](https://github.com/use-ink/ink/pull/2631)
