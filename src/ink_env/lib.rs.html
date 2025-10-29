@@ -54,13 +54,13 @@
 <a href=#54 id=54 data-nosnippet>54</a>
 <a href=#55 id=55 data-nosnippet>55</a><span class="attr">#[cfg(target_arch = <span class="string">"riscv64"</span>)]
 <a href=#56 id=56 data-nosnippet>56</a>#[panic_handler]
-<a href=#57 id=57 data-nosnippet>57</a></span><span class="kw">fn </span>panic(info: <span class="kw-2">&amp;</span>core::panic::PanicInfo) -&gt; ! {
+<a href=#57 id=57 data-nosnippet>57</a></span><span class="kw">fn </span>panic(_info: <span class="kw-2">&amp;</span>core::panic::PanicInfo) -&gt; ! {
 <a href=#58 id=58 data-nosnippet>58</a>    <span class="comment">// In case the contract is build in debug-mode, we return the
 <a href=#59 id=59 data-nosnippet>59</a>    // panic message as a payload by triggering a contract revert.
 <a href=#60 id=60 data-nosnippet>60</a>    </span><span class="attr">#[cfg(any(feature = <span class="string">"ink-debug"</span>, feature = <span class="string">"std"</span>))]
 <a href=#61 id=61 data-nosnippet>61</a>    </span><span class="self">self</span>::return_value(
 <a href=#62 id=62 data-nosnippet>62</a>        ReturnFlags::REVERT,
-<a href=#63 id=63 data-nosnippet>63</a>        <span class="kw-2">&amp;</span><span class="macro">ink_prelude::format!</span>(<span class="string">"{}"</span>, info.message()).as_bytes(),
+<a href=#63 id=63 data-nosnippet>63</a>        <span class="kw-2">&amp;</span><span class="macro">ink_prelude::format!</span>(<span class="string">"{}"</span>, _info.message()).as_bytes(),
 <a href=#64 id=64 data-nosnippet>64</a>    );
 <a href=#65 id=65 data-nosnippet>65</a>
 <a href=#66 id=66 data-nosnippet>66</a>    <span class="comment">// If contract is compiled with `cargo contract --release`, it will

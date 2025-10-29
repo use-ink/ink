@@ -79,10 +79,10 @@
 <a href=#79 id=79 data-nosnippet>79</a></span><span class="kw">pub struct </span>Weight {
 <a href=#80 id=80 data-nosnippet>80</a>    <span class="attr">#[codec(compact)]
 <a href=#81 id=81 data-nosnippet>81</a>    </span><span class="doccomment">/// The weight of computational time used based on some reference hardware.
-<a href=#82 id=82 data-nosnippet>82</a>    </span>ref_time: u64,
+<a href=#82 id=82 data-nosnippet>82</a>    </span><span class="kw">pub </span>ref_time: u64,
 <a href=#83 id=83 data-nosnippet>83</a>    <span class="attr">#[codec(compact)]
 <a href=#84 id=84 data-nosnippet>84</a>    </span><span class="doccomment">/// The weight of storage space used by proof of validity.
-<a href=#85 id=85 data-nosnippet>85</a>    </span>proof_size: u64,
+<a href=#85 id=85 data-nosnippet>85</a>    </span><span class="kw">pub </span>proof_size: u64,
 <a href=#86 id=86 data-nosnippet>86</a>}
 <a href=#87 id=87 data-nosnippet>87</a>
 <a href=#88 id=88 data-nosnippet>88</a><span class="kw">impl </span>From&lt;sp_weights::Weight&gt; <span class="kw">for </span>Weight {
