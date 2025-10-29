@@ -93,11 +93,7 @@ mod misc_hostfns {
         ) -> E2EResult<()> {
             // given
             let contract = client
-                .instantiate(
-                    "misc_hostfns",
-                    &ink_e2e::alice(),
-                    &mut MiscHostfnsRef::new(),
-                )
+                .instantiate("misc_hostfns", &ink_e2e::bob(), &mut MiscHostfnsRef::new())
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -105,7 +101,7 @@ mod misc_hostfns {
 
             // then
             let _call_res = client
-                .call(&ink_e2e::alice(), &call_builder.is_contract())
+                .call(&ink_e2e::bob(), &call_builder.is_contract())
                 .submit()
                 .await
                 .unwrap_or_else(|err| {

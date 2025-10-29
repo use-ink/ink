@@ -79,10 +79,10 @@ use subxt::{
 pub struct Weight {
     #[codec(compact)]
     /// The weight of computational time used based on some reference hardware.
-    ref_time: u64,
+    pub ref_time: u64,
     #[codec(compact)]
     /// The weight of storage space used by proof of validity.
-    proof_size: u64,
+    pub proof_size: u64,
 }
 
 impl From<sp_weights::Weight> for Weight {
