@@ -242,6 +242,13 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`gas_price`][`crate::gas_price`]
     fn gas_price(&mut self) -> u64;
 
+    /// Returns the total size of the contract call input data.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`call_data_size`][`crate::call_data_size]
+    fn call_data_size(&mut self) -> u64;
+
     /// Returns the transferred value for the contract execution.
     ///
     /// # Note

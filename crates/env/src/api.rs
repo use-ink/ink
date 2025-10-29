@@ -85,6 +85,11 @@ pub fn gas_price() -> u64 {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::gas_price)
 }
 
+/// Returns the total size of the contract call input data.
+pub fn call_data_size() -> u64 {
+    <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::call_data_size)
+}
+
 /// Returns the transferred value for the contract execution.
 ///
 /// # Errors
