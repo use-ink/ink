@@ -270,7 +270,6 @@ fn solidity_encode_bytes(
 /// of 32 for the given number).
 ///
 /// # Developer Note
-///
 // The implementation does not use `.div_ceil()`, as that function is more complex
 // and would use up more stack space.
 #[allow(clippy::manual_div_ceil)]
