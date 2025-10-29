@@ -17,6 +17,7 @@ mod contract {
             let _ = Self::env().gas_limit();
             let _ = Self::env().gas_price();
             let _ = Self::env().call_data_size();
+            let _ = Self::env().return_data_size();
             let _ = Self::env().transferred_value();
             let _ = Self::env().weight_to_fee(0);
             Self {}
@@ -33,6 +34,7 @@ mod contract {
             let _ = self.env().gas_limit();
             let _ = self.env().gas_price();
             let _ = self.env().call_data_size();
+            let _ = self.env().return_data_size();
             let _ = self.env().transferred_value();
             let _ = self.env().weight_to_fee(0);
         }

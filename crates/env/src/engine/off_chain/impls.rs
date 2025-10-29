@@ -562,6 +562,10 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("not implemented, the off-chain environment will be removed");
     }
 
+    fn return_data_size(&mut self) -> u64 {
+        unimplemented!("not implemented, the off-chain environment will be removed");
+    }
+
     fn transferred_value(&mut self) -> U256 {
         self.get_property(Engine::value_transferred)
             .unwrap_or_else(|error| {

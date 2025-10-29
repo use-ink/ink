@@ -201,6 +201,37 @@ where
         ink_env::call_data_size()
     }
 
+    /// Returns the length of the data returned by the last runtime call
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_return_data_size(&self) -> u64 {
+    ///             self.env().return_data_size()
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::return_data_size`]
+    pub fn return_data_size(self) -> u64 {
+        ink_env::return_data_size()
+    }
+
     /// Returns the transferred value for the contract execution.
     ///
     /// # Example

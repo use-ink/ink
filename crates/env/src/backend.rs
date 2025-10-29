@@ -249,6 +249,13 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`call_data_size`][`crate::call_data_size]
     fn call_data_size(&mut self) -> u64;
 
+    /// Returns the length of the data returned by the last runtime call
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`return_data_size`][`crate::return_data_size]
+    fn return_data_size(&mut self) -> u64;
+
     /// Returns the transferred value for the contract execution.
     ///
     /// # Note

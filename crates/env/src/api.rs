@@ -90,6 +90,11 @@ pub fn call_data_size() -> u64 {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::call_data_size)
 }
 
+/// Returns the length of the data returned by the last runtime call
+pub fn return_data_size() -> u64 {
+    <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::return_data_size)
+}
+
 /// Returns the transferred value for the contract execution.
 ///
 /// # Errors

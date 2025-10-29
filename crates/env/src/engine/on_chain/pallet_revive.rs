@@ -899,6 +899,10 @@ impl TypedEnvBackend for EnvInstance {
         ext::call_data_size()
     }
 
+    fn return_data_size(&mut self) -> u64 {
+        ext::return_data_size()
+    }
+
     fn transferred_value(&mut self) -> U256 {
         let mut scope = self.scoped_buffer();
         let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();
