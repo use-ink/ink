@@ -110,6 +110,37 @@ where
         ink_env::caller()
     }
 
+    /// Returns the block ref_time limit.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_limit(&self) -> u64 {
+    ///             self.env().gas_limit()
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::gas_limit`]
+    pub fn gas_limit(self) -> u64 {
+        ink_env::gas_limit()
+    }
+
     /// Returns the transferred value for the contract execution.
     ///
     /// # Example

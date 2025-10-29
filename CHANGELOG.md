@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [Unreleased]
 
 ### Added
+- Implements the API for the `pallet-revive` host function `gas_limit` - [#2691](https://github.com/use-ink/ink/pull/2691)
 - Implements the API for the `pallet-revive` host function `to_account_id` - [#2578](https://github.com/use-ink/ink/pull/2578)
 - Add `#[ink::contract_ref]` attribute - [#2648](https://github.com/use-ink/ink/pull/2648)
 - Add `ink_revive_types` (and remove `pallet-revive` dependency from `ink_e2e`) - [#2657](https://github.com/use-ink/ink/pull/2657)

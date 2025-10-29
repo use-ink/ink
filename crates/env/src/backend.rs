@@ -230,6 +230,13 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`caller`][`crate::caller`]
     fn caller(&mut self) -> Address;
 
+    /// Returns the block's `ref_time` limit.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`gas_limit`][`crate::gas_limit`]
+    fn gas_limit(&mut self) -> u64;
+
     /// Returns the transferred value for the contract execution.
     ///
     /// # Note
