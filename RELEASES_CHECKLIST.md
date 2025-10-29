@@ -60,19 +60,19 @@ in the future.
     - Release `cargo-contract` crates.
     - Request update of `drink` client, which depends on the `cargo-contract` crates.
     - Release `ink_e2e`.
-2. Do a dry run with `cargo release [new_version] -v --no-tag --no-push`
-    - `[new_version]` should be the **exact** SemVer compatible version you are attempting
-      to release e.g. `5.0.0`
-      - It is possible to supply a SemVer level here e.g. `major`, `minor`, `patch` or
-        `<pre-release-name>`, however this will automatically bump and commit the changes
-        to the `Cargo.toml` manifests. We have already done that in an earlier step so it
-        is not necessary.
-    - We don't want `cargo-release` to create any releases or push any code, we'll do
-      that manually once we've actually published to `crates.io`.
-    - Note that `ink_sandbox` has its own version number and can be released separately of the other crates.
-3. Check the output of the dry run:
-   - Does not show any automatic bumping of crate versions.
-   - Runs without error.
+1. The `ink_sandbox` crate depends on a git commit of `polkadot-sdk`, hence it
+   currently cannot be published to crates.io.
+1. Do a dry run:
+   ```bash
+   fd Cargo.toml crates/ | \
+   grep -v e2e | \
+   grep -v sandbox | \
+   xargs -n1 cargo no-dev-deps publish --allow-dirty --dry-run --manifest-path
+   ```
+   This command ignores the `e2e` and `sandbox` folder. It uses [`no-dev-deps`](https://crates.io/crates/cargo-no-dev-deps)
+   for publishing, so that the `dev-dependencies` of ink! are ignored for publishing.
+   They are not needed and due to a cycle it's also not possible to publish with them.
+   Ignoring `dev-dependencies` is also why `--allow-dirty` is necessary.
 4. Following a successful dry run, we can now publish to crates.io.
    - This will be done from the release branch itself.
    - This is because it is possible for the dry run to succeed but for the actual publish
@@ -83,11 +83,13 @@ in the future.
        `master` during the release.
      - The above is to ensure that the bundled code pushed to crates.io is the same as
        the tagged release on GitHub.
-5. Publish with `cargo release [new_version] -v --no-tag --no-push --execute`
-    - Ensure the same `[new_version]` as the dry run, which should be the **exact** SemVer
-      compatible version you are attempting to release e.g. `4.0.0-alpha.3`.
-    - We add the grace period since crates depend on one another.
-    - We add the `--execute` flag to _actually_ publish things to crates.io.
+5. Publish with
+   ```bash
+   fd Cargo.toml crates/ | \
+   grep -v e2e | \
+   grep -v sandbox | \
+   xargs -n1 cargo no-dev-deps publish --allow-dirty --manifest-path
+   ```
 6. Following a successful release from the release PR branch, now the PR can be merged
    into `master`
     - Once merged, notify core team members in the Element channel that PRs can be merged
