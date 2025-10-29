@@ -999,14 +999,7 @@ impl TypedEnvBackend for EnvInstance {
             .chunks_exact(32)
             .map(|c| c.try_into().unwrap())
             .collect::<ink_prelude::vec::Vec<[u8; 32]>>();
-        let enc_data = scope.take_encoded_with(|buffer| {
-            let encoded = event.encode_data();
-            let len = encoded.len();
-            // NOTE: panics if buffer isn't large enough.
-            // This behavior is similar to `ScopedBuffer::take_encoded`.
-            buffer[..len].copy_from_slice(&encoded);
-            len
-        });
+        let enc_data = scope.take_encoded_with(|buffer| event.encode_data_to(buffer));
 
         ext::deposit_event(&enc_topics[..], enc_data);
     }
