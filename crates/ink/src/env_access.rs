@@ -170,6 +170,37 @@ where
         ink_env::gas_price()
     }
 
+    /// Returns the amount of evm gas left.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_ref_time_left(&self) -> u64 {
+    ///             self.env().ref_time_left()
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::ref_time_left`]
+    pub fn ref_time_left(self) -> u64 {
+        ink_env::ref_time_left()
+    }
+
     /// Returns the total size of the contract call input data.
     ///
     /// # Example

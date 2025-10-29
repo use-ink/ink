@@ -242,6 +242,13 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`gas_price`][`crate::gas_price`]
     fn gas_price(&mut self) -> u64;
 
+    /// Returns the amount of evm gas left.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ref_time_left`][`crate::ref_time_left`]
+    fn ref_time_left(&mut self) -> u64;
+
     /// Returns the total size of the contract call input data.
     ///
     /// # Note

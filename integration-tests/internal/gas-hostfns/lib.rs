@@ -23,6 +23,12 @@ mod gas_hostfns {
         pub fn gas_price(&self) -> u64 {
             self.env().gas_price()
         }
+
+        /// Checks that the host function `ref_time_left` works
+        #[ink(message)]
+        pub fn ref_time_left(&self) -> u64 {
+            self.env().ref_time_left()
+        }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
@@ -73,6 +79,32 @@ mod gas_hostfns {
             // then
             let call_res = client
                 .call(&ink_e2e::alice(), &call_builder.gas_price())
+                .submit()
+                .await
+                .unwrap_or_else(|err| {
+                    panic!("call failed: {:#?}", err);
+                });
+
+            assert!(call_res.return_value() > 0);
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn e2e_ref_time_left_works<Client: E2EBackend>(
+            mut client: Client,
+        ) -> E2EResult<()> {
+            // given
+            let contract = client
+                .instantiate("gas_hostfns", &ink_e2e::alice(), &mut GasHostfnsRef::new())
+                .submit()
+                .await
+                .expect("instantiate failed");
+            let call_builder = contract.call_builder::<GasHostfns>();
+
+            // then
+            let call_res = client
+                .call(&ink_e2e::alice(), &call_builder.ref_time_left())
                 .submit()
                 .await
                 .unwrap_or_else(|err| {
