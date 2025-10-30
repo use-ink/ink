@@ -30,4 +30,3 @@ mod contract {
 }
 
 fn main() {}
-
