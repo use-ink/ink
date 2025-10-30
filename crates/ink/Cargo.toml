@@ -33,6 +33,10 @@ linkme = { workspace = true, optional = true }
 polkavm-derive = { workspace = true }
 xcm = { workspace = true, optional = true }
 
+# required for overwriting child dependency features of `pallet-xcm`
+sp-runtime-interface = { version = "31.0.0", features = ["disable_target_static_assertions"], default-features = false, optional = true }
+sp-io = { version = "42.0.0", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"], optional = true }
+
 # Hotfix for https://github.com/fizyk20/generic-array/issues/158.
 # Can be removed once there is a new release of https://github.com/RustCrypto,
 # from which we use some hashing crates (`sha3`, `sha2`, etc.).
@@ -73,7 +77,7 @@ no-panic-handler = ["ink_env/no-panic-handler"]
 unstable-hostfn = ["ink_env/unstable-hostfn"]
 
 # Enable xcm utilities.
-xcm = ["dep:xcm", "ink_env/xcm"]
+xcm = ["dep:xcm", "ink_env/xcm", "dep:sp-runtime-interface", "dep:sp-io"]
 
 # For the ui tests, which use this `Cargo.toml`
 [lints.rust.unexpected_cfgs]

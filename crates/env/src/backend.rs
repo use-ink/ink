@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#[cfg(feature = "xcm")]
+use ink_primitives::Weight;
 use ink_primitives::{
     Address,
     CodeHashErr,
@@ -415,15 +417,28 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`own_code_hash`][`crate::own_code_hash`]
     fn own_code_hash(&mut self) -> H256;
 
+    /// Estimates the [`Weight`] required to execute a given XCM message.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`xcm`][`crate::xcm_weigh`].
+    #[cfg(feature = "xcm")]
+    fn xcm_weigh<Call>(&mut self, msg: &xcm::VersionedXcm<Call>) -> Result<Weight>
+    where
+        Call: scale::Encode;
+
     /// Execute an XCM message locally, using the contract's address as the origin.
     ///
     /// # Note
     ///
     /// For more details visit: [`xcm`][`crate::xcm_execute`].
-    #[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
-    fn xcm_execute<E, Call>(&mut self, msg: &xcm::VersionedXcm<Call>) -> Result<()>
+    #[cfg(feature = "xcm")]
+    fn xcm_execute<Call>(
+        &mut self,
+        msg: &xcm::VersionedXcm<Call>,
+        weight: Weight,
+    ) -> Result<()>
     where
-        E: Environment,
         Call: scale::Encode;
 
     /// Send an XCM message, using the contract's address as the origin.
@@ -431,13 +446,12 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`xcm`][`crate::xcm_send`].
-    #[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
-    fn xcm_send<E, Call>(
+    #[cfg(feature = "xcm")]
+    fn xcm_send<Call>(
         &mut self,
         dest: &xcm::VersionedLocation,
         msg: &xcm::VersionedXcm<Call>,
-    ) -> Result<xcm::v4::XcmHash>
+    ) -> Result<()>
     where
-        E: Environment,
         Call: scale::Encode;
 }

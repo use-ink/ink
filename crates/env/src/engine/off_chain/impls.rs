@@ -13,6 +13,8 @@
 // limitations under the License.
 
 use ink_engine::ext::Engine;
+#[cfg(feature = "xcm")]
+use ink_primitives::Weight;
 use ink_primitives::{
     Address,
     CodeHashErr,
@@ -799,23 +801,26 @@ impl TypedEnvBackend for EnvInstance {
             .expect("own code hash not found")
     }
 
-    #[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
-    fn xcm_execute<E, Call>(&mut self, _msg: &xcm::VersionedXcm<Call>) -> Result<()>
-    where
-        E: Environment,
-    {
+    #[cfg(feature = "xcm")]
+    fn xcm_weigh<Call>(&mut self, _msg: &xcm::VersionedXcm<Call>) -> Result<Weight> {
         unimplemented!("off-chain environment does not support `xcm_execute`")
     }
 
-    #[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
-    fn xcm_send<E, Call>(
+    #[cfg(feature = "xcm")]
+    fn xcm_execute<Call>(
+        &mut self,
+        _msg: &xcm::VersionedXcm<Call>,
+        _weight: Weight,
+    ) -> Result<()> {
+        unimplemented!("off-chain environment does not support `xcm_execute`")
+    }
+
+    #[cfg(feature = "xcm")]
+    fn xcm_send<Call>(
         &mut self,
         _dest: &xcm::VersionedLocation,
         _msg: &xcm::VersionedXcm<Call>,
-    ) -> Result<xcm::v4::XcmHash>
-    where
-        E: Environment,
-    {
+    ) -> Result<()> {
         unimplemented!("off-chain environment does not support `xcm_send`")
     }
 }

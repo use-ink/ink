@@ -1,5 +1,5 @@
 error: cannot specify `signature_topic` with `anonymous` in ink! event item configuration argument
- --> tests/ui/event/fail/conficting_attributes.rs:3:7
+ --> tests/ui/event/fail/conflicting_attributes.rs:3:7
   |
 3 | #[ink(signature_topic = "1111111111111111111111111111111111111111111111111111111111111111")]
   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

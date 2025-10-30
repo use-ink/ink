@@ -3618,6 +3618,8 @@ dependencies = [
  "parity-scale-codec",
  "polkavm-derive 0.26.0",
  "scale-info",
+ "sp-io 42.0.0",
+ "sp-runtime-interface 31.0.0",
  "staging-xcm",
  "trybuild",
 ]
