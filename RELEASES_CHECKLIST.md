@@ -69,7 +69,10 @@ in the future.
    grep -v sandbox | \
    xargs -n1 cargo no-dev-deps publish --allow-dirty --dry-run --manifest-path
    ```
-   This command ignores the `e2e` and `sandbox` folder. It uses [`no-dev-deps`](https://crates.io/crates/cargo-no-dev-deps)
+   This command ignores the `e2e` and `sandbox` folder: The `e2e` crates depend on the `cargo-contract/contract-build`
+   crate, so if you want to publish those, you need to publish `cargo-contract/contract-build` first.
+   The `sandbox` is ignored, as it depends on some crates via their `git` ref.
+   It uses [`no-dev-deps`](https://crates.io/crates/cargo-no-dev-deps)
    for publishing, so that the `dev-dependencies` of ink! are ignored for publishing.
    They are not needed and due to a cycle it's also not possible to publish with them.
    Ignoring `dev-dependencies` is also why `--allow-dirty` is necessary.
