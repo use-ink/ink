@@ -621,7 +621,7 @@ fn call_storage_precompile(
 /// - Fine: `function foo() returns (bytes memory);`
 /// - Not Fine: `function foo() returns (bool, bytes memory);`
 ///
-/// # Return Valu
+/// # Return Value
 ///
 /// Returns the number of bytes written to `out`.
 fn decode_bytes(input: &[u8], out: &mut [u8]) -> usize {
