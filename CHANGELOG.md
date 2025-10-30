@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Unreleased]
 
+## Version 6.0.0-beta
+
 ### Added
 - Implements the API for the `pallet-revive` host function `gas_limit` - [#2691](https://github.com/use-ink/ink/pull/2691)
 - Implements the API for the `pallet-revive` host function `to_account_id` - [#2578](https://github.com/use-ink/ink/pull/2578)
