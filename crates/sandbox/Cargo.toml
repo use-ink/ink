@@ -26,12 +26,12 @@ sp-externalities = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = 
 sp-runtime = { version = "43.0.0", default-features = false  }
 sp-io = {  git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false  }
 
-ink_primitives = { workspace = true }
-ink_revive_types = { workspace = true }
-ink_precompiles = { workspace = true }
-ink_env = { workspace = true, default-features = true }
-ink_e2e = { path = "../e2e" }
-ink_e2e_macro = { workspace = true, default-features = true }
+ink_primitives = { version = "6.0.0-beta.1" }
+ink_revive_types = { version = "6.0.0-beta.1" }
+ink_precompiles = { version = "6.0.0-beta.1" }
+ink_env = { version = "6.0.0-beta.1", default-features = true }
+ink_e2e = { version = "6.0.0-beta.1" }
+ink_e2e_macro = { version = "6.0.0-beta.1", default-features = true }
 
 jsonrpsee = { workspace = true, features = ["ws-client"] }
 thiserror = { workspace = true }
