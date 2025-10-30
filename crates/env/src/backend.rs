@@ -237,6 +237,34 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`gas_limit`][`crate::gas_limit`]
     fn gas_limit(&mut self) -> u64;
 
+    /// Returns the simulated ethereum `GASPRICE` value.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`gas_price`][`crate::gas_price`]
+    fn gas_price(&mut self) -> u64;
+
+    /// Returns the amount of evm gas left.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ref_time_left`][`crate::ref_time_left`]
+    fn ref_time_left(&mut self) -> u64;
+
+    /// Returns the total size of the contract call input data.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`call_data_size`][`crate::call_data_size]
+    fn call_data_size(&mut self) -> u64;
+
+    /// Returns the length of the data returned by the last runtime call
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`return_data_size`][`crate::return_data_size]
+    fn return_data_size(&mut self) -> u64;
+
     /// Returns the transferred value for the contract execution.
     ///
     /// # Note

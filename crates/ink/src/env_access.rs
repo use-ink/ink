@@ -141,6 +141,130 @@ where
         ink_env::gas_limit()
     }
 
+    /// Returns the simulated ethereum `GASPRICE` value.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_gas_price(&self) -> u64 {
+    ///             self.env().gas_price()
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::gas_price`]
+    pub fn gas_price(self) -> u64 {
+        ink_env::gas_price()
+    }
+
+    /// Returns the amount of evm gas left.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_ref_time_left(&self) -> u64 {
+    ///             self.env().ref_time_left()
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::ref_time_left`]
+    pub fn ref_time_left(self) -> u64 {
+        ink_env::ref_time_left()
+    }
+
+    /// Returns the total size of the contract call input data.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_call_data_size(&self) -> u64 {
+    ///             self.env().call_data_size()
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::call_data_size`]
+    pub fn call_data_size(self) -> u64 {
+        ink_env::call_data_size()
+    }
+
+    /// Returns the length of the data returned by the last runtime call
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_return_data_size(&self) -> u64 {
+    ///             self.env().return_data_size()
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::return_data_size`]
+    pub fn return_data_size(self) -> u64 {
+        ink_env::return_data_size()
+    }
+
     /// Returns the transferred value for the contract execution.
     ///
     /// # Example

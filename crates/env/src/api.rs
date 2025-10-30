@@ -82,6 +82,26 @@ pub fn gas_limit() -> u64 {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::gas_limit)
 }
 
+/// Returns the simulated ethereum `GASPRICE` value.
+pub fn gas_price() -> u64 {
+    <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::gas_price)
+}
+
+/// Returns the amount of evm gas left.
+pub fn ref_time_left() -> u64 {
+    <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::ref_time_left)
+}
+
+/// Returns the total size of the contract call input data.
+pub fn call_data_size() -> u64 {
+    <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::call_data_size)
+}
+
+/// Returns the length of the data returned by the last runtime call
+pub fn return_data_size() -> u64 {
+    <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::return_data_size)
+}
+
 /// Returns the transferred value for the contract execution.
 ///
 /// # Errors
