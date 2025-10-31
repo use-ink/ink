@@ -676,7 +676,7 @@ pub fn ecdsa_to_eth_address(pubkey: &[u8; 33], output: &mut [u8; 20]) -> Result<
 ///
 /// - If sr25519 signature cannot be verified.
 ///
-/// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
+/// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/polkadot-sdk/tree/master/substrate/frame/revive#unstable-interfaces)
 /// which is unsafe and normally is not available on production chains.
 #[cfg(feature = "unstable-hostfn")]
 pub fn sr25519_verify(
