@@ -68,7 +68,7 @@ pub fn analyze_or_err(
         #trait_def_impl
 
         // Type alias for contract ref.
-        type #contract_ref_name =
+        pub type #contract_ref_name =
             <<::ink::reflect::TraitDefinitionRegistry<#env> as #trait_name>
                     ::__ink_TraitInfo as ::ink::codegen::TraitCallForwarder>::Forwarder<#abi_ty>;
     ))

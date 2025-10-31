@@ -206,3 +206,22 @@ where
 {
     <<Contract as ContractCallBuilder>::Type<Abi> as FromAddr>::from_addr(acc_id)
 }
+
+/// Extension trait for converting various types to Address (H160).
+pub trait IntoAddress {
+    /// Convert to an Address (H160).
+    fn address(&self) -> Address;
+}
+
+impl IntoAddress for Keypair {
+    fn address(&self) -> Address {
+        AccountIdMapper::to_address(&self.public_key().0)
+    }
+}
+
+impl IntoAddress for ink_primitives::AccountId {
+    fn address(&self) -> Address {
+        let bytes = *AsRef::<[u8; 32]>::as_ref(self);
+        AccountIdMapper::to_address(&bytes)
+    }
+}

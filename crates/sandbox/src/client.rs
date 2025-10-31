@@ -14,6 +14,7 @@
 
 use crate::{
     AccountIdFor,
+    EventRecordOf,
     RuntimeCall,
     Sandbox,
     api::prelude::*,
@@ -133,6 +134,14 @@ where
         }
     }
 
+    /// Get a mutable reference to the underlying sandbox.
+    ///
+    /// This allows direct access to all sandbox methods and traits, making it easy to
+    /// interact with runtime pallets like `pallet-assets`:
+    pub fn sandbox(&mut self) -> &mut S {
+        &mut self.sandbox
+    }
+
     fn fund_accounts(sandbox: &mut S) {
         const TOKENS: u128 = 1_000_000_000_000_000;
 
@@ -171,7 +180,7 @@ where
     type AccountId = AccountId;
     type Balance = BalanceOf<S::Runtime>;
     type Error = SandboxErr;
-    type EventLog = ();
+    type EventLog = Vec<EventRecordOf<S::Runtime>>;
 
     async fn create_and_fund_account(
         &mut self,
@@ -226,7 +235,8 @@ where
             RuntimeCall::<S::Runtime>::decode(&mut encoded_call.as_slice())
                 .expect("Failed to decode runtime call");
 
-        // Execute the call.
+        // Execute the call and record events emitted during this operation.
+        let start = self.sandbox.events().len();
         self.sandbox
             .runtime_call(
                 decoded_call,
@@ -235,8 +245,9 @@ where
             .map_err(|err| {
                 SandboxErr::new(format!("runtime_call: execution error {:?}", err.error))
             })?;
-
-        Ok(())
+        let all = self.sandbox.events();
+        let events = all[start..].to_vec();
+        Ok(events)
     }
 
     async fn transfer_allow_death(
@@ -334,6 +345,8 @@ where
         let mut tracer = self.sandbox.evm_tracer(tracer_type);
 
         let mut code_hash: Option<H256> = None;
+        // Record events emitted during instantiation
+        let start = self.sandbox.events().len();
         let result = pallet_revive::tracing::trace(tracer.as_tracing(), || {
             code_hash = Some(H256(ink_e2e::code_hash(&code[..])));
             self.sandbox.deploy_contract(
@@ -371,10 +384,13 @@ where
             .as_ref()
             .to_owned();
 
+        let all = self.sandbox.events();
+        let events = all[start..].to_vec();
+
         Ok(BareInstantiationResult {
             addr: addr_raw,
             account_id: account_id.into(),
-            events: (), // todo: https://github.com/Cardinal-Cryptography/drink/issues/32
+            events,
             trace,
             code_hash: code_hash.expect("code_hash must have been calculated"),
         })
@@ -476,7 +492,8 @@ where
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
-
+        // Record events emitted during upload
+        let start = self.sandbox.events().len();
         let result = match self.sandbox.upload_contract(
             code,
             caller_to_origin::<S>(caller),
@@ -485,17 +502,19 @@ where
             Ok(result) => result,
             Err(err) => {
                 log_error(&format!("upload failed: {err:?}"));
-                return Err(SandboxErr::new(format!("bare_upload: {err:?}")))
+                return Err(SandboxErr::new(format!("bare_upload: {err:?}")));
             }
         };
 
+        let all = self.sandbox.events();
+        let events = all[start..].to_vec();
         Ok(UploadResult {
             code_hash: result.code_hash,
             dry_run: Ok(CodeUploadReturnValue {
                 code_hash: result.code_hash,
                 deposit: result.deposit,
             }),
-            events: (),
+            events,
         })
     }
 
@@ -553,6 +572,8 @@ where
         storage_deposit_limit: E::Balance,
         signer: &Keypair,
     ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error> {
+        // Record events emitted during the contract call
+        let start = self.sandbox.events().len();
         // todo
         let tracer_type = TracerType::CallTracer(Some(CallTracerConfig::default()));
         let mut tracer = self.sandbox.evm_tracer(tracer_type);
@@ -578,7 +599,9 @@ where
             _ => None,
         };
 
-        Ok(((), trace))
+        let all = self.sandbox.events();
+        let events = all[start..].to_vec();
+        Ok((events, trace))
     }
 
     /// Important: For an uncomplicated UX of the E2E testing environment we
@@ -676,12 +699,11 @@ where
         &mut self,
         caller: &Keypair,
     ) -> Result<Option<Self::EventLog>, Self::Error> {
-        let caller = keypair_to_account(caller);
-        let origin = RawOrigin::Signed(caller);
-        let origin = OriginFor::<S::Runtime>::from(origin);
+        let caller_account: AccountIdFor<S::Runtime> = keypair_to_account(caller);
+        let origin = S::convert_account_to_origin(caller_account);
 
         self.sandbox
-            .map_account(origin)
+            .execute_with(|| pallet_revive::Pallet::<S::Runtime>::map_account(origin))
             .map_err(|err| {
                 SandboxErr::new(format!("map_account: execution error {err:?}"))
             })
@@ -693,6 +715,86 @@ where
         let account_id =
             <S::Runtime as pallet_revive::Config>::AddressMapper::to_account_id(addr);
         Ok(E::AccountId::from(*account_id.as_ref()))
+    }
+}
+
+impl<AccountId, S: Sandbox> Client<AccountId, S>
+where
+    S::Runtime: pallet_revive::Config,
+    <S::Runtime as frame_system::Config>::RuntimeEvent:
+        TryInto<pallet_revive::Event<S::Runtime>>,
+{
+    pub fn contract_events(&mut self) -> Vec<Vec<u8>>
+    where
+        S::Runtime: pallet_revive::Config,
+        <S::Runtime as frame_system::Config>::RuntimeEvent:
+            TryInto<pallet_revive::Event<S::Runtime>>,
+    {
+        self.sandbox
+            .events()
+            .iter()
+            .filter_map(|event_record| {
+                if let Ok(pallet_event) = &event_record.event.clone().try_into() {
+                    match pallet_event {
+                        pallet_revive::Event::<S::Runtime>::ContractEmitted {
+                            data,
+                            ..
+                        } => Some(data.clone()),
+                        _ => None,
+                    }
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<Vec<u8>>>()
+    }
+
+    /// Returns the last contract event that was emitted, if any.
+    pub fn last_contract_event(&mut self) -> Option<Vec<u8>>
+    where
+        S::Runtime: pallet_revive::Config,
+        <S::Runtime as frame_system::Config>::RuntimeEvent:
+            TryInto<pallet_revive::Event<S::Runtime>>,
+    {
+        self.contract_events().last().cloned()
+    }
+}
+
+/// Helper function for the `assert_last_contract_event!` macro.
+///
+/// # Parameters:
+/// - `client` - The client for interacting with the sandbox.
+/// - `event` - The expected event.
+#[track_caller]
+pub fn assert_last_contract_event_inner<AccountId, S, E>(
+    client: &mut Client<AccountId, S>,
+    event: E,
+) where
+    S: Sandbox,
+    S::Runtime: pallet_revive::Config,
+    <S::Runtime as frame_system::Config>::RuntimeEvent:
+        TryInto<pallet_revive::Event<S::Runtime>>,
+    E: Decode + scale::Encode + core::fmt::Debug + std::cmp::PartialEq,
+{
+    let expected_event = event;
+    let last_event = client
+        .last_contract_event()
+        .unwrap_or_else(|| panic!("contract events expected but none were emitted yet"));
+
+    let decoded_event = E::decode(&mut &last_event[..]).unwrap_or_else(|error| {
+        panic!(
+            "failed to decode last contract event as {}: bytes={:?}, error={:?}",
+            core::any::type_name::<E>(),
+            last_event,
+            error
+        );
+    });
+
+    if decoded_event != expected_event {
+        panic!(
+            "expected contract event {:?} but found {:?}",
+            expected_event, decoded_event
+        );
     }
 }
 
@@ -726,7 +828,7 @@ where
     AccountIdFor<S::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
 {
     type Error = SandboxErr;
-    type EventLog = ();
+    type EventLog = Vec<EventRecordOf<S::Runtime>>;
 }
 
 /// Exposes preset sandbox configurations to be used in tests.

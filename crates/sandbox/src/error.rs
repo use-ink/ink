@@ -39,3 +39,31 @@ impl fmt::Display for SandboxErr {
         write!(f, "SandboxErr: {}", self.msg)
     }
 }
+
+/// Unified error type for sandbox E2E testing.
+///
+/// This error type allows seamless error propagation with the `?` operator
+/// across sandbox APIs (which return `DispatchError`) and contract calls
+/// (which return `SandboxErr`).
+#[derive(Debug, thiserror::Error)]
+pub enum E2EError {
+    /// Error from FRAME dispatch (e.g., pallet extrinsic failures).
+    ///
+    /// Returned by sandbox APIs like `create()`, `mint_into()`, `map_account()`, etc.
+    /// when the underlying FRAME pallet operation fails.
+    #[error("Dispatch error: {0:?}")]
+    Dispatch(frame_support::sp_runtime::DispatchError),
+
+    /// Error from sandbox operations.
+    ///
+    /// Returned by contract instantiation and call operations when they fail
+    /// at the sandbox client level.
+    #[error("Sandbox error: {0}")]
+    Sandbox(#[from] SandboxErr),
+}
+
+impl From<frame_support::sp_runtime::DispatchError> for E2EError {
+    fn from(err: frame_support::sp_runtime::DispatchError) -> Self {
+        E2EError::Dispatch(err)
+    }
+}

@@ -11,6 +11,7 @@ members = [
     "crates/ink/ir",
     "crates/ink/macro",
     "crates/metadata",
+    "crates/precompiles",
     "crates/revive-types",
     "crates/prelude",
     "crates/primitives",
@@ -115,6 +116,7 @@ ink_env = { version = "=6.0.0-beta", path = "crates/env", default-features = fal
 ink_ir = { version = "=6.0.0-beta", path = "crates/ink/ir", default-features = false }
 ink_macro = { version = "=6.0.0-beta", path = "crates/ink/macro", default-features = false }
 ink_metadata = { version = "=6.0.0-beta", path = "crates/metadata", default-features = false }
+ink_precompiles = { version = "=6.0.0-beta", path = "crates/precompiles", default-features = false }
 ink_prelude = { version = "=6.0.0-beta", path = "crates/prelude", default-features = false }
 ink_primitives = { version = "=6.0.0-beta", path = "crates/primitives", default-features = false }
 ink_revive_types = {  version = "=6.0.0-beta", path = "crates/revive-types", default-features = false }
