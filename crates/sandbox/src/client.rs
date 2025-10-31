@@ -774,29 +774,28 @@ pub fn assert_last_contract_event_inner<AccountId, S, E>(
     S::Runtime: pallet_revive::Config,
     <S::Runtime as frame_system::Config>::RuntimeEvent:
         TryInto<pallet_revive::Event<S::Runtime>>,
-    E: Decode + scale::Encode + core::fmt::Debug,
+    E: Decode + scale::Encode + core::fmt::Debug + std::cmp::PartialEq,
 {
-    match client.last_contract_event() {
-        Some(last_event) => {
-            if last_event != event.encode().as_slice() {
-                let decoded = E::decode(&mut &last_event[..]).expect("Decoding failed");
-                panic!("{}", assert_message(&decoded, &event));
-            }
-        }
-        None => panic!("{}", assert_message(&"None", &event)),
-    }
-}
+    let expected_event = event;
+    let last_event = client
+        .last_contract_event()
+        .unwrap_or_else(|| panic!("contract events expected but none were emitted yet"));
 
-fn assert_message<L: core::fmt::Debug, R: core::fmt::Debug>(
-    left: &L,
-    right: &R,
-) -> String {
-    format!(
-        r#"assertion `left == right` failed
-  left: {:?}
- right: {:?}"#,
-        left, right
-    )
+    let decoded_event = E::decode(&mut &last_event[..]).unwrap_or_else(|error| {
+        panic!(
+            "failed to decode last contract event as {}: bytes={:?}, error={:?}",
+            core::any::type_name::<E>(),
+            last_event,
+            error
+        );
+    });
+
+    if decoded_event != expected_event {
+        panic!(
+            "expected contract event {:?} but found {:?}",
+            expected_event, decoded_event
+        );
+    }
 }
 
 impl<

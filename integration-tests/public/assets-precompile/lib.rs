@@ -127,7 +127,7 @@ mod asset_hub_precompile {
     }
 
     /// Event emitted when allowance by `owner` to `spender` changes.
-    #[derive(Debug)]
+    #[derive(Debug, PartialEq)]
     #[ink::event]
     pub struct Approval {
         #[ink(topic)]
@@ -138,7 +138,7 @@ mod asset_hub_precompile {
     }
 
     /// Event emitted when transfer of tokens occurs.
-    #[derive(Debug)]
+    #[derive(Debug, PartialEq)]
     #[ink::event]
     pub struct Transfer {
         #[ink(topic)]

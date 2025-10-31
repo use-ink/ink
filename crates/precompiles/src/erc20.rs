@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! ERC-20 precompile interface for pallet-assets.
+//! ERC-20 precompile interface for `pallet-assets`.
 //!
 //! This module provides the standard ERC-20 token interface for interacting with
 //! assets managed by `pallet-assets` through the precompile mechanism.
