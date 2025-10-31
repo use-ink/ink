@@ -3817,7 +3817,7 @@ dependencies = [
 
 [[package]]
 name = "ink_precompiles"
-version = "6.0.0-alpha.4"
+version = "6.0.0-beta"
 dependencies = [
  "ink",
 ]
@@ -3915,6 +3915,7 @@ dependencies = [
  "ink_e2e",
  "ink_e2e_macro",
  "ink_env",
+ "ink_precompiles",
  "ink_primitives 6.0.0-beta",
  "ink_revive_types",
  "jsonrpsee",
@@ -4781,7 +4782,7 @@ dependencies = [
  "log",
  "parity-scale-codec",
  "scale-info",
- "sp-core 28.0.0 (git+https://github.com/use-ink/polkadot-sdk.git?rev=cbab8ed4be1941420dd25dc81102fb79d8e2a7f0)",
+ "sp-core 28.0.0",
  "sp-runtime 31.0.1",
 ]
 
