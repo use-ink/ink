@@ -19,6 +19,7 @@
     html_favicon_url = "https://use.ink/crate-docs/favicon.png"
 )]
 
+mod assertions;
 mod backend;
 mod backend_calls;
 mod builders;
