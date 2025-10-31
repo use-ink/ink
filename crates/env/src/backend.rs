@@ -197,7 +197,7 @@ pub trait EnvBackend {
     ///
     /// - If the signature verification failed.
     ///
-    /// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
+    /// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/polkadot-sdk/tree/master/substrate/frame/revive#unstable-interfaces)
     /// which is unsafe and normally is not available on production chains.
     #[cfg(feature = "unstable-hostfn")]
     fn sr25519_verify(
