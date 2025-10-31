@@ -147,6 +147,50 @@ pub struct Transfer<E: Environment, C: subxt::Config> {
     value: E::Balance,
 }
 
+/// A raw call to `pallet-assets`'s `create`.
+#[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
+#[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
+pub struct AssetsCreate<C: subxt::Config> {
+    #[codec(compact)]
+    id: u32,
+    admin: subxt::utils::Static<C::Address>,
+    #[codec(compact)]
+    min_balance: u128,
+}
+
+/// A raw call to `pallet-assets`'s `mint`.
+#[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
+#[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
+pub struct AssetsMint<C: subxt::Config> {
+    #[codec(compact)]
+    id: u32,
+    beneficiary: subxt::utils::Static<C::Address>,
+    #[codec(compact)]
+    amount: u128,
+}
+
+/// A raw call to `pallet-assets`'s `approve_transfer`.
+#[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
+#[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
+pub struct AssetsApproveTransfer<C: subxt::Config> {
+    #[codec(compact)]
+    id: u32,
+    delegate: subxt::utils::Static<C::Address>,
+    #[codec(compact)]
+    amount: u128,
+}
+
+/// A raw call to `pallet-assets`'s `transfer`.
+#[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
+#[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
+pub struct AssetsTransfer<C: subxt::Config> {
+    #[codec(compact)]
+    id: u32,
+    target: subxt::utils::Static<C::Address>,
+    #[codec(compact)]
+    amount: u128,
+}
+
 /// A raw call to `pallet-revive`'s `remove_code`.
 ///
 /// See <https://github.com/use-ink/polkadot-sdk/blob/c40b36c3a7c208f9a6837b80812473af3d9ba7f7/substrate/frame/revive/src/lib.rs>.
@@ -263,6 +307,94 @@ where
         let _ = self.submit_extrinsic(&call, origin).await;
 
         Ok(())
+    }
+
+    /// Calls `pallet-assets`'s `create` extrinsic.
+    pub async fn assets_create(
+        &self,
+        origin: &Keypair,
+        id: u32,
+        admin: C::AccountId,
+        min_balance: u128,
+    ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
+        let call = subxt::tx::DefaultPayload::new(
+            "Assets",
+            "create",
+            AssetsCreate::<C> {
+                id,
+                admin: subxt::utils::Static(admin.into()),
+                min_balance,
+            },
+        )
+        .unvalidated();
+
+        self.submit_extrinsic(&call, origin).await
+    }
+
+    /// Calls `pallet-assets`'s `mint` extrinsic.
+    pub async fn assets_mint(
+        &self,
+        origin: &Keypair,
+        id: u32,
+        beneficiary: C::AccountId,
+        amount: u128,
+    ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
+        let call = subxt::tx::DefaultPayload::new(
+            "Assets",
+            "mint",
+            AssetsMint::<C> {
+                id,
+                beneficiary: subxt::utils::Static(beneficiary.into()),
+                amount,
+            },
+        )
+        .unvalidated();
+
+        self.submit_extrinsic(&call, origin).await
+    }
+
+    /// Calls `pallet-assets`'s `approve_transfer` extrinsic.
+    pub async fn assets_approve_transfer(
+        &self,
+        origin: &Keypair,
+        id: u32,
+        delegate: C::AccountId,
+        amount: u128,
+    ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
+        let call = subxt::tx::DefaultPayload::new(
+            "Assets",
+            "approve_transfer",
+            AssetsApproveTransfer::<C> {
+                id,
+                delegate: subxt::utils::Static(delegate.into()),
+                amount,
+            },
+        )
+        .unvalidated();
+
+        self.submit_extrinsic(&call, origin).await
+    }
+
+    /// Calls `pallet-assets`'s `transfer` extrinsic.
+    pub async fn assets_transfer(
+        &self,
+        origin: &Keypair,
+        id: u32,
+        target: C::AccountId,
+        amount: u128,
+    ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
+        let call = subxt::tx::DefaultPayload::new(
+            "Assets",
+            "transfer",
+            AssetsTransfer::<C> {
+                id,
+                target: subxt::utils::Static(target.into()),
+                amount,
+            },
+        )
+        .unvalidated();
+
+        self.submit_extrinsic(&call, origin).await
     }
 
     /// Dry runs the instantiation of the given `code`.
@@ -748,5 +880,119 @@ where
     ) -> (ExtrinsicEvents<C>, Option<CallTrace>) {
         let call = subxt::dynamic::tx(pallet_name, call_name, call_data);
         self.submit_extrinsic(&call, signer).await
+    }
+
+    /// Queries the balance of an account for a specific asset.
+    ///
+    /// # Arguments
+    /// * `asset_id` - ID of the asset.
+    /// * `owner` - The account whose balance is being queried.
+    pub async fn balance_of_asset(&self, asset_id: u32, owner: &C::AccountId) -> u128
+    where
+        C::AccountId: scale::Encode + AsRef<[u8]>,
+    {
+        use subxt::dynamic::Value;
+
+        // Query storage for the balance
+        let storage_address = subxt::dynamic::storage(
+            "Assets",
+            "Account",
+            vec![Value::u128(asset_id as u128), Value::from_bytes(owner)],
+        );
+
+        let best_block = self.best_block().await;
+
+        let account_value = self
+            .client
+            .storage()
+            .at(best_block)
+            .fetch(&storage_address)
+            .await
+            .unwrap_or_else(|err| {
+                panic!("unable to fetch asset balance: {err:?}");
+            });
+
+        // If account doesn't exist, return 0
+        let account_value = match account_value {
+            Some(val) => val,
+            None => return 0,
+        };
+
+        let account = account_value.to_value().unwrap_or_else(|err| {
+            panic!("unable to decode asset account info: {err:?}");
+        });
+
+        // The pallet-assets Account storage is: AssetAccount { balance, status, reason,
+        // ... } Extract the balance field
+        let balance_value =
+            match crate::subxt_client::get_composite_field_value(&account, "balance") {
+                Ok(val) => val,
+                Err(_) => return 0,
+            };
+
+        let balance = balance_value.as_u128().unwrap_or(0);
+        balance
+    }
+
+    /// Queries the allowance for a delegate approved by an owner.
+    ///
+    /// # Arguments
+    /// * `asset_id` - ID of the asset.
+    /// * `owner` - The account that owns the tokens.
+    /// * `delegate` - The account that is allowed to spend the tokens.
+    pub async fn allowance_asset(
+        &self,
+        asset_id: u32,
+        owner: &C::AccountId,
+        delegate: &C::AccountId,
+    ) -> u128
+    where
+        C::AccountId: scale::Encode + AsRef<[u8]>,
+    {
+        use subxt::dynamic::Value;
+
+        // Query storage for the allowance
+        let allowance_query = subxt::dynamic::storage(
+            "Assets",
+            "Approvals",
+            vec![
+                Value::u128(asset_id as u128),
+                Value::from_bytes(owner),
+                Value::from_bytes(delegate),
+            ],
+        );
+
+        let best_block = self.best_block().await;
+
+        let approval_value = self
+            .client
+            .storage()
+            .at(best_block)
+            .fetch(&allowance_query)
+            .await
+            .unwrap_or_else(|err| {
+                panic!("unable to fetch asset allowance: {err:?}");
+            });
+
+        // If approval doesn't exist, return 0
+        let approval_value = match approval_value {
+            Some(val) => val,
+            None => return 0,
+        };
+
+        let approval = approval_value.to_value().unwrap_or_else(|err| {
+            panic!("unable to decode asset approval info: {err:?}");
+        });
+
+        // The pallet-assets Approval storage is: Approval { amount, deposit }
+        // Extract the amount field
+        let amount_value =
+            match crate::subxt_client::get_composite_field_value(&approval, "amount") {
+                Ok(val) => val,
+                Err(_) => return 0,
+            };
+
+        let amount = amount_value.as_u128().unwrap_or(0);
+        amount
     }
 }
