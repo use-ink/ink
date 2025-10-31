@@ -328,6 +328,7 @@ pub trait Environment: Clone {
         + Eq
         + AtLeast32BitUnsigned
         + Into<U256>
+        + From<u128>
         + FromLittleEndian;
 
     /// The type of hash.
@@ -382,6 +383,30 @@ pub trait Environment: Clone {
         value
             .saturating_mul(Self::NATIVE_TO_ETH_RATIO.into())
             .into()
+    }
+
+    /// Converts from the generic `Balance` type to the Ethereum native `U256`.
+    ///
+    /// # Developer Note
+    ///
+    /// `pallet-revive` uses both types, hence we have to convert in between them
+    /// for certain functions. Notice that precision loss might occur when converting
+    /// the other way (from `U256` to `Balance`).
+    ///
+    /// See <https://github.com/paritytech/polkadot-sdk/pull/9101> for more details.
+    fn eth_to_native(value: U256) -> Self::Balance {
+        let (quotient, remainder) = value.div_mod(Self::NATIVE_TO_ETH_RATIO.into());
+        let q = quotient.as_u128();
+        let r = remainder.as_u128();
+        assert_eq!(
+            r,
+            0,
+            "oh no! remainder of '{} / {}' was not 0: {}",
+            value,
+            Self::NATIVE_TO_ETH_RATIO,
+            r
+        );
+        q.into()
     }
 }
 

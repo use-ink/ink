@@ -55,7 +55,10 @@ use crate::{
     events,
     events::ContractInstantiatedEvent,
 };
-use ink::H160;
+use ink::{
+    H160,
+    U256,
+};
 use ink_env::{
     Environment,
     call::{
@@ -130,7 +133,7 @@ where
     E: Environment,
     E::AccountId: Debug,
     E::EventRecord: Debug,
-    E::Balance: Debug + scale::HasCompact + serde::Serialize,
+    E::Balance: Debug + scale::HasCompact + serde::Serialize, // todo can be removed?
     H256: Debug + scale::Encode,
 {
     /// Creates a new [`Client`] instance using a `subxt` client.
@@ -151,11 +154,15 @@ where
         &mut self,
         signer: &Keypair,
         code: Vec<u8>,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<UploadResult<E, ExtrinsicEvents<C>>, Error> {
+        storage_deposit_limit: Option<U256>,
+    ) -> Result<UploadResult<ExtrinsicEvents<C>>, Error> {
         let dry_run = self
             .api
-            .upload_dry_run(signer, code.clone(), storage_deposit_limit)
+            .upload_dry_run(
+                signer,
+                code.clone(),
+                storage_deposit_limit.map(E::eth_to_native),
+            )
             .await;
         log_info(&format!("upload dry run: {dry_run:?}"));
         if let Err(err) = dry_run {
@@ -173,8 +180,10 @@ where
             Some(limit) => limit,
         };
 
-        let (tx_events, trace) =
-            self.api.upload(signer, code, storage_deposit_limit).await;
+        let (tx_events, trace) = self
+            .api
+            .upload(signer, code, E::eth_to_native(storage_deposit_limit))
+            .await;
 
         let mut hash = None;
         for evt in tx_events.iter() {
@@ -368,7 +377,7 @@ where
     async fn create_and_fund_account(
         &mut self,
         origin: &Keypair,
-        amount: Self::Balance,
+        amount: U256,
     ) -> Keypair {
         let (_, phrase, _) =
             <sp_core::sr25519::Pair as sp_core::Pair>::generate_with_phrase(None);
@@ -397,7 +406,7 @@ where
     async fn free_balance(
         &mut self,
         account: Self::AccountId,
-    ) -> Result<Self::Balance, Self::Error> {
+    ) -> Result<U256, Self::Error> {
         let account_addr = subxt::dynamic::storage(
             "System",
             "Account",
@@ -435,7 +444,7 @@ where
         })?;
 
         log_info(&format!("balance of contract {account:?} is {balance:?}"));
-        Ok(balance)
+        Ok(E::native_to_eth(balance))
     }
 
     async fn runtime_call<'a>(
@@ -474,7 +483,7 @@ where
         &mut self,
         origin: &Keypair,
         dest: Self::AccountId,
-        value: Self::Balance,
+        value: U256,
     ) -> Result<(), Self::Error> {
         let dest = Encode::encode(&dest);
         let dest: C::AccountId = Decode::decode(&mut &dest[..]).unwrap();
@@ -482,6 +491,10 @@ where
             .transfer_allow_death(origin, dest, value)
             .await
             .map_err(|err| Error::Balance(format!("{err:?}")))
+    }
+
+    async fn evm_balance(&mut self, _address: H160) -> U256 {
+        unimplemented!("todo")
     }
 }
 
@@ -524,13 +537,20 @@ where
         code: Vec<u8>,
         caller: &Keypair,
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
-        value: E::Balance,
+        value: U256,
         gas_limit: Weight,
-        storage_deposit_limit: E::Balance,
+        storage_deposit_limit: U256,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
         let data = constructor_exec_input(constructor.clone());
         let ret = self
-            .raw_instantiate(code, caller, data, value, gas_limit, storage_deposit_limit)
+            .raw_instantiate(
+                code,
+                caller,
+                data,
+                E::eth_to_native(value),
+                gas_limit,
+                E::eth_to_native(storage_deposit_limit),
+            )
             .await?;
         Ok(ret)
     }
@@ -608,13 +628,20 @@ where
         signer: &Keypair,
         contract_name: &str,
         data: Vec<u8>,
-        value: E::Balance,
+        value: U256,
         gas_limit: Weight,
-        storage_deposit_limit: E::Balance,
+        storage_deposit_limit: U256,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
-        self.raw_instantiate(code, signer, data, value, gas_limit, storage_deposit_limit)
-            .await
+        self.raw_instantiate(
+            code,
+            signer,
+            data,
+            E::eth_to_native(value),
+            gas_limit,
+            E::eth_to_native(storage_deposit_limit),
+        )
+        .await
     }
 
     /// Important: For an uncomplicated UX of the E2E testing environment we
@@ -631,13 +658,19 @@ where
         contract_name: &str,
         caller: &Keypair,
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
-        value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
+        value: U256,
+        storage_deposit_limit: Option<U256>,
     ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
         let data = constructor_exec_input(constructor.clone());
-        self.raw_instantiate_dry_run(code, caller, data, value, storage_deposit_limit)
-            .await
+        self.raw_instantiate_dry_run(
+            code,
+            caller,
+            data,
+            E::eth_to_native(value),
+            storage_deposit_limit.map(|v| E::eth_to_native(v)),
+        )
+        .await
     }
 
     /// Important: For an uncomplicated UX of the E2E testing environment we
@@ -690,8 +723,8 @@ where
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
+        storage_deposit_limit: Option<U256>,
+    ) -> Result<UploadResult<Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
         let ret = self
             .exec_upload(caller, code, storage_deposit_limit)
@@ -735,9 +768,9 @@ where
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType, Abi>,
-        value: E::Balance,
+        value: U256,
         gas_limit: Weight,
-        storage_deposit_limit: E::Balance,
+        storage_deposit_limit: U256,
     ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error>
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone,
@@ -748,9 +781,9 @@ where
         self.raw_call(
             addr,
             exec_input,
-            value,
+            E::eth_to_native(value),
             gas_limit,
-            storage_deposit_limit,
+            E::eth_to_native(storage_deposit_limit),
             caller,
         )
         .await
@@ -815,8 +848,8 @@ where
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType, Abi>,
-        value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
+        value: U256,
+        storage_deposit_limit: Option<U256>,
     ) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone,
@@ -829,7 +862,13 @@ where
 
         let (exec_result, trace) = self
             .api
-            .call_dry_run(dest, exec_input, value, storage_deposit_limit, caller)
+            .call_dry_run(
+                dest,
+                exec_input,
+                E::eth_to_native(value),
+                storage_deposit_limit.map(|v| E::eth_to_native(v)),
+                caller,
+            )
             .await;
         log_info(&format!("call dry run result: {:?}", &exec_result.result));
 

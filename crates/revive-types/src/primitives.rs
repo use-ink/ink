@@ -217,17 +217,16 @@ pub struct InstantiateReturnValue {
 
 /// The result of successfully uploading a contract.
 #[derive(Clone, PartialEq, Eq, Encode, Decode, MaxEncodedLen, RuntimeDebug, TypeInfo)]
-pub struct CodeUploadReturnValue<Balance> {
+pub struct CodeUploadReturnValue {
     /// The key under which the new code is stored.
     pub code_hash: H256,
     /// The deposit that was reserved at the caller. Is zero when the code already
     /// existed.
-    pub deposit: Balance,
+    pub deposit: U256,
 }
 
 /// Result type of a `bare_code_upload` call.
-pub type CodeUploadResult<Balance> =
-    Result<CodeUploadReturnValue<Balance>, DispatchError>;
+pub type CodeUploadResult = Result<CodeUploadReturnValue, DispatchError>;
 
 /// `Stack` wide configuration options.
 #[derive(Debug, Clone)]

@@ -21,6 +21,7 @@ use ink_env::{
         EncodeArgsWith,
     },
 };
+use ink_primitives::U256;
 use sp_weights::Weight;
 
 use super::{
@@ -51,10 +52,10 @@ where
     client: &'a mut B,
     caller: &'a Keypair,
     message: &'a CallBuilderFinal<E, Args, RetType, Abi>,
-    value: E::Balance,
+    value: U256,
     extra_gas_portion: Option<u64>,
     gas_limit: Option<Weight>,
-    storage_deposit_limit: Option<E::Balance>,
+    storage_deposit_limit: Option<U256>,
 }
 
 impl<'a, E, Args, RetType, B, Abi> CallBuilder<'a, E, Args, RetType, B, Abi>
@@ -70,15 +71,12 @@ where
         client: &'a mut B,
         caller: &'a Keypair,
         message: &'a CallBuilderFinal<E, Args, RetType, Abi>,
-    ) -> CallBuilder<'a, E, Args, RetType, B, Abi>
-    where
-        E::Balance: From<u32>,
-    {
+    ) -> CallBuilder<'a, E, Args, RetType, B, Abi> {
         Self {
             client,
             caller,
             message,
-            value: 0u32.into(),
+            value: U256::zero(),
             extra_gas_portion: None,
             gas_limit: None,
             storage_deposit_limit: None,
@@ -86,7 +84,7 @@ where
     }
 
     /// Provide value with a call
-    pub fn value(&mut self, value: E::Balance) -> &mut Self {
+    pub fn value(&mut self, value: U256) -> &mut Self {
         self.value = value;
         self
     }
@@ -124,10 +122,7 @@ where
     }
 
     /// Specify the max amount of funds that can be charged for storage.
-    pub fn storage_deposit_limit(
-        &mut self,
-        storage_deposit_limit: E::Balance,
-    ) -> &mut Self {
+    pub fn storage_deposit_limit(&mut self, storage_deposit_limit: U256) -> &mut Self {
         self.storage_deposit_limit = Some(storage_deposit_limit);
         self
     }
@@ -168,7 +163,7 @@ where
             self.message,
             self.value,
             gas_limit,
-            dry_run.exec_result.storage_deposit.charge_or_zero(),
+            E::native_to_eth(dry_run.exec_result.storage_deposit.charge_or_zero()),
         )
         .await?;
 
@@ -207,10 +202,10 @@ where
     caller: &'a Keypair,
     contract_name: &'a str,
     constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
-    value: E::Balance,
+    value: U256,
     extra_gas_portion: Option<u64>,
     gas_limit: Option<Weight>,
-    storage_deposit_limit: Option<E::Balance>,
+    storage_deposit_limit: Option<U256>,
 }
 
 impl<'a, E, Contract, Args, R, B, Abi>
@@ -228,16 +223,13 @@ where
         caller: &'a Keypair,
         contract_name: &'a str,
         constructor: &'a mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
-    ) -> InstantiateBuilder<'a, E, Contract, Args, R, B, Abi>
-    where
-        E::Balance: From<u32>,
-    {
+    ) -> InstantiateBuilder<'a, E, Contract, Args, R, B, Abi> {
         Self {
             client,
             caller,
             contract_name,
             constructor,
-            value: 0u32.into(),
+            value: U256::zero(),
             extra_gas_portion: None,
             gas_limit: None,
             storage_deposit_limit: None,
@@ -245,7 +237,7 @@ where
     }
 
     /// Provide value with a call
-    pub fn value(&mut self, value: E::Balance) -> &mut Self {
+    pub fn value(&mut self, value: U256) -> &mut Self {
         self.value = value;
         self
     }
@@ -287,7 +279,7 @@ where
     /// *Important*: `None` means charging the maximum!
     pub fn storage_deposit_limit(
         &mut self,
-        storage_deposit_limit: Option<E::Balance>,
+        storage_deposit_limit: Option<U256>,
     ) -> &mut Self {
         self.storage_deposit_limit = storage_deposit_limit;
         self
@@ -329,7 +321,7 @@ where
             self.constructor,
             self.value,
             gas_limit,
-            dry_run.contract_result.storage_deposit.charge_or_zero(),
+            E::native_to_eth(dry_run.contract_result.storage_deposit.charge_or_zero()),
         )
         .await?;
 
@@ -366,7 +358,8 @@ where
     client: &'a mut B,
     contract_name: &'a str,
     caller: &'a Keypair,
-    storage_deposit_limit: Option<E::Balance>,
+    storage_deposit_limit: Option<U256>,
+    _phantom: PhantomData<E>,
 }
 
 impl<'a, E, B> UploadBuilder<'a, E, B>
@@ -381,20 +374,21 @@ where
             contract_name,
             caller,
             storage_deposit_limit: None,
+            _phantom: Default::default(),
         }
     }
 
     /// Specify the max amount of funds that can be charged for storage.
     pub fn storage_deposit_limit(
         &mut self,
-        storage_deposit_limit: Option<E::Balance>,
+        storage_deposit_limit: Option<U256>,
     ) -> &mut Self {
         self.storage_deposit_limit = storage_deposit_limit;
         self
     }
 
     /// Execute the upload.
-    pub async fn submit(&mut self) -> Result<UploadResult<E, B::EventLog>, B::Error> {
+    pub async fn submit(&mut self) -> Result<UploadResult<B::EventLog>, B::Error> {
         B::bare_upload(
             self.client,
             self.contract_name,

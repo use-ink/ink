@@ -160,9 +160,9 @@ async fn call_ink_no_return(
         .raw_call(
             ink_addr,
             data_sol,
-            Balance::from(0u128),
+            0u128.into(),
             DEFAULT_GAS.into(),
-            Balance::MAX,
+            Balance::MAX.into(),
             &signer,
         )
         .await;
