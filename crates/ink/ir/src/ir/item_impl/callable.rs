@@ -342,7 +342,7 @@ where
     C: Callable,
 {
     if let Some(selector) = callable.user_provided_selector() {
-        return *selector
+        return *selector;
     }
     let preimage = compose_selector_preimage(item_impl, callable);
     ir::Selector::compute(&preimage)
@@ -419,49 +419,49 @@ pub(super) fn ensure_callable_invariants(
             bad_visibility,
             "ink! {}s must have public or inherited visibility",
             kind
-        ))
+        ));
     }
     if !method_item.sig.generics.params.is_empty() {
         return Err(format_err_spanned!(
             method_item.sig.generics.params,
             "ink! {}s must not be generic",
             kind,
-        ))
+        ));
     }
     if method_item.sig.constness.is_some() {
         return Err(format_err_spanned!(
             method_item.sig.constness,
             "ink! {}s must not be const",
             kind,
-        ))
+        ));
     }
     if method_item.sig.asyncness.is_some() {
         return Err(format_err_spanned!(
             method_item.sig.asyncness,
             "ink! {}s must not be async",
             kind,
-        ))
+        ));
     }
     if method_item.sig.unsafety.is_some() {
         return Err(format_err_spanned!(
             method_item.sig.unsafety,
             "ink! {}s must not be unsafe",
             kind,
-        ))
+        ));
     }
     if method_item.sig.abi.is_some() {
         return Err(format_err_spanned!(
             method_item.sig.abi,
             "ink! {}s must not have explicit ABI",
             kind,
-        ))
+        ));
     }
     if method_item.sig.variadic.is_some() {
         return Err(format_err_spanned!(
             method_item.sig.variadic,
             "ink! {}s must not be variadic",
             kind,
-        ))
+        ));
     }
 
     if let Some(arg) = method_item.sig.inputs.iter().find(|input| {
@@ -474,7 +474,7 @@ pub(super) fn ensure_callable_invariants(
             arg,
             "ink! {} arguments must have an identifier",
             kind
-        ))
+        ));
     }
     Ok(())
 }

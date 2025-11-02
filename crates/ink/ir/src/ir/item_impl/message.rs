@@ -175,7 +175,7 @@ impl Message {
                     return Err(format_err!(
                         ret_type,
                         "ink! messages must not return `Self`"
-                    ))
+                    ));
                 }
             }
         }
@@ -261,7 +261,7 @@ impl Callable for Message {
 
     fn user_provided_selector(&self) -> Option<&ir::Selector> {
         if let Some(SelectorOrWildcard::UserProvided(selector)) = self.selector.as_ref() {
-            return Some(selector)
+            return Some(selector);
         }
         None
     }

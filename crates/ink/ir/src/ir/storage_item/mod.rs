@@ -46,7 +46,7 @@ impl StorageItem {
                 return Err(format_err_spanned!(
                     attr,
                     "only one `ink::storage_item` is allowed",
-                ))
+                ));
             }
         }
 

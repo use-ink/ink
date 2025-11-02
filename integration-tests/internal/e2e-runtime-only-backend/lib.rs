@@ -43,11 +43,7 @@ pub mod flipper {
     mod e2e_tests {
         use super::*;
         use ink::env::Environment;
-        use ink_e2e::{
-            ChainBackend,
-            ContractsBackend,
-            subxt::dynamic::Value,
-        };
+        use ink_e2e::{ChainBackend, ContractsBackend, subxt::dynamic::Value};
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -56,10 +52,7 @@ pub mod flipper {
         /// - flip the flipper
         /// - get the flipper's value
         /// - assert that the value is `true`
-        #[ink_sandbox::test(backend(runtime_only(
-            sandbox = ink_sandbox::DefaultSandbox,
-            client  = ink_sandbox::SandboxClient
-        )))]
+        #[ink_e2e::test(runtime)]
         async fn it_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             // given
             const INITIAL_VALUE: bool = false;
@@ -98,10 +91,7 @@ pub mod flipper {
         /// - transfer some funds to the contract using runtime call
         /// - get the contract's balance again
         /// - assert that the contract's balance increased by the transferred amount
-        #[ink_sandbox::test(backend(runtime_only(
-            sandbox = ink_sandbox::DefaultSandbox,
-            client  = ink_sandbox::SandboxClient
-        )))]
+        #[ink_e2e::test(runtime)]
         async fn runtime_call_works() -> E2EResult<()> {
             // given
             let mut constructor = FlipperRef::new(false);
@@ -155,10 +145,7 @@ pub mod flipper {
         }
 
         /// Just instantiate a contract using non-default runtime.
-        #[ink_sandbox::test(backend(runtime_only(
-            sandbox = ink_sandbox::DefaultSandbox,
-            client  = ink_sandbox::SandboxClient
-        )))]
+        #[ink_e2e::test(runtime)]
         async fn custom_runtime<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
             client
                 .instantiate(

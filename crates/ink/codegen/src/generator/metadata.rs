@@ -376,11 +376,11 @@ pub fn generate_type_spec(ty: &syn::Type) -> TokenStream2 {
 
     if let syn::Type::Path(type_path) = ty {
         if type_path.qself.is_some() {
-            return without_display_name(ty)
+            return without_display_name(ty);
         }
         let path = &type_path.path;
         if path.segments.is_empty() {
-            return without_display_name(ty)
+            return without_display_name(ty);
         }
         let segs = path
             .segments

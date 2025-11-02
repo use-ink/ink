@@ -15,10 +15,10 @@
 use crate::{
     AccountIdFor,
     EventRecordOf,
+    Runtime,
     RuntimeCall,
-    Sandbox,
     api::prelude::*,
-    error::SandboxErr,
+    error::RuntimeErr,
     frame_system,
     frame_system::pallet_prelude::OriginFor,
     pallet_balances,
@@ -106,43 +106,40 @@ type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
 type ContractsBalanceOf<R> =
     <<R as pallet_revive::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;
 
-pub struct Client<AccountId, S: Sandbox> {
-    sandbox: S,
+pub struct Client<AccountId, R: Runtime> {
+    runtime: R,
     contracts: ContractsRegistry,
     _phantom: PhantomData<AccountId>,
 }
 
-// While it is not necessary true that `Client` is `Send`, it will not be used in a way
-// that would violate this bound. In particular, all `Client` instances will be operating
-// synchronously.
-unsafe impl<AccountId, S: Sandbox> Send for Client<AccountId, S> {}
-impl<AccountId, S: Sandbox> Client<AccountId, S>
+unsafe impl<AccountId, R: Runtime> Send for Client<AccountId, R> {}
+impl<AccountId, R: Runtime> Client<AccountId, R>
 where
-    S: Default,
-    S::Runtime: pallet_balances::Config + pallet_revive::Config,
-    AccountIdFor<S::Runtime>: From<[u8; 32]>,
-    BalanceOf<S::Runtime>: From<u128>,
+    R: Default,
+    R::Runtime: pallet_balances::Config + pallet_revive::Config,
+    AccountIdFor<R::Runtime>: From<[u8; 32]>,
+    BalanceOf<R::Runtime>: From<u128>,
 {
     pub fn new<P: Into<PathBuf>>(contracts: impl IntoIterator<Item = P>) -> Self {
-        let mut sandbox = S::default();
-        Self::fund_accounts(&mut sandbox);
+        let mut runtime = R::default();
+        Self::fund_accounts(&mut runtime);
 
         Self {
-            sandbox,
+            runtime,
             contracts: ContractsRegistry::new(contracts),
             _phantom: Default::default(),
         }
     }
 
-    /// Get a mutable reference to the underlying sandbox.
+    /// Get a mutable reference to the underlying runtime backend.
     ///
-    /// This allows direct access to all sandbox methods and traits, making it easy to
+    /// This allows direct access to all runtime methods and traits, making it easy to
     /// interact with runtime pallets like `pallet-assets`:
-    pub fn sandbox(&mut self) -> &mut S {
-        &mut self.sandbox
+    pub fn runtime(&mut self) -> &mut R {
+        &mut self.runtime
     }
 
-    fn fund_accounts(sandbox: &mut S) {
+    fn fund_accounts(runtime: &mut R) {
         const TOKENS: u128 = 1_000_000_000_000_000;
 
         let accounts = [
@@ -158,29 +155,30 @@ where
         .map(|kp| kp.public_key().0)
         .map(From::from);
         for account in accounts.iter() {
-            sandbox
+            runtime
                 .mint_into(account, TOKENS.into())
                 .unwrap_or_else(|_| panic!("Failed to mint {TOKENS} tokens"));
         }
 
-        let acc = pallet_revive::Pallet::<S::Runtime>::account_id();
-        let ed = pallet_balances::Pallet::<S::Runtime>::minimum_balance();
-        sandbox.mint_into(&acc, ed).unwrap_or_else(|_| {
+        let acc = pallet_revive::Pallet::<R::Runtime>::account_id();
+        let ed = pallet_balances::Pallet::<R::Runtime>::minimum_balance();
+        runtime.mint_into(&acc, ed).unwrap_or_else(|_| {
             panic!("Failed to mint existential deposit into `pallet-revive` account")
         });
     }
 }
 
 #[async_trait]
-impl<AccountId: AsRef<[u8; 32]> + Send, S: Sandbox> ChainBackend for Client<AccountId, S>
+impl<AccountId: AsRef<[u8; 32]> + Send, Backend: Runtime> ChainBackend
+    for Client<AccountId, Backend>
 where
-    S::Runtime: pallet_balances::Config,
-    AccountIdFor<S::Runtime>: From<[u8; 32]>,
+    Backend::Runtime: pallet_balances::Config,
+    AccountIdFor<Backend::Runtime>: From<[u8; 32]>,
 {
     type AccountId = AccountId;
-    type Balance = BalanceOf<S::Runtime>;
-    type Error = SandboxErr;
-    type EventLog = Vec<EventRecordOf<S::Runtime>>;
+    type Balance = BalanceOf<Backend::Runtime>;
+    type Error = RuntimeErr;
+    type EventLog = Vec<EventRecordOf<Backend::Runtime>>;
 
     async fn create_and_fund_account(
         &mut self,
@@ -189,7 +187,7 @@ where
     ) -> Keypair {
         let (pair, seed) = Pair::generate();
 
-        self.sandbox
+        self.runtime
             .mint_into(&pair.public().0.into(), amount)
             .expect("Failed to mint tokens");
 
@@ -200,8 +198,8 @@ where
         &mut self,
         account: Self::AccountId,
     ) -> Result<Self::Balance, Self::Error> {
-        let account = AccountIdFor::<S::Runtime>::from(*account.as_ref());
-        Ok(self.sandbox.free_balance(&account))
+        let account = AccountIdFor::<Backend::Runtime>::from(*account.as_ref());
+        Ok(self.runtime.free_balance(&account))
     }
 
     async fn runtime_call<'a>(
@@ -213,39 +211,39 @@ where
     ) -> Result<Self::EventLog, Self::Error> {
         // Since in general, `ChainBackend::runtime_call` must be dynamic, we have to
         // perform some translation here in order to invoke strongly-typed
-        // [`ink_sandbox::Sandbox`] API.
+        // [`ink_sandbox::Runtime`] API.
 
-        // Get metadata of the Sandbox runtime, so that we can encode the call object.
+        // Get metadata of the runtime backend, so that we can encode the call object.
         // Panic on error - metadata of the static im-memory runtime should always be
         // available.
-        let raw_metadata: Vec<u8> = S::get_metadata().into();
+        let raw_metadata: Vec<u8> = Backend::get_metadata().into();
         let metadata = subxt_metadata::Metadata::decode(&mut raw_metadata.as_slice())
             .expect("Failed to decode metadata");
 
         // Encode the call object.
         let call = subxt::dynamic::tx(pallet_name, call_name, call_data);
         let encoded_call = call.encode_call_data(&metadata.into()).map_err(|err| {
-            SandboxErr::new(format!("runtime_call: Error encoding call: {err:?}"))
+            RuntimeErr::new(format!("runtime_call: Error encoding call: {err:?}"))
         })?;
 
         // Decode the call object.
         // Panic on error - we just encoded a validated call object, so it should be
         // decodable.
         let decoded_call =
-            RuntimeCall::<S::Runtime>::decode(&mut encoded_call.as_slice())
+            RuntimeCall::<Backend::Runtime>::decode(&mut encoded_call.as_slice())
                 .expect("Failed to decode runtime call");
 
         // Execute the call and record events emitted during this operation.
-        let start = self.sandbox.events().len();
-        self.sandbox
+        let start = self.runtime.events().len();
+        self.runtime
             .runtime_call(
                 decoded_call,
-                S::convert_account_to_origin(keypair_to_account(origin)),
+                Backend::convert_account_to_origin(keypair_to_account(origin)),
             )
             .map_err(|err| {
-                SandboxErr::new(format!("runtime_call: execution error {:?}", err.error))
+                RuntimeErr::new(format!("runtime_call: execution error {:?}", err.error))
             })?;
-        let all = self.sandbox.events();
+        let all = self.runtime.events();
         let events = all[start..].to_vec();
         Ok(events)
     }
@@ -258,15 +256,15 @@ where
     ) -> Result<(), Self::Error> {
         let caller = keypair_to_account(origin);
         let origin = RawOrigin::Signed(caller);
-        let origin = OriginFor::<S::Runtime>::from(origin);
+        let origin = OriginFor::<Backend::Runtime>::from(origin);
 
         let dest = dest.as_ref();
         let dest = Decode::decode(&mut dest.as_slice()).unwrap();
 
-        self.sandbox
+        self.runtime
             .transfer_allow_death(&origin, &dest, value)
             .map_err(|err| {
-                SandboxErr::new(format!("transfer_allow_death failed: {err:?}"))
+                RuntimeErr::new(format!("transfer_allow_death failed: {err:?}"))
             })
     }
 }
@@ -274,19 +272,19 @@ where
 #[async_trait]
 impl<
     AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-    S: Sandbox,
-    E: Environment<AccountId = AccountId, Balance = ContractsBalanceOf<S::Runtime>>
+    Backend: Runtime,
+    E: Environment<AccountId = AccountId, Balance = ContractsBalanceOf<Backend::Runtime>>
         + 'static,
-> BuilderClient<E> for Client<AccountId, S>
+> BuilderClient<E> for Client<AccountId, Backend>
 where
-    S::Runtime: pallet_balances::Config + pallet_revive::Config,
-    AccountIdFor<S::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
-    ContractsBalanceOf<S::Runtime>: Send + Sync,
-    ContractsBalanceOf<S::Runtime>: Into<U256> + TryFrom<U256> + Bounded,
-    MomentOf<S::Runtime>: Into<U256>,
-    <<S as Sandbox>::Runtime as frame_system::Config>::Nonce: Into<u32>,
+    Backend::Runtime: pallet_balances::Config + pallet_revive::Config,
+    AccountIdFor<Backend::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+    ContractsBalanceOf<Backend::Runtime>: Send + Sync,
+    ContractsBalanceOf<Backend::Runtime>: Into<U256> + TryFrom<U256> + Bounded,
+    MomentOf<Backend::Runtime>: Into<U256>,
+    <<Backend as Runtime>::Runtime as frame_system::Config>::Nonce: Into<u32>,
     // todo
-    <<S as Sandbox>::Runtime as frame_system::Config>::Hash:
+    <<Backend as Runtime>::Runtime as frame_system::Config>::Hash:
         frame_support::traits::IsType<sp_core::H256>,
 {
     fn load_code(&self, contract_name: &str) -> Vec<u8> {
@@ -336,25 +334,26 @@ where
         storage_deposit_limit: E::Balance,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error> {
         let _ =
-            <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
+            <Client<AccountId, Backend> as BuilderClient<E>>::map_account(self, caller)
+                .await;
 
         // get the trace
-        let _ = self.sandbox.build_block();
+        let _ = self.runtime.build_block();
 
         let tracer_type = TracerType::CallTracer(Some(CallTracerConfig::default()));
-        let mut tracer = self.sandbox.evm_tracer(tracer_type);
+        let mut tracer = self.runtime.evm_tracer(tracer_type);
 
         let mut code_hash: Option<H256> = None;
         // Record events emitted during instantiation
-        let start = self.sandbox.events().len();
+        let start = self.runtime.events().len();
         let result = pallet_revive::tracing::trace(tracer.as_tracing(), || {
             code_hash = Some(H256(ink_e2e::code_hash(&code[..])));
-            self.sandbox.deploy_contract(
+            self.runtime.deploy_contract(
                 code,
                 value,
                 data,
                 salt(),
-                caller_to_origin::<S>(caller),
+                caller_to_origin::<Backend>(caller),
                 // TODO: mismatch in dependencies
                 pallet_revive::Weight::from_parts(
                     gas_limit.ref_time(),
@@ -367,7 +366,7 @@ where
         let addr_raw = match &result.result {
             Err(err) => {
                 log_error(&format!("instantiation failed: {err:?}"));
-                return Err(SandboxErr::new(format!("bare_instantiate: {err:?}")));
+                return Err(RuntimeErr::new(format!("bare_instantiate: {err:?}")));
             }
             Ok(res) => res.addr,
         };
@@ -378,13 +377,13 @@ where
         };
 
         let account_id =
-            <S::Runtime as pallet_revive::Config>::AddressMapper::to_fallback_account_id(
+            <Backend::Runtime as pallet_revive::Config>::AddressMapper::to_fallback_account_id(
                 &addr_raw,
             )
             .as_ref()
             .to_owned();
 
-        let all = self.sandbox.events();
+        let all = self.runtime.events();
         let events = all[start..].to_vec();
 
         Ok(BareInstantiationResult {
@@ -439,16 +438,17 @@ where
     ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error> {
         // There's a side effect here!
         let _ =
-            <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
+            <Client<AccountId, Backend> as BuilderClient<E>>::map_account(self, caller)
+                .await;
 
-        let dry_run_result = self.sandbox.dry_run(|sandbox| {
-            sandbox.deploy_contract(
+        let dry_run_result = self.runtime.dry_run(|runtime_backend| {
+            runtime_backend.deploy_contract(
                 code,
                 value,
                 data,
                 salt(),
-                caller_to_origin::<S>(caller),
-                S::default_gas_limit(),
+                caller_to_origin::<Backend>(caller),
+                Backend::default_gas_limit(),
                 storage_deposit_limit.unwrap_or(E::Balance::max_value()),
             )
         });
@@ -470,7 +470,7 @@ where
             storage_deposit: to_revive_storage_deposit(dry_run_result.storage_deposit),
             result: dry_run_result
                 .result
-                .map_err(|_e| sp_runtime::DispatchError::Other("SandboxError")) // TODO: mismatch in dependencies
+                .map_err(|_e| sp_runtime::DispatchError::Other("RuntimeError")) // TODO: mismatch in dependencies
                 .map(|res| {
                     InstantiateReturnValue {
                         result: ExecReturnValue {
@@ -493,20 +493,20 @@ where
     ) -> Result<UploadResult<E, Self::EventLog>, Self::Error> {
         let code = self.contracts.load_code(contract_name);
         // Record events emitted during upload
-        let start = self.sandbox.events().len();
-        let result = match self.sandbox.upload_contract(
+        let start = self.runtime.events().len();
+        let result = match self.runtime.upload_contract(
             code,
-            caller_to_origin::<S>(caller),
+            caller_to_origin::<Backend>(caller),
             storage_deposit_limit.unwrap_or_else(|| E::Balance::max_value()),
         ) {
             Ok(result) => result,
             Err(err) => {
                 log_error(&format!("upload failed: {err:?}"));
-                return Err(SandboxErr::new(format!("bare_upload: {err:?}")));
+                return Err(RuntimeErr::new(format!("bare_upload: {err:?}")));
             }
         };
 
-        let all = self.sandbox.events();
+        let all = self.runtime.events();
         let events = all[start..].to_vec();
         Ok(UploadResult {
             code_hash: result.code_hash,
@@ -523,7 +523,7 @@ where
         _caller: &Keypair,
         _code_hash: H256,
     ) -> Result<Self::EventLog, Self::Error> {
-        unimplemented!("sandbox does not yet support remove_code")
+        unimplemented!("runtime backend does not yet support remove_code")
     }
 
     /// Important: For an uncomplicated UX of the E2E testing environment we
@@ -547,11 +547,12 @@ where
     {
         // There's a side effect here!
         let _ =
-            <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
+            <Client<AccountId, Backend> as BuilderClient<E>>::map_account(self, caller)
+                .await;
 
         let addr = *message.clone().params().callee();
         let exec_input = message.clone().params().exec_input().encode();
-        <Client<AccountId, S> as BuilderClient<E>>::raw_call::<'_, '_, '_>(
+        <Client<AccountId, Backend> as BuilderClient<E>>::raw_call::<'_, '_, '_>(
             self,
             addr,
             exec_input,
@@ -573,17 +574,17 @@ where
         signer: &Keypair,
     ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error> {
         // Record events emitted during the contract call
-        let start = self.sandbox.events().len();
+        let start = self.runtime.events().len();
         // todo
         let tracer_type = TracerType::CallTracer(Some(CallTracerConfig::default()));
-        let mut tracer = self.sandbox.evm_tracer(tracer_type);
+        let mut tracer = self.runtime.evm_tracer(tracer_type);
         let _result = pallet_revive::tracing::trace(tracer.as_tracing(), || {
-            self.sandbox
+            self.runtime
                 .call_contract(
                     dest,
                     value,
                     input_data,
-                    caller_to_origin::<S>(signer),
+                    caller_to_origin::<Backend>(signer),
                     // TODO: mismatch in dependencies
                     pallet_revive::Weight::from_parts(
                         gas_limit.ref_time(),
@@ -592,14 +593,14 @@ where
                     storage_deposit_limit,
                 )
                 .result
-                .map_err(|err| SandboxErr::new(format!("bare_call: {err:?}")))
+                .map_err(|err| RuntimeErr::new(format!("bare_call: {err:?}")))
         })?;
         let trace = match tracer.collect_trace() {
             Some(Trace::Call(call_trace)) => Some(to_revive_trace(call_trace)),
             _ => None,
         };
 
-        let all = self.sandbox.events();
+        let all = self.runtime.events();
         let events = all[start..].to_vec();
         Ok((events, trace))
     }
@@ -645,15 +646,16 @@ where
     ) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error> {
         // There's a side effect here!
         let _ =
-            <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
+            <Client<AccountId, Backend> as BuilderClient<E>>::map_account(self, caller)
+                .await;
 
-        let result = self.sandbox.dry_run(|sandbox| {
-            sandbox.call_contract(
+        let result = self.runtime.dry_run(|runtime_backend| {
+            runtime_backend.call_contract(
                 dest,
                 value,
                 input_data,
-                caller_to_origin::<S>(caller),
-                S::default_gas_limit(),
+                caller_to_origin::<Backend>(caller),
+                Backend::default_gas_limit(),
                 storage_deposit_limit.unwrap_or(E::Balance::max_value()),
             )
         });
@@ -681,7 +683,7 @@ where
                 storage_deposit: to_revive_storage_deposit(result.storage_deposit),
                 result: result
                     .result
-                    .map_err(|_e| sp_runtime::DispatchError::Other("SandboxError")) // TODO: mismatch in dependencies
+                    .map_err(|_e| sp_runtime::DispatchError::Other("RuntimeError")) // TODO: mismatch in dependencies
                     .map(|res| {
                         ExecReturnValue {
                             // TODO: mismatch in dependencies
@@ -699,13 +701,15 @@ where
         &mut self,
         caller: &Keypair,
     ) -> Result<Option<Self::EventLog>, Self::Error> {
-        let caller_account: AccountIdFor<S::Runtime> = keypair_to_account(caller);
-        let origin = S::convert_account_to_origin(caller_account);
+        let caller_account: AccountIdFor<Backend::Runtime> = keypair_to_account(caller);
+        let origin = Backend::convert_account_to_origin(caller_account);
 
-        self.sandbox
-            .execute_with(|| pallet_revive::Pallet::<S::Runtime>::map_account(origin))
+        self.runtime
+            .execute_with(|| {
+                pallet_revive::Pallet::<Backend::Runtime>::map_account(origin)
+            })
             .map_err(|err| {
-                SandboxErr::new(format!("map_account: execution error {err:?}"))
+                RuntimeErr::new(format!("map_account: execution error {err:?}"))
             })
             .map(|_| None)
     }
@@ -713,30 +717,32 @@ where
     async fn to_account_id(&mut self, addr: &H160) -> Result<E::AccountId, Self::Error> {
         use pallet_revive::AddressMapper;
         let account_id =
-            <S::Runtime as pallet_revive::Config>::AddressMapper::to_account_id(addr);
+            <Backend::Runtime as pallet_revive::Config>::AddressMapper::to_account_id(
+                addr,
+            );
         Ok(E::AccountId::from(*account_id.as_ref()))
     }
 }
 
-impl<AccountId, S: Sandbox> Client<AccountId, S>
+impl<AccountId, Backend: Runtime> Client<AccountId, Backend>
 where
-    S::Runtime: pallet_revive::Config,
-    <S::Runtime as frame_system::Config>::RuntimeEvent:
-        TryInto<pallet_revive::Event<S::Runtime>>,
+    Backend::Runtime: pallet_revive::Config,
+    <Backend::Runtime as frame_system::Config>::RuntimeEvent:
+        TryInto<pallet_revive::Event<Backend::Runtime>>,
 {
     pub fn contract_events(&mut self) -> Vec<Vec<u8>>
     where
-        S::Runtime: pallet_revive::Config,
-        <S::Runtime as frame_system::Config>::RuntimeEvent:
-            TryInto<pallet_revive::Event<S::Runtime>>,
+        Backend::Runtime: pallet_revive::Config,
+        <Backend::Runtime as frame_system::Config>::RuntimeEvent:
+            TryInto<pallet_revive::Event<Backend::Runtime>>,
     {
-        self.sandbox
+        self.runtime
             .events()
             .iter()
             .filter_map(|event_record| {
                 if let Ok(pallet_event) = &event_record.event.clone().try_into() {
                     match pallet_event {
-                        pallet_revive::Event::<S::Runtime>::ContractEmitted {
+                        pallet_revive::Event::<Backend::Runtime>::ContractEmitted {
                             data,
                             ..
                         } => Some(data.clone()),
@@ -752,9 +758,9 @@ where
     /// Returns the last contract event that was emitted, if any.
     pub fn last_contract_event(&mut self) -> Option<Vec<u8>>
     where
-        S::Runtime: pallet_revive::Config,
-        <S::Runtime as frame_system::Config>::RuntimeEvent:
-            TryInto<pallet_revive::Event<S::Runtime>>,
+        Backend::Runtime: pallet_revive::Config,
+        <Backend::Runtime as frame_system::Config>::RuntimeEvent:
+            TryInto<pallet_revive::Event<Backend::Runtime>>,
     {
         self.contract_events().last().cloned()
     }
@@ -763,17 +769,17 @@ where
 /// Helper function for the `assert_last_contract_event!` macro.
 ///
 /// # Parameters:
-/// - `client` - The client for interacting with the sandbox.
+/// - `client` - The client for interacting with the runtime backend.
 /// - `event` - The expected event.
 #[track_caller]
-pub fn assert_last_contract_event_inner<AccountId, S, E>(
-    client: &mut Client<AccountId, S>,
+pub fn assert_last_contract_event_inner<AccountId, Backend, E>(
+    client: &mut Client<AccountId, Backend>,
     event: E,
 ) where
-    S: Sandbox,
-    S::Runtime: pallet_revive::Config,
-    <S::Runtime as frame_system::Config>::RuntimeEvent:
-        TryInto<pallet_revive::Event<S::Runtime>>,
+    Backend: Runtime,
+    Backend::Runtime: pallet_revive::Config,
+    <Backend::Runtime as frame_system::Config>::RuntimeEvent:
+        TryInto<pallet_revive::Event<Backend::Runtime>>,
     E: Decode + scale::Encode + core::fmt::Debug + std::cmp::PartialEq,
 {
     let expected_event = event;
@@ -800,7 +806,7 @@ pub fn assert_last_contract_event_inner<AccountId, S, E>(
 
 impl<
     AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-    Config: Sandbox,
+    Config: Runtime,
     E: Environment<AccountId = AccountId, Balance = ContractsBalanceOf<Config::Runtime>>
         + 'static,
 > E2EBackend<E> for Client<AccountId, Config>
@@ -819,19 +825,19 @@ where
 #[async_trait]
 impl<
     AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-    S: Sandbox,
-    E: Environment<AccountId = AccountId, Balance = ContractsBalanceOf<S::Runtime>>
+    Backend: Runtime,
+    E: Environment<AccountId = AccountId, Balance = ContractsBalanceOf<Backend::Runtime>>
         + 'static,
-> ContractsBackend<E> for Client<AccountId, S>
+> ContractsBackend<E> for Client<AccountId, Backend>
 where
-    S::Runtime: pallet_balances::Config + pallet_revive::Config,
-    AccountIdFor<S::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+    Backend::Runtime: pallet_balances::Config + pallet_revive::Config,
+    AccountIdFor<Backend::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
 {
-    type Error = SandboxErr;
-    type EventLog = Vec<EventRecordOf<S::Runtime>>;
+    type Error = RuntimeErr;
+    type EventLog = Vec<EventRecordOf<Backend::Runtime>>;
 }
 
-/// Exposes preset sandbox configurations to be used in tests.
+/// Exposes preset runtime configurations to be used in tests.
 pub mod preset {
     /*
     // todo
@@ -842,27 +848,27 @@ pub mod preset {
             BlockBuilder,
             Extension,
             RuntimeMetadataPrefixed,
-            Sandbox,
+            Runtime,
             Snapshot,
         };
         pub use pallet_revive_mock_network::*;
         use sp_runtime::traits::Dispatchable;
 
-        /// A [`ink_sandbox::Sandbox`] that can be used to test contracts
+        /// A [`ink_sandbox::Runtime`] that can be used to test contracts
         /// with a mock network of relay chain and parachains.
         ///
         /// ```no_compile
-        /// #[ink_e2e::test(backend(runtime_only(sandbox = MockNetworkSandbox, client = ink_sandbox::SandboxClient)))]
+        /// #[ink_e2e::test(runtime(MockNetworkRuntime))]
         /// async fn my_test<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
         ///   // ...
         /// }
         /// ```
         #[derive(Default)]
-        pub struct MockNetworkSandbox {
+        pub struct MockNetworkRuntime {
             dry_run: bool,
         }
 
-        impl Sandbox for MockNetworkSandbox {
+        impl Runtime for MockNetworkRuntime {
             type Runtime = parachain::Runtime;
 
             fn execute_with<T>(&mut self, execute: impl FnOnce() -> T) -> T {
@@ -955,13 +961,13 @@ pub mod preset {
 }
 
 /// Transforms a `Keypair` into an origin.
-pub fn caller_to_origin<S>(caller: &Keypair) -> OriginFor<S::Runtime>
+pub fn caller_to_origin<Backend>(caller: &Keypair) -> OriginFor<Backend::Runtime>
 where
-    S: Sandbox,
-    S::Runtime: pallet_balances::Config + pallet_revive::Config,
-    AccountIdFor<S::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+    Backend: Runtime,
+    Backend::Runtime: pallet_balances::Config + pallet_revive::Config,
+    AccountIdFor<Backend::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
 {
     let caller = keypair_to_account(caller);
     let origin = RawOrigin::Signed(caller);
-    OriginFor::<S::Runtime>::from(origin)
+    OriginFor::<Backend::Runtime>::from(origin)
 }

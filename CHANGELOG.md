@@ -35,7 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Marks the `pallet-revive` host function `account_id` stable - [#2578](https://github.com/use-ink/ink/pull/2578)
 - Stabilize `is_contract` - [#2654](https://github.com/use-ink/ink/pull/2654)
-- Extract `sandbox` from `ink_e2e` into a new `ink_sandbox` crate - [#2659](https://github.com/use-ink/ink/pull/2659)
+- Extract the runtime backend from `ink_e2e` into a new `ink_sandbox` crate - [#2659](https://github.com/use-ink/ink/pull/2659)
 - Synchronize with `polkadot-sdk/1b1cef306d9ceebf963fd15a04b5c79ee2618bce` ‒ [2675](https://github.com/use-ink/ink/pull/2675)
 - Refactor `AbiEncodeWith::encode_to_slice` - [#2676](https://github.com/use-ink/ink/pull/2676)
 - Refactor `ArgumentList` encoding and abstractions - [#2678](https://github.com/use-ink/ink/pull/2678)
@@ -408,20 +408,20 @@ The limitations currently are:
 
 #### (3) E2E Testing
 
-We replaced our `drink` sandbox dependency with an internal ink! crate.
+We replaced our `drink` runtime backend dependency with an internal ink! crate.
 In case you use [DRink!](https://use.ink/basics/contract-testing/drink):
 
 First, you should upgrade your `drink` dependency to `version = "0.18.0"`.
 Second, these are the two changes you have to make:
 
 ```diff
-- #[ink_e2e::test(backend(runtime_only(sandbox = ink_e2e::MinimalSandbox)))]
-+ #[ink_e2e::test(backend(runtime_only(sandbox = ink_e2e::DefaultSandbox)))]
+- #[ink_e2e::test(backend(runtime_only(...)))]
++ #[ink_e2e::test(runtime(ink_e2e::DefaultRuntime))]
 ```
 
 ```diff
 - ink_e2e = { version = "5", features = ["drink"] }
-+ ink_e2e = { version = "5", features = ["sandbox"] }
++ ink_e2e = { version = "5", features = ["runtime-backend"] }
 ```
 
 ### Compatibility
@@ -451,14 +451,14 @@ rustup run $TOOLCHAIN_VERSION cargo install cargo-dylint dylint-link
 - [Runtime-to-Contract Calls] Add example for calling a contract from a runtime pallet ‒ [#2189](https://github.com/paritytech/ink/pull/2189)
 - [XCM] Add `xcm_execute` and `xcm_send` support ‒ [#1912](https://github.com/use-ink/ink/pull/1912)
 - [Linter] Add links to detailed lint description ‒ [#2170](https://github.com/use-ink/ink/pull/2170)
-- [E2E] Adds a message to SandboxErr to add context for easier debugging ‒ [#2218](https://github.com/use-ink/ink/pull/2218)
+- [E2E] Adds a message to RuntimeErr to add context for easier debugging ‒ [#2218](https://github.com/use-ink/ink/pull/2218)
 - [E2E] Add ability to take and restore snapshots ‒ [#2261](https://github.com/paritytech/ink/pull/2261) (thanks [@0xLucca](https://github.com/0xLucca)!)
 - [E2E] Demonstrate usage of seeds for secret URIs in E2E test for chain snapshots ‒ [#2163](https://github.com/paritytech/ink/pull/2163)
 
 ### Changed
 - Update repository URLs & references from `paritytech` GitHub organization to new `use-ink` one ‒ [#2220](https://github.com/use-ink/ink/pull/2220) and [#2248](https://github.com/use-ink/ink/pull/2248)
 - [E2E] Update `subxt` and `polkadot-sdk` dependencies ‒ [#2174](https://github.com/use-ink/ink/pull/2174)
-- [Drink backend] Replace `drink` sandbox with internal `ink_sandbox` ‒ [#2158](https://github.com/use-ink/ink/pull/2158)
+- [Drink backend] Replace `drink` runtime backend with internal `ink_sandbox` ‒ [#2158](https://github.com/use-ink/ink/pull/2158)
 
 ### Fixed
 - [XCM] Fix XCM-support to single encode the XCM message ‒ [#2278](https://github.com/use-ink/ink/pull/2278)
@@ -554,7 +554,7 @@ See [the compatibility section](https://use.ink/faq/migrating-from-ink-4-to-5/#c
 - Use `MaxEncodedLen` for output buffer size [#2128](https://github.com/use-ink/ink/pull/2128)
 - `Mapping`: Reflect all possible failure cases in comments ‒ [#2079](https://github.com/use-ink/ink/pull/2079)
 - [E2E] Rename `.call` to `.call_builder` ‒ [#2078](https://github.com/use-ink/ink/pull/2078)
-- Improve syntax for ink! e2e `runtime_only` attribute argument - [#2083](https://github.com/use-ink/ink/pull/2083)
+- Improve syntax for ink! e2e `runtime` attribute argument - [#2083](https://github.com/use-ink/ink/pull/2083)
 - [E2E] Remove `additional_contracts` parameter [#2098](https://github.com/use-ink/ink/pull/2098)
 - [E2E] change node url backend config - [#2101](https://github.com/use-ink/ink/pull/2101)
 - Messages return `TypeSpec` directly - [#1999](https://github.com/use-ink/ink/pull/1999)
@@ -616,7 +616,7 @@ See [the compatibility section](https://use.ink/faq/migrating-from-ink-4-to-5/#c
 ### Changed
 - `Mapping`: Reflect all possible failure cases in comments ‒ [#2079](https://github.com/use-ink/ink/pull/2079)
 - [E2E] Rename `.call` to `.call_builder` ‒ [#2078](https://github.com/use-ink/ink/pull/2078)
-- Improve syntax for ink! e2e `runtime_only` attribute argument - [#2083](https://github.com/use-ink/ink/pull/2083)
+- Improve syntax for ink! e2e `runtime` attribute argument - [#2083](https://github.com/use-ink/ink/pull/2083)
 - [E2E] Remove `additional_contracts` parameter [#2098](https://github.com/use-ink/ink/pull/2098)
 - [E2E] change node url backend config - [#2101](https://github.com/use-ink/ink/pull/2101)
 

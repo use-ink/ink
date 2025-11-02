@@ -43,14 +43,14 @@ pub mod fuzz_testing {
         use quickcheck_macros::quickcheck;
 
         /// We use `backend(runtime_only)` here. It doesn't start a node for each test,
-        /// but instead interacts with a sandboxed `pallet-revive`.
+        /// but instead interacts with a runtime-backed `pallet-revive`.
         ///
         /// See <https://use.ink/docs/v6/contract-testing/drink#as-an-alternative-backend-to-inks-e2e-testing-framework>
         /// for more details.
-        #[ink_sandbox::test(replace_test_attr = "#[quickcheck]", backend(runtime_only(
-            sandbox = ink_sandbox::DefaultSandbox,
-            client  = ink_sandbox::SandboxClient
-        )))]
+        #[ink_e2e::test(
+            replace_test_attr = "#[quickcheck]",
+            runtime(ink_sandbox::DefaultRuntime)
+        )]
         async fn fuzzing_works_runtime(val: bool) -> bool {
             let mut constructor = FuzzTestingRef::new(val);
             let contract = client
@@ -70,12 +70,12 @@ pub mod fuzz_testing {
         /// This means that, by default, for every test run a node process will
         /// be spawned. You can work around this by setting the env variable
         /// `CONTRACTS_NODE_URL`. But still, interactions with a real node will
-        /// always be more heavy-weight than "just" interacting with a sandboxed
+        /// always be more heavy-weight than "just" interacting with a runtime-backed
         /// `pallet-revive`.
-        #[ink_sandbox::test(replace_test_attr = "#[quickcheck]", backend(runtime_only(
-            sandbox = ink_sandbox::DefaultSandbox,
-            client  = ink_sandbox::SandboxClient
-        )))]
+        #[ink_e2e::test(
+            replace_test_attr = "#[quickcheck]",
+            runtime(ink_sandbox::DefaultRuntime)
+        )]
         async fn fuzzing_works_node(val: bool) -> bool {
             let mut constructor = FuzzTestingRef::new(val);
             let contract = client
@@ -92,10 +92,7 @@ pub mod fuzz_testing {
 
         // We need to implement `Arbitrary` for `Point`, so `quickcheck`
         // knows how to fuzz the struct.
-        use quickcheck::{
-            Arbitrary,
-            Gen,
-        };
+        use quickcheck::{Arbitrary, Gen};
         impl Arbitrary for Point {
             fn arbitrary(g: &mut Gen) -> Point {
                 Point {
@@ -105,10 +102,10 @@ pub mod fuzz_testing {
             }
         }
 
-        #[ink_sandbox::test(replace_test_attr = "#[quickcheck]", backend(runtime_only(
-            sandbox = ink_sandbox::DefaultSandbox,
-            client  = ink_sandbox::SandboxClient
-        )))]
+        #[ink_e2e::test(
+            replace_test_attr = "#[quickcheck]",
+            runtime(ink_sandbox::DefaultRuntime)
+        )]
         async fn fuzzing_custom_struct_works(val: Point) -> bool {
             ink_e2e::tracing::info!("fuzzing with value {val:?}");
 

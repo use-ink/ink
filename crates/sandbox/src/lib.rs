@@ -29,7 +29,7 @@ use ink_revive_types::{
 pub use macros::{
     AssetIdForTrustBackedAssets,
     BlockBuilder,
-    DefaultSandbox,
+    DefaultRuntime,
     TrustBackedAssetsInstance,
 };
 use pallet_revive::{
@@ -38,7 +38,7 @@ use pallet_revive::{
     InstantiateReturnValue,
 };
 use sp_core::Get;
-/// Export pallets that are used in [`crate::create_sandbox`]
+/// Export pallets that are used in [`crate::create_runtime`]
 pub use {
     frame_support::sp_runtime::testing::H256,
     frame_support::{
@@ -67,7 +67,7 @@ pub use {
 };
 
 pub use client::{
-    Client as SandboxClient,
+    Client as RuntimeClient,
     preset,
 };
 pub use error::E2EError;
@@ -245,15 +245,14 @@ pub type ContractExecResultFor<Runtime> =
 /// Alias for the `map_account` result.
 pub type MapAccountResultFor = Result<(), DispatchError>;
 
-/// Alias for the runtime of a sandbox.
-pub type RuntimeOf<S> = <S as Sandbox>::Runtime;
+/// Alias for the runtime of a backend.
+pub type RuntimeOf<R> = <R as Runtime>::Runtime;
 
-/// Alias for the runtime event of a sandbox.
-pub type RuntimeEventOf<S> = <RuntimeOf<S> as frame_system::Config>::RuntimeEvent;
+/// Alias for the runtime event of a backend.
+pub type RuntimeEventOf<R> = <RuntimeOf<R> as frame_system::Config>::RuntimeEvent;
 
-/// Sandbox defines the API of a sandboxed runtime.
-pub trait Sandbox {
-    /// The runtime associated with the sandbox.
+pub trait Runtime {
+    /// The runtime associated with the backend.
     type Runtime: frame_system::Config;
 
     /// Execute the given externalities.
@@ -279,7 +278,7 @@ pub trait Sandbox {
         Default::default()
     }
 
-    /// Default actor for the sandbox.
+    /// Default actor for the runtime backend.
     fn default_actor() -> AccountIdFor<Self::Runtime>;
 
     fn default_gas_limit() -> Weight {
@@ -322,8 +321,8 @@ where
     native_to_eth_ratio.saturating_mul(evm_value)
 }
 
-/// Convert a `pallet_revive::CallTrace` (sandbox) into an `ink_revive_types::CallTrace`
-/// (API).
+/// Convert a `pallet_revive::CallTrace` (runtime backend) into an
+/// `ink_revive_types::CallTrace` (API).
 pub fn to_revive_trace(t: pallet_revive::evm::CallTrace) -> CallTrace {
     CallTrace {
         from: t.from,
@@ -386,8 +385,8 @@ pub fn to_revive_storage_deposit<B>(
 
 /// Trait for types that can be converted into a runtime AccountId.
 ///
-/// This allows sandbox APIs to accept various account types without requiring manual
-/// conversion.
+/// This allows runtime backend APIs to accept various account types without requiring
+/// manual conversion.
 pub trait IntoAccountId<AccountId> {
     fn into_account_id(self) -> AccountId;
 }

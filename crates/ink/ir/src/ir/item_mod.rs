@@ -106,7 +106,7 @@ impl ItemMod {
             .iter()
             .filter(|item| matches!(item, ir::Item::Ink(ir::InkItem::Storage(_))));
         if storage_iter.clone().next().is_none() {
-            return Err(format_err!(module_span, "missing ink! storage struct",))
+            return Err(format_err!(module_span, "missing ink! storage struct",));
         }
         if storage_iter.clone().count() >= 2 {
             let mut error = format_err!(
@@ -116,7 +116,7 @@ impl ItemMod {
             for storage in storage_iter {
                 error.combine(format_err!(storage, "ink! storage struct here"))
             }
-            return Err(error)
+            return Err(error);
         }
         Ok(())
     }
@@ -138,7 +138,7 @@ impl ItemMod {
             })
             .any(|mut messages| messages.next().is_some());
         if !found_message {
-            return Err(format_err!(module_span, "missing ink! message"))
+            return Err(format_err!(module_span, "missing ink! message"));
         }
         Ok(())
     }
@@ -247,7 +247,7 @@ impl ItemMod {
                             message.callable().span(),
                             selector,
                             "message",
-                        ))
+                        ));
                     }
                     Entry::Vacant(vacant) => {
                         vacant.insert(message.callable());
@@ -263,7 +263,7 @@ impl ItemMod {
                             constructor.callable().span(),
                             selector,
                             "constructor",
-                        ))
+                        ));
                     }
                     Entry::Vacant(vacant) => {
                         vacant.insert(constructor.callable());
@@ -340,7 +340,7 @@ impl ItemMod {
                     return Err(format_err_spanned!(
                         meta.path,
                         "The feature `std` is not allowed in `cfg`.\n\n{ERR_HELP}"
-                    ))
+                    ));
                 }
                 return Ok(());
             }
@@ -388,7 +388,7 @@ impl ItemMod {
             for message in item_impl.iter_messages() {
                 if !message.has_wildcard_selector() {
                     other_messages.push(message);
-                    continue
+                    continue;
                 }
                 match wildcard_selector {
                     None => wildcard_selector = Some(message.callable()),
@@ -401,7 +401,7 @@ impl ItemMod {
                             overlap.span(),
                             "first ink! message with overlapping wildcard selector here",
                         );
-                        return Err(err.into_combine(overlap_err))
+                        return Err(err.into_combine(overlap_err));
                     }
                 }
             }
@@ -413,7 +413,7 @@ impl ItemMod {
                             wildcard.span(),
                             "missing definition of another message with TODO in tandem with a wildcard \
                         selector",
-                        ))
+                        ));
                     }
                     1 => {
                         if !other_messages[0]
@@ -424,7 +424,7 @@ impl ItemMod {
                                 other_messages[0].callable().span(),
                                 "when using a wildcard selector `selector = _` for an ink! message \
                                 then the other message must use the wildcard complement `selector = @`"
-                            ))
+                            ));
                         }
                     }
                     2.. => {
@@ -442,7 +442,7 @@ impl ItemMod {
                                 )
                             }
                         }
-                        return Err(combined)
+                        return Err(combined);
                     }
                 }
             } else {
@@ -460,7 +460,7 @@ impl ItemMod {
             let mut wildcard_selector: Option<&ir::Constructor> = None;
             for constructor in item_impl.iter_constructors() {
                 if !constructor.has_wildcard_selector() {
-                    continue
+                    continue;
                 }
                 match wildcard_selector {
                     None => wildcard_selector = Some(constructor.callable()),
@@ -493,7 +493,7 @@ impl TryFrom<syn::ItemMod> for ItemMod {
                 return Err(format_err_spanned!(
                     module,
                     "out-of-line ink! modules are not supported, use `#[ink::contract] mod name {{ ... }}`",
-                ))
+                ));
             }
         };
         let (ink_attrs, other_attrs) = ir::partition_attributes(module.attrs)?;
@@ -508,7 +508,7 @@ impl TryFrom<syn::ItemMod> for ItemMod {
                     "invalid ink! attribute on module"
                 ))
             }
-            return Err(error)
+            return Err(error);
         }
         let items = items
             .into_iter()
@@ -701,9 +701,9 @@ impl<'a> Iterator for IterInkItems<'a> {
                 None => return None,
                 Some(item) => {
                     if let Some(event) = item.map_ink_item() {
-                        return Some(event)
+                        return Some(event);
                     }
-                    continue 'repeat
+                    continue 'repeat;
                 }
             }
         }
@@ -734,9 +734,9 @@ impl<'a> Iterator for IterEvents<'a> {
                 None => return None,
                 Some(ink_item) => {
                     if let Some(event) = ink_item.filter_map_event_item() {
-                        return Some(event)
+                        return Some(event);
                     }
-                    continue 'repeat
+                    continue 'repeat;
                 }
             }
         }
@@ -767,9 +767,9 @@ impl<'a> Iterator for IterItemImpls<'a> {
                 None => return None,
                 Some(ink_item) => {
                     if let Some(event) = ink_item.filter_map_impl_block() {
-                        return Some(event)
+                        return Some(event);
                     }
-                    continue 'repeat
+                    continue 'repeat;
                 }
             }
         }

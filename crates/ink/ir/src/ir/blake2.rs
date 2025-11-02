@@ -73,7 +73,7 @@ impl TryFrom<TokenStream2> for Blake2x256Macro {
                     invalid.span(),
                     "expected string or byte string literal as input. found {:?}",
                     invalid,
-                ))
+                ));
             }
         };
         let mut output = [0u8; 32];

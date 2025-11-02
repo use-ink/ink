@@ -160,7 +160,7 @@ where
         log_info(&format!("upload dry run: {dry_run:?}"));
         if let Err(err) = dry_run {
             let dispatch_err = self.runtime_dispatch_error_to_subxt_dispatch_error(&err);
-            return Err(Error::UploadDryRun(dispatch_err))
+            return Err(Error::UploadDryRun(dispatch_err));
         }
 
         let storage_deposit_limit = match storage_deposit_limit {
@@ -192,7 +192,7 @@ where
                     uploaded.code_hash
                 ));
                 hash = Some(uploaded.code_hash);
-                break
+                break;
             } else if is_extrinsic_failed_event(&evt) {
                 let metadata = self.api.client.metadata();
                 let dispatch_error =
@@ -202,7 +202,7 @@ where
                 log_error(&format!(
                     "extrinsic for upload failed: {dispatch_error} {trace:?}"
                 ));
-                return Err(Error::UploadExtrinsic(dispatch_error, trace))
+                return Err(Error::UploadExtrinsic(dispatch_error, trace));
             }
         }
 
@@ -463,7 +463,7 @@ where
                 log_error(&format!(
                     "extrinsic for `runtime_call` failed: {dispatch_error} {trace:?}"
                 ));
-                return Err(Error::CallExtrinsic(dispatch_error, trace))
+                return Err(Error::CallExtrinsic(dispatch_error, trace));
             }
         }
 
@@ -585,7 +585,7 @@ where
                 log_error(&format!(
                     "extrinsic for instantiate failed: {dispatch_error} {trace:?}"
                 ));
-                return Err(Error::InstantiateExtrinsic(dispatch_error, trace))
+                return Err(Error::InstantiateExtrinsic(dispatch_error, trace));
             }
         }
         let addr = addr.expect("cannot extract contract address from events");
@@ -720,7 +720,7 @@ where
                 log_error(&format!(
                     "extrinsic for remove code failed: {dispatch_error} {trace:?}"
                 ));
-                return Err(Error::RemoveCodeExtrinsic(dispatch_error, trace))
+                return Err(Error::RemoveCodeExtrinsic(dispatch_error, trace));
             }
         }
 
@@ -794,7 +794,7 @@ where
                 log_error(&format!(
                     "extrinsic for `raw_call` failed: {dispatch_error} {trace:?}"
                 ));
-                return Err(Error::CallExtrinsic(dispatch_error, trace))
+                return Err(Error::CallExtrinsic(dispatch_error, trace));
             }
         }
 
@@ -899,7 +899,7 @@ where
                 log_error(&format!(
                     "extrinsic for `map_account` failed: {dispatch_error} {trace:?}"
                 ));
-                return Err(Error::CallExtrinsic(dispatch_error, trace))
+                return Err(Error::CallExtrinsic(dispatch_error, trace));
             }
         }
 

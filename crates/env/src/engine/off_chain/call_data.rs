@@ -91,7 +91,7 @@ impl scale::Decode for CallData {
         if bytes.len() < 4 {
             return Err(scale::Error::from(
                 "require at least 4 bytes for input data",
-            ))
+            ));
         }
         Ok(Self { bytes })
     }

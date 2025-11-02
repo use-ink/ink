@@ -47,7 +47,7 @@ pub fn ensure_pub_visibility(
             bad_visibility,
             "non `pub` ink! {} are not supported",
             name
-        ))
+        ));
     }
     Ok(())
 }
@@ -161,7 +161,7 @@ pub fn find_storage_key_salt(input: &syn::DeriveInput) -> Option<syn::TypeParam>
             if let Some(last) = segments.last()
                 && last.ident == "StorageKey"
             {
-                return Some(type_param.clone())
+                return Some(type_param.clone());
             }
         }
         None

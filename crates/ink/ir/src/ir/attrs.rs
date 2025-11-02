@@ -574,7 +574,7 @@ impl TryFrom<&ast::MetaValue> for SelectorOrWildcard {
                             )
                         })?;
                     let selector = Selector::from(selector_u32.to_be_bytes());
-                    return Ok(SelectorOrWildcard::UserProvided(selector))
+                    return Ok(SelectorOrWildcard::UserProvided(selector));
                 }
                 Err(format_err_spanned!(
                     value,

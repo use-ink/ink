@@ -48,9 +48,9 @@ impl<'a> Iterator for IterConstructors<'a> {
                         return Some(CallableWithSelector::new(
                             self.item_impl,
                             constructor,
-                        ))
+                        ));
                     }
-                    continue 'repeat
+                    continue 'repeat;
                 }
             }
         }
@@ -83,9 +83,9 @@ impl<'a> Iterator for IterMessages<'a> {
                 None => return None,
                 Some(impl_item) => {
                     if let Some(message) = impl_item.filter_map_message() {
-                        return Some(CallableWithSelector::new(self.item_impl, message))
+                        return Some(CallableWithSelector::new(self.item_impl, message));
                     }
-                    continue 'repeat
+                    continue 'repeat;
                 }
             }
         }

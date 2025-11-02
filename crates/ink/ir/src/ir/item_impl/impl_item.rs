@@ -63,7 +63,7 @@ impl TryFrom<syn::ImplItem> for ImplItem {
         match impl_item {
             syn::ImplItem::Fn(fn_item) => {
                 if !ir::contains_ink_attributes(&fn_item.attrs) {
-                    return Ok(Self::Other(fn_item.into()))
+                    return Ok(Self::Other(fn_item.into()));
                 }
                 let attr = ir::first_ink_attribute(&fn_item.attrs)?
                     .expect("missing expected ink! attribute for fn");
@@ -97,7 +97,7 @@ impl TryFrom<syn::ImplItem> for ImplItem {
                     return Err(ink_attrs[1..]
                         .iter()
                         .map(into_err)
-                        .fold(into_err(&ink_attrs[0]), |fst, snd| fst.into_combine(snd)))
+                        .fold(into_err(&ink_attrs[0]), |fst, snd| fst.into_combine(snd)));
                 }
                 Ok(Self::Other(other_item))
             }
