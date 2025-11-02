@@ -328,7 +328,7 @@ pub trait Environment: Clone {
         + Eq
         + AtLeast32BitUnsigned
         + Into<U256>
-        + From<u128>
+        //+ From<u128>
         + FromLittleEndian;
 
     /// The type of hash.
@@ -396,6 +396,12 @@ pub trait Environment: Clone {
     /// See <https://github.com/paritytech/polkadot-sdk/pull/9101> for more details.
     fn eth_to_native(value: U256) -> Self::Balance {
         let (quotient, remainder) = value.div_mod(Self::NATIVE_TO_ETH_RATIO.into());
+        /*
+        U256::try_into(value).unwrap_or(|| {
+            panic!("argh")
+        })
+         */
+        /*
         let q = quotient.as_u128();
         let r = remainder.as_u128();
         assert_eq!(
@@ -407,6 +413,7 @@ pub trait Environment: Clone {
             r
         );
         q.into()
+        */
     }
 }
 

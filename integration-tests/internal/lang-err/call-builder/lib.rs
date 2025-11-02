@@ -167,6 +167,7 @@ mod call_builder {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink::env::Environment;
         use ink_e2e::{
             ChainBackend,
             ContractsBackend,
@@ -183,7 +184,10 @@ mod call_builder {
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
-                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000.into())
+                .create_and_fund_account(
+                    &ink_e2e::alice(),
+                    ink::env::DefaultEnvironment::native_to_eth(10_000_000_000_000),
+                )
                 .await;
 
             let mut constructor = CallBuilderTestRef::new();

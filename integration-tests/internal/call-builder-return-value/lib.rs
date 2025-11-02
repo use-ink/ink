@@ -113,6 +113,7 @@ mod call_builder {
     mod e2e_tests {
         use super::*;
         use incrementer::IncrementerRef;
+        use ink::env::Environment;
         use ink_e2e::{
             ChainBackend,
             ContractsBackend,
@@ -127,7 +128,10 @@ mod call_builder {
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
-                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000.into())
+                .create_and_fund_account(
+                    &ink_e2e::alice(),
+                    ink::env::DefaultEnvironment::native_to_eth(10_000_000_000_000),
+                )
                 .await;
 
             let expected_value = 42;
@@ -171,7 +175,10 @@ mod call_builder {
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
-                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000.into())
+                .create_and_fund_account(
+                    &ink_e2e::alice(),
+                    ink::env::DefaultEnvironment::native_to_eth(10_000_000_000_000),
+                )
                 .await;
 
             let mut constructor = CallBuilderReturnValueRef::new(42);
@@ -215,7 +222,10 @@ mod call_builder {
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
-                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000.into())
+                .create_and_fund_account(
+                    &ink_e2e::alice(),
+                    ink::env::DefaultEnvironment::native_to_eth(10_000_000_000_000),
+                )
                 .await;
 
             let mut constructor = CallBuilderReturnValueRef::new(0);
@@ -258,7 +268,10 @@ mod call_builder {
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
-                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000.into())
+                .create_and_fund_account(
+                    &ink_e2e::alice(),
+                    ink::env::DefaultEnvironment::native_to_eth(10_000_000_000_000),
+                )
                 .await;
 
             let mut constructor = CallBuilderReturnValueRef::new(0);

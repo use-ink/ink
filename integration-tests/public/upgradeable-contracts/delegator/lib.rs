@@ -124,6 +124,7 @@ pub mod delegator {
             Delegatee2,
             Delegatee2Ref,
         };
+        use ink::env::Environment;
         use ink_e2e::{
             ChainBackend,
             ContractsBackend,
@@ -137,7 +138,10 @@ pub mod delegator {
         ) -> E2EResult<()> {
             // given
             let origin = client
-                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000.into())
+                .create_and_fund_account(
+                    &ink_e2e::alice(),
+                    ink::env::DefaultEnvironment::native_to_eth(10_000_000_000_000),
+                )
                 .await;
 
             /*
@@ -207,7 +211,10 @@ pub mod delegator {
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
-                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000.into())
+                .create_and_fund_account(
+                    &ink_e2e::alice(),
+                    ink::env::DefaultEnvironment::native_to_eth(10_000_000_000_000),
+                )
                 .await;
 
             /*
@@ -281,7 +288,10 @@ pub mod delegator {
         ) -> E2EResult<()> {
             // given
             let origin = client
-                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000.into())
+                .create_and_fund_account(
+                    &ink_e2e::alice(),
+                    ink::env::DefaultEnvironment::native_to_eth(10_000_000_000_000),
+                )
                 .await;
 
             /*
