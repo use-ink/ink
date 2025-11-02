@@ -182,10 +182,7 @@ pub mod give_me {
     mod e2e_tests {
         use super::*;
         use ink::env::Environment;
-        use ink_e2e::{
-            ChainBackend,
-            ContractsBackend,
-        };
+        use ink_e2e::{ChainBackend, ContractsBackend};
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -225,10 +222,7 @@ pub mod give_me {
             Ok(())
         }
 
-        #[ink_sandbox::test(backend(runtime_only(
-            sandbox = ink_sandbox::DefaultSandbox,
-            client  = ink_sandbox::SandboxClient
-        )))]
+        #[ink_e2e::test(runtime(ink_sandbox::DefaultRuntime))]
         async fn e2e_contract_must_transfer_value_to_sender<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {

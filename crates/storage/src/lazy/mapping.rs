@@ -165,13 +165,13 @@ where
         let key_size = <Q as Encode>::encoded_size(&key);
 
         if key_size > ink_env::BUFFER_SIZE {
-            return Err(ink_env::Error::BufferTooSmall)
+            return Err(ink_env::Error::BufferTooSmall);
         }
 
         let value_size = <R as Storable>::encoded_size(value);
 
         if key_size.saturating_add(value_size) > ink_env::BUFFER_SIZE {
-            return Err(ink_env::Error::BufferTooSmall)
+            return Err(ink_env::Error::BufferTooSmall);
         }
 
         Ok(self.insert(key, value))
@@ -208,7 +208,7 @@ where
         let key_size = <Q as Encode>::encoded_size(&key);
 
         if key_size > ink_env::remaining_buffer() {
-            return Some(Err(ink_env::Error::BufferTooSmall))
+            return Some(Err(ink_env::Error::BufferTooSmall));
         }
 
         let value_size: usize =
@@ -217,7 +217,7 @@ where
                 .expect("targets of less than 32bit pointer size are not supported; qed");
 
         if key_size.saturating_add(value_size) > ink_env::remaining_buffer() {
-            return Some(Err(ink_env::Error::BufferTooSmall))
+            return Some(Err(ink_env::Error::BufferTooSmall));
         }
 
         self.get(key).map(Ok)
@@ -259,7 +259,7 @@ where
         let required_buffer =
             key_size.saturating_add(4 + 32 + 32 + 64 + key_size + 32 + 32);
         if required_buffer > ink_env::remaining_buffer() {
-            return Some(Err(ink_env::Error::BufferTooSmall))
+            return Some(Err(ink_env::Error::BufferTooSmall));
         }
 
         let value_size: usize =
@@ -272,7 +272,7 @@ where
             .saturating_add(value_size)
             .saturating_add(4 + 32 + 32 + 64 + key_size + 64 + value_size);
         if required_buffer > ink_env::remaining_buffer() {
-            return Some(Err(ink_env::Error::BufferTooSmall))
+            return Some(Err(ink_env::Error::BufferTooSmall));
         }
 
         self.take(key).map(Ok)

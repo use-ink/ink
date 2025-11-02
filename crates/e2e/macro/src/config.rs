@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use darling::{
+    FromMeta,
+    ast::NestedMeta,
+};
+
 /// The type of the architecture that should be used to run test.
 #[derive(Clone, Eq, PartialEq, Debug, darling::FromMeta)]
 #[darling(rename_all = "snake_case")]
@@ -24,7 +29,8 @@ pub enum Backend {
     ///
     /// This runs a runtime emulator within `TestExternalities`
     /// the same process as the test.
-    RuntimeOnly(RuntimeOnly),
+    #[darling(rename = "runtime_only")]
+    RuntimeOnly(RuntimeBackend),
 }
 
 impl Default for Backend {
@@ -63,21 +69,84 @@ impl Node {
 }
 
 /// The runtime emulator that should be used within `TestExternalities`
-#[derive(Clone, Eq, PartialEq, Debug, darling::FromMeta)]
-pub struct RuntimeOnly {
-    /// The sandbox runtime type (e.g., `ink_sandbox::DefaultSandbox`)
-    pub sandbox: syn::Path,
-    /// The client type implementing the backend traits (e.g.,
-    /// `ink_sandbox::SandboxClient`)
-    pub client: syn::Path,
+#[derive(Clone, Eq, PartialEq, Debug)]
+pub struct RuntimeBackend {
+    /// The runtime backend type (e.g., `ink_sandbox::DefaultRuntime`)
+    runtime: syn::Path,
 }
 
-impl RuntimeOnly {
-    pub fn runtime_path(&self) -> syn::Path {
-        self.sandbox.clone()
+impl Default for RuntimeBackend {
+    fn default() -> Self {
+        Self {
+            runtime: syn::parse_quote! { ::ink_sandbox::DefaultRuntime },
+        }
     }
-    pub fn client_path(&self) -> syn::Path {
-        self.client.clone()
+}
+
+impl RuntimeBackend {
+    pub fn runtime_path(&self) -> syn::Path {
+        self.runtime.clone()
+    }
+}
+
+impl FromMeta for RuntimeBackend {
+    fn from_meta(meta: &syn::Meta) -> darling::Result<Self> {
+        match meta {
+            syn::Meta::Path(_) => Ok(Self::default()),
+            syn::Meta::List(list) => {
+                let mut runtime = Self::default();
+                let items = NestedMeta::parse_meta_list(list.tokens.clone())?;
+                for item in items {
+                    match item {
+                        NestedMeta::Meta(syn::Meta::Path(path)) => {
+                            runtime.runtime = path.clone();
+                        }
+                        NestedMeta::Meta(syn::Meta::NameValue(nv))
+                            if nv.path.is_ident("backend") =>
+                        {
+                            if let syn::Expr::Path(expr) = &nv.value {
+                                runtime.runtime = expr.path.clone();
+                            } else {
+                                return Err(darling::Error::custom(
+                                    "`backend` expects a type path",
+                                )
+                                .with_span(&nv.value));
+                            }
+                        }
+                        NestedMeta::Meta(syn::Meta::NameValue(nv))
+                            if nv.path.is_ident("client") =>
+                        {
+                            return Err(darling::Error::custom(
+                                "`client` is no longer configurable; \
+                                     use #[ink_e2e::test(runtime)] or \
+                                     #[ink_e2e::test(runtime(MyRuntime))]",
+                            )
+                            .with_span(&nv.path));
+                        }
+                        NestedMeta::Meta(meta) => {
+                            return Err(darling::Error::custom(
+                                "unknown runtime argument",
+                            )
+                            .with_span(meta.path()));
+                        }
+                        NestedMeta::Lit(lit) => {
+                            return Err(darling::Error::custom(
+                                "unexpected literal in runtime arguments",
+                            )
+                            .with_span(&lit));
+                        }
+                    }
+                }
+                Ok(runtime)
+            }
+            syn::Meta::NameValue(nv) => {
+                Err(darling::Error::custom(
+                    "`runtime` only supports #[ink_e2e::test(runtime)] or \
+                     #[ink_e2e::test(runtime(...))]",
+                )
+                .with_span(&nv.path))
+            }
+        }
     }
 }
 
@@ -95,6 +164,9 @@ pub struct E2EConfig {
     /// The type of the architecture that should be used to run test.
     #[darling(default)]
     backend: Backend,
+    /// Configure the lightweight runtime backend using shorthand syntax.
+    #[darling(default)]
+    runtime: Option<RuntimeBackend>,
     /// Features that are enabled in the contract during the build process.
     /// todo add tests below in this file
     #[darling(default)]
@@ -121,7 +193,11 @@ impl E2EConfig {
 
     /// The type of the architecture that should be used to run test.
     pub fn backend(&self) -> Backend {
-        self.backend.clone()
+        if let Some(runtime) = &self.runtime {
+            Backend::RuntimeOnly(runtime.clone())
+        } else {
+            self.backend.clone()
+        }
     }
 
     /// A custom attribute which the code generation will output instead
@@ -141,10 +217,10 @@ mod tests {
     use quote::quote;
 
     #[test]
-    fn config_works_backend_runtime_only() {
+    fn config_works_runtime_with_environment() {
         let input = quote! {
             environment = crate::CustomEnvironment,
-            backend(runtime_only(sandbox = ::ink_sandbox::DefaultSandbox, client = ::ink_sandbox::SandboxClient)),
+            runtime(::ink_sandbox::DefaultRuntime),
         };
         let config =
             E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
@@ -156,46 +232,50 @@ mod tests {
 
         assert_eq!(
             config.backend(),
-            Backend::RuntimeOnly(RuntimeOnly {
-                sandbox: syn::parse_quote! { ::ink_sandbox::DefaultSandbox },
-                client: syn::parse_quote! { ::ink_sandbox::SandboxClient },
+            Backend::RuntimeOnly(RuntimeBackend {
+                runtime: syn::parse_quote! { ::ink_sandbox::DefaultRuntime },
             })
         );
     }
 
     #[test]
-    #[should_panic(expected = "ErrorUnknownField")]
-    fn config_backend_runtime_only_default_not_allowed() {
+    fn config_runtime_default_backend() {
+        let input = quote! { runtime };
+        let config =
+            E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
+
+        assert_eq!(
+            config.backend(),
+            Backend::RuntimeOnly(RuntimeBackend {
+                runtime: syn::parse_quote! { ::ink_sandbox::DefaultRuntime },
+            })
+        );
+    }
+
+    #[test]
+    fn config_backend_runtime_only_alias_still_supported() {
         let input = quote! {
-            backend(runtime_only(default)),
+            backend(runtime_only(::ink_sandbox::DefaultRuntime)),
         };
         let config =
             E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
 
         assert_eq!(
             config.backend(),
-            Backend::RuntimeOnly(RuntimeOnly {
-                sandbox: syn::parse_quote! { ::ink_sandbox::DefaultSandbox },
-                client: syn::parse_quote! { ::ink_sandbox::SandboxClient },
+            Backend::RuntimeOnly(RuntimeBackend {
+                runtime: syn::parse_quote! { ::ink_sandbox::DefaultRuntime },
             })
         );
     }
 
     #[test]
-    fn config_works_runtime_only_with_custom_backend() {
+    #[should_panic(expected = "`client` is no longer configurable")]
+    fn config_runtime_rejects_client_argument() {
         let input = quote! {
-            backend(runtime_only(sandbox = ::ink_sandbox::DefaultSandbox, client = ::ink_sandbox::SandboxClient)),
+            runtime(::ink_sandbox::DefaultRuntime, client = ::ink_sandbox::RuntimeClient),
         };
-        let config =
+        let _config =
             E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
-
-        assert_eq!(
-            config.backend(),
-            Backend::RuntimeOnly(RuntimeOnly {
-                sandbox: syn::parse_quote! { ::ink_sandbox::DefaultSandbox },
-                client: syn::parse_quote! { ::ink_sandbox::SandboxClient },
-            })
-        );
     }
 
     #[test]

@@ -80,8 +80,7 @@ impl InkE2ETest {
             }
             Backend::RuntimeOnly(args) => {
                 let runtime: syn::Path = args.runtime_path();
-                let client: syn::Path = args.client_path();
-                build_runtime_client(exec_build_contracts, runtime, client)
+                build_runtime_client(exec_build_contracts, runtime)
             }
         };
 
@@ -171,13 +170,9 @@ fn build_full_client(
     }
 }
 
-fn build_runtime_client(
-    contracts: TokenStream2,
-    runtime: syn::Path,
-    client: syn::Path,
-) -> TokenStream2 {
+fn build_runtime_client(contracts: TokenStream2, runtime: syn::Path) -> TokenStream2 {
     quote! {
         let contracts = #contracts;
-        let mut client = #client::<_, #runtime>::new(contracts);
+        let mut client = ::ink_sandbox::RuntimeClient::<_, #runtime>::new(contracts);
     }
 }

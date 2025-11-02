@@ -197,7 +197,7 @@ impl<T> TryFrom<TokenStream2> for SelectorMacro<T> {
                     invalid.span(),
                     "expected string or byte string literal as input. found {:?}",
                     invalid,
-                ))
+                ));
             }
         };
         let selector = Selector::compute(&input_bytes);

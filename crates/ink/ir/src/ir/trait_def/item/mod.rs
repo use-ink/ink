@@ -75,7 +75,7 @@ impl InkItemTrait {
             return Err(format_err!(
                 item_trait.span(),
                 "encountered invalid empty ink! trait definition"
-            ))
+            ));
         }
         Ok(Self {
             item: item_trait,
@@ -118,31 +118,31 @@ impl InkItemTrait {
             return Err(format_err_spanned!(
                 unsafety,
                 "ink! trait definitions cannot be unsafe"
-            ))
+            ));
         }
         if let Some(auto) = &item_trait.auto_token {
             return Err(format_err_spanned!(
                 auto,
                 "ink! trait definitions cannot be automatically implemented traits"
-            ))
+            ));
         }
         if !item_trait.generics.params.is_empty() {
             return Err(format_err_spanned!(
                 item_trait.generics.params,
                 "ink! trait definitions must not be generic"
-            ))
+            ));
         }
         if !matches!(item_trait.vis, syn::Visibility::Public(_)) {
             return Err(format_err_spanned!(
                 item_trait.vis,
                 "ink! trait definitions must have public visibility"
-            ))
+            ));
         }
         if !item_trait.supertraits.is_empty() {
             return Err(format_err_spanned!(
                 item_trait.supertraits,
                 "ink! trait definitions with supertraits are not supported, yet"
-            ))
+            ));
         }
         Ok(())
     }
@@ -173,25 +173,25 @@ impl InkItemTrait {
                     return Err(format_err_spanned!(
                         const_trait_item,
                         "associated constants in ink! trait definitions are not supported, yet"
-                    ))
+                    ));
                 }
                 syn::TraitItem::Macro(macro_trait_item) => {
                     return Err(format_err_spanned!(
                         macro_trait_item,
                         "macros in ink! trait definitions are not supported"
-                    ))
+                    ));
                 }
                 syn::TraitItem::Type(type_trait_item) => {
                     return Err(format_err_spanned!(
                         type_trait_item,
                         "associated types in ink! trait definitions are not supported, yet"
-                    ))
+                    ));
                 }
                 syn::TraitItem::Verbatim(verbatim) => {
                     return Err(format_err_spanned!(
                         verbatim,
                         "encountered unsupported item in ink! trait definition"
-                    ))
+                    ));
                 }
                 syn::TraitItem::Fn(fn_trait_item) => {
                     Self::analyse_trait_fn(fn_trait_item)?;
@@ -200,7 +200,7 @@ impl InkItemTrait {
                     return Err(format_err_spanned!(
                         unknown,
                         "encountered unknown or unsupported item in ink! trait definition"
-                    ))
+                    ));
                 }
             }
         }
@@ -221,43 +221,43 @@ impl InkItemTrait {
             return Err(format_err_spanned!(
                 default_impl,
                 "ink! trait methods with default implementations are not supported"
-            ))
+            ));
         }
         if let Some(constness) = &method.sig.constness {
             return Err(format_err_spanned!(
                 constness,
                 "const ink! trait methods are not supported"
-            ))
+            ));
         }
         if let Some(asyncness) = &method.sig.asyncness {
             return Err(format_err_spanned!(
                 asyncness,
                 "async ink! trait methods are not supported"
-            ))
+            ));
         }
         if let Some(unsafety) = &method.sig.unsafety {
             return Err(format_err_spanned!(
                 unsafety,
                 "unsafe ink! trait methods are not supported"
-            ))
+            ));
         }
         if let Some(abi) = &method.sig.abi {
             return Err(format_err_spanned!(
                 abi,
                 "ink! trait methods with non default ABI are not supported"
-            ))
+            ));
         }
         if let Some(variadic) = &method.sig.variadic {
             return Err(format_err_spanned!(
                 variadic,
                 "variadic ink! trait methods are not supported"
-            ))
+            ));
         }
         if !method.sig.generics.params.is_empty() {
             return Err(format_err_spanned!(
                 method.sig.generics.params,
                 "generic ink! trait methods are not supported"
-            ))
+            ));
         }
         match ir::first_ink_attribute(&method.attrs) {
             Ok(Some(ink_attr)) => {
@@ -272,7 +272,7 @@ impl InkItemTrait {
                         return Err(format_err_spanned!(
                             method,
                             "encountered unsupported ink! attribute for ink! trait method",
-                        ))
+                        ));
                     }
                 }
             }
@@ -280,7 +280,7 @@ impl InkItemTrait {
                 return Err(format_err_spanned!(
                     method,
                     "missing #[ink(message)] or #[ink(constructor)] flags on ink! trait method"
-                ))
+                ));
             }
             Err(err) => return Err(err),
         }
@@ -308,21 +308,21 @@ impl InkItemTrait {
                 return Err(format_err_spanned!(
                     message.sig,
                     "missing `&self` or `&mut self` receiver for ink! message",
-                ))
+                ));
             }
             Some(receiver) => {
                 if receiver.reference.is_none() {
                     return Err(format_err_spanned!(
                         receiver,
                         "self receiver of ink! message must be `&self` or `&mut self`"
-                    ))
+                    ));
                 }
 
                 if ink_attrs.is_payable() && receiver.mutability.is_none() {
                     return Err(format_err_spanned!(
                         receiver,
                         "ink! messages with a `payable` attribute argument must have a `&mut self` receiver"
-                    ))
+                    ));
                 }
             }
         }

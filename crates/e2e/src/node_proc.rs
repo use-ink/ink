@@ -89,7 +89,7 @@ where
         if let Err(err) = self.proc.kill() {
             let err = format!("Error killing node process {}: {}", self.proc.id(), err);
             tracing::error!("{}", err);
-            return Err(err)
+            return Err(err);
         }
         Ok(())
     }

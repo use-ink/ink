@@ -168,7 +168,7 @@ impl ItemImpl {
                 .iter()
                 .all(|item| !ir::contains_ink_attributes(item.attrs()))
         {
-            return Ok(false)
+            return Ok(false);
         }
         // Check if the implementation block itself has been annotated with
         // `#[ink(impl)]` and return `true` if this is the case.
@@ -183,7 +183,7 @@ impl ItemImpl {
                 .ensure_first(&ir::AttributeArgKind::Implementation)
                 .is_ok()
             {
-                return Ok(true)
+                return Ok(true);
             }
         }
         // Check if any of the implementation block's methods either resembles
@@ -192,13 +192,13 @@ impl ItemImpl {
             match item {
                 syn::ImplItem::Fn(fn_item) => {
                     if !ir::contains_ink_attributes(&fn_item.attrs) {
-                        continue 'repeat
+                        continue 'repeat;
                     }
                     let attr = ir::first_ink_attribute(&fn_item.attrs)?
                         .expect("missing expected ink! attribute for struct");
                     match attr.first().kind() {
                         ir::AttributeArg::Constructor | ir::AttributeArg::Message => {
-                            return Ok(true)
+                            return Ok(true);
                         }
                         _ => continue 'repeat,
                     }
@@ -224,25 +224,25 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
             return Err(format_err_spanned!(
                 item_impl,
                 "missing ink! annotations on implementation block or on any of its items"
-            ))
+            ));
         }
         if let Some(defaultness) = item_impl.defaultness {
             return Err(format_err_spanned!(
                 defaultness,
                 "default implementations are unsupported for ink! implementation blocks",
-            ))
+            ));
         }
         if let Some(unsafety) = item_impl.unsafety {
             return Err(format_err_spanned!(
                 unsafety,
                 "unsafe ink! implementation blocks are not supported",
-            ))
+            ));
         }
         if !item_impl.generics.params.is_empty() {
             return Err(format_err_spanned!(
                 item_impl.generics.params,
                 "generic ink! implementation blocks are not supported",
-            ))
+            ));
         }
         let impl_items = item_impl
             .items
@@ -272,7 +272,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
                         what,
                         if is_trait_impl { "trait" } else { "inherent" },
                         if requires_pub { "public" } else { "inherited" },
-                    ))
+                    ));
                 }
                 Ok(())
             }

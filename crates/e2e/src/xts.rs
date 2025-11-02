@@ -381,7 +381,7 @@ where
                             None,
                         )
                         .await;
-                    return (events, trace)
+                    return (events, trace);
                 }
                 TxStatus::Error { message } => {
                     panic!("TxStatus::Error: {message:?}");
