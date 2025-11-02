@@ -54,13 +54,13 @@ pub const BUFFER_SIZE: usize = 16384;
 
 #[cfg(target_arch = "riscv64")]
 #[panic_handler]
-fn panic(info: &core::panic::PanicInfo) -> ! {
+fn panic(_info: &core::panic::PanicInfo) -> ! {
     // In case the contract is build in debug-mode, we return the
     // panic message as a payload by triggering a contract revert.
     #[cfg(any(feature = "ink-debug", feature = "std"))]
     self::return_value(
         ReturnFlags::REVERT,
-        &ink_prelude::format!("{}", info.message()).as_bytes(),
+        &ink_prelude::format!("{}", _info.message()).as_bytes(),
     );
 
     // If contract is compiled with `cargo contract --release`, it will

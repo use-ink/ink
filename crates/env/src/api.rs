@@ -14,6 +14,8 @@
 
 //! The public raw interface towards the host engine.
 
+#[cfg(feature = "xcm")]
+use ink_primitives::Weight;
 use ink_primitives::{
     Address,
     CodeHashErr,
@@ -674,7 +676,7 @@ pub fn ecdsa_to_eth_address(pubkey: &[u8; 33], output: &mut [u8; 20]) -> Result<
 ///
 /// - If sr25519 signature cannot be verified.
 ///
-/// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
+/// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/polkadot-sdk/tree/master/substrate/frame/revive#unstable-interfaces)
 /// which is unsafe and normally is not available on production chains.
 #[cfg(feature = "unstable-hostfn")]
 pub fn sr25519_verify(
@@ -874,27 +876,49 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| instance.set_code_hash(code_hash))
 }
 
-/// Execute an XCM message locally, using the contract's address as the origin.
+/// Estimates the [`Weight`] required to execute a given XCM message.
 ///
-/// For more details consult the
-/// [host function documentation](https://paritytech.github.io/polkadot-sdk/master/pallet_contracts/api_doc/trait.Current.html#tymethod.xcm_execute).
+/// This is done by invoking [the XCM precompile](https://paritytech.github.io/polkadot-sdk/master/pallet_xcm/precompiles/struct.XcmPrecompile.html).
+/// For more details consult the [precompile interface](https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/xcm/pallet-xcm/precompiles/src/interface/IXcm.sol).
 ///
 /// # Errors
 ///
-/// - If the message cannot be properly decoded on the `pallet-revive` side.
+/// - If the message cannot be properly decoded in the XCM precompile.
 /// - If the XCM execution fails because of the runtime's XCM configuration.
 ///
 /// # Panics
 ///
 /// Panics in the off-chain environment.
-#[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
-pub fn xcm_execute<E, Call>(msg: &xcm::VersionedXcm<Call>) -> Result<()>
+#[cfg(feature = "xcm")]
+pub fn xcm_weigh<Call>(msg: &xcm::VersionedXcm<Call>) -> Result<Weight>
 where
-    E: Environment,
     Call: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::xcm_execute::<E, _>(instance, msg)
+        TypedEnvBackend::xcm_weigh(instance, msg)
+    })
+}
+
+/// Execute an XCM message locally, using the contract's address as the origin.
+///
+/// This is done by invoking [the XCM precompile](https://paritytech.github.io/polkadot-sdk/master/pallet_xcm/precompiles/struct.XcmPrecompile.html).
+/// For more details consult the [precompile interface](https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/xcm/pallet-xcm/precompiles/src/interface/IXcm.sol).
+///
+/// # Errors
+///
+/// - If the message cannot be properly decoded in the XCM precompile.
+/// - If the XCM execution fails because of the runtime's XCM configuration.
+///
+/// # Panics
+///
+/// Panics in the off-chain environment.
+#[cfg(feature = "xcm")]
+pub fn xcm_execute<Call>(msg: &xcm::VersionedXcm<Call>, weight: Weight) -> Result<()>
+where
+    Call: scale::Encode,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::xcm_execute(instance, msg, weight)
     })
 }
 
@@ -903,27 +927,26 @@ where
 /// The `msg` argument has to be SCALE encoded, it needs to be decodable to a valid
 /// instance of the `RuntimeCall` enum.
 ///
-/// For more details consult
-/// [host function documentation](https://paritytech.github.io/polkadot-sdk/master/pallet_contracts/api_doc/trait.Current.html#tymethod.xcm_send).
+/// This is done by invoking [the XCM precompile](https://paritytech.github.io/polkadot-sdk/master/pallet_xcm/precompiles/struct.XcmPrecompile.html).
+/// For more details consult the [precompile interface](https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/xcm/pallet-xcm/precompiles/src/interface/IXcm.sol).
 ///
 /// # Errors
 ///
-/// - If the message cannot be properly decoded on the `pallet-revive` side.
+/// - If the message cannot be properly decoded in the XCM precompile.
 ///
 /// # Panics
 ///
 /// Panics in the off-chain environment.
-#[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
-pub fn xcm_send<E, Call>(
+#[cfg(feature = "xcm")]
+pub fn xcm_send<Call>(
     dest: &xcm::VersionedLocation,
     msg: &xcm::VersionedXcm<Call>,
-) -> Result<xcm::v4::XcmHash>
+) -> Result<()>
 where
-    E: Environment,
     Call: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::xcm_send::<E, _>(instance, dest, msg)
+        TypedEnvBackend::xcm_send(instance, dest, msg)
     })
 }
 

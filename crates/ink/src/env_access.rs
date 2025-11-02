@@ -35,6 +35,8 @@ use ink_env::{
         HashOutput,
     },
 };
+#[cfg(feature = "xcm")]
+use ink_primitives::Weight;
 use ink_primitives::{
     Address,
     CodeHashErr,
@@ -1028,8 +1030,7 @@ where
     ///
     /// For more details visit: [`ink_env::sr25519_verify`]
     ///
-    /// todo
-    /// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
+    /// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/polkadot-sdk/tree/master/substrate/frame/revive#unstable-interfaces),
     /// which is unsafe and normally is not available on production chains.
     #[cfg(feature = "unstable-hostfn")]
     pub fn sr25519_verify(
@@ -1248,20 +1249,29 @@ where
         ink_env::set_code_hash::<E>(code_hash)
     }
 
-    #[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
+    #[cfg(feature = "xcm")]
+    pub fn xcm_weigh<Call: scale::Encode>(
+        self,
+        msg: &xcm::VersionedXcm<Call>,
+    ) -> Result<Weight> {
+        ink_env::xcm_weigh(msg)
+    }
+
+    #[cfg(feature = "xcm")]
     pub fn xcm_execute<Call: scale::Encode>(
         self,
         msg: &xcm::VersionedXcm<Call>,
+        weight: Weight,
     ) -> Result<()> {
-        ink_env::xcm_execute::<E, _>(msg)
+        ink_env::xcm_execute(msg, weight)
     }
 
-    #[cfg(all(feature = "xcm", feature = "unstable-hostfn"))]
+    #[cfg(feature = "xcm")]
     pub fn xcm_send<Call: scale::Encode>(
         self,
         dest: &xcm::VersionedLocation,
         msg: &xcm::VersionedXcm<Call>,
-    ) -> Result<xcm::v4::XcmHash> {
-        ink_env::xcm_send::<E, _>(dest, msg)
+    ) -> Result<()> {
+        ink_env::xcm_send(dest, msg)
     }
 }

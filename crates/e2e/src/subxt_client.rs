@@ -419,7 +419,7 @@ where
 
         let best_block = self.api.best_block().await;
 
-        let account = self
+        let account_info = self
             .api
             .client
             .storage()
@@ -434,7 +434,7 @@ where
                 panic!("unable to decode account info: {err:?}");
             });
 
-        let account_data = get_composite_field_value(&account, "data")?;
+        let account_data = get_composite_field_value(&account_info, "data")?;
         let balance = get_composite_field_value(account_data, "free")?;
         let balance = balance.as_u128().ok_or_else(|| {
             Error::Balance(format!("{balance:?} should convert to u128"))
