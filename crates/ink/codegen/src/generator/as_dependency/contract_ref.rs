@@ -56,11 +56,16 @@ impl GenerateCode for ContractRef<'_> {
         let call_builder_trait_impl = self.generate_call_builder_trait_impl();
         let auxiliary_trait_impls = self.generate_auxiliary_trait_impls();
         quote! {
+            #[cfg(any(test, feature = "std", feature = "ink-as-dependency"))]
             #contract_ref
-            #contract_ref_trait_impls
-            #contract_ref_inherent_impls
-            #call_builder_trait_impl
-            #auxiliary_trait_impls
+
+            #[cfg(any(test, feature = "std", feature = "ink-as-dependency"))]
+            const _: () = {
+                #contract_ref_trait_impls
+                #contract_ref_inherent_impls
+                #call_builder_trait_impl
+                #auxiliary_trait_impls
+            };
         }
     }
 }
@@ -104,6 +109,7 @@ impl ContractRef<'_> {
             let ref_ident_abi_alias = format_ident!("{ref_ident_default_abi}{suffix}");
             quote! {
                 #[allow(dead_code)]
+                #[cfg(any(test, feature = "std", feature = "ink-as-dependency"))]
                 pub type #ref_ident_abi_alias = #ref_ident::<#abi_ty>;
             }
         });
@@ -152,10 +158,12 @@ impl ContractRef<'_> {
 
             // Default type alias (i.e. `ContractRef` for a contract named `Contract`).
             #[allow(dead_code)]
+            #[cfg(any(test, feature = "std", feature = "ink-as-dependency"))]
             pub type #ref_ident_default_abi = #ref_ident::<#abi>;
             // ABI specific type aliases (i.e. `ContractRefInk` and `ContractRefSol`) as appropriate.
             #ref_ident_abi_aliases
 
+            #[cfg(any(test, feature = "std", feature = "ink-as-dependency"))]
             const _: () = {
                 impl ::ink::env::ContractReference for #storage_ident {
                     type Type = #ref_ident;
