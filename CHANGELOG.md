@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Unreleased]
 
+### Changed
+
+- Refactor contract ref generation and add automatic re-exporting - [#2710](https://github.com/use-ink/ink/pull/2710)
+
 ## Version 6.0.0-beta
 
 ### Added
