@@ -20,7 +20,14 @@ pub mod just_terminates {
         /// Terminates with the caller as beneficiary.
         #[ink(message)]
         pub fn terminate_me(&mut self) {
-            self.env().terminate_contract(self.env().caller());
+            self.env()
+                .terminate_contract(self.env().caller())
+                .expect("must succeed");
+        }
+
+        #[ink(message)]
+        pub fn get(&self) -> u64 {
+            13
         }
     }
 
@@ -77,17 +84,17 @@ pub mod just_terminates {
                 .await
                 .expect("terminate_me messages failed");
 
-            assert!(
-                call_res.return_data().is_empty(),
-                "Terminated contract never returns"
-            );
-
             // then
             assert!(call_res.contains_event("System", "KilledAccount"));
             assert!(call_res.contains_event("Balances", "Withdraw"));
-            // todo this event below no longer exists, but we could try getting
-            // info for the contract and asserting that it fails.
-            // assert!(call_res.contains_event("Revive", "Terminated"));
+
+            let get = call_builder.get();
+            let call_res = client
+                .call(&ink_e2e::alice(), &get)
+                .submit()
+                .await
+                .expect("get message failed");
+            assert!(call_res.dry_run.exec_result.result.unwrap().data.is_empty());
 
             Ok(())
         }

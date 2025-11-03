@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Unreleased]
 
+### Changed
+- Implement and stabilize `terminate_contract` ‒ [2708](https://github.com/use-ink/ink/pull/2708)
+
 ## Version 6.0.0-beta
 
 ### Added
