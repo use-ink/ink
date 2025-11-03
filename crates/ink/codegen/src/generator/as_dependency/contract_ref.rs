@@ -317,6 +317,10 @@ impl ContractRef<'_> {
                         &mut self.inner
                     }
                 }
+
+                impl<TypeAbi> ::ink::codegen::ContractCallBuilder for #ref_ident<TypeAbi> {
+                    type Type<TraitAbi> = <#storage_ident as ::ink::codegen::ContractCallBuilder>::Type<TypeAbi>;
+                }
             };
         )
     }
