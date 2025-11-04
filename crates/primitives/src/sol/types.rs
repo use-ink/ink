@@ -62,7 +62,7 @@ use crate::{
 /// | `bool` | `bool` ||
 /// | `iN` for `N ∈ {8,16,32,64,128}` | `intN` | e.g `i8` ↔ `int8` |
 /// | `uN` for `N ∈ {8,16,32,64,128}` | `uintN` | e.g `u8` ↔ `uint8` |
-/// | `U256` | `uint256` ||
+/// | `U256` | `uint256`, `uint` | `uint` is just an alias of `uint256` in Solidity |
 /// | `String` | `string` ||
 /// | `Box<str>` | `string` ||
 /// | `Address` / `H160` | `address` | `Address` is a type alias for the `H160` type used for addresses in `pallet-revive` |
@@ -132,7 +132,7 @@ pub trait SolTypeDecode: Sized + private::Sealed {
 /// | `bool` | `bool` ||
 /// | `iN` for `N ∈ {8,16,32,64,128}` | `intN` | e.g `i8` ↔ `int8` |
 /// | `uN` for `N ∈ {8,16,32,64,128}` | `uintN` | e.g `u8` ↔ `uint8` |
-/// | `U256` | `uint256` ||
+/// | `U256` | `uint256`, `uint` | `uint` is just an alias of `uint256` in Solidity |
 /// | `String` | `string` ||
 /// | `Box<str>` | `string` ||
 /// | `Address` / `H160` | `address` | `Address` is a type alias for the `H160` type used for addresses in `pallet-revive` |
