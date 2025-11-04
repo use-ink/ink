@@ -211,6 +211,7 @@ where
     }
 
     /// Returns the total size of the contract call input data.
+    /// [CALLDATASIZE](https://www.evm.codes/?fork=cancun#36) opcode.
     ///
     /// # Example
     ///
