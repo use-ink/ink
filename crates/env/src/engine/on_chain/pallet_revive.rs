@@ -941,8 +941,8 @@ impl TypedEnvBackend for EnvInstance {
         ext::gas_price()
     }
 
-    fn ref_time_left(&mut self) -> u64 {
-        ext::ref_time_left()
+    fn gas_left(&mut self) -> u64 {
+        ext::gas_left()
     }
 
     fn call_data_size(&mut self) -> u64 {

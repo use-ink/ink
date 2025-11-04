@@ -189,8 +189,8 @@ where
     ///         }
     ///
     ///         #[ink(message)]
-    ///         pub fn get_ref_time_left(&self) -> u64 {
-    ///             self.env().ref_time_left()
+    ///         pub fn get_gas_left(&self) -> u64 {
+    ///             self.env().gas_left()
     ///         }
     ///     }
     /// }
@@ -198,9 +198,9 @@ where
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::ref_time_left`]
-    pub fn ref_time_left(self) -> u64 {
-        ink_env::ref_time_left()
+    /// For more details visit: [`ink_env::gas_left`]
+    pub fn gas_left(self) -> u64 {
+        ink_env::gas_left()
     }
 
     /// Returns the total size of the contract call input data.

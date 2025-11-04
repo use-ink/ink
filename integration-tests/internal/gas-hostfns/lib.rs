@@ -24,10 +24,10 @@ mod gas_hostfns {
             self.env().gas_price()
         }
 
-        /// Checks that the host function `ref_time_left` works
+        /// Checks that the host function `gas_left` works
         #[ink(message)]
-        pub fn ref_time_left(&self) -> u64 {
-            self.env().ref_time_left()
+        pub fn gas_left(&self) -> u64 {
+            self.env().gas_left()
         }
     }
 
@@ -91,7 +91,7 @@ mod gas_hostfns {
         }
 
         #[ink_e2e::test]
-        async fn e2e_ref_time_left_works<Client: E2EBackend>(
+        async fn e2e_gas_left_works<Client: E2EBackend>(
             mut client: Client,
         ) -> E2EResult<()> {
             // given
@@ -104,7 +104,7 @@ mod gas_hostfns {
 
             // then
             let call_res = client
-                .call(&ink_e2e::alice(), &call_builder.ref_time_left())
+                .call(&ink_e2e::alice(), &call_builder.gas_left())
                 .submit()
                 .await
                 .unwrap_or_else(|err| {

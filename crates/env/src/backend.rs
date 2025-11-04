@@ -248,8 +248,8 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// # Note
     ///
-    /// For more details visit: [`ref_time_left`][`crate::ref_time_left`]
-    fn ref_time_left(&mut self) -> u64;
+    /// For more details visit: [`gas_left`][`crate::gas_left`]
+    fn gas_left(&mut self) -> u64;
 
     /// Returns the total size of the contract call input data.
     ///

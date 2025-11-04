@@ -88,8 +88,8 @@ pub fn gas_price() -> u64 {
 }
 
 /// Returns the amount of evm gas left.
-pub fn ref_time_left() -> u64 {
-    <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::ref_time_left)
+pub fn gas_left() -> u64 {
+    <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::gas_left)
 }
 
 /// Returns the total size of the contract call input data.

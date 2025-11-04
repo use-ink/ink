@@ -560,7 +560,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("not implemented, the off-chain environment will be removed");
     }
 
-    fn ref_time_left(&mut self) -> u64 {
+    fn gas_left(&mut self) -> u64 {
         unimplemented!("not implemented, the off-chain environment will be removed");
     }
 
