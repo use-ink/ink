@@ -942,7 +942,7 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn gas_left(&mut self) -> u64 {
-        // TODO: Change to `ext::gas_left()` when `pallet-revive-uapi` is updated 
+        // TODO: Change to `ext::gas_left()` when `pallet-revive-uapi` is updated.
         // Ref: https://github.com/paritytech/polkadot-sdk/pull/9968
         ext::ref_time_left()
     }

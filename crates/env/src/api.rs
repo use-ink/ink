@@ -82,7 +82,10 @@ pub fn gas_limit() -> u64 {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::gas_limit)
 }
 
-/// Returns the simulated ethereum `GASPRICE` value.
+/// Returns the price per `ref_time`, akin to the EVM
+/// [GASPRICE](https://www.evm.codes/?fork=cancun#3a) opcode.
+///
+/// See <https://use.ink/docs/v6/basics/gas/#what-is-gas-in-ink> for more information.
 pub fn gas_price() -> u64 {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::gas_price)
 }
@@ -97,7 +100,7 @@ pub fn call_data_size() -> u64 {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::call_data_size)
 }
 
-/// Returns the length of the data returned by the last runtime call
+/// Returns the length of the data returned by the last runtime call.
 pub fn return_data_size() -> u64 {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::return_data_size)
 }

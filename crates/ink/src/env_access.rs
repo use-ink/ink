@@ -141,7 +141,10 @@ where
         ink_env::gas_limit()
     }
 
-    /// Returns the simulated ethereum `GASPRICE` value.
+    /// Returns the price per `ref_time`, akin to the EVM
+    /// [GASPRICE](https://www.evm.codes/?fork=cancun#3a) opcode.
+    ///
+    /// See <https://use.ink/docs/v6/basics/gas/#what-is-gas-in-ink> for more information.
     ///
     /// # Example
     ///
@@ -234,7 +237,7 @@ where
         ink_env::call_data_size()
     }
 
-    /// Returns the length of the data returned by the last runtime call
+    /// Returns the length of the data returned by the last runtime call.
     ///
     /// # Example
     ///

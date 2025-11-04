@@ -237,7 +237,10 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`gas_limit`][`crate::gas_limit`]
     fn gas_limit(&mut self) -> u64;
 
-    /// Returns the simulated ethereum `GASPRICE` value.
+    /// Returns the price per `ref_time`, akin to the EVM
+    /// [GASPRICE](https://www.evm.codes/?fork=cancun#3a) opcode.
+    ///
+    /// See <https://use.ink/docs/v6/basics/gas/#what-is-gas-in-ink> for more information.
     ///
     /// # Note
     ///
@@ -258,7 +261,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`call_data_size`][`crate::call_data_size]
     fn call_data_size(&mut self) -> u64;
 
-    /// Returns the length of the data returned by the last runtime call
+    /// Returns the length of the data returned by the last runtime call.
     ///
     /// # Note
     ///
