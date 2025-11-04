@@ -111,7 +111,7 @@ impl Constructor {
             return Err(format_err_spanned!(
                 &method_item.sig,
                 "missing return for ink! constructor",
-            ))
+            ));
         }
         Ok(())
     }
@@ -131,7 +131,7 @@ impl Constructor {
                 return Err(format_err_spanned!(
                     receiver,
                     "ink! constructors must have no `self` receiver",
-                ))
+                ));
             }
         }
         Ok(())
@@ -207,7 +207,7 @@ impl Callable for Constructor {
 
     fn user_provided_selector(&self) -> Option<&ir::Selector> {
         if let Some(SelectorOrWildcard::UserProvided(selector)) = self.selector.as_ref() {
-            return Some(selector)
+            return Some(selector);
         }
         None
     }

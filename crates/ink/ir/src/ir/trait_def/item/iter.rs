@@ -55,7 +55,7 @@ impl<'a> Iterator for IterInkTraitItemsRaw<'a> {
                         ir::AttributeArg::Message => {
                             return Some(InkTraitItem::Message(InkTraitMessage::new(
                                 function,
-                            )))
+                            )));
                         }
                         _ => continue 'outer,
                     }

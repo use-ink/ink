@@ -238,7 +238,7 @@ fn generate_trybuild_wrapper() -> Result<String, String> {
             error_msg.to_string()
         } else {
             format!("{error_msg}: {}", String::from_utf8_lossy(&output.stderr))
-        })
+        });
     }
 
     // Parses JSON output for path to executable.
@@ -289,7 +289,7 @@ fn trybuild_wrapper_test(
 
     let exit_status = cmd.status().unwrap();
     if !exit_status.success() {
-        return Err(exit_status)
+        return Err(exit_status);
     }
 
     Ok(())

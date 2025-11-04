@@ -79,7 +79,7 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
             s.ast().span(),
             "Currently only enums with at most 256 variants are supported.",
         )
-        .to_compile_error()
+        .to_compile_error();
     }
 
     let decode_body = s

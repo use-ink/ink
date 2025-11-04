@@ -23,7 +23,7 @@ use ink_env::DispatchError;
 pub fn deny_payment() -> Result<(), DispatchError> {
     let transferred = ink_env::transferred_value();
     if !transferred.is_zero() {
-        return Err(DispatchError::PaidUnpayableMessage)
+        return Err(DispatchError::PaidUnpayableMessage);
     }
     Ok(())
 }

@@ -79,7 +79,7 @@ fn storage_layout_enum(s: &synstructure::Structure) -> TokenStream2 {
             s.ast().span(),
             "Currently only enums with at most 256 variants are supported.",
         )
-        .to_compile_error()
+        .to_compile_error();
     }
 
     let variant_layouts = s.variants().iter().enumerate().map(|(n, variant)| {

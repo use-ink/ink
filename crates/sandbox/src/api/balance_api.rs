@@ -1,7 +1,7 @@
 use crate::{
     AccountIdFor,
     OriginFor,
-    Sandbox,
+    Runtime,
 };
 use frame_support::{
     sp_runtime::DispatchError,
@@ -11,10 +11,10 @@ use pallet_revive::sp_runtime::traits::StaticLookup;
 
 type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
 
-/// Balance API for the sandbox.
-pub trait BalanceAPI<T: Sandbox>
+/// Balance API for the runtime backend.
+pub trait BalanceAPI<T: Runtime>
 where
-    T: Sandbox,
+    T: Runtime,
     T::Runtime: pallet_balances::Config,
 {
     /// Mint tokens to an account.
@@ -49,7 +49,7 @@ where
 
 impl<T> BalanceAPI<T> for T
 where
-    T: Sandbox,
+    T: Runtime,
     T::Runtime: pallet_balances::Config,
 {
     fn mint_into(
@@ -96,18 +96,18 @@ where
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::DefaultSandbox;
+    use crate::DefaultRuntime;
     #[test]
     fn mint_works() {
-        let mut sandbox = DefaultSandbox::default();
-        let balance = sandbox.free_balance(&DefaultSandbox::default_actor());
+        let mut backend = DefaultRuntime::default();
+        let balance = backend.free_balance(&DefaultRuntime::default_actor());
 
-        sandbox
-            .mint_into(&DefaultSandbox::default_actor(), 100)
+        backend
+            .mint_into(&DefaultRuntime::default_actor(), 100)
             .unwrap();
 
         assert_eq!(
-            sandbox.free_balance(&DefaultSandbox::default_actor()),
+            backend.free_balance(&DefaultRuntime::default_actor()),
             balance + 100
         );
     }

@@ -64,7 +64,7 @@ impl Storage {
         item_struct: &syn::ItemStruct,
     ) -> Result<bool, syn::Error> {
         if !ir::contains_ink_attributes(&item_struct.attrs) {
-            return Ok(false)
+            return Ok(false);
         }
         // At this point we know that there must be at least one ink!
         // attribute. This can be either the ink! storage struct,

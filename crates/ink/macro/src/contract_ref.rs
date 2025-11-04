@@ -109,7 +109,7 @@ impl Config {
                             return Err(format_err_spanned!(
                                 arg,
                                 "expected one of `ink` or `sol` for `abi` ink! configuration argument",
-                            ))
+                            ));
                         }
                     };
                     abi_info = Some((abi, name_value.clone()));
