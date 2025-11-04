@@ -38,7 +38,7 @@ rust-version = "1.88"
 arrayref = { version = "0.3" }
 array-init = { version = "2.0", default-features = false }
 blake2 = { version = "0.10" }
-cargo_metadata = { version = "0.21.0" }
+cargo_metadata = { version = "0.22.0" }
 cfg-if = { version = "1.0" }
 contract-build = { version = "6.0.0-beta" }
 darling = { version = "0.20.11" }
