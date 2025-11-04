@@ -76,6 +76,7 @@ pub fn caller() -> Address {
 }
 
 /// Returns the block's `ref_time` limit.
+/// [GASLIMIT](https://www.evm.codes/?fork=cancun#45) opcode.
 ///
 /// See <https://use.ink/docs/v6/basics/gas/#what-is-gas-in-ink> for more information.
 pub fn gas_limit() -> u64 {
@@ -90,17 +91,22 @@ pub fn gas_price() -> u64 {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::gas_price)
 }
 
-/// Returns the amount of evm gas left.
+/// Returns the amount of gas left.
+/// This is the `ref_time` left.
+///
+/// See <https://use.ink/docs/v6/basics/gas/#what-is-gas-in-ink> for more information.
 pub fn gas_left() -> u64 {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::gas_left)
 }
 
 /// Returns the total size of the contract call input data.
+/// [CALLDATASIZE](https://www.evm.codes/?fork=cancun#36) opcode.
 pub fn call_data_size() -> u64 {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::call_data_size)
 }
 
-/// Returns the length of the data returned by the last runtime call.
+/// Returns the size of the returned data of the last contract call or instantiation.
+/// [RETURNDATASIZE](https://www.evm.codes/?fork=cancun#3d) opcode.
 pub fn return_data_size() -> u64 {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::return_data_size)
 }

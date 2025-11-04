@@ -231,6 +231,7 @@ pub trait TypedEnvBackend: EnvBackend {
     fn caller(&mut self) -> Address;
 
     /// Returns the block's `ref_time` limit.
+    /// [GASLIMIT](https://www.evm.codes/?fork=cancun#45) opcode.
     ///
     /// # Note
     ///
@@ -247,7 +248,10 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`gas_price`][`crate::gas_price`]
     fn gas_price(&mut self) -> u64;
 
-    /// Returns the amount of evm gas left.
+    /// Returns the amount of gas left.
+    /// This is the `ref_time` left.
+    ///
+    /// See <https://use.ink/docs/v6/basics/gas/#what-is-gas-in-ink> for more information.
     ///
     /// # Note
     ///
@@ -261,7 +265,8 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`call_data_size`][`crate::call_data_size]
     fn call_data_size(&mut self) -> u64;
 
-    /// Returns the length of the data returned by the last runtime call.
+    /// Returns the size of the returned data of the last contract call or instantiation.
+    /// [RETURNDATASIZE](https://www.evm.codes/?fork=cancun#3d) opcode.
     ///
     /// # Note
     ///
