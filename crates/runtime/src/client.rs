@@ -49,6 +49,7 @@ use ink_e2e::{
     CallBuilderFinal,
     CallDryRunResult,
     ChainBackend,
+    ContractEventReader,
     ContractExecResultFor,
     ContractResult,
     ContractsBackend,
@@ -723,14 +724,9 @@ impl<AccountId, R: RuntimeEnv> Client<AccountId, R>
 where
     R::Runtime: pallet_revive::Config,
     <R::Runtime as frame_system::Config>::RuntimeEvent:
-        TryInto<pallet_revive::Event<R::Runtime>>,
+    TryInto<pallet_revive::Event<R::Runtime>>,
 {
-    pub fn contract_events(&mut self) -> Vec<Vec<u8>>
-    where
-        R::Runtime: pallet_revive::Config,
-        <R::Runtime as frame_system::Config>::RuntimeEvent:
-            TryInto<pallet_revive::Event<R::Runtime>>,
-    {
+    pub fn contract_events(&mut self) -> Vec<Vec<u8>> {
         self.runtime
             .events()
             .iter()
@@ -751,13 +747,21 @@ where
     }
 
     /// Returns the last contract event that was emitted, if any.
-    pub fn last_contract_event(&mut self) -> Option<Vec<u8>>
-    where
-        R::Runtime: pallet_revive::Config,
-        <R::Runtime as frame_system::Config>::RuntimeEvent:
-            TryInto<pallet_revive::Event<R::Runtime>>,
-    {
+    pub fn last_contract_event(&mut self) -> Option<Vec<u8>> {
         self.contract_events().last().cloned()
+    }
+}
+
+impl<'a, AccountId, R> ContractEventReader for &'a mut Client<AccountId, R>
+where
+    R: RuntimeEnv,
+    R::Runtime: pallet_revive::Config,
+    <R::Runtime as frame_system::Config>::RuntimeEvent:
+    TryInto<pallet_revive::Event<R::Runtime>>,
+{
+    fn fetch_last_contract_event(self) -> Result<Vec<u8>, String> {
+        self.last_contract_event()
+            .ok_or_else(|| "no contract events were emitted".to_string())
     }
 }
 

@@ -71,6 +71,12 @@ pub use client::{
     preset,
 };
 pub use error::E2EError;
+pub use ink_e2e::{
+    IntoAccountId,
+    assert_last_event,
+    assert_noop,
+    assert_ok,
+};
 pub use ink_e2e_macro::test;
 
 /// Asserts that a contract call succeeded without reverting.

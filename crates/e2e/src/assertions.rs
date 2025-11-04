@@ -104,27 +104,74 @@ macro_rules! assert_noop {
 /// ```
 #[macro_export]
 macro_rules! assert_last_event {
-    ($result:expr, $expected_event:expr) => {{
-        // Extract the last contract event from the result
-        let events = ($result)
+    ($result:expr, $expected_event:expr) => {{ $crate::assert_last_event_internal($result, $expected_event) }};
+}
+
+use crate::CallResult;
+use ink_env::Environment;
+use scale::{
+    Decode,
+    Encode,
+};
+use subxt::{
+    blocks::ExtrinsicEvents,
+    config::HashFor,
+};
+
+/// A trait for types that can expose the last contract-emitted event for assertions.
+#[allow(dead_code)]
+pub trait ContractEventReader {
+    fn fetch_last_contract_event(self) -> Result<Vec<u8>, String>;
+}
+
+impl<'a, E, V, C, Abi> ContractEventReader
+    for &'a CallResult<E, V, ExtrinsicEvents<C>, Abi>
+where
+    E: Environment,
+    C: subxt::Config,
+    HashFor<C>: Into<sp_core::H256>,
+{
+    fn fetch_last_contract_event(self) -> Result<Vec<u8>, String> {
+        let events = self
             .contract_emitted_events()
-            .expect("Failed to get contract events");
+            .map_err(|err| format!("failed to get contract events: {err:?}"))?;
 
-        if events.is_empty() {
-            panic!("No events emitted, expected: {:?}", $expected_event);
-        }
+        let last_event = events
+            .last()
+            .ok_or_else(|| "no contract events were emitted".to_string())?;
 
-        let last_event = events.last().expect("No last event");
+        Ok(last_event.event.data.clone())
+    }
+}
 
-        // Compare the encoded event data
-        let expected_bytes = ::ink::scale::Encode::encode(&$expected_event);
-        let actual_bytes = &last_event.event.data;
+/// Shared implementation that decodes the last contract event and compares it against the
+/// expected value.
+#[allow(dead_code)]
+pub fn assert_last_event_internal<R, E>(reader: R, expected_event: E)
+where
+    R: ContractEventReader,
+    E: Decode + Encode + core::fmt::Debug,
+{
+    let last_event_data = reader
+        .fetch_last_contract_event()
+        .unwrap_or_else(|err| panic!("Contract event assertion failed: {err}"));
 
-        if &expected_bytes != actual_bytes {
-            panic!(
-                "Event mismatch!\nExpected (encoded): {:?}\nActual (encoded): {:?}",
-                expected_bytes, actual_bytes
-            );
-        }
-    }};
+    let expected_bytes = expected_event.encode();
+
+    if expected_bytes != last_event_data {
+        let decoded_event =
+            E::decode(&mut &last_event_data[..]).unwrap_or_else(|error| {
+                panic!(
+                    "failed to decode last contract event as {}: bytes={:?}, error={:?}",
+                    core::any::type_name::<E>(),
+                    last_event_data,
+                    error
+                );
+            });
+
+        panic!(
+            "event mismatch!\nExpected: {:?}\nActual: {:?}",
+            expected_event, decoded_event
+        );
+    }
 }

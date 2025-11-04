@@ -189,10 +189,10 @@ mod e2e_tests {
         IntoAddress,
         PolkadotConfig,
         alice,
-        bob,
         assert_last_event,
         assert_noop,
         assert_ok,
+        bob,
     };
 
     type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
@@ -228,7 +228,9 @@ mod e2e_tests {
         let admin = alice();
 
         client.create(&asset_id, &admin, 1u128).await?;
-        client.mint_into(&asset_id, &admin, 1000u128).await?;
+        client
+            .mint_into(&asset_id, &admin, &admin, 1000u128)
+            .await?;
 
         let contract = client
             .instantiate(
@@ -256,8 +258,10 @@ mod e2e_tests {
         let bob = bob();
 
         client.create(&asset_id, &alice, 1u128).await?;
-        client.mint_into(&asset_id, &alice, 1000u128).await?;
-        client.mint_into(&asset_id, &bob, 500u128).await?;
+        client
+            .mint_into(&asset_id, &alice, &alice, 1000u128)
+            .await?;
+        client.mint_into(&asset_id, &alice, &bob, 500u128).await?;
 
         let contract = client
             .instantiate(
@@ -304,7 +308,9 @@ mod e2e_tests {
             .await?;
 
         // Mint tokens directly to the contract
-        client.mint_into(&asset_id, &contract.account_id, 100_000u128).await?;
+        client
+            .mint_into(&asset_id, &alice, &contract.account_id, 100_000u128)
+            .await?;
         client.map_account(&bob).await?;
 
         let mut contract_call = contract.call_builder::<AssetHubPrecompile>();
@@ -360,10 +366,14 @@ mod e2e_tests {
             .submit()
             .await?;
 
-        client.mint_into(&asset_id, &contract.account_id, 100_000u128).await?;
+        client
+            .mint_into(&asset_id, &alice, &contract.account_id, 100_000u128)
+            .await?;
         client.map_account(&bob).await?;
 
-        let bob_allowance_before = client.allowance(&asset_id, &contract.account_id, &bob).await;
+        let bob_allowance_before = client
+            .allowance(&asset_id, &contract.account_id, &bob)
+            .await;
         assert_eq!(bob_allowance_before, 0u128);
 
         let mut contract_call = contract.call_builder::<AssetHubPrecompile>();
@@ -384,7 +394,9 @@ mod e2e_tests {
             }
         );
 
-        let bob_allowance = client.allowance(&asset_id, &contract.account_id, &bob).await;
+        let bob_allowance = client
+            .allowance(&asset_id, &contract.account_id, &bob)
+            .await;
         assert_eq!(bob_allowance, 200u128);
 
         Ok(())
@@ -408,7 +420,9 @@ mod e2e_tests {
             .await?;
 
         let contract_call = contract.call_builder::<AssetHubPrecompile>();
-        client.mint_into(&asset_id, &alice, 100_000u128).await?;
+        client
+            .mint_into(&asset_id, &alice, &alice, 100_000u128)
+            .await?;
         client.map_account(&bob).await?;
 
         let allowance_call = &contract_call.allowance(alice.address(), bob.address());
@@ -442,9 +456,13 @@ mod e2e_tests {
             .await?;
 
         // Use contract.account_id directly like in sandbox
-        client.mint_into(&asset_id, &alice, 100_000u128).await?;
+        client
+            .mint_into(&asset_id, &alice, &alice, 100_000u128)
+            .await?;
         // Approve contract to spend alice's tokens
-        client.approve(&asset_id, &alice, &contract.account_id, 50_000u128).await?;
+        client
+            .approve(&asset_id, &alice, &contract.account_id, 50_000u128)
+            .await?;
         client.map_account(&bob).await?;
 
         let mut contract_call = contract.call_builder::<AssetHubPrecompile>();
@@ -470,7 +488,9 @@ mod e2e_tests {
 
         let alice_balance = client.balance_of(&asset_id, &alice).await;
         let bob_balance = client.balance_of(&asset_id, &bob).await;
-        let contract_allowance = client.allowance(&asset_id, &alice, &contract.account_id).await;
+        let contract_allowance = client
+            .allowance(&asset_id, &alice, &contract.account_id)
+            .await;
         assert_eq!(alice_balance, 98_500u128);
         assert_eq!(bob_balance, 1_500u128);
         assert_eq!(contract_allowance, 48_500u128);
