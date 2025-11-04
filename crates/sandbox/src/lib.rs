@@ -71,6 +71,12 @@ pub use client::{
     preset,
 };
 pub use error::E2EError;
+pub use ink_e2e::{
+    IntoAccountId,
+    assert_last_event,
+    assert_noop,
+    assert_ok,
+};
 pub use ink_e2e_macro::test;
 
 /// A snapshot of the storage.
@@ -253,31 +259,5 @@ pub fn to_revive_storage_deposit<B>(
         pallet_revive::StorageDeposit::Refund(b) => {
             ink_revive_types::StorageDeposit::Refund(b)
         }
-    }
-}
-
-/// Trait for types that can be converted into a runtime AccountId.
-///
-/// This allows sandbox APIs to accept various account types without requiring manual
-/// conversion.
-pub trait IntoAccountId<AccountId> {
-    fn into_account_id(self) -> AccountId;
-}
-
-impl IntoAccountId<AccountId32> for &AccountId32 {
-    fn into_account_id(self) -> AccountId32 {
-        self.clone()
-    }
-}
-
-impl IntoAccountId<AccountId32> for &ink_primitives::AccountId {
-    fn into_account_id(self) -> AccountId32 {
-        AccountId32::from(*AsRef::<[u8; 32]>::as_ref(self))
-    }
-}
-
-impl IntoAccountId<AccountId32> for &ink_e2e::Keypair {
-    fn into_account_id(self) -> AccountId32 {
-        AccountId32::from(self.public_key().0)
     }
 }

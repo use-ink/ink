@@ -397,11 +397,14 @@ where
     ///
     /// # Arguments
     /// * `asset_id` - ID of the asset.
+    /// * `owner` - The account that created/administers the asset and signs the mint
+    ///   extrinsic.
     /// * `beneficiary` - The account to receive the minted tokens (Keypair or AccountId).
     /// * `amount` - The number of tokens to mint.
     pub async fn mint_into(
         &mut self,
         asset_id: &u32,
+        owner: &Keypair,
         beneficiary: &impl ToAccountBytes,
         amount: u128,
     ) -> Result<(), Error>
@@ -410,7 +413,7 @@ where
     {
         let beneficiary_bytes = beneficiary.to_account_bytes();
         let beneficiary_account_id: C::AccountId = C::AccountId::from(beneficiary_bytes);
-        self.mint_into_impl(*asset_id, beneficiary_account_id, amount)
+        self.mint_into_impl(*asset_id, owner, beneficiary_account_id, amount)
             .await
     }
 
@@ -418,16 +421,13 @@ where
     async fn mint_into_impl(
         &mut self,
         asset_id: u32,
+        owner: &Keypair,
         beneficiary_account_id: C::AccountId,
         amount: u128,
     ) -> Result<(), Error> {
-        // Use the first account (alice) as signer for now - in practice, this would be
-        // the asset admin
-        let signer = crate::sr25519::dev::alice();
-
         let (tx_events, trace) = self
             .api
-            .assets_mint(&signer, asset_id, beneficiary_account_id, amount)
+            .assets_mint(owner, asset_id, beneficiary_account_id, amount)
             .await;
 
         for evt in tx_events.iter() {
