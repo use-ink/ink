@@ -204,7 +204,7 @@ mod contract_xcm {
             // we have to use Alice for sending the transactions. If the tests
             // run at the same time, we'll get an error because the nonce
             // of Alice is the same for all transactions.
-            std::thread::sleep(std::time::Duration::from_secs(30));
+            //std::thread::sleep(std::time::Duration::from_secs(30));
 
             // given
             let mut constructor = ContractXcmRef::new();
@@ -236,6 +236,9 @@ mod contract_xcm {
                 .free_balance(contract.account_id)
                 .await
                 .expect("Failed to get account balance");
+            eprintln!("contract_balance_before: {}", contract_balance_before);
+            eprintln!("contract_balance_after:  {}", contract_balance_after);
+            eprintln!("amount: {}", amount);
 
             assert!(
                 contract_balance_after <= contract_balance_before - amount - (amount / 2)

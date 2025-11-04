@@ -119,6 +119,11 @@ pub use self::{
         Timestamp,
     },
 };
+use ink_primitives::{
+    Address,
+    H160,
+    U256,
+};
 pub use ink_primitives::{
     contract::{
         ContractEnv,

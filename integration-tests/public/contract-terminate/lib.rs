@@ -31,31 +31,6 @@ pub mod just_terminates {
         }
     }
 
-    #[cfg(test)]
-    mod tests {
-        use super::*;
-
-        #[ink::test]
-        fn terminating_works() {
-            // given
-            let accounts = ink::env::test::default_accounts();
-            let contract_id = ink::env::test::callee();
-            ink::env::test::set_caller(accounts.alice);
-            ink::env::test::set_contract_balance(contract_id, 100.into());
-            let mut contract = JustTerminate::new();
-
-            // when
-            let should_terminate = move || contract.terminate_me();
-
-            // then
-            ink::env::test::assert_contract_termination::<ink::env::DefaultEnvironment, _>(
-                should_terminate,
-                accounts.alice,
-                100.into(),
-            );
-        }
-    }
-
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;

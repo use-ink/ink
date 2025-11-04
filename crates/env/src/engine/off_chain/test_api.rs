@@ -293,52 +293,6 @@ pub fn recorded_events() -> Vec<EmittedEvent> {
     })
 }
 
-/// Tests if a contract terminates successfully after `self.env().terminate()`
-/// has been called.
-///
-/// The arguments denote:
-///
-/// * `should_terminate`: A closure in which the function supposed to terminate is called.
-/// * `expected_beneficiary`: The beneficiary account who should have received the
-///   remaining value in the contract
-/// * `expected_value_transferred_to_beneficiary`: The value which should have been
-///   transferred to the `expected_beneficiary`.
-///
-/// # Usage
-///
-/// ```no_compile
-/// let should_terminate = move || your_contract.fn_which_should_terminate();
-/// ink_env::test::assert_contract_termination::<ink_env::DefaultEnvironment, _>(
-///     should_terminate,
-///     expected_beneficiary,
-///     expected_value_transferred_to_beneficiary
-/// );
-/// ```
-///
-/// See our [`contract-terminate`](https://github.com/use-ink/ink-examples/tree/v5.x.x/contract-terminate)
-/// example for a complete usage exemplification.
-pub fn assert_contract_termination<T, F>(
-    should_terminate: F,
-    expected_beneficiary: Address,
-    expected_value_transferred_to_beneficiary: U256,
-) where
-    T: Environment,
-    F: FnMut() + UnwindSafe,
-    <T as Environment>::AccountId: Debug,
-    <T as Environment>::Balance: Debug,
-{
-    let value_any = ::std::panic::catch_unwind(should_terminate)
-        .expect_err("contract did not terminate");
-    let encoded_input = value_any
-        .downcast_ref::<Vec<u8>>()
-        .expect("panic object can not be cast");
-    let (value_transferred, beneficiary): (U256, Address) =
-        scale::Decode::decode(&mut &encoded_input[..])
-            .unwrap_or_else(|err| panic!("input can not be decoded: {err}"));
-    assert_eq!(value_transferred, expected_value_transferred_to_beneficiary);
-    assert_eq!(beneficiary, expected_beneficiary);
-}
-
 /// Prepend contract message call with value transfer. Used for tests in off-chain
 /// environment.
 #[macro_export]
