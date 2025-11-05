@@ -171,10 +171,7 @@ mod call_builder {
             ChainBackend,
             ContractsBackend,
         };
-        use integration_flipper::{
-            Flipper,
-            FlipperRef,
-        };
+        use integration_flipper::FlipperRef;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -200,7 +197,7 @@ mod call_builder {
                 .submit()
                 .await
                 .expect("instantiate `flipper` failed");
-            let flipper_call = flipper.call_builder::<Flipper>();
+            let flipper_call = flipper.call_builder::<FlipperRef>();
 
             let flipper_get = flipper_call.get();
             let get_call_result = client.call(&origin, &flipper_get).dry_run().await?;

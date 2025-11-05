@@ -1,10 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-pub use self::subber::{
-    Subber,
-    SubberRef,
-};
-
 #[ink::contract]
 mod subber {
     use accumulator::AccumulatorRef;
