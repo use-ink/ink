@@ -436,8 +436,7 @@ where
 /// This function never returns. Either the termination was successful and the
 /// execution of the destroyed contract is halted. Or it failed during the termination
 /// which is considered fatal and results in a trap and rollback.
-#[cfg(feature = "unstable-hostfn")]
-pub fn terminate_contract(beneficiary: Address) -> ! {
+pub fn terminate_contract(beneficiary: Address) -> Result<()> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::terminate_contract(instance, beneficiary)
     })

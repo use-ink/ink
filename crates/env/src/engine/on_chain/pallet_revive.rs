@@ -1213,14 +1213,28 @@ impl TypedEnvBackend for EnvInstance {
         )
     }
 
-    #[cfg(feature = "unstable-hostfn")]
-    fn terminate_contract(&mut self, beneficiary: Address) -> ! {
-        let buffer: &mut [u8; 20] = self.scoped_buffer().take_encoded(&beneficiary)
-            [0..20]
-            .as_mut()
-            .try_into()
-            .unwrap();
-        ext::terminate(buffer);
+    fn terminate_contract(&mut self, beneficiary: Address) -> Result<()> {
+        let beneficiary = beneficiary.as_fixed_bytes();
+
+        const ADDR: [u8; 20] =
+            hex_literal::hex!("0000000000000000000000000000000000000900");
+
+        let mut input = [0u8; 32 + 4];
+        let sel = const { solidity_selector("terminate(address)") };
+        input[..4].copy_from_slice(&sel[..4]);
+        input[16..36].copy_from_slice(&beneficiary[..]);
+
+        let _ = ext::call(
+            CallFlags::empty(),
+            &ADDR,
+            u64::MAX,       // `ref_time` to devote for execution. `u64::MAX` = all
+            u64::MAX,       // `proof_size` to devote for execution. `u64::MAX` = all
+            &[u8::MAX; 32], // No deposit limit.
+            &U256::zero().to_little_endian(), // Value transferred to the contract.
+            &input[..],
+            None,
+        );
+        Ok(())
     }
 
     fn transfer<E>(&mut self, destination: Address, value: U256) -> Result<()>
