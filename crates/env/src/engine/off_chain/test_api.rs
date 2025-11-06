@@ -22,8 +22,6 @@ use crate::{
     Result,
     types::Environment,
 };
-use core::fmt::Debug;
-use std::panic::UnwindSafe;
 
 pub use super::call_data::CallData;
 pub use ink_engine::ext::ChainSpec;
