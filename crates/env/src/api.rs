@@ -99,14 +99,14 @@ pub fn gas_left() -> u64 {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::gas_left)
 }
 
-/// Returns the total size of the contract call input data.
+/// Returns the total size of the contract call input data, akin to the EVM
 /// [CALLDATASIZE](https://www.evm.codes/?fork=cancun#36) opcode.
 pub fn call_data_size() -> u64 {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::call_data_size)
 }
 
-/// Returns the size of the returned data of the last contract call or instantiation.
-/// [RETURNDATASIZE](https://www.evm.codes/?fork=cancun#3d) opcode.
+/// Returns the size of the returned data of the last contract call or instantiation,
+/// akin to the EVM [RETURNDATASIZE](https://www.evm.codes/?fork=cancun#3d) opcode.
 pub fn return_data_size() -> u64 {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::return_data_size)
 }

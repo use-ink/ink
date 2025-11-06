@@ -110,7 +110,7 @@ where
         ink_env::caller()
     }
 
-    /// Returns the block's `ref_time` limit.
+    /// Returns the block's `ref_time` limit, akin to the EVM
     /// [GASLIMIT](https://www.evm.codes/?fork=cancun#45) opcode.
     ///
     /// # Example
@@ -211,7 +211,7 @@ where
     }
 
     /// Returns the total size of the contract call input data.
-    /// [CALLDATASIZE](https://www.evm.codes/?fork=cancun#36) opcode.
+    /// This is akin to the EVM [CALLDATASIZE](https://www.evm.codes/?fork=cancun#36) opcode.
     ///
     /// # Example
     ///
@@ -243,7 +243,7 @@ where
     }
 
     /// Returns the size of the returned data of the last contract call or instantiation.
-    /// [RETURNDATASIZE](https://www.evm.codes/?fork=cancun#3d) opcode.
+    /// This is akin to the EVM [RETURNDATASIZE](https://www.evm.codes/?fork=cancun#3d) opcode.
     ///
     /// # Example
     ///

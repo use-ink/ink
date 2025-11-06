@@ -231,7 +231,7 @@ pub trait TypedEnvBackend: EnvBackend {
     fn caller(&mut self) -> Address;
 
     /// Returns the block's `ref_time` limit.
-    /// [GASLIMIT](https://www.evm.codes/?fork=cancun#45) opcode.
+    /// This is akin to the EVM [GASLIMIT](https://www.evm.codes/?fork=cancun#45) opcode.
     ///
     /// # Note
     ///
@@ -259,7 +259,7 @@ pub trait TypedEnvBackend: EnvBackend {
     fn gas_left(&mut self) -> u64;
 
     /// Returns the total size of the contract call input data.
-    /// [CALLDATASIZE](https://www.evm.codes/?fork=cancun#36) opcode.
+    /// This is akin to the EVM [CALLDATASIZE](https://www.evm.codes/?fork=cancun#36) opcode.
     ///
     /// # Note
     ///
@@ -267,7 +267,7 @@ pub trait TypedEnvBackend: EnvBackend {
     fn call_data_size(&mut self) -> u64;
 
     /// Returns the size of the returned data of the last contract call or instantiation.
-    /// [RETURNDATASIZE](https://www.evm.codes/?fork=cancun#3d) opcode.
+    /// This is akin to the EVM [RETURNDATASIZE](https://www.evm.codes/?fork=cancun#3d) opcode.
     ///
     /// # Note
     ///
