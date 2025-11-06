@@ -6,7 +6,7 @@ edition = "2024"
 publish = false
 
 [dependencies]
-ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
+ink = { path = "../../../crates/ink", default-features = false }
 static_assertions = "1"
 
 [dev-dependencies]
