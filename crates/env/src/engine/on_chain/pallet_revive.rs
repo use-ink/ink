@@ -1214,7 +1214,7 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn terminate_contract(&mut self, beneficiary: Address) -> Result<()> {
-        let mut scope = self.scoped_buffer();
+        let scope = self.scoped_buffer();
         let addr = beneficiary.as_fixed_bytes();
 
         const ADDR: [u8; 20] =
