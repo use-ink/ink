@@ -937,6 +937,24 @@ impl TypedEnvBackend for EnvInstance {
         ext::gas_limit()
     }
 
+    fn gas_price(&mut self) -> u64 {
+        ext::gas_price()
+    }
+
+    fn gas_left(&mut self) -> u64 {
+        // TODO: Change to `ext::gas_left()` when `pallet-revive-uapi` is updated.
+        // Ref: https://github.com/paritytech/polkadot-sdk/pull/9968
+        ext::ref_time_left()
+    }
+
+    fn call_data_size(&mut self) -> u64 {
+        ext::call_data_size()
+    }
+
+    fn return_data_size(&mut self) -> u64 {
+        ext::return_data_size()
+    }
+
     fn transferred_value(&mut self) -> U256 {
         let mut scope = self.scoped_buffer();
         let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();
