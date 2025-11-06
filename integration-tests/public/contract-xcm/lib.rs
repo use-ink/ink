@@ -57,7 +57,7 @@ mod contract_xcm {
                 .map_err(|_| RuntimeError::XcmExecuteFailed)
         }
 
-        /// Transfer some funds on the relay chain via XCM from the contract's derivative
+        /// Transfer some funds to the relay chain via XCM from the contract's derivative
         /// account to the caller's account.
         ///
         /// Fails if:
@@ -70,26 +70,87 @@ mod contract_xcm {
             value: Balance,
             fee: Balance,
         ) -> Result<(), RuntimeError> {
+            // The destination of the XCM message. Assuming we run the contract
+            // on a parachain, the parent will be the relay chain.
             let destination: ink::xcm::v5::Location = ink::xcm::v5::Parent.into();
+
+            // The asset to be sent, since we are sending the XCM to the relay chain,
+            // this represents `value` amount of the relay chain's native asset.
             let asset: Asset = (Here, value).into();
+
+            // The beneficiary of the asset.
+            // Here, the beneficiary is the caller's account on the relay chain.
             let caller_account_id = self.env().to_account_id(self.env().caller());
             let beneficiary = AccountId32 {
                 network: None,
                 id: caller_account_id.0,
             };
 
+            // Create an XCM message
             let message: Xcm<()> = Xcm::builder()
+                // Withdraw the asset from the origin (the sovereign account of the
+                // contract on the relay chain)
                 .withdraw_asset(asset.clone())
+
+                // Buy execution to pay the fee on the relay chain
                 .buy_execution((Here, fee), WeightLimit::Unlimited)
+
+                // Deposit the asset to the caller's account on the relay chain
                 .deposit_asset(asset, beneficiary)
                 .build();
 
+            // Send the constructed XCM message to the relay chain.
             self.env()
                 .xcm_send(
                     &VersionedLocation::V5(destination),
                     &VersionedXcm::V5(message),
                 )
                 .map_err(|_| RuntimeError::XcmSendFailed)
+        }
+
+        #[ink(message)]
+        pub fn reserve_transfer(
+            &mut self,
+            amount: Balance,
+            fee: Balance,
+        ) -> Result<(), RuntimeError> {
+            // The beneficiary of the transfer.
+            // Here, the beneficiary is the caller's account on the relay chain.
+            let caller_account_id = self.env().to_account_id(self.env().caller());
+            let beneficiary: Location = AccountId32 {
+                network: None,
+                id: caller_account_id.0,
+            }
+            .into();
+
+            // Create an XCM message.
+            let message: Xcm<()> = Xcm::builder_unsafe()
+                // Withdraw the relay's native token derivative from the
+                // contract's account.
+                .withdraw_asset((Parent, amount))
+
+                // The `initiate_reserve_withdraw` instruction takes the
+                // derivative token from the holding register and burns it.
+                // It then sends the nested XCM to the reserve in this
+                // example, the relay chain.
+                // Upon receiving the XCM, the reserve will withdraw the
+                // asset from our chain's sovereign account, and deposit
+                // on the caller's account.
+                .initiate_reserve_withdraw(
+                    All,
+                    Parent,
+                    Xcm::builder_unsafe()
+                        .buy_execution((Here, fee), Unlimited)
+                        .deposit_asset(All, beneficiary)
+                        .build(),
+                )
+                .build();
+
+            let msg = VersionedXcm::V5(message);
+            let weight = self.env().xcm_weigh(&msg).expect("`xcm_weigh` failed");
+            self.env()
+                .xcm_execute(&msg, weight)
+                .map_err(|_| RuntimeError::XcmExecuteFailed)
         }
     }
 
