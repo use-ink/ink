@@ -1214,8 +1214,7 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn terminate_contract(&mut self, beneficiary: Address) -> Result<()> {
-        let scope = self.scoped_buffer();
-        let addr = beneficiary.as_fixed_bytes();
+        let beneficiary = beneficiary.as_fixed_bytes();
 
         const ADDR: [u8; 20] =
             hex_literal::hex!("0000000000000000000000000000000000000900");
@@ -1223,7 +1222,7 @@ impl TypedEnvBackend for EnvInstance {
         let mut input = [0u8; 32 + 4];
         let sel = const { solidity_selector("terminate(address)") };
         input[..4].copy_from_slice(&sel[..4]);
-        input[16..36].copy_from_slice(&addr[..]);
+        input[16..36].copy_from_slice(&beneficiary[..]);
 
         let _ = ext::call(
             CallFlags::empty(),
