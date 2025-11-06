@@ -617,6 +617,49 @@ where
     })
 }
 
+/// Calls the `bn128_add` G1 addition precompile.
+///
+/// Inputs are affine G1 coordinates over Fq.
+/// Returns the resulting affine point or (0, 0) if the result is ∞ / invalid.
+///
+/// # Note
+///
+/// The precompile address is `0x06`. You can find its implementation here:
+/// <https://github.com/paritytech/polkadot-sdk/blob/master/substrate/frame/revive/src/precompiles/builtin/bn128.rs>
+pub fn bn128_add(x1: U256, y1: U256, x2: U256, y2: U256) -> (U256, U256) {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.bn128_add(x1, y1, x2, y2)
+    })
+}
+
+/// Calls the `bn128_mul` G1 scalar-mul precompile.
+///
+/// Multiplies an affine G1 point (x1, y1) by a scalar ∈ Fr.
+/// Returns the resulting affine point or (0, 0) if the result is ∞ / invalid.
+///
+/// # Note
+///
+/// The precompile address is `0x07`. You can find its implementation here:
+/// <https://github.com/paritytech/polkadot-sdk/blob/master/substrate/frame/revive/src/precompiles/builtin/bn128.rs>
+pub fn bn128_mul(x1: U256, y1: U256, scalar: U256) -> (U256, U256) {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.bn128_mul(x1, y1, scalar)
+    })
+}
+
+/// Calls the `bn128_pairing` precompile.
+///
+/// Input is the Solidity-ABI-encoded sequence of (G1, G2) pairs.
+/// Returns `true` iff the product of pairings evaluates to the identity.
+///
+/// # Note
+///
+/// The precompile address is `0x08`. You can find its implementation here:
+/// <https://github.com/paritytech/polkadot-sdk/blob/master/substrate/frame/revive/src/precompiles/builtin/bn128.rs>
+pub fn bn128_pairing(input: &[u8]) -> bool {
+    <EnvInstance as OnInstance>::on_instance(|instance| instance.bn128_pairing(input))
+}
+
 /// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,
 /// and stores the result in `output`.
 ///

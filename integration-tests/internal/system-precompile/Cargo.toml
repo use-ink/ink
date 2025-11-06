@@ -10,6 +10,8 @@ ink = { path = "../../../crates/ink", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
+hex-literal = "1"
+impl-serde = { version = "0.5.0", default-features = false }
 
 [lib]
 path = "lib.rs"
