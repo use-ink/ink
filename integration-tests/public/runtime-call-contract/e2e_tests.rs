@@ -1,7 +1,4 @@
-use super::{
-    Flipper,
-    FlipperRef,
-};
+use super::FlipperRef;
 use ink_e2e::{
     ChainBackend,
     ContractsBackend,
@@ -26,7 +23,7 @@ async fn instantiate_and_get<Client: E2EBackend>(mut client: Client) -> E2EResul
         .await
         .expect("instantiate failed");
 
-    let mut call_builder = contract.call_builder::<Flipper>();
+    let mut call_builder = contract.call_builder::<FlipperRef>();
     let flip_dry_run = client
         .call(&ink_e2e::bob(), &call_builder.flip())
         .dry_run()
