@@ -11,6 +11,7 @@
 
 #[ink::contract]
 mod debugging_strategies {
+    use flipper::FlipperRef;
     use ink::env::call::{
         ExecutionInput,
         Selector,
@@ -64,16 +65,16 @@ mod debugging_strategies {
 
         #[ink(message, payable)]
         pub fn instantiate_and_call(&mut self, code_hash: ink::H256) -> bool {
-            let create_params = build_create::<DebuggingStrategiesRef>()
+            let create_params = build_create::<FlipperRef>()
                 .code_hash(code_hash)
                 .endowment(0.into())
                 .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(
                     "new"
                 ))))
-                .returns::<DebuggingStrategiesRef>()
+                .returns::<FlipperRef>()
                 .params();
 
-            let other: DebuggingStrategiesRef = self.env()
+            let other: FlipperRef = self.env()
                 .instantiate_contract(&create_params)
                 // todo
                 // we do this to make sure the instantiated contract is always at a
