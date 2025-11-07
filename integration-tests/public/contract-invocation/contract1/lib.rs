@@ -1,7 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-pub use self::contract1::Contract1Ref;
-
 #[ink::contract]
 mod contract1 {
 

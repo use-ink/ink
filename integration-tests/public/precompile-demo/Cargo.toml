@@ -1,6 +1,6 @@
 [package]
-name = "precompile"
-version = "6.0.0-alpha.3"
+name = "precompile_demo"
+version = "6.0.0-beta"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2024"
 publish = false
@@ -11,7 +11,7 @@ hex-literal = "1"
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
-blake2 = "0.10"
+hex = { version = "0.4.3" }
 
 [lib]
 path = "lib.rs"

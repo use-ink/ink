@@ -1,13 +1,13 @@
 [package]
 name = "gas_hostfns"
 description = "E2E tests for gas related host functions"
-version = "6.0.0-alpha.4"
+version = "6.0.0-beta"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
+ink = { path = "../../../crates/ink", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }

@@ -57,7 +57,6 @@
 
 pub use self::multisig::{
     ConfirmationStatus,
-    Multisig,
     Transaction,
 };
 

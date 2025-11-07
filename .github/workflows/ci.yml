@@ -103,7 +103,7 @@ jobs:
                 command: |
                     scripts/for_all_contracts_exec.sh --output ./all-contracts --path . -- echo {}
 
-          - uses: actions/upload-artifact@v4
+          - uses: actions/upload-artifact@v5
             with:
                 name: ${{ github.run_id }}-all-contracts
                 path: ./all-contracts
@@ -144,7 +144,7 @@ jobs:
             cargo +nightly fmt --all -- --check ./crates/ink/tests/ui/trait_def/{pass,fail}/*.rs
 
       - name: Download all-contracts artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
             name: ${{ github.run_id }}-all-contracts
 
@@ -229,7 +229,7 @@ jobs:
           cache-key: ${{ matrix.type }}
 
       - name: Download all-contracts artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
             name: ${{ github.run_id }}-all-contracts
 
@@ -527,7 +527,7 @@ jobs:
             # FIXME: remove me after CI image gets nonroot
             chown -R nonroot:nonroot ./crate-docs
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: ${{ github.job }}-data
           path: ./crate-docs
@@ -603,7 +603,7 @@ jobs:
           # cache-key: ${{ matrix.partition }}
 
       - name: Download all-contracts artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
             name: ${{ github.run_id }}-all-contracts
 
@@ -736,7 +736,7 @@ jobs:
         id: extract_branch
 
       - name: Download all-contracts artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
             name: ${{ github.run_id }}-all-contracts
 
@@ -755,7 +755,7 @@ jobs:
               'scripts/build_and_determine_contract_size.sh $manifest_path >> $CONTRACT_SIZE_FILE$example'
             sed -ie 's/^integration-tests\/\(public\/\|internal\/\)\?//' ${CONTRACT_SIZE_FILE}*
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
             path: ./measurements-${{ env.MEASUREMENTS_ID }}/*
             name: ${{ github.run_id }}_artifact
@@ -766,7 +766,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download reports' artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
             path: downloaded_artifacts
 
@@ -782,7 +782,7 @@ jobs:
             sort | uniq > measurements-${{ env.MEASUREMENTS_ID }}
             cat measurements-${{ env.MEASUREMENTS_ID }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
             name: measurements-${{ env.MEASUREMENTS_ID }}
             path: ./measurements-${{ env.MEASUREMENTS_ID }}
@@ -814,7 +814,7 @@ jobs:
             id: extract_branch
 
           - name: Download all-contracts artifacts
-            uses: actions/download-artifact@v5
+            uses: actions/download-artifact@v6
             with:
                 name: ${{ github.run_id }}-all-contracts
 
@@ -843,7 +843,7 @@ jobs:
                       --ignore solidity-abi/trait-dyn-cross-contract-calls/contracts/incrementer -- \
                       .github/scripts/output-contract-sizes.sh {}
 
-          - uses: actions/upload-artifact@v4
+          - uses: actions/upload-artifact@v5
             with:
                 path: ./measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}/*
                 name: ${{ github.run_id }}_${{ matrix.type }}_abi_artifact
@@ -858,7 +858,7 @@ jobs:
               type: [ sol, all ]
       steps:
           - name: Download reports' artifacts
-            uses: actions/download-artifact@v5
+            uses: actions/download-artifact@v6
             with:
                 path: downloaded_artifacts
 
@@ -874,7 +874,7 @@ jobs:
                 sort | uniq > measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}
                 cat measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}
 
-          - uses: actions/upload-artifact@v4
+          - uses: actions/upload-artifact@v5
             with:
                 name: measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}
                 path: ./measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}
@@ -896,7 +896,7 @@ jobs:
           cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
 
       - name: Download all-contracts artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
             name: ${{ github.run_id }}-all-contracts
 
@@ -1000,12 +1000,14 @@ jobs:
             });
             console.log(`Issue created: ${issue.data.html_url}`);
 
-  submit-contract-sizes:
+  submit-contract-sizes-comment:
     runs-on: ubuntu-latest
     needs: [ci-image, process-contract-sizes, process-forced-abi-contract-sizes]
     permissions:
         pull-requests: write
-    if: github.ref != 'refs/heads/master'
+    # We don't submit the comment about contract size changes for CI runs on `master` or on tags.
+    # There is no PR associated to those.
+    if: github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/tags/')
     steps:
         - name: Checkout
           uses: actions/checkout@v5

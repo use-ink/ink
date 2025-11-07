@@ -1,10 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-pub use self::accumulator::{
-    Accumulator,
-    AccumulatorRef,
-};
-
 #[ink::contract]
 pub mod accumulator {
     /// Holds a simple `i32` value that can be incremented and decremented.

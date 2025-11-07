@@ -17,6 +17,18 @@ mod gas_hostfns {
         pub fn gas_limit(&self) -> u64 {
             self.env().gas_limit()
         }
+
+        /// Checks that the host function `gas_price` works
+        #[ink(message)]
+        pub fn gas_price(&self) -> u64 {
+            self.env().gas_price()
+        }
+
+        /// Checks that the host function `gas_left` works
+        #[ink(message)]
+        pub fn gas_left(&self) -> u64 {
+            self.env().gas_left()
+        }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
@@ -41,6 +53,58 @@ mod gas_hostfns {
             // then
             let call_res = client
                 .call(&ink_e2e::alice(), &call_builder.gas_limit())
+                .submit()
+                .await
+                .unwrap_or_else(|err| {
+                    panic!("call failed: {:#?}", err);
+                });
+
+            assert!(call_res.return_value() > 0);
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn e2e_gas_price_works<Client: E2EBackend>(
+            mut client: Client,
+        ) -> E2EResult<()> {
+            // given
+            let contract = client
+                .instantiate("gas_hostfns", &ink_e2e::alice(), &mut GasHostfnsRef::new())
+                .submit()
+                .await
+                .expect("instantiate failed");
+            let call_builder = contract.call_builder::<GasHostfns>();
+
+            // then
+            let call_res = client
+                .call(&ink_e2e::alice(), &call_builder.gas_price())
+                .submit()
+                .await
+                .unwrap_or_else(|err| {
+                    panic!("call failed: {:#?}", err);
+                });
+
+            assert!(call_res.return_value() > 0);
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn e2e_gas_left_works<Client: E2EBackend>(
+            mut client: Client,
+        ) -> E2EResult<()> {
+            // given
+            let contract = client
+                .instantiate("gas_hostfns", &ink_e2e::alice(), &mut GasHostfnsRef::new())
+                .submit()
+                .await
+                .expect("instantiate failed");
+            let call_builder = contract.call_builder::<GasHostfns>();
+
+            // then
+            let call_res = client
+                .call(&ink_e2e::alice(), &call_builder.gas_left())
                 .submit()
                 .await
                 .unwrap_or_else(|err| {

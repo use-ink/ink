@@ -197,7 +197,7 @@ pub trait EnvBackend {
     ///
     /// - If the signature verification failed.
     ///
-    /// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
+    /// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/polkadot-sdk/tree/master/substrate/frame/revive#unstable-interfaces)
     /// which is unsafe and normally is not available on production chains.
     #[cfg(feature = "unstable-hostfn")]
     fn sr25519_verify(
@@ -231,11 +231,48 @@ pub trait TypedEnvBackend: EnvBackend {
     fn caller(&mut self) -> Address;
 
     /// Returns the block's `ref_time` limit.
+    /// This is akin to the EVM [GASLIMIT](https://www.evm.codes/?fork=cancun#45) opcode.
     ///
     /// # Note
     ///
     /// For more details visit: [`gas_limit`][`crate::gas_limit`]
     fn gas_limit(&mut self) -> u64;
+
+    /// Returns the price per `ref_time`, akin to the EVM
+    /// [GASPRICE](https://www.evm.codes/?fork=cancun#3a) opcode.
+    ///
+    /// See <https://use.ink/docs/v6/basics/gas/#what-is-gas-in-ink> for more information.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`gas_price`][`crate::gas_price`]
+    fn gas_price(&mut self) -> u64;
+
+    /// Returns the amount of gas left.
+    /// This is the `ref_time` left.
+    ///
+    /// See <https://use.ink/docs/v6/basics/gas/#what-is-gas-in-ink> for more information.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`gas_left`][`crate::gas_left`]
+    fn gas_left(&mut self) -> u64;
+
+    /// Returns the total size of the contract call input data.
+    /// This is akin to the EVM [CALLDATASIZE](https://www.evm.codes/?fork=cancun#36) opcode.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`call_data_size`][`crate::call_data_size]
+    fn call_data_size(&mut self) -> u64;
+
+    /// Returns the size of the returned data of the last contract call or instantiation.
+    /// This is akin to the EVM [RETURNDATASIZE](https://www.evm.codes/?fork=cancun#3d) opcode.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`return_data_size`][`crate::return_data_size]
+    fn return_data_size(&mut self) -> u64;
 
     /// Returns the transferred value for the contract execution.
     ///
@@ -368,8 +405,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`terminate_contract`][`crate::terminate_contract`]
-    #[cfg(feature = "unstable-hostfn")]
-    fn terminate_contract(&mut self, beneficiary: Address) -> !;
+    fn terminate_contract(&mut self, beneficiary: Address) -> Result<()>;
 
     /// Transfers value from the contract to the destination account ID.
     ///

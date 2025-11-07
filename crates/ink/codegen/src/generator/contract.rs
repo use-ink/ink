@@ -60,7 +60,14 @@ impl GenerateCode for Contract<'_> {
         #[cfg(any(ink_abi = "sol", ink_abi = "all"))]
         let solidity_metadata = self.generate_code_using::<generator::SolidityMetadata>();
 
+        let contract_ref_base_ident =
+            quote::format_ident!("{}Ref", module.storage().ident());
+
         quote! {
+            // Note: rustdoc can't resolve `self::` prefixes for this re-export.
+            #[cfg(any(test, feature = "std", feature = "ink-as-dependency"))]
+            pub use #ident::#contract_ref_base_ident;
+
             #( #attrs )*
             #vis mod #ident {
                 #env

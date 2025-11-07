@@ -1,13 +1,13 @@
 [package]
 name = "misc_hostfns"
 description = "E2E tests for various host functions"
-version = "6.0.0-alpha.4"
+version = "6.0.0-beta"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
+ink = { path = "../../../crates/ink", default-features = false }
 hex-literal = "1"
 
 [dev-dependencies]

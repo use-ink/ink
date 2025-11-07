@@ -354,6 +354,13 @@ impl CallForwarder<'_> {
                     &mut self.builder
                 }
             }
+
+            impl<E, TypeAbi> ::ink::codegen::ContractCallBuilder for #call_forwarder_ident<E, TypeAbi>
+            where
+                E: ::ink::env::Environment,
+            {
+                type Type<TraitAbi> = #call_builder_ident<E, TypeAbi>;
+            }
         )
     }
 

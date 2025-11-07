@@ -1,12 +1,13 @@
 [package]
-name = "erc20"
-version = "6.0.0-beta"
+name = "data_hostfns"
+description = "E2E tests for data related host functions"
+version = "6.0.0-alpha.4"
 authors = ["Use Ink <ink@use.ink>"]
-edition = "2024"
+edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../../crates/ink", default-features = false }
+ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
