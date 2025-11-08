@@ -121,7 +121,9 @@ mod payment_channel {
         #[ink(message)]
         pub fn close(&mut self, amount: U256, signature: [u8; 65]) -> Result<()> {
             self.close_inner(amount, signature)?;
-            self.env().terminate_contract(self.sender);
+            self.env()
+                .terminate_contract(self.sender)
+                .expect("failed terminating");
             Ok(())
         }
 
@@ -187,7 +189,9 @@ mod payment_channel {
                         return Err(Error::NotYetExpired)
                     }
 
-                    self.env().terminate_contract(self.sender);
+                    self.env()
+                        .terminate_contract(self.sender)
+                        .expect("failed terminating");
                     Ok(())
                 }
 
@@ -412,7 +416,7 @@ mod payment_channel {
             let signature = sign(contract_id, amount);
 
             // then
-            let should_close = move || payment_channel.close(amount, signature).unwrap();
+            payment_channel.close(amount, signature).unwrap();
             /*
             // todo
             ink::env::test::assert_contract_termination::<ink::env::DefaultEnvironment, _>(
@@ -555,7 +559,7 @@ mod payment_channel {
             advance_block();
 
             // then
-            let should_close = move || payment_channel.claim_timeout().unwrap();
+            payment_channel.claim_timeout().unwrap();
             /*
             // todo
             ink::env::test::assert_contract_termination::<ink::env::DefaultEnvironment, _>(
