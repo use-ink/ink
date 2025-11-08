@@ -620,7 +620,14 @@ jobs:
           # todo @cmichi: We ignore `contract-xcm` until we can run a relaychain + parachain
           # setup with `ink-node`. This is required for testing XCM.
           command: |
-            RUST_LOG=trace cargo contract test --verbose --all-features --manifest-path integration-tests/public/precompile-demo/Cargo.toml
+            cat ./all-contracts | \
+            grep integration-tests | \
+            scripts/for_all_contracts_exec.sh \
+              --ignore internal/static-buffer \
+              --ignore internal/mapping \
+              --ignore public/contract-xcm \
+              --partition ${{ matrix.partition }}/4 -- \
+              cargo contract test --all-features --manifest-path {}
 
   examples-test-mapping:
     runs-on: ubuntu-latest
