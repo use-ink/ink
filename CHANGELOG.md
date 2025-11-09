@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [Unreleased]
 
 ### Changed
+-   Implements the API for the `pallet-revive` host functions `chain_id`, `balance_of`, `base_fee`, `origin`, `code_size`, `block_hash`, `block_author` - [#2719](https://github.com/use-ink/ink/pull/2719)
 - Refactor contract ref generation and add automatic re-exporting - [#2710](https://github.com/use-ink/ink/pull/2710)
 - Implement and stabilize `terminate_contract` ‒ [2708](https://github.com/use-ink/ink/pull/2708)
 
