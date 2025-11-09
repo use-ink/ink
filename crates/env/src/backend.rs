@@ -18,10 +18,12 @@ use ink_primitives::{
     Address,
     CodeHashErr,
     H256,
-    types::BlockNumber,
     U256,
     sol::SolResultEncode,
-    types::Environment,
+    types::{
+        BlockNumber,
+        Environment,
+    },
 };
 use ink_storage_traits::Storable;
 pub use pallet_revive_uapi::ReturnFlags;
@@ -304,7 +306,8 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// # Errors
     ///
-    /// - If there is no address associated with the origin (e.g. because the origin is root).
+    /// - If there is no address associated with the origin (e.g. because the origin is
+    ///   root).
     ///
     /// # Note
     ///
@@ -335,7 +338,6 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// For more details visit: [`block_author`][`crate::block_author`]
     fn block_author(&mut self) -> Address;
-
 
     /// Returns the transferred value for the contract execution.
     ///

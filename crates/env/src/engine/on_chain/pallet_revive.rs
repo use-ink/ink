@@ -18,7 +18,6 @@ use ink_primitives::{
     Address,
     CodeHashErr,
     H256,
-    types::BlockNumber,
     U256,
     abi::{
         AbiEncodeWith,
@@ -26,6 +25,7 @@ use ink_primitives::{
         Sol,
     },
     sol::SolResultEncode,
+    types::BlockNumber,
 };
 use ink_storage_traits::{
     Storable,

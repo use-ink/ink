@@ -20,13 +20,13 @@ use ink_primitives::{
     Address,
     CodeHashErr,
     H256,
-    types::BlockNumber,
     U256,
     abi::{
         Ink,
         Sol,
     },
     sol::SolResultEncode,
+    types::BlockNumber,
 };
 use ink_storage_traits::Storable;
 use pallet_revive_uapi::ReturnFlags;
@@ -143,9 +143,7 @@ pub fn base_fee() -> U256 {
 ///
 /// - If there is no address associated with the origin (e.g. because the origin is root).
 pub fn origin() -> Address {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::origin(instance)
-    })
+    <EnvInstance as OnInstance>::on_instance(|instance| TypedEnvBackend::origin(instance))
 }
 
 /// Returns the code size for a specified contract address.

@@ -41,12 +41,12 @@ use ink_primitives::{
     Address,
     CodeHashErr,
     H256,
-    types::BlockNumber,
     U256,
     abi::{
         Ink,
         Sol,
     },
+    types::BlockNumber,
 };
 use pallet_revive_uapi::ReturnErrorCode;
 
@@ -344,7 +344,6 @@ where
         ink_env::balance_of(addr)
     }
 
-    
     /// Returns the base fee.
     /// This is akin to the EVM [BASEFEE](https://www.evm.codes/?fork=cancun#48) opcode.
     ///

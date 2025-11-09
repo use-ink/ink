@@ -3,7 +3,10 @@
 
 #[ink::contract]
 mod misc_evm_getters_hostfns {
-    use ink::{U256, H256};
+    use ink::{
+        H256,
+        U256,
+    };
 
     #[ink(storage)]
     pub struct MiscEVMGettersfns {}
@@ -62,7 +65,10 @@ mod misc_evm_getters_hostfns {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
-        use ink_e2e::{ContractsBackend,address_from_keypair};
+        use ink_e2e::{
+            ContractsBackend,
+            address_from_keypair,
+        };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -72,7 +78,11 @@ mod misc_evm_getters_hostfns {
         ) -> E2EResult<()> {
             // given
             let contract = client
-                .instantiate("misc_evm_getters_hostfns", &ink_e2e::alice(), &mut MiscEVMGettersfnsRef::new())
+                .instantiate(
+                    "misc_evm_getters_hostfns",
+                    &ink_e2e::alice(),
+                    &mut MiscEVMGettersfnsRef::new(),
+                )
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -98,7 +108,11 @@ mod misc_evm_getters_hostfns {
         ) -> E2EResult<()> {
             // given
             let contract = client
-                .instantiate("misc_evm_getters_hostfns", &ink_e2e::alice(), &mut MiscEVMGettersfnsRef::new())
+                .instantiate(
+                    "misc_evm_getters_hostfns",
+                    &ink_e2e::alice(),
+                    &mut MiscEVMGettersfnsRef::new(),
+                )
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -124,7 +138,11 @@ mod misc_evm_getters_hostfns {
         ) -> E2EResult<()> {
             // given
             let contract = client
-                .instantiate("misc_evm_getters_hostfns", &ink_e2e::alice(), &mut MiscEVMGettersfnsRef::new())
+                .instantiate(
+                    "misc_evm_getters_hostfns",
+                    &ink_e2e::alice(),
+                    &mut MiscEVMGettersfnsRef::new(),
+                )
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -150,7 +168,11 @@ mod misc_evm_getters_hostfns {
         ) -> E2EResult<()> {
             // given
             let contract = client
-                .instantiate("misc_evm_getters_hostfns", &ink_e2e::alice(), &mut MiscEVMGettersfnsRef::new())
+                .instantiate(
+                    "misc_evm_getters_hostfns",
+                    &ink_e2e::alice(),
+                    &mut MiscEVMGettersfnsRef::new(),
+                )
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -165,7 +187,10 @@ mod misc_evm_getters_hostfns {
                     panic!("call failed: {:#?}", err);
                 });
 
-            assert_eq!(call_res.return_value(), address_from_keypair::<AccountId>(&ink_e2e::alice()));
+            assert_eq!(
+                call_res.return_value(),
+                address_from_keypair::<AccountId>(&ink_e2e::alice())
+            );
 
             Ok(())
         }
@@ -176,7 +201,11 @@ mod misc_evm_getters_hostfns {
         ) -> E2EResult<()> {
             // given
             let contract = client
-                .instantiate("misc_evm_getters_hostfns", &ink_e2e::alice(), &mut MiscEVMGettersfnsRef::new())
+                .instantiate(
+                    "misc_evm_getters_hostfns",
+                    &ink_e2e::alice(),
+                    &mut MiscEVMGettersfnsRef::new(),
+                )
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -202,7 +231,11 @@ mod misc_evm_getters_hostfns {
         ) -> E2EResult<()> {
             // given
             let contract = client
-                .instantiate("misc_evm_getters_hostfns", &ink_e2e::alice(), &mut MiscEVMGettersfnsRef::new())
+                .instantiate(
+                    "misc_evm_getters_hostfns",
+                    &ink_e2e::alice(),
+                    &mut MiscEVMGettersfnsRef::new(),
+                )
                 .submit()
                 .await
                 .expect("instantiate failed");
@@ -210,7 +243,10 @@ mod misc_evm_getters_hostfns {
 
             // then
             let _call_res = client
-                .call(&ink_e2e::alice(), &call_builder.block_hash(BlockNumber::from(0u32)))
+                .call(
+                    &ink_e2e::alice(),
+                    &call_builder.block_hash(BlockNumber::from(0u32)),
+                )
                 .submit()
                 .await
                 .unwrap_or_else(|err| {
@@ -226,7 +262,11 @@ mod misc_evm_getters_hostfns {
         ) -> E2EResult<()> {
             // given
             let contract = client
-                .instantiate("misc_evm_getters_hostfns", &ink_e2e::alice(), &mut MiscEVMGettersfnsRef::new())
+                .instantiate(
+                    "misc_evm_getters_hostfns",
+                    &ink_e2e::alice(),
+                    &mut MiscEVMGettersfnsRef::new(),
+                )
                 .submit()
                 .await
                 .expect("instantiate failed");

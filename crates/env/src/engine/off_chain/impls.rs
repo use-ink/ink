@@ -19,7 +19,6 @@ use ink_primitives::{
     Address,
     CodeHashErr,
     H256,
-    types::BlockNumber,
     U256,
     abi::{
         AbiEncodeWith,
@@ -29,6 +28,7 @@ use ink_primitives::{
     sol::SolResultEncode,
     types::{
         AccountIdMapper,
+        BlockNumber,
         Environment,
     },
 };
