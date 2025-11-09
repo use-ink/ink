@@ -2306,9 +2306,9 @@ checksum = "75b325c5dbd37f80359721ad39aca5a29fb04c89279657cffdda8736d0c0b9d2"
 
 [[package]]
 name = "duct"
-version = "1.1.0"
+version = "1.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d7478638a31d1f1f3d6c9f5e57c76b906a04ac4879d6fd0fb6245bc88f73fd0b"
+checksum = "7e66e9c0c03d094e1a0ba1be130b849034aa80c3a2ab8ee94316bc809f3fa684"
 dependencies = [
  "libc",
  "os_pipe",
@@ -4865,7 +4865,7 @@ dependencies = [
 [[package]]
 name = "pallet-assets"
 version = "29.1.0"
-source = "git+https://github.com/use-ink/polkadot-sdk.git?rev=cbab8ed4be1941420dd25dc81102fb79d8e2a7f0#cbab8ed4be1941420dd25dc81102fb79d8e2a7f0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?rev=9136565addc23a552f6960a7581f13c8dfc651f1#9136565addc23a552f6960a7581f13c8dfc651f1"
 dependencies = [
  "frame-benchmarking",
  "frame-support 28.0.0",
@@ -4881,7 +4881,7 @@ dependencies = [
 [[package]]
 name = "pallet-assets-precompiles"
 version = "0.1.0"
-source = "git+https://github.com/use-ink/polkadot-sdk.git?rev=cbab8ed4be1941420dd25dc81102fb79d8e2a7f0#cbab8ed4be1941420dd25dc81102fb79d8e2a7f0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?rev=9136565addc23a552f6960a7581f13c8dfc651f1#9136565addc23a552f6960a7581f13c8dfc651f1"
 dependencies = [
  "ethereum-standards",
  "frame-support 28.0.0",
