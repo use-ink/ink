@@ -41,6 +41,7 @@ use ink_primitives::{
     Address,
     CodeHashErr,
     H256,
+    types::BlockNumber,
     U256,
     abi::{
         Ink,
@@ -442,6 +443,38 @@ where
     /// For more details visit: [`ink_env::code_size`]
     pub fn code_size(self, addr: Address) -> u64 {
         ink_env::code_size(addr)
+    }
+
+    /// Returns the block hash of the given block number.
+    /// This is akin to the EVM [BLOCKHASH](https://www.evm.codes/?fork=cancun#40) opcode.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_block_hash(&self, block_number: BlockNumber) -> H256 {
+    ///             self.env().block_hash(block_number)
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::block_hash`]
+    pub fn block_hash(self, block_number: BlockNumber) -> H256 {
+        ink_env::block_hash(block_number)
     }
 
     /// Returns the current block author.

@@ -3,7 +3,7 @@
 
 #[ink::contract]
 mod misc_evm_getters_hostfns {
-    use ink::U256;
+    use ink::{U256, H256};
 
     #[ink(storage)]
     pub struct MiscEVMGettersfns {}
@@ -44,6 +44,12 @@ mod misc_evm_getters_hostfns {
         pub fn code_size(&self) -> u64 {
             let this_addr = self.env().address();
             self.env().code_size(this_addr)
+        }
+
+        /// Checks that the host function `block_hash` works
+        #[ink(message)]
+        pub fn block_hash(&self, block_number: BlockNumber) -> H256 {
+            self.env().block_hash(block_number)
         }
 
         /// Checks that the host function `block_author` works
@@ -186,6 +192,30 @@ mod misc_evm_getters_hostfns {
                 });
 
             assert!(call_res.return_value() > 0);
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn e2e_block_hash_works<Client: E2EBackend>(
+            mut client: Client,
+        ) -> E2EResult<()> {
+            // given
+            let contract = client
+                .instantiate("misc_evm_getters_hostfns", &ink_e2e::alice(), &mut MiscEVMGettersfnsRef::new())
+                .submit()
+                .await
+                .expect("instantiate failed");
+            let call_builder = contract.call_builder::<MiscEVMGettersfns>();
+
+            // then
+            let _call_res = client
+                .call(&ink_e2e::alice(), &call_builder.block_hash(BlockNumber::from(0u32)))
+                .submit()
+                .await
+                .unwrap_or_else(|err| {
+                    panic!("call failed: {:#?}", err);
+                });
 
             Ok(())
         }

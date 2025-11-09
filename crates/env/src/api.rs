@@ -20,6 +20,7 @@ use ink_primitives::{
     Address,
     CodeHashErr,
     H256,
+    types::BlockNumber,
     U256,
     abi::{
         Ink,
@@ -156,6 +157,14 @@ pub fn origin() -> Address {
 pub fn code_size(addr: Address) -> u64 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::code_size(instance, addr)
+    })
+}
+
+/// Returns the block hash of the given block number.
+/// This is akin to the EVM [BLOCKHASH](https://www.evm.codes/?fork=cancun#40) opcode.
+pub fn block_hash(block_number: BlockNumber) -> H256 {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::block_hash(instance, block_number)
     })
 }
 

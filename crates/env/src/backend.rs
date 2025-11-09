@@ -18,6 +18,7 @@ use ink_primitives::{
     Address,
     CodeHashErr,
     H256,
+    types::BlockNumber,
     U256,
     sol::SolResultEncode,
     types::Environment,
@@ -318,6 +319,14 @@ pub trait TypedEnvBackend: EnvBackend {
     /// If `addr` is not a contract the `output` will be zero.
     /// For more details visit: [`code_size`][`crate::code_size`]
     fn code_size(&mut self, addr: Address) -> u64;
+
+    /// Returns the block hash of the given block number.
+    /// This is akin to the EVM [BLOCKHASH](https://www.evm.codes/?fork=cancun#40) opcode.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`block_hash`][`crate::block_hash`]
+    fn block_hash(&mut self, block_number: BlockNumber) -> H256;
 
     /// Returns the current block author.
     /// This is akin to the EVM [COINBASE](https://www.evm.codes/?fork=cancun#41) opcode.

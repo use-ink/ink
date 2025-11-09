@@ -19,6 +19,7 @@ use ink_primitives::{
     Address,
     CodeHashErr,
     H256,
+    types::BlockNumber,
     U256,
     abi::{
         AbiEncodeWith,
@@ -577,6 +578,10 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn origin(&mut self) -> Address {
+        unimplemented!("not implemented, the off-chain environment will be removed");
+    }
+
+    fn block_hash(&mut self, block_number: BlockNumber) -> H256 {
         unimplemented!("not implemented, the off-chain environment will be removed");
     }
 

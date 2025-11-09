@@ -18,6 +18,7 @@ use ink_primitives::{
     Address,
     CodeHashErr,
     H256,
+    types::BlockNumber,
     U256,
     abi::{
         AbiEncodeWith,
@@ -993,6 +994,20 @@ impl TypedEnvBackend for EnvInstance {
         let addr = addr.as_fixed_bytes();
 
         ext::code_size(addr)
+    }
+
+    fn block_hash(&mut self, block_number: BlockNumber) -> H256 {
+        let mut scope = self.scoped_buffer();
+        let output: &mut [u8; 32] = scope.take(32).try_into().unwrap();
+
+        let block_number = {
+            let mut bytes = [0u8; 32];
+            bytes[..4].copy_from_slice(&block_number.to_le_bytes());
+            bytes
+        };
+
+        ext::block_hash(&block_number, output);
+        H256::from_slice(output)
     }
 
     fn block_author(&mut self) -> Address {

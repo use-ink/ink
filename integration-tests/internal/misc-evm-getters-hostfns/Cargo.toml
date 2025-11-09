@@ -11,6 +11,7 @@ ink = { path = "../../../crates/ink", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
+ink_primitives = { path = "../../../crates/primitives" }
 
 [lib]
 path = "lib.rs"
