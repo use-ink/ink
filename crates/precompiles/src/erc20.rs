@@ -15,11 +15,12 @@
 //! ERC-20 precompile interface for `pallet-assets`.
 //!
 //! This module provides the standard ERC-20 token interface for interacting with
-//! assets managed by `pallet-assets` through the precompile mechanism.
+//! assets managed by `pallet-assets`.
 //!
 //! # References
 //!
-//! - [Polkadot SDK Assets Precompile](https://github.com/paritytech/polkadot-sdk/blob/master/substrate/frame/assets/src/precompiles.rs)
+//! - [Polkadot SDK Assets Precompile](https://github.com/paritytech/polkadot-sdk/blob/master/substrate/frame/assets/precompiles/src/lib.rs)
+//! - [Polkadot SDK Assets Precompile Solidity Interface](https://github.com/paritytech/polkadot-sdk/blob/master/substrate/primitives/ethereum-standards/src/IERC20.sol)
 //! - [ERC-20 Token Standard](https://eips.ethereum.org/EIPS/eip-20)
 
 use ink::{
