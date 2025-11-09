@@ -444,6 +444,38 @@ where
         ink_env::code_size(addr)
     }
 
+    /// Returns the current block author.
+    /// This is akin to the EVM [COINBASE](https://www.evm.codes/?fork=cancun#41) opcode.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_block_author(&self) -> Address {
+    ///             self.env().block_author()
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::block_author`]
+    pub fn block_author(self) -> Address {
+        ink_env::block_author()
+    }
+
     /// Returns the transferred value for the contract execution.
     ///
     /// # Example

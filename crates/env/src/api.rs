@@ -159,6 +159,14 @@ pub fn code_size(addr: Address) -> u64 {
     })
 }
 
+/// Returns the current block author.
+/// This is akin to the EVM [COINBASE](https://www.evm.codes/?fork=cancun#41) opcode.
+pub fn block_author() -> Address {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::block_author(instance)
+    })
+}
+
 /// Returns the transferred value for the contract execution.
 ///
 /// # Errors

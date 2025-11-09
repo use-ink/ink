@@ -319,6 +319,14 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`code_size`][`crate::code_size`]
     fn code_size(&mut self, addr: Address) -> u64;
 
+    /// Returns the current block author.
+    /// This is akin to the EVM [COINBASE](https://www.evm.codes/?fork=cancun#41) opcode.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`block_author`][`crate::block_author`]
+    fn block_author(&mut self) -> Address;
+
 
     /// Returns the transferred value for the contract execution.
     ///
