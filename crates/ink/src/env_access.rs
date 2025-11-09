@@ -410,6 +410,40 @@ where
         ink_env::origin()
     }
 
+    /// Returns the code size for a specified contract address.
+    /// This is akin to the EVM [CODESIZE](https://www.evm.codes/?fork=cancun#38) opcode.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_code_size_of_this_contract(&self) -> u64 {
+    ///             let this_addr = self.env().address();
+    ///             self.env().code_size(this_addr)
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// If `addr` is not a contract the `output` will be zero.
+    /// For more details visit: [`ink_env::code_size`]
+    pub fn code_size(self, addr: Address) -> u64 {
+        ink_env::code_size(addr)
+    }
+
     /// Returns the transferred value for the contract execution.
     ///
     /// # Example

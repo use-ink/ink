@@ -579,6 +579,10 @@ impl TypedEnvBackend for EnvInstance {
     fn origin(&mut self) -> Address {
         unimplemented!("not implemented, the off-chain environment will be removed");
     }
+    
+    fn code_size(&mut self, _addr: Address) -> u64 {
+        unimplemented!("not implemented, the off-chain environment will be removed");
+    }
 
     fn call_data_size(&mut self) -> u64 {
         unimplemented!("not implemented, the off-chain environment will be removed");

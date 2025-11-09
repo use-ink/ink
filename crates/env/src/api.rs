@@ -147,6 +147,18 @@ pub fn origin() -> Address {
     })
 }
 
+/// Returns the code size for a specified contract address.
+/// This is akin to the EVM [CODESIZE](https://www.evm.codes/?fork=cancun#38) opcode.
+///
+/// # Note
+///
+/// If `addr` is not a contract the `output` will be zero.
+pub fn code_size(addr: Address) -> u64 {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::code_size(instance, addr)
+    })
+}
+
 /// Returns the transferred value for the contract execution.
 ///
 /// # Errors

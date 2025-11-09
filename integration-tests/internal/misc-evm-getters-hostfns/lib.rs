@@ -38,6 +38,13 @@ mod misc_evm_getters_hostfns {
         pub fn origin(&self) -> Address {
             self.env().origin()
         }
+
+        /// Checks that the host function `code_size` works
+        #[ink(message)]
+        pub fn code_size(&self) -> u64 {
+            let this_addr = self.env().address();
+            self.env().code_size(this_addr)
+        }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
@@ -147,6 +154,32 @@ mod misc_evm_getters_hostfns {
                 });
 
             assert_eq!(call_res.return_value(), address_from_keypair::<AccountId>(&ink_e2e::alice()));
+
+            Ok(())
+        }
+
+         #[ink_e2e::test]
+        async fn e2e_code_size_works<Client: E2EBackend>(
+            mut client: Client,
+        ) -> E2EResult<()> {
+            // given
+            let contract = client
+                .instantiate("misc_evm_getters_hostfns", &ink_e2e::alice(), &mut MiscEVMGettersfnsRef::new())
+                .submit()
+                .await
+                .expect("instantiate failed");
+            let call_builder = contract.call_builder::<MiscEVMGettersfns>();
+
+            // then
+            let call_res = client
+                .call(&ink_e2e::alice(), &call_builder.code_size())
+                .submit()
+                .await
+                .unwrap_or_else(|err| {
+                    panic!("call failed: {:#?}", err);
+                });
+
+            assert!(call_res.return_value() > 0);
 
             Ok(())
         }

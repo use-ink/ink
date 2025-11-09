@@ -989,6 +989,12 @@ impl TypedEnvBackend for EnvInstance {
         h160.into()
     }
 
+    fn code_size(&mut self, addr: Address) -> u64 {
+        let addr = addr.as_fixed_bytes();
+        
+        ext::code_size(addr)
+    }
+
     fn transferred_value(&mut self) -> U256 {
         let mut scope = self.scoped_buffer();
         let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();

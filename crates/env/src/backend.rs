@@ -310,6 +310,16 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`origin`][`crate::origin`]
     fn origin(&mut self) -> Address;
 
+    /// Returns the code size for a specified contract address.
+    /// This is akin to the EVM [CODESIZE](https://www.evm.codes/?fork=cancun#38) opcode.
+    ///
+    /// # Note
+    ///
+    /// If `addr` is not a contract the `output` will be zero.
+    /// For more details visit: [`code_size`][`crate::code_size`]
+    fn code_size(&mut self, addr: Address) -> u64;
+
+
     /// Returns the transferred value for the contract execution.
     ///
     /// # Note
