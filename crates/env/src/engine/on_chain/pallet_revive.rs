@@ -973,6 +973,14 @@ impl TypedEnvBackend for EnvInstance {
         U256::from_le_bytes(*u256)
     }
 
+    fn base_fee(&mut self) -> U256 {
+        let mut scope = self.scoped_buffer();
+        let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();
+
+        ext::base_fee(u256);
+        U256::from_le_bytes(*u256)
+    }
+
     fn transferred_value(&mut self) -> U256 {
         let mut scope = self.scoped_buffer();
         let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();

@@ -343,6 +343,41 @@ where
         ink_env::balance_of(addr)
     }
 
+    
+    /// Returns the base fee.
+    /// This is akin to the EVM [BASEFEE](https://www.evm.codes/?fork=cancun#48) opcode.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     use ink::U256;
+    ///
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_base_fee(&self) -> U256 {
+    ///             self.env().base_fee()
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::base_fee`]
+    pub fn base_fee(self) -> U256 {
+        ink_env::base_fee()
+    }
+
     /// Returns the transferred value for the contract execution.
     ///
     /// # Example

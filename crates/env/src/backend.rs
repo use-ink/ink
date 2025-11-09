@@ -290,6 +290,14 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`balance_of`][`crate::balance_of`]
     fn balance_of(&mut self, addr: Address) -> U256;
 
+    /// Returns the base fee.
+    /// This is akin to the EVM [BASEFEE](https://www.evm.codes/?fork=cancun#48) opcode.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`base_fee`][`crate::base_fee`]
+    fn base_fee(&mut self) -> u256;
+
     /// Returns the transferred value for the contract execution.
     ///
     /// # Note

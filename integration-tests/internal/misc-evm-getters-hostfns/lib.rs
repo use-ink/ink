@@ -26,6 +26,12 @@ mod misc_evm_getters_hostfns {
             let caller = self.env().caller();
             self.env().balance_of(caller)
         }
+
+        /// Checks that the host function `base_fee` works
+        #[ink(message)]
+        pub fn base_fee(&self) -> U256 {
+            self.env().base_fee()
+        }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
@@ -76,6 +82,32 @@ mod misc_evm_getters_hostfns {
             // then
             let call_res = client
                 .call(&ink_e2e::alice(), &call_builder.balance_of())
+                .submit()
+                .await
+                .unwrap_or_else(|err| {
+                    panic!("call failed: {:#?}", err);
+                });
+
+            assert!(call_res.return_value() > U256::from(0));
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn e2e_base_fee_works<Client: E2EBackend>(
+            mut client: Client,
+        ) -> E2EResult<()> {
+            // given
+            let contract = client
+                .instantiate("misc_evm_getters_hostfns", &ink_e2e::alice(), &mut MiscEVMGettersfnsRef::new())
+                .submit()
+                .await
+                .expect("instantiate failed");
+            let call_builder = contract.call_builder::<MiscEVMGettersfns>();
+
+            // then
+            let call_res = client
+                .call(&ink_e2e::alice(), &call_builder.base_fee())
                 .submit()
                 .await
                 .unwrap_or_else(|err| {

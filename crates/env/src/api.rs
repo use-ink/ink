@@ -120,10 +120,18 @@ pub fn chain_id() -> U256 {
 }
 
 /// Returns the **reducible** native balance of the supplied address,
-//  akin to the EVM [BALANCE](https://www.evm.codes/?fork=cancun#31) opcode.
+/// akin to the EVM [BALANCE](https://www.evm.codes/?fork=cancun#31) opcode.
 pub fn balance_of(addr: Address) -> U256 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::balance_of(instance, addr)
+    })
+}
+
+/// Returns the base fee.
+/// This is akin to the EVM [BASEFEE](https://www.evm.codes/?fork=cancun#48) opcode.
+pub fn base_fee() -> u256 {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::base_fee(instance)
     })
 }
 
