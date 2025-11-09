@@ -955,6 +955,14 @@ impl TypedEnvBackend for EnvInstance {
         ext::return_data_size()
     }
 
+    fn chain_id(&mut self) -> U256 {
+        let mut scope = self.scoped_buffer();
+        let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();
+
+        ext::chain_id(u256);
+        U256::from_le_bytes(*u256)
+    }
+
     fn transferred_value(&mut self) -> U256 {
         let mut scope = self.scoped_buffer();
         let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();

@@ -564,6 +564,10 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("not implemented, the off-chain environment will be removed");
     }
 
+    fn chain_id(&mut self) -> U256 {
+        unimplemented!("not implemented, the off-chain environment will be removed");
+    }
+
     fn call_data_size(&mut self) -> u64 {
         unimplemented!("not implemented, the off-chain environment will be removed");
     }

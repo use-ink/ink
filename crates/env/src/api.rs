@@ -111,6 +111,14 @@ pub fn return_data_size() -> u64 {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::return_data_size)
 }
 
+/// Returns the [EIP-155](https://eips.ethereum.org/EIPS/eip-155) chain ID,
+/// akin to the EVM [CHAINID](https://www.evm.codes/?fork=cancun#46) opcode.
+pub fn chain_id() -> U256 {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::chain_id(instance)
+    })
+}
+
 /// Returns the transferred value for the contract execution.
 ///
 /// # Errors

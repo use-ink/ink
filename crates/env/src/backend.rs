@@ -274,6 +274,14 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`return_data_size`][`crate::return_data_size]
     fn return_data_size(&mut self) -> u64;
 
+    /// Returns the [EIP-155](https://eips.ethereum.org/EIPS/eip-155) chain ID.
+    /// This is akin to the EVM [CHAINID](https://www.evm.codes/?fork=cancun#46) opcode.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`chain_id`][`crate::chain_id]
+    fn chain_id(&mut self) -> U256;
+
     /// Returns the transferred value for the contract execution.
     ///
     /// # Note
