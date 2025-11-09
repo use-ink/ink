@@ -32,12 +32,18 @@ mod misc_evm_getters_hostfns {
         pub fn base_fee(&self) -> U256 {
             self.env().base_fee()
         }
+
+        /// Checks that the host function `origin` works
+        #[ink(message)]
+        pub fn origin(&self) -> Address {
+            self.env().origin()
+        }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
-        use ink_e2e::ContractsBackend;
+        use ink_e2e::{ContractsBackend,address_from_keypair};
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -115,6 +121,32 @@ mod misc_evm_getters_hostfns {
                 });
 
             assert!(call_res.return_value() > U256::from(0));
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn e2e_origin_works<Client: E2EBackend>(
+            mut client: Client,
+        ) -> E2EResult<()> {
+            // given
+            let contract = client
+                .instantiate("misc_evm_getters_hostfns", &ink_e2e::alice(), &mut MiscEVMGettersfnsRef::new())
+                .submit()
+                .await
+                .expect("instantiate failed");
+            let call_builder = contract.call_builder::<MiscEVMGettersfns>();
+
+            // then
+            let call_res = client
+                .call(&ink_e2e::alice(), &call_builder.origin())
+                .submit()
+                .await
+                .unwrap_or_else(|err| {
+                    panic!("call failed: {:#?}", err);
+                });
+
+            assert_eq!(call_res.return_value(), address_from_keypair::<AccountId>(&ink_e2e::alice()));
 
             Ok(())
         }

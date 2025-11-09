@@ -378,6 +378,38 @@ where
         ink_env::base_fee()
     }
 
+    /// Returns the origin address (initator of the call stack).
+    /// This is akin to the EVM [ORIGIN](https://www.evm.codes/?fork=cancun#32) opcode.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_origin(&self) -> Address {
+    ///             self.env().origin()
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::origin`]
+    pub fn origin(self) -> Address {
+        ink_env::origin()
+    }
+
     /// Returns the transferred value for the contract execution.
     ///
     /// # Example

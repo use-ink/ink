@@ -129,9 +129,21 @@ pub fn balance_of(addr: Address) -> U256 {
 
 /// Returns the base fee.
 /// This is akin to the EVM [BASEFEE](https://www.evm.codes/?fork=cancun#48) opcode.
-pub fn base_fee() -> u256 {
+pub fn base_fee() -> U256 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::base_fee(instance)
+    })
+}
+
+/// Returns the origin address (initator of the call stack).
+/// This is akin to the EVM [ORIGIN](https://www.evm.codes/?fork=cancun#32) opcode.
+///
+/// # Errors
+///
+/// - If there is no address associated with the origin (e.g. because the origin is root).
+pub fn origin() -> Address {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::origin(instance)
     })
 }
 

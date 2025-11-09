@@ -296,7 +296,19 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`base_fee`][`crate::base_fee`]
-    fn base_fee(&mut self) -> u256;
+    fn base_fee(&mut self) -> U256;
+
+    /// Returns the origin address (initator of the call stack).
+    /// This is akin to the EVM [ORIGIN](https://www.evm.codes/?fork=cancun#32) opcode.
+    ///
+    /// # Errors
+    ///
+    /// - If there is no address associated with the origin (e.g. because the origin is root).
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`origin`][`crate::origin`]
+    fn origin(&mut self) -> Address;
 
     /// Returns the transferred value for the contract execution.
     ///
