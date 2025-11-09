@@ -1,6 +1,5 @@
 [package]
-name = "debugging_strategies"
-description = "Illustrates different debugging strategies"
+name = "precompile_demo"
 version = "6.0.0-beta"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2024"
@@ -8,7 +7,7 @@ publish = false
 
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false }
-flipper = { path = "../flipper/", default-features = false, features = ["ink-as-dependency"] }
+hex-literal = "1"
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
@@ -23,7 +22,6 @@ std = [
 ]
 ink-as-dependency = []
 e2e-tests = []
-debug = []
 
 [package.metadata.ink-lang]
 abi = "ink"

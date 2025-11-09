@@ -52,6 +52,7 @@ impl GenerateCode for CallBuilder<'_> {
         let call_builder_impls = self.generate_call_forwarder_impls();
         let call_builder_inherent_impls = self.generate_call_builder_inherent_impls();
         quote! {
+            #[cfg(any(test, feature = "std", feature = "ink-as-dependency"))]
             const _: () = {
                 #call_builder_struct
                 #auxiliary_trait_impls
@@ -124,6 +125,7 @@ impl CallBuilder<'_> {
                 _marker: core::marker::PhantomData<Abi>,
             }
 
+            #[cfg(any(test, feature = "std", feature = "ink-as-dependency"))]
             const _: () = {
                 impl ::ink::codegen::ContractCallBuilder for #storage_ident {
                     type Type<Abi> = #cb_ident<Abi>;

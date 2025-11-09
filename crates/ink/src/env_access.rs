@@ -110,7 +110,8 @@ where
         ink_env::caller()
     }
 
-    /// Returns the block ref_time limit.
+    /// Returns the block's `ref_time` limit, akin to the EVM
+    /// [GASLIMIT](https://www.evm.codes/?fork=cancun#45) opcode.
     ///
     /// # Example
     ///
@@ -139,6 +140,138 @@ where
     /// For more details visit: [`ink_env::gas_limit`]
     pub fn gas_limit(self) -> u64 {
         ink_env::gas_limit()
+    }
+
+    /// Returns the price per `ref_time`, akin to the EVM
+    /// [GASPRICE](https://www.evm.codes/?fork=cancun#3a) opcode.
+    ///
+    /// See <https://use.ink/docs/v6/basics/gas/#what-is-gas-in-ink> for more information.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_gas_price(&self) -> u64 {
+    ///             self.env().gas_price()
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::gas_price`]
+    pub fn gas_price(self) -> u64 {
+        ink_env::gas_price()
+    }
+
+    /// Returns the amount of gas left.
+    /// This is the `ref_time` left.
+    ///
+    /// See <https://use.ink/docs/v6/basics/gas/#what-is-gas-in-ink> for more information.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_gas_left(&self) -> u64 {
+    ///             self.env().gas_left()
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::gas_left`]
+    pub fn gas_left(self) -> u64 {
+        ink_env::gas_left()
+    }
+
+    /// Returns the total size of the contract call input data.
+    /// This is akin to the EVM [CALLDATASIZE](https://www.evm.codes/?fork=cancun#36) opcode.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_call_data_size(&self) -> u64 {
+    ///             self.env().call_data_size()
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::call_data_size`]
+    pub fn call_data_size(self) -> u64 {
+        ink_env::call_data_size()
+    }
+
+    /// Returns the size of the returned data of the last contract call or instantiation.
+    /// This is akin to the EVM [RETURNDATASIZE](https://www.evm.codes/?fork=cancun#3d) opcode.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_return_data_size(&self) -> u64 {
+    ///             self.env().return_data_size()
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::return_data_size`]
+    pub fn return_data_size(self) -> u64 {
+        ink_env::return_data_size()
     }
 
     /// Returns the transferred value for the contract execution.
@@ -762,8 +895,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::terminate_contract`]
-    #[cfg(feature = "unstable-hostfn")]
-    pub fn terminate_contract(self, beneficiary: Address) -> ! {
+    pub fn terminate_contract(self, beneficiary: Address) -> Result<()> {
         ink_env::terminate_contract(beneficiary)
     }
 

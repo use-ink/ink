@@ -139,10 +139,7 @@ pub trait ContractEnv {
 ///     }
 /// }
 ///
-/// use contract::{
-///     Contract,
-///     ContractRef,
-/// };
+/// use contract::Contract;
 /// # use ink::codegen::utils::IsSameType;
 /// # use ink::env::ContractReference;
 ///

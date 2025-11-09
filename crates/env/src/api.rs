@@ -76,10 +76,39 @@ pub fn caller() -> Address {
 }
 
 /// Returns the block's `ref_time` limit.
+/// [GASLIMIT](https://www.evm.codes/?fork=cancun#45) opcode.
 ///
 /// See <https://use.ink/docs/v6/basics/gas/#what-is-gas-in-ink> for more information.
 pub fn gas_limit() -> u64 {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::gas_limit)
+}
+
+/// Returns the price per `ref_time`, akin to the EVM
+/// [GASPRICE](https://www.evm.codes/?fork=cancun#3a) opcode.
+///
+/// See <https://use.ink/docs/v6/basics/gas/#what-is-gas-in-ink> for more information.
+pub fn gas_price() -> u64 {
+    <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::gas_price)
+}
+
+/// Returns the amount of gas left.
+/// This is the `ref_time` left.
+///
+/// See <https://use.ink/docs/v6/basics/gas/#what-is-gas-in-ink> for more information.
+pub fn gas_left() -> u64 {
+    <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::gas_left)
+}
+
+/// Returns the total size of the contract call input data, akin to the EVM
+/// [CALLDATASIZE](https://www.evm.codes/?fork=cancun#36) opcode.
+pub fn call_data_size() -> u64 {
+    <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::call_data_size)
+}
+
+/// Returns the size of the returned data of the last contract call or instantiation,
+/// akin to the EVM [RETURNDATASIZE](https://www.evm.codes/?fork=cancun#3d) opcode.
+pub fn return_data_size() -> u64 {
+    <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::return_data_size)
 }
 
 /// Returns the transferred value for the contract execution.
@@ -436,8 +465,7 @@ where
 /// This function never returns. Either the termination was successful and the
 /// execution of the destroyed contract is halted. Or it failed during the termination
 /// which is considered fatal and results in a trap and rollback.
-#[cfg(feature = "unstable-hostfn")]
-pub fn terminate_contract(beneficiary: Address) -> ! {
+pub fn terminate_contract(beneficiary: Address) -> Result<()> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::terminate_contract(instance, beneficiary)
     })

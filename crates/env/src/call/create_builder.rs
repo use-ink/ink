@@ -387,7 +387,7 @@ where
 /// #         pub fn message(&self) {}
 /// #     }
 /// # }
-/// # use contract::MyContractRef;
+/// #
 /// let my_contract: MyContractRef = build_create::<MyContractRef>()
 ///     .code_hash(ink::H256::from([0x42; 32]))
 ///     .endowment(25.into())
@@ -431,7 +431,7 @@ where
 /// #         pub fn message(&self) {}
 /// #     }
 /// # }
-/// # use contract::{MyContractRef, ConstructorError};
+/// # use contract::ConstructorError;
 /// let my_contract: MyContractRef = build_create::<MyContractRef>()
 ///     .code_hash(ink::H256::from([0x42; 32]))
 ///     .endowment(25.into())

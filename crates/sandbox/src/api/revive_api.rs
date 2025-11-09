@@ -218,6 +218,8 @@ where
                     bump_nonce: true,
                     collect_deposit_from_hold: None,
                     effective_gas_price: None,
+                    is_dry_run: false,
+                    mock_handler: None,
                 },
             )
         })
@@ -246,6 +248,8 @@ where
                     bump_nonce: true,
                     collect_deposit_from_hold: None,
                     effective_gas_price: None,
+                    is_dry_run: false,
+                    mock_handler: None,
                 },
             )
         })
@@ -287,6 +291,8 @@ where
                     bump_nonce: true,
                     collect_deposit_from_hold: None,
                     effective_gas_price: None,
+                    is_dry_run: false,
+                    mock_handler: None,
                 },
             )
         })

@@ -1,7 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-pub use self::virtual_contract_ver2::VirtualContractVer2Ref;
-
 #[ink::contract]
 mod virtual_contract_ver2 {
 

@@ -1,17 +1,16 @@
 [package]
-name = "precompile"
-version = "6.0.0-alpha.3"
+name = "data_hostfns"
+description = "E2E tests for data related host functions"
+version = "6.0.0-alpha.4"
 authors = ["Use Ink <ink@use.ink>"]
-edition = "2024"
+edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../../crates/ink", default-features = false }
-hex-literal = "1"
+ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
-blake2 = "0.10"
 
 [lib]
 path = "lib.rs"
@@ -26,9 +25,3 @@ e2e-tests = []
 
 [package.metadata.ink-lang]
 abi = "ink"
-
-[lints.rust.unexpected_cfgs]
-level = "warn"
-check-cfg = [
-    'cfg(ink_abi, values("ink", "sol", "all"))'
-]

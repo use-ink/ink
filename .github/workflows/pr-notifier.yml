@@ -47,7 +47,7 @@ jobs:
           # from today onwards. Increase this number to set how much time without interaction must pass for the issue to be analyzed
           days-stale: 0
           fileOutput: outputs/${{ matrix.repo }}.json
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v5
         with:
           name: outputs
           path: outputs/*.json
@@ -58,7 +58,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Load outputs
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: outputs
           path: outputs
