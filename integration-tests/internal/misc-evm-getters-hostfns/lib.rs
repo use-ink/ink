@@ -19,6 +19,13 @@ mod misc_evm_getters_hostfns {
         pub fn chain_id(&self) -> U256 {
             self.env().chain_id()
         }
+
+        /// Checks that the host function `balance_of` works
+        #[ink(message)]
+        pub fn balance_of(&self) -> U256 {
+            let caller = self.env().caller();
+            self.env().balance_of(caller)
+        }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
@@ -43,6 +50,32 @@ mod misc_evm_getters_hostfns {
             // then
             let call_res = client
                 .call(&ink_e2e::alice(), &call_builder.chain_id())
+                .submit()
+                .await
+                .unwrap_or_else(|err| {
+                    panic!("call failed: {:#?}", err);
+                });
+
+            assert!(call_res.return_value() > U256::from(0));
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn e2e_balance_of_works<Client: E2EBackend>(
+            mut client: Client,
+        ) -> E2EResult<()> {
+            // given
+            let contract = client
+                .instantiate("misc_evm_getters_hostfns", &ink_e2e::alice(), &mut MiscEVMGettersfnsRef::new())
+                .submit()
+                .await
+                .expect("instantiate failed");
+            let call_builder = contract.call_builder::<MiscEVMGettersfns>();
+
+            // then
+            let call_res = client
+                .call(&ink_e2e::alice(), &call_builder.balance_of())
                 .submit()
                 .await
                 .unwrap_or_else(|err| {

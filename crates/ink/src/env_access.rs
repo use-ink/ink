@@ -210,40 +210,6 @@ where
         ink_env::gas_left()
     }
 
-    /// Returns the [EIP-155](https://eips.ethereum.org/EIPS/eip-155) chain ID,
-    /// akin to the EVM [CHAINID](https://www.evm.codes/?fork=cancun#46) opcode.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// #[ink::contract]
-    /// mod my_contract {
-    ///     use ink::U256;
-    ///
-    ///     #[ink(storage)]
-    ///     pub struct MyContract;
-    ///
-    ///     impl MyContract {
-    ///         #[ink(constructor)]
-    ///         pub fn new() -> Self {
-    ///             Self {}
-    ///         }
-    ///
-    ///         #[ink(message)]
-    ///         pub fn get_chain_id(&self) -> U256 {
-    ///             self.env().chain_id()
-    ///         }
-    ///     }
-    /// }
-    /// ```
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_env::chain_id`]
-    pub fn chain_id(self) -> U256 {
-        ink_env::chain_id()
-    }
-
     /// Returns the total size of the contract call input data.
     /// This is akin to the EVM [CALLDATASIZE](https://www.evm.codes/?fork=cancun#36) opcode.
     ///
@@ -306,6 +272,75 @@ where
     /// For more details visit: [`ink_env::return_data_size`]
     pub fn return_data_size(self) -> u64 {
         ink_env::return_data_size()
+    }
+
+    /// Returns the [EIP-155](https://eips.ethereum.org/EIPS/eip-155) chain ID,
+    /// akin to the EVM [CHAINID](https://www.evm.codes/?fork=cancun#46) opcode.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     use ink::U256;
+    ///
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_chain_id(&self) -> U256 {
+    ///             self.env().chain_id()
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::chain_id`]
+    pub fn chain_id(self) -> U256 {
+        ink_env::chain_id()
+    }
+
+    /// Returns the **reducible** native balance of the supplied address.
+    /// This is akin to the EVM [BALANCE](https://www.evm.codes/?fork=cancun#31) opcode.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     use ink::U256;
+    ///
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_my_balance(&self) -> U256 {
+    ///             let caller = self.env().caller();
+    ///             self.env().balance_of(caller)
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::balance_of`]
+    pub fn balance_of(self, addr: Address) -> U256 {
+        ink_env::balance_of(addr)
     }
 
     /// Returns the transferred value for the contract execution.

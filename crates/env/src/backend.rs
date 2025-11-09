@@ -271,7 +271,7 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// # Note
     ///
-    /// For more details visit: [`return_data_size`][`crate::return_data_size]
+    /// For more details visit: [`return_data_size`][`crate::return_data_size`]
     fn return_data_size(&mut self) -> u64;
 
     /// Returns the [EIP-155](https://eips.ethereum.org/EIPS/eip-155) chain ID.
@@ -281,6 +281,14 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// For more details visit: [`chain_id`][`crate::chain_id]
     fn chain_id(&mut self) -> U256;
+
+    /// Returns the **reducible** native balance of the supplied address.
+    /// This is akin to the EVM [BALANCE](https://www.evm.codes/?fork=cancun#31) opcode.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`balance_of`][`crate::balance_of`]
+    fn balance_of(&mut self, addr: Address) -> U256;
 
     /// Returns the transferred value for the contract execution.
     ///
