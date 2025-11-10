@@ -82,7 +82,7 @@ use crate::abi::Abi;
 /// }
 ///
 /// fn main() {
-///     assert_message_info::<(), (), { selector_id!(Abi::Ink, "message1") }>(
+///     assert_message_info::<(), (), { selector_id!("message1") }>(
 ///         false,
 ///         false,
 ///         selector_bytes!(Abi::Ink, "message1"),
@@ -195,7 +195,7 @@ pub trait DispatchableMessageInfo<const ID: u32> {
 /// }
 ///
 /// fn main() {
-///     assert_constructor_info::<(), { selector_id!(Abi::Ink, "constructor1") }>(
+///     assert_constructor_info::<(), { selector_id!("constructor1") }>(
 ///         selector_bytes!(Abi::Ink, "constructor1"),
 ///         "constructor1",
 ///     );

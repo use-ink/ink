@@ -79,12 +79,7 @@ pub fn blake2x256(input: TokenStream) -> TokenStream {
 ///
 /// ```
 /// # use ink_macro::selector_id;
-/// # use ink_primitives::abi::Abi;
-/// // ink! ABI (BLAKE-2)
-/// assert_eq!(selector_id!(Abi::Ink, "hello"), 843960066,);
-///
-/// // Solidity ABI (Keccak-256)
-/// assert_eq!(selector_id!(Abi::Sol, "hello"), 0x19cb10b7,);
+/// assert_eq!(selector_id!("hello"), 843960066,);
 /// ```
 #[proc_macro]
 pub fn selector_id(input: TokenStream) -> TokenStream {

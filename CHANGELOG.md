@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implement `bn128` precompiles ‒ [2708](https://github.com/use-ink/ink/pull/2718)
 
 ### Changed
-- Change `selector_bytes!` + `selector_id!` macro to accept `Abi` argument ‒ [2721](https://github.com/use-ink/ink/pull/2721)
+- Change `selector_bytes!` macro to accept `Abi` argument ‒ [2721](https://github.com/use-ink/ink/pull/2721)
 - Refactor contract ref generation and add automatic re-exporting ‒ [#2710](https://github.com/use-ink/ink/pull/2710)
 - Implement and stabilize `terminate_contract` ‒ [2708](https://github.com/use-ink/ink/pull/2708)
 

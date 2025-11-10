@@ -27,7 +27,7 @@ unsafe extern "Rust" {
 fn main() {
     // Message selector and selector id both use the name override.
     // `blake2b("myMessage")` == `0x6fdbfc04`
-    const MESSAGE_ID: u32 = ::ink::selector_id!(Abi::Ink, "myMessage");
+    const MESSAGE_ID: u32 = ::ink::selector_id!("myMessage");
     assert_eq!(
         <Contract as ::ink::reflect::DispatchableMessageInfo<MESSAGE_ID>>::SELECTOR,
         [0x6f, 0xdb, 0xfc, 0x04],

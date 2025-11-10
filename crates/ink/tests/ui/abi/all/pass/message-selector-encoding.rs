@@ -51,7 +51,7 @@ mod contract {
 
 fn main() {
     // ink! `message_0` trait definition
-    const TRAIT_ID: u32 = ::ink::selector_id!(Abi::Ink, "Messages::message_0");
+    const TRAIT_ID: u32 = ::ink::selector_id!("Messages::message_0");
     assert_eq!(
         <Contract as ::ink::reflect::DispatchableMessageInfo<TRAIT_ID>>::SELECTOR,
         [0xFB, 0xAB, 0x03, 0xCE],
@@ -85,7 +85,7 @@ fn main() {
     );
 
     // ink! `message_3` inherent
-    const INHERENT_ID: u32 = ::ink::selector_id!(Abi::Ink, "message_3");
+    const INHERENT_ID: u32 = ::ink::selector_id!("message_3");
     assert_eq!(
         <Contract as ::ink::reflect::DispatchableMessageInfo<INHERENT_ID>>::SELECTOR,
         [0xB6, 0xC3, 0x27, 0x49],
