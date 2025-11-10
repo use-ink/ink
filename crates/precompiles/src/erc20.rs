@@ -23,9 +23,6 @@
 //! - [Polkadot SDK Assets Precompile Solidity Interface](https://github.com/paritytech/polkadot-sdk/blob/master/substrate/primitives/ethereum-standards/src/IERC20.sol)
 //! - [ERC-20 Token Standard](https://eips.ethereum.org/EIPS/eip-20)
 
-// Note: When ink_precompiles is used standalone (not through the ink facade),
-// users need to have ink_env and related crates in scope. When used through
-// `ink::precompiles`, the ink crate provides all necessary items.
 use ink_primitives::{
     Address,
     U256,
@@ -35,15 +32,7 @@ use ink_primitives::{
 pub type AssetId = u32;
 
 /// Defines the ERC-20 interface of the Asset Hub precompile.
-///
-/// **Note:** To use this trait, it should be consumed through the `ink` crate which
-/// applies the `#[ink::contract_ref]` macro and generates the necessary contract
-/// reference types (`Erc20Ref`). The macro is applied in the `ink` crate to avoid
-/// circular dependency issues.
-///
-/// # Solidity ABI
-///
-/// This trait uses Solidity ABI for its methods.
+#[ink::contract_ref(abi = "sol")]
 pub trait Erc20 {
     /// Returns the total supply of tokens.
     ///
@@ -52,6 +41,7 @@ pub trait Erc20 {
     /// ```solidity
     /// function totalSupply() external view returns (uint256);
     /// ```
+    #[ink(message)]
     #[allow(non_snake_case)]
     fn totalSupply(&self) -> U256;
 
@@ -65,6 +55,7 @@ pub trait Erc20 {
     /// ```solidity
     /// function balanceOf(address account) external view returns (uint256);
     /// ```
+    #[ink(message)]
     #[allow(non_snake_case)]
     fn balanceOf(&self, account: Address) -> U256;
 
@@ -83,6 +74,7 @@ pub trait Erc20 {
     /// ```solidity
     /// function transfer(address to, uint256 value) external returns (bool);
     /// ```
+    #[ink(message)]
     fn transfer(&mut self, to: Address, value: U256) -> bool;
 
     /// Returns the allowance for a spender on behalf of an owner.
@@ -98,6 +90,7 @@ pub trait Erc20 {
     /// ```solidity
     /// function allowance(address owner, address spender) external view returns (uint256);
     /// ```
+    #[ink(message)]
     fn allowance(&self, owner: Address, spender: Address) -> U256;
 
     /// Approves a spender to spend tokens on behalf of the caller.
@@ -115,6 +108,7 @@ pub trait Erc20 {
     /// ```solidity
     /// function approve(address spender, uint256 value) external returns (bool);
     /// ```
+    #[ink(message)]
     fn approve(&mut self, spender: Address, value: U256) -> bool;
 
     /// Transfers tokens from one account to another using allowance.
@@ -135,17 +129,38 @@ pub trait Erc20 {
     /// ```solidity
     /// function transferFrom(address from, address to, uint256 value) external returns (bool);
     /// ```
+    #[ink(message)]
     #[allow(non_snake_case)]
     fn transferFrom(&mut self, from: Address, to: Address, value: U256) -> bool;
 }
 
-// Note: The `erc20()` helper function and `Erc20Ref` type are generated when
-// this trait is used through the `ink` crate with the `#[ink::contract_ref]` macro.
+/// Creates a new ERC-20 precompile reference for the given asset ID.
+///
+/// # Arguments
+/// * `asset_id` - The ID of the asset to interact with
+///
+/// # Returns
+///
+/// Returns an `Erc20Ref` that can be used to call precompile methods.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// use ink::precompiles::erc20::erc20;
+///
+/// let asset_id = 1;
+/// let erc20_ref = erc20(asset_id);
+/// let balance = erc20_ref.balanceOf(account);
+/// ```
+pub fn erc20(precompile_index: u16, asset_id: AssetId) -> Erc20Ref {
+    let address = crate::prefixed_address(precompile_index, asset_id);
+    address.into()
+}
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ink_env::Environment;
+    use ink::env::Environment;
 
     #[test]
     fn erc20_precompile_address_format() {
@@ -156,7 +171,7 @@ mod tests {
         ];
 
         let address = crate::prefixed_address(
-            ink_env::DefaultEnvironment::TRUST_BACKED_ASSETS_PRECOMPILE_INDEX,
+            ink::env::DefaultEnvironment::TRUST_BACKED_ASSETS_PRECOMPILE_INDEX,
             1,
         );
         let address_bytes: [u8; 20] = address.into();
@@ -168,7 +183,7 @@ mod tests {
     fn erc20_precompile_address_for_multiple_assets() {
         // Test asset ID 42
         let address_42 = crate::prefixed_address(
-            ink_env::DefaultEnvironment::TRUST_BACKED_ASSETS_PRECOMPILE_INDEX,
+            ink::env::DefaultEnvironment::TRUST_BACKED_ASSETS_PRECOMPILE_INDEX,
             42,
         );
         let bytes_42: [u8; 20] = address_42.into();

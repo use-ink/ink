@@ -12,18 +12,10 @@ categories.workspace = true
 
 [dependencies]
 ink_primitives = { workspace = true, default-features = false }
-ink_env = { workspace = true, default-features = false }
-# Note: The contract_ref macro is applied in the ink crate to avoid circular dependencies
-# This crate only defines the plain trait
-
-[dev-dependencies]
-# Only used in tests
-ink = { workspace = true }
 
 [features]
 default = ["std"]
 std = [
     "ink_primitives/std",
-    "ink_env/std",
 ]
 
