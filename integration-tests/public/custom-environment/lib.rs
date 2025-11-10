@@ -14,9 +14,9 @@ pub enum EnvironmentWithManyTopics {}
 impl Environment for EnvironmentWithManyTopics {
     const NATIVE_TO_ETH_RATIO: u32 =
         <DefaultEnvironment as Environment>::NATIVE_TO_ETH_RATIO;
-    const TRUST_BACKED_ASSETS_PRECOMPILE_INDEX: u32 =
+    const TRUST_BACKED_ASSETS_PRECOMPILE_INDEX: u16 =
         <DefaultEnvironment as Environment>::TRUST_BACKED_ASSETS_PRECOMPILE_INDEX;
-    const POOL_ASSETS_PRECOMPILE_INDEX: u32 =
+    const POOL_ASSETS_PRECOMPILE_INDEX: u16 =
         <DefaultEnvironment as Environment>::POOL_ASSETS_PRECOMPILE_INDEX;
 
     type AccountId = <DefaultEnvironment as Environment>::AccountId;

@@ -68,6 +68,10 @@ use crate::types::Environment;
 /// impl Environment for CustomEnvironment {
 ///     const NATIVE_TO_ETH_RATIO: u32 =
 ///         <DefaultEnvironment as Environment>::NATIVE_TO_ETH_RATIO;
+///     const TRUST_BACKED_ASSETS_PRECOMPILE_INDEX: u16 =
+///         <DefaultEnvironment as Environment>::TRUST_BACKED_ASSETS_PRECOMPILE_INDEX;
+///     const POOL_ASSETS_PRECOMPILE_INDEX: u16 =
+///         <DefaultEnvironment as Environment>::POOL_ASSETS_PRECOMPILE_INDEX;
 ///
 ///     type AccountId = <DefaultEnvironment as Environment>::AccountId;
 ///     type Balance = u64;

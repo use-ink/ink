@@ -160,6 +160,7 @@ pub fn erc20(precompile_index: u16, asset_id: AssetId) -> Erc20Ref {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use ink::env::Environment;
 
     #[test]
     fn erc20_precompile_address_format() {
@@ -169,7 +170,10 @@ mod tests {
             0x00, 0x00, 0x00, 0x01, 0x20, 0x00, 0x00,
         ];
 
-        let address = crate::prefixed_address(PRECOMPILE_INDEX, 1);
+        let address = crate::prefixed_address(
+            ink::env::DefaultEnvironment::TRUST_BACKED_ASSETS_PRECOMPILE_INDEX,
+            1,
+        );
         let address_bytes: [u8; 20] = address.into();
 
         assert_eq!(address_bytes, expected);
@@ -178,7 +182,10 @@ mod tests {
     #[test]
     fn erc20_precompile_address_for_multiple_assets() {
         // Test asset ID 42
-        let address_42 = crate::prefixed_address(PRECOMPILE_INDEX, 42);
+        let address_42 = crate::prefixed_address(
+            ink::env::DefaultEnvironment::TRUST_BACKED_ASSETS_PRECOMPILE_INDEX,
+            42,
+        );
         let bytes_42: [u8; 20] = address_42.into();
 
         // First 4 bytes should be asset ID (42 = 0x0000002a)
