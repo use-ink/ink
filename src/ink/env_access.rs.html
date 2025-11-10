@@ -998,412 +998,448 @@
 <a href=#998 id=998 data-nosnippet>998</a>        output
 <a href=#999 id=999 data-nosnippet>999</a>    }
 <a href=#1000 id=1000 data-nosnippet>1000</a>
-<a href=#1001 id=1001 data-nosnippet>1001</a>    <span class="doccomment">/// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,
-<a href=#1002 id=1002 data-nosnippet>1002</a>    /// and stores the result in `output`.
-<a href=#1003 id=1003 data-nosnippet>1003</a>    ///
-<a href=#1004 id=1004 data-nosnippet>1004</a>    /// # Example
+<a href=#1001 id=1001 data-nosnippet>1001</a>    <span class="doccomment">/// Calls the `bn128_add` G1 addition precompile.
+<a href=#1002 id=1002 data-nosnippet>1002</a>    ///
+<a href=#1003 id=1003 data-nosnippet>1003</a>    /// Inputs are affine G1 coordinates over Fq.
+<a href=#1004 id=1004 data-nosnippet>1004</a>    /// Returns the resulting affine point or (0, 0) if the result is ∞ / invalid.
 <a href=#1005 id=1005 data-nosnippet>1005</a>    ///
-<a href=#1006 id=1006 data-nosnippet>1006</a>    /// ```
-<a href=#1007 id=1007 data-nosnippet>1007</a>    /// # #[ink::contract]
-<a href=#1008 id=1008 data-nosnippet>1008</a>    /// # pub mod my_contract {
-<a href=#1009 id=1009 data-nosnippet>1009</a>    /// #     #[ink(storage)]
-<a href=#1010 id=1010 data-nosnippet>1010</a>    /// #     pub struct MyContract { }
-<a href=#1011 id=1011 data-nosnippet>1011</a>    /// #
-<a href=#1012 id=1012 data-nosnippet>1012</a>    /// #     impl MyContract {
-<a href=#1013 id=1013 data-nosnippet>1013</a>    /// #         #[ink(constructor)]
-<a href=#1014 id=1014 data-nosnippet>1014</a>    /// #         pub fn new() -&gt; Self {
-<a href=#1015 id=1015 data-nosnippet>1015</a>    /// #             Self {}
-<a href=#1016 id=1016 data-nosnippet>1016</a>    /// #         }
-<a href=#1017 id=1017 data-nosnippet>1017</a>    /// #
-<a href=#1018 id=1018 data-nosnippet>1018</a>    /// /// Recovery from pre-defined signature and message hash
-<a href=#1019 id=1019 data-nosnippet>1019</a>    /// #[ink(message)]
-<a href=#1020 id=1020 data-nosnippet>1020</a>    /// pub fn ecdsa_recover(&amp;self) {
-<a href=#1021 id=1021 data-nosnippet>1021</a>    ///     const signature: [u8; 65] = [
-<a href=#1022 id=1022 data-nosnippet>1022</a>    ///         195, 218, 227, 165, 226, 17, 25, 160, 37, 92, 142, 238, 4, 41, 244, 211, 18,
-<a href=#1023 id=1023 data-nosnippet>1023</a>    ///         94, 131, 116, 231, 116, 255, 164, 252, 248, 85, 233, 173, 225, 26, 185, 119,
-<a href=#1024 id=1024 data-nosnippet>1024</a>    ///         235, 137, 35, 204, 251, 134, 131, 186, 215, 76, 112, 17, 192, 114, 243, 102,
-<a href=#1025 id=1025 data-nosnippet>1025</a>    ///         166, 176, 140, 180, 124, 213, 102, 117, 212, 89, 89, 92, 209, 116, 17, 28,
-<a href=#1026 id=1026 data-nosnippet>1026</a>    ///     ];
-<a href=#1027 id=1027 data-nosnippet>1027</a>    ///     const message_hash: [u8; 32] = [
-<a href=#1028 id=1028 data-nosnippet>1028</a>    ///         167, 124, 116, 195, 220, 156, 244, 20, 243, 69, 1, 98, 189, 205, 79, 108,
-<a href=#1029 id=1029 data-nosnippet>1029</a>    ///         213, 78, 65, 65, 230, 30, 17, 37, 184, 220, 237, 135, 1, 209, 101, 229,
-<a href=#1030 id=1030 data-nosnippet>1030</a>    ///     ];
-<a href=#1031 id=1031 data-nosnippet>1031</a>    ///     const EXPECTED_COMPRESSED_PUBLIC_KEY: [u8; 33] = [
-<a href=#1032 id=1032 data-nosnippet>1032</a>    ///         3, 110, 192, 35, 209, 24, 189, 55, 218, 250, 100, 89, 40, 76, 222, 208, 202,
-<a href=#1033 id=1033 data-nosnippet>1033</a>    ///         127, 31, 13, 58, 51, 242, 179, 13, 63, 19, 22, 252, 164, 226, 248, 98,
-<a href=#1034 id=1034 data-nosnippet>1034</a>    ///     ];
-<a href=#1035 id=1035 data-nosnippet>1035</a>    ///     let result = self.env().ecdsa_recover(&amp;signature, &amp;message_hash);
-<a href=#1036 id=1036 data-nosnippet>1036</a>    ///     assert!(result.is_ok());
-<a href=#1037 id=1037 data-nosnippet>1037</a>    ///     assert_eq!(
-<a href=#1038 id=1038 data-nosnippet>1038</a>    ///         result.unwrap().as_ref(),
-<a href=#1039 id=1039 data-nosnippet>1039</a>    ///         EXPECTED_COMPRESSED_PUBLIC_KEY.as_ref()
-<a href=#1040 id=1040 data-nosnippet>1040</a>    ///     );
+<a href=#1006 id=1006 data-nosnippet>1006</a>    /// # Note
+<a href=#1007 id=1007 data-nosnippet>1007</a>    ///
+<a href=#1008 id=1008 data-nosnippet>1008</a>    /// For more details visit: [`ink_env::bn128_add`]
+<a href=#1009 id=1009 data-nosnippet>1009</a>    </span><span class="kw">pub fn </span>bn128_add(<span class="self">self</span>, x1: U256, y1: U256, x2: U256, y2: U256) -&gt; (U256, U256) {
+<a href=#1010 id=1010 data-nosnippet>1010</a>        ink_env::bn128_add(x1, y1, x2, y2)
+<a href=#1011 id=1011 data-nosnippet>1011</a>    }
+<a href=#1012 id=1012 data-nosnippet>1012</a>
+<a href=#1013 id=1013 data-nosnippet>1013</a>    <span class="doccomment">/// Calls the `bn128_mul` G1 scalar-mul precompile.
+<a href=#1014 id=1014 data-nosnippet>1014</a>    ///
+<a href=#1015 id=1015 data-nosnippet>1015</a>    /// Multiplies an affine G1 point (x1, y1) by a scalar ∈ Fr.
+<a href=#1016 id=1016 data-nosnippet>1016</a>    /// Returns the resulting affine point or (0, 0) if the result is ∞ / invalid.
+<a href=#1017 id=1017 data-nosnippet>1017</a>    ///
+<a href=#1018 id=1018 data-nosnippet>1018</a>    /// # Note
+<a href=#1019 id=1019 data-nosnippet>1019</a>    ///
+<a href=#1020 id=1020 data-nosnippet>1020</a>    /// For more details visit: [`ink_env::bn128_mul`]
+<a href=#1021 id=1021 data-nosnippet>1021</a>    </span><span class="kw">pub fn </span>bn128_mul(<span class="self">self</span>, x1: U256, y1: U256, scalar: U256) -&gt; (U256, U256) {
+<a href=#1022 id=1022 data-nosnippet>1022</a>        ink_env::bn128_mul(x1, y1, scalar)
+<a href=#1023 id=1023 data-nosnippet>1023</a>    }
+<a href=#1024 id=1024 data-nosnippet>1024</a>
+<a href=#1025 id=1025 data-nosnippet>1025</a>    <span class="doccomment">/// Calls the `bn128_pairing` precompile.
+<a href=#1026 id=1026 data-nosnippet>1026</a>    ///
+<a href=#1027 id=1027 data-nosnippet>1027</a>    /// Input is the Solidity-ABI-encoded sequence of (G1, G2) pairs.
+<a href=#1028 id=1028 data-nosnippet>1028</a>    /// Returns `true` iff the product of pairings evaluates to the identity.
+<a href=#1029 id=1029 data-nosnippet>1029</a>    ///
+<a href=#1030 id=1030 data-nosnippet>1030</a>    /// # Note
+<a href=#1031 id=1031 data-nosnippet>1031</a>    ///
+<a href=#1032 id=1032 data-nosnippet>1032</a>    /// For more details visit: [`ink_env::bn128_pairing`]
+<a href=#1033 id=1033 data-nosnippet>1033</a>    </span><span class="kw">pub fn </span>bn128_pairing(<span class="self">self</span>, input: <span class="kw-2">&amp;</span>[u8]) -&gt; bool {
+<a href=#1034 id=1034 data-nosnippet>1034</a>        ink_env::bn128_pairing(input)
+<a href=#1035 id=1035 data-nosnippet>1035</a>    }
+<a href=#1036 id=1036 data-nosnippet>1036</a>
+<a href=#1037 id=1037 data-nosnippet>1037</a>    <span class="doccomment">/// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,
+<a href=#1038 id=1038 data-nosnippet>1038</a>    /// and stores the result in `output`.
+<a href=#1039 id=1039 data-nosnippet>1039</a>    ///
+<a href=#1040 id=1040 data-nosnippet>1040</a>    /// # Example
 <a href=#1041 id=1041 data-nosnippet>1041</a>    ///
-<a href=#1042 id=1042 data-nosnippet>1042</a>    ///     // Pass invalid zero message hash
-<a href=#1043 id=1043 data-nosnippet>1043</a>    ///     let failed_result = self.env().ecdsa_recover(&amp;signature, &amp;[0; 32]);
-<a href=#1044 id=1044 data-nosnippet>1044</a>    ///     assert!(failed_result.is_err());
-<a href=#1045 id=1045 data-nosnippet>1045</a>    ///     if let Err(e) = failed_result {
-<a href=#1046 id=1046 data-nosnippet>1046</a>    ///         assert_eq!(e, ink::env::ReturnErrorCode::EcdsaRecoveryFailed.into());
-<a href=#1047 id=1047 data-nosnippet>1047</a>    ///     }
-<a href=#1048 id=1048 data-nosnippet>1048</a>    /// }
-<a href=#1049 id=1049 data-nosnippet>1049</a>    /// #
-<a href=#1050 id=1050 data-nosnippet>1050</a>    /// #     }
-<a href=#1051 id=1051 data-nosnippet>1051</a>    /// # }
-<a href=#1052 id=1052 data-nosnippet>1052</a>    /// ```
-<a href=#1053 id=1053 data-nosnippet>1053</a>    </span><span class="kw">pub fn </span>ecdsa_recover(
-<a href=#1054 id=1054 data-nosnippet>1054</a>        <span class="self">self</span>,
-<a href=#1055 id=1055 data-nosnippet>1055</a>        signature: <span class="kw-2">&amp;</span>[u8; <span class="number">65</span>],
-<a href=#1056 id=1056 data-nosnippet>1056</a>        message_hash: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>],
-<a href=#1057 id=1057 data-nosnippet>1057</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;[u8; <span class="number">33</span>]&gt; {
-<a href=#1058 id=1058 data-nosnippet>1058</a>        <span class="kw">let </span><span class="kw-2">mut </span>output = [<span class="number">0</span>; <span class="number">33</span>];
-<a href=#1059 id=1059 data-nosnippet>1059</a>        ink_env::ecdsa_recover(signature, message_hash, <span class="kw-2">&amp;mut </span>output)
-<a href=#1060 id=1060 data-nosnippet>1060</a>            .map(|<span class="kw">_</span>| output)
-<a href=#1061 id=1061 data-nosnippet>1061</a>            .map_err(|<span class="kw">_</span>| ReturnErrorCode::EcdsaRecoveryFailed.into())
-<a href=#1062 id=1062 data-nosnippet>1062</a>    }
-<a href=#1063 id=1063 data-nosnippet>1063</a>
-<a href=#1064 id=1064 data-nosnippet>1064</a>    <span class="doccomment">/// Returns an Ethereum address from the ECDSA compressed public key.
-<a href=#1065 id=1065 data-nosnippet>1065</a>    ///
-<a href=#1066 id=1066 data-nosnippet>1066</a>    /// # Example
-<a href=#1067 id=1067 data-nosnippet>1067</a>    ///
-<a href=#1068 id=1068 data-nosnippet>1068</a>    /// ```
-<a href=#1069 id=1069 data-nosnippet>1069</a>    /// # #[ink::contract]
-<a href=#1070 id=1070 data-nosnippet>1070</a>    /// # pub mod my_contract {
-<a href=#1071 id=1071 data-nosnippet>1071</a>    /// #     #[ink(storage)]
-<a href=#1072 id=1072 data-nosnippet>1072</a>    /// #     pub struct MyContract { }
-<a href=#1073 id=1073 data-nosnippet>1073</a>    /// #
-<a href=#1074 id=1074 data-nosnippet>1074</a>    /// #     impl MyContract {
-<a href=#1075 id=1075 data-nosnippet>1075</a>    /// #         #[ink(constructor)]
-<a href=#1076 id=1076 data-nosnippet>1076</a>    /// #         pub fn new() -&gt; Self {
-<a href=#1077 id=1077 data-nosnippet>1077</a>    /// #             Self {}
-<a href=#1078 id=1078 data-nosnippet>1078</a>    /// #         }
-<a href=#1079 id=1079 data-nosnippet>1079</a>    /// #
-<a href=#1080 id=1080 data-nosnippet>1080</a>    /// #[ink(message)]
-<a href=#1081 id=1081 data-nosnippet>1081</a>    /// pub fn ecdsa_to_eth_address(&amp;self) {
-<a href=#1082 id=1082 data-nosnippet>1082</a>    ///     let pub_key = [
-<a href=#1083 id=1083 data-nosnippet>1083</a>    ///         3, 110, 192, 35, 209, 24, 189, 55, 218, 250, 100, 89, 40, 76, 222, 208, 202,
-<a href=#1084 id=1084 data-nosnippet>1084</a>    ///         127, 31, 13, 58, 51, 242, 179, 13, 63, 19, 22, 252, 164, 226, 248, 98,
-<a href=#1085 id=1085 data-nosnippet>1085</a>    ///     ];
-<a href=#1086 id=1086 data-nosnippet>1086</a>    ///     let EXPECTED_ETH_ADDRESS = [
-<a href=#1087 id=1087 data-nosnippet>1087</a>    ///         253, 240, 181, 194, 143, 66, 163, 109, 18, 211, 78, 49, 177, 94, 159, 79,
-<a href=#1088 id=1088 data-nosnippet>1088</a>    ///         207, 37, 21, 191,
-<a href=#1089 id=1089 data-nosnippet>1089</a>    ///     ];
-<a href=#1090 id=1090 data-nosnippet>1090</a>    ///     let output = self
-<a href=#1091 id=1091 data-nosnippet>1091</a>    ///         .env()
-<a href=#1092 id=1092 data-nosnippet>1092</a>    ///         .ecdsa_to_eth_address(&amp;pub_key)
-<a href=#1093 id=1093 data-nosnippet>1093</a>    ///         .unwrap_or_else(|err| {
-<a href=#1094 id=1094 data-nosnippet>1094</a>    ///             panic!(
-<a href=#1095 id=1095 data-nosnippet>1095</a>    ///                 "must return an Ethereum address for the compressed public key: {:?}",
-<a href=#1096 id=1096 data-nosnippet>1096</a>    ///                 err
-<a href=#1097 id=1097 data-nosnippet>1097</a>    ///             )
-<a href=#1098 id=1098 data-nosnippet>1098</a>    ///         });
-<a href=#1099 id=1099 data-nosnippet>1099</a>    ///     assert_eq!(output, EXPECTED_ETH_ADDRESS);
-<a href=#1100 id=1100 data-nosnippet>1100</a>    /// }
-<a href=#1101 id=1101 data-nosnippet>1101</a>    /// #
-<a href=#1102 id=1102 data-nosnippet>1102</a>    /// #     }
-<a href=#1103 id=1103 data-nosnippet>1103</a>    /// # }
+<a href=#1042 id=1042 data-nosnippet>1042</a>    /// ```
+<a href=#1043 id=1043 data-nosnippet>1043</a>    /// # #[ink::contract]
+<a href=#1044 id=1044 data-nosnippet>1044</a>    /// # pub mod my_contract {
+<a href=#1045 id=1045 data-nosnippet>1045</a>    /// #     #[ink(storage)]
+<a href=#1046 id=1046 data-nosnippet>1046</a>    /// #     pub struct MyContract { }
+<a href=#1047 id=1047 data-nosnippet>1047</a>    /// #
+<a href=#1048 id=1048 data-nosnippet>1048</a>    /// #     impl MyContract {
+<a href=#1049 id=1049 data-nosnippet>1049</a>    /// #         #[ink(constructor)]
+<a href=#1050 id=1050 data-nosnippet>1050</a>    /// #         pub fn new() -&gt; Self {
+<a href=#1051 id=1051 data-nosnippet>1051</a>    /// #             Self {}
+<a href=#1052 id=1052 data-nosnippet>1052</a>    /// #         }
+<a href=#1053 id=1053 data-nosnippet>1053</a>    /// #
+<a href=#1054 id=1054 data-nosnippet>1054</a>    /// /// Recovery from pre-defined signature and message hash
+<a href=#1055 id=1055 data-nosnippet>1055</a>    /// #[ink(message)]
+<a href=#1056 id=1056 data-nosnippet>1056</a>    /// pub fn ecdsa_recover(&amp;self) {
+<a href=#1057 id=1057 data-nosnippet>1057</a>    ///     const signature: [u8; 65] = [
+<a href=#1058 id=1058 data-nosnippet>1058</a>    ///         195, 218, 227, 165, 226, 17, 25, 160, 37, 92, 142, 238, 4, 41, 244, 211, 18,
+<a href=#1059 id=1059 data-nosnippet>1059</a>    ///         94, 131, 116, 231, 116, 255, 164, 252, 248, 85, 233, 173, 225, 26, 185, 119,
+<a href=#1060 id=1060 data-nosnippet>1060</a>    ///         235, 137, 35, 204, 251, 134, 131, 186, 215, 76, 112, 17, 192, 114, 243, 102,
+<a href=#1061 id=1061 data-nosnippet>1061</a>    ///         166, 176, 140, 180, 124, 213, 102, 117, 212, 89, 89, 92, 209, 116, 17, 28,
+<a href=#1062 id=1062 data-nosnippet>1062</a>    ///     ];
+<a href=#1063 id=1063 data-nosnippet>1063</a>    ///     const message_hash: [u8; 32] = [
+<a href=#1064 id=1064 data-nosnippet>1064</a>    ///         167, 124, 116, 195, 220, 156, 244, 20, 243, 69, 1, 98, 189, 205, 79, 108,
+<a href=#1065 id=1065 data-nosnippet>1065</a>    ///         213, 78, 65, 65, 230, 30, 17, 37, 184, 220, 237, 135, 1, 209, 101, 229,
+<a href=#1066 id=1066 data-nosnippet>1066</a>    ///     ];
+<a href=#1067 id=1067 data-nosnippet>1067</a>    ///     const EXPECTED_COMPRESSED_PUBLIC_KEY: [u8; 33] = [
+<a href=#1068 id=1068 data-nosnippet>1068</a>    ///         3, 110, 192, 35, 209, 24, 189, 55, 218, 250, 100, 89, 40, 76, 222, 208, 202,
+<a href=#1069 id=1069 data-nosnippet>1069</a>    ///         127, 31, 13, 58, 51, 242, 179, 13, 63, 19, 22, 252, 164, 226, 248, 98,
+<a href=#1070 id=1070 data-nosnippet>1070</a>    ///     ];
+<a href=#1071 id=1071 data-nosnippet>1071</a>    ///     let result = self.env().ecdsa_recover(&amp;signature, &amp;message_hash);
+<a href=#1072 id=1072 data-nosnippet>1072</a>    ///     assert!(result.is_ok());
+<a href=#1073 id=1073 data-nosnippet>1073</a>    ///     assert_eq!(
+<a href=#1074 id=1074 data-nosnippet>1074</a>    ///         result.unwrap().as_ref(),
+<a href=#1075 id=1075 data-nosnippet>1075</a>    ///         EXPECTED_COMPRESSED_PUBLIC_KEY.as_ref()
+<a href=#1076 id=1076 data-nosnippet>1076</a>    ///     );
+<a href=#1077 id=1077 data-nosnippet>1077</a>    ///
+<a href=#1078 id=1078 data-nosnippet>1078</a>    ///     // Pass invalid zero message hash
+<a href=#1079 id=1079 data-nosnippet>1079</a>    ///     let failed_result = self.env().ecdsa_recover(&amp;signature, &amp;[0; 32]);
+<a href=#1080 id=1080 data-nosnippet>1080</a>    ///     assert!(failed_result.is_err());
+<a href=#1081 id=1081 data-nosnippet>1081</a>    ///     if let Err(e) = failed_result {
+<a href=#1082 id=1082 data-nosnippet>1082</a>    ///         assert_eq!(e, ink::env::ReturnErrorCode::EcdsaRecoveryFailed.into());
+<a href=#1083 id=1083 data-nosnippet>1083</a>    ///     }
+<a href=#1084 id=1084 data-nosnippet>1084</a>    /// }
+<a href=#1085 id=1085 data-nosnippet>1085</a>    /// #
+<a href=#1086 id=1086 data-nosnippet>1086</a>    /// #     }
+<a href=#1087 id=1087 data-nosnippet>1087</a>    /// # }
+<a href=#1088 id=1088 data-nosnippet>1088</a>    /// ```
+<a href=#1089 id=1089 data-nosnippet>1089</a>    </span><span class="kw">pub fn </span>ecdsa_recover(
+<a href=#1090 id=1090 data-nosnippet>1090</a>        <span class="self">self</span>,
+<a href=#1091 id=1091 data-nosnippet>1091</a>        signature: <span class="kw-2">&amp;</span>[u8; <span class="number">65</span>],
+<a href=#1092 id=1092 data-nosnippet>1092</a>        message_hash: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>],
+<a href=#1093 id=1093 data-nosnippet>1093</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;[u8; <span class="number">33</span>]&gt; {
+<a href=#1094 id=1094 data-nosnippet>1094</a>        <span class="kw">let </span><span class="kw-2">mut </span>output = [<span class="number">0</span>; <span class="number">33</span>];
+<a href=#1095 id=1095 data-nosnippet>1095</a>        ink_env::ecdsa_recover(signature, message_hash, <span class="kw-2">&amp;mut </span>output)
+<a href=#1096 id=1096 data-nosnippet>1096</a>            .map(|<span class="kw">_</span>| output)
+<a href=#1097 id=1097 data-nosnippet>1097</a>            .map_err(|<span class="kw">_</span>| ReturnErrorCode::EcdsaRecoveryFailed.into())
+<a href=#1098 id=1098 data-nosnippet>1098</a>    }
+<a href=#1099 id=1099 data-nosnippet>1099</a>
+<a href=#1100 id=1100 data-nosnippet>1100</a>    <span class="doccomment">/// Returns an Ethereum address from the ECDSA compressed public key.
+<a href=#1101 id=1101 data-nosnippet>1101</a>    ///
+<a href=#1102 id=1102 data-nosnippet>1102</a>    /// # Example
+<a href=#1103 id=1103 data-nosnippet>1103</a>    ///
 <a href=#1104 id=1104 data-nosnippet>1104</a>    /// ```
-<a href=#1105 id=1105 data-nosnippet>1105</a>    ///
-<a href=#1106 id=1106 data-nosnippet>1106</a>    /// # Note
-<a href=#1107 id=1107 data-nosnippet>1107</a>    ///
-<a href=#1108 id=1108 data-nosnippet>1108</a>    /// For more details visit: [`ink_env::ecdsa_to_eth_address`]
-<a href=#1109 id=1109 data-nosnippet>1109</a>    </span><span class="attr">#[cfg(feature = <span class="string">"unstable-hostfn"</span>)]
-<a href=#1110 id=1110 data-nosnippet>1110</a>    </span><span class="kw">pub fn </span>ecdsa_to_eth_address(<span class="self">self</span>, pubkey: <span class="kw-2">&amp;</span>[u8; <span class="number">33</span>]) -&gt; <span class="prelude-ty">Result</span>&lt;[u8; <span class="number">20</span>]&gt; {
-<a href=#1111 id=1111 data-nosnippet>1111</a>        <span class="kw">let </span><span class="kw-2">mut </span>output = [<span class="number">0</span>; <span class="number">20</span>];
-<a href=#1112 id=1112 data-nosnippet>1112</a>        ink_env::ecdsa_to_eth_address(pubkey, <span class="kw-2">&amp;mut </span>output)
-<a href=#1113 id=1113 data-nosnippet>1113</a>            .map(|<span class="kw">_</span>| output)
-<a href=#1114 id=1114 data-nosnippet>1114</a>            .map_err(|<span class="kw">_</span>| ReturnErrorCode::EcdsaRecoveryFailed.into())
-<a href=#1115 id=1115 data-nosnippet>1115</a>    }
-<a href=#1116 id=1116 data-nosnippet>1116</a>
-<a href=#1117 id=1117 data-nosnippet>1117</a>    <span class="doccomment">/// Verifies a SR25519 signature against a message and a public key.
-<a href=#1118 id=1118 data-nosnippet>1118</a>    ///
-<a href=#1119 id=1119 data-nosnippet>1119</a>    /// # Example
-<a href=#1120 id=1120 data-nosnippet>1120</a>    ///
-<a href=#1121 id=1121 data-nosnippet>1121</a>    /// ```
-<a href=#1122 id=1122 data-nosnippet>1122</a>    /// # #[ink::contract]
-<a href=#1123 id=1123 data-nosnippet>1123</a>    /// # pub mod my_contract {
-<a href=#1124 id=1124 data-nosnippet>1124</a>    /// #     #[ink(storage)]
-<a href=#1125 id=1125 data-nosnippet>1125</a>    /// #     pub struct MyContract { }
-<a href=#1126 id=1126 data-nosnippet>1126</a>    /// #
-<a href=#1127 id=1127 data-nosnippet>1127</a>    /// #     impl MyContract {
-<a href=#1128 id=1128 data-nosnippet>1128</a>    /// #         #[ink(constructor)]
-<a href=#1129 id=1129 data-nosnippet>1129</a>    /// #         pub fn new() -&gt; Self {
-<a href=#1130 id=1130 data-nosnippet>1130</a>    /// #             Self {}
-<a href=#1131 id=1131 data-nosnippet>1131</a>    /// #         }
-<a href=#1132 id=1132 data-nosnippet>1132</a>    /// #
-<a href=#1133 id=1133 data-nosnippet>1133</a>    /// #[ink(message)]
-<a href=#1134 id=1134 data-nosnippet>1134</a>    /// pub fn sr25519_verify(&amp;self) {
-<a href=#1135 id=1135 data-nosnippet>1135</a>    ///     let mut signature: [u8; 64] = [
-<a href=#1136 id=1136 data-nosnippet>1136</a>    ///         10, 125, 162, 182, 49, 112, 76, 220, 254, 147, 199, 64, 228, 18, 23, 185,
-<a href=#1137 id=1137 data-nosnippet>1137</a>    ///         172, 102, 122, 12, 135, 85, 216, 218, 26, 130, 50, 219, 82, 127, 72, 124,
-<a href=#1138 id=1138 data-nosnippet>1138</a>    ///         135, 231, 128, 210, 237, 193, 137, 106, 235, 107, 27, 239, 11, 199, 195, 141,
-<a href=#1139 id=1139 data-nosnippet>1139</a>    ///         157, 242, 19, 91, 99, 62, 171, 139, 251, 23, 119, 232, 47, 173, 58, 143,
-<a href=#1140 id=1140 data-nosnippet>1140</a>    ///     ];
-<a href=#1141 id=1141 data-nosnippet>1141</a>    ///     let mut message: [u8; 49] = [
-<a href=#1142 id=1142 data-nosnippet>1142</a>    ///         60, 66, 121, 116, 101, 115, 62, 48, 120, 52, 54, 102, 98, 55, 52, 48, 56,
-<a href=#1143 id=1143 data-nosnippet>1143</a>    ///         100, 52, 102, 50, 56, 53, 50, 50, 56, 102, 52, 97, 102, 53, 49, 54, 101, 97,
-<a href=#1144 id=1144 data-nosnippet>1144</a>    ///         50, 53, 56, 53, 49, 98, 60, 47, 66, 121, 116, 101, 115, 62,
-<a href=#1145 id=1145 data-nosnippet>1145</a>    ///     ];
-<a href=#1146 id=1146 data-nosnippet>1146</a>    ///     let mut public_key: [u8; 32] = [
-<a href=#1147 id=1147 data-nosnippet>1147</a>    ///         212, 53, 147, 199, 21, 253, 211, 28, 97, 20, 26, 189, 4, 169, 159, 214, 130,
-<a href=#1148 id=1148 data-nosnippet>1148</a>    ///         44, 133, 88, 133, 76, 205, 227, 154, 86, 132, 231, 165, 109, 162, 125,
-<a href=#1149 id=1149 data-nosnippet>1149</a>    ///     ];
-<a href=#1150 id=1150 data-nosnippet>1150</a>    ///     let result = ink::env::sr25519_verify(&amp;signature, &amp;message, &amp;public_key);
-<a href=#1151 id=1151 data-nosnippet>1151</a>    ///     assert_eq!(result, Ok(()));
-<a href=#1152 id=1152 data-nosnippet>1152</a>    /// }
-<a href=#1153 id=1153 data-nosnippet>1153</a>    /// #
-<a href=#1154 id=1154 data-nosnippet>1154</a>    /// #     }
-<a href=#1155 id=1155 data-nosnippet>1155</a>    /// # }
-<a href=#1156 id=1156 data-nosnippet>1156</a>    /// ```
-<a href=#1157 id=1157 data-nosnippet>1157</a>    ///
-<a href=#1158 id=1158 data-nosnippet>1158</a>    /// # Note
-<a href=#1159 id=1159 data-nosnippet>1159</a>    ///
-<a href=#1160 id=1160 data-nosnippet>1160</a>    /// The context for sr25519 signing is hard-coded to "substrate" to match sr25519
-<a href=#1161 id=1161 data-nosnippet>1161</a>    /// signing in substrate.
-<a href=#1162 id=1162 data-nosnippet>1162</a>    ///
-<a href=#1163 id=1163 data-nosnippet>1163</a>    /// For more details visit: [`ink_env::sr25519_verify`]
-<a href=#1164 id=1164 data-nosnippet>1164</a>    ///
-<a href=#1165 id=1165 data-nosnippet>1165</a>    /// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/polkadot-sdk/tree/master/substrate/frame/revive#unstable-interfaces),
-<a href=#1166 id=1166 data-nosnippet>1166</a>    /// which is unsafe and normally is not available on production chains.
-<a href=#1167 id=1167 data-nosnippet>1167</a>    </span><span class="attr">#[cfg(feature = <span class="string">"unstable-hostfn"</span>)]
-<a href=#1168 id=1168 data-nosnippet>1168</a>    </span><span class="kw">pub fn </span>sr25519_verify(
-<a href=#1169 id=1169 data-nosnippet>1169</a>        <span class="self">self</span>,
-<a href=#1170 id=1170 data-nosnippet>1170</a>        signature: <span class="kw-2">&amp;</span>[u8; <span class="number">64</span>],
-<a href=#1171 id=1171 data-nosnippet>1171</a>        message: <span class="kw-2">&amp;</span>[u8],
-<a href=#1172 id=1172 data-nosnippet>1172</a>        pub_key: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>],
-<a href=#1173 id=1173 data-nosnippet>1173</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-<a href=#1174 id=1174 data-nosnippet>1174</a>        ink_env::sr25519_verify(signature, message, pub_key)
-<a href=#1175 id=1175 data-nosnippet>1175</a>            .map_err(|<span class="kw">_</span>| ReturnErrorCode::Sr25519VerifyFailed.into())
-<a href=#1176 id=1176 data-nosnippet>1176</a>    }
-<a href=#1177 id=1177 data-nosnippet>1177</a>
-<a href=#1178 id=1178 data-nosnippet>1178</a>    <span class="doccomment">/// Checks whether `addr` is a contract.
-<a href=#1179 id=1179 data-nosnippet>1179</a>    ///
-<a href=#1180 id=1180 data-nosnippet>1180</a>    /// # Notes
-<a href=#1181 id=1181 data-nosnippet>1181</a>    ///
-<a href=#1182 id=1182 data-nosnippet>1182</a>    /// If `addr` references a precompile address, the return value will be `true`.
-<a href=#1183 id=1183 data-nosnippet>1183</a>    ///
-<a href=#1184 id=1184 data-nosnippet>1184</a>    /// The function [`Self::caller_is_origin`] performs better when checking whether your
-<a href=#1185 id=1185 data-nosnippet>1185</a>    /// contract is being called by a contract or an account. It performs better
-<a href=#1186 id=1186 data-nosnippet>1186</a>    /// for this case as it does not require any storage lookups.
-<a href=#1187 id=1187 data-nosnippet>1187</a>    ///
-<a href=#1188 id=1188 data-nosnippet>1188</a>    /// # Example
-<a href=#1189 id=1189 data-nosnippet>1189</a>    ///
-<a href=#1190 id=1190 data-nosnippet>1190</a>    /// ```
-<a href=#1191 id=1191 data-nosnippet>1191</a>    /// # #[ink::contract]
-<a href=#1192 id=1192 data-nosnippet>1192</a>    /// # pub mod my_contract {
-<a href=#1193 id=1193 data-nosnippet>1193</a>    /// #     #[ink(storage)]
-<a href=#1194 id=1194 data-nosnippet>1194</a>    /// #     pub struct MyContract { }
-<a href=#1195 id=1195 data-nosnippet>1195</a>    /// #
-<a href=#1196 id=1196 data-nosnippet>1196</a>    /// #     impl MyContract {
-<a href=#1197 id=1197 data-nosnippet>1197</a>    /// #         #[ink(constructor)]
-<a href=#1198 id=1198 data-nosnippet>1198</a>    /// #         pub fn new() -&gt; Self {
-<a href=#1199 id=1199 data-nosnippet>1199</a>    /// #             Self {}
-<a href=#1200 id=1200 data-nosnippet>1200</a>    /// #         }
-<a href=#1201 id=1201 data-nosnippet>1201</a>    /// #
-<a href=#1202 id=1202 data-nosnippet>1202</a>    /// #[ink(message)]
-<a href=#1203 id=1203 data-nosnippet>1203</a>    /// pub fn is_contract(&amp;mut self, addr: ink::Address) -&gt; bool {
-<a href=#1204 id=1204 data-nosnippet>1204</a>    ///     self.env().is_contract(&amp;addr)
-<a href=#1205 id=1205 data-nosnippet>1205</a>    /// }
-<a href=#1206 id=1206 data-nosnippet>1206</a>    ///
-<a href=#1207 id=1207 data-nosnippet>1207</a>    /// #[ink(message)]
-<a href=#1208 id=1208 data-nosnippet>1208</a>    /// pub fn check(&amp;mut self) {
-<a href=#1209 id=1209 data-nosnippet>1209</a>    ///     let this_contract = self.env().address();
-<a href=#1210 id=1210 data-nosnippet>1210</a>    ///     assert!(self.env().is_contract(&amp;this_contract));
-<a href=#1211 id=1211 data-nosnippet>1211</a>    ///     assert!(!self.env().is_contract(&amp;self.env().caller()));
-<a href=#1212 id=1212 data-nosnippet>1212</a>    /// }
-<a href=#1213 id=1213 data-nosnippet>1213</a>    /// #    }
-<a href=#1214 id=1214 data-nosnippet>1214</a>    /// # }
-<a href=#1215 id=1215 data-nosnippet>1215</a>    /// ```
-<a href=#1216 id=1216 data-nosnippet>1216</a>    ///
-<a href=#1217 id=1217 data-nosnippet>1217</a>    /// # Note
-<a href=#1218 id=1218 data-nosnippet>1218</a>    ///
-<a href=#1219 id=1219 data-nosnippet>1219</a>    /// For more details visit: [`ink_env::is_contract`]
-<a href=#1220 id=1220 data-nosnippet>1220</a>    </span><span class="kw">pub fn </span>is_contract(<span class="self">self</span>, addr: <span class="kw-2">&amp;</span>Address) -&gt; bool {
-<a href=#1221 id=1221 data-nosnippet>1221</a>        ink_env::is_contract(addr)
-<a href=#1222 id=1222 data-nosnippet>1222</a>    }
-<a href=#1223 id=1223 data-nosnippet>1223</a>
-<a href=#1224 id=1224 data-nosnippet>1224</a>    <span class="doccomment">/// Checks whether the caller of the current contract is the origin of the whole call
-<a href=#1225 id=1225 data-nosnippet>1225</a>    /// stack.
-<a href=#1226 id=1226 data-nosnippet>1226</a>    ///
-<a href=#1227 id=1227 data-nosnippet>1227</a>    /// # Example
-<a href=#1228 id=1228 data-nosnippet>1228</a>    ///
-<a href=#1229 id=1229 data-nosnippet>1229</a>    /// ```
-<a href=#1230 id=1230 data-nosnippet>1230</a>    /// # #[ink::contract]
-<a href=#1231 id=1231 data-nosnippet>1231</a>    /// # pub mod my_contract {
-<a href=#1232 id=1232 data-nosnippet>1232</a>    /// #     #[ink(storage)]
-<a href=#1233 id=1233 data-nosnippet>1233</a>    /// #     pub struct MyContract { }
-<a href=#1234 id=1234 data-nosnippet>1234</a>    /// #
-<a href=#1235 id=1235 data-nosnippet>1235</a>    /// #     impl MyContract {
-<a href=#1236 id=1236 data-nosnippet>1236</a>    /// #         #[ink(constructor)]
-<a href=#1237 id=1237 data-nosnippet>1237</a>    /// #         pub fn new() -&gt; Self {
-<a href=#1238 id=1238 data-nosnippet>1238</a>    /// #             Self {}
-<a href=#1239 id=1239 data-nosnippet>1239</a>    /// #         }
-<a href=#1240 id=1240 data-nosnippet>1240</a>    /// #
-<a href=#1241 id=1241 data-nosnippet>1241</a>    /// #[ink(message)]
-<a href=#1242 id=1242 data-nosnippet>1242</a>    /// pub fn caller_is_origin(&amp;mut self) -&gt; bool {
-<a href=#1243 id=1243 data-nosnippet>1243</a>    ///     self.env().caller_is_origin()
-<a href=#1244 id=1244 data-nosnippet>1244</a>    /// }
-<a href=#1245 id=1245 data-nosnippet>1245</a>    /// #    }
-<a href=#1246 id=1246 data-nosnippet>1246</a>    /// # }
-<a href=#1247 id=1247 data-nosnippet>1247</a>    /// ```
-<a href=#1248 id=1248 data-nosnippet>1248</a>    ///
-<a href=#1249 id=1249 data-nosnippet>1249</a>    /// # Note
-<a href=#1250 id=1250 data-nosnippet>1250</a>    ///
-<a href=#1251 id=1251 data-nosnippet>1251</a>    /// For more details visit: [`ink_env::caller_is_origin`]
-<a href=#1252 id=1252 data-nosnippet>1252</a>    </span><span class="kw">pub fn </span>caller_is_origin(<span class="self">self</span>) -&gt; bool {
-<a href=#1253 id=1253 data-nosnippet>1253</a>        ink_env::caller_is_origin()
-<a href=#1254 id=1254 data-nosnippet>1254</a>    }
-<a href=#1255 id=1255 data-nosnippet>1255</a>
-<a href=#1256 id=1256 data-nosnippet>1256</a>    <span class="doccomment">/// Checks whether the caller of the current contract is root.
-<a href=#1257 id=1257 data-nosnippet>1257</a>    ///
-<a href=#1258 id=1258 data-nosnippet>1258</a>    /// # Example
-<a href=#1259 id=1259 data-nosnippet>1259</a>    ///
-<a href=#1260 id=1260 data-nosnippet>1260</a>    /// ```
-<a href=#1261 id=1261 data-nosnippet>1261</a>    /// # #[ink::contract]
-<a href=#1262 id=1262 data-nosnippet>1262</a>    /// # pub mod my_contract {
-<a href=#1263 id=1263 data-nosnippet>1263</a>    /// #     #[ink(storage)]
-<a href=#1264 id=1264 data-nosnippet>1264</a>    /// #     pub struct MyContract { }
-<a href=#1265 id=1265 data-nosnippet>1265</a>    /// #
-<a href=#1266 id=1266 data-nosnippet>1266</a>    /// #     impl MyContract {
-<a href=#1267 id=1267 data-nosnippet>1267</a>    /// #         #[ink(constructor)]
-<a href=#1268 id=1268 data-nosnippet>1268</a>    /// #         pub fn new() -&gt; Self {
-<a href=#1269 id=1269 data-nosnippet>1269</a>    /// #             Self {}
-<a href=#1270 id=1270 data-nosnippet>1270</a>    /// #         }
-<a href=#1271 id=1271 data-nosnippet>1271</a>    /// #
-<a href=#1272 id=1272 data-nosnippet>1272</a>    /// #[ink(message)]
-<a href=#1273 id=1273 data-nosnippet>1273</a>    /// pub fn caller_is_root(&amp;mut self) -&gt; bool {
-<a href=#1274 id=1274 data-nosnippet>1274</a>    ///     self.env().caller_is_root()
-<a href=#1275 id=1275 data-nosnippet>1275</a>    /// }
-<a href=#1276 id=1276 data-nosnippet>1276</a>    /// #    }
-<a href=#1277 id=1277 data-nosnippet>1277</a>    /// # }
-<a href=#1278 id=1278 data-nosnippet>1278</a>    /// ```
-<a href=#1279 id=1279 data-nosnippet>1279</a>    ///
-<a href=#1280 id=1280 data-nosnippet>1280</a>    /// # Note
-<a href=#1281 id=1281 data-nosnippet>1281</a>    ///
-<a href=#1282 id=1282 data-nosnippet>1282</a>    /// For more details visit: [`ink_env::caller_is_root`]
-<a href=#1283 id=1283 data-nosnippet>1283</a>    </span><span class="kw">pub fn </span>caller_is_root(<span class="self">self</span>) -&gt; bool {
-<a href=#1284 id=1284 data-nosnippet>1284</a>        ink_env::caller_is_root()
-<a href=#1285 id=1285 data-nosnippet>1285</a>    }
-<a href=#1286 id=1286 data-nosnippet>1286</a>
-<a href=#1287 id=1287 data-nosnippet>1287</a>    <span class="doccomment">/// Returns the code hash of the contract at the given `account` id.
-<a href=#1288 id=1288 data-nosnippet>1288</a>    ///
-<a href=#1289 id=1289 data-nosnippet>1289</a>    /// # Example
-<a href=#1290 id=1290 data-nosnippet>1290</a>    ///
-<a href=#1291 id=1291 data-nosnippet>1291</a>    /// ```
-<a href=#1292 id=1292 data-nosnippet>1292</a>    /// # #[ink::contract]
-<a href=#1293 id=1293 data-nosnippet>1293</a>    /// # pub mod my_contract {
-<a href=#1294 id=1294 data-nosnippet>1294</a>    /// #     #[ink(storage)]
-<a href=#1295 id=1295 data-nosnippet>1295</a>    /// #     pub struct MyContract { }
-<a href=#1296 id=1296 data-nosnippet>1296</a>    /// #
-<a href=#1297 id=1297 data-nosnippet>1297</a>    /// #     impl MyContract {
-<a href=#1298 id=1298 data-nosnippet>1298</a>    /// #         #[ink(constructor)]
-<a href=#1299 id=1299 data-nosnippet>1299</a>    /// #         pub fn new() -&gt; Self {
-<a href=#1300 id=1300 data-nosnippet>1300</a>    /// #             Self {}
-<a href=#1301 id=1301 data-nosnippet>1301</a>    /// #         }
-<a href=#1302 id=1302 data-nosnippet>1302</a>    /// #
-<a href=#1303 id=1303 data-nosnippet>1303</a>    /// #[ink(message)]
-<a href=#1304 id=1304 data-nosnippet>1304</a>    /// // todo
-<a href=#1305 id=1305 data-nosnippet>1305</a>    /// pub fn code_hash(&amp;mut self, addr: ink::Address) -&gt; Option&lt;ink::H256&gt; {
-<a href=#1306 id=1306 data-nosnippet>1306</a>    ///     self.env().code_hash(&amp;addr).ok()
-<a href=#1307 id=1307 data-nosnippet>1307</a>    /// }
-<a href=#1308 id=1308 data-nosnippet>1308</a>    /// #    }
-<a href=#1309 id=1309 data-nosnippet>1309</a>    /// # }
-<a href=#1310 id=1310 data-nosnippet>1310</a>    /// ```
-<a href=#1311 id=1311 data-nosnippet>1311</a>    ///
-<a href=#1312 id=1312 data-nosnippet>1312</a>    /// # Note
-<a href=#1313 id=1313 data-nosnippet>1313</a>    ///
-<a href=#1314 id=1314 data-nosnippet>1314</a>    /// For more details visit: [`ink_env::code_hash`]
-<a href=#1315 id=1315 data-nosnippet>1315</a>    </span><span class="kw">pub fn </span>code_hash(<span class="self">self</span>, addr: <span class="kw-2">&amp;</span>Address) -&gt; core::result::Result&lt;H256, CodeHashErr&gt; {
-<a href=#1316 id=1316 data-nosnippet>1316</a>        ink_env::code_hash(addr)
-<a href=#1317 id=1317 data-nosnippet>1317</a>    }
-<a href=#1318 id=1318 data-nosnippet>1318</a>
-<a href=#1319 id=1319 data-nosnippet>1319</a>    <span class="doccomment">/// Returns the code hash of the contract at the given `account` id.
-<a href=#1320 id=1320 data-nosnippet>1320</a>    ///
-<a href=#1321 id=1321 data-nosnippet>1321</a>    /// # Example
-<a href=#1322 id=1322 data-nosnippet>1322</a>    ///
-<a href=#1323 id=1323 data-nosnippet>1323</a>    /// ```
-<a href=#1324 id=1324 data-nosnippet>1324</a>    /// # #[ink::contract]
-<a href=#1325 id=1325 data-nosnippet>1325</a>    /// # pub mod my_contract {
-<a href=#1326 id=1326 data-nosnippet>1326</a>    /// #     #[ink(storage)]
-<a href=#1327 id=1327 data-nosnippet>1327</a>    /// #     pub struct MyContract { }
-<a href=#1328 id=1328 data-nosnippet>1328</a>    /// #
-<a href=#1329 id=1329 data-nosnippet>1329</a>    /// #     impl MyContract {
-<a href=#1330 id=1330 data-nosnippet>1330</a>    /// #         #[ink(constructor)]
-<a href=#1331 id=1331 data-nosnippet>1331</a>    /// #         pub fn new() -&gt; Self {
-<a href=#1332 id=1332 data-nosnippet>1332</a>    /// #             Self {}
-<a href=#1333 id=1333 data-nosnippet>1333</a>    /// #         }
-<a href=#1334 id=1334 data-nosnippet>1334</a>    /// #
-<a href=#1335 id=1335 data-nosnippet>1335</a>    /// #[ink(message)]
-<a href=#1336 id=1336 data-nosnippet>1336</a>    /// pub fn own_code_hash(&amp;mut self) -&gt; ink::H256 {
-<a href=#1337 id=1337 data-nosnippet>1337</a>    ///     self.env().own_code_hash()
-<a href=#1338 id=1338 data-nosnippet>1338</a>    /// }
-<a href=#1339 id=1339 data-nosnippet>1339</a>    /// #    }
-<a href=#1340 id=1340 data-nosnippet>1340</a>    /// # }
-<a href=#1341 id=1341 data-nosnippet>1341</a>    /// ```
-<a href=#1342 id=1342 data-nosnippet>1342</a>    ///
-<a href=#1343 id=1343 data-nosnippet>1343</a>    /// # Note
-<a href=#1344 id=1344 data-nosnippet>1344</a>    ///
-<a href=#1345 id=1345 data-nosnippet>1345</a>    /// For more details visit: [`ink_env::own_code_hash`]
-<a href=#1346 id=1346 data-nosnippet>1346</a>    </span><span class="kw">pub fn </span>own_code_hash(<span class="self">self</span>) -&gt; H256 {
-<a href=#1347 id=1347 data-nosnippet>1347</a>        ink_env::own_code_hash()
-<a href=#1348 id=1348 data-nosnippet>1348</a>    }
-<a href=#1349 id=1349 data-nosnippet>1349</a>
-<a href=#1350 id=1350 data-nosnippet>1350</a>    <span class="doccomment">/// Replace the contract code at the specified address with new code.
-<a href=#1351 id=1351 data-nosnippet>1351</a>    ///
-<a href=#1352 id=1352 data-nosnippet>1352</a>    /// # Example
-<a href=#1353 id=1353 data-nosnippet>1353</a>    ///
-<a href=#1354 id=1354 data-nosnippet>1354</a>    /// ```
-<a href=#1355 id=1355 data-nosnippet>1355</a>    /// # #[ink::contract]
-<a href=#1356 id=1356 data-nosnippet>1356</a>    /// # pub mod my_contract {
-<a href=#1357 id=1357 data-nosnippet>1357</a>    /// #     #[ink(storage)]
-<a href=#1358 id=1358 data-nosnippet>1358</a>    /// #     pub struct MyContract { }
-<a href=#1359 id=1359 data-nosnippet>1359</a>    /// #
-<a href=#1360 id=1360 data-nosnippet>1360</a>    /// #     impl MyContract {
-<a href=#1361 id=1361 data-nosnippet>1361</a>    /// #         #[ink(constructor)]
-<a href=#1362 id=1362 data-nosnippet>1362</a>    /// #         pub fn new() -&gt; Self {
-<a href=#1363 id=1363 data-nosnippet>1363</a>    /// #             Self {}
-<a href=#1364 id=1364 data-nosnippet>1364</a>    /// #         }
-<a href=#1365 id=1365 data-nosnippet>1365</a>    /// #
-<a href=#1366 id=1366 data-nosnippet>1366</a>    /// #[ink(message)]
-<a href=#1367 id=1367 data-nosnippet>1367</a>    /// pub fn set_code_hash(&amp;mut self, code_hash: ink::H256) {
-<a href=#1368 id=1368 data-nosnippet>1368</a>    ///     self.env()
-<a href=#1369 id=1369 data-nosnippet>1369</a>    ///         .set_code_hash(&amp;code_hash)
-<a href=#1370 id=1370 data-nosnippet>1370</a>    ///         .unwrap_or_else(|err| panic!("failed to set code hash: {:?}", err))
-<a href=#1371 id=1371 data-nosnippet>1371</a>    /// }
-<a href=#1372 id=1372 data-nosnippet>1372</a>    /// #    }
-<a href=#1373 id=1373 data-nosnippet>1373</a>    /// # }
-<a href=#1374 id=1374 data-nosnippet>1374</a>    /// ```
-<a href=#1375 id=1375 data-nosnippet>1375</a>    ///
-<a href=#1376 id=1376 data-nosnippet>1376</a>    /// # Note
-<a href=#1377 id=1377 data-nosnippet>1377</a>    ///
-<a href=#1378 id=1378 data-nosnippet>1378</a>    /// For more details visit: [`ink_env::set_code_hash`]
-<a href=#1379 id=1379 data-nosnippet>1379</a>    </span><span class="attr">#[cfg(feature = <span class="string">"unstable-hostfn"</span>)]
-<a href=#1380 id=1380 data-nosnippet>1380</a>    </span><span class="kw">pub fn </span>set_code_hash(<span class="self">self</span>, code_hash: <span class="kw-2">&amp;</span>H256) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-<a href=#1381 id=1381 data-nosnippet>1381</a>        ink_env::set_code_hash::&lt;E&gt;(code_hash)
-<a href=#1382 id=1382 data-nosnippet>1382</a>    }
-<a href=#1383 id=1383 data-nosnippet>1383</a>
-<a href=#1384 id=1384 data-nosnippet>1384</a>    <span class="attr">#[cfg(feature = <span class="string">"xcm"</span>)]
-<a href=#1385 id=1385 data-nosnippet>1385</a>    </span><span class="kw">pub fn </span>xcm_weigh&lt;Call: scale::Encode&gt;(
-<a href=#1386 id=1386 data-nosnippet>1386</a>        <span class="self">self</span>,
-<a href=#1387 id=1387 data-nosnippet>1387</a>        msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;,
-<a href=#1388 id=1388 data-nosnippet>1388</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;Weight&gt; {
-<a href=#1389 id=1389 data-nosnippet>1389</a>        ink_env::xcm_weigh(msg)
-<a href=#1390 id=1390 data-nosnippet>1390</a>    }
-<a href=#1391 id=1391 data-nosnippet>1391</a>
-<a href=#1392 id=1392 data-nosnippet>1392</a>    <span class="attr">#[cfg(feature = <span class="string">"xcm"</span>)]
-<a href=#1393 id=1393 data-nosnippet>1393</a>    </span><span class="kw">pub fn </span>xcm_execute&lt;Call: scale::Encode&gt;(
-<a href=#1394 id=1394 data-nosnippet>1394</a>        <span class="self">self</span>,
-<a href=#1395 id=1395 data-nosnippet>1395</a>        msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;,
-<a href=#1396 id=1396 data-nosnippet>1396</a>        weight: Weight,
-<a href=#1397 id=1397 data-nosnippet>1397</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-<a href=#1398 id=1398 data-nosnippet>1398</a>        ink_env::xcm_execute(msg, weight)
-<a href=#1399 id=1399 data-nosnippet>1399</a>    }
-<a href=#1400 id=1400 data-nosnippet>1400</a>
-<a href=#1401 id=1401 data-nosnippet>1401</a>    <span class="attr">#[cfg(feature = <span class="string">"xcm"</span>)]
-<a href=#1402 id=1402 data-nosnippet>1402</a>    </span><span class="kw">pub fn </span>xcm_send&lt;Call: scale::Encode&gt;(
-<a href=#1403 id=1403 data-nosnippet>1403</a>        <span class="self">self</span>,
-<a href=#1404 id=1404 data-nosnippet>1404</a>        dest: <span class="kw-2">&amp;</span>xcm::VersionedLocation,
-<a href=#1405 id=1405 data-nosnippet>1405</a>        msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;,
-<a href=#1406 id=1406 data-nosnippet>1406</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-<a href=#1407 id=1407 data-nosnippet>1407</a>        ink_env::xcm_send(dest, msg)
-<a href=#1408 id=1408 data-nosnippet>1408</a>    }
-<a href=#1409 id=1409 data-nosnippet>1409</a>}</code></pre></div></section></main></body></html>
+<a href=#1105 id=1105 data-nosnippet>1105</a>    /// # #[ink::contract]
+<a href=#1106 id=1106 data-nosnippet>1106</a>    /// # pub mod my_contract {
+<a href=#1107 id=1107 data-nosnippet>1107</a>    /// #     #[ink(storage)]
+<a href=#1108 id=1108 data-nosnippet>1108</a>    /// #     pub struct MyContract { }
+<a href=#1109 id=1109 data-nosnippet>1109</a>    /// #
+<a href=#1110 id=1110 data-nosnippet>1110</a>    /// #     impl MyContract {
+<a href=#1111 id=1111 data-nosnippet>1111</a>    /// #         #[ink(constructor)]
+<a href=#1112 id=1112 data-nosnippet>1112</a>    /// #         pub fn new() -&gt; Self {
+<a href=#1113 id=1113 data-nosnippet>1113</a>    /// #             Self {}
+<a href=#1114 id=1114 data-nosnippet>1114</a>    /// #         }
+<a href=#1115 id=1115 data-nosnippet>1115</a>    /// #
+<a href=#1116 id=1116 data-nosnippet>1116</a>    /// #[ink(message)]
+<a href=#1117 id=1117 data-nosnippet>1117</a>    /// pub fn ecdsa_to_eth_address(&amp;self) {
+<a href=#1118 id=1118 data-nosnippet>1118</a>    ///     let pub_key = [
+<a href=#1119 id=1119 data-nosnippet>1119</a>    ///         3, 110, 192, 35, 209, 24, 189, 55, 218, 250, 100, 89, 40, 76, 222, 208, 202,
+<a href=#1120 id=1120 data-nosnippet>1120</a>    ///         127, 31, 13, 58, 51, 242, 179, 13, 63, 19, 22, 252, 164, 226, 248, 98,
+<a href=#1121 id=1121 data-nosnippet>1121</a>    ///     ];
+<a href=#1122 id=1122 data-nosnippet>1122</a>    ///     let EXPECTED_ETH_ADDRESS = [
+<a href=#1123 id=1123 data-nosnippet>1123</a>    ///         253, 240, 181, 194, 143, 66, 163, 109, 18, 211, 78, 49, 177, 94, 159, 79,
+<a href=#1124 id=1124 data-nosnippet>1124</a>    ///         207, 37, 21, 191,
+<a href=#1125 id=1125 data-nosnippet>1125</a>    ///     ];
+<a href=#1126 id=1126 data-nosnippet>1126</a>    ///     let output = self
+<a href=#1127 id=1127 data-nosnippet>1127</a>    ///         .env()
+<a href=#1128 id=1128 data-nosnippet>1128</a>    ///         .ecdsa_to_eth_address(&amp;pub_key)
+<a href=#1129 id=1129 data-nosnippet>1129</a>    ///         .unwrap_or_else(|err| {
+<a href=#1130 id=1130 data-nosnippet>1130</a>    ///             panic!(
+<a href=#1131 id=1131 data-nosnippet>1131</a>    ///                 "must return an Ethereum address for the compressed public key: {:?}",
+<a href=#1132 id=1132 data-nosnippet>1132</a>    ///                 err
+<a href=#1133 id=1133 data-nosnippet>1133</a>    ///             )
+<a href=#1134 id=1134 data-nosnippet>1134</a>    ///         });
+<a href=#1135 id=1135 data-nosnippet>1135</a>    ///     assert_eq!(output, EXPECTED_ETH_ADDRESS);
+<a href=#1136 id=1136 data-nosnippet>1136</a>    /// }
+<a href=#1137 id=1137 data-nosnippet>1137</a>    /// #
+<a href=#1138 id=1138 data-nosnippet>1138</a>    /// #     }
+<a href=#1139 id=1139 data-nosnippet>1139</a>    /// # }
+<a href=#1140 id=1140 data-nosnippet>1140</a>    /// ```
+<a href=#1141 id=1141 data-nosnippet>1141</a>    ///
+<a href=#1142 id=1142 data-nosnippet>1142</a>    /// # Note
+<a href=#1143 id=1143 data-nosnippet>1143</a>    ///
+<a href=#1144 id=1144 data-nosnippet>1144</a>    /// For more details visit: [`ink_env::ecdsa_to_eth_address`]
+<a href=#1145 id=1145 data-nosnippet>1145</a>    </span><span class="attr">#[cfg(feature = <span class="string">"unstable-hostfn"</span>)]
+<a href=#1146 id=1146 data-nosnippet>1146</a>    </span><span class="kw">pub fn </span>ecdsa_to_eth_address(<span class="self">self</span>, pubkey: <span class="kw-2">&amp;</span>[u8; <span class="number">33</span>]) -&gt; <span class="prelude-ty">Result</span>&lt;[u8; <span class="number">20</span>]&gt; {
+<a href=#1147 id=1147 data-nosnippet>1147</a>        <span class="kw">let </span><span class="kw-2">mut </span>output = [<span class="number">0</span>; <span class="number">20</span>];
+<a href=#1148 id=1148 data-nosnippet>1148</a>        ink_env::ecdsa_to_eth_address(pubkey, <span class="kw-2">&amp;mut </span>output)
+<a href=#1149 id=1149 data-nosnippet>1149</a>            .map(|<span class="kw">_</span>| output)
+<a href=#1150 id=1150 data-nosnippet>1150</a>            .map_err(|<span class="kw">_</span>| ReturnErrorCode::EcdsaRecoveryFailed.into())
+<a href=#1151 id=1151 data-nosnippet>1151</a>    }
+<a href=#1152 id=1152 data-nosnippet>1152</a>
+<a href=#1153 id=1153 data-nosnippet>1153</a>    <span class="doccomment">/// Verifies a SR25519 signature against a message and a public key.
+<a href=#1154 id=1154 data-nosnippet>1154</a>    ///
+<a href=#1155 id=1155 data-nosnippet>1155</a>    /// # Example
+<a href=#1156 id=1156 data-nosnippet>1156</a>    ///
+<a href=#1157 id=1157 data-nosnippet>1157</a>    /// ```
+<a href=#1158 id=1158 data-nosnippet>1158</a>    /// # #[ink::contract]
+<a href=#1159 id=1159 data-nosnippet>1159</a>    /// # pub mod my_contract {
+<a href=#1160 id=1160 data-nosnippet>1160</a>    /// #     #[ink(storage)]
+<a href=#1161 id=1161 data-nosnippet>1161</a>    /// #     pub struct MyContract { }
+<a href=#1162 id=1162 data-nosnippet>1162</a>    /// #
+<a href=#1163 id=1163 data-nosnippet>1163</a>    /// #     impl MyContract {
+<a href=#1164 id=1164 data-nosnippet>1164</a>    /// #         #[ink(constructor)]
+<a href=#1165 id=1165 data-nosnippet>1165</a>    /// #         pub fn new() -&gt; Self {
+<a href=#1166 id=1166 data-nosnippet>1166</a>    /// #             Self {}
+<a href=#1167 id=1167 data-nosnippet>1167</a>    /// #         }
+<a href=#1168 id=1168 data-nosnippet>1168</a>    /// #
+<a href=#1169 id=1169 data-nosnippet>1169</a>    /// #[ink(message)]
+<a href=#1170 id=1170 data-nosnippet>1170</a>    /// pub fn sr25519_verify(&amp;self) {
+<a href=#1171 id=1171 data-nosnippet>1171</a>    ///     let mut signature: [u8; 64] = [
+<a href=#1172 id=1172 data-nosnippet>1172</a>    ///         10, 125, 162, 182, 49, 112, 76, 220, 254, 147, 199, 64, 228, 18, 23, 185,
+<a href=#1173 id=1173 data-nosnippet>1173</a>    ///         172, 102, 122, 12, 135, 85, 216, 218, 26, 130, 50, 219, 82, 127, 72, 124,
+<a href=#1174 id=1174 data-nosnippet>1174</a>    ///         135, 231, 128, 210, 237, 193, 137, 106, 235, 107, 27, 239, 11, 199, 195, 141,
+<a href=#1175 id=1175 data-nosnippet>1175</a>    ///         157, 242, 19, 91, 99, 62, 171, 139, 251, 23, 119, 232, 47, 173, 58, 143,
+<a href=#1176 id=1176 data-nosnippet>1176</a>    ///     ];
+<a href=#1177 id=1177 data-nosnippet>1177</a>    ///     let mut message: [u8; 49] = [
+<a href=#1178 id=1178 data-nosnippet>1178</a>    ///         60, 66, 121, 116, 101, 115, 62, 48, 120, 52, 54, 102, 98, 55, 52, 48, 56,
+<a href=#1179 id=1179 data-nosnippet>1179</a>    ///         100, 52, 102, 50, 56, 53, 50, 50, 56, 102, 52, 97, 102, 53, 49, 54, 101, 97,
+<a href=#1180 id=1180 data-nosnippet>1180</a>    ///         50, 53, 56, 53, 49, 98, 60, 47, 66, 121, 116, 101, 115, 62,
+<a href=#1181 id=1181 data-nosnippet>1181</a>    ///     ];
+<a href=#1182 id=1182 data-nosnippet>1182</a>    ///     let mut public_key: [u8; 32] = [
+<a href=#1183 id=1183 data-nosnippet>1183</a>    ///         212, 53, 147, 199, 21, 253, 211, 28, 97, 20, 26, 189, 4, 169, 159, 214, 130,
+<a href=#1184 id=1184 data-nosnippet>1184</a>    ///         44, 133, 88, 133, 76, 205, 227, 154, 86, 132, 231, 165, 109, 162, 125,
+<a href=#1185 id=1185 data-nosnippet>1185</a>    ///     ];
+<a href=#1186 id=1186 data-nosnippet>1186</a>    ///     let result = ink::env::sr25519_verify(&amp;signature, &amp;message, &amp;public_key);
+<a href=#1187 id=1187 data-nosnippet>1187</a>    ///     assert_eq!(result, Ok(()));
+<a href=#1188 id=1188 data-nosnippet>1188</a>    /// }
+<a href=#1189 id=1189 data-nosnippet>1189</a>    /// #
+<a href=#1190 id=1190 data-nosnippet>1190</a>    /// #     }
+<a href=#1191 id=1191 data-nosnippet>1191</a>    /// # }
+<a href=#1192 id=1192 data-nosnippet>1192</a>    /// ```
+<a href=#1193 id=1193 data-nosnippet>1193</a>    ///
+<a href=#1194 id=1194 data-nosnippet>1194</a>    /// # Note
+<a href=#1195 id=1195 data-nosnippet>1195</a>    ///
+<a href=#1196 id=1196 data-nosnippet>1196</a>    /// The context for sr25519 signing is hard-coded to "substrate" to match sr25519
+<a href=#1197 id=1197 data-nosnippet>1197</a>    /// signing in substrate.
+<a href=#1198 id=1198 data-nosnippet>1198</a>    ///
+<a href=#1199 id=1199 data-nosnippet>1199</a>    /// For more details visit: [`ink_env::sr25519_verify`]
+<a href=#1200 id=1200 data-nosnippet>1200</a>    ///
+<a href=#1201 id=1201 data-nosnippet>1201</a>    /// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/polkadot-sdk/tree/master/substrate/frame/revive#unstable-interfaces),
+<a href=#1202 id=1202 data-nosnippet>1202</a>    /// which is unsafe and normally is not available on production chains.
+<a href=#1203 id=1203 data-nosnippet>1203</a>    </span><span class="attr">#[cfg(feature = <span class="string">"unstable-hostfn"</span>)]
+<a href=#1204 id=1204 data-nosnippet>1204</a>    </span><span class="kw">pub fn </span>sr25519_verify(
+<a href=#1205 id=1205 data-nosnippet>1205</a>        <span class="self">self</span>,
+<a href=#1206 id=1206 data-nosnippet>1206</a>        signature: <span class="kw-2">&amp;</span>[u8; <span class="number">64</span>],
+<a href=#1207 id=1207 data-nosnippet>1207</a>        message: <span class="kw-2">&amp;</span>[u8],
+<a href=#1208 id=1208 data-nosnippet>1208</a>        pub_key: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>],
+<a href=#1209 id=1209 data-nosnippet>1209</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+<a href=#1210 id=1210 data-nosnippet>1210</a>        ink_env::sr25519_verify(signature, message, pub_key)
+<a href=#1211 id=1211 data-nosnippet>1211</a>            .map_err(|<span class="kw">_</span>| ReturnErrorCode::Sr25519VerifyFailed.into())
+<a href=#1212 id=1212 data-nosnippet>1212</a>    }
+<a href=#1213 id=1213 data-nosnippet>1213</a>
+<a href=#1214 id=1214 data-nosnippet>1214</a>    <span class="doccomment">/// Checks whether `addr` is a contract.
+<a href=#1215 id=1215 data-nosnippet>1215</a>    ///
+<a href=#1216 id=1216 data-nosnippet>1216</a>    /// # Notes
+<a href=#1217 id=1217 data-nosnippet>1217</a>    ///
+<a href=#1218 id=1218 data-nosnippet>1218</a>    /// If `addr` references a precompile address, the return value will be `true`.
+<a href=#1219 id=1219 data-nosnippet>1219</a>    ///
+<a href=#1220 id=1220 data-nosnippet>1220</a>    /// The function [`Self::caller_is_origin`] performs better when checking whether your
+<a href=#1221 id=1221 data-nosnippet>1221</a>    /// contract is being called by a contract or an account. It performs better
+<a href=#1222 id=1222 data-nosnippet>1222</a>    /// for this case as it does not require any storage lookups.
+<a href=#1223 id=1223 data-nosnippet>1223</a>    ///
+<a href=#1224 id=1224 data-nosnippet>1224</a>    /// # Example
+<a href=#1225 id=1225 data-nosnippet>1225</a>    ///
+<a href=#1226 id=1226 data-nosnippet>1226</a>    /// ```
+<a href=#1227 id=1227 data-nosnippet>1227</a>    /// # #[ink::contract]
+<a href=#1228 id=1228 data-nosnippet>1228</a>    /// # pub mod my_contract {
+<a href=#1229 id=1229 data-nosnippet>1229</a>    /// #     #[ink(storage)]
+<a href=#1230 id=1230 data-nosnippet>1230</a>    /// #     pub struct MyContract { }
+<a href=#1231 id=1231 data-nosnippet>1231</a>    /// #
+<a href=#1232 id=1232 data-nosnippet>1232</a>    /// #     impl MyContract {
+<a href=#1233 id=1233 data-nosnippet>1233</a>    /// #         #[ink(constructor)]
+<a href=#1234 id=1234 data-nosnippet>1234</a>    /// #         pub fn new() -&gt; Self {
+<a href=#1235 id=1235 data-nosnippet>1235</a>    /// #             Self {}
+<a href=#1236 id=1236 data-nosnippet>1236</a>    /// #         }
+<a href=#1237 id=1237 data-nosnippet>1237</a>    /// #
+<a href=#1238 id=1238 data-nosnippet>1238</a>    /// #[ink(message)]
+<a href=#1239 id=1239 data-nosnippet>1239</a>    /// pub fn is_contract(&amp;mut self, addr: ink::Address) -&gt; bool {
+<a href=#1240 id=1240 data-nosnippet>1240</a>    ///     self.env().is_contract(&amp;addr)
+<a href=#1241 id=1241 data-nosnippet>1241</a>    /// }
+<a href=#1242 id=1242 data-nosnippet>1242</a>    ///
+<a href=#1243 id=1243 data-nosnippet>1243</a>    /// #[ink(message)]
+<a href=#1244 id=1244 data-nosnippet>1244</a>    /// pub fn check(&amp;mut self) {
+<a href=#1245 id=1245 data-nosnippet>1245</a>    ///     let this_contract = self.env().address();
+<a href=#1246 id=1246 data-nosnippet>1246</a>    ///     assert!(self.env().is_contract(&amp;this_contract));
+<a href=#1247 id=1247 data-nosnippet>1247</a>    ///     assert!(!self.env().is_contract(&amp;self.env().caller()));
+<a href=#1248 id=1248 data-nosnippet>1248</a>    /// }
+<a href=#1249 id=1249 data-nosnippet>1249</a>    /// #    }
+<a href=#1250 id=1250 data-nosnippet>1250</a>    /// # }
+<a href=#1251 id=1251 data-nosnippet>1251</a>    /// ```
+<a href=#1252 id=1252 data-nosnippet>1252</a>    ///
+<a href=#1253 id=1253 data-nosnippet>1253</a>    /// # Note
+<a href=#1254 id=1254 data-nosnippet>1254</a>    ///
+<a href=#1255 id=1255 data-nosnippet>1255</a>    /// For more details visit: [`ink_env::is_contract`]
+<a href=#1256 id=1256 data-nosnippet>1256</a>    </span><span class="kw">pub fn </span>is_contract(<span class="self">self</span>, addr: <span class="kw-2">&amp;</span>Address) -&gt; bool {
+<a href=#1257 id=1257 data-nosnippet>1257</a>        ink_env::is_contract(addr)
+<a href=#1258 id=1258 data-nosnippet>1258</a>    }
+<a href=#1259 id=1259 data-nosnippet>1259</a>
+<a href=#1260 id=1260 data-nosnippet>1260</a>    <span class="doccomment">/// Checks whether the caller of the current contract is the origin of the whole call
+<a href=#1261 id=1261 data-nosnippet>1261</a>    /// stack.
+<a href=#1262 id=1262 data-nosnippet>1262</a>    ///
+<a href=#1263 id=1263 data-nosnippet>1263</a>    /// # Example
+<a href=#1264 id=1264 data-nosnippet>1264</a>    ///
+<a href=#1265 id=1265 data-nosnippet>1265</a>    /// ```
+<a href=#1266 id=1266 data-nosnippet>1266</a>    /// # #[ink::contract]
+<a href=#1267 id=1267 data-nosnippet>1267</a>    /// # pub mod my_contract {
+<a href=#1268 id=1268 data-nosnippet>1268</a>    /// #     #[ink(storage)]
+<a href=#1269 id=1269 data-nosnippet>1269</a>    /// #     pub struct MyContract { }
+<a href=#1270 id=1270 data-nosnippet>1270</a>    /// #
+<a href=#1271 id=1271 data-nosnippet>1271</a>    /// #     impl MyContract {
+<a href=#1272 id=1272 data-nosnippet>1272</a>    /// #         #[ink(constructor)]
+<a href=#1273 id=1273 data-nosnippet>1273</a>    /// #         pub fn new() -&gt; Self {
+<a href=#1274 id=1274 data-nosnippet>1274</a>    /// #             Self {}
+<a href=#1275 id=1275 data-nosnippet>1275</a>    /// #         }
+<a href=#1276 id=1276 data-nosnippet>1276</a>    /// #
+<a href=#1277 id=1277 data-nosnippet>1277</a>    /// #[ink(message)]
+<a href=#1278 id=1278 data-nosnippet>1278</a>    /// pub fn caller_is_origin(&amp;mut self) -&gt; bool {
+<a href=#1279 id=1279 data-nosnippet>1279</a>    ///     self.env().caller_is_origin()
+<a href=#1280 id=1280 data-nosnippet>1280</a>    /// }
+<a href=#1281 id=1281 data-nosnippet>1281</a>    /// #    }
+<a href=#1282 id=1282 data-nosnippet>1282</a>    /// # }
+<a href=#1283 id=1283 data-nosnippet>1283</a>    /// ```
+<a href=#1284 id=1284 data-nosnippet>1284</a>    ///
+<a href=#1285 id=1285 data-nosnippet>1285</a>    /// # Note
+<a href=#1286 id=1286 data-nosnippet>1286</a>    ///
+<a href=#1287 id=1287 data-nosnippet>1287</a>    /// For more details visit: [`ink_env::caller_is_origin`]
+<a href=#1288 id=1288 data-nosnippet>1288</a>    </span><span class="kw">pub fn </span>caller_is_origin(<span class="self">self</span>) -&gt; bool {
+<a href=#1289 id=1289 data-nosnippet>1289</a>        ink_env::caller_is_origin()
+<a href=#1290 id=1290 data-nosnippet>1290</a>    }
+<a href=#1291 id=1291 data-nosnippet>1291</a>
+<a href=#1292 id=1292 data-nosnippet>1292</a>    <span class="doccomment">/// Checks whether the caller of the current contract is root.
+<a href=#1293 id=1293 data-nosnippet>1293</a>    ///
+<a href=#1294 id=1294 data-nosnippet>1294</a>    /// # Example
+<a href=#1295 id=1295 data-nosnippet>1295</a>    ///
+<a href=#1296 id=1296 data-nosnippet>1296</a>    /// ```
+<a href=#1297 id=1297 data-nosnippet>1297</a>    /// # #[ink::contract]
+<a href=#1298 id=1298 data-nosnippet>1298</a>    /// # pub mod my_contract {
+<a href=#1299 id=1299 data-nosnippet>1299</a>    /// #     #[ink(storage)]
+<a href=#1300 id=1300 data-nosnippet>1300</a>    /// #     pub struct MyContract { }
+<a href=#1301 id=1301 data-nosnippet>1301</a>    /// #
+<a href=#1302 id=1302 data-nosnippet>1302</a>    /// #     impl MyContract {
+<a href=#1303 id=1303 data-nosnippet>1303</a>    /// #         #[ink(constructor)]
+<a href=#1304 id=1304 data-nosnippet>1304</a>    /// #         pub fn new() -&gt; Self {
+<a href=#1305 id=1305 data-nosnippet>1305</a>    /// #             Self {}
+<a href=#1306 id=1306 data-nosnippet>1306</a>    /// #         }
+<a href=#1307 id=1307 data-nosnippet>1307</a>    /// #
+<a href=#1308 id=1308 data-nosnippet>1308</a>    /// #[ink(message)]
+<a href=#1309 id=1309 data-nosnippet>1309</a>    /// pub fn caller_is_root(&amp;mut self) -&gt; bool {
+<a href=#1310 id=1310 data-nosnippet>1310</a>    ///     self.env().caller_is_root()
+<a href=#1311 id=1311 data-nosnippet>1311</a>    /// }
+<a href=#1312 id=1312 data-nosnippet>1312</a>    /// #    }
+<a href=#1313 id=1313 data-nosnippet>1313</a>    /// # }
+<a href=#1314 id=1314 data-nosnippet>1314</a>    /// ```
+<a href=#1315 id=1315 data-nosnippet>1315</a>    ///
+<a href=#1316 id=1316 data-nosnippet>1316</a>    /// # Note
+<a href=#1317 id=1317 data-nosnippet>1317</a>    ///
+<a href=#1318 id=1318 data-nosnippet>1318</a>    /// For more details visit: [`ink_env::caller_is_root`]
+<a href=#1319 id=1319 data-nosnippet>1319</a>    </span><span class="kw">pub fn </span>caller_is_root(<span class="self">self</span>) -&gt; bool {
+<a href=#1320 id=1320 data-nosnippet>1320</a>        ink_env::caller_is_root()
+<a href=#1321 id=1321 data-nosnippet>1321</a>    }
+<a href=#1322 id=1322 data-nosnippet>1322</a>
+<a href=#1323 id=1323 data-nosnippet>1323</a>    <span class="doccomment">/// Returns the code hash of the contract at the given `account` id.
+<a href=#1324 id=1324 data-nosnippet>1324</a>    ///
+<a href=#1325 id=1325 data-nosnippet>1325</a>    /// # Example
+<a href=#1326 id=1326 data-nosnippet>1326</a>    ///
+<a href=#1327 id=1327 data-nosnippet>1327</a>    /// ```
+<a href=#1328 id=1328 data-nosnippet>1328</a>    /// # #[ink::contract]
+<a href=#1329 id=1329 data-nosnippet>1329</a>    /// # pub mod my_contract {
+<a href=#1330 id=1330 data-nosnippet>1330</a>    /// #     #[ink(storage)]
+<a href=#1331 id=1331 data-nosnippet>1331</a>    /// #     pub struct MyContract { }
+<a href=#1332 id=1332 data-nosnippet>1332</a>    /// #
+<a href=#1333 id=1333 data-nosnippet>1333</a>    /// #     impl MyContract {
+<a href=#1334 id=1334 data-nosnippet>1334</a>    /// #         #[ink(constructor)]
+<a href=#1335 id=1335 data-nosnippet>1335</a>    /// #         pub fn new() -&gt; Self {
+<a href=#1336 id=1336 data-nosnippet>1336</a>    /// #             Self {}
+<a href=#1337 id=1337 data-nosnippet>1337</a>    /// #         }
+<a href=#1338 id=1338 data-nosnippet>1338</a>    /// #
+<a href=#1339 id=1339 data-nosnippet>1339</a>    /// #[ink(message)]
+<a href=#1340 id=1340 data-nosnippet>1340</a>    /// // todo
+<a href=#1341 id=1341 data-nosnippet>1341</a>    /// pub fn code_hash(&amp;mut self, addr: ink::Address) -&gt; Option&lt;ink::H256&gt; {
+<a href=#1342 id=1342 data-nosnippet>1342</a>    ///     self.env().code_hash(&amp;addr).ok()
+<a href=#1343 id=1343 data-nosnippet>1343</a>    /// }
+<a href=#1344 id=1344 data-nosnippet>1344</a>    /// #    }
+<a href=#1345 id=1345 data-nosnippet>1345</a>    /// # }
+<a href=#1346 id=1346 data-nosnippet>1346</a>    /// ```
+<a href=#1347 id=1347 data-nosnippet>1347</a>    ///
+<a href=#1348 id=1348 data-nosnippet>1348</a>    /// # Note
+<a href=#1349 id=1349 data-nosnippet>1349</a>    ///
+<a href=#1350 id=1350 data-nosnippet>1350</a>    /// For more details visit: [`ink_env::code_hash`]
+<a href=#1351 id=1351 data-nosnippet>1351</a>    </span><span class="kw">pub fn </span>code_hash(<span class="self">self</span>, addr: <span class="kw-2">&amp;</span>Address) -&gt; core::result::Result&lt;H256, CodeHashErr&gt; {
+<a href=#1352 id=1352 data-nosnippet>1352</a>        ink_env::code_hash(addr)
+<a href=#1353 id=1353 data-nosnippet>1353</a>    }
+<a href=#1354 id=1354 data-nosnippet>1354</a>
+<a href=#1355 id=1355 data-nosnippet>1355</a>    <span class="doccomment">/// Returns the code hash of the contract at the given `account` id.
+<a href=#1356 id=1356 data-nosnippet>1356</a>    ///
+<a href=#1357 id=1357 data-nosnippet>1357</a>    /// # Example
+<a href=#1358 id=1358 data-nosnippet>1358</a>    ///
+<a href=#1359 id=1359 data-nosnippet>1359</a>    /// ```
+<a href=#1360 id=1360 data-nosnippet>1360</a>    /// # #[ink::contract]
+<a href=#1361 id=1361 data-nosnippet>1361</a>    /// # pub mod my_contract {
+<a href=#1362 id=1362 data-nosnippet>1362</a>    /// #     #[ink(storage)]
+<a href=#1363 id=1363 data-nosnippet>1363</a>    /// #     pub struct MyContract { }
+<a href=#1364 id=1364 data-nosnippet>1364</a>    /// #
+<a href=#1365 id=1365 data-nosnippet>1365</a>    /// #     impl MyContract {
+<a href=#1366 id=1366 data-nosnippet>1366</a>    /// #         #[ink(constructor)]
+<a href=#1367 id=1367 data-nosnippet>1367</a>    /// #         pub fn new() -&gt; Self {
+<a href=#1368 id=1368 data-nosnippet>1368</a>    /// #             Self {}
+<a href=#1369 id=1369 data-nosnippet>1369</a>    /// #         }
+<a href=#1370 id=1370 data-nosnippet>1370</a>    /// #
+<a href=#1371 id=1371 data-nosnippet>1371</a>    /// #[ink(message)]
+<a href=#1372 id=1372 data-nosnippet>1372</a>    /// pub fn own_code_hash(&amp;mut self) -&gt; ink::H256 {
+<a href=#1373 id=1373 data-nosnippet>1373</a>    ///     self.env().own_code_hash()
+<a href=#1374 id=1374 data-nosnippet>1374</a>    /// }
+<a href=#1375 id=1375 data-nosnippet>1375</a>    /// #    }
+<a href=#1376 id=1376 data-nosnippet>1376</a>    /// # }
+<a href=#1377 id=1377 data-nosnippet>1377</a>    /// ```
+<a href=#1378 id=1378 data-nosnippet>1378</a>    ///
+<a href=#1379 id=1379 data-nosnippet>1379</a>    /// # Note
+<a href=#1380 id=1380 data-nosnippet>1380</a>    ///
+<a href=#1381 id=1381 data-nosnippet>1381</a>    /// For more details visit: [`ink_env::own_code_hash`]
+<a href=#1382 id=1382 data-nosnippet>1382</a>    </span><span class="kw">pub fn </span>own_code_hash(<span class="self">self</span>) -&gt; H256 {
+<a href=#1383 id=1383 data-nosnippet>1383</a>        ink_env::own_code_hash()
+<a href=#1384 id=1384 data-nosnippet>1384</a>    }
+<a href=#1385 id=1385 data-nosnippet>1385</a>
+<a href=#1386 id=1386 data-nosnippet>1386</a>    <span class="doccomment">/// Replace the contract code at the specified address with new code.
+<a href=#1387 id=1387 data-nosnippet>1387</a>    ///
+<a href=#1388 id=1388 data-nosnippet>1388</a>    /// # Example
+<a href=#1389 id=1389 data-nosnippet>1389</a>    ///
+<a href=#1390 id=1390 data-nosnippet>1390</a>    /// ```
+<a href=#1391 id=1391 data-nosnippet>1391</a>    /// # #[ink::contract]
+<a href=#1392 id=1392 data-nosnippet>1392</a>    /// # pub mod my_contract {
+<a href=#1393 id=1393 data-nosnippet>1393</a>    /// #     #[ink(storage)]
+<a href=#1394 id=1394 data-nosnippet>1394</a>    /// #     pub struct MyContract { }
+<a href=#1395 id=1395 data-nosnippet>1395</a>    /// #
+<a href=#1396 id=1396 data-nosnippet>1396</a>    /// #     impl MyContract {
+<a href=#1397 id=1397 data-nosnippet>1397</a>    /// #         #[ink(constructor)]
+<a href=#1398 id=1398 data-nosnippet>1398</a>    /// #         pub fn new() -&gt; Self {
+<a href=#1399 id=1399 data-nosnippet>1399</a>    /// #             Self {}
+<a href=#1400 id=1400 data-nosnippet>1400</a>    /// #         }
+<a href=#1401 id=1401 data-nosnippet>1401</a>    /// #
+<a href=#1402 id=1402 data-nosnippet>1402</a>    /// #[ink(message)]
+<a href=#1403 id=1403 data-nosnippet>1403</a>    /// pub fn set_code_hash(&amp;mut self, code_hash: ink::H256) {
+<a href=#1404 id=1404 data-nosnippet>1404</a>    ///     self.env()
+<a href=#1405 id=1405 data-nosnippet>1405</a>    ///         .set_code_hash(&amp;code_hash)
+<a href=#1406 id=1406 data-nosnippet>1406</a>    ///         .unwrap_or_else(|err| panic!("failed to set code hash: {:?}", err))
+<a href=#1407 id=1407 data-nosnippet>1407</a>    /// }
+<a href=#1408 id=1408 data-nosnippet>1408</a>    /// #    }
+<a href=#1409 id=1409 data-nosnippet>1409</a>    /// # }
+<a href=#1410 id=1410 data-nosnippet>1410</a>    /// ```
+<a href=#1411 id=1411 data-nosnippet>1411</a>    ///
+<a href=#1412 id=1412 data-nosnippet>1412</a>    /// # Note
+<a href=#1413 id=1413 data-nosnippet>1413</a>    ///
+<a href=#1414 id=1414 data-nosnippet>1414</a>    /// For more details visit: [`ink_env::set_code_hash`]
+<a href=#1415 id=1415 data-nosnippet>1415</a>    </span><span class="attr">#[cfg(feature = <span class="string">"unstable-hostfn"</span>)]
+<a href=#1416 id=1416 data-nosnippet>1416</a>    </span><span class="kw">pub fn </span>set_code_hash(<span class="self">self</span>, code_hash: <span class="kw-2">&amp;</span>H256) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+<a href=#1417 id=1417 data-nosnippet>1417</a>        ink_env::set_code_hash::&lt;E&gt;(code_hash)
+<a href=#1418 id=1418 data-nosnippet>1418</a>    }
+<a href=#1419 id=1419 data-nosnippet>1419</a>
+<a href=#1420 id=1420 data-nosnippet>1420</a>    <span class="attr">#[cfg(feature = <span class="string">"xcm"</span>)]
+<a href=#1421 id=1421 data-nosnippet>1421</a>    </span><span class="kw">pub fn </span>xcm_weigh&lt;Call: scale::Encode&gt;(
+<a href=#1422 id=1422 data-nosnippet>1422</a>        <span class="self">self</span>,
+<a href=#1423 id=1423 data-nosnippet>1423</a>        msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;,
+<a href=#1424 id=1424 data-nosnippet>1424</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;Weight&gt; {
+<a href=#1425 id=1425 data-nosnippet>1425</a>        ink_env::xcm_weigh(msg)
+<a href=#1426 id=1426 data-nosnippet>1426</a>    }
+<a href=#1427 id=1427 data-nosnippet>1427</a>
+<a href=#1428 id=1428 data-nosnippet>1428</a>    <span class="attr">#[cfg(feature = <span class="string">"xcm"</span>)]
+<a href=#1429 id=1429 data-nosnippet>1429</a>    </span><span class="kw">pub fn </span>xcm_execute&lt;Call: scale::Encode&gt;(
+<a href=#1430 id=1430 data-nosnippet>1430</a>        <span class="self">self</span>,
+<a href=#1431 id=1431 data-nosnippet>1431</a>        msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;,
+<a href=#1432 id=1432 data-nosnippet>1432</a>        weight: Weight,
+<a href=#1433 id=1433 data-nosnippet>1433</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+<a href=#1434 id=1434 data-nosnippet>1434</a>        ink_env::xcm_execute(msg, weight)
+<a href=#1435 id=1435 data-nosnippet>1435</a>    }
+<a href=#1436 id=1436 data-nosnippet>1436</a>
+<a href=#1437 id=1437 data-nosnippet>1437</a>    <span class="attr">#[cfg(feature = <span class="string">"xcm"</span>)]
+<a href=#1438 id=1438 data-nosnippet>1438</a>    </span><span class="kw">pub fn </span>xcm_send&lt;Call: scale::Encode&gt;(
+<a href=#1439 id=1439 data-nosnippet>1439</a>        <span class="self">self</span>,
+<a href=#1440 id=1440 data-nosnippet>1440</a>        dest: <span class="kw-2">&amp;</span>xcm::VersionedLocation,
+<a href=#1441 id=1441 data-nosnippet>1441</a>        msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;,
+<a href=#1442 id=1442 data-nosnippet>1442</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+<a href=#1443 id=1443 data-nosnippet>1443</a>        ink_env::xcm_send(dest, msg)
+<a href=#1444 id=1444 data-nosnippet>1444</a>    }
+<a href=#1445 id=1445 data-nosnippet>1445</a>}</code></pre></div></section></main></body></html>

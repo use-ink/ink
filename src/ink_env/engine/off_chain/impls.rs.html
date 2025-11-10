@@ -456,386 +456,404 @@
 <a href=#456 id=456 data-nosnippet>456</a>        &lt;H <span class="kw">as </span>CryptoHash&gt;::hash(enc_input, output)
 <a href=#457 id=457 data-nosnippet>457</a>    }
 <a href=#458 id=458 data-nosnippet>458</a>
-<a href=#459 id=459 data-nosnippet>459</a>    <span class="attr">#[allow(clippy::arithmetic_side_effects)] </span><span class="comment">// todo
-<a href=#460 id=460 data-nosnippet>460</a>    </span><span class="kw">fn </span>ecdsa_recover(
-<a href=#461 id=461 data-nosnippet>461</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#462 id=462 data-nosnippet>462</a>        signature: <span class="kw-2">&amp;</span>[u8; <span class="number">65</span>],
-<a href=#463 id=463 data-nosnippet>463</a>        message_hash: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>],
-<a href=#464 id=464 data-nosnippet>464</a>        output: <span class="kw-2">&amp;mut </span>[u8; <span class="number">33</span>],
-<a href=#465 id=465 data-nosnippet>465</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-<a href=#466 id=466 data-nosnippet>466</a>        <span class="kw">use </span>secp256k1::{
-<a href=#467 id=467 data-nosnippet>467</a>            Message,
-<a href=#468 id=468 data-nosnippet>468</a>            SECP256K1,
-<a href=#469 id=469 data-nosnippet>469</a>            ecdsa::{
-<a href=#470 id=470 data-nosnippet>470</a>                RecoverableSignature,
-<a href=#471 id=471 data-nosnippet>471</a>                RecoveryId,
-<a href=#472 id=472 data-nosnippet>472</a>            },
-<a href=#473 id=473 data-nosnippet>473</a>        };
-<a href=#474 id=474 data-nosnippet>474</a>
-<a href=#475 id=475 data-nosnippet>475</a>        <span class="comment">// In most implementations, the v is just 0 or 1 internally, but 27 was added
-<a href=#476 id=476 data-nosnippet>476</a>        // as an arbitrary number for signing Bitcoin messages and Ethereum adopted that
-<a href=#477 id=477 data-nosnippet>477</a>        // as well.
-<a href=#478 id=478 data-nosnippet>478</a>        </span><span class="kw">let </span>recovery_byte = <span class="kw">if </span>signature[<span class="number">64</span>] &gt; <span class="number">26 </span>{
-<a href=#479 id=479 data-nosnippet>479</a>            signature[<span class="number">64</span>] - <span class="number">27
-<a href=#480 id=480 data-nosnippet>480</a>        </span>} <span class="kw">else </span>{
-<a href=#481 id=481 data-nosnippet>481</a>            signature[<span class="number">64</span>]
-<a href=#482 id=482 data-nosnippet>482</a>        };
-<a href=#483 id=483 data-nosnippet>483</a>        <span class="kw">let </span>recovery_id = RecoveryId::try_from(recovery_byte <span class="kw">as </span>i32)
-<a href=#484 id=484 data-nosnippet>484</a>            .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">"Unable to parse the recovery id: {error}"</span>));
-<a href=#485 id=485 data-nosnippet>485</a>        <span class="kw">let </span>message = Message::from_digest_slice(message_hash).unwrap_or_else(|error| {
-<a href=#486 id=486 data-nosnippet>486</a>            <span class="macro">panic!</span>(<span class="string">"Unable to create the message from hash: {error}"</span>)
-<a href=#487 id=487 data-nosnippet>487</a>        });
-<a href=#488 id=488 data-nosnippet>488</a>        <span class="kw">let </span>signature =
-<a href=#489 id=489 data-nosnippet>489</a>            RecoverableSignature::from_compact(<span class="kw-2">&amp;</span>signature[<span class="number">0</span>..<span class="number">64</span>], recovery_id)
-<a href=#490 id=490 data-nosnippet>490</a>                .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">"Unable to parse the signature: {error}"</span>));
-<a href=#491 id=491 data-nosnippet>491</a>
-<a href=#492 id=492 data-nosnippet>492</a>        <span class="kw">let </span>pub_key = SECP256K1.recover_ecdsa(<span class="kw-2">&amp;</span>message, <span class="kw-2">&amp;</span>signature);
-<a href=#493 id=493 data-nosnippet>493</a>        <span class="kw">match </span>pub_key {
-<a href=#494 id=494 data-nosnippet>494</a>            <span class="prelude-val">Ok</span>(pub_key) =&gt; {
-<a href=#495 id=495 data-nosnippet>495</a>                <span class="kw-2">*</span>output = pub_key.serialize();
-<a href=#496 id=496 data-nosnippet>496</a>                <span class="prelude-val">Ok</span>(())
-<a href=#497 id=497 data-nosnippet>497</a>            }
-<a href=#498 id=498 data-nosnippet>498</a>            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(ReturnErrorCode::EcdsaRecoveryFailed.into()),
-<a href=#499 id=499 data-nosnippet>499</a>        }
-<a href=#500 id=500 data-nosnippet>500</a>    }
-<a href=#501 id=501 data-nosnippet>501</a>
-<a href=#502 id=502 data-nosnippet>502</a>    <span class="attr">#[cfg(feature = <span class="string">"unstable-hostfn"</span>)]
-<a href=#503 id=503 data-nosnippet>503</a>    </span><span class="kw">fn </span>ecdsa_to_eth_address(
-<a href=#504 id=504 data-nosnippet>504</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#505 id=505 data-nosnippet>505</a>        pubkey: <span class="kw-2">&amp;</span>[u8; <span class="number">33</span>],
-<a href=#506 id=506 data-nosnippet>506</a>        output: <span class="kw-2">&amp;mut </span>[u8; <span class="number">20</span>],
-<a href=#507 id=507 data-nosnippet>507</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-<a href=#508 id=508 data-nosnippet>508</a>        <span class="kw">let </span>pk = secp256k1::PublicKey::from_slice(pubkey)
-<a href=#509 id=509 data-nosnippet>509</a>            .map_err(|<span class="kw">_</span>| ReturnErrorCode::EcdsaRecoveryFailed)<span class="question-mark">?</span>;
-<a href=#510 id=510 data-nosnippet>510</a>        <span class="kw">let </span>uncompressed = pk.serialize_uncompressed();
-<a href=#511 id=511 data-nosnippet>511</a>        <span class="kw">let </span><span class="kw-2">mut </span>hash = &lt;Keccak256 <span class="kw">as </span>HashOutput&gt;::Type::default();
-<a href=#512 id=512 data-nosnippet>512</a>        &lt;Keccak256&gt;::hash(<span class="kw-2">&amp;</span>uncompressed[<span class="number">1</span>..], <span class="kw-2">&amp;mut </span>hash);
-<a href=#513 id=513 data-nosnippet>513</a>        output.as_mut().copy_from_slice(<span class="kw-2">&amp;</span>hash[<span class="number">12</span>..]);
-<a href=#514 id=514 data-nosnippet>514</a>        <span class="prelude-val">Ok</span>(())
-<a href=#515 id=515 data-nosnippet>515</a>    }
-<a href=#516 id=516 data-nosnippet>516</a>
-<a href=#517 id=517 data-nosnippet>517</a>    <span class="attr">#[cfg(feature = <span class="string">"unstable-hostfn"</span>)]
-<a href=#518 id=518 data-nosnippet>518</a>    </span><span class="kw">fn </span>sr25519_verify(
-<a href=#519 id=519 data-nosnippet>519</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#520 id=520 data-nosnippet>520</a>        signature: <span class="kw-2">&amp;</span>[u8; <span class="number">64</span>],
-<a href=#521 id=521 data-nosnippet>521</a>        message: <span class="kw-2">&amp;</span>[u8],
-<a href=#522 id=522 data-nosnippet>522</a>        pub_key: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>],
-<a href=#523 id=523 data-nosnippet>523</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-<a href=#524 id=524 data-nosnippet>524</a>        <span class="comment">// the context associated with the signing (specific to the sr25519 algorithm)
-<a href=#525 id=525 data-nosnippet>525</a>        // defaults to "substrate" in substrate, but could be different elsewhere
-<a href=#526 id=526 data-nosnippet>526</a>        // https://github.com/paritytech/substrate/blob/c32f5ed2ae6746d6f791f08cecbfc22fa188f5f9/primitives/core/src/sr25519.rs#L60
-<a href=#527 id=527 data-nosnippet>527</a>        </span><span class="kw">let </span>context = <span class="string">b"substrate"</span>;
-<a href=#528 id=528 data-nosnippet>528</a>        <span class="comment">// attempt to parse a signature from bytes
-<a href=#529 id=529 data-nosnippet>529</a>        </span><span class="kw">let </span>signature: Signature = Signature::from_bytes(signature)
-<a href=#530 id=530 data-nosnippet>530</a>            .map_err(|<span class="kw">_</span>| ReturnErrorCode::Sr25519VerifyFailed)<span class="question-mark">?</span>;
-<a href=#531 id=531 data-nosnippet>531</a>        <span class="comment">// attempt to parse a public key from bytes
-<a href=#532 id=532 data-nosnippet>532</a>        </span><span class="kw">let </span>public_key: PublicKey = PublicKey::from_bytes(pub_key)
-<a href=#533 id=533 data-nosnippet>533</a>            .map_err(|<span class="kw">_</span>| ReturnErrorCode::Sr25519VerifyFailed)<span class="question-mark">?</span>;
-<a href=#534 id=534 data-nosnippet>534</a>        <span class="comment">// verify the signature
-<a href=#535 id=535 data-nosnippet>535</a>        </span>public_key
-<a href=#536 id=536 data-nosnippet>536</a>            .verify_simple(context, message, <span class="kw-2">&amp;</span>signature)
-<a href=#537 id=537 data-nosnippet>537</a>            .map_err(|<span class="kw">_</span>| ReturnErrorCode::Sr25519VerifyFailed.into())
-<a href=#538 id=538 data-nosnippet>538</a>    }
-<a href=#539 id=539 data-nosnippet>539</a>
-<a href=#540 id=540 data-nosnippet>540</a>    <span class="attr">#[cfg(feature = <span class="string">"unstable-hostfn"</span>)]
-<a href=#541 id=541 data-nosnippet>541</a>    </span><span class="kw">fn </span>set_code_hash(<span class="kw-2">&amp;mut </span><span class="self">self</span>, code_hash: <span class="kw-2">&amp;</span>H256) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-<a href=#542 id=542 data-nosnippet>542</a>        <span class="self">self</span>.engine
-<a href=#543 id=543 data-nosnippet>543</a>            .database
-<a href=#544 id=544 data-nosnippet>544</a>            .set_code_hash(<span class="kw-2">&amp;</span><span class="self">self</span>.engine.get_callee(), code_hash);
-<a href=#545 id=545 data-nosnippet>545</a>        <span class="prelude-val">Ok</span>(())
-<a href=#546 id=546 data-nosnippet>546</a>    }
-<a href=#547 id=547 data-nosnippet>547</a>}
-<a href=#548 id=548 data-nosnippet>548</a>
-<a href=#549 id=549 data-nosnippet>549</a><span class="kw">impl </span>TypedEnvBackend <span class="kw">for </span>EnvInstance {
-<a href=#550 id=550 data-nosnippet>550</a>    <span class="kw">fn </span>caller(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Address {
-<a href=#551 id=551 data-nosnippet>551</a>        <span class="self">self</span>.get_property::&lt;Address&gt;(Engine::caller)
-<a href=#552 id=552 data-nosnippet>552</a>            .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">"could not read `caller` property: {error:?}"</span>))
-<a href=#553 id=553 data-nosnippet>553</a>    }
-<a href=#554 id=554 data-nosnippet>554</a>
-<a href=#555 id=555 data-nosnippet>555</a>    <span class="kw">fn </span>gas_limit(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
-<a href=#556 id=556 data-nosnippet>556</a>        <span class="macro">unimplemented!</span>(<span class="string">"not implemented, the off-chain environment will be removed"</span>);
-<a href=#557 id=557 data-nosnippet>557</a>    }
-<a href=#558 id=558 data-nosnippet>558</a>
-<a href=#559 id=559 data-nosnippet>559</a>    <span class="kw">fn </span>gas_price(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
-<a href=#560 id=560 data-nosnippet>560</a>        <span class="macro">unimplemented!</span>(<span class="string">"not implemented, the off-chain environment will be removed"</span>);
-<a href=#561 id=561 data-nosnippet>561</a>    }
-<a href=#562 id=562 data-nosnippet>562</a>
-<a href=#563 id=563 data-nosnippet>563</a>    <span class="kw">fn </span>gas_left(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
-<a href=#564 id=564 data-nosnippet>564</a>        <span class="macro">unimplemented!</span>(<span class="string">"not implemented, the off-chain environment will be removed"</span>);
-<a href=#565 id=565 data-nosnippet>565</a>    }
+<a href=#459 id=459 data-nosnippet>459</a>    <span class="kw">fn </span>bn128_add(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _x1: U256, _y1: U256, _x2: U256, _y2: U256) -&gt; (U256, U256) {
+<a href=#460 id=460 data-nosnippet>460</a>        <span class="macro">unimplemented!</span>(
+<a href=#461 id=461 data-nosnippet>461</a>            <span class="string">"`bn128_add` is not implemented in the off-chain testing environment"
+<a href=#462 id=462 data-nosnippet>462</a>        </span>);
+<a href=#463 id=463 data-nosnippet>463</a>    }
+<a href=#464 id=464 data-nosnippet>464</a>
+<a href=#465 id=465 data-nosnippet>465</a>    <span class="kw">fn </span>bn128_mul(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _x1: U256, _y1: U256, _scalar: U256) -&gt; (U256, U256) {
+<a href=#466 id=466 data-nosnippet>466</a>        <span class="macro">unimplemented!</span>(
+<a href=#467 id=467 data-nosnippet>467</a>            <span class="string">"`bn128_mul` is not implemented in the off-chain testing environment"
+<a href=#468 id=468 data-nosnippet>468</a>        </span>);
+<a href=#469 id=469 data-nosnippet>469</a>    }
+<a href=#470 id=470 data-nosnippet>470</a>
+<a href=#471 id=471 data-nosnippet>471</a>    <span class="kw">fn </span>bn128_pairing(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>[u8]) -&gt; bool {
+<a href=#472 id=472 data-nosnippet>472</a>        <span class="macro">unimplemented!</span>(
+<a href=#473 id=473 data-nosnippet>473</a>            <span class="string">"`bn128_pairing` is not implemented in the off-chain testing environment"
+<a href=#474 id=474 data-nosnippet>474</a>        </span>);
+<a href=#475 id=475 data-nosnippet>475</a>    }
+<a href=#476 id=476 data-nosnippet>476</a>
+<a href=#477 id=477 data-nosnippet>477</a>    <span class="attr">#[allow(clippy::arithmetic_side_effects)] </span><span class="comment">// todo
+<a href=#478 id=478 data-nosnippet>478</a>    </span><span class="kw">fn </span>ecdsa_recover(
+<a href=#479 id=479 data-nosnippet>479</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#480 id=480 data-nosnippet>480</a>        signature: <span class="kw-2">&amp;</span>[u8; <span class="number">65</span>],
+<a href=#481 id=481 data-nosnippet>481</a>        message_hash: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>],
+<a href=#482 id=482 data-nosnippet>482</a>        output: <span class="kw-2">&amp;mut </span>[u8; <span class="number">33</span>],
+<a href=#483 id=483 data-nosnippet>483</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+<a href=#484 id=484 data-nosnippet>484</a>        <span class="kw">use </span>secp256k1::{
+<a href=#485 id=485 data-nosnippet>485</a>            Message,
+<a href=#486 id=486 data-nosnippet>486</a>            SECP256K1,
+<a href=#487 id=487 data-nosnippet>487</a>            ecdsa::{
+<a href=#488 id=488 data-nosnippet>488</a>                RecoverableSignature,
+<a href=#489 id=489 data-nosnippet>489</a>                RecoveryId,
+<a href=#490 id=490 data-nosnippet>490</a>            },
+<a href=#491 id=491 data-nosnippet>491</a>        };
+<a href=#492 id=492 data-nosnippet>492</a>
+<a href=#493 id=493 data-nosnippet>493</a>        <span class="comment">// In most implementations, the v is just 0 or 1 internally, but 27 was added
+<a href=#494 id=494 data-nosnippet>494</a>        // as an arbitrary number for signing Bitcoin messages and Ethereum adopted that
+<a href=#495 id=495 data-nosnippet>495</a>        // as well.
+<a href=#496 id=496 data-nosnippet>496</a>        </span><span class="kw">let </span>recovery_byte = <span class="kw">if </span>signature[<span class="number">64</span>] &gt; <span class="number">26 </span>{
+<a href=#497 id=497 data-nosnippet>497</a>            signature[<span class="number">64</span>] - <span class="number">27
+<a href=#498 id=498 data-nosnippet>498</a>        </span>} <span class="kw">else </span>{
+<a href=#499 id=499 data-nosnippet>499</a>            signature[<span class="number">64</span>]
+<a href=#500 id=500 data-nosnippet>500</a>        };
+<a href=#501 id=501 data-nosnippet>501</a>        <span class="kw">let </span>recovery_id = RecoveryId::try_from(recovery_byte <span class="kw">as </span>i32)
+<a href=#502 id=502 data-nosnippet>502</a>            .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">"Unable to parse the recovery id: {error}"</span>));
+<a href=#503 id=503 data-nosnippet>503</a>        <span class="kw">let </span>message = Message::from_digest_slice(message_hash).unwrap_or_else(|error| {
+<a href=#504 id=504 data-nosnippet>504</a>            <span class="macro">panic!</span>(<span class="string">"Unable to create the message from hash: {error}"</span>)
+<a href=#505 id=505 data-nosnippet>505</a>        });
+<a href=#506 id=506 data-nosnippet>506</a>        <span class="kw">let </span>signature =
+<a href=#507 id=507 data-nosnippet>507</a>            RecoverableSignature::from_compact(<span class="kw-2">&amp;</span>signature[<span class="number">0</span>..<span class="number">64</span>], recovery_id)
+<a href=#508 id=508 data-nosnippet>508</a>                .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">"Unable to parse the signature: {error}"</span>));
+<a href=#509 id=509 data-nosnippet>509</a>
+<a href=#510 id=510 data-nosnippet>510</a>        <span class="kw">let </span>pub_key = SECP256K1.recover_ecdsa(<span class="kw-2">&amp;</span>message, <span class="kw-2">&amp;</span>signature);
+<a href=#511 id=511 data-nosnippet>511</a>        <span class="kw">match </span>pub_key {
+<a href=#512 id=512 data-nosnippet>512</a>            <span class="prelude-val">Ok</span>(pub_key) =&gt; {
+<a href=#513 id=513 data-nosnippet>513</a>                <span class="kw-2">*</span>output = pub_key.serialize();
+<a href=#514 id=514 data-nosnippet>514</a>                <span class="prelude-val">Ok</span>(())
+<a href=#515 id=515 data-nosnippet>515</a>            }
+<a href=#516 id=516 data-nosnippet>516</a>            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(ReturnErrorCode::EcdsaRecoveryFailed.into()),
+<a href=#517 id=517 data-nosnippet>517</a>        }
+<a href=#518 id=518 data-nosnippet>518</a>    }
+<a href=#519 id=519 data-nosnippet>519</a>
+<a href=#520 id=520 data-nosnippet>520</a>    <span class="attr">#[cfg(feature = <span class="string">"unstable-hostfn"</span>)]
+<a href=#521 id=521 data-nosnippet>521</a>    </span><span class="kw">fn </span>ecdsa_to_eth_address(
+<a href=#522 id=522 data-nosnippet>522</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#523 id=523 data-nosnippet>523</a>        pubkey: <span class="kw-2">&amp;</span>[u8; <span class="number">33</span>],
+<a href=#524 id=524 data-nosnippet>524</a>        output: <span class="kw-2">&amp;mut </span>[u8; <span class="number">20</span>],
+<a href=#525 id=525 data-nosnippet>525</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+<a href=#526 id=526 data-nosnippet>526</a>        <span class="kw">let </span>pk = secp256k1::PublicKey::from_slice(pubkey)
+<a href=#527 id=527 data-nosnippet>527</a>            .map_err(|<span class="kw">_</span>| ReturnErrorCode::EcdsaRecoveryFailed)<span class="question-mark">?</span>;
+<a href=#528 id=528 data-nosnippet>528</a>        <span class="kw">let </span>uncompressed = pk.serialize_uncompressed();
+<a href=#529 id=529 data-nosnippet>529</a>        <span class="kw">let </span><span class="kw-2">mut </span>hash = &lt;Keccak256 <span class="kw">as </span>HashOutput&gt;::Type::default();
+<a href=#530 id=530 data-nosnippet>530</a>        &lt;Keccak256&gt;::hash(<span class="kw-2">&amp;</span>uncompressed[<span class="number">1</span>..], <span class="kw-2">&amp;mut </span>hash);
+<a href=#531 id=531 data-nosnippet>531</a>        output.as_mut().copy_from_slice(<span class="kw-2">&amp;</span>hash[<span class="number">12</span>..]);
+<a href=#532 id=532 data-nosnippet>532</a>        <span class="prelude-val">Ok</span>(())
+<a href=#533 id=533 data-nosnippet>533</a>    }
+<a href=#534 id=534 data-nosnippet>534</a>
+<a href=#535 id=535 data-nosnippet>535</a>    <span class="attr">#[cfg(feature = <span class="string">"unstable-hostfn"</span>)]
+<a href=#536 id=536 data-nosnippet>536</a>    </span><span class="kw">fn </span>sr25519_verify(
+<a href=#537 id=537 data-nosnippet>537</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#538 id=538 data-nosnippet>538</a>        signature: <span class="kw-2">&amp;</span>[u8; <span class="number">64</span>],
+<a href=#539 id=539 data-nosnippet>539</a>        message: <span class="kw-2">&amp;</span>[u8],
+<a href=#540 id=540 data-nosnippet>540</a>        pub_key: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>],
+<a href=#541 id=541 data-nosnippet>541</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+<a href=#542 id=542 data-nosnippet>542</a>        <span class="comment">// the context associated with the signing (specific to the sr25519 algorithm)
+<a href=#543 id=543 data-nosnippet>543</a>        // defaults to "substrate" in substrate, but could be different elsewhere
+<a href=#544 id=544 data-nosnippet>544</a>        // https://github.com/paritytech/substrate/blob/c32f5ed2ae6746d6f791f08cecbfc22fa188f5f9/primitives/core/src/sr25519.rs#L60
+<a href=#545 id=545 data-nosnippet>545</a>        </span><span class="kw">let </span>context = <span class="string">b"substrate"</span>;
+<a href=#546 id=546 data-nosnippet>546</a>        <span class="comment">// attempt to parse a signature from bytes
+<a href=#547 id=547 data-nosnippet>547</a>        </span><span class="kw">let </span>signature: Signature = Signature::from_bytes(signature)
+<a href=#548 id=548 data-nosnippet>548</a>            .map_err(|<span class="kw">_</span>| ReturnErrorCode::Sr25519VerifyFailed)<span class="question-mark">?</span>;
+<a href=#549 id=549 data-nosnippet>549</a>        <span class="comment">// attempt to parse a public key from bytes
+<a href=#550 id=550 data-nosnippet>550</a>        </span><span class="kw">let </span>public_key: PublicKey = PublicKey::from_bytes(pub_key)
+<a href=#551 id=551 data-nosnippet>551</a>            .map_err(|<span class="kw">_</span>| ReturnErrorCode::Sr25519VerifyFailed)<span class="question-mark">?</span>;
+<a href=#552 id=552 data-nosnippet>552</a>        <span class="comment">// verify the signature
+<a href=#553 id=553 data-nosnippet>553</a>        </span>public_key
+<a href=#554 id=554 data-nosnippet>554</a>            .verify_simple(context, message, <span class="kw-2">&amp;</span>signature)
+<a href=#555 id=555 data-nosnippet>555</a>            .map_err(|<span class="kw">_</span>| ReturnErrorCode::Sr25519VerifyFailed.into())
+<a href=#556 id=556 data-nosnippet>556</a>    }
+<a href=#557 id=557 data-nosnippet>557</a>
+<a href=#558 id=558 data-nosnippet>558</a>    <span class="attr">#[cfg(feature = <span class="string">"unstable-hostfn"</span>)]
+<a href=#559 id=559 data-nosnippet>559</a>    </span><span class="kw">fn </span>set_code_hash(<span class="kw-2">&amp;mut </span><span class="self">self</span>, code_hash: <span class="kw-2">&amp;</span>H256) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+<a href=#560 id=560 data-nosnippet>560</a>        <span class="self">self</span>.engine
+<a href=#561 id=561 data-nosnippet>561</a>            .database
+<a href=#562 id=562 data-nosnippet>562</a>            .set_code_hash(<span class="kw-2">&amp;</span><span class="self">self</span>.engine.get_callee(), code_hash);
+<a href=#563 id=563 data-nosnippet>563</a>        <span class="prelude-val">Ok</span>(())
+<a href=#564 id=564 data-nosnippet>564</a>    }
+<a href=#565 id=565 data-nosnippet>565</a>}
 <a href=#566 id=566 data-nosnippet>566</a>
-<a href=#567 id=567 data-nosnippet>567</a>    <span class="kw">fn </span>call_data_size(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
-<a href=#568 id=568 data-nosnippet>568</a>        <span class="macro">unimplemented!</span>(<span class="string">"not implemented, the off-chain environment will be removed"</span>);
-<a href=#569 id=569 data-nosnippet>569</a>    }
-<a href=#570 id=570 data-nosnippet>570</a>
-<a href=#571 id=571 data-nosnippet>571</a>    <span class="kw">fn </span>return_data_size(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
-<a href=#572 id=572 data-nosnippet>572</a>        <span class="macro">unimplemented!</span>(<span class="string">"not implemented, the off-chain environment will be removed"</span>);
-<a href=#573 id=573 data-nosnippet>573</a>    }
-<a href=#574 id=574 data-nosnippet>574</a>
-<a href=#575 id=575 data-nosnippet>575</a>    <span class="kw">fn </span>transferred_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; U256 {
-<a href=#576 id=576 data-nosnippet>576</a>        <span class="self">self</span>.get_property(Engine::value_transferred)
-<a href=#577 id=577 data-nosnippet>577</a>            .unwrap_or_else(|error| {
-<a href=#578 id=578 data-nosnippet>578</a>                <span class="macro">panic!</span>(<span class="string">"could not read `transferred_value` property: {error:?}"</span>)
-<a href=#579 id=579 data-nosnippet>579</a>            })
-<a href=#580 id=580 data-nosnippet>580</a>    }
-<a href=#581 id=581 data-nosnippet>581</a>
-<a href=#582 id=582 data-nosnippet>582</a>    <span class="kw">fn </span>block_timestamp&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::Timestamp {
-<a href=#583 id=583 data-nosnippet>583</a>        <span class="self">self</span>.get_property::&lt;E::Timestamp&gt;(Engine::block_timestamp)
-<a href=#584 id=584 data-nosnippet>584</a>            .unwrap_or_else(|error| {
-<a href=#585 id=585 data-nosnippet>585</a>                <span class="macro">panic!</span>(<span class="string">"could not read `block_timestamp` property: {error:?}"</span>)
-<a href=#586 id=586 data-nosnippet>586</a>            })
+<a href=#567 id=567 data-nosnippet>567</a><span class="kw">impl </span>TypedEnvBackend <span class="kw">for </span>EnvInstance {
+<a href=#568 id=568 data-nosnippet>568</a>    <span class="kw">fn </span>caller(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Address {
+<a href=#569 id=569 data-nosnippet>569</a>        <span class="self">self</span>.get_property::&lt;Address&gt;(Engine::caller)
+<a href=#570 id=570 data-nosnippet>570</a>            .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">"could not read `caller` property: {error:?}"</span>))
+<a href=#571 id=571 data-nosnippet>571</a>    }
+<a href=#572 id=572 data-nosnippet>572</a>
+<a href=#573 id=573 data-nosnippet>573</a>    <span class="kw">fn </span>gas_limit(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
+<a href=#574 id=574 data-nosnippet>574</a>        <span class="macro">unimplemented!</span>(<span class="string">"not implemented, the off-chain environment will be removed"</span>);
+<a href=#575 id=575 data-nosnippet>575</a>    }
+<a href=#576 id=576 data-nosnippet>576</a>
+<a href=#577 id=577 data-nosnippet>577</a>    <span class="kw">fn </span>gas_price(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
+<a href=#578 id=578 data-nosnippet>578</a>        <span class="macro">unimplemented!</span>(<span class="string">"not implemented, the off-chain environment will be removed"</span>);
+<a href=#579 id=579 data-nosnippet>579</a>    }
+<a href=#580 id=580 data-nosnippet>580</a>
+<a href=#581 id=581 data-nosnippet>581</a>    <span class="kw">fn </span>gas_left(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
+<a href=#582 id=582 data-nosnippet>582</a>        <span class="macro">unimplemented!</span>(<span class="string">"not implemented, the off-chain environment will be removed"</span>);
+<a href=#583 id=583 data-nosnippet>583</a>    }
+<a href=#584 id=584 data-nosnippet>584</a>
+<a href=#585 id=585 data-nosnippet>585</a>    <span class="kw">fn </span>call_data_size(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
+<a href=#586 id=586 data-nosnippet>586</a>        <span class="macro">unimplemented!</span>(<span class="string">"not implemented, the off-chain environment will be removed"</span>);
 <a href=#587 id=587 data-nosnippet>587</a>    }
 <a href=#588 id=588 data-nosnippet>588</a>
-<a href=#589 id=589 data-nosnippet>589</a>    <span class="kw">fn </span>to_account_id&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, addr: Address) -&gt; E::AccountId {
-<a href=#590 id=590 data-nosnippet>590</a>        <span class="kw">let </span><span class="kw-2">mut </span>full_scope: [u8; BUFFER_SIZE] = [<span class="number">0</span>; BUFFER_SIZE];
-<a href=#591 id=591 data-nosnippet>591</a>        <span class="kw">let </span>full_scope = <span class="kw-2">&amp;mut &amp;mut </span>full_scope[..];
-<a href=#592 id=592 data-nosnippet>592</a>        Engine::to_account_id(<span class="kw-2">&amp;</span><span class="self">self</span>.engine, addr.as_bytes(), full_scope);
-<a href=#593 id=593 data-nosnippet>593</a>        scale::Decode::decode(<span class="kw-2">&amp;mut &amp;</span>full_scope[..]).unwrap()
-<a href=#594 id=594 data-nosnippet>594</a>    }
-<a href=#595 id=595 data-nosnippet>595</a>
-<a href=#596 id=596 data-nosnippet>596</a>    <span class="kw">fn </span>account_id&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::AccountId {
-<a href=#597 id=597 data-nosnippet>597</a>        <span class="self">self</span>.get_property::&lt;E::AccountId&gt;(Engine::account_id)
-<a href=#598 id=598 data-nosnippet>598</a>            .unwrap_or_else(|error| {
-<a href=#599 id=599 data-nosnippet>599</a>                <span class="macro">panic!</span>(<span class="string">"could not read `account_id` property: {error:?}"</span>)
-<a href=#600 id=600 data-nosnippet>600</a>            })
-<a href=#601 id=601 data-nosnippet>601</a>    }
-<a href=#602 id=602 data-nosnippet>602</a>
-<a href=#603 id=603 data-nosnippet>603</a>    <span class="kw">fn </span>address(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Address {
-<a href=#604 id=604 data-nosnippet>604</a>        <span class="self">self</span>.get_property::&lt;Address&gt;(Engine::address)
-<a href=#605 id=605 data-nosnippet>605</a>            .unwrap_or_else(|error| {
-<a href=#606 id=606 data-nosnippet>606</a>                <span class="macro">panic!</span>(<span class="string">"could not read `account_id` property: {error:?}"</span>)
-<a href=#607 id=607 data-nosnippet>607</a>            })
-<a href=#608 id=608 data-nosnippet>608</a>    }
-<a href=#609 id=609 data-nosnippet>609</a>
-<a href=#610 id=610 data-nosnippet>610</a>    <span class="kw">fn </span>balance(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; U256 {
-<a href=#611 id=611 data-nosnippet>611</a>        <span class="self">self</span>.get_property::&lt;U256&gt;(Engine::balance)
-<a href=#612 id=612 data-nosnippet>612</a>            .unwrap_or_else(|error| {
-<a href=#613 id=613 data-nosnippet>613</a>                <span class="macro">panic!</span>(<span class="string">"could not read `balance` property: {error:?}"</span>)
-<a href=#614 id=614 data-nosnippet>614</a>            })
-<a href=#615 id=615 data-nosnippet>615</a>    }
-<a href=#616 id=616 data-nosnippet>616</a>
-<a href=#617 id=617 data-nosnippet>617</a>    <span class="kw">fn </span>block_number&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::BlockNumber {
-<a href=#618 id=618 data-nosnippet>618</a>        <span class="self">self</span>.get_property::&lt;E::BlockNumber&gt;(Engine::block_number)
-<a href=#619 id=619 data-nosnippet>619</a>            .unwrap_or_else(|error| {
-<a href=#620 id=620 data-nosnippet>620</a>                <span class="macro">panic!</span>(<span class="string">"could not read `block_number` property: {error:?}"</span>)
-<a href=#621 id=621 data-nosnippet>621</a>            })
-<a href=#622 id=622 data-nosnippet>622</a>    }
-<a href=#623 id=623 data-nosnippet>623</a>
-<a href=#624 id=624 data-nosnippet>624</a>    <span class="kw">fn </span>minimum_balance(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; U256 {
-<a href=#625 id=625 data-nosnippet>625</a>        <span class="self">self</span>.get_property::&lt;U256&gt;(Engine::minimum_balance)
-<a href=#626 id=626 data-nosnippet>626</a>            .unwrap_or_else(|error| {
-<a href=#627 id=627 data-nosnippet>627</a>                <span class="macro">panic!</span>(<span class="string">"could not read `minimum_balance` property: {error:?}"</span>)
-<a href=#628 id=628 data-nosnippet>628</a>            })
-<a href=#629 id=629 data-nosnippet>629</a>    }
-<a href=#630 id=630 data-nosnippet>630</a>
-<a href=#631 id=631 data-nosnippet>631</a>    <span class="kw">fn </span>emit_event&lt;Evt, Abi&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Evt)
-<a href=#632 id=632 data-nosnippet>632</a>    <span class="kw">where
-<a href=#633 id=633 data-nosnippet>633</a>        </span>Evt: Event&lt;Abi&gt;,
-<a href=#634 id=634 data-nosnippet>634</a>        Abi: TopicEncoder,
-<a href=#635 id=635 data-nosnippet>635</a>    {
-<a href=#636 id=636 data-nosnippet>636</a>        <span class="kw">let </span>builder = TopicsBuilder::default();
-<a href=#637 id=637 data-nosnippet>637</a>        <span class="kw">let </span>enc_topics = event.topics(builder.into());
-<a href=#638 id=638 data-nosnippet>638</a>        <span class="kw">let </span>enc_data = event.encode_data();
-<a href=#639 id=639 data-nosnippet>639</a>        <span class="self">self</span>.engine
-<a href=#640 id=640 data-nosnippet>640</a>            .deposit_event(<span class="kw-2">&amp;</span>enc_topics[..], enc_data.as_slice());
-<a href=#641 id=641 data-nosnippet>641</a>    }
-<a href=#642 id=642 data-nosnippet>642</a>
-<a href=#643 id=643 data-nosnippet>643</a>    <span class="kw">fn </span>invoke_contract&lt;E, Args, R, Abi&gt;(
-<a href=#644 id=644 data-nosnippet>644</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#645 id=645 data-nosnippet>645</a>        params: <span class="kw-2">&amp;</span>CallParams&lt;E, Call, Args, R, Abi&gt;,
-<a href=#646 id=646 data-nosnippet>646</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;&gt;
-<a href=#647 id=647 data-nosnippet>647</a>    <span class="kw">where
-<a href=#648 id=648 data-nosnippet>648</a>        </span>E: Environment,
-<a href=#649 id=649 data-nosnippet>649</a>        Args: EncodeArgsWith&lt;Abi&gt;,
-<a href=#650 id=650 data-nosnippet>650</a>        R: DecodeMessageResult&lt;Abi&gt;,
-<a href=#651 id=651 data-nosnippet>651</a>    {
-<a href=#652 id=652 data-nosnippet>652</a>        <span class="kw">let </span>call_flags = params.call_flags().bits();
-<a href=#653 id=653 data-nosnippet>653</a>        <span class="kw">let </span>transferred_value = params.transferred_value();
-<a href=#654 id=654 data-nosnippet>654</a>        <span class="kw">let </span>input = params.exec_input().encode();
-<a href=#655 id=655 data-nosnippet>655</a>        <span class="kw">let </span>callee_account = params.callee();
-<a href=#656 id=656 data-nosnippet>656</a>
-<a href=#657 id=657 data-nosnippet>657</a>        invoke_contract_impl::&lt;R, Abi&gt;(
-<a href=#658 id=658 data-nosnippet>658</a>            <span class="self">self</span>,
-<a href=#659 id=659 data-nosnippet>659</a>            <span class="prelude-val">None</span>,
-<a href=#660 id=660 data-nosnippet>660</a>            call_flags,
-<a href=#661 id=661 data-nosnippet>661</a>            <span class="prelude-val">Some</span>(transferred_value),
-<a href=#662 id=662 data-nosnippet>662</a>            <span class="kw-2">*</span>callee_account, <span class="comment">// todo possibly return no reference from callee()
-<a href=#663 id=663 data-nosnippet>663</a>            </span>input,
-<a href=#664 id=664 data-nosnippet>664</a>        )
-<a href=#665 id=665 data-nosnippet>665</a>    }
-<a href=#666 id=666 data-nosnippet>666</a>
-<a href=#667 id=667 data-nosnippet>667</a>    <span class="kw">fn </span>invoke_contract_delegate&lt;E, Args, R, Abi&gt;(
-<a href=#668 id=668 data-nosnippet>668</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#669 id=669 data-nosnippet>669</a>        params: <span class="kw-2">&amp;</span>CallParams&lt;E, DelegateCall, Args, R, Abi&gt;,
-<a href=#670 id=670 data-nosnippet>670</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;&gt;
-<a href=#671 id=671 data-nosnippet>671</a>    <span class="kw">where
-<a href=#672 id=672 data-nosnippet>672</a>        </span>E: Environment,
-<a href=#673 id=673 data-nosnippet>673</a>        Args: EncodeArgsWith&lt;Abi&gt;,
-<a href=#674 id=674 data-nosnippet>674</a>        R: DecodeMessageResult&lt;Abi&gt;,
-<a href=#675 id=675 data-nosnippet>675</a>    {
-<a href=#676 id=676 data-nosnippet>676</a>        <span class="kw">let </span>_addr = params.address(); <span class="comment">// todo remove
-<a href=#677 id=677 data-nosnippet>677</a>        </span><span class="kw">let </span>call_flags = params.call_flags().bits();
-<a href=#678 id=678 data-nosnippet>678</a>        <span class="kw">let </span>input = params.exec_input().encode();
-<a href=#679 id=679 data-nosnippet>679</a>
-<a href=#680 id=680 data-nosnippet>680</a>        invoke_contract_impl_delegate::&lt;R, Abi&gt;(
-<a href=#681 id=681 data-nosnippet>681</a>            <span class="self">self</span>,
-<a href=#682 id=682 data-nosnippet>682</a>            <span class="prelude-val">None</span>,
-<a href=#683 id=683 data-nosnippet>683</a>            call_flags,
-<a href=#684 id=684 data-nosnippet>684</a>            <span class="prelude-val">None</span>,
-<a href=#685 id=685 data-nosnippet>685</a>            <span class="kw-2">*</span>params.address(),
-<a href=#686 id=686 data-nosnippet>686</a>            input,
-<a href=#687 id=687 data-nosnippet>687</a>        )
-<a href=#688 id=688 data-nosnippet>688</a>    }
-<a href=#689 id=689 data-nosnippet>689</a>
-<a href=#690 id=690 data-nosnippet>690</a>    <span class="kw">fn </span>instantiate_contract&lt;E, ContractRef, Args, R, Abi&gt;(
-<a href=#691 id=691 data-nosnippet>691</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#692 id=692 data-nosnippet>692</a>        params: <span class="kw-2">&amp;</span>CreateParams&lt;E, ContractRef, LimitParamsV2, Args, R, Abi&gt;,
-<a href=#693 id=693 data-nosnippet>693</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;
-<a href=#694 id=694 data-nosnippet>694</a>        ink_primitives::ConstructorResult&lt;
-<a href=#695 id=695 data-nosnippet>695</a>            &lt;R <span class="kw">as </span>ConstructorReturnType&lt;ContractRef, Abi&gt;&gt;::Output,
-<a href=#696 id=696 data-nosnippet>696</a>        &gt;,
-<a href=#697 id=697 data-nosnippet>697</a>    &gt;
-<a href=#698 id=698 data-nosnippet>698</a>    <span class="kw">where
-<a href=#699 id=699 data-nosnippet>699</a>        </span>E: Environment,
-<a href=#700 id=700 data-nosnippet>700</a>        ContractRef: FromAddr + <span class="kw">crate</span>::ContractReverseReference,
-<a href=#701 id=701 data-nosnippet>701</a>        &lt;ContractRef <span class="kw">as </span><span class="kw">crate</span>::ContractReverseReference&gt;::Type:
-<a href=#702 id=702 data-nosnippet>702</a>            <span class="kw">crate</span>::reflect::ContractConstructorDecoder,
-<a href=#703 id=703 data-nosnippet>703</a>        Args: EncodeArgsWith&lt;Abi&gt;,
-<a href=#704 id=704 data-nosnippet>704</a>        R: ConstructorReturnType&lt;ContractRef, Abi&gt;,
-<a href=#705 id=705 data-nosnippet>705</a>    {
-<a href=#706 id=706 data-nosnippet>706</a>        <span class="kw">let </span>endowment = params.endowment();
-<a href=#707 id=707 data-nosnippet>707</a>        <span class="kw">let </span>salt_bytes = params.salt_bytes();
-<a href=#708 id=708 data-nosnippet>708</a>        <span class="kw">let </span>code_hash = params.code_hash();
-<a href=#709 id=709 data-nosnippet>709</a>
-<a href=#710 id=710 data-nosnippet>710</a>        <span class="kw">let </span>input = params.exec_input().encode();
-<a href=#711 id=711 data-nosnippet>711</a>
-<a href=#712 id=712 data-nosnippet>712</a>        <span class="comment">// Compute address for instantiated contract.
-<a href=#713 id=713 data-nosnippet>713</a>        </span><span class="kw">let </span>account_id_vec = {
-<a href=#714 id=714 data-nosnippet>714</a>            <span class="kw">let </span><span class="kw-2">mut </span>account_input = Vec::&lt;u8&gt;::new();
-<a href=#715 id=715 data-nosnippet>715</a>            account_input.extend(<span class="kw-2">&amp;</span><span class="string">b"contract_addr"</span>.to_vec());
-<a href=#716 id=716 data-nosnippet>716</a>            scale::Encode::encode_to(
-<a href=#717 id=717 data-nosnippet>717</a>                <span class="kw-2">&amp;</span><span class="self">self</span>.engine.exec_context.caller.as_bytes(),
-<a href=#718 id=718 data-nosnippet>718</a>                <span class="kw-2">&amp;mut </span>account_input,
-<a href=#719 id=719 data-nosnippet>719</a>            );
-<a href=#720 id=720 data-nosnippet>720</a>            account_input.extend(<span class="kw-2">&amp;</span>code_hash.<span class="number">0</span>);
-<a href=#721 id=721 data-nosnippet>721</a>            account_input.extend(<span class="kw-2">&amp;</span>input);
-<a href=#722 id=722 data-nosnippet>722</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(salt) = salt_bytes {
-<a href=#723 id=723 data-nosnippet>723</a>                account_input.extend(salt);
-<a href=#724 id=724 data-nosnippet>724</a>            }
-<a href=#725 id=725 data-nosnippet>725</a>            <span class="kw">let </span><span class="kw-2">mut </span>account_id = [<span class="number">0_u8</span>; <span class="number">32</span>];
-<a href=#726 id=726 data-nosnippet>726</a>            ink_engine::hashing::blake2b_256(<span class="kw-2">&amp;</span>account_input[..], <span class="kw-2">&amp;mut </span>account_id);
-<a href=#727 id=727 data-nosnippet>727</a>            account_id.to_vec()
-<a href=#728 id=728 data-nosnippet>728</a>        };
-<a href=#729 id=729 data-nosnippet>729</a>        <span class="comment">// todo don't convert to vec and back, simplify type
-<a href=#730 id=730 data-nosnippet>730</a>        </span><span class="kw">let </span>contract_addr = AccountIdMapper::to_address(<span class="kw-2">&amp;</span>account_id_vec[..]);
-<a href=#731 id=731 data-nosnippet>731</a>
-<a href=#732 id=732 data-nosnippet>732</a>        <span class="kw">let </span>old_callee = <span class="self">self</span>.engine.get_callee();
-<a href=#733 id=733 data-nosnippet>733</a>        <span class="self">self</span>.engine.set_callee(contract_addr);
-<a href=#734 id=734 data-nosnippet>734</a>
-<a href=#735 id=735 data-nosnippet>735</a>        <span class="kw">let </span>dispatch = &lt;
-<a href=#736 id=736 data-nosnippet>736</a>            &lt;
-<a href=#737 id=737 data-nosnippet>737</a>                &lt;
-<a href=#738 id=738 data-nosnippet>738</a>                    ContractRef
-<a href=#739 id=739 data-nosnippet>739</a>                    <span class="kw">as </span><span class="kw">crate</span>::ContractReverseReference
-<a href=#740 id=740 data-nosnippet>740</a>                &gt;::Type
-<a href=#741 id=741 data-nosnippet>741</a>                <span class="kw">as </span><span class="kw">crate</span>::reflect::ContractConstructorDecoder
-<a href=#742 id=742 data-nosnippet>742</a>            &gt;::Type
-<a href=#743 id=743 data-nosnippet>743</a>            <span class="kw">as </span>DecodeDispatch
-<a href=#744 id=744 data-nosnippet>744</a>        &gt;::decode_dispatch(<span class="kw-2">&amp;mut &amp;</span>input[..])
-<a href=#745 id=745 data-nosnippet>745</a>            .unwrap_or_else(|e| <span class="macro">panic!</span>(<span class="string">"Failed to decode constructor call: {e:?}"</span>));
-<a href=#746 id=746 data-nosnippet>746</a>        <span class="kw">crate</span>::reflect::ExecuteDispatchable::execute_dispatchable(dispatch)
-<a href=#747 id=747 data-nosnippet>747</a>            .unwrap_or_else(|e| <span class="macro">panic!</span>(<span class="string">"Constructor call failed: {e:?}"</span>));
-<a href=#748 id=748 data-nosnippet>748</a>
-<a href=#749 id=749 data-nosnippet>749</a>        <span class="self">self</span>.engine
-<a href=#750 id=750 data-nosnippet>750</a>            .database
-<a href=#751 id=751 data-nosnippet>751</a>            .set_code_hash(<span class="kw-2">&amp;</span><span class="self">self</span>.engine.get_callee(), code_hash);
-<a href=#752 id=752 data-nosnippet>752</a>        <span class="self">self</span>.engine.set_contract(callee());
-<a href=#753 id=753 data-nosnippet>753</a>        <span class="self">self</span>.engine
-<a href=#754 id=754 data-nosnippet>754</a>            .database
-<a href=#755 id=755 data-nosnippet>755</a>            <span class="comment">// todo passing the types instead of refs would be better
-<a href=#756 id=756 data-nosnippet>756</a>            </span>.set_balance(<span class="kw-2">&amp;</span>callee(), <span class="kw-2">*</span>endowment);
-<a href=#757 id=757 data-nosnippet>757</a>
-<a href=#758 id=758 data-nosnippet>758</a>        <span class="comment">// todo why?
-<a href=#759 id=759 data-nosnippet>759</a>        </span><span class="self">self</span>.engine.set_callee(old_callee);
-<a href=#760 id=760 data-nosnippet>760</a>
-<a href=#761 id=761 data-nosnippet>761</a>        <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(R::ok(&lt;ContractRef <span class="kw">as </span>FromAddr&gt;::from_addr(
-<a href=#762 id=762 data-nosnippet>762</a>            contract_addr,
-<a href=#763 id=763 data-nosnippet>763</a>        ))))
-<a href=#764 id=764 data-nosnippet>764</a>    }
-<a href=#765 id=765 data-nosnippet>765</a>
-<a href=#766 id=766 data-nosnippet>766</a>    <span class="kw">fn </span>terminate_contract(<span class="kw-2">&amp;mut </span><span class="self">self</span>, beneficiary: Address) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-<a href=#767 id=767 data-nosnippet>767</a>        <span class="self">self</span>.engine.terminate(beneficiary).map_err(Into::into)
-<a href=#768 id=768 data-nosnippet>768</a>    }
-<a href=#769 id=769 data-nosnippet>769</a>
-<a href=#770 id=770 data-nosnippet>770</a>    <span class="kw">fn </span>transfer&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, destination: Address, value: U256) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
-<a href=#771 id=771 data-nosnippet>771</a>    <span class="kw">where
-<a href=#772 id=772 data-nosnippet>772</a>        </span>E: Environment,
-<a href=#773 id=773 data-nosnippet>773</a>    {
-<a href=#774 id=774 data-nosnippet>774</a>        <span class="kw">let </span>enc_value = <span class="kw-2">&amp;</span>scale::Encode::encode(<span class="kw-2">&amp;</span>value)[..];
-<a href=#775 id=775 data-nosnippet>775</a>        <span class="self">self</span>.engine
-<a href=#776 id=776 data-nosnippet>776</a>            .transfer(destination, enc_value)
-<a href=#777 id=777 data-nosnippet>777</a>            .map_err(Into::into)
-<a href=#778 id=778 data-nosnippet>778</a>    }
-<a href=#779 id=779 data-nosnippet>779</a>
-<a href=#780 id=780 data-nosnippet>780</a>    <span class="kw">fn </span>weight_to_fee(<span class="kw-2">&amp;mut </span><span class="self">self</span>, gas: u64) -&gt; U256 {
-<a href=#781 id=781 data-nosnippet>781</a>        <span class="kw">let </span><span class="kw-2">mut </span>output: [u8; BUFFER_SIZE] = [<span class="number">0</span>; BUFFER_SIZE];
-<a href=#782 id=782 data-nosnippet>782</a>        <span class="self">self</span>.engine.weight_to_fee(gas, <span class="kw-2">&amp;mut &amp;mut </span>output[..]);
-<a href=#783 id=783 data-nosnippet>783</a>        scale::Decode::decode(<span class="kw-2">&amp;mut &amp;</span>output[..]).unwrap_or_else(|error| {
-<a href=#784 id=784 data-nosnippet>784</a>            <span class="macro">panic!</span>(<span class="string">"could not read `weight_to_fee` property: {error:?}"</span>)
-<a href=#785 id=785 data-nosnippet>785</a>        })
+<a href=#589 id=589 data-nosnippet>589</a>    <span class="kw">fn </span>return_data_size(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
+<a href=#590 id=590 data-nosnippet>590</a>        <span class="macro">unimplemented!</span>(<span class="string">"not implemented, the off-chain environment will be removed"</span>);
+<a href=#591 id=591 data-nosnippet>591</a>    }
+<a href=#592 id=592 data-nosnippet>592</a>
+<a href=#593 id=593 data-nosnippet>593</a>    <span class="kw">fn </span>transferred_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; U256 {
+<a href=#594 id=594 data-nosnippet>594</a>        <span class="self">self</span>.get_property(Engine::value_transferred)
+<a href=#595 id=595 data-nosnippet>595</a>            .unwrap_or_else(|error| {
+<a href=#596 id=596 data-nosnippet>596</a>                <span class="macro">panic!</span>(<span class="string">"could not read `transferred_value` property: {error:?}"</span>)
+<a href=#597 id=597 data-nosnippet>597</a>            })
+<a href=#598 id=598 data-nosnippet>598</a>    }
+<a href=#599 id=599 data-nosnippet>599</a>
+<a href=#600 id=600 data-nosnippet>600</a>    <span class="kw">fn </span>block_timestamp&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::Timestamp {
+<a href=#601 id=601 data-nosnippet>601</a>        <span class="self">self</span>.get_property::&lt;E::Timestamp&gt;(Engine::block_timestamp)
+<a href=#602 id=602 data-nosnippet>602</a>            .unwrap_or_else(|error| {
+<a href=#603 id=603 data-nosnippet>603</a>                <span class="macro">panic!</span>(<span class="string">"could not read `block_timestamp` property: {error:?}"</span>)
+<a href=#604 id=604 data-nosnippet>604</a>            })
+<a href=#605 id=605 data-nosnippet>605</a>    }
+<a href=#606 id=606 data-nosnippet>606</a>
+<a href=#607 id=607 data-nosnippet>607</a>    <span class="kw">fn </span>to_account_id&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, addr: Address) -&gt; E::AccountId {
+<a href=#608 id=608 data-nosnippet>608</a>        <span class="kw">let </span><span class="kw-2">mut </span>full_scope: [u8; BUFFER_SIZE] = [<span class="number">0</span>; BUFFER_SIZE];
+<a href=#609 id=609 data-nosnippet>609</a>        <span class="kw">let </span>full_scope = <span class="kw-2">&amp;mut &amp;mut </span>full_scope[..];
+<a href=#610 id=610 data-nosnippet>610</a>        Engine::to_account_id(<span class="kw-2">&amp;</span><span class="self">self</span>.engine, addr.as_bytes(), full_scope);
+<a href=#611 id=611 data-nosnippet>611</a>        scale::Decode::decode(<span class="kw-2">&amp;mut &amp;</span>full_scope[..]).unwrap()
+<a href=#612 id=612 data-nosnippet>612</a>    }
+<a href=#613 id=613 data-nosnippet>613</a>
+<a href=#614 id=614 data-nosnippet>614</a>    <span class="kw">fn </span>account_id&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::AccountId {
+<a href=#615 id=615 data-nosnippet>615</a>        <span class="self">self</span>.get_property::&lt;E::AccountId&gt;(Engine::account_id)
+<a href=#616 id=616 data-nosnippet>616</a>            .unwrap_or_else(|error| {
+<a href=#617 id=617 data-nosnippet>617</a>                <span class="macro">panic!</span>(<span class="string">"could not read `account_id` property: {error:?}"</span>)
+<a href=#618 id=618 data-nosnippet>618</a>            })
+<a href=#619 id=619 data-nosnippet>619</a>    }
+<a href=#620 id=620 data-nosnippet>620</a>
+<a href=#621 id=621 data-nosnippet>621</a>    <span class="kw">fn </span>address(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Address {
+<a href=#622 id=622 data-nosnippet>622</a>        <span class="self">self</span>.get_property::&lt;Address&gt;(Engine::address)
+<a href=#623 id=623 data-nosnippet>623</a>            .unwrap_or_else(|error| {
+<a href=#624 id=624 data-nosnippet>624</a>                <span class="macro">panic!</span>(<span class="string">"could not read `account_id` property: {error:?}"</span>)
+<a href=#625 id=625 data-nosnippet>625</a>            })
+<a href=#626 id=626 data-nosnippet>626</a>    }
+<a href=#627 id=627 data-nosnippet>627</a>
+<a href=#628 id=628 data-nosnippet>628</a>    <span class="kw">fn </span>balance(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; U256 {
+<a href=#629 id=629 data-nosnippet>629</a>        <span class="self">self</span>.get_property::&lt;U256&gt;(Engine::balance)
+<a href=#630 id=630 data-nosnippet>630</a>            .unwrap_or_else(|error| {
+<a href=#631 id=631 data-nosnippet>631</a>                <span class="macro">panic!</span>(<span class="string">"could not read `balance` property: {error:?}"</span>)
+<a href=#632 id=632 data-nosnippet>632</a>            })
+<a href=#633 id=633 data-nosnippet>633</a>    }
+<a href=#634 id=634 data-nosnippet>634</a>
+<a href=#635 id=635 data-nosnippet>635</a>    <span class="kw">fn </span>block_number&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::BlockNumber {
+<a href=#636 id=636 data-nosnippet>636</a>        <span class="self">self</span>.get_property::&lt;E::BlockNumber&gt;(Engine::block_number)
+<a href=#637 id=637 data-nosnippet>637</a>            .unwrap_or_else(|error| {
+<a href=#638 id=638 data-nosnippet>638</a>                <span class="macro">panic!</span>(<span class="string">"could not read `block_number` property: {error:?}"</span>)
+<a href=#639 id=639 data-nosnippet>639</a>            })
+<a href=#640 id=640 data-nosnippet>640</a>    }
+<a href=#641 id=641 data-nosnippet>641</a>
+<a href=#642 id=642 data-nosnippet>642</a>    <span class="kw">fn </span>minimum_balance(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; U256 {
+<a href=#643 id=643 data-nosnippet>643</a>        <span class="self">self</span>.get_property::&lt;U256&gt;(Engine::minimum_balance)
+<a href=#644 id=644 data-nosnippet>644</a>            .unwrap_or_else(|error| {
+<a href=#645 id=645 data-nosnippet>645</a>                <span class="macro">panic!</span>(<span class="string">"could not read `minimum_balance` property: {error:?}"</span>)
+<a href=#646 id=646 data-nosnippet>646</a>            })
+<a href=#647 id=647 data-nosnippet>647</a>    }
+<a href=#648 id=648 data-nosnippet>648</a>
+<a href=#649 id=649 data-nosnippet>649</a>    <span class="kw">fn </span>emit_event&lt;Evt, Abi&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Evt)
+<a href=#650 id=650 data-nosnippet>650</a>    <span class="kw">where
+<a href=#651 id=651 data-nosnippet>651</a>        </span>Evt: Event&lt;Abi&gt;,
+<a href=#652 id=652 data-nosnippet>652</a>        Abi: TopicEncoder,
+<a href=#653 id=653 data-nosnippet>653</a>    {
+<a href=#654 id=654 data-nosnippet>654</a>        <span class="kw">let </span>builder = TopicsBuilder::default();
+<a href=#655 id=655 data-nosnippet>655</a>        <span class="kw">let </span>enc_topics = event.topics(builder.into());
+<a href=#656 id=656 data-nosnippet>656</a>        <span class="kw">let </span>enc_data = event.encode_data();
+<a href=#657 id=657 data-nosnippet>657</a>        <span class="self">self</span>.engine
+<a href=#658 id=658 data-nosnippet>658</a>            .deposit_event(<span class="kw-2">&amp;</span>enc_topics[..], enc_data.as_slice());
+<a href=#659 id=659 data-nosnippet>659</a>    }
+<a href=#660 id=660 data-nosnippet>660</a>
+<a href=#661 id=661 data-nosnippet>661</a>    <span class="kw">fn </span>invoke_contract&lt;E, Args, R, Abi&gt;(
+<a href=#662 id=662 data-nosnippet>662</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#663 id=663 data-nosnippet>663</a>        params: <span class="kw-2">&amp;</span>CallParams&lt;E, Call, Args, R, Abi&gt;,
+<a href=#664 id=664 data-nosnippet>664</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;&gt;
+<a href=#665 id=665 data-nosnippet>665</a>    <span class="kw">where
+<a href=#666 id=666 data-nosnippet>666</a>        </span>E: Environment,
+<a href=#667 id=667 data-nosnippet>667</a>        Args: EncodeArgsWith&lt;Abi&gt;,
+<a href=#668 id=668 data-nosnippet>668</a>        R: DecodeMessageResult&lt;Abi&gt;,
+<a href=#669 id=669 data-nosnippet>669</a>    {
+<a href=#670 id=670 data-nosnippet>670</a>        <span class="kw">let </span>call_flags = params.call_flags().bits();
+<a href=#671 id=671 data-nosnippet>671</a>        <span class="kw">let </span>transferred_value = params.transferred_value();
+<a href=#672 id=672 data-nosnippet>672</a>        <span class="kw">let </span>input = params.exec_input().encode();
+<a href=#673 id=673 data-nosnippet>673</a>        <span class="kw">let </span>callee_account = params.callee();
+<a href=#674 id=674 data-nosnippet>674</a>
+<a href=#675 id=675 data-nosnippet>675</a>        invoke_contract_impl::&lt;R, Abi&gt;(
+<a href=#676 id=676 data-nosnippet>676</a>            <span class="self">self</span>,
+<a href=#677 id=677 data-nosnippet>677</a>            <span class="prelude-val">None</span>,
+<a href=#678 id=678 data-nosnippet>678</a>            call_flags,
+<a href=#679 id=679 data-nosnippet>679</a>            <span class="prelude-val">Some</span>(transferred_value),
+<a href=#680 id=680 data-nosnippet>680</a>            <span class="kw-2">*</span>callee_account, <span class="comment">// todo possibly return no reference from callee()
+<a href=#681 id=681 data-nosnippet>681</a>            </span>input,
+<a href=#682 id=682 data-nosnippet>682</a>        )
+<a href=#683 id=683 data-nosnippet>683</a>    }
+<a href=#684 id=684 data-nosnippet>684</a>
+<a href=#685 id=685 data-nosnippet>685</a>    <span class="kw">fn </span>invoke_contract_delegate&lt;E, Args, R, Abi&gt;(
+<a href=#686 id=686 data-nosnippet>686</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#687 id=687 data-nosnippet>687</a>        params: <span class="kw-2">&amp;</span>CallParams&lt;E, DelegateCall, Args, R, Abi&gt;,
+<a href=#688 id=688 data-nosnippet>688</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;&gt;
+<a href=#689 id=689 data-nosnippet>689</a>    <span class="kw">where
+<a href=#690 id=690 data-nosnippet>690</a>        </span>E: Environment,
+<a href=#691 id=691 data-nosnippet>691</a>        Args: EncodeArgsWith&lt;Abi&gt;,
+<a href=#692 id=692 data-nosnippet>692</a>        R: DecodeMessageResult&lt;Abi&gt;,
+<a href=#693 id=693 data-nosnippet>693</a>    {
+<a href=#694 id=694 data-nosnippet>694</a>        <span class="kw">let </span>_addr = params.address(); <span class="comment">// todo remove
+<a href=#695 id=695 data-nosnippet>695</a>        </span><span class="kw">let </span>call_flags = params.call_flags().bits();
+<a href=#696 id=696 data-nosnippet>696</a>        <span class="kw">let </span>input = params.exec_input().encode();
+<a href=#697 id=697 data-nosnippet>697</a>
+<a href=#698 id=698 data-nosnippet>698</a>        invoke_contract_impl_delegate::&lt;R, Abi&gt;(
+<a href=#699 id=699 data-nosnippet>699</a>            <span class="self">self</span>,
+<a href=#700 id=700 data-nosnippet>700</a>            <span class="prelude-val">None</span>,
+<a href=#701 id=701 data-nosnippet>701</a>            call_flags,
+<a href=#702 id=702 data-nosnippet>702</a>            <span class="prelude-val">None</span>,
+<a href=#703 id=703 data-nosnippet>703</a>            <span class="kw-2">*</span>params.address(),
+<a href=#704 id=704 data-nosnippet>704</a>            input,
+<a href=#705 id=705 data-nosnippet>705</a>        )
+<a href=#706 id=706 data-nosnippet>706</a>    }
+<a href=#707 id=707 data-nosnippet>707</a>
+<a href=#708 id=708 data-nosnippet>708</a>    <span class="kw">fn </span>instantiate_contract&lt;E, ContractRef, Args, R, Abi&gt;(
+<a href=#709 id=709 data-nosnippet>709</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#710 id=710 data-nosnippet>710</a>        params: <span class="kw-2">&amp;</span>CreateParams&lt;E, ContractRef, LimitParamsV2, Args, R, Abi&gt;,
+<a href=#711 id=711 data-nosnippet>711</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;
+<a href=#712 id=712 data-nosnippet>712</a>        ink_primitives::ConstructorResult&lt;
+<a href=#713 id=713 data-nosnippet>713</a>            &lt;R <span class="kw">as </span>ConstructorReturnType&lt;ContractRef, Abi&gt;&gt;::Output,
+<a href=#714 id=714 data-nosnippet>714</a>        &gt;,
+<a href=#715 id=715 data-nosnippet>715</a>    &gt;
+<a href=#716 id=716 data-nosnippet>716</a>    <span class="kw">where
+<a href=#717 id=717 data-nosnippet>717</a>        </span>E: Environment,
+<a href=#718 id=718 data-nosnippet>718</a>        ContractRef: FromAddr + <span class="kw">crate</span>::ContractReverseReference,
+<a href=#719 id=719 data-nosnippet>719</a>        &lt;ContractRef <span class="kw">as </span><span class="kw">crate</span>::ContractReverseReference&gt;::Type:
+<a href=#720 id=720 data-nosnippet>720</a>            <span class="kw">crate</span>::reflect::ContractConstructorDecoder,
+<a href=#721 id=721 data-nosnippet>721</a>        Args: EncodeArgsWith&lt;Abi&gt;,
+<a href=#722 id=722 data-nosnippet>722</a>        R: ConstructorReturnType&lt;ContractRef, Abi&gt;,
+<a href=#723 id=723 data-nosnippet>723</a>    {
+<a href=#724 id=724 data-nosnippet>724</a>        <span class="kw">let </span>endowment = params.endowment();
+<a href=#725 id=725 data-nosnippet>725</a>        <span class="kw">let </span>salt_bytes = params.salt_bytes();
+<a href=#726 id=726 data-nosnippet>726</a>        <span class="kw">let </span>code_hash = params.code_hash();
+<a href=#727 id=727 data-nosnippet>727</a>
+<a href=#728 id=728 data-nosnippet>728</a>        <span class="kw">let </span>input = params.exec_input().encode();
+<a href=#729 id=729 data-nosnippet>729</a>
+<a href=#730 id=730 data-nosnippet>730</a>        <span class="comment">// Compute address for instantiated contract.
+<a href=#731 id=731 data-nosnippet>731</a>        </span><span class="kw">let </span>account_id_vec = {
+<a href=#732 id=732 data-nosnippet>732</a>            <span class="kw">let </span><span class="kw-2">mut </span>account_input = Vec::&lt;u8&gt;::new();
+<a href=#733 id=733 data-nosnippet>733</a>            account_input.extend(<span class="kw-2">&amp;</span><span class="string">b"contract_addr"</span>.to_vec());
+<a href=#734 id=734 data-nosnippet>734</a>            scale::Encode::encode_to(
+<a href=#735 id=735 data-nosnippet>735</a>                <span class="kw-2">&amp;</span><span class="self">self</span>.engine.exec_context.caller.as_bytes(),
+<a href=#736 id=736 data-nosnippet>736</a>                <span class="kw-2">&amp;mut </span>account_input,
+<a href=#737 id=737 data-nosnippet>737</a>            );
+<a href=#738 id=738 data-nosnippet>738</a>            account_input.extend(<span class="kw-2">&amp;</span>code_hash.<span class="number">0</span>);
+<a href=#739 id=739 data-nosnippet>739</a>            account_input.extend(<span class="kw-2">&amp;</span>input);
+<a href=#740 id=740 data-nosnippet>740</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(salt) = salt_bytes {
+<a href=#741 id=741 data-nosnippet>741</a>                account_input.extend(salt);
+<a href=#742 id=742 data-nosnippet>742</a>            }
+<a href=#743 id=743 data-nosnippet>743</a>            <span class="kw">let </span><span class="kw-2">mut </span>account_id = [<span class="number">0_u8</span>; <span class="number">32</span>];
+<a href=#744 id=744 data-nosnippet>744</a>            ink_engine::hashing::blake2b_256(<span class="kw-2">&amp;</span>account_input[..], <span class="kw-2">&amp;mut </span>account_id);
+<a href=#745 id=745 data-nosnippet>745</a>            account_id.to_vec()
+<a href=#746 id=746 data-nosnippet>746</a>        };
+<a href=#747 id=747 data-nosnippet>747</a>        <span class="comment">// todo don't convert to vec and back, simplify type
+<a href=#748 id=748 data-nosnippet>748</a>        </span><span class="kw">let </span>contract_addr = AccountIdMapper::to_address(<span class="kw-2">&amp;</span>account_id_vec[..]);
+<a href=#749 id=749 data-nosnippet>749</a>
+<a href=#750 id=750 data-nosnippet>750</a>        <span class="kw">let </span>old_callee = <span class="self">self</span>.engine.get_callee();
+<a href=#751 id=751 data-nosnippet>751</a>        <span class="self">self</span>.engine.set_callee(contract_addr);
+<a href=#752 id=752 data-nosnippet>752</a>
+<a href=#753 id=753 data-nosnippet>753</a>        <span class="kw">let </span>dispatch = &lt;
+<a href=#754 id=754 data-nosnippet>754</a>            &lt;
+<a href=#755 id=755 data-nosnippet>755</a>                &lt;
+<a href=#756 id=756 data-nosnippet>756</a>                    ContractRef
+<a href=#757 id=757 data-nosnippet>757</a>                    <span class="kw">as </span><span class="kw">crate</span>::ContractReverseReference
+<a href=#758 id=758 data-nosnippet>758</a>                &gt;::Type
+<a href=#759 id=759 data-nosnippet>759</a>                <span class="kw">as </span><span class="kw">crate</span>::reflect::ContractConstructorDecoder
+<a href=#760 id=760 data-nosnippet>760</a>            &gt;::Type
+<a href=#761 id=761 data-nosnippet>761</a>            <span class="kw">as </span>DecodeDispatch
+<a href=#762 id=762 data-nosnippet>762</a>        &gt;::decode_dispatch(<span class="kw-2">&amp;mut &amp;</span>input[..])
+<a href=#763 id=763 data-nosnippet>763</a>            .unwrap_or_else(|e| <span class="macro">panic!</span>(<span class="string">"Failed to decode constructor call: {e:?}"</span>));
+<a href=#764 id=764 data-nosnippet>764</a>        <span class="kw">crate</span>::reflect::ExecuteDispatchable::execute_dispatchable(dispatch)
+<a href=#765 id=765 data-nosnippet>765</a>            .unwrap_or_else(|e| <span class="macro">panic!</span>(<span class="string">"Constructor call failed: {e:?}"</span>));
+<a href=#766 id=766 data-nosnippet>766</a>
+<a href=#767 id=767 data-nosnippet>767</a>        <span class="self">self</span>.engine
+<a href=#768 id=768 data-nosnippet>768</a>            .database
+<a href=#769 id=769 data-nosnippet>769</a>            .set_code_hash(<span class="kw-2">&amp;</span><span class="self">self</span>.engine.get_callee(), code_hash);
+<a href=#770 id=770 data-nosnippet>770</a>        <span class="self">self</span>.engine.set_contract(callee());
+<a href=#771 id=771 data-nosnippet>771</a>        <span class="self">self</span>.engine
+<a href=#772 id=772 data-nosnippet>772</a>            .database
+<a href=#773 id=773 data-nosnippet>773</a>            <span class="comment">// todo passing the types instead of refs would be better
+<a href=#774 id=774 data-nosnippet>774</a>            </span>.set_balance(<span class="kw-2">&amp;</span>callee(), <span class="kw-2">*</span>endowment);
+<a href=#775 id=775 data-nosnippet>775</a>
+<a href=#776 id=776 data-nosnippet>776</a>        <span class="comment">// todo why?
+<a href=#777 id=777 data-nosnippet>777</a>        </span><span class="self">self</span>.engine.set_callee(old_callee);
+<a href=#778 id=778 data-nosnippet>778</a>
+<a href=#779 id=779 data-nosnippet>779</a>        <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(R::ok(&lt;ContractRef <span class="kw">as </span>FromAddr&gt;::from_addr(
+<a href=#780 id=780 data-nosnippet>780</a>            contract_addr,
+<a href=#781 id=781 data-nosnippet>781</a>        ))))
+<a href=#782 id=782 data-nosnippet>782</a>    }
+<a href=#783 id=783 data-nosnippet>783</a>
+<a href=#784 id=784 data-nosnippet>784</a>    <span class="kw">fn </span>terminate_contract(<span class="kw-2">&amp;mut </span><span class="self">self</span>, beneficiary: Address) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+<a href=#785 id=785 data-nosnippet>785</a>        <span class="self">self</span>.engine.terminate(beneficiary).map_err(Into::into)
 <a href=#786 id=786 data-nosnippet>786</a>    }
 <a href=#787 id=787 data-nosnippet>787</a>
-<a href=#788 id=788 data-nosnippet>788</a>    <span class="kw">fn </span>is_contract(<span class="kw-2">&amp;mut </span><span class="self">self</span>, account: <span class="kw-2">&amp;</span>Address) -&gt; bool {
-<a href=#789 id=789 data-nosnippet>789</a>        <span class="self">self</span>.engine.is_contract(account)
-<a href=#790 id=790 data-nosnippet>790</a>    }
-<a href=#791 id=791 data-nosnippet>791</a>
-<a href=#792 id=792 data-nosnippet>792</a>    <span class="kw">fn </span>caller_is_origin(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
-<a href=#793 id=793 data-nosnippet>793</a>        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support cross-contract calls"</span>)
-<a href=#794 id=794 data-nosnippet>794</a>    }
-<a href=#795 id=795 data-nosnippet>795</a>
-<a href=#796 id=796 data-nosnippet>796</a>    <span class="kw">fn </span>caller_is_root(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
-<a href=#797 id=797 data-nosnippet>797</a>        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support `caller_is_root`"</span>)
-<a href=#798 id=798 data-nosnippet>798</a>    }
-<a href=#799 id=799 data-nosnippet>799</a>
-<a href=#800 id=800 data-nosnippet>800</a>    <span class="kw">fn </span>code_hash(<span class="kw-2">&amp;mut </span><span class="self">self</span>, addr: <span class="kw-2">&amp;</span>Address) -&gt; core::result::Result&lt;H256, CodeHashErr&gt; {
-<a href=#801 id=801 data-nosnippet>801</a>        <span class="kw">let </span>code_hash = <span class="self">self</span>.engine.database.get_code_hash(addr);
-<a href=#802 id=802 data-nosnippet>802</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(code_hash) = code_hash {
-<a href=#803 id=803 data-nosnippet>803</a>            <span class="comment">// todo
-<a href=#804 id=804 data-nosnippet>804</a>            </span><span class="kw">let </span>code_hash = H256::decode(<span class="kw-2">&amp;mut &amp;</span>code_hash[..]).unwrap();
-<a href=#805 id=805 data-nosnippet>805</a>            <span class="prelude-val">Ok</span>(code_hash)
-<a href=#806 id=806 data-nosnippet>806</a>        } <span class="kw">else </span>{
-<a href=#807 id=807 data-nosnippet>807</a>            <span class="prelude-val">Err</span>(CodeHashErr::AddressNotFound)
-<a href=#808 id=808 data-nosnippet>808</a>        }
-<a href=#809 id=809 data-nosnippet>809</a>    }
-<a href=#810 id=810 data-nosnippet>810</a>
-<a href=#811 id=811 data-nosnippet>811</a>    <span class="kw">fn </span>own_code_hash(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; H256 {
-<a href=#812 id=812 data-nosnippet>812</a>        <span class="kw">let </span>callee = <span class="kw-2">&amp;</span><span class="self">self</span>.engine.get_callee();
-<a href=#813 id=813 data-nosnippet>813</a>        <span class="self">self</span>.engine
-<a href=#814 id=814 data-nosnippet>814</a>            .database
-<a href=#815 id=815 data-nosnippet>815</a>            .get_code_hash(callee)
-<a href=#816 id=816 data-nosnippet>816</a>            .expect(<span class="string">"own code hash not found"</span>)
-<a href=#817 id=817 data-nosnippet>817</a>    }
-<a href=#818 id=818 data-nosnippet>818</a>
-<a href=#819 id=819 data-nosnippet>819</a>    <span class="attr">#[cfg(feature = <span class="string">"xcm"</span>)]
-<a href=#820 id=820 data-nosnippet>820</a>    </span><span class="kw">fn </span>xcm_weigh&lt;Call&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Weight&gt; {
-<a href=#821 id=821 data-nosnippet>821</a>        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support `xcm_execute`"</span>)
-<a href=#822 id=822 data-nosnippet>822</a>    }
-<a href=#823 id=823 data-nosnippet>823</a>
-<a href=#824 id=824 data-nosnippet>824</a>    <span class="attr">#[cfg(feature = <span class="string">"xcm"</span>)]
-<a href=#825 id=825 data-nosnippet>825</a>    </span><span class="kw">fn </span>xcm_execute&lt;Call&gt;(
-<a href=#826 id=826 data-nosnippet>826</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#827 id=827 data-nosnippet>827</a>        _msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;,
-<a href=#828 id=828 data-nosnippet>828</a>        _weight: Weight,
-<a href=#829 id=829 data-nosnippet>829</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-<a href=#830 id=830 data-nosnippet>830</a>        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support `xcm_execute`"</span>)
-<a href=#831 id=831 data-nosnippet>831</a>    }
-<a href=#832 id=832 data-nosnippet>832</a>
-<a href=#833 id=833 data-nosnippet>833</a>    <span class="attr">#[cfg(feature = <span class="string">"xcm"</span>)]
-<a href=#834 id=834 data-nosnippet>834</a>    </span><span class="kw">fn </span>xcm_send&lt;Call&gt;(
-<a href=#835 id=835 data-nosnippet>835</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#836 id=836 data-nosnippet>836</a>        _dest: <span class="kw-2">&amp;</span>xcm::VersionedLocation,
-<a href=#837 id=837 data-nosnippet>837</a>        _msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;,
-<a href=#838 id=838 data-nosnippet>838</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-<a href=#839 id=839 data-nosnippet>839</a>        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support `xcm_send`"</span>)
+<a href=#788 id=788 data-nosnippet>788</a>    <span class="kw">fn </span>transfer&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, destination: Address, value: U256) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+<a href=#789 id=789 data-nosnippet>789</a>    <span class="kw">where
+<a href=#790 id=790 data-nosnippet>790</a>        </span>E: Environment,
+<a href=#791 id=791 data-nosnippet>791</a>    {
+<a href=#792 id=792 data-nosnippet>792</a>        <span class="kw">let </span>enc_value = <span class="kw-2">&amp;</span>scale::Encode::encode(<span class="kw-2">&amp;</span>value)[..];
+<a href=#793 id=793 data-nosnippet>793</a>        <span class="self">self</span>.engine
+<a href=#794 id=794 data-nosnippet>794</a>            .transfer(destination, enc_value)
+<a href=#795 id=795 data-nosnippet>795</a>            .map_err(Into::into)
+<a href=#796 id=796 data-nosnippet>796</a>    }
+<a href=#797 id=797 data-nosnippet>797</a>
+<a href=#798 id=798 data-nosnippet>798</a>    <span class="kw">fn </span>weight_to_fee(<span class="kw-2">&amp;mut </span><span class="self">self</span>, gas: u64) -&gt; U256 {
+<a href=#799 id=799 data-nosnippet>799</a>        <span class="kw">let </span><span class="kw-2">mut </span>output: [u8; BUFFER_SIZE] = [<span class="number">0</span>; BUFFER_SIZE];
+<a href=#800 id=800 data-nosnippet>800</a>        <span class="self">self</span>.engine.weight_to_fee(gas, <span class="kw-2">&amp;mut &amp;mut </span>output[..]);
+<a href=#801 id=801 data-nosnippet>801</a>        scale::Decode::decode(<span class="kw-2">&amp;mut &amp;</span>output[..]).unwrap_or_else(|error| {
+<a href=#802 id=802 data-nosnippet>802</a>            <span class="macro">panic!</span>(<span class="string">"could not read `weight_to_fee` property: {error:?}"</span>)
+<a href=#803 id=803 data-nosnippet>803</a>        })
+<a href=#804 id=804 data-nosnippet>804</a>    }
+<a href=#805 id=805 data-nosnippet>805</a>
+<a href=#806 id=806 data-nosnippet>806</a>    <span class="kw">fn </span>is_contract(<span class="kw-2">&amp;mut </span><span class="self">self</span>, account: <span class="kw-2">&amp;</span>Address) -&gt; bool {
+<a href=#807 id=807 data-nosnippet>807</a>        <span class="self">self</span>.engine.is_contract(account)
+<a href=#808 id=808 data-nosnippet>808</a>    }
+<a href=#809 id=809 data-nosnippet>809</a>
+<a href=#810 id=810 data-nosnippet>810</a>    <span class="kw">fn </span>caller_is_origin(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
+<a href=#811 id=811 data-nosnippet>811</a>        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support cross-contract calls"</span>)
+<a href=#812 id=812 data-nosnippet>812</a>    }
+<a href=#813 id=813 data-nosnippet>813</a>
+<a href=#814 id=814 data-nosnippet>814</a>    <span class="kw">fn </span>caller_is_root(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
+<a href=#815 id=815 data-nosnippet>815</a>        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support `caller_is_root`"</span>)
+<a href=#816 id=816 data-nosnippet>816</a>    }
+<a href=#817 id=817 data-nosnippet>817</a>
+<a href=#818 id=818 data-nosnippet>818</a>    <span class="kw">fn </span>code_hash(<span class="kw-2">&amp;mut </span><span class="self">self</span>, addr: <span class="kw-2">&amp;</span>Address) -&gt; core::result::Result&lt;H256, CodeHashErr&gt; {
+<a href=#819 id=819 data-nosnippet>819</a>        <span class="kw">let </span>code_hash = <span class="self">self</span>.engine.database.get_code_hash(addr);
+<a href=#820 id=820 data-nosnippet>820</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(code_hash) = code_hash {
+<a href=#821 id=821 data-nosnippet>821</a>            <span class="comment">// todo
+<a href=#822 id=822 data-nosnippet>822</a>            </span><span class="kw">let </span>code_hash = H256::decode(<span class="kw-2">&amp;mut &amp;</span>code_hash[..]).unwrap();
+<a href=#823 id=823 data-nosnippet>823</a>            <span class="prelude-val">Ok</span>(code_hash)
+<a href=#824 id=824 data-nosnippet>824</a>        } <span class="kw">else </span>{
+<a href=#825 id=825 data-nosnippet>825</a>            <span class="prelude-val">Err</span>(CodeHashErr::AddressNotFound)
+<a href=#826 id=826 data-nosnippet>826</a>        }
+<a href=#827 id=827 data-nosnippet>827</a>    }
+<a href=#828 id=828 data-nosnippet>828</a>
+<a href=#829 id=829 data-nosnippet>829</a>    <span class="kw">fn </span>own_code_hash(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; H256 {
+<a href=#830 id=830 data-nosnippet>830</a>        <span class="kw">let </span>callee = <span class="kw-2">&amp;</span><span class="self">self</span>.engine.get_callee();
+<a href=#831 id=831 data-nosnippet>831</a>        <span class="self">self</span>.engine
+<a href=#832 id=832 data-nosnippet>832</a>            .database
+<a href=#833 id=833 data-nosnippet>833</a>            .get_code_hash(callee)
+<a href=#834 id=834 data-nosnippet>834</a>            .expect(<span class="string">"own code hash not found"</span>)
+<a href=#835 id=835 data-nosnippet>835</a>    }
+<a href=#836 id=836 data-nosnippet>836</a>
+<a href=#837 id=837 data-nosnippet>837</a>    <span class="attr">#[cfg(feature = <span class="string">"xcm"</span>)]
+<a href=#838 id=838 data-nosnippet>838</a>    </span><span class="kw">fn </span>xcm_weigh&lt;Call&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Weight&gt; {
+<a href=#839 id=839 data-nosnippet>839</a>        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support `xcm_execute`"</span>)
 <a href=#840 id=840 data-nosnippet>840</a>    }
-<a href=#841 id=841 data-nosnippet>841</a>}</code></pre></div></section></main></body></html>
+<a href=#841 id=841 data-nosnippet>841</a>
+<a href=#842 id=842 data-nosnippet>842</a>    <span class="attr">#[cfg(feature = <span class="string">"xcm"</span>)]
+<a href=#843 id=843 data-nosnippet>843</a>    </span><span class="kw">fn </span>xcm_execute&lt;Call&gt;(
+<a href=#844 id=844 data-nosnippet>844</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#845 id=845 data-nosnippet>845</a>        _msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;,
+<a href=#846 id=846 data-nosnippet>846</a>        _weight: Weight,
+<a href=#847 id=847 data-nosnippet>847</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+<a href=#848 id=848 data-nosnippet>848</a>        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support `xcm_execute`"</span>)
+<a href=#849 id=849 data-nosnippet>849</a>    }
+<a href=#850 id=850 data-nosnippet>850</a>
+<a href=#851 id=851 data-nosnippet>851</a>    <span class="attr">#[cfg(feature = <span class="string">"xcm"</span>)]
+<a href=#852 id=852 data-nosnippet>852</a>    </span><span class="kw">fn </span>xcm_send&lt;Call&gt;(
+<a href=#853 id=853 data-nosnippet>853</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#854 id=854 data-nosnippet>854</a>        _dest: <span class="kw-2">&amp;</span>xcm::VersionedLocation,
+<a href=#855 id=855 data-nosnippet>855</a>        _msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;,
+<a href=#856 id=856 data-nosnippet>856</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+<a href=#857 id=857 data-nosnippet>857</a>        <span class="macro">unimplemented!</span>(<span class="string">"off-chain environment does not support `xcm_send`"</span>)
+<a href=#858 id=858 data-nosnippet>858</a>    }
+<a href=#859 id=859 data-nosnippet>859</a>}</code></pre></div></section></main></body></html>

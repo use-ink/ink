@@ -353,64 +353,85 @@
 <a href=#353 id=353 data-nosnippet>353</a>}
 <a href=#354 id=354 data-nosnippet>354</a>
 <a href=#355 id=355 data-nosnippet>355</a><span class="kw">impl </span>Engine {
-<a href=#356 id=356 data-nosnippet>356</a>    <span class="doccomment">/// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,
-<a href=#357 id=357 data-nosnippet>357</a>    /// and stores the result in `output`.
-<a href=#358 id=358 data-nosnippet>358</a>    </span><span class="attr">#[allow(clippy::arithmetic_side_effects)] </span><span class="comment">// todo
-<a href=#359 id=359 data-nosnippet>359</a>    </span><span class="kw">pub fn </span>ecdsa_recover(
-<a href=#360 id=360 data-nosnippet>360</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#361 id=361 data-nosnippet>361</a>        signature: <span class="kw-2">&amp;</span>[u8; <span class="number">65</span>],
-<a href=#362 id=362 data-nosnippet>362</a>        message_hash: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>],
-<a href=#363 id=363 data-nosnippet>363</a>        output: <span class="kw-2">&amp;mut </span>[u8; <span class="number">33</span>],
-<a href=#364 id=364 data-nosnippet>364</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-<a href=#365 id=365 data-nosnippet>365</a>        <span class="kw">use </span>secp256k1::{
-<a href=#366 id=366 data-nosnippet>366</a>            Message,
-<a href=#367 id=367 data-nosnippet>367</a>            SECP256K1,
-<a href=#368 id=368 data-nosnippet>368</a>            ecdsa::{
-<a href=#369 id=369 data-nosnippet>369</a>                RecoverableSignature,
-<a href=#370 id=370 data-nosnippet>370</a>                RecoveryId,
-<a href=#371 id=371 data-nosnippet>371</a>            },
-<a href=#372 id=372 data-nosnippet>372</a>        };
-<a href=#373 id=373 data-nosnippet>373</a>
-<a href=#374 id=374 data-nosnippet>374</a>        <span class="comment">// In most implementations, the v is just 0 or 1 internally, but 27 was added
-<a href=#375 id=375 data-nosnippet>375</a>        // as an arbitrary number for signing Bitcoin messages and Ethereum adopted that
-<a href=#376 id=376 data-nosnippet>376</a>        // as well.
-<a href=#377 id=377 data-nosnippet>377</a>        </span><span class="kw">let </span>recovery_byte = <span class="kw">if </span>signature[<span class="number">64</span>] &gt; <span class="number">26 </span>{
-<a href=#378 id=378 data-nosnippet>378</a>            signature[<span class="number">64</span>] - <span class="number">27
-<a href=#379 id=379 data-nosnippet>379</a>        </span>} <span class="kw">else </span>{
-<a href=#380 id=380 data-nosnippet>380</a>            signature[<span class="number">64</span>]
-<a href=#381 id=381 data-nosnippet>381</a>        };
-<a href=#382 id=382 data-nosnippet>382</a>
-<a href=#383 id=383 data-nosnippet>383</a>        <span class="kw">let </span>recovery_id = RecoveryId::try_from(recovery_byte <span class="kw">as </span>i32)
-<a href=#384 id=384 data-nosnippet>384</a>            .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">"Unable to parse the recovery id: {error}"</span>));
-<a href=#385 id=385 data-nosnippet>385</a>
-<a href=#386 id=386 data-nosnippet>386</a>        <span class="kw">let </span>message = Message::from_digest_slice(message_hash).unwrap_or_else(|error| {
-<a href=#387 id=387 data-nosnippet>387</a>            <span class="macro">panic!</span>(<span class="string">"Unable to create the message from hash: {error}"</span>)
-<a href=#388 id=388 data-nosnippet>388</a>        });
-<a href=#389 id=389 data-nosnippet>389</a>        <span class="kw">let </span>signature =
-<a href=#390 id=390 data-nosnippet>390</a>            RecoverableSignature::from_compact(<span class="kw-2">&amp;</span>signature[<span class="number">0</span>..<span class="number">64</span>], recovery_id)
-<a href=#391 id=391 data-nosnippet>391</a>                .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">"Unable to parse the signature: {error}"</span>));
-<a href=#392 id=392 data-nosnippet>392</a>
-<a href=#393 id=393 data-nosnippet>393</a>        <span class="kw">let </span>pub_key = SECP256K1.recover_ecdsa(<span class="kw-2">&amp;</span>message, <span class="kw-2">&amp;</span>signature);
-<a href=#394 id=394 data-nosnippet>394</a>        <span class="kw">match </span>pub_key {
-<a href=#395 id=395 data-nosnippet>395</a>            <span class="prelude-val">Ok</span>(pub_key) =&gt; {
-<a href=#396 id=396 data-nosnippet>396</a>                <span class="kw-2">*</span>output = pub_key.serialize();
-<a href=#397 id=397 data-nosnippet>397</a>                <span class="prelude-val">Ok</span>(())
-<a href=#398 id=398 data-nosnippet>398</a>            }
-<a href=#399 id=399 data-nosnippet>399</a>            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(Error::EcdsaRecoveryFailed),
-<a href=#400 id=400 data-nosnippet>400</a>        }
-<a href=#401 id=401 data-nosnippet>401</a>    }
-<a href=#402 id=402 data-nosnippet>402</a>}
+<a href=#356 id=356 data-nosnippet>356</a>    <span class="doccomment">/// Implements the `bn128_add` G1 addition precompile.
+<a href=#357 id=357 data-nosnippet>357</a>    </span><span class="kw">pub fn </span>bn128_add(<span class="self">self</span>, _x1: U256, _y1: U256, _x2: U256, _y2: U256) -&gt; (U256, U256) {
+<a href=#358 id=358 data-nosnippet>358</a>        <span class="macro">unimplemented!</span>(
+<a href=#359 id=359 data-nosnippet>359</a>            <span class="string">"`bn128_add` is not implemented in the off-chain testing environment"
+<a href=#360 id=360 data-nosnippet>360</a>        </span>);
+<a href=#361 id=361 data-nosnippet>361</a>    }
+<a href=#362 id=362 data-nosnippet>362</a>
+<a href=#363 id=363 data-nosnippet>363</a>    <span class="doccomment">/// Implements the `bn128_mul` G1 scalar-mul precompile.
+<a href=#364 id=364 data-nosnippet>364</a>    </span><span class="kw">pub fn </span>bn128_mul(<span class="self">self</span>, _x1: U256, _y1: U256, _scalar: U256) -&gt; (U256, U256) {
+<a href=#365 id=365 data-nosnippet>365</a>        <span class="macro">unimplemented!</span>(
+<a href=#366 id=366 data-nosnippet>366</a>            <span class="string">"`bn128_mul` is not implemented in the off-chain testing environment"
+<a href=#367 id=367 data-nosnippet>367</a>        </span>);
+<a href=#368 id=368 data-nosnippet>368</a>    }
+<a href=#369 id=369 data-nosnippet>369</a>
+<a href=#370 id=370 data-nosnippet>370</a>    <span class="doccomment">/// Implements the `bn128_pairing` precompile.
+<a href=#371 id=371 data-nosnippet>371</a>    </span><span class="kw">pub fn </span>bn128_pairing(<span class="self">self</span>, _input: <span class="kw-2">&amp;</span>[u8]) -&gt; bool {
+<a href=#372 id=372 data-nosnippet>372</a>        <span class="macro">unimplemented!</span>(
+<a href=#373 id=373 data-nosnippet>373</a>            <span class="string">"`bn128_pairing` is not implemented in the off-chain testing environment"
+<a href=#374 id=374 data-nosnippet>374</a>        </span>);
+<a href=#375 id=375 data-nosnippet>375</a>    }
+<a href=#376 id=376 data-nosnippet>376</a>
+<a href=#377 id=377 data-nosnippet>377</a>    <span class="doccomment">/// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,
+<a href=#378 id=378 data-nosnippet>378</a>    /// and stores the result in `output`.
+<a href=#379 id=379 data-nosnippet>379</a>    </span><span class="attr">#[allow(clippy::arithmetic_side_effects)] </span><span class="comment">// todo
+<a href=#380 id=380 data-nosnippet>380</a>    </span><span class="kw">pub fn </span>ecdsa_recover(
+<a href=#381 id=381 data-nosnippet>381</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#382 id=382 data-nosnippet>382</a>        signature: <span class="kw-2">&amp;</span>[u8; <span class="number">65</span>],
+<a href=#383 id=383 data-nosnippet>383</a>        message_hash: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>],
+<a href=#384 id=384 data-nosnippet>384</a>        output: <span class="kw-2">&amp;mut </span>[u8; <span class="number">33</span>],
+<a href=#385 id=385 data-nosnippet>385</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+<a href=#386 id=386 data-nosnippet>386</a>        <span class="kw">use </span>secp256k1::{
+<a href=#387 id=387 data-nosnippet>387</a>            Message,
+<a href=#388 id=388 data-nosnippet>388</a>            SECP256K1,
+<a href=#389 id=389 data-nosnippet>389</a>            ecdsa::{
+<a href=#390 id=390 data-nosnippet>390</a>                RecoverableSignature,
+<a href=#391 id=391 data-nosnippet>391</a>                RecoveryId,
+<a href=#392 id=392 data-nosnippet>392</a>            },
+<a href=#393 id=393 data-nosnippet>393</a>        };
+<a href=#394 id=394 data-nosnippet>394</a>
+<a href=#395 id=395 data-nosnippet>395</a>        <span class="comment">// In most implementations, the v is just 0 or 1 internally, but 27 was added
+<a href=#396 id=396 data-nosnippet>396</a>        // as an arbitrary number for signing Bitcoin messages and Ethereum adopted that
+<a href=#397 id=397 data-nosnippet>397</a>        // as well.
+<a href=#398 id=398 data-nosnippet>398</a>        </span><span class="kw">let </span>recovery_byte = <span class="kw">if </span>signature[<span class="number">64</span>] &gt; <span class="number">26 </span>{
+<a href=#399 id=399 data-nosnippet>399</a>            signature[<span class="number">64</span>] - <span class="number">27
+<a href=#400 id=400 data-nosnippet>400</a>        </span>} <span class="kw">else </span>{
+<a href=#401 id=401 data-nosnippet>401</a>            signature[<span class="number">64</span>]
+<a href=#402 id=402 data-nosnippet>402</a>        };
 <a href=#403 id=403 data-nosnippet>403</a>
-<a href=#404 id=404 data-nosnippet>404</a><span class="doccomment">/// Copies the `slice` into `output`.
-<a href=#405 id=405 data-nosnippet>405</a>///
-<a href=#406 id=406 data-nosnippet>406</a>/// Panics if the slice is too large and does not fit.
-<a href=#407 id=407 data-nosnippet>407</a></span><span class="kw">fn </span>set_output(output: <span class="kw-2">&amp;mut &amp;mut </span>[u8], slice: <span class="kw-2">&amp;</span>[u8]) {
-<a href=#408 id=408 data-nosnippet>408</a>    <span class="macro">assert!</span>(
-<a href=#409 id=409 data-nosnippet>409</a>        slice.len() &lt;= output.len(),
-<a href=#410 id=410 data-nosnippet>410</a>        <span class="string">"the output buffer is too small! the decoded storage is of size {} bytes, \
-<a href=#411 id=411 data-nosnippet>411</a>        but the output buffer has only room for {}."</span>,
-<a href=#412 id=412 data-nosnippet>412</a>        slice.len(),
-<a href=#413 id=413 data-nosnippet>413</a>        output.len(),
-<a href=#414 id=414 data-nosnippet>414</a>    );
-<a href=#415 id=415 data-nosnippet>415</a>    output[..slice.len()].copy_from_slice(slice);
-<a href=#416 id=416 data-nosnippet>416</a>}</code></pre></div></section></main></body></html>
+<a href=#404 id=404 data-nosnippet>404</a>        <span class="kw">let </span>recovery_id = RecoveryId::try_from(recovery_byte <span class="kw">as </span>i32)
+<a href=#405 id=405 data-nosnippet>405</a>            .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">"Unable to parse the recovery id: {error}"</span>));
+<a href=#406 id=406 data-nosnippet>406</a>
+<a href=#407 id=407 data-nosnippet>407</a>        <span class="kw">let </span>message = Message::from_digest_slice(message_hash).unwrap_or_else(|error| {
+<a href=#408 id=408 data-nosnippet>408</a>            <span class="macro">panic!</span>(<span class="string">"Unable to create the message from hash: {error}"</span>)
+<a href=#409 id=409 data-nosnippet>409</a>        });
+<a href=#410 id=410 data-nosnippet>410</a>        <span class="kw">let </span>signature =
+<a href=#411 id=411 data-nosnippet>411</a>            RecoverableSignature::from_compact(<span class="kw-2">&amp;</span>signature[<span class="number">0</span>..<span class="number">64</span>], recovery_id)
+<a href=#412 id=412 data-nosnippet>412</a>                .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">"Unable to parse the signature: {error}"</span>));
+<a href=#413 id=413 data-nosnippet>413</a>
+<a href=#414 id=414 data-nosnippet>414</a>        <span class="kw">let </span>pub_key = SECP256K1.recover_ecdsa(<span class="kw-2">&amp;</span>message, <span class="kw-2">&amp;</span>signature);
+<a href=#415 id=415 data-nosnippet>415</a>        <span class="kw">match </span>pub_key {
+<a href=#416 id=416 data-nosnippet>416</a>            <span class="prelude-val">Ok</span>(pub_key) =&gt; {
+<a href=#417 id=417 data-nosnippet>417</a>                <span class="kw-2">*</span>output = pub_key.serialize();
+<a href=#418 id=418 data-nosnippet>418</a>                <span class="prelude-val">Ok</span>(())
+<a href=#419 id=419 data-nosnippet>419</a>            }
+<a href=#420 id=420 data-nosnippet>420</a>            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(Error::EcdsaRecoveryFailed),
+<a href=#421 id=421 data-nosnippet>421</a>        }
+<a href=#422 id=422 data-nosnippet>422</a>    }
+<a href=#423 id=423 data-nosnippet>423</a>}
+<a href=#424 id=424 data-nosnippet>424</a>
+<a href=#425 id=425 data-nosnippet>425</a><span class="doccomment">/// Copies the `slice` into `output`.
+<a href=#426 id=426 data-nosnippet>426</a>///
+<a href=#427 id=427 data-nosnippet>427</a>/// Panics if the slice is too large and does not fit.
+<a href=#428 id=428 data-nosnippet>428</a></span><span class="kw">fn </span>set_output(output: <span class="kw-2">&amp;mut &amp;mut </span>[u8], slice: <span class="kw-2">&amp;</span>[u8]) {
+<a href=#429 id=429 data-nosnippet>429</a>    <span class="macro">assert!</span>(
+<a href=#430 id=430 data-nosnippet>430</a>        slice.len() &lt;= output.len(),
+<a href=#431 id=431 data-nosnippet>431</a>        <span class="string">"the output buffer is too small! the decoded storage is of size {} bytes, \
+<a href=#432 id=432 data-nosnippet>432</a>        but the output buffer has only room for {}."</span>,
+<a href=#433 id=433 data-nosnippet>433</a>        slice.len(),
+<a href=#434 id=434 data-nosnippet>434</a>        output.len(),
+<a href=#435 id=435 data-nosnippet>435</a>    );
+<a href=#436 id=436 data-nosnippet>436</a>    output[..slice.len()].copy_from_slice(slice);
+<a href=#437 id=437 data-nosnippet>437</a>}</code></pre></div></section></main></body></html>
