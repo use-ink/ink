@@ -255,7 +255,6 @@ mod construct_runtime {
     use $crate::pallet_transaction_payment::{FungibleAdapter};
 
     use $crate::Snapshot;
-    use $crate::ink_precompiles::erc20;
 
     pub type Balance = u128;
 
@@ -387,7 +386,7 @@ mod construct_runtime {
         type InstantiateOrigin = $crate::frame_system::EnsureSigned<Self::AccountId>;
         type FindAuthor = ();
         type Precompiles = (
-            $crate::pallet_assets_precompiles::ERC20<Self, $crate::pallet_assets_precompiles::InlineIdConfig<{ erc20::TRUST_BACKED_ASSETS_PRECOMPILE_INDEX }>, TrustBackedAssetsInstance>,
+            $crate::pallet_assets_precompiles::ERC20<Self, $crate::pallet_assets_precompiles::InlineIdConfig<{ 0x0120 }>, TrustBackedAssetsInstance>,
             // todo add `PoolAssetsInstance`
         );
         type AllowEVMBytecode = ConstBool<false>;
