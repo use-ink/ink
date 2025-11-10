@@ -115,9 +115,7 @@ pub fn return_data_size() -> u64 {
 /// Returns the [EIP-155](https://eips.ethereum.org/EIPS/eip-155) chain ID,
 /// akin to the EVM [CHAINID](https://www.evm.codes/?fork=cancun#46) opcode.
 pub fn chain_id() -> U256 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::chain_id(instance)
-    })
+    <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::chain_id)
 }
 
 /// Returns the **reducible** native balance of the supplied address,
@@ -131,9 +129,7 @@ pub fn balance_of(addr: Address) -> U256 {
 /// Returns the base fee.
 /// This is akin to the EVM [BASEFEE](https://www.evm.codes/?fork=cancun#48) opcode.
 pub fn base_fee() -> U256 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::base_fee(instance)
-    })
+    <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::base_fee)
 }
 
 /// Returns the origin address (initator of the call stack).
@@ -143,7 +139,7 @@ pub fn base_fee() -> U256 {
 ///
 /// - If there is no address associated with the origin (e.g. because the origin is root).
 pub fn origin() -> Address {
-    <EnvInstance as OnInstance>::on_instance(|instance| TypedEnvBackend::origin(instance))
+    <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::origin)
 }
 
 /// Returns the code size for a specified contract address.
@@ -169,9 +165,7 @@ pub fn block_hash(block_number: BlockNumber) -> H256 {
 /// Returns the current block author.
 /// This is akin to the EVM [COINBASE](https://www.evm.codes/?fork=cancun#41) opcode.
 pub fn block_author() -> Address {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::block_author(instance)
-    })
+    <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::block_author)
 }
 
 /// Returns the transferred value for the contract execution.

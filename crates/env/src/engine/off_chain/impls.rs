@@ -599,7 +599,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("not implemented, the off-chain environment will be removed");
     }
 
-    fn block_hash(&mut self, block_number: BlockNumber) -> H256 {
+    fn block_hash(&mut self, _block_number: BlockNumber) -> H256 {
         unimplemented!("not implemented, the off-chain environment will be removed");
     }
 
