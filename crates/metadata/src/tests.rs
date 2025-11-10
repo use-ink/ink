@@ -408,6 +408,10 @@ fn spec_contract_json() {
                     ),
                 ))
                 .native_to_eth_ratio(NATIVE_TO_ETH_RATIO)
+                .trust_backed_assets_precompile_index(
+                    TRUST_BACKED_ASSETS_PRECOMPILE_INDEX,
+                )
+                .pool_assets_precompile_index(POOL_ASSETS_PRECOMPILE_INDEX)
                 .static_buffer_size(BUFFER_SIZE)
                 .done(),
         )
@@ -731,6 +735,8 @@ fn environment_spec() -> EnvironmentSpec<PortableForm> {
         .block_number(Default::default())
         .static_buffer_size(16384)
         .native_to_eth_ratio(100_000_000)
+        .trust_backed_assets_precompile_index(0x0120)
+        .pool_assets_precompile_index(0x0320)
         .done()
 }
 
