@@ -28,9 +28,6 @@ use ink::{
     U256,
 };
 
-/// ERC-20 Assets precompile index.
-pub const PRECOMPILE_INDEX: u16 = 0x0120;
-
 /// Type alias for asset IDs.
 pub type AssetId = u32;
 
@@ -155,8 +152,8 @@ pub trait Erc20 {
 /// let erc20_ref = erc20(asset_id);
 /// let balance = erc20_ref.balanceOf(account);
 /// ```
-pub fn erc20(asset_id: AssetId) -> Erc20Ref {
-    let address = crate::prefixed_address(PRECOMPILE_INDEX, asset_id);
+pub fn erc20(precompile_index: u16, asset_id: AssetId) -> Erc20Ref {
+    let address = crate::prefixed_address(precompile_index, asset_id);
     address.into()
 }
 

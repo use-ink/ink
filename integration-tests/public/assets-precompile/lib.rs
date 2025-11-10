@@ -37,7 +37,10 @@ mod asset_hub_precompile {
             Self {
                 asset_id,
                 owner: Self::env().caller(),
-                precompile: erc20(asset_id),
+                precompile: erc20(
+                    ink::env::DefaultEnvironment::TRUST_BACKED_ASSETS_PRECOMPILE_INDEX,
+                    asset_id,
+                ),
             }
         }
 
