@@ -16,7 +16,30 @@ use super::blake2::blake2b_256;
 use crate::literal::HexLiteral;
 use proc_macro2::TokenStream as TokenStream2;
 use std::marker::PhantomData;
-use syn::spanned::Spanned as _;
+use syn::{
+    parse::Parser,
+    spanned::Spanned as _,
+};
+
+/// The ABI type used for selector computation.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SelectorAbi {
+    /// ink! ABI (uses BLAKE-2 256-bit hash)
+    Ink,
+    /// Solidity ABI (uses Keccak-256 hash)
+    Sol,
+}
+
+/// Computes the Keccak-256 hash of the given input.
+fn keccak_256(input: &[u8], output: &mut [u8; 32]) {
+    use sha3::{
+        Digest,
+        Keccak256,
+    };
+    let mut hasher = Keccak256::new();
+    hasher.update(input);
+    output.copy_from_slice(&hasher.finalize());
+}
 
 /// The selector of an ink! dispatchable.
 ///
@@ -64,10 +87,16 @@ impl<'a> TraitPrefix<'a> {
 }
 
 impl Selector {
-    /// Computes the BLAKE-2 256-bit based selector from the given input bytes.
-    pub fn compute(input: &[u8]) -> Self {
+    /// Computes the selector from the given input bytes using the specified ABI.
+    ///
+    /// - For `SelectorAbi::Ink`: uses BLAKE-2 256-bit hash
+    /// - For `SelectorAbi::Sol`: uses Keccak-256 hash
+    pub fn compute(input: &[u8], abi: SelectorAbi) -> Self {
         let mut output = [0; 32];
-        blake2b_256(input, &mut output);
+        match abi {
+            SelectorAbi::Ink => blake2b_256(input, &mut output),
+            SelectorAbi::Sol => keccak_256(input, &mut output),
+        }
         Self::from([output[0], output[1], output[2], output[3]])
     }
 
@@ -102,9 +131,9 @@ impl Selector {
     /// 1. Compute the ASCII byte representation of `namespace` and call it `N`.
     /// 1. Compute the ASCII byte representation of `trait_ident` and call it `T`.
     /// 1. Concatenate `N`, `T` and `F` using `::` as separator and call it `C`.
-    /// 1. Apply the `BLAKE2` 256-bit hash `H` of `C`.
+    /// 1. Apply the `BLAKE2` 256-bit hash `H` of `C` (or Keccak-256 for Solidity ABI).
     /// 1. The first 4 bytes of `H` make up the selector.
-    pub fn compose<'a, T>(trait_prefix: T, fn_name: String) -> Self
+    pub fn compose<'a, T>(trait_prefix: T, fn_name: String, abi: SelectorAbi) -> Self
     where
         T: Into<Option<TraitPrefix<'a>>>,
     {
@@ -122,7 +151,7 @@ impl Selector {
             }
             None => fn_ident.to_vec(),
         };
-        Self::compute(&input_bytes)
+        Self::compute(&input_bytes, abi)
     }
 
     /// Returns the underlying four bytes.
@@ -162,6 +191,7 @@ pub enum SelectorBytes {}
 pub struct SelectorMacro<T> {
     selector: Selector,
     input: syn::Lit,
+    abi: SelectorAbi,
     _marker: PhantomData<fn() -> T>,
 }
 
@@ -175,6 +205,11 @@ impl<T> SelectorMacro<T> {
     pub fn input(&self) -> &syn::Lit {
         &self.input
     }
+
+    /// Returns the ABI used for selector computation.
+    pub fn abi(&self) -> SelectorAbi {
+        self.abi
+    }
 }
 
 impl<T> TryFrom<TokenStream2> for SelectorMacro<T> {
@@ -182,28 +217,85 @@ impl<T> TryFrom<TokenStream2> for SelectorMacro<T> {
 
     fn try_from(input: TokenStream2) -> Result<Self, Self::Error> {
         let input_span = input.span();
-        let lit = syn::parse2::<syn::Lit>(input).map_err(|error| {
+
+        // Parse as a punctuated list - we require exactly 2 arguments
+        let parser = syn::punctuated::Punctuated::<syn::Expr, syn::Token![,]>::parse_terminated;
+        let exprs = parser.parse2(input.clone()).map_err(|error| {
             format_err!(
                 input_span,
-                "expected string or byte string literal as input: {}",
+                "expected Abi enum and string literal: {}",
                 error
             )
         })?;
-        let input_bytes = match lit {
-            syn::Lit::Str(ref lit_str) => lit_str.value().into_bytes(),
-            syn::Lit::ByteStr(ref byte_str) => byte_str.value(),
+
+        // We require exactly 2 arguments: Abi enum and string literal
+        if exprs.len() != 2 {
+            return Err(format_err!(
+                input_span,
+                "expected exactly 2 arguments (Abi enum, string literal), found {}",
+                exprs.len()
+            ))
+        }
+
+        // Parse the ABI enum (first argument)
+        let abi = match &exprs[0] {
+            syn::Expr::Path(expr_path) => {
+                let path_str = expr_path
+                    .path
+                    .segments
+                    .iter()
+                    .map(|seg| seg.ident.to_string())
+                    .collect::<Vec<_>>()
+                    .join("::");
+
+                if path_str == "Abi::Ink" || path_str == "Ink" {
+                    SelectorAbi::Ink
+                } else if path_str == "Abi::Sol" || path_str == "Sol" {
+                    SelectorAbi::Sol
+                } else {
+                    return Err(format_err!(
+                        expr_path.span(),
+                        "expected Abi::Ink or Abi::Sol, found {}",
+                        path_str
+                    ))
+                }
+            }
             invalid => {
                 return Err(format_err!(
                     invalid.span(),
-                    "expected string or byte string literal as input. found {:?}",
+                    "expected Abi enum (Abi::Ink or Abi::Sol) as first argument",
+                ))
+            }
+        };
+
+        // Parse the literal (second argument)
+        let lit = match &exprs[1] {
+            syn::Expr::Lit(expr_lit) => expr_lit.lit.clone(),
+            invalid => {
+                return Err(format_err!(
+                    invalid.span(),
+                    "expected string or byte string literal as second argument",
+                ))
+            }
+        };
+
+        let input_bytes = match lit {
+            syn::Lit::Str(ref lit_str) => lit_str.value().into_bytes(),
+            syn::Lit::ByteStr(ref byte_str) => byte_str.value(),
+            ref invalid => {
+                return Err(format_err!(
+                    invalid.span(),
+                    "expected string or byte string literal as second argument. found {:?}",
                     invalid,
                 ))
             }
         };
-        let selector = Selector::compute(&input_bytes);
+
+        let selector = Selector::compute(&input_bytes, abi);
         Ok(Self {
             selector,
             input: lit,
+            abi,
             _marker: PhantomData,
         })
     }

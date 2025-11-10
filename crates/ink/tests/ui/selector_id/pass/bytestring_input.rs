@@ -3,10 +3,10 @@ use ink_ir as ir;
 macro_rules! assert_macro_eq {
     ( $input:literal ) => {{
         // We put it into a constant to verify that the computation is constant.
-        const HASH: u32 = ink::selector_id!($input);
+        const HASH: u32 = ink::selector_id!(Abi::Ink, $input);
         assert_eq!(
             HASH,
-            ir::Selector::compute($input).into_be_u32(),
+            ir::Selector::compute($input, ir::SelectorAbi::Ink).into_be_u32(),
         );
     }};
 }
