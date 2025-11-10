@@ -472,7 +472,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::block_hash`]
-    pub fn block_hash(self, block_number: BlockNumber) -> H256 {
+    pub fn block_hash(self, block_number: BlockNumber) -> ink_primitives::H256 {
         ink_env::block_hash(block_number)
     }
 
