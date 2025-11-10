@@ -3,7 +3,7 @@ name = "misc_hostfns"
 description = "E2E tests for various host functions"
 version = "6.0.0-beta"
 authors = ["Use Ink <ink@use.ink>"]
-edition = "2021"
+edition = "2024"
 publish = false
 
 [dependencies]
