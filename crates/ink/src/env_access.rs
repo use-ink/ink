@@ -1232,6 +1232,42 @@ where
         output
     }
 
+    /// Calls the `bn128_add` G1 addition precompile.
+    ///
+    /// Inputs are affine G1 coordinates over Fq.
+    /// Returns the resulting affine point or (0, 0) if the result is ∞ / invalid.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::bn128_add`]
+    pub fn bn128_add(self, x1: U256, y1: U256, x2: U256, y2: U256) -> (U256, U256) {
+        ink_env::bn128_add(x1, y1, x2, y2)
+    }
+
+    /// Calls the `bn128_mul` G1 scalar-mul precompile.
+    ///
+    /// Multiplies an affine G1 point (x1, y1) by a scalar ∈ Fr.
+    /// Returns the resulting affine point or (0, 0) if the result is ∞ / invalid.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::bn128_mul`]
+    pub fn bn128_mul(self, x1: U256, y1: U256, scalar: U256) -> (U256, U256) {
+        ink_env::bn128_mul(x1, y1, scalar)
+    }
+
+    /// Calls the `bn128_pairing` precompile.
+    ///
+    /// Input is the Solidity-ABI-encoded sequence of (G1, G2) pairs.
+    /// Returns `true` iff the product of pairings evaluates to the identity.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::bn128_pairing`]
+    pub fn bn128_pairing(self, input: &[u8]) -> bool {
+        ink_env::bn128_pairing(input)
+    }
+
     /// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,
     /// and stores the result in `output`.
     ///

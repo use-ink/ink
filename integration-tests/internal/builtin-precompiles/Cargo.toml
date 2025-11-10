@@ -1,9 +1,9 @@
 [package]
-name = "gas_hostfns"
-description = "E2E tests for gas related host functions"
+name = "builtin_precompiles"
+description = "E2E tests for various builtin precompiles"
 version = "6.0.0-beta"
 authors = ["Use Ink <ink@use.ink>"]
-edition = "2024"
+edition = "2021"
 publish = false
 
 [dependencies]
@@ -11,6 +11,8 @@ ink = { path = "../../../crates/ink", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
+hex-literal = "1"
+impl-serde = { version = "0.5.0", default-features = false }
 
 [lib]
 path = "lib.rs"

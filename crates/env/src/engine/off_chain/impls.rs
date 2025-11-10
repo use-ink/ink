@@ -457,6 +457,24 @@ impl EnvBackend for EnvInstance {
         <H as CryptoHash>::hash(enc_input, output)
     }
 
+    fn bn128_add(&mut self, _x1: U256, _y1: U256, _x2: U256, _y2: U256) -> (U256, U256) {
+        unimplemented!(
+            "`bn128_add` is not implemented in the off-chain testing environment"
+        );
+    }
+
+    fn bn128_mul(&mut self, _x1: U256, _y1: U256, _scalar: U256) -> (U256, U256) {
+        unimplemented!(
+            "`bn128_mul` is not implemented in the off-chain testing environment"
+        );
+    }
+
+    fn bn128_pairing(&mut self, _input: &[u8]) -> bool {
+        unimplemented!(
+            "`bn128_pairing` is not implemented in the off-chain testing environment"
+        );
+    }
+
     #[allow(clippy::arithmetic_side_effects)] // todo
     fn ecdsa_recover(
         &mut self,

@@ -353,6 +353,27 @@ impl Engine {
 }
 
 impl Engine {
+    /// Implements the `bn128_add` G1 addition precompile.
+    pub fn bn128_add(self, _x1: U256, _y1: U256, _x2: U256, _y2: U256) -> (U256, U256) {
+        unimplemented!(
+            "`bn128_add` is not implemented in the off-chain testing environment"
+        );
+    }
+
+    /// Implements the `bn128_mul` G1 scalar-mul precompile.
+    pub fn bn128_mul(self, _x1: U256, _y1: U256, _scalar: U256) -> (U256, U256) {
+        unimplemented!(
+            "`bn128_mul` is not implemented in the off-chain testing environment"
+        );
+    }
+
+    /// Implements the `bn128_pairing` precompile.
+    pub fn bn128_pairing(self, _input: &[u8]) -> bool {
+        unimplemented!(
+            "`bn128_pairing` is not implemented in the off-chain testing environment"
+        );
+    }
+
     /// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,
     /// and stores the result in `output`.
     #[allow(clippy::arithmetic_side_effects)] // todo

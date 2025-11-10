@@ -869,6 +869,80 @@ impl EnvBackend for EnvInstance {
         <H as CryptoHash>::hash(enc_input, output)
     }
 
+    fn bn128_add(&mut self, x1: U256, y1: U256, x2: U256, y2: U256) -> (U256, U256) {
+        const BN128_ADD: [u8; 20] =
+            hex_literal::hex!("0000000000000000000000000000000000000006");
+
+        let mut input = [0u8; 128];
+        input[..32].copy_from_slice(&x1.to_big_endian());
+        input[32..64].copy_from_slice(&y1.to_big_endian());
+        input[64..96].copy_from_slice(&x2.to_big_endian());
+        input[96..128].copy_from_slice(&y2.to_big_endian());
+
+        let mut output = [0u8; 64];
+        let _ = ext::call(
+            CallFlags::empty(),
+            &BN128_ADD,
+            u64::MAX,       // `ref_time` to devote for execution. `u64::MAX` = all
+            u64::MAX,       // `proof_size` to devote for execution. `u64::MAX` = all
+            &[u8::MAX; 32], // No deposit limit.
+            &U256::zero().to_little_endian(), // Value transferred to the contract.
+            &input[..],
+            Some(&mut &mut output[..]),
+        );
+        let x3 = U256::from_big_endian(&output[..32]);
+        let y3 = U256::from_big_endian(&output[32..64]);
+        (x3, y3)
+    }
+
+    fn bn128_mul(&mut self, x1: U256, y1: U256, scalar: U256) -> (U256, U256) {
+        const BN128_ADD: [u8; 20] =
+            hex_literal::hex!("0000000000000000000000000000000000000007");
+
+        let mut input = [0u8; 128];
+        input[..32].copy_from_slice(&x1.to_big_endian());
+        input[32..64].copy_from_slice(&y1.to_big_endian());
+        input[64..96].copy_from_slice(&scalar.to_big_endian());
+
+        let mut output = [0u8; 64];
+        let _ = ext::call(
+            CallFlags::empty(),
+            &BN128_ADD,
+            u64::MAX,       // `ref_time` to devote for execution. `u64::MAX` = all
+            u64::MAX,       // `proof_size` to devote for execution. `u64::MAX` = all
+            &[u8::MAX; 32], // No deposit limit.
+            &U256::zero().to_little_endian(), // Value transferred to the contract.
+            &input[..],
+            Some(&mut &mut output[..]),
+        );
+        let x2 = U256::from_big_endian(&output[..32]);
+        let y2 = U256::from_big_endian(&output[32..64]);
+        (x2, y2)
+    }
+
+    fn bn128_pairing(&mut self, input: &[u8]) -> bool {
+        const BN128_ADD: [u8; 20] =
+            hex_literal::hex!("0000000000000000000000000000000000000008");
+
+        let mut output = [0u8; 32];
+        let _ = ext::call(
+            CallFlags::empty(),
+            &BN128_ADD,
+            u64::MAX,       // `ref_time` to devote for execution. `u64::MAX` = all
+            u64::MAX,       // `proof_size` to devote for execution. `u64::MAX` = all
+            &[u8::MAX; 32], // No deposit limit.
+            &U256::zero().to_little_endian(), // Value transferred to the contract.
+            &input[..],
+            Some(&mut &mut output[..]),
+        );
+        if output[31] == 1 {
+            debug_assert_eq!(&output[..31], [0u8; 31]);
+            return true;
+        }
+        debug_assert_eq!(&output[..32], [0u8; 32]);
+        false
+    }
+
     fn ecdsa_recover(
         &mut self,
         signature: &[u8; 65],
@@ -943,8 +1017,6 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn gas_left(&mut self) -> u64 {
-        // TODO: Change to `ext::gas_left()` when `pallet-revive-uapi` is updated.
-        // Ref: https://github.com/paritytech/polkadot-sdk/pull/9968
         ext::ref_time_left()
     }
 
