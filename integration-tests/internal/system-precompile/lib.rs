@@ -57,7 +57,7 @@ mod system_precompile {
             // both values are the default values used in the node configurations
             // and AssetHub
             let native_to_eth_ratio: U256 = 100_000_000.into();
-            let existential_deposit: U256 = 1_000_000_000.into();
+            let existential_deposit: U256 = 100_000_000.into();
             let expected = native_to_eth_ratio.saturating_mul(existential_deposit);
             assert_eq!(min, expected);
 
