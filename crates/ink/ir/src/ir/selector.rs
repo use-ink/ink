@@ -319,4 +319,22 @@ mod tests {
             ]
         )
     }
+
+    #[test]
+    fn selector_sol_works() {
+        use quote::quote;
+        let sel = SelectorMacro::<crate::marker::SelectorBytes>::try_from(quote! {
+            Abi::Sol, "ownCodeHash()"
+        }).unwrap();
+        assert_eq!(sel.selector.bytes, [219u8, 107, 220, 138]);
+    }
+
+    #[test]
+    fn selector_ink_works() {
+        use quote::quote;
+        let sel = SelectorMacro::<crate::marker::SelectorBytes>::try_from(quote! {
+            Abi::Ink, "flip"
+        }).unwrap();
+        assert_eq!(sel.selector.bytes, hex_literal::hex!("633aa551"));
+    }
 }

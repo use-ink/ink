@@ -23,7 +23,6 @@ use crate::{
         MetaValue,
     },
     error::ExtError as _,
-    format_err,
 };
 use proc_macro2::Span;
 use std::collections::HashMap;
