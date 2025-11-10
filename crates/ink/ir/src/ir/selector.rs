@@ -219,7 +219,8 @@ impl<T> TryFrom<TokenStream2> for SelectorMacro<T> {
         let input_span = input.span();
 
         // Parse as a punctuated list - we require exactly 2 arguments
-        let parser = syn::punctuated::Punctuated::<syn::Expr, syn::Token![,]>::parse_terminated;
+        let parser =
+            syn::punctuated::Punctuated::<syn::Expr, syn::Token![,]>::parse_terminated;
         let exprs = parser.parse2(input.clone()).map_err(|error| {
             format_err!(
                 input_span,

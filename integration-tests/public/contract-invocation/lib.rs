@@ -31,7 +31,8 @@ mod instantiate_contract {
             let create_params = build_create::<Contract1Ref>()
                 .code_hash(code_hash)
                 .endowment(0.into())
-                .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(Abi::Ink,
+                .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(
+                    Abi::Ink,
                     "new"
                 ))))
                 .salt_bytes(Some(salt_bytes))
@@ -57,7 +58,8 @@ mod instantiate_contract {
             let create_params = build_create::<Contract2Ref>()
                 .code_hash(code_hash)
                 .endowment(0.into())
-                .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(Abi::Ink,
+                .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(
+                    Abi::Ink,
                     "new"
                 ))))
                 .salt_bytes(Some(salt_bytes))
@@ -81,7 +83,8 @@ mod instantiate_contract {
             let call = build_call()
                 .call(contract1_address)
                 .transferred_value(0.into())
-                .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(Abi::Ink,
+                .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(
+                    Abi::Ink,
                     "get_x"
                 ))))
                 .returns::<u32>()
@@ -100,7 +103,8 @@ mod instantiate_contract {
             let call = build_call()
                 .call(contract2_address)
                 .transferred_value(0.into())
-                .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(Abi::Ink,
+                .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(
+                    Abi::Ink,
                     "get_x"
                 ))))
                 .returns::<u32>()
@@ -120,8 +124,11 @@ mod instantiate_contract {
                 .call(contract1_address)
                 .transferred_value(0.into())
                 .exec_input(
-                    ExecutionInput::new(Selector::new(ink::selector_bytes!(Abi::Ink, "set_x")))
-                        .push_arg(new_x),
+                    ExecutionInput::new(Selector::new(ink::selector_bytes!(
+                        Abi::Ink,
+                        "set_x"
+                    )))
+                    .push_arg(new_x),
                 )
                 .returns::<()>()
                 .params();
@@ -140,8 +147,11 @@ mod instantiate_contract {
                 .call(contract2_address)
                 .transferred_value(0.into())
                 .exec_input(
-                    ExecutionInput::new(Selector::new(ink::selector_bytes!(Abi::Ink, "set_x")))
-                        .push_arg(new_x),
+                    ExecutionInput::new(Selector::new(ink::selector_bytes!(
+                        Abi::Ink,
+                        "set_x"
+                    )))
+                    .push_arg(new_x),
                 )
                 .returns::<()>()
                 .params();
@@ -258,7 +268,8 @@ mod instantiate_contract {
             let create_params = build_create::<VirtualContractVer1Ref>()
                 .code_hash(code_hash2)
                 .endowment(0.into())
-                .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(Abi::Ink,
+                .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(
+                    Abi::Ink,
                     "new"
                 ))))
                 .returns::<VirtualContractVer1Ref>()
@@ -280,7 +291,8 @@ mod instantiate_contract {
             let create_params = build_create::<VirtualContractVer2Ref>()
                 .code_hash(code_hash3)
                 .endowment(0.into())
-                .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(Abi::Ink,
+                .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(
+                    Abi::Ink,
                     "new"
                 ))))
                 .returns::<VirtualContractVer2Ref>()

@@ -67,7 +67,8 @@ pub fn blake2x256(input: TokenStream) -> TokenStream {
 /// # Note
 ///
 /// - The computation takes place at compilation time of the crate.
-/// - Requires an ABI parameter as the first argument to specify the selector computation method.
+/// - Requires an ABI parameter as the first argument to specify the selector computation
+///   method.
 ///
 /// # Arguments
 ///
@@ -95,7 +96,8 @@ pub fn selector_id(input: TokenStream) -> TokenStream {
 /// # Note
 ///
 /// - The computation takes place at compilation time of the crate.
-/// - Requires an ABI parameter as the first argument to specify the selector computation method.
+/// - Requires an ABI parameter as the first argument to specify the selector computation
+///   method.
 ///
 /// # Arguments
 ///
@@ -108,10 +110,16 @@ pub fn selector_id(input: TokenStream) -> TokenStream {
 /// # use ink_macro::selector_bytes;
 /// # use ink_primitives::abi::Abi;
 /// // ink! ABI (BLAKE-2)
-/// assert_eq!(selector_bytes!(Abi::Ink, Abi::Ink, "hello"), [50, 77, 207, 2],);
+/// assert_eq!(
+///     selector_bytes!(Abi::Ink, Abi::Ink, "hello"),
+///     [50, 77, 207, 2],
+/// );
 ///
 /// // Solidity ABI (Keccak-256)
-/// assert_eq!(selector_bytes!(Abi::Ink, Abi::Sol, "hello"), [0x1c, 0x8a, 0xff, 0x95],);
+/// assert_eq!(
+///     selector_bytes!(Abi::Ink, Abi::Sol, "hello"),
+///     [0x1c, 0x8a, 0xff, 0x95],
+/// );
 /// ```
 #[proc_macro]
 pub fn selector_bytes(input: TokenStream) -> TokenStream {
