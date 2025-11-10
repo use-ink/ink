@@ -325,7 +325,8 @@ mod tests {
         use quote::quote;
         let sel = SelectorMacro::<crate::marker::SelectorBytes>::try_from(quote! {
             Abi::Sol, "ownCodeHash()"
-        }).unwrap();
+        })
+        .unwrap();
         assert_eq!(sel.selector.bytes, [219u8, 107, 220, 138]);
     }
 
@@ -334,7 +335,8 @@ mod tests {
         use quote::quote;
         let sel = SelectorMacro::<crate::marker::SelectorBytes>::try_from(quote! {
             Abi::Ink, "flip"
-        }).unwrap();
+        })
+        .unwrap();
         assert_eq!(sel.selector.bytes, hex_literal::hex!("633aa551"));
     }
 }

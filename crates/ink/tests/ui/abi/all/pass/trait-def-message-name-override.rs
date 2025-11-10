@@ -27,7 +27,7 @@ fn main() {
     }
 
     // ink! selector
-    assert_selector_eq!(selector_id!("myMessage"), selector_bytes!(Abi::Ink, "TraitDefinition::myMessage"));
+    assert_selector_eq!(selector_id!(Abi::Ink, "myMessage"), selector_bytes!(Abi::Ink, "TraitDefinition::myMessage"));
 
     // `keccak256("myMessage()")` == `0x1b008a9f`
     assert_selector_eq!(0x1b008a9f_u32, [0x1b, 0x00, 0x8a, 0x9f]);
