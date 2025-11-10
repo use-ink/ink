@@ -19,6 +19,7 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 ink_env = { workspace = true }
 ink_storage = { workspace = true }
 ink_primitives = { workspace = true }
+ink_precompiles = { workspace = true }
 ink_metadata = { workspace = true, optional = true }
 ink_prelude = { workspace = true }
 ink_macro = { workspace = true }
