@@ -33,7 +33,7 @@ fn main() {
     const ID: u32 = ::ink::selector_id!("constructor_0");
     assert_eq!(
         <Contract as ::ink::reflect::DispatchableConstructorInfo<ID>>::SELECTOR.unwrap(),
-        selector_bytes!("constructor_0")
+        selector_bytes!(Abi::Ink, "constructor_0")
     );
     assert_eq!(
         <Contract as ::ink::reflect::DispatchableConstructorInfo<1_u32>>::SELECTOR

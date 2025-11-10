@@ -85,7 +85,7 @@ use crate::abi::Abi;
 ///     assert_message_info::<(), (), { selector_id!("message1") }>(
 ///         false,
 ///         false,
-///         selector_bytes!("message1"),
+///         selector_bytes!(Abi::Ink, "message1"),
 ///         "message1",
 ///     );
 ///     assert_message_info::<(i32, i64), (bool, i32), 0xC0DECAFE_u32>(
@@ -196,7 +196,7 @@ pub trait DispatchableMessageInfo<const ID: u32> {
 ///
 /// fn main() {
 ///     assert_constructor_info::<(), { selector_id!("constructor1") }>(
-///         selector_bytes!("constructor1"),
+///         selector_bytes!(Abi::Ink, "constructor1"),
 ///         "constructor1",
 ///     );
 ///     assert_constructor_info::<(i32, i64), 0xC0DECAFE_u32>(
@@ -365,7 +365,7 @@ impl<C, E> ConstructorOutput<C> for ConstructorOutputValue<Result<C, E>> {
 ///     // Call to `message1` without input parameters.
 ///     {
 ///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!("message1"));
+///         input_bytes.extend(selector_bytes!(Abi::Ink, "message1"));
 ///         assert!(
 ///             <<Contract as ContractMessageDecoder>::Type as DecodeDispatch>::decode_dispatch(
 ///                 &mut &input_bytes[..]
@@ -376,7 +376,7 @@ impl<C, E> ConstructorOutput<C> for ConstructorOutputValue<Result<C, E>> {
 ///     // Call to `message2` with 2 parameters.
 ///     {
 ///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!("message2"));
+///         input_bytes.extend(selector_bytes!(Abi::Ink, "message2"));
 ///         input_bytes.extend(true.encode());
 ///         input_bytes.extend(42i32.encode());
 ///         assert!(
@@ -389,7 +389,7 @@ impl<C, E> ConstructorOutput<C> for ConstructorOutputValue<Result<C, E>> {
 ///     // Call with invalid ink! message selector.
 ///     {
 ///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!("non_existing_message"));
+///         input_bytes.extend(selector_bytes!(Abi::Ink, "non_existing_message"));
 ///         assert!(
 ///             <<Contract as ContractMessageDecoder>::Type as DecodeDispatch>::decode_dispatch(
 ///                 &mut &input_bytes[..]
@@ -400,7 +400,7 @@ impl<C, E> ConstructorOutput<C> for ConstructorOutputValue<Result<C, E>> {
 ///     // Call with invalid ink! message parameters.
 ///     {
 ///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!("message2"));
+///         input_bytes.extend(selector_bytes!(Abi::Ink, "message2"));
 ///         assert!(
 ///             <<Contract as ContractMessageDecoder>::Type as DecodeDispatch>::decode_dispatch(
 ///                 &mut &input_bytes[..]
@@ -459,7 +459,7 @@ pub trait ContractMessageDecoder {
 ///     // Call to `constructor1` without input parameters.
 ///     {
 ///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!("constructor1"));
+///         input_bytes.extend(selector_bytes!(Abi::Ink, "constructor1"));
 ///         assert!(
 ///             <<Contract as ContractConstructorDecoder>::Type as DecodeDispatch>::decode_dispatch(
 ///                 &mut &input_bytes[..]
@@ -470,7 +470,7 @@ pub trait ContractMessageDecoder {
 ///     // Call to `constructor2` with 2 parameters.
 ///     {
 ///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!("constructor2"));
+///         input_bytes.extend(selector_bytes!(Abi::Ink, "constructor2"));
 ///         input_bytes.extend(true.encode());
 ///         input_bytes.extend(42i32.encode());
 ///         assert!(
@@ -483,7 +483,7 @@ pub trait ContractMessageDecoder {
 ///     // Call with invalid ink! constructor selector.
 ///     {
 ///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!("non_existing_constructor"));
+///         input_bytes.extend(selector_bytes!(Abi::Ink, "non_existing_constructor"));
 ///         assert!(
 ///             <<Contract as ContractConstructorDecoder>::Type as DecodeDispatch>::decode_dispatch(
 ///                 &mut &input_bytes[..]
@@ -494,7 +494,7 @@ pub trait ContractMessageDecoder {
 ///     // Call with invalid ink! constructor parameters.
 ///     {
 ///         let mut input_bytes = Vec::new();
-///         input_bytes.extend(selector_bytes!("constructor2"));
+///         input_bytes.extend(selector_bytes!(Abi::Ink, "constructor2"));
 ///         assert!(
 ///             <<Contract as ContractConstructorDecoder>::Type as DecodeDispatch>::decode_dispatch(
 ///                 &mut &input_bytes[..]

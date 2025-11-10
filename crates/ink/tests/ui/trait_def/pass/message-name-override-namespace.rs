@@ -28,6 +28,6 @@ fn main() {
 
     assert_selector_eq!(
         "myMessage",
-        selector_bytes!("foo::TraitDefinition::myMessage"),
+        selector_bytes!(Abi::Ink, "foo::TraitDefinition::myMessage"),
     );
 }

@@ -64,7 +64,7 @@ pub mod delegator {
         /// Increment the current value using delegate call.
         #[ink(message)]
         pub fn inc_delegate(&mut self) {
-            let selector = ink::selector_bytes!("inc");
+            let selector = ink::selector_bytes!(Abi::Ink, "inc");
             let _ = build_call::<DefaultEnvironment>()
                 .delegate(self.delegate_to().1)
                 // We specify `CallFlags::TAIL_CALL` to use the delegatee last memory frame
@@ -86,7 +86,7 @@ pub mod delegator {
         /// because `Mapping` updates the storage instantly on-demand.
         #[ink(message)]
         pub fn add_entry_delegate(&mut self) {
-            let selector = ink::selector_bytes!("append_address_value");
+            let selector = ink::selector_bytes!(Abi::Ink, "append_address_value");
             let _ = build_call::<DefaultEnvironment>()
                 .delegate(self.delegate_to().1)
                 .exec_input(ExecutionInput::new(Selector::new(selector)))

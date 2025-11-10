@@ -33,7 +33,7 @@ fn main() {
 
     assert_selector_eq!(
         "message1",
-        selector_bytes!("foo::TraitDefinition::message1"),
+        selector_bytes!(Abi::Ink, "foo::TraitDefinition::message1"),
     );
     assert_selector_eq!("message2", [0, 0, 0, 42],);
     assert_selector_eq!("message3", [0xC0, 0xDE, 0xCA, 0xFE],);

@@ -68,7 +68,7 @@ mod debugging_strategies {
             let create_params = build_create::<FlipperRef>()
                 .code_hash(code_hash)
                 .endowment(0.into())
-                .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(
+                .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(Abi::Ink,
                     "new"
                 ))))
                 .returns::<FlipperRef>()
@@ -92,7 +92,7 @@ mod debugging_strategies {
             let call = build_call()
                 .call(ink::ToAddr::to_addr(&other))
                 .transferred_value(0.into())
-                .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(
+                .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(Abi::Ink,
                     "get"
                 ))))
                 .returns::<bool>()

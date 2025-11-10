@@ -392,7 +392,7 @@ where
 ///     .code_hash(ink::H256::from([0x42; 32]))
 ///     .endowment(25.into())
 ///     .exec_input(
-///         ExecutionInput::new(Selector::new(ink::selector_bytes!("my_constructor")))
+///         ExecutionInput::new(Selector::new(ink::selector_bytes!(Abi::Ink, "my_constructor")))
 ///             .push_arg(42)
 ///             .push_arg(true)
 ///             .push_arg(&[0x10u8; 32]),
@@ -436,7 +436,7 @@ where
 ///     .code_hash(ink::H256::from([0x42; 32]))
 ///     .endowment(25.into())
 ///     .exec_input(
-///         ExecutionInput::new(Selector::new(ink::selector_bytes!("my_constructor")))
+///         ExecutionInput::new(Selector::new(ink::selector_bytes!(Abi::Ink, "my_constructor")))
 ///             .push_arg(42)
 ///             .push_arg(true)
 ///             .push_arg(&[0x10u8; 32]),

@@ -330,7 +330,7 @@ mod multisig {
         ///
         /// let transaction_candidate = Transaction {
         ///     callee: wallet_id,
-        ///     selector: selector_bytes!("add_owner"),
+        ///     selector: selector_bytes!(Abi::Ink, "add_owner"),
         ///     input: add_owner_args.encode(),
         ///     transferred_value: ink::U256::zero(),
         ///     ref_time_limit: 0,
@@ -753,7 +753,7 @@ mod multisig {
                 // Multisig::change_requirement()
                 Self {
                     callee: Address::from(WALLET),
-                    selector: ink::selector_bytes!("change_requirement"),
+                    selector: ink::selector_bytes!(Abi::Ink, "change_requirement"),
                     input: call_args.encode(),
                     transferred_value: U256::zero(),
                     ref_time_limit: 1000000,

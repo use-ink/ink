@@ -106,7 +106,7 @@
 ///     assert_eq!(
 ///         <<TraitDefinitionRegistry<DefaultEnvironment> as InkTrait>::__ink_TraitInfo
 ///             as TraitMessageInfo<{selector_id!("trait_message_1")}>>::SELECTOR,
-///         selector_bytes!("InkTrait::trait_message_1")
+///         selector_bytes!(Abi::Ink, "InkTrait::trait_message_1")
 ///     );
 ///     assert_eq!(
 ///         <<TraitDefinitionRegistry<DefaultEnvironment> as InkTrait>::__ink_TraitInfo
@@ -116,7 +116,7 @@
 ///     assert_eq!(
 ///         <<TraitDefinitionRegistry<DefaultEnvironment> as InkTrait2>::__ink_TraitInfo
 ///             as TraitMessageInfo<{selector_id!("trait_message")}>>::SELECTOR,
-///         selector_bytes!("foo::InkTrait2::trait_message")
+///         selector_bytes!(Abi::Ink, "foo::InkTrait2::trait_message")
 ///     );
 /// }
 /// ```

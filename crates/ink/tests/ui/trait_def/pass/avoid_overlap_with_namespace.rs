@@ -40,11 +40,11 @@ fn main() {
     assert_selector_eq!(
         TraitDefinition1,
         "message",
-        selector_bytes!("foo::TraitDefinition::message"),
+        selector_bytes!(Abi::Ink, "foo::TraitDefinition::message"),
     );
     assert_selector_eq!(
         TraitDefinition2,
         "message",
-        selector_bytes!("bar::TraitDefinition::message"),
+        selector_bytes!(Abi::Ink, "bar::TraitDefinition::message"),
     );
 }
