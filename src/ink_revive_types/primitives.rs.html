@@ -247,8 +247,8 @@
 <a href=#247 id=247 data-nosnippet>247</a>    /// The origin's nonce is already incremented pre-dispatch by the `CheckNonce`
 <a href=#248 id=248 data-nosnippet>248</a>    /// transaction extension.
 <a href=#249 id=249 data-nosnippet>249</a>    ///
-<a href=#250 id=250 data-nosnippet>250</a>    /// This does not apply to contract initiated instantiations. Those will always bump
-<a href=#251 id=251 data-nosnippet>251</a>    /// the instantiating contract's nonce.
+<a href=#250 id=250 data-nosnippet>250</a>    /// This does not apply to contract initiated instantiations. Those will always
+<a href=#251 id=251 data-nosnippet>251</a>    /// bump the instantiating contract's nonce.
 <a href=#252 id=252 data-nosnippet>252</a>    </span><span class="kw">pub </span>bump_nonce: bool,
 <a href=#253 id=253 data-nosnippet>253</a>    <span class="doccomment">/// Whether deposits will be withdrawn from the `pallet_transaction_payment` credit
 <a href=#254 id=254 data-nosnippet>254</a>    /// (`Some`) free balance (`None`).
@@ -259,4 +259,16 @@
 <a href=#259 id=259 data-nosnippet>259</a>    ///
 <a href=#260 id=260 data-nosnippet>260</a>    /// It is determined when transforming `eth_transact` into a proper extrinsic.
 <a href=#261 id=261 data-nosnippet>261</a>    </span><span class="kw">pub </span>effective_gas_price: <span class="prelude-ty">Option</span>&lt;U256&gt;,
-<a href=#262 id=262 data-nosnippet>262</a>}</code></pre></div></section></main></body></html>
+<a href=#262 id=262 data-nosnippet>262</a>    <span class="doccomment">/// Whether this configuration was created for a dry-run execution.
+<a href=#263 id=263 data-nosnippet>263</a>    /// Use to enable logic that should only run in dry-run mode.
+<a href=#264 id=264 data-nosnippet>264</a>    </span><span class="kw">pub </span>is_dry_run: bool,
+<a href=#265 id=265 data-nosnippet>265</a>    <span class="doccomment">/// An optional mock handler that can be used to override certain behaviors.
+<a href=#266 id=266 data-nosnippet>266</a>    /// This is primarily used for testing purposes and should be `None` in production
+<a href=#267 id=267 data-nosnippet>267</a>    /// environments.
+<a href=#268 id=268 data-nosnippet>268</a>    ///
+<a href=#269 id=269 data-nosnippet>269</a>    /// __Note:__ We don't support this in ink! yet!
+<a href=#270 id=270 data-nosnippet>270</a>    /// The correct `pallet-revive` type is `Option&lt;Box&lt;dyn MockHandler&lt;T&gt;&gt;&gt;`. The unit
+<a href=#271 id=271 data-nosnippet>271</a>    /// type here is just a placeholder so that we don't have to import everything around
+<a href=#272 id=272 data-nosnippet>272</a>    /// `MockHandler`.
+<a href=#273 id=273 data-nosnippet>273</a>    </span><span class="kw">pub </span>mock_handler: <span class="prelude-ty">Option</span>&lt;()&gt;,
+<a href=#274 id=274 data-nosnippet>274</a>}</code></pre></div></section></main></body></html>

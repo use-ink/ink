@@ -11,7 +11,7 @@
 [a2]: https://github.com/use-ink/ink/actions?query=workflow%3Acontinuous-integration+branch%3Amaster
 [c1]: https://codecov.io/gh/use-ink/ink/branch/master/graph/badge.svg
 [c2]: https://codecov.io/gh/use-ink/ink/branch/master
-[e1]: https://tokei.rs/b1/github/use-ink/ink?category=code
+[e1]: https://img.shields.io/badge/tokei-lines_of_code-blue
 [e2]: https://github.com/Aaronepower/tokei#badges
 [f1]: https://img.shields.io/badge/click-blue.svg
 [f2]: https://use-ink.github.io/ink/ink_storage
