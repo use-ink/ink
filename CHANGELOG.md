@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Implement `bn128` precompiles ‒ [2708](https://github.com/use-ink/ink/pull/2718)
+- Add `packed` flag to `storage_item` attribute and improve related diagnostics - [](https://github.com/use-ink/ink/pull/2722)
 
 ### Changed
 - Refactor contract ref generation and add automatic re-exporting ‒ [#2710](https://github.com/use-ink/ink/pull/2710)
