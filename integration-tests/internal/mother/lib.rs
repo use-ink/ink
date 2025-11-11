@@ -36,14 +36,12 @@ mod mother {
     /// Vector index corresponds to sample number.
     /// Wrapping vector, just added for testing UI components.
     #[derive(Default, PartialEq, Eq, Debug, Clone)]
-    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
-    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[ink::storage_item(packed)]
     pub struct Bids(Vec<Vec<Option<(Address, Balance)>>>);
 
     /// Auction outline.
     #[derive(PartialEq, Eq, Debug, Clone)]
-    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
-    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[ink::storage_item(packed)]
     pub enum Outline {
         NoWinner,
         WinnerDetected,
@@ -54,8 +52,7 @@ mod mother {
     /// Logic inspired by
     /// [Parachain Auction](https://github.com/paritytech/polkadot/blob/master/runtime/common/src/traits.rs#L160)
     #[derive(PartialEq, Eq, Debug, Clone)]
-    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
-    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[ink::storage_item(packed)]
     pub enum Status {
         /// An auction has not started yet.
         NotStarted,
@@ -76,8 +73,7 @@ mod mother {
 
     /// Struct for storing auction data.
     #[derive(Debug, PartialEq, Eq, Clone)]
-    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
-    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[ink::storage_item(packed)]
     pub struct Auction {
         /// Branded name of the auction event.
         name: String,

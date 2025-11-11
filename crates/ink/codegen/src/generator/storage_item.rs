@@ -53,9 +53,16 @@ impl GenerateCode for StorageItem<'_> {
             Data::Union(union_item) => self.generate_union(union_item),
         };
 
-        let mut derive = quote! {};
-        if self.item.config().derive() {
-            derive = quote! {
+        let config = self.item.config();
+        let derive = if config.packed() {
+            quote! {
+                #[cfg_attr(feature = "std", derive(
+                    ::ink::storage::traits::StorageLayout,
+                ))]
+                #[ink::scale_derive(Encode, Decode, TypeInfo)]
+            }
+        } else if config.derive() {
+            quote! {
                 #[cfg_attr(feature = "std", derive(
                     ::ink::storage::traits::StorageLayout,
                 ))]
@@ -65,10 +72,16 @@ impl GenerateCode for StorageItem<'_> {
                     ::ink::storage::traits::StorageKey,
                     ::ink::storage::traits::Storable,
                 )]
-            };
-        }
+            }
+        } else {
+            quote! {}
+        };
 
-        let type_check = self.generate_type_check();
+        let type_check = if self.item.config().packed() {
+            quote! {}
+        } else {
+            self.generate_type_check()
+        };
 
         quote! {
             #type_check
@@ -88,22 +101,32 @@ impl StorageItem<'_> {
         let generics = item.generics();
         let salt = item.salt();
 
-        let fields = struct_item.fields.iter().enumerate().map(|(i, field)| {
-            convert_into_storage_field(struct_ident, None, &salt, i, field)
-        });
+        let fields = if self.item.config().packed() {
+            let fields = struct_item.fields.iter();
+            quote! {
+                #(#fields),*
+            }
+        } else {
+            let fields = struct_item.fields.iter().enumerate().map(|(i, field)| {
+                convert_into_storage_field(struct_ident, None, &salt, i, field)
+            });
+            quote! {
+                #(#fields),*
+            }
+        };
 
         match struct_item.fields {
             Fields::Unnamed(_) => {
                 quote! {
                     #vis struct #struct_ident #generics (
-                        #(#fields),*
+                        #fields
                     );
                 }
             }
             _ => {
                 quote! {
                     #vis struct #struct_ident #generics {
-                        #(#fields),*
+                        #fields
                     }
                 }
             }
@@ -126,11 +149,13 @@ impl StorageItem<'_> {
                 quote! {}
             };
 
-            let fields: Vec<_> = variant
-                .fields
-                .iter()
-                .enumerate()
-                .map(|(i, field)| {
+            let fields = if self.item.config().packed() {
+                let fields = variant.fields.iter();
+                quote! {
+                    #(#fields),*
+                }
+            } else {
+                let fields = variant.fields.iter().enumerate().map(|(i, field)| {
                     convert_into_storage_field(
                         enum_ident,
                         Some(variant_ident),
@@ -138,12 +163,15 @@ impl StorageItem<'_> {
                         i,
                         field,
                     )
-                })
-                .collect();
+                });
+                quote! {
+                    #(#fields),*
+                }
+            };
 
             let fields = match variant.fields {
-                Fields::Named(_) => quote! { { #(#fields),* } },
-                Fields::Unnamed(_) => quote! { ( #(#fields),* ) },
+                Fields::Named(_) => quote! { { #fields } },
+                Fields::Unnamed(_) => quote! { ( #fields ) },
                 Fields::Unit => quote! {},
             };
 
@@ -167,18 +195,28 @@ impl StorageItem<'_> {
         let generics = item.generics();
         let salt = item.salt();
 
-        let fields = union_item
-            .fields
-            .named
-            .iter()
-            .enumerate()
-            .map(|(i, field)| {
-                convert_into_storage_field(union_ident, None, &salt, i, field)
-            });
+        let fields = if self.item.config().packed() {
+            let fields = union_item.fields.named.iter();
+            quote! {
+                #(#fields),*
+            }
+        } else {
+            let fields = union_item
+                .fields
+                .named
+                .iter()
+                .enumerate()
+                .map(|(i, field)| {
+                    convert_into_storage_field(union_ident, None, &salt, i, field)
+                });
+            quote! {
+                #(#fields),*
+            }
+        };
 
         quote! {
             #vis union #union_ident #generics {
-                #(#fields),*
+                #fields
             }
         }
     }

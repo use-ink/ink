@@ -13,6 +13,134 @@ use frame_support::{
 use frame_system::pallet_prelude::BlockNumberFor;
 use sp_io::TestExternalities;
 
+/// Asserts that a contract call succeeded without reverting.
+///
+/// This macro follows FRAME's `assert_ok!` convention for consistency across
+/// the Polkadot ecosystem. It verifies that a contract call completed successfully
+/// and did not revert. If the call reverted, the macro panics with a detailed
+/// error message extracted from the call trace.
+///
+/// # Behavior
+///
+/// - Takes a `CallResult` as input
+/// - Checks if `dry_run.did_revert()` is `false`
+/// - Panics with error details if the call reverted
+/// - Returns the `CallResult` for further inspection if successful
+///
+/// # Examples
+///
+/// ```ignore
+/// let result = client.call(&alice, &transfer).submit().await?;
+/// assert_ok!(result);
+/// ```
+#[macro_export]
+macro_rules! assert_ok {
+    ($result:expr) => {{
+        let result = $result;
+        if result.dry_run.did_revert() {
+            panic!(
+                "Expected call to succeed but it reverted.\nError: {:?}",
+                result.extract_error()
+            );
+        }
+        result
+    }};
+    ($result:expr, $($msg:tt)+) => {{
+        let result = $result;
+        if result.dry_run.did_revert() {
+            panic!(
+                "{}\nExpected call to succeed but it reverted.\nError: {:?}",
+                format_args!($($msg)+),
+                result.extract_error()
+            );
+        }
+        result
+    }};
+}
+
+/// Asserts that a contract call reverted with a specific error.
+///
+/// This macro follows FRAME's `assert_noop!` convention, which stands for
+/// "assert no operation" - meaning the call should fail without changing state.
+/// It verifies that a contract call reverted and that the revert reason matches
+/// the expected error string.
+///
+/// # Behavior
+///
+/// - Takes a `CallResult` and an expected error string as input
+/// - Checks if `dry_run.did_revert()` is `true`
+/// - Panics if the call succeeded (did not revert)
+/// - Extracts the error from the call trace using `extract_error()`
+/// - Panics if the actual error doesn't match the expected error
+/// - Returns the `CallResult` if both checks pass
+///
+/// # Examples
+///
+/// ```ignore
+/// let result = client.call(&alice, &insufficient_transfer).submit().await?;
+/// assert_noop!(result, "BalanceLow");
+/// ```
+#[macro_export]
+macro_rules! assert_noop {
+    ($result:expr, $expected_error:expr) => {{
+        let result = $result;
+        if !result.dry_run.did_revert() {
+            panic!(
+                "Expected call to revert with '{}' but it succeeded",
+                $expected_error
+            );
+        }
+
+        let actual_error = result.extract_error();
+        if actual_error != Some($expected_error.to_string()) {
+            panic!(
+                "Expected error '{}' but got {:?}",
+                $expected_error,
+                actual_error
+            );
+        }
+
+        result
+    }};
+    ($result:expr, $expected_error:expr, $($msg:tt)+) => {{
+        let result = $result;
+        if !result.dry_run.did_revert() {
+            panic!(
+                "{}\nExpected call to revert with '{}' but it succeeded",
+                format_args!($($msg)+),
+                $expected_error
+            );
+        }
+
+        let actual_error = result.extract_error();
+        if actual_error != Some($expected_error.to_string()) {
+            panic!(
+                "{}\nExpected error '{}' but got {:?}",
+                format_args!($($msg)+),
+                $expected_error,
+                actual_error
+            );
+        }
+
+        result
+    }};
+}
+
+/// Asserts that the latest contract event matches an expected event.
+///
+/// This macro verifies that the last emitted contract event from the sandbox
+/// matches the provided expected event.
+///
+/// # Parameters
+/// - `client` - Mutable reference to the sandbox client
+/// - `event` - The expected event
+#[macro_export]
+macro_rules! assert_last_event {
+    ($client:expr, $event:expr $(,)?) => {
+        $crate::client::assert_last_contract_event_inner($client, $event)
+    };
+}
+
 /// A helper struct for initializing and finalizing blocks.
 pub struct BlockBuilder<T>(std::marker::PhantomData<T>);
 
@@ -136,6 +264,7 @@ mod construct_runtime {
             System: $crate::frame_system,
             Balances: $crate::pallet_balances,
             Timestamp: $crate::pallet_timestamp,
+            Assets: $crate::pallet_assets::<Instance1>,
             Revive: $crate::pallet_revive,
             TransactionPayment: $crate::pallet_transaction_payment,
             $(
@@ -174,6 +303,32 @@ mod construct_runtime {
         type OnTimestampSet = ();
         type MinimumPeriod = ConstU64<1>;
         type WeightInfo = ();
+    }
+
+    // Configure pallet-assets (Instance1 for Trust Backed Assets)
+    pub type TrustBackedAssetsInstance = $crate::pallet_assets::Instance1;
+    pub type AssetIdForTrustBackedAssets = u32;
+
+    impl $crate::pallet_assets::Config<TrustBackedAssetsInstance> for $runtime {
+        type RuntimeEvent = RuntimeEvent;
+        type Balance = Balance;
+        type AssetId = AssetIdForTrustBackedAssets;
+        type AssetIdParameter = $crate::scale::Compact<AssetIdForTrustBackedAssets>;
+        type Currency = Balances;
+        type CreateOrigin = $crate::frame_support::traits::AsEnsureOriginWithArg<$crate::frame_system::EnsureSigned<AccountId32>>;
+        type ForceOrigin = $crate::frame_system::EnsureRoot<AccountId32>;
+        type AssetDeposit = ConstU128<1>;
+        type AssetAccountDeposit = ConstU128<1>;
+        type MetadataDepositBase = ConstU128<1>;
+        type MetadataDepositPerByte = ConstU128<1>;
+        type ApprovalDeposit = ConstU128<1>;
+        type StringLimit = ConstU32<50>;
+        type Freezer = ();
+        type Holder = ();
+        type Extra = ();
+        type WeightInfo = ();
+        type CallbackHandle = $crate::pallet_assets::AutoIncAssetId<$runtime, TrustBackedAssetsInstance>;
+        type RemoveItemsLimit = ConstU32<1000>;
     }
 
     impl $crate::pallet_transaction_payment::Config for $runtime {
@@ -231,10 +386,8 @@ mod construct_runtime {
         type InstantiateOrigin = $crate::frame_system::EnsureSigned<Self::AccountId>;
         type FindAuthor = ();
         type Precompiles = (
-            // todo
-            //ERC20<Self, InlineIdConfig<0x120>, TrustBackedAssetsInstance>,
-            //ERC20<Self, InlineIdConfig<0x320>, PoolAssetsInstance>,
-            //XcmPrecompile<Self>,
+            $crate::pallet_assets_precompiles::ERC20<Self, $crate::pallet_assets_precompiles::InlineIdConfig<{ 0x0120 }>, TrustBackedAssetsInstance>,
+            // todo add `PoolAssetsInstance`
         );
         type AllowEVMBytecode = ConstBool<false>;
         type FeeInfo = ();
@@ -339,8 +492,9 @@ mod construct_runtime {
 
 // Export runtime type itself, pallets and useful types from the auxiliary module
 pub use construct_runtime::{
-    $sandbox, $runtime, Balances, Revive, PalletInfo, RuntimeCall, RuntimeEvent, RuntimeHoldReason,
-    RuntimeOrigin, System, Timestamp,
+    $sandbox, $runtime, Assets, AssetIdForTrustBackedAssets, Balances, Revive, PalletInfo,
+    RuntimeCall, RuntimeEvent, RuntimeHoldReason, RuntimeOrigin, System, Timestamp,
+    TrustBackedAssetsInstance,
 };
     };
 }

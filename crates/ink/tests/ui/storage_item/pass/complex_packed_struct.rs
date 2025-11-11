@@ -8,8 +8,7 @@ use ink_prelude::{
 use ink::storage::traits::Storable;
 
 #[derive(Default, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
-#[ink::scale_derive(Encode, Decode, TypeInfo)]
+#[ink::storage_item(packed)]
 struct Deep2 {
     a: u8,
     b: u16,
@@ -20,8 +19,7 @@ struct Deep2 {
 }
 
 #[derive(Default)]
-#[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
-#[ink::scale_derive(Encode, Decode, TypeInfo)]
+#[ink::storage_item(packed)]
 struct Deep1 {
     a: Deep2,
     b: (Deep2, Deep2),
@@ -31,8 +29,7 @@ struct Deep1 {
 }
 
 #[derive(Default)]
-#[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
-#[ink::scale_derive(Encode, Decode, TypeInfo)]
+#[ink::storage_item(packed)]
 struct Contract {
     a: Deep1,
     b: Deep2,

@@ -99,8 +99,7 @@ mod multisig {
     /// Indicates whether a transaction is already confirmed or needs further
     /// confirmations.
     #[derive(Clone, Copy)]
-    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
-    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[ink::storage_item(packed)]
     pub enum ConfirmationStatus {
         /// The transaction is already confirmed.
         Confirmed,

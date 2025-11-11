@@ -9,7 +9,10 @@ use ink_revive_types::ExecReturnValue;
 use ink_sandbox::{
     DefaultSandbox,
     Sandbox,
-    api::prelude::*,
+    api::prelude::{
+        BalanceAPI,
+        ContractAPI,
+    },
     frame_system::pallet_prelude::OriginFor,
 };
 
@@ -29,7 +32,9 @@ fn call_solidity_encoded_message() {
         .mint_into(&caller.public_key().0.into(), 1_000_000_000_000_000u128)
         .unwrap_or_else(|_| panic!("Failed to mint tokens"));
 
-    sandbox.map_account(origin.clone()).expect("unable to map");
+    sandbox
+        .map_account(&DefaultSandbox::default_actor())
+        .expect("unable to map");
 
     let constructor = SolEncodingRef::new(false);
     let params = constructor

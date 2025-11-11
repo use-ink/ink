@@ -358,6 +358,10 @@ impl Metadata<'_> {
                 .timestamp(#timestamp)
                 .block_number(#block_number)
                 .native_to_eth_ratio(NATIVE_TO_ETH_RATIO)
+                .trust_backed_assets_precompile_index(
+                    TRUST_BACKED_ASSETS_PRECOMPILE_INDEX,
+                )
+                .pool_assets_precompile_index(POOL_ASSETS_PRECOMPILE_INDEX)
                 .static_buffer_size(#buffer_size_const)
                 .done()
         )

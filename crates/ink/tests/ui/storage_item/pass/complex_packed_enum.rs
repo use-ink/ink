@@ -8,8 +8,7 @@ use ink_prelude::{
 use ink::storage::traits::Storable;
 
 #[derive(Default, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
-#[ink::scale_derive(Encode, Decode, TypeInfo)]
+#[ink::storage_item(packed)]
 enum Deep2 {
     #[default]
     None,
@@ -27,8 +26,7 @@ enum Deep2 {
 }
 
 #[derive(Default)]
-#[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
-#[ink::scale_derive(Encode, Decode, TypeInfo)]
+#[ink::storage_item(packed)]
 enum Deep1 {
     #[default]
     None,
