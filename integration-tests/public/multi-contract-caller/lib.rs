@@ -13,8 +13,7 @@ mod multi_contract_caller {
     ///
     /// The initial state is `Adder`.
     #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
-    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[ink::storage_item(packed)]
     pub enum Which {
         Adder,
         Subber,
