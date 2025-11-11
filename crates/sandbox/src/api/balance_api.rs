@@ -7,6 +7,10 @@ use frame_support::{
     sp_runtime::DispatchError,
     traits::fungible::Mutate,
 };
+use ink_e2e::subxt::{
+    config::polkadot::U256,
+    utils::H160,
+};
 use pallet_revive::sp_runtime::traits::StaticLookup;
 
 type BalanceOf<R> = <R as pallet_balances::Config>::Balance;

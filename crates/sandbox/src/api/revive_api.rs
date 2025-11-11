@@ -19,7 +19,10 @@ use frame_support::{
     weights::Weight,
 };
 use frame_system::pallet_prelude::OriginFor;
-use ink_primitives::Address;
+use ink_primitives::{
+    Address,
+    H160,
+};
 use pallet_revive::{
     Code,
     CodeUploadResult,
@@ -148,7 +151,13 @@ pub trait ContractAPI {
         storage_deposit_limit: BalanceOf<Self::T>,
     ) -> ContractExecResultFor<Self::T>;
 
+    /// Build an EVM tracer from the given tracer type.
     fn evm_tracer(&mut self, tracer_type: TracerType) -> Tracer<Self::T>;
+
+    /// Get the balance with EVM decimals of the given `address`.
+    ///
+    /// Returns the spendable balance excluding the existential deposit.
+    fn evm_balance(&mut self, address: H160) -> U256;
 }
 
 impl<T> ContractAPI for T
@@ -295,6 +304,10 @@ where
 
     fn evm_tracer(&mut self, tracer_type: TracerType) -> Tracer<Self::T> {
         self.execute_with(|| pallet_revive::Pallet::<Self::T>::evm_tracer(tracer_type))
+    }
+
+    fn evm_balance(&mut self, address: H160) -> U256 {
+        self.execute_with(|| pallet_revive::Pallet::<Self::T>::evm_balance(&address))
     }
 }
 

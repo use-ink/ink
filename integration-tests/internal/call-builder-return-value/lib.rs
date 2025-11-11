@@ -127,7 +127,7 @@ mod call_builder {
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
-                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
+                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000.into())
                 .await;
 
             let expected_value = 42;
@@ -171,7 +171,7 @@ mod call_builder {
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
-                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
+                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000.into())
                 .await;
 
             let mut constructor = CallBuilderReturnValueRef::new(42);
@@ -215,7 +215,7 @@ mod call_builder {
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
-                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
+                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000.into())
                 .await;
 
             let mut constructor = CallBuilderReturnValueRef::new(0);
@@ -258,7 +258,7 @@ mod call_builder {
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
-                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
+                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000.into())
                 .await;
 
             let mut constructor = CallBuilderReturnValueRef::new(0);

@@ -137,7 +137,7 @@ pub mod delegator {
         ) -> E2EResult<()> {
             // given
             let origin = client
-                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
+                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000.into())
                 .await;
 
             /*
@@ -207,7 +207,7 @@ pub mod delegator {
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
-                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
+                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000.into())
                 .await;
 
             /*
@@ -281,7 +281,7 @@ pub mod delegator {
         ) -> E2EResult<()> {
             // given
             let origin = client
-                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
+                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000.into())
                 .await;
 
             /*

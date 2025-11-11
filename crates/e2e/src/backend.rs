@@ -19,7 +19,10 @@ use ink_env::{
         EncodeArgsWith,
     },
 };
-use ink_primitives::H160;
+use ink_primitives::{
+    H160,
+    U256,
+};
 use ink_revive_types::evm::CallTrace;
 use jsonrpsee::core::async_trait;
 use sp_weights::Weight;
@@ -65,14 +68,14 @@ pub trait ChainBackend {
     async fn create_and_fund_account(
         &mut self,
         origin: &Keypair,
-        amount: Self::Balance,
+        amount: U256,
     ) -> Keypair;
 
     /// Returns the free balance of `account`.
     async fn free_balance(
         &mut self,
         account: Self::AccountId,
-    ) -> Result<Self::Balance, Self::Error>;
+    ) -> Result<U256, Self::Error>;
 
     /// Executes a runtime call `call_name` for the `pallet_name`.
     /// The `call_data` is a `Vec<Value>`.
@@ -104,8 +107,13 @@ pub trait ChainBackend {
         &mut self,
         origin: &Keypair,
         dest: Self::AccountId,
-        value: Self::Balance,
+        value: U256,
     ) -> Result<(), Self::Error>;
+
+    /// Get the balance with EVM decimals of the given `address`.
+    ///
+    /// Returns the spendable balance excluding the existential deposit.
+    async fn evm_balance(&mut self, address: H160) -> U256;
 }
 
 /// Contract-specific operations.
@@ -256,9 +264,9 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType, Abi>,
-        value: E::Balance,
+        value: U256,
         gas_limit: Weight,
-        storage_deposit_limit: E::Balance,
+        storage_deposit_limit: U256,
     ) -> Result<(Self::EventLog, Option<CallTrace>), Self::Error>
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone;
@@ -280,8 +288,8 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         &mut self,
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType, Abi>,
-        value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
+        value: U256,
+        storage_deposit_limit: Option<U256>,
     ) -> Result<CallDryRunResult<E, RetType, Abi>, Self::Error>
     where
         CallBuilderFinal<E, Args, RetType, Abi>: Clone;
@@ -332,8 +340,8 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         &mut self,
         contract_name: &str,
         caller: &Keypair,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<UploadResult<E, Self::EventLog>, Self::Error>;
+        storage_deposit_limit: Option<U256>,
+    ) -> Result<UploadResult<Self::EventLog>, Self::Error>;
 
     /// Removes the code of the contract at `code_hash`.
     async fn bare_remove_code(
@@ -365,9 +373,9 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         code: Vec<u8>,
         caller: &Keypair,
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
-        value: E::Balance,
+        value: U256,
         gas_limit: Weight,
-        storage_deposit_limit: E::Balance,
+        storage_deposit_limit: U256,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error>;
 
     async fn raw_instantiate(
@@ -394,9 +402,9 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         signer: &Keypair,
         contract_name: &str,
         data: Vec<u8>,
-        value: E::Balance,
+        value: U256,
         gas_limit: Weight,
-        storage_deposit_limit: E::Balance,
+        storage_deposit_limit: U256,
     ) -> Result<BareInstantiationResult<E, Self::EventLog>, Self::Error>;
 
     /// Dry run contract instantiation.
@@ -415,8 +423,8 @@ pub trait BuilderClient<E: Environment>: ContractsBackend<E> {
         contract_name: &str,
         caller: &Keypair,
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R, Abi>,
-        value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
+        value: U256,
+        storage_deposit_limit: Option<U256>,
     ) -> Result<InstantiateDryRunResult<E, Abi>, Self::Error>;
 
     /// Checks if `caller` was already mapped in `pallet-revive`. If not, it will do so
