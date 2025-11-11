@@ -462,7 +462,10 @@ where
     ///         }
     ///
     ///         #[ink(message)]
-    ///         pub fn get_block_hash(&self, block_number: BlockNumber) -> ink_primitives::H256 {
+    ///         pub fn get_block_hash(
+    ///             &self,
+    ///             block_number: BlockNumber,
+    ///         ) -> ink_primitives::H256 {
     ///             self.env().block_hash(block_number)
     ///         }
     ///     }
