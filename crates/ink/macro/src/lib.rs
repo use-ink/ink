@@ -111,7 +111,7 @@ pub fn selector_id(input: TokenStream) -> TokenStream {
 /// # use ink_primitives::abi::Abi;
 /// // ink! ABI (BLAKE-2)
 /// assert_eq!(
-///     selector_bytes!(Abi::Ink, Abi::Ink, "hello"),
+///     selector_bytes!(Abi::Ink, "hello"),
 ///     [50, 77, 207, 2],
 /// );
 ///
