@@ -28,7 +28,7 @@ fn main() {
     use contract::Contract;
     use std::any::TypeId;
 
-    const ID: u32 = ::ink::selector_id!("constructor");
+    const ID: u32 = ::ink::selector_id!(Abi::Ink, "constructor");
     assert_eq!(
         <Contract as ::ink::reflect::DispatchableConstructorInfo<ID>>::IS_RESULT,
         true

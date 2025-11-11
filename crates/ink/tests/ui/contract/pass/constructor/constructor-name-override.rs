@@ -25,7 +25,7 @@ unsafe extern "Rust" {
 fn main() {
     // Constructor selector and selector id both use the name override.
     // `blake2b("myConstructor")` == `0xca295c67`
-    const CTOR_ID: u32 = ::ink::selector_id!("myConstructor");
+    const CTOR_ID: u32 = ::ink::selector_id!(Abi::Ink, "myConstructor");
     assert_eq!(
         <Contract as ::ink::reflect::DispatchableConstructorInfo<CTOR_ID>>::SELECTOR.unwrap(),
         [0xca, 0x29, 0x5c, 0x67],

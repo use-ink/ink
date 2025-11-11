@@ -218,7 +218,7 @@ impl<T> TryFrom<TokenStream2> for SelectorMacro<T> {
     fn try_from(input: TokenStream2) -> Result<Self, Self::Error> {
         let input_span = input.span();
 
-        // Parse as a punctuated list - we require exactly 2 arguments
+        // Parse as a punctuated list, we require exactly 2 arguments
         let parser =
             syn::punctuated::Punctuated::<syn::Expr, syn::Token![,]>::parse_terminated;
         let exprs = parser.parse2(input.clone()).map_err(|error| {
@@ -325,7 +325,8 @@ mod tests {
         use quote::quote;
         let sel = SelectorMacro::<crate::marker::SelectorBytes>::try_from(quote! {
             Abi::Sol, "ownCodeHash()"
-        }).unwrap();
+        })
+        .unwrap();
         assert_eq!(sel.selector.bytes, [219u8, 107, 220, 138]);
     }
 
@@ -334,7 +335,8 @@ mod tests {
         use quote::quote;
         let sel = SelectorMacro::<crate::marker::SelectorBytes>::try_from(quote! {
             Abi::Ink, "flip"
-        }).unwrap();
+        })
+        .unwrap();
         assert_eq!(sel.selector.bytes, hex_literal::hex!("633aa551"));
     }
 }
