@@ -26,8 +26,5 @@ fn main() {
         }
     }
 
-    assert_selector_eq!(
-        "myMessage",
-        selector_bytes!(Abi::Ink, "TraitDefinition::myMessage"),
-    );
+    assert_selector_eq!("myMessage", selector_bytes!(Abi::Ink, "TraitDefinition::myMessage"),);
 }
