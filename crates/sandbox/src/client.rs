@@ -49,6 +49,7 @@ use ink_e2e::{
     CallBuilderFinal,
     CallDryRunResult,
     ChainBackend,
+    ContractEventReader,
     ContractExecResultFor,
     ContractResult,
     ContractsBackend,
@@ -268,6 +269,50 @@ where
             .map_err(|err| {
                 SandboxErr::new(format!("transfer_allow_death failed: {err:?}"))
             })
+    }
+}
+
+impl<AccountId, S: Sandbox> Client<AccountId, S>
+where
+    S::Runtime: pallet_revive::Config,
+    <S::Runtime as frame_system::Config>::RuntimeEvent:
+        TryInto<pallet_revive::Event<S::Runtime>>,
+{
+    pub fn contract_events(&mut self) -> Vec<Vec<u8>> {
+        self.sandbox
+            .events()
+            .iter()
+            .filter_map(|event_record| {
+                if let Ok(pallet_event) = &event_record.event.clone().try_into() {
+                    match pallet_event {
+                        pallet_revive::Event::<S::Runtime>::ContractEmitted {
+                            data,
+                            ..
+                        } => Some(data.clone()),
+                        _ => None,
+                    }
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<Vec<u8>>>()
+    }
+
+    pub fn last_contract_event(&mut self) -> Option<Vec<u8>> {
+        self.contract_events().last().cloned()
+    }
+}
+
+impl<'a, AccountId, S> ContractEventReader for &'a mut Client<AccountId, S>
+where
+    S: Sandbox,
+    S::Runtime: pallet_revive::Config,
+    <S::Runtime as frame_system::Config>::RuntimeEvent:
+        TryInto<pallet_revive::Event<S::Runtime>>,
+{
+    fn fetch_last_contract_event(self) -> Result<Vec<u8>, String> {
+        self.last_contract_event()
+            .ok_or_else(|| "no contract events were emitted".to_string())
     }
 }
 
@@ -715,86 +760,6 @@ where
         let account_id =
             <S::Runtime as pallet_revive::Config>::AddressMapper::to_account_id(addr);
         Ok(E::AccountId::from(*account_id.as_ref()))
-    }
-}
-
-impl<AccountId, S: Sandbox> Client<AccountId, S>
-where
-    S::Runtime: pallet_revive::Config,
-    <S::Runtime as frame_system::Config>::RuntimeEvent:
-        TryInto<pallet_revive::Event<S::Runtime>>,
-{
-    pub fn contract_events(&mut self) -> Vec<Vec<u8>>
-    where
-        S::Runtime: pallet_revive::Config,
-        <S::Runtime as frame_system::Config>::RuntimeEvent:
-            TryInto<pallet_revive::Event<S::Runtime>>,
-    {
-        self.sandbox
-            .events()
-            .iter()
-            .filter_map(|event_record| {
-                if let Ok(pallet_event) = &event_record.event.clone().try_into() {
-                    match pallet_event {
-                        pallet_revive::Event::<S::Runtime>::ContractEmitted {
-                            data,
-                            ..
-                        } => Some(data.clone()),
-                        _ => None,
-                    }
-                } else {
-                    None
-                }
-            })
-            .collect::<Vec<Vec<u8>>>()
-    }
-
-    /// Returns the last contract event that was emitted, if any.
-    pub fn last_contract_event(&mut self) -> Option<Vec<u8>>
-    where
-        S::Runtime: pallet_revive::Config,
-        <S::Runtime as frame_system::Config>::RuntimeEvent:
-            TryInto<pallet_revive::Event<S::Runtime>>,
-    {
-        self.contract_events().last().cloned()
-    }
-}
-
-/// Helper function for the `assert_last_contract_event!` macro.
-///
-/// # Parameters:
-/// - `client` - The client for interacting with the sandbox.
-/// - `event` - The expected event.
-#[track_caller]
-pub fn assert_last_contract_event_inner<AccountId, S, E>(
-    client: &mut Client<AccountId, S>,
-    event: E,
-) where
-    S: Sandbox,
-    S::Runtime: pallet_revive::Config,
-    <S::Runtime as frame_system::Config>::RuntimeEvent:
-        TryInto<pallet_revive::Event<S::Runtime>>,
-    E: Decode + scale::Encode + core::fmt::Debug + std::cmp::PartialEq,
-{
-    let expected_event = event;
-    let last_event = client
-        .last_contract_event()
-        .unwrap_or_else(|| panic!("contract events expected but none were emitted yet"));
-
-    let decoded_event = E::decode(&mut &last_event[..]).unwrap_or_else(|error| {
-        panic!(
-            "failed to decode last contract event as {}: bytes={:?}, error={:?}",
-            core::any::type_name::<E>(),
-            last_event,
-            error
-        );
-    });
-
-    if decoded_event != expected_event {
-        panic!(
-            "expected contract event {:?} but found {:?}",
-            expected_event, decoded_event
-        );
     }
 }
 

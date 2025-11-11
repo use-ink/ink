@@ -19,12 +19,14 @@
     html_favicon_url = "https://use.ink/crate-docs/favicon.png"
 )]
 
+mod assertions;
 mod backend;
 mod backend_calls;
 mod builders;
 mod client_utils;
 mod contract_build;
 mod contract_results;
+mod conversions;
 mod error;
 pub mod events;
 mod node_proc;
@@ -32,6 +34,10 @@ mod subxt_client;
 mod xts;
 
 pub use crate::contract_build::build_root_and_contract_dependencies;
+pub use assertions::{
+    ContractEventReader,
+    assert_last_event_internal,
+};
 pub use backend::{
     BuilderClient,
     ChainBackend,
@@ -61,6 +67,7 @@ pub use contract_results::{
     InstantiationResult,
     UploadResult,
 };
+pub use conversions::IntoAccountId;
 pub use ink_e2e_macro::test;
 pub use ink_revive_types::evm::CallTrace;
 pub use node_proc::{
