@@ -90,32 +90,32 @@
 /// fn main() {
 ///     assert_eq!(
 ///         <<TraitDefinitionRegistry<DefaultEnvironment> as InkTrait>::__ink_TraitInfo
-///             as TraitMessageInfo<{selector_id!(Abi::Ink, "trait_message_1")}>>::PAYABLE,
+///             as TraitMessageInfo<{selector_id!("trait_message_1")}>>::PAYABLE,
 ///         false,
 ///     );
 ///     assert_eq!(
 ///         <<TraitDefinitionRegistry<DefaultEnvironment> as InkTrait>::__ink_TraitInfo
-///             as TraitMessageInfo<{selector_id!(Abi::Ink, "trait_message_2")}>>::PAYABLE,
+///             as TraitMessageInfo<{selector_id!("trait_message_2")}>>::PAYABLE,
 ///         true,
 ///     );
 ///     assert_eq!(
 ///         <<TraitDefinitionRegistry<DefaultEnvironment> as InkTrait2>::__ink_TraitInfo
-///             as TraitMessageInfo<{selector_id!(Abi::Ink, "trait_message")}>>::PAYABLE,
+///             as TraitMessageInfo<{selector_id!("trait_message")}>>::PAYABLE,
 ///         false,
 ///     );
 ///     assert_eq!(
 ///         <<TraitDefinitionRegistry<DefaultEnvironment> as InkTrait>::__ink_TraitInfo
-///             as TraitMessageInfo<{selector_id!(Abi::Ink, "trait_message_1")}>>::SELECTOR,
+///             as TraitMessageInfo<{selector_id!("trait_message_1")}>>::SELECTOR,
 ///         selector_bytes!(Abi::Ink, "InkTrait::trait_message_1")
 ///     );
 ///     assert_eq!(
 ///         <<TraitDefinitionRegistry<DefaultEnvironment> as InkTrait>::__ink_TraitInfo
-///             as TraitMessageInfo<{selector_id!(Abi::Ink, "trait_message_2")}>>::SELECTOR,
+///             as TraitMessageInfo<{selector_id!("trait_message_2")}>>::SELECTOR,
 ///         [0xC0, 0xDE, 0xCA, 0xFE]
 ///     );
 ///     assert_eq!(
 ///         <<TraitDefinitionRegistry<DefaultEnvironment> as InkTrait2>::__ink_TraitInfo
-///             as TraitMessageInfo<{selector_id!(Abi::Ink, "trait_message")}>>::SELECTOR,
+///             as TraitMessageInfo<{selector_id!("trait_message")}>>::SELECTOR,
 ///         selector_bytes!(Abi::Ink, "foo::InkTrait2::trait_message")
 ///     );
 /// }
