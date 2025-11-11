@@ -9,8 +9,7 @@ mod lazyvec {
         storage::StorageVec,
     };
 
-    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
-    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[ink::storage_item(packed)]
     pub struct Proposal {
         data: Vec<u8>,
         until: BlockNumber,

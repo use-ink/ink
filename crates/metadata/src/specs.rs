@@ -657,6 +657,11 @@ mod state {
     pub struct BlockNumber;
     /// Type state for the native to eth ratio specified in the environment.
     pub struct NativeToEthRatio;
+    /// Type state for the trust backed assets precompile index specified in the
+    /// environment.
+    pub struct TrustBackedAssetsPrecompileIndex;
+    /// Type state for the pool assets precompile index specified in the environment.
+    pub struct PoolAssetsPrecompileIndex;
     /// Type state for the size of the static buffer configured via environment variable.`
     pub struct BufferSize;
 }
@@ -1549,6 +1554,8 @@ where
     timestamp: TypeSpec<F>,
     block_number: TypeSpec<F>,
     native_to_eth_ratio: u32,
+    trust_backed_assets_precompile_index: u16,
+    pool_assets_precompile_index: u16,
     static_buffer_size: usize,
 }
 
@@ -1565,6 +1572,8 @@ where
             timestamp: Default::default(),
             block_number: Default::default(),
             native_to_eth_ratio: Default::default(),
+            trust_backed_assets_precompile_index: Default::default(),
+            pool_assets_precompile_index: Default::default(),
             static_buffer_size: Default::default(),
         }
     }
@@ -1581,6 +1590,9 @@ impl IntoPortable for EnvironmentSpec {
             timestamp: self.timestamp.into_portable(registry),
             block_number: self.block_number.into_portable(registry),
             native_to_eth_ratio: self.native_to_eth_ratio,
+            trust_backed_assets_precompile_index: self
+                .trust_backed_assets_precompile_index,
+            pool_assets_precompile_index: self.pool_assets_precompile_index,
             static_buffer_size: self.static_buffer_size,
         }
     }
@@ -1615,6 +1627,14 @@ where
     pub fn native_to_eth_ratio(&self) -> u32 {
         self.native_to_eth_ratio
     }
+    /// Returns the `TRUST_BACKED_ASSETS_PRECOMPILE_INDEX` value of the environment.
+    pub fn trust_backed_assets_precompile_index(&self) -> u16 {
+        self.trust_backed_assets_precompile_index
+    }
+    /// Returns the `POOL_ASSETS_PRECOMPILE_INDEX` value of the environment.
+    pub fn pool_assets_precompile_index(&self) -> u16 {
+        self.pool_assets_precompile_index
+    }
 }
 
 #[allow(clippy::type_complexity)]
@@ -1632,6 +1652,8 @@ where
         Missing<state::Timestamp>,
         Missing<state::BlockNumber>,
         Missing<state::NativeToEthRatio>,
+        Missing<state::TrustBackedAssetsPrecompileIndex>,
+        Missing<state::PoolAssetsPrecompileIndex>,
         Missing<state::BufferSize>,
     > {
         EnvironmentSpecBuilder {
@@ -1644,18 +1666,29 @@ where
 /// An environment specification builder.
 #[allow(clippy::type_complexity)]
 #[must_use]
-pub struct EnvironmentSpecBuilder<F, A, B, H, T, BN, NTER, BS>
+pub struct EnvironmentSpecBuilder<F, A, B, H, T, BN, NTER, TBAPI, PAPI, BS>
 where
     F: Form,
     TypeSpec<F>: Default,
     EnvironmentSpec<F>: Default,
 {
     spec: EnvironmentSpec<F>,
-    marker: PhantomData<fn() -> (A, B, H, T, BN, NTER, BS)>,
+    marker: PhantomData<fn() -> (A, B, H, T, BN, NTER, TBAPI, PAPI, BS)>,
 }
 
-impl<F, B, H, T, BN, NTER, BS>
-    EnvironmentSpecBuilder<F, Missing<state::AccountId>, B, H, T, BN, NTER, BS>
+impl<F, B, H, T, BN, NTER, TBAPI, PAPI, BS>
+    EnvironmentSpecBuilder<
+        F,
+        Missing<state::AccountId>,
+        B,
+        H,
+        T,
+        BN,
+        NTER,
+        TBAPI,
+        PAPI,
+        BS,
+    >
 where
     F: Form,
     TypeSpec<F>: Default,
@@ -1665,7 +1698,8 @@ where
     pub fn account_id(
         self,
         account_id: TypeSpec<F>,
-    ) -> EnvironmentSpecBuilder<F, state::AccountId, B, H, T, BN, NTER, BS> {
+    ) -> EnvironmentSpecBuilder<F, state::AccountId, B, H, T, BN, NTER, TBAPI, PAPI, BS>
+    {
         EnvironmentSpecBuilder {
             spec: EnvironmentSpec {
                 account_id,
@@ -1676,8 +1710,8 @@ where
     }
 }
 
-impl<F, A, H, T, BN, NTER, BS>
-    EnvironmentSpecBuilder<F, A, Missing<state::Balance>, H, T, BN, NTER, BS>
+impl<F, A, H, T, BN, NTER, TBAPI, PAPI, BS>
+    EnvironmentSpecBuilder<F, A, Missing<state::Balance>, H, T, BN, NTER, TBAPI, PAPI, BS>
 where
     F: Form,
     TypeSpec<F>: Default,
@@ -1687,7 +1721,8 @@ where
     pub fn balance(
         self,
         balance: TypeSpec<F>,
-    ) -> EnvironmentSpecBuilder<F, A, state::Balance, H, T, BN, NTER, BS> {
+    ) -> EnvironmentSpecBuilder<F, A, state::Balance, H, T, BN, NTER, TBAPI, PAPI, BS>
+    {
         EnvironmentSpecBuilder {
             spec: EnvironmentSpec {
                 balance,
@@ -1698,8 +1733,8 @@ where
     }
 }
 
-impl<F, A, B, T, BN, NTER, BS>
-    EnvironmentSpecBuilder<F, A, B, Missing<state::Hash>, T, BN, NTER, BS>
+impl<F, A, B, T, BN, NTER, TBAPI, PAPI, BS>
+    EnvironmentSpecBuilder<F, A, B, Missing<state::Hash>, T, BN, NTER, TBAPI, PAPI, BS>
 where
     F: Form,
     TypeSpec<F>: Default,
@@ -1709,7 +1744,7 @@ where
     pub fn hash(
         self,
         hash: TypeSpec<F>,
-    ) -> EnvironmentSpecBuilder<F, A, B, state::Hash, T, BN, NTER, BS> {
+    ) -> EnvironmentSpecBuilder<F, A, B, state::Hash, T, BN, NTER, TBAPI, PAPI, BS> {
         EnvironmentSpecBuilder {
             spec: EnvironmentSpec { hash, ..self.spec },
             marker: PhantomData,
@@ -1717,8 +1752,19 @@ where
     }
 }
 
-impl<F, A, B, H, BN, NTER, BS>
-    EnvironmentSpecBuilder<F, A, B, H, Missing<state::Timestamp>, BN, NTER, BS>
+impl<F, A, B, H, BN, NTER, TBAPI, PAPI, BS>
+    EnvironmentSpecBuilder<
+        F,
+        A,
+        B,
+        H,
+        Missing<state::Timestamp>,
+        BN,
+        NTER,
+        TBAPI,
+        PAPI,
+        BS,
+    >
 where
     F: Form,
     TypeSpec<F>: Default,
@@ -1728,7 +1774,8 @@ where
     pub fn timestamp(
         self,
         timestamp: TypeSpec<F>,
-    ) -> EnvironmentSpecBuilder<F, A, B, H, state::Timestamp, BN, NTER, BS> {
+    ) -> EnvironmentSpecBuilder<F, A, B, H, state::Timestamp, BN, NTER, TBAPI, PAPI, BS>
+    {
         EnvironmentSpecBuilder {
             spec: EnvironmentSpec {
                 timestamp,
@@ -1739,8 +1786,19 @@ where
     }
 }
 
-impl<F, A, B, H, T, NTER, BS>
-    EnvironmentSpecBuilder<F, A, B, H, T, Missing<state::BlockNumber>, NTER, BS>
+impl<F, A, B, H, T, NTER, TBAPI, PAPI, BS>
+    EnvironmentSpecBuilder<
+        F,
+        A,
+        B,
+        H,
+        T,
+        Missing<state::BlockNumber>,
+        NTER,
+        TBAPI,
+        PAPI,
+        BS,
+    >
 where
     F: Form,
     TypeSpec<F>: Default,
@@ -1750,7 +1808,8 @@ where
     pub fn block_number(
         self,
         block_number: TypeSpec<F>,
-    ) -> EnvironmentSpecBuilder<F, A, B, H, T, state::BlockNumber, NTER, BS> {
+    ) -> EnvironmentSpecBuilder<F, A, B, H, T, state::BlockNumber, NTER, TBAPI, PAPI, BS>
+    {
         EnvironmentSpecBuilder {
             spec: EnvironmentSpec {
                 block_number,
@@ -1761,8 +1820,19 @@ where
     }
 }
 
-impl<F, A, B, H, T, BN, BS>
-    EnvironmentSpecBuilder<F, A, B, H, T, BN, Missing<state::NativeToEthRatio>, BS>
+impl<F, A, B, H, T, BN, PBAPI, PAPI, BS>
+    EnvironmentSpecBuilder<
+        F,
+        A,
+        B,
+        H,
+        T,
+        BN,
+        Missing<state::NativeToEthRatio>,
+        PBAPI,
+        PAPI,
+        BS,
+    >
 where
     F: Form,
     TypeSpec<F>: Default,
@@ -1772,7 +1842,8 @@ where
     pub fn native_to_eth_ratio(
         self,
         native_to_eth_ratio: u32,
-    ) -> EnvironmentSpecBuilder<F, A, B, H, T, BN, state::NativeToEthRatio, BS> {
+    ) -> EnvironmentSpecBuilder<F, A, B, H, T, BN, state::NativeToEthRatio, PBAPI, PAPI, BS>
+    {
         EnvironmentSpecBuilder {
             spec: EnvironmentSpec {
                 native_to_eth_ratio,
@@ -1783,8 +1854,107 @@ where
     }
 }
 
-impl<F, A, B, H, T, BN, NTER>
-    EnvironmentSpecBuilder<F, A, B, H, T, BN, NTER, Missing<state::BufferSize>>
+impl<F, A, B, H, T, BN, NTER, PAPI, BS>
+    EnvironmentSpecBuilder<
+        F,
+        A,
+        B,
+        H,
+        T,
+        BN,
+        NTER,
+        Missing<state::TrustBackedAssetsPrecompileIndex>,
+        PAPI,
+        BS,
+    >
+where
+    F: Form,
+    TypeSpec<F>: Default,
+    EnvironmentSpec<F>: Default,
+{
+    /// Sets the `TRUST_BACKED_ASSETS_PRECOMPILE_INDEX` value of the environment.
+    pub fn trust_backed_assets_precompile_index(
+        self,
+        trust_backed_assets_precompile_index: u16,
+    ) -> EnvironmentSpecBuilder<
+        F,
+        A,
+        B,
+        H,
+        T,
+        BN,
+        NTER,
+        state::TrustBackedAssetsPrecompileIndex,
+        PAPI,
+        BS,
+    > {
+        EnvironmentSpecBuilder {
+            spec: EnvironmentSpec {
+                trust_backed_assets_precompile_index,
+                ..self.spec
+            },
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<F, A, B, H, T, BN, NTER, TBAPI, BS>
+    EnvironmentSpecBuilder<
+        F,
+        A,
+        B,
+        H,
+        T,
+        BN,
+        NTER,
+        TBAPI,
+        Missing<state::PoolAssetsPrecompileIndex>,
+        BS,
+    >
+where
+    F: Form,
+    TypeSpec<F>: Default,
+    EnvironmentSpec<F>: Default,
+{
+    /// Sets the `POOL_ASSETS_PRECOMPILE_INDEX` value of the environment.
+    pub fn pool_assets_precompile_index(
+        self,
+        pool_assets_precompile_index: u16,
+    ) -> EnvironmentSpecBuilder<
+        F,
+        A,
+        B,
+        H,
+        T,
+        BN,
+        NTER,
+        TBAPI,
+        state::PoolAssetsPrecompileIndex,
+        BS,
+    > {
+        EnvironmentSpecBuilder {
+            spec: EnvironmentSpec {
+                pool_assets_precompile_index,
+                ..self.spec
+            },
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<F, A, B, H, T, BN, NTER, TBAPI, PAPI>
+    EnvironmentSpecBuilder<
+        F,
+        A,
+        B,
+        H,
+        T,
+        BN,
+        NTER,
+        TBAPI,
+        PAPI,
+        Missing<state::BufferSize>,
+    >
 where
     F: Form,
     TypeSpec<F>: Default,
@@ -1794,7 +1964,8 @@ where
     pub fn static_buffer_size(
         self,
         static_buffer_size: usize,
-    ) -> EnvironmentSpecBuilder<F, A, B, H, T, BN, NTER, state::BufferSize> {
+    ) -> EnvironmentSpecBuilder<F, A, B, H, T, BN, NTER, TBAPI, PAPI, state::BufferSize>
+    {
         EnvironmentSpecBuilder {
             spec: EnvironmentSpec {
                 static_buffer_size,
@@ -1814,6 +1985,8 @@ impl<F>
         state::Timestamp,
         state::BlockNumber,
         state::NativeToEthRatio,
+        state::TrustBackedAssetsPrecompileIndex,
+        state::PoolAssetsPrecompileIndex,
         state::BufferSize,
     >
 where

@@ -2,7 +2,7 @@ use core::any::Any;
 
 pub mod api;
 pub mod client;
-mod error;
+pub mod error;
 pub mod macros;
 
 pub use frame_metadata::RuntimeMetadataPrefixed;
@@ -27,8 +27,10 @@ use ink_revive_types::{
     },
 };
 pub use macros::{
+    AssetIdForTrustBackedAssets,
     BlockBuilder,
     DefaultSandbox,
+    TrustBackedAssetsInstance,
 };
 use pallet_revive::{
     ContractResult,
@@ -47,11 +49,15 @@ pub use {
         },
     },
     frame_system,
+    ink_precompiles,
+    pallet_assets,
+    pallet_assets_precompiles,
     pallet_balances,
     pallet_revive,
     pallet_timestamp,
     pallet_transaction_payment,
     paste,
+    scale,
     sp_core::crypto::Ss58Codec,
     sp_externalities::{
         self,
@@ -64,6 +70,7 @@ pub use client::{
     Client as SandboxClient,
     preset,
 };
+pub use error::E2EError;
 pub use ink_e2e_macro::test;
 
 /// A snapshot of the storage.
@@ -246,5 +253,31 @@ pub fn to_revive_storage_deposit<B>(
         pallet_revive::StorageDeposit::Refund(b) => {
             ink_revive_types::StorageDeposit::Refund(b)
         }
+    }
+}
+
+/// Trait for types that can be converted into a runtime AccountId.
+///
+/// This allows sandbox APIs to accept various account types without requiring manual
+/// conversion.
+pub trait IntoAccountId<AccountId> {
+    fn into_account_id(self) -> AccountId;
+}
+
+impl IntoAccountId<AccountId32> for &AccountId32 {
+    fn into_account_id(self) -> AccountId32 {
+        self.clone()
+    }
+}
+
+impl IntoAccountId<AccountId32> for &ink_primitives::AccountId {
+    fn into_account_id(self) -> AccountId32 {
+        AccountId32::from(*AsRef::<[u8; 32]>::as_ref(self))
+    }
+}
+
+impl IntoAccountId<AccountId32> for &ink_e2e::Keypair {
+    fn into_account_id(self) -> AccountId32 {
+        AccountId32::from(self.public_key().0)
     }
 }
