@@ -14,8 +14,7 @@ mod storage_types {
     };
 
     #[derive(Debug)]
-    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
-    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[ink::storage_item(packed)]
     #[allow(clippy::enum_variant_names)]
     pub enum CustomError {
         EmptyError,
@@ -25,8 +24,7 @@ mod storage_types {
     }
 
     #[derive(Debug, PartialEq, Eq, Clone, Default)]
-    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
-    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[ink::storage_item(packed)]
     pub enum EnumWithoutValues {
         #[default]
         A,
@@ -35,8 +33,7 @@ mod storage_types {
     }
 
     #[derive(Debug, Clone)]
-    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
-    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[ink::storage_item(packed)]
     pub enum EnumWithValues {
         OneValue(u32),
         TwoValues(u32, u32),
@@ -44,8 +41,7 @@ mod storage_types {
     }
 
     #[derive(Debug, Clone)]
-    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
-    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[ink::storage_item(packed)]
     pub struct PrimitiveTypes {
         bool_value: bool,
         enum_without_values: EnumWithoutValues,
@@ -56,8 +52,7 @@ mod storage_types {
     }
 
     #[derive(Debug, Clone)]
-    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
-    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[ink::storage_item(packed)]
     pub struct SignedIntegers {
         i128_value_max: i128,
         i128_value_min: i128,
@@ -72,8 +67,7 @@ mod storage_types {
     }
 
     #[derive(Debug, Clone)]
-    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
-    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[ink::storage_item(packed)]
     pub struct SubstrateTypes {
         account_id_value: AccountId,
         balance_value_max: Balance,
@@ -82,8 +76,7 @@ mod storage_types {
     }
 
     #[derive(Debug, Clone)]
-    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
-    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[ink::storage_item(packed)]
     pub struct InkPreludeTypes {
         string_value: String,
         vec_string_value: Vec<String>,
@@ -91,8 +84,7 @@ mod storage_types {
     }
 
     #[derive(Debug, Clone)]
-    #[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
-    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[ink::storage_item(packed)]
     pub struct UnsignedIntegers {
         u128_value_max: u128,
         u128_value_min: u128,

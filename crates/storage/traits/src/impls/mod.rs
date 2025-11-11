@@ -125,6 +125,7 @@ where
 }
 
 impl<P> super::storage::private::Sealed for P where P: scale::Decode + scale::Encode {}
+#[diagnostic::do_not_recommend]
 impl<P> Packed for P where P: scale::Decode + scale::Encode {}
 
 impl<P> StorageKey for P
