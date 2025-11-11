@@ -28,6 +28,7 @@ use ink_primitives::{
     sol::SolResultEncode,
     types::{
         AccountIdMapper,
+        BlockNumber,
         Environment,
     },
 };
@@ -579,6 +580,34 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn gas_left(&mut self) -> u64 {
+        unimplemented!("not implemented, the off-chain environment will be removed");
+    }
+
+    fn chain_id(&mut self) -> U256 {
+        unimplemented!("not implemented, the off-chain environment will be removed");
+    }
+
+    fn balance_of(&mut self, _addr: Address) -> U256 {
+        unimplemented!("not implemented, the off-chain environment will be removed");
+    }
+
+    fn base_fee(&mut self) -> U256 {
+        unimplemented!("not implemented, the off-chain environment will be removed");
+    }
+
+    fn origin(&mut self) -> Address {
+        unimplemented!("not implemented, the off-chain environment will be removed");
+    }
+
+    fn block_hash(&mut self, _block_number: BlockNumber) -> H256 {
+        unimplemented!("not implemented, the off-chain environment will be removed");
+    }
+
+    fn block_author(&mut self) -> Address {
+        unimplemented!("not implemented, the off-chain environment will be removed");
+    }
+
+    fn code_size(&mut self, _addr: Address) -> u64 {
         unimplemented!("not implemented, the off-chain environment will be removed");
     }
 
