@@ -159,7 +159,6 @@ pub fn erc20(precompile_index: u16, asset_id: AssetId) -> Erc20Ref {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use ink::env::Environment;
 
     #[test]
