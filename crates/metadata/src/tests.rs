@@ -511,14 +511,12 @@ fn spec_contract_json() {
                     "type": 10,
                 },
                 "nativeToEthRatio": 100000000,
-                "poolAssetsPrecompileIndex": 800,
                 "timestamp":  {
                     "displayName":  [
                         "Timestamp",
                     ],
                     "type": 9,
                 },
-                "trustBackedAssetsPrecompileIndex": 288,
             },
             "events": [],
             "lang_error": {

@@ -3684,7 +3684,6 @@ dependencies = [
  "ink_ir",
  "ink_macro",
  "ink_metadata 6.0.0-beta",
- "ink_precompiles",
  "ink_prelude 6.0.0-beta",
  "ink_primitives 6.0.0-beta",
  "ink_storage",
@@ -3898,7 +3897,7 @@ dependencies = [
 name = "ink_precompiles"
 version = "6.0.0-beta"
 dependencies = [
- "ink_primitives 6.0.0-beta",
+ "ink",
 ]
 
 [[package]]

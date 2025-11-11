@@ -1,24 +1,22 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-pub use ink::precompiles::erc20::{
-    AssetId,
-    erc20,
-};
 use ink::{
     H160,
     U256,
     prelude::string::ToString,
 };
+pub use ink::precompiles::erc20::{
+    AssetId,
+    erc20,
+};
 
 #[ink::contract]
 mod asset_hub_precompile {
     use super::*;
-    use ink::{
-        precompiles::erc20::{
-            Erc20,
-            Erc20Ref,
-        },
-        prelude::string::String,
+    use ink::prelude::string::String;
+    use ink::precompiles::erc20::{
+        Erc20,
+        Erc20Ref,
     };
 
     #[ink(storage)]

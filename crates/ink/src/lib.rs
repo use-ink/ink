@@ -39,8 +39,8 @@ pub mod sol;
 pub use ink_env as env;
 #[cfg(feature = "std")]
 pub use ink_metadata as metadata;
-pub use ink_precompiles as precompiles;
 pub use ink_prelude as prelude;
+pub use ink_precompiles as precompiles;
 pub use ink_primitives as primitives;
 pub use ink_primitives::abi;
 pub use scale;
