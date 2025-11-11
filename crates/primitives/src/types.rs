@@ -306,6 +306,14 @@ pub trait Environment: Clone {
     /// and the ETH token.
     const NATIVE_TO_ETH_RATIO: u32;
 
+    /// ERC-20 Assets precompile index, for trust backed assets
+    /// (i.e. trust comes from the issuer).
+    const TRUST_BACKED_ASSETS_PRECOMPILE_INDEX: u16;
+
+    /// ERC-20 Assets precompile index, for pool assets
+    /// (i.e. trust comes from on-chain collateral accounting).
+    const POOL_ASSETS_PRECOMPILE_INDEX: u16;
+
     /// The account id type.
     type AccountId: 'static
         + scale::Codec
@@ -395,6 +403,11 @@ impl Environment for DefaultEnvironment {
     // chooses by default. It's also the number present in the
     // `ink_sandbox` and the `ink-node`.
     const NATIVE_TO_ETH_RATIO: u32 = 100_000_000;
+
+    // These const's correspond to the settings of Asset Hub and
+    // `ink-node`.
+    const TRUST_BACKED_ASSETS_PRECOMPILE_INDEX: u16 = 0x0120;
+    const POOL_ASSETS_PRECOMPILE_INDEX: u16 = 0x0320;
 
     type AccountId = AccountId;
     type Balance = Balance;

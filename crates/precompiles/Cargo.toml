@@ -1,0 +1,21 @@
+[package]
+name = "ink_precompiles"
+version.workspace = true
+authors = ["Use Ink <ink@use.ink>"]
+edition.workspace = true
+license.workspace = true
+description = "[ink!] Precompile interfaces for pallet-revive smart contracts."
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+ink = { workspace = true, default-features = false }
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+]
+

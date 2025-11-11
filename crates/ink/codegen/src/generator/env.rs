@@ -39,8 +39,10 @@ impl GenerateCode for Env<'_> {
             type Hash = <<#storage_ident as ::ink::env::ContractEnv>::Env as ::ink::env::Environment>::Hash;
             type Timestamp = <<#storage_ident as ::ink::env::ContractEnv>::Env as ::ink::env::Environment>::Timestamp;
             type BlockNumber = <<#storage_ident as ::ink::env::ContractEnv>::Env as ::ink::env::Environment>::BlockNumber;
-            const NATIVE_TO_ETH_RATIO: u32 = <<#storage_ident as ::ink::env::ContractEnv>::Env as ::ink::env::Environment>::NATIVE_TO_ETH_RATIO;
             type EventRecord = <<#storage_ident as ::ink::env::ContractEnv>::Env as ::ink::env::Environment>::EventRecord;
+            const NATIVE_TO_ETH_RATIO: u32 = <<#storage_ident as ::ink::env::ContractEnv>::Env as ::ink::env::Environment>::NATIVE_TO_ETH_RATIO;
+            const TRUST_BACKED_ASSETS_PRECOMPILE_INDEX: u16 = <<#storage_ident as ::ink::env::ContractEnv>::Env as ::ink::env::Environment>::TRUST_BACKED_ASSETS_PRECOMPILE_INDEX;
+            const POOL_ASSETS_PRECOMPILE_INDEX: u16 = <<#storage_ident as ::ink::env::ContractEnv>::Env as ::ink::env::Environment>::POOL_ASSETS_PRECOMPILE_INDEX;
 
             type Address = ::ink::primitives::Address;
         }

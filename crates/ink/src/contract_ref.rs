@@ -153,6 +153,8 @@ use ink_primitives::Address;
 ///
 /// impl ink_env::Environment for CustomEnv {
 ///     const NATIVE_TO_ETH_RATIO: u32 = 100_000_000;
+///     const TRUST_BACKED_ASSETS_PRECOMPILE_INDEX: u16 = 0x0120;
+///     const POOL_ASSETS_PRECOMPILE_INDEX: u16 = 0x0320;
 ///     type AccountId = [u8; 32];
 ///     type Balance = u64;
 ///     type Hash = [u8; 32];

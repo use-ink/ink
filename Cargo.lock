@@ -3894,6 +3894,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "ink_precompiles"
+version = "6.0.0-beta"
+dependencies = [
+ "ink",
+]
+
+[[package]]
 name = "ink_prelude"
 version = "6.0.0-beta"
 dependencies = [
@@ -3986,9 +3993,12 @@ dependencies = [
  "ink_e2e",
  "ink_e2e_macro",
  "ink_env",
+ "ink_precompiles",
  "ink_primitives 6.0.0-beta",
  "ink_revive_types",
  "jsonrpsee",
+ "pallet-assets",
+ "pallet-assets-precompiles",
  "pallet-balances",
  "pallet-revive",
  "pallet-timestamp",
@@ -4850,6 +4860,33 @@ dependencies = [
  "elliptic-curve",
  "primeorder",
  "sha2 0.10.9",
+]
+
+[[package]]
+name = "pallet-assets"
+version = "29.1.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?rev=9136565addc23a552f6960a7581f13c8dfc651f1#9136565addc23a552f6960a7581f13c8dfc651f1"
+dependencies = [
+ "frame-benchmarking",
+ "frame-support 28.0.0",
+ "frame-system",
+ "impl-trait-for-tuples",
+ "log",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-core 28.0.0",
+ "sp-runtime 31.0.1",
+]
+
+[[package]]
+name = "pallet-assets-precompiles"
+version = "0.1.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?rev=9136565addc23a552f6960a7581f13c8dfc651f1#9136565addc23a552f6960a7581f13c8dfc651f1"
+dependencies = [
+ "ethereum-standards",
+ "frame-support 28.0.0",
+ "pallet-assets",
+ "pallet-revive",
 ]
 
 [[package]]

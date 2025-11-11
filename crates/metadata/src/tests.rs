@@ -202,6 +202,8 @@ fn spec_contract_event_definition_signature_topic_collision() {
     const SIGNATURE_TOPIC: Option<[u8; 32]> = Some([42u8; 32]);
     const BUFFER_SIZE: usize = 1 << 14;
     const NATIVE_TO_ETH_RATIO: u32 = 100000000;
+    const TRUST_BACKED_ASSETS_PRECOMPILE_INDEX: u16 = 0x0120;
+    const POOL_ASSETS_PRECOMPILE_INDEX: u16 = 0x0320;
 
     ContractSpec::new()
         .constructors(vec![
@@ -271,6 +273,10 @@ fn spec_contract_event_definition_signature_topic_collision() {
                 .timestamp(TypeSpec::of_type::<u64>())
                 .block_number(TypeSpec::of_type::<u128>())
                 .native_to_eth_ratio(NATIVE_TO_ETH_RATIO)
+                .trust_backed_assets_precompile_index(
+                    TRUST_BACKED_ASSETS_PRECOMPILE_INDEX,
+                )
+                .pool_assets_precompile_index(POOL_ASSETS_PRECOMPILE_INDEX)
                 .static_buffer_size(BUFFER_SIZE)
                 .done(),
         )
@@ -284,8 +290,10 @@ fn spec_contract_json() {
     type Hash = ink_primitives::Hash;
     type Timestamp = u64;
     type BlockNumber = u128;
-    const NATIVE_TO_ETH_RATIO: u32 = 100000000;
     const BUFFER_SIZE: usize = 1 << 14;
+    const NATIVE_TO_ETH_RATIO: u32 = 100000000;
+    const TRUST_BACKED_ASSETS_PRECOMPILE_INDEX: u16 = 0x0120;
+    const POOL_ASSETS_PRECOMPILE_INDEX: u16 = 0x0320;
 
     // given
     let contract: ContractSpec = ContractSpec::new()
@@ -400,6 +408,10 @@ fn spec_contract_json() {
                     ),
                 ))
                 .native_to_eth_ratio(NATIVE_TO_ETH_RATIO)
+                .trust_backed_assets_precompile_index(
+                    TRUST_BACKED_ASSETS_PRECOMPILE_INDEX,
+                )
+                .pool_assets_precompile_index(POOL_ASSETS_PRECOMPILE_INDEX)
                 .static_buffer_size(BUFFER_SIZE)
                 .done(),
         )
@@ -499,12 +511,14 @@ fn spec_contract_json() {
                     "type": 10,
                 },
                 "nativeToEthRatio": 100000000,
+                "poolAssetsPrecompileIndex": 800,
                 "timestamp":  {
                     "displayName":  [
                         "Timestamp",
                     ],
                     "type": 9,
                 },
+                "trustBackedAssetsPrecompileIndex": 288,
             },
             "events": [],
             "lang_error": {
@@ -723,6 +737,8 @@ fn environment_spec() -> EnvironmentSpec<PortableForm> {
         .block_number(Default::default())
         .static_buffer_size(16384)
         .native_to_eth_ratio(100_000_000)
+        .trust_backed_assets_precompile_index(0x0120)
+        .pool_assets_precompile_index(0x0320)
         .done()
 }
 
