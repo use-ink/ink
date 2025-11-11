@@ -188,6 +188,8 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///
 ///   impl ink_env::Environment for MyEnvironment {
 ///       const NATIVE_TO_ETH_RATIO: u32 = 100_000_000;
+///       const TRUST_BACKED_ASSETS_PRECOMPILE_INDEX: u16 = 0x0120;
+///       const POOL_ASSETS_PRECOMPILE_INDEX: u16 = 0x0320;
 ///       type AccountId = [u8; 16];
 ///       type Balance = u128;
 ///       type Hash = [u8; 32];
@@ -206,6 +208,8 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///       #
 ///       # impl ink_env::Environment for MyEnvironment {
 ///       #     const NATIVE_TO_ETH_RATIO: u32 = 100_000_000;
+///       #     const TRUST_BACKED_ASSETS_PRECOMPILE_INDEX: u16 = 0x0120;
+///       #     const POOL_ASSETS_PRECOMPILE_INDEX: u16 = 0x0320;
 ///       #     type AccountId = [u8; 16];
 ///       #     type Balance = u128;
 ///       #     type Hash = [u8; 32];
@@ -795,6 +799,8 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 ///   impl ink_env::Environment for MyEnvironment {
 ///       const NATIVE_TO_ETH_RATIO: u32 = 100_000_000;
+///       const TRUST_BACKED_ASSETS_PRECOMPILE_INDEX: u16 = 0x0120;
+///       const POOL_ASSETS_PRECOMPILE_INDEX: u16 = 0x0320;
 ///       type AccountId = [u8; 16];
 ///       type Balance = u128;
 ///       type Hash = [u8; 32];
@@ -819,6 +825,8 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///   #
 ///   # impl ink_env::Environment for MyEnvironment {
 ///   #     const NATIVE_TO_ETH_RATIO: u32 = 100_000_000;
+///   #     const TRUST_BACKED_ASSETS_PRECOMPILE_INDEX: u16 = 0x0120;
+///   #     const POOL_ASSETS_PRECOMPILE_INDEX: u16 = 0x0320;
 ///   #     type AccountId = [u8; 16];
 ///   #     type Balance = u128;
 ///   #     type Hash = [u8; 32];
@@ -916,13 +924,8 @@ pub fn event(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// };
 /// use ink::storage::traits::Storable;
 ///
-/// // Deriving `scale::Decode` and `scale::Encode` also derives blanket implementation of all
-/// // required traits to be storable.
-/// #[derive(scale::Decode, scale::Encode)]
-/// #[cfg_attr(
-///     feature = "std",
-///     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
-/// )]
+/// // Example of how to define a packed type.
+/// #[ink::storage_item(packed)]
 /// #[derive(Default, Debug)]
 /// struct Packed {
 ///     s1: u128,
@@ -931,12 +934,8 @@ pub fn event(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     // s3: Vec<NonPacked>,
 /// }
 ///
-/// // Example of how to define the packed type with generic.
-/// #[derive(scale::Decode, scale::Encode)]
-/// #[cfg_attr(
-///     feature = "std",
-///     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
-/// )]
+/// // Example of how to define the packed type with generics.
+/// #[ink::storage_item(packed)]
 /// #[derive(Default, Debug)]
 /// struct PackedGeneric<T: ink::storage::traits::Packed> {
 ///     s1: (u128, bool),
@@ -945,6 +944,8 @@ pub fn event(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// }
 ///
 /// // Example of how to define the non-packed type.
+/// // Note: `packed` argument defaults to `false`, so it can be omitted for non-packed types,
+/// // so the definition below is equivalent to `#[ink::storage_item(packed = false)]`.
 /// #[ink::storage_item]
 /// #[derive(Default, Debug)]
 /// struct NonPacked {
@@ -953,12 +954,7 @@ pub fn event(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// }
 ///
 /// // Example of how to define the non-packed generic type.
-/// #[ink::storage_item(derive = false)]
-/// #[derive(Storable, StorableHint, StorageKey)]
-/// #[cfg_attr(
-///     feature = "std",
-///     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
-/// )]
+/// #[ink::storage_item]
 /// #[derive(Default, Debug)]
 /// struct NonPackedGeneric<T>
 /// where
@@ -970,12 +966,26 @@ pub fn event(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     s3: Mapping<u128, T>,
 /// }
 ///
-/// // Example of how to define a complex packed type.
-/// #[derive(scale::Decode, scale::Encode)]
+/// // Example of how to define the non-packed generic type with manually derived storage traits.
+/// #[ink::storage_item(derive = false)]
+/// #[derive(Storable, StorableHint, StorageKey)]
 /// #[cfg_attr(
 ///     feature = "std",
 ///     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 /// )]
+/// #[derive(Default, Debug)]
+/// struct NonPackedGenericManual<T>
+/// where
+///     T: Default + core::fmt::Debug,
+///     T: ink::storage::traits::Packed,
+/// {
+///     s1: u32,
+///     s2: T,
+///     s3: Mapping<u128, T>,
+/// }
+///
+/// // Example of how to define a complex packed type.
+/// #[ink::storage_item(packed)]
 /// #[derive(Default, Debug)]
 /// struct PackedComplex {
 ///     s1: u128,
@@ -1003,6 +1013,26 @@ pub fn event(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// The `#[ink::storage_item]` macro can be provided with an additional comma-separated
 /// header argument:
+///
+/// - `packed: flag`
+///
+///   Storage items flagged as `packed` use "packed" layout .
+///
+///   **Usage Example:**
+///   ```
+///   use ink::storage::Mapping;
+///
+///   #[ink::storage_item(packed)]
+///   struct PackedGeneric<T: ink::storage::traits::Packed> {
+///       s1: (u128, bool),
+///       s2: Vec<T>,
+///       s3: String,
+///   }
+///   ```
+///
+///   **Default value:** not set.
+///   **Note**: The default behavior is to use "non-packed" layout, and automatically
+///   derive storage keys for each field.
 ///
 /// - `derive: bool`
 ///

@@ -80,6 +80,13 @@ pub(crate) mod private {
 ///
 /// The trait is automatically implemented for types that implement [`scale::Codec`]
 /// via blanket implementation.
+#[diagnostic::on_unimplemented(
+    message = "expected `{Self}` to use a \"packed\" layout",
+    label = "`{Self}` does not currently use a \"packed\" layout",
+    note = "consider adding `#[ink::storage_item(packed)]` to `{Self}`",
+    note = "if `{Self}` is a standard library collection like `Vec<T>`, then consider adding `#[ink::storage_item(packed)]` to `T`",
+    note = "learn more at https://use.ink/docs/v6/datastructures/storage-layout#packed-vs-non-packed-layout"
+)]
 pub trait Packed: Storable + scale::Codec + private::Sealed {}
 
 /// Holds storage key for the type.

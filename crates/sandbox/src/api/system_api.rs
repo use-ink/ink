@@ -143,7 +143,7 @@ mod tests {
         let initial_balance = sandbox.free_balance(&actor);
 
         sandbox.dry_run(|sandbox| {
-            sandbox.mint_into(&actor, 100).unwrap();
+            crate::api::balance_api::BalanceAPI::mint_into(sandbox, &actor, 100).unwrap();
             assert_eq!(sandbox.free_balance(&actor), initial_balance + 100);
         });
 

@@ -14,6 +14,8 @@ sha3 = "0.10.8"
 frame-metadata = { workspace = true }
 frame-system = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "9136565addc23a552f6960a7581f13c8dfc651f1", default-features = false }
 frame-support = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "9136565addc23a552f6960a7581f13c8dfc651f1", default-features = false }
+pallet-assets = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "9136565addc23a552f6960a7581f13c8dfc651f1", default-features = false }
+pallet-assets-precompiles = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "9136565addc23a552f6960a7581f13c8dfc651f1", default-features = false }
 pallet-balances = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "9136565addc23a552f6960a7581f13c8dfc651f1", default-features = false }
 pallet-transaction-payment = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "9136565addc23a552f6960a7581f13c8dfc651f1", default-features = false }
 pallet-revive = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "9136565addc23a552f6960a7581f13c8dfc651f1", default-features = false }
@@ -26,6 +28,7 @@ sp-io = {  git = "https://github.com/use-ink/polkadot-sdk.git", rev = "9136565ad
 
 ink_primitives = { workspace = true }
 ink_revive_types = { workspace = true }
+ink_precompiles = { workspace = true }
 ink_env = { workspace = true, default-features = true }
 ink_e2e = { path = "../e2e" }
 ink_e2e_macro = { workspace = true, default-features = true }
@@ -47,6 +50,8 @@ std = [
 	"frame-metadata/std",
 	"ink_primitives/std",
 	"ink_revive_types/std",
+	"pallet-assets/std",
+	"pallet-assets-precompiles/std",
 	"pallet-balances/std",
     "pallet-transaction-payment/std",
 	"pallet-revive/std",

@@ -10,8 +10,7 @@ use ink_storage::{
 };
 
 #[derive(Default)]
-#[cfg_attr(feature = "std", derive(ink::storage::traits::StorageLayout))]
-#[ink::scale_derive(Encode, Decode, TypeInfo)]
+#[ink::storage_item(packed)]
 struct Packed {
     a: u8,
     b: u16,

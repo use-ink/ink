@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Implement `bn128` precompiles ‒ [2708](https://github.com/use-ink/ink/pull/2718)
+- Add `packed` flag to `storage_item` attribute and improve related diagnostics - [](https://github.com/use-ink/ink/pull/2722)
 
 ### Changed
 - Change `selector_bytes!` macro to accept `Abi` argument ‒ [2721](https://github.com/use-ink/ink/pull/2721)
@@ -24,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `ink_revive_types` (and remove `pallet-revive` dependency from `ink_e2e`) - [#2657](https://github.com/use-ink/ink/pull/2657)
 - non-allocating Solidity ABI encoder - [#2655](https://github.com/use-ink/ink/pull/2655)
 - Implement XCM precompile, stabilize XCM API - [#2687](https://github.com/use-ink/ink/pull/2687)
+- Add `ink_precompiles` crate with ERC-20 assets precompile interface - [#2686](https://github.com/use-ink/ink/pull/2686)
 
 ### Changed
 - Marks the `pallet-revive` host function `account_id` stable - [#2578](https://github.com/use-ink/ink/pull/2578)
