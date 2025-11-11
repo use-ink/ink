@@ -23,7 +23,7 @@
 //! - [Polkadot SDK Assets Precompile Solidity Interface](https://github.com/paritytech/polkadot-sdk/blob/master/substrate/primitives/ethereum-standards/src/IERC20.sol)
 //! - [ERC-20 Token Standard](https://eips.ethereum.org/EIPS/eip-20)
 
-use ink_primitives::{
+use ink::{
     Address,
     U256,
 };
@@ -146,7 +146,7 @@ pub trait Erc20 {
 /// # Example
 ///
 /// ```rust,ignore
-/// use ink::precompiles::erc20::erc20;
+/// use ink_precompiles::erc20::erc20;
 ///
 /// let asset_id = 1;
 /// let erc20_ref = erc20(asset_id);

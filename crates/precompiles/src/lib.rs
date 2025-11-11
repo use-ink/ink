@@ -18,8 +18,6 @@
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_primitives::Address;
-
 pub mod erc20;
 
 /// Calculates the address of a precompile at index `n`.
@@ -30,7 +28,7 @@ pub mod erc20;
 /// # Arguments
 /// * `n` - The precompile index (e.g., `0x0120` for ERC20 Assets precompile)
 #[inline]
-pub fn fixed_address(n: u16) -> Address {
+pub fn fixed_address(n: u16) -> ink::Address {
     let shifted = (n as u32) << 16;
 
     let suffix = shifted.to_be_bytes();
@@ -40,7 +38,7 @@ pub fn fixed_address(n: u16) -> Address {
         address[i] = suffix[i - 16];
         i = i + 1;
     }
-    Address::from(address)
+    ink::Address::from(address)
 }
 
 /// Calculates the address of a precompile at index `n` with an additional prefix.
@@ -55,11 +53,11 @@ pub fn fixed_address(n: u16) -> Address {
 /// * `n` - The precompile index (e.g., `0x0120` for ERC20 Assets precompile)
 /// * `prefix` - A 32-bit value to encode in the first 4 bytes (e.g., asset ID)
 #[inline]
-pub fn prefixed_address(n: u16, prefix: u32) -> Address {
+pub fn prefixed_address(n: u16, prefix: u32) -> ink::Address {
     let address = fixed_address(n);
     let mut address_bytes: [u8; 20] = address.into();
     address_bytes[..4].copy_from_slice(&prefix.to_be_bytes());
-    Address::from(address_bytes)
+    ink::Address::from(address_bytes)
 }
 
 #[cfg(test)]
