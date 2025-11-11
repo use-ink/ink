@@ -315,7 +315,7 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// # Note
     ///
-    /// For more details visit: [`chain_id`][`crate::chain_id]
+    /// For more details visit: [`chain_id`][`crate::chain_id`]
     fn chain_id(&mut self) -> U256;
 
     /// Returns the **reducible** native balance of the supplied address.
