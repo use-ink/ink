@@ -41,8 +41,11 @@ pub mod virtual_contract {
             let call = build_call()
                 .delegate(self.version)
                 .exec_input(
-                    ExecutionInput::new(Selector::new(ink::selector_bytes!("set_x")))
-                        .push_arg(x),
+                    ExecutionInput::new(Selector::new(ink::selector_bytes!(
+                        Abi::Ink,
+                        "set_x"
+                    )))
+                    .push_arg(x),
                 )
                 .returns::<()>()
                 .params();
@@ -62,6 +65,7 @@ pub mod virtual_contract {
             let call = build_call()
                 .delegate(self.version)
                 .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(
+                    Abi::Ink,
                     "get_x"
                 ))))
                 .returns::<u32>()

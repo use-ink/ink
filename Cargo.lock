@@ -3832,6 +3832,7 @@ version = "6.0.0-beta"
 dependencies = [
  "blake2",
  "either",
+ "hex-literal 1.1.0",
  "impl-serde",
  "ink_prelude 6.0.0-beta",
  "itertools 0.14.0",

@@ -78,7 +78,7 @@ pub mod constructors_return_value {
         #[test]
         #[allow(clippy::assertions_on_constants)]
         fn infallible_constructor_reflection() {
-            const ID: u32 = ::ink::selector_id!("new");
+            const ID: u32 = ::ink::selector_id!(Abi::Ink, "new");
 
             assert!(
                 !<Contract as ::ink::reflect::DispatchableConstructorInfo<ID>>::IS_RESULT,
@@ -94,7 +94,7 @@ pub mod constructors_return_value {
         #[test]
         #[allow(clippy::assertions_on_constants)]
         fn fallible_constructor_reflection() {
-            const ID: u32 = ::ink::selector_id!("try_new");
+            const ID: u32 = ::ink::selector_id!(Abi::Ink, "try_new");
 
             assert!(
                 <Contract as ::ink::reflect::DispatchableConstructorInfo<ID>>::IS_RESULT,

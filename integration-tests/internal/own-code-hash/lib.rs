@@ -56,7 +56,10 @@ mod own_code_hash {
                     .code_hash(code_hash)
                     .endowment(0.into())
                     .exec_input(ink::env::call::ExecutionInput::new(
-                        ink::env::call::Selector::new(ink::selector_bytes!("new")),
+                        ink::env::call::Selector::new(ink::selector_bytes!(
+                            Abi::Ink,
+                            "new"
+                        )),
                     ))
                     .returns::<OwnCodeHashRef>()
                     .params();

@@ -97,6 +97,7 @@ pub use self::{
     },
     selector::{
         Selector,
+        SelectorAbi,
         SelectorMacro,
         TraitPrefix,
     },

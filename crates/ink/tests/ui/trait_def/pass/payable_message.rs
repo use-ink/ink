@@ -12,9 +12,9 @@ pub trait PayableDefinition {
 
 use ink::selector_id;
 
-const PAYABLE_MUT_ID: u32 = selector_id!("payable_mut");
-const UNPAYABLE_ID: u32 = selector_id!("unpayable");
-const UNPAYABLE_MUT_ID: u32 = selector_id!("unpayable_mut");
+const PAYABLE_MUT_ID: u32 = selector_id!(Abi::Ink, "payable_mut");
+const UNPAYABLE_ID: u32 = selector_id!(Abi::Ink, "unpayable");
+const UNPAYABLE_MUT_ID: u32 = selector_id!(Abi::Ink, "unpayable_mut");
 
 fn main() {
     use ink::reflect::{

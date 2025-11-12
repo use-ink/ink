@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::Selector;
+use super::{
+    Selector,
+    SelectorAbi,
+};
 use crate::{
     ast::{
         self,
@@ -20,7 +23,6 @@ use crate::{
         MetaValue,
     },
     error::ExtError as _,
-    format_err,
 };
 use proc_macro2::Span;
 use std::collections::HashMap;
@@ -60,7 +62,7 @@ pub fn ensure_pub_visibility(
 /// - Used from within ink! trait definitions as well as ink! trait implementation blocks.
 pub fn local_message_id(ident: &str) -> u32 {
     let input = ident.as_bytes();
-    let selector = Selector::compute(input);
+    let selector = Selector::compute(input, SelectorAbi::Ink);
     selector.into_be_u32()
 }
 

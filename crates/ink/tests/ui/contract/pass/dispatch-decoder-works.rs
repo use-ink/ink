@@ -38,7 +38,7 @@ fn constructor_decoder_works() {
     // Valid call to `constructor`:
     {
         let mut input_bytes = Vec::new();
-        input_bytes.extend(selector_bytes!("constructor"));
+        input_bytes.extend(selector_bytes!(Abi::Ink, "constructor"));
         input_bytes.extend(true.encode());
         input_bytes.extend(42i32.encode());
         assert!(
@@ -60,7 +60,7 @@ fn constructor_decoder_works() {
     // Invalid call to `message` with unknown selector.
     {
         let mut input_bytes = Vec::new();
-        input_bytes.extend(selector_bytes!("unknown_selector"));
+        input_bytes.extend(selector_bytes!(Abi::Ink, "unknown_selector"));
         assert_eq!(
             <<Contract as ContractConstructorDecoder>::Type
                 as DecodeDispatch>::decode_dispatch(&mut &input_bytes[..])
@@ -72,7 +72,7 @@ fn constructor_decoder_works() {
     // Invalid call to `message` with invalid (or missing) parameters.
     {
         let mut input_bytes = Vec::new();
-        input_bytes.extend(selector_bytes!("constructor"));
+        input_bytes.extend(selector_bytes!(Abi::Ink, "constructor"));
         assert_eq!(
             <<Contract as ContractConstructorDecoder>::Type
                 as DecodeDispatch>::decode_dispatch(&mut &input_bytes[..])
@@ -87,7 +87,7 @@ fn message_decoder_works() {
     // Valid call to `message`:
     {
         let mut input_bytes = Vec::new();
-        input_bytes.extend(selector_bytes!("message"));
+        input_bytes.extend(selector_bytes!(Abi::Ink, "message"));
         input_bytes.extend(true.encode());
         input_bytes.extend(42i32.encode());
         assert!(
@@ -109,7 +109,7 @@ fn message_decoder_works() {
     // Invalid call to `message` with unknown selector.
     {
         let mut input_bytes = Vec::new();
-        input_bytes.extend(selector_bytes!("unknown_selector"));
+        input_bytes.extend(selector_bytes!(Abi::Ink, "unknown_selector"));
         assert_eq!(
             <<Contract as ContractMessageDecoder>::Type
                 as DecodeDispatch>::decode_dispatch(&mut &input_bytes[..])
@@ -121,7 +121,7 @@ fn message_decoder_works() {
     // Invalid call to `message` with invalid (or missing) parameters.
     {
         let mut input_bytes = Vec::new();
-        input_bytes.extend(selector_bytes!("message"));
+        input_bytes.extend(selector_bytes!(Abi::Ink, "message"));
         assert_eq!(
             <<Contract as ContractMessageDecoder>::Type
                 as DecodeDispatch>::decode_dispatch(&mut &input_bytes[..])

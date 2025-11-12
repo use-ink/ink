@@ -28,11 +28,12 @@ use crate::{
     Selector,
     ir,
     ir::{
+        SelectorAbi,
+        TraitPrefix,
         attrs::SelectorOrWildcard,
         idents_lint,
     },
 };
-use ir::TraitPrefix;
 use proc_macro2::{
     Ident,
     Span,
@@ -374,7 +375,7 @@ impl InkItemTrait {
                 }
                 _ => {
                     let name = callable.normalized_name();
-                    Selector::compose(trait_prefix, name)
+                    Selector::compose(trait_prefix, name, SelectorAbi::Ink)
                 }
             };
             let (duplicate_selector, duplicate_ident) = match callable {
