@@ -6,7 +6,7 @@ macro_rules! assert_macro_eq {
         const HASH: u32 = ink::selector_id!(Abi::Ink, $input);
         assert_eq!(
             HASH,
-            ir::Selector::compute($input.as_bytes()).into_be_u32(),
+            ir::Selector::compute(Ink::Abi, $input.as_bytes()).into_be_u32(),
         );
     }};
 }

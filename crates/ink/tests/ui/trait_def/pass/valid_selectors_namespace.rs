@@ -25,7 +25,7 @@ fn main() {
         ( $message_id:literal, $expected_selector:expr $(,)? ) => {
             assert_eq!(
                 <<TraitDefinitionRegistry<DefaultEnvironment> as TraitDefinition>::__ink_TraitInfo
-                    as TraitMessageInfo<{selector_id!($message_id)}>>::SELECTOR,
+                    as TraitMessageInfo<{selector_id!(Abi::Ink, $message_id)}>>::SELECTOR,
                     $expected_selector
             );
         }
