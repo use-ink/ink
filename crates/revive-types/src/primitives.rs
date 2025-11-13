@@ -259,16 +259,4 @@ pub struct ExecConfig {
     ///
     /// It is determined when transforming `eth_transact` into a proper extrinsic.
     pub effective_gas_price: Option<U256>,
-    /// Whether this configuration was created for a dry-run execution.
-    /// Use to enable logic that should only run in dry-run mode.
-    pub is_dry_run: bool,
-    /// An optional mock handler that can be used to override certain behaviors.
-    /// This is primarily used for testing purposes and should be `None` in production
-    /// environments.
-    ///
-    /// __Note:__ We don't support this in ink! yet!
-    /// The correct `pallet-revive` type is `Option<Box<dyn MockHandler<T>>>`. The unit
-    /// type here is just a placeholder so that we don't have to import everything around
-    /// `MockHandler`.
-    pub mock_handler: Option<()>,
 }
