@@ -1733,7 +1733,7 @@ dependencies = [
  "heck",
  "hex",
  "impl-serde",
- "ink_metadata 6.0.0-beta (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink_metadata 6.0.0-beta",
  "itertools 0.14.0",
  "parity-scale-codec",
  "polkavm-linker",
@@ -3615,7 +3615,7 @@ dependencies = [
 
 [[package]]
 name = "ink"
-version = "6.0.0-beta"
+version = "6.0.0-beta.1"
 dependencies = [
  "const_format",
  "derive_more 2.0.1",
@@ -3623,9 +3623,9 @@ dependencies = [
  "ink_env",
  "ink_ir",
  "ink_macro",
- "ink_metadata 6.0.0-beta",
- "ink_prelude 6.0.0-beta",
- "ink_primitives 6.0.0-beta",
+ "ink_metadata 6.0.0-beta.1",
+ "ink_prelude 6.0.0-beta.1",
+ "ink_primitives 6.0.0-beta.1",
  "ink_storage",
  "keccak-const",
  "linkme",
@@ -3641,7 +3641,7 @@ dependencies = [
 
 [[package]]
 name = "ink_allocator"
-version = "6.0.0-beta"
+version = "6.0.0-beta.1"
 dependencies = [
  "cfg-if",
  "quickcheck",
@@ -3650,7 +3650,7 @@ dependencies = [
 
 [[package]]
 name = "ink_codegen"
-version = "6.0.0-beta"
+version = "6.0.0-beta.1"
 dependencies = [
  "blake2",
  "derive_more 2.0.1",
@@ -3658,7 +3658,7 @@ dependencies = [
  "heck",
  "impl-serde",
  "ink_ir",
- "ink_primitives 6.0.0-beta",
+ "ink_primitives 6.0.0-beta.1",
  "itertools 0.14.0",
  "parity-scale-codec",
  "polkavm-derive 0.29.0",
@@ -3671,7 +3671,7 @@ dependencies = [
 
 [[package]]
 name = "ink_e2e"
-version = "6.0.0-beta"
+version = "6.0.0-beta.1"
 dependencies = [
  "cargo_metadata 0.22.0",
  "contract-build",
@@ -3680,7 +3680,7 @@ dependencies = [
  "ink",
  "ink_e2e_macro",
  "ink_env",
- "ink_primitives 6.0.0-beta",
+ "ink_primitives 6.0.0-beta.1",
  "ink_revive_types",
  "itertools 0.14.0",
  "jsonrpsee",
@@ -3704,7 +3704,7 @@ dependencies = [
 
 [[package]]
 name = "ink_e2e_macro"
-version = "6.0.0-beta"
+version = "6.0.0-beta.1"
 dependencies = [
  "darling 0.20.11",
  "derive_more 2.0.1",
@@ -3722,12 +3722,12 @@ dependencies = [
 
 [[package]]
 name = "ink_engine"
-version = "6.0.0-beta"
+version = "6.0.0-beta.1"
 dependencies = [
  "blake2",
  "derive_more 2.0.1",
  "hex-literal 1.1.0",
- "ink_primitives 6.0.0-beta",
+ "ink_primitives 6.0.0-beta.1",
  "pallet-revive-uapi 0.8.0",
  "parity-scale-codec",
  "secp256k1 0.30.0",
@@ -3737,7 +3737,7 @@ dependencies = [
 
 [[package]]
 name = "ink_env"
-version = "6.0.0-beta"
+version = "6.0.0-beta.1"
 dependencies = [
  "blake2",
  "cfg-if",
@@ -3748,8 +3748,8 @@ dependencies = [
  "ink",
  "ink_allocator",
  "ink_engine",
- "ink_prelude 6.0.0-beta",
- "ink_primitives 6.0.0-beta",
+ "ink_prelude 6.0.0-beta.1",
+ "ink_primitives 6.0.0-beta.1",
  "ink_storage_traits",
  "num-traits",
  "pallet-revive-uapi 0.8.0",
@@ -3768,12 +3768,12 @@ dependencies = [
 
 [[package]]
 name = "ink_ir"
-version = "6.0.0-beta"
+version = "6.0.0-beta.1"
 dependencies = [
  "blake2",
  "either",
  "impl-serde",
- "ink_prelude 6.0.0-beta",
+ "ink_prelude 6.0.0-beta.1",
  "itertools 0.14.0",
  "proc-macro2",
  "quote",
@@ -3783,15 +3783,15 @@ dependencies = [
 
 [[package]]
 name = "ink_macro"
-version = "6.0.0-beta"
+version = "6.0.0-beta.1"
 dependencies = [
  "ink",
  "ink_codegen",
  "ink_env",
  "ink_ir",
- "ink_metadata 6.0.0-beta",
- "ink_prelude 6.0.0-beta",
- "ink_primitives 6.0.0-beta",
+ "ink_metadata 6.0.0-beta.1",
+ "ink_prelude 6.0.0-beta.1",
+ "ink_primitives 6.0.0-beta.1",
  "ink_storage",
  "parity-scale-codec",
  "proc-macro2",
@@ -3804,11 +3804,27 @@ dependencies = [
 [[package]]
 name = "ink_metadata"
 version = "6.0.0-beta"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bc1d9956a60b45570157d1bcebb673b6a9ec60cb53e6c3268d7fcabf4dbc7e12"
 dependencies = [
  "derive_more 2.0.1",
  "impl-serde",
  "ink_prelude 6.0.0-beta",
  "ink_primitives 6.0.0-beta",
+ "parity-scale-codec",
+ "scale-info",
+ "schemars 0.8.22",
+ "serde",
+]
+
+[[package]]
+name = "ink_metadata"
+version = "6.0.0-beta.1"
+dependencies = [
+ "derive_more 2.0.1",
+ "impl-serde",
+ "ink_prelude 6.0.0-beta.1",
+ "ink_primitives 6.0.0-beta.1",
  "parity-scale-codec",
  "pretty_assertions",
  "scale-info",
@@ -3818,33 +3834,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "ink_metadata"
-version = "6.0.0-beta"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc1d9956a60b45570157d1bcebb673b6a9ec60cb53e6c3268d7fcabf4dbc7e12"
-dependencies = [
- "derive_more 2.0.1",
- "impl-serde",
- "ink_prelude 6.0.0-beta (registry+https://github.com/rust-lang/crates.io-index)",
- "ink_primitives 6.0.0-beta (registry+https://github.com/rust-lang/crates.io-index)",
- "parity-scale-codec",
- "scale-info",
- "schemars 0.8.22",
- "serde",
-]
-
-[[package]]
 name = "ink_precompiles"
-version = "6.0.0-beta"
+version = "6.0.0-beta.1"
 dependencies = [
  "ink",
-]
-
-[[package]]
-name = "ink_prelude"
-version = "6.0.0-beta"
-dependencies = [
- "cfg-if",
 ]
 
 [[package]]
@@ -3857,15 +3850,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "ink_prelude"
+version = "6.0.0-beta.1"
+dependencies = [
+ "cfg-if",
+]
+
+[[package]]
 name = "ink_primitives"
 version = "6.0.0-beta"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b3a01d7a5e72e7bce2e62691f835588e6b83f9a17af748a6adc30c49f928c365"
 dependencies = [
  "alloy-sol-types",
  "cfg-if",
  "derive_more 2.0.1",
  "impl-trait-for-tuples",
- "ink",
- "ink_env",
  "ink_prelude 6.0.0-beta",
  "itertools 0.14.0",
  "num-traits",
@@ -3884,15 +3884,15 @@ dependencies = [
 
 [[package]]
 name = "ink_primitives"
-version = "6.0.0-beta"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b3a01d7a5e72e7bce2e62691f835588e6b83f9a17af748a6adc30c49f928c365"
+version = "6.0.0-beta.1"
 dependencies = [
  "alloy-sol-types",
  "cfg-if",
  "derive_more 2.0.1",
  "impl-trait-for-tuples",
- "ink_prelude 6.0.0-beta (registry+https://github.com/rust-lang/crates.io-index)",
+ "ink",
+ "ink_env",
+ "ink_prelude 6.0.0-beta.1",
  "itertools 0.14.0",
  "num-traits",
  "pallet-revive-uapi 0.8.0",
@@ -3910,11 +3910,11 @@ dependencies = [
 
 [[package]]
 name = "ink_revive_types"
-version = "6.0.0-beta"
+version = "6.0.0-beta.1"
 dependencies = [
  "alloy-core",
  "derive_more 2.0.1",
- "ink_primitives 6.0.0-beta",
+ "ink_primitives 6.0.0-beta.1",
  "pallet-revive-uapi 0.8.0",
  "parity-scale-codec",
  "scale-info",
@@ -3925,7 +3925,7 @@ dependencies = [
 
 [[package]]
 name = "ink_sandbox"
-version = "6.0.0-beta"
+version = "6.0.0-beta.1"
 dependencies = [
  "frame-metadata",
  "frame-support 28.0.0",
@@ -3934,7 +3934,7 @@ dependencies = [
  "ink_e2e_macro",
  "ink_env",
  "ink_precompiles",
- "ink_primitives 6.0.0-beta",
+ "ink_primitives 6.0.0-beta.1",
  "ink_revive_types",
  "jsonrpsee",
  "pallet-assets",
@@ -3957,16 +3957,16 @@ dependencies = [
 
 [[package]]
 name = "ink_storage"
-version = "6.0.0-beta"
+version = "6.0.0-beta.1"
 dependencies = [
  "array-init",
  "cfg-if",
  "derive_more 2.0.1",
  "ink",
  "ink_env",
- "ink_metadata 6.0.0-beta",
- "ink_prelude 6.0.0-beta",
- "ink_primitives 6.0.0-beta",
+ "ink_metadata 6.0.0-beta.1",
+ "ink_prelude 6.0.0-beta.1",
+ "ink_primitives 6.0.0-beta.1",
  "ink_storage_traits",
  "itertools 0.14.0",
  "pallet-revive-uapi 0.8.0",
@@ -3978,11 +3978,11 @@ dependencies = [
 
 [[package]]
 name = "ink_storage_traits"
-version = "6.0.0-beta"
+version = "6.0.0-beta.1"
 dependencies = [
- "ink_metadata 6.0.0-beta",
- "ink_prelude 6.0.0-beta",
- "ink_primitives 6.0.0-beta",
+ "ink_metadata 6.0.0-beta.1",
+ "ink_prelude 6.0.0-beta.1",
+ "ink_primitives 6.0.0-beta.1",
  "parity-scale-codec",
  "paste",
  "scale-info",

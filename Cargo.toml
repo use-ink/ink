@@ -32,7 +32,7 @@ homepage = "https://use.ink"
 keywords = ["polkavm", "ink", "riscv", "blockchain", "edsl"]
 license = "Apache-2.0"
 repository = "https://github.com/use-ink/ink"
-version = "6.0.0-beta"
+version = "6.0.0-beta.1"
 rust-version = "1.88"
 
 [workspace.dependencies]
@@ -107,21 +107,21 @@ keccak-const = "0.2.0"
 impl-trait-for-tuples = "0.2.3"
 
 # Local dependencies
-ink = { version = "=6.0.0-beta", path = "crates/ink", default-features = false }
-ink_allocator = { version = "=6.0.0-beta", path = "crates/allocator", default-features = false }
-ink_codegen = { version = "=6.0.0-beta", path = "crates/ink/codegen", default-features = false }
-ink_e2e_macro = { version = "=6.0.0-beta", path = "crates/e2e/macro", default-features = false }
-ink_engine = { version = "=6.0.0-beta", path = "crates/engine", default-features = false }
-ink_env = { version = "=6.0.0-beta", path = "crates/env", default-features = false }
-ink_ir = { version = "=6.0.0-beta", path = "crates/ink/ir", default-features = false }
-ink_macro = { version = "=6.0.0-beta", path = "crates/ink/macro", default-features = false }
-ink_metadata = { version = "=6.0.0-beta", path = "crates/metadata", default-features = false }
-ink_precompiles = { version = "=6.0.0-beta", path = "crates/precompiles", default-features = false }
-ink_prelude = { version = "=6.0.0-beta", path = "crates/prelude", default-features = false }
-ink_primitives = { version = "=6.0.0-beta", path = "crates/primitives", default-features = false }
-ink_revive_types = {  version = "=6.0.0-beta", path = "crates/revive-types", default-features = false }
-ink_storage = { version = "=6.0.0-beta", path = "crates/storage", default-features = false }
-ink_storage_traits = { version = "=6.0.0-beta", path = "crates/storage/traits", default-features = false }
+ink = { version = "=6.0.0-beta.1", path = "crates/ink", default-features = false }
+ink_allocator = { version = "=6.0.0-beta.1", path = "crates/allocator", default-features = false }
+ink_codegen = { version = "=6.0.0-beta.1", path = "crates/ink/codegen", default-features = false }
+ink_e2e_macro = { version = "=6.0.0-beta.1", path = "crates/e2e/macro", default-features = false }
+ink_engine = { version = "=6.0.0-beta.1", path = "crates/engine", default-features = false }
+ink_env = { version = "=6.0.0-beta.1", path = "crates/env", default-features = false }
+ink_ir = { version = "=6.0.0-beta.1", path = "crates/ink/ir", default-features = false }
+ink_macro = { version = "=6.0.0-beta.1", path = "crates/ink/macro", default-features = false }
+ink_metadata = { version = "=6.0.0-beta.1", path = "crates/metadata", default-features = false }
+ink_precompiles = { version = "=6.0.0-beta.1", path = "crates/precompiles", default-features = false }
+ink_prelude = { version = "=6.0.0-beta.1", path = "crates/prelude", default-features = false }
+ink_primitives = { version = "=6.0.0-beta.1", path = "crates/primitives", default-features = false }
+ink_revive_types = {  version = "=6.0.0-beta.1", path = "crates/revive-types", default-features = false }
+ink_storage = { version = "=6.0.0-beta.1", path = "crates/storage", default-features = false }
+ink_storage_traits = { version = "=6.0.0-beta.1", path = "crates/storage/traits", default-features = false }
 
 [profile.release]
 panic = "abort"
