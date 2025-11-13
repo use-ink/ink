@@ -6,7 +6,7 @@ edition = "2024"
 publish = false
 
 [dependencies]
-ink = { path = "../../../crates/ink", default-features = false }
+ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
 sp-core = { version = "38.0.0", default-features = false }
 
 [dev-dependencies]
