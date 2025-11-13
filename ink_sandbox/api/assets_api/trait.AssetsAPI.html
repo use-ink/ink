@@ -1,0 +1,192 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Assets API for the sandbox."><title>AssetsAPI in ink_sandbox::api::assets_api - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-1a91846b.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ink_sandbox" data-themes="" data-resource-suffix="" data-rustdoc-version="1.88.0 (6b00bc388 2025-06-23)" data-channel="1.88.0" data-search-js="search-f7877310.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-4e99c027.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-7ef8a74a.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../ink_sandbox/index.html">ink_<wbr>sandbox</a><span class="version">6.0.0-beta.1</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">AssetsAPI</a></h2><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.allowance" title="allowance">allowance</a></li><li><a href="#tymethod.approve" title="approve">approve</a></li><li><a href="#tymethod.asset_exists" title="asset_exists">asset_exists</a></li><li><a href="#tymethod.balance_of" title="balance_of">balance_of</a></li><li><a href="#tymethod.create" title="create">create</a></li><li><a href="#tymethod.metadata" title="metadata">metadata</a></li><li><a href="#tymethod.mint_into" title="mint_into">mint_into</a></li><li><a href="#tymethod.set_metadata" title="set_metadata">set_metadata</a></li><li><a href="#tymethod.total_supply" title="total_supply">total_supply</a></li><li><a href="#tymethod.transfer" title="transfer">transfer</a></li></ul><h3><a href="#dyn-compatibility">Dyn Compatibility</a></h3><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In ink_<wbr>sandbox::<wbr>api::<wbr>assets_<wbr>api</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">ink_sandbox</a>::<wbr><a href="../index.html">api</a>::<wbr><a href="index.html">assets_api</a></div><h1>Trait <span class="trait">AssetsAPI</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/ink_sandbox/api/assets_api.rs.html#29-167">Source</a> </span></div><pre class="rust item-decl"><code>pub trait AssetsAPI&lt;T, I = Instance1&gt;<div class="where">where
+    T: <a class="trait" href="../../trait.Sandbox.html" title="trait ink_sandbox::Sandbox">Sandbox</a>,
+    T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a>: Config&lt;I&gt;,
+    I: 'static,</div>{
+    // Required methods
+    fn <a href="#tymethod.create" class="fn">create</a>(
+        &amp;mut self,
+        id: &amp;&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::AssetId,
+        owner: impl <a class="trait" href="../../trait.IntoAccountId.html" title="trait ink_sandbox::IntoAccountId">IntoAccountId</a>&lt;<a class="type" href="../../type.AccountIdFor.html" title="type ink_sandbox::AccountIdFor">AccountIdFor</a>&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a>&gt;&gt;,
+        min_balance: &lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::Balance,
+    ) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.88.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.unit.html">()</a>, <a class="enum" href="../../enum.DispatchError.html" title="enum ink_sandbox::DispatchError">DispatchError</a>&gt;;
+<span class="item-spacer"></span>    fn <a href="#tymethod.set_metadata" class="fn">set_metadata</a>(
+        &amp;mut self,
+        asset: &amp;&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::AssetId,
+        owner: impl <a class="trait" href="../../trait.IntoAccountId.html" title="trait ink_sandbox::IntoAccountId">IntoAccountId</a>&lt;<a class="type" href="../../type.AccountIdFor.html" title="type ink_sandbox::AccountIdFor">AccountIdFor</a>&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a>&gt;&gt;,
+        name: <a class="struct" href="https://doc.rust-lang.org/1.88.0/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.u8.html">u8</a>&gt;,
+        symbol: <a class="struct" href="https://doc.rust-lang.org/1.88.0/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.u8.html">u8</a>&gt;,
+        decimals: <a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.u8.html">u8</a>,
+    ) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.88.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.unit.html">()</a>, <a class="enum" href="../../enum.DispatchError.html" title="enum ink_sandbox::DispatchError">DispatchError</a>&gt;;
+<span class="item-spacer"></span>    fn <a href="#tymethod.metadata" class="fn">metadata</a>(
+        &amp;mut self,
+        asset: &amp;&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::AssetId,
+    ) -&gt; (<a class="struct" href="https://doc.rust-lang.org/1.88.0/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.u8.html">u8</a>&gt;, <a class="struct" href="https://doc.rust-lang.org/1.88.0/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.u8.html">u8</a>&gt;, <a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.u8.html">u8</a>);
+<span class="item-spacer"></span>    fn <a href="#tymethod.approve" class="fn">approve</a>(
+        &amp;mut self,
+        asset: &amp;&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::AssetId,
+        owner: impl <a class="trait" href="../../trait.IntoAccountId.html" title="trait ink_sandbox::IntoAccountId">IntoAccountId</a>&lt;<a class="type" href="../../type.AccountIdFor.html" title="type ink_sandbox::AccountIdFor">AccountIdFor</a>&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a>&gt;&gt;,
+        delegate: impl <a class="trait" href="../../trait.IntoAccountId.html" title="trait ink_sandbox::IntoAccountId">IntoAccountId</a>&lt;<a class="type" href="../../type.AccountIdFor.html" title="type ink_sandbox::AccountIdFor">AccountIdFor</a>&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a>&gt;&gt;,
+        amount: &lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::Balance,
+    ) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.88.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.unit.html">()</a>, <a class="enum" href="../../enum.DispatchError.html" title="enum ink_sandbox::DispatchError">DispatchError</a>&gt;;
+<span class="item-spacer"></span>    fn <a href="#tymethod.mint_into" class="fn">mint_into</a>(
+        &amp;mut self,
+        asset: &amp;&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::AssetId,
+        account: impl <a class="trait" href="../../trait.IntoAccountId.html" title="trait ink_sandbox::IntoAccountId">IntoAccountId</a>&lt;<a class="type" href="../../type.AccountIdFor.html" title="type ink_sandbox::AccountIdFor">AccountIdFor</a>&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a>&gt;&gt;,
+        value: &lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::Balance,
+    ) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.88.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::Balance, <a class="enum" href="../../enum.DispatchError.html" title="enum ink_sandbox::DispatchError">DispatchError</a>&gt;;
+<span class="item-spacer"></span>    fn <a href="#tymethod.transfer" class="fn">transfer</a>(
+        &amp;mut self,
+        asset: &amp;&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::AssetId,
+        source: impl <a class="trait" href="../../trait.IntoAccountId.html" title="trait ink_sandbox::IntoAccountId">IntoAccountId</a>&lt;<a class="type" href="../../type.AccountIdFor.html" title="type ink_sandbox::AccountIdFor">AccountIdFor</a>&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a>&gt;&gt;,
+        dest: impl <a class="trait" href="../../trait.IntoAccountId.html" title="trait ink_sandbox::IntoAccountId">IntoAccountId</a>&lt;<a class="type" href="../../type.AccountIdFor.html" title="type ink_sandbox::AccountIdFor">AccountIdFor</a>&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a>&gt;&gt;,
+        amount: &lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::Balance,
+    ) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.88.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.unit.html">()</a>, <a class="enum" href="../../enum.DispatchError.html" title="enum ink_sandbox::DispatchError">DispatchError</a>&gt;;
+<span class="item-spacer"></span>    fn <a href="#tymethod.balance_of" class="fn">balance_of</a>(
+        &amp;mut self,
+        asset: &amp;&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::AssetId,
+        owner: impl <a class="trait" href="../../trait.IntoAccountId.html" title="trait ink_sandbox::IntoAccountId">IntoAccountId</a>&lt;<a class="type" href="../../type.AccountIdFor.html" title="type ink_sandbox::AccountIdFor">AccountIdFor</a>&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a>&gt;&gt;,
+    ) -&gt; &lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::Balance;
+<span class="item-spacer"></span>    fn <a href="#tymethod.total_supply" class="fn">total_supply</a>(
+        &amp;mut self,
+        asset: &amp;&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::AssetId,
+    ) -&gt; &lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::Balance;
+<span class="item-spacer"></span>    fn <a href="#tymethod.allowance" class="fn">allowance</a>(
+        &amp;mut self,
+        asset: &amp;&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::AssetId,
+        owner: impl <a class="trait" href="../../trait.IntoAccountId.html" title="trait ink_sandbox::IntoAccountId">IntoAccountId</a>&lt;<a class="type" href="../../type.AccountIdFor.html" title="type ink_sandbox::AccountIdFor">AccountIdFor</a>&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a>&gt;&gt;,
+        delegate: impl <a class="trait" href="../../trait.IntoAccountId.html" title="trait ink_sandbox::IntoAccountId">IntoAccountId</a>&lt;<a class="type" href="../../type.AccountIdFor.html" title="type ink_sandbox::AccountIdFor">AccountIdFor</a>&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a>&gt;&gt;,
+    ) -&gt; &lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::Balance;
+<span class="item-spacer"></span>    fn <a href="#tymethod.asset_exists" class="fn">asset_exists</a>(
+        &amp;mut self,
+        asset: &amp;&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::AssetId,
+    ) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.bool.html">bool</a>;
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Assets API for the sandbox.</p>
+<p>Provides methods to create, mint, and manage assets in <code>pallet-assets</code>.</p>
+</div></details><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.create" class="method"><a class="src rightside" href="../../../src/ink_sandbox/api/assets_api.rs.html#43-48">Source</a><h4 class="code-header">fn <a href="#tymethod.create" class="fn">create</a>(
+    &amp;mut self,
+    id: &amp;&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::AssetId,
+    owner: impl <a class="trait" href="../../trait.IntoAccountId.html" title="trait ink_sandbox::IntoAccountId">IntoAccountId</a>&lt;<a class="type" href="../../type.AccountIdFor.html" title="type ink_sandbox::AccountIdFor">AccountIdFor</a>&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a>&gt;&gt;,
+    min_balance: &lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::Balance,
+) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.88.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.unit.html">()</a>, <a class="enum" href="../../enum.DispatchError.html" title="enum ink_sandbox::DispatchError">DispatchError</a>&gt;</h4></section></summary><div class="docblock"><p>Creates <code>value</code> amount of tokens and assigns them to <code>account</code>, increasing the
+total supply.</p>
+<h5 id="arguments"><a class="doc-anchor" href="#arguments">§</a>Arguments</h5>
+<ul>
+<li><code>id</code> - ID of the new asset to be created.</li>
+<li><code>owner</code> - The owner of the created asset (accepts any type convertible to
+AccountId).</li>
+<li><code>min_balance</code> - The asset amount one account need at least.</li>
+</ul>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.set_metadata" class="method"><a class="src rightside" href="../../../src/ink_sandbox/api/assets_api.rs.html#58-65">Source</a><h4 class="code-header">fn <a href="#tymethod.set_metadata" class="fn">set_metadata</a>(
+    &amp;mut self,
+    asset: &amp;&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::AssetId,
+    owner: impl <a class="trait" href="../../trait.IntoAccountId.html" title="trait ink_sandbox::IntoAccountId">IntoAccountId</a>&lt;<a class="type" href="../../type.AccountIdFor.html" title="type ink_sandbox::AccountIdFor">AccountIdFor</a>&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a>&gt;&gt;,
+    name: <a class="struct" href="https://doc.rust-lang.org/1.88.0/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.u8.html">u8</a>&gt;,
+    symbol: <a class="struct" href="https://doc.rust-lang.org/1.88.0/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.u8.html">u8</a>&gt;,
+    decimals: <a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.u8.html">u8</a>,
+) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.88.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.unit.html">()</a>, <a class="enum" href="../../enum.DispatchError.html" title="enum ink_sandbox::DispatchError">DispatchError</a>&gt;</h4></section></summary><div class="docblock"><p>Sets the metadata for an existing fungible asset.</p>
+<h5 id="arguments-1"><a class="doc-anchor" href="#arguments-1">§</a>Arguments</h5>
+<ul>
+<li><code>asset</code> - ID of the asset.</li>
+<li><code>owner</code> - The owner of the asset (accepts any type convertible to AccountId).</li>
+<li><code>name</code> - Token name.</li>
+<li><code>symbol</code> - Token symbol.</li>
+<li><code>decimals</code> - Token decimals.</li>
+</ul>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.metadata" class="method"><a class="src rightside" href="../../../src/ink_sandbox/api/assets_api.rs.html#74">Source</a><h4 class="code-header">fn <a href="#tymethod.metadata" class="fn">metadata</a>(
+    &amp;mut self,
+    asset: &amp;&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::AssetId,
+) -&gt; (<a class="struct" href="https://doc.rust-lang.org/1.88.0/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.u8.html">u8</a>&gt;, <a class="struct" href="https://doc.rust-lang.org/1.88.0/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.u8.html">u8</a>&gt;, <a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.u8.html">u8</a>)</h4></section></summary><div class="docblock"><p>Returns the metadata for an asset.</p>
+<h5 id="arguments-2"><a class="doc-anchor" href="#arguments-2">§</a>Arguments</h5>
+<ul>
+<li><code>asset</code> - ID of the asset.</li>
+</ul>
+<h5 id="returns"><a class="doc-anchor" href="#returns">§</a>Returns</h5>
+<p>A tuple of (name, symbol, decimals).</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.approve" class="method"><a class="src rightside" href="../../../src/ink_sandbox/api/assets_api.rs.html#87-93">Source</a><h4 class="code-header">fn <a href="#tymethod.approve" class="fn">approve</a>(
+    &amp;mut self,
+    asset: &amp;&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::AssetId,
+    owner: impl <a class="trait" href="../../trait.IntoAccountId.html" title="trait ink_sandbox::IntoAccountId">IntoAccountId</a>&lt;<a class="type" href="../../type.AccountIdFor.html" title="type ink_sandbox::AccountIdFor">AccountIdFor</a>&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a>&gt;&gt;,
+    delegate: impl <a class="trait" href="../../trait.IntoAccountId.html" title="trait ink_sandbox::IntoAccountId">IntoAccountId</a>&lt;<a class="type" href="../../type.AccountIdFor.html" title="type ink_sandbox::AccountIdFor">AccountIdFor</a>&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a>&gt;&gt;,
+    amount: &lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::Balance,
+) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.88.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.unit.html">()</a>, <a class="enum" href="../../enum.DispatchError.html" title="enum ink_sandbox::DispatchError">DispatchError</a>&gt;</h4></section></summary><div class="docblock"><p>Approves <code>spender</code> to spend <code>value</code> amount of tokens on behalf of the caller.</p>
+<p>Successive calls of this method overwrite previous values.</p>
+<h5 id="arguments-3"><a class="doc-anchor" href="#arguments-3">§</a>Arguments</h5>
+<ul>
+<li><code>asset</code> - ID of the asset.</li>
+<li><code>owner</code> - The account that owns the tokens (accepts any type convertible to
+AccountId).</li>
+<li><code>delegate</code> - The account that is allowed to spend the tokens (accepts any type
+convertible to AccountId).</li>
+<li><code>amount</code> - The number of tokens to approve.</li>
+</ul>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.mint_into" class="method"><a class="src rightside" href="../../../src/ink_sandbox/api/assets_api.rs.html#103-108">Source</a><h4 class="code-header">fn <a href="#tymethod.mint_into" class="fn">mint_into</a>(
+    &amp;mut self,
+    asset: &amp;&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::AssetId,
+    account: impl <a class="trait" href="../../trait.IntoAccountId.html" title="trait ink_sandbox::IntoAccountId">IntoAccountId</a>&lt;<a class="type" href="../../type.AccountIdFor.html" title="type ink_sandbox::AccountIdFor">AccountIdFor</a>&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a>&gt;&gt;,
+    value: &lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::Balance,
+) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.88.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::Balance, <a class="enum" href="../../enum.DispatchError.html" title="enum ink_sandbox::DispatchError">DispatchError</a>&gt;</h4></section></summary><div class="docblock"><p>Creates <code>value</code> amount of tokens and assigns them to <code>account</code>, increasing the
+total supply.</p>
+<h5 id="arguments-4"><a class="doc-anchor" href="#arguments-4">§</a>Arguments</h5>
+<ul>
+<li><code>asset</code> - ID of the asset.</li>
+<li><code>account</code> - The account to be credited with the created tokens (accepts any type
+convertible to AccountId).</li>
+<li><code>value</code> - The number of tokens to mint.</li>
+</ul>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.transfer" class="method"><a class="src rightside" href="../../../src/ink_sandbox/api/assets_api.rs.html#119-125">Source</a><h4 class="code-header">fn <a href="#tymethod.transfer" class="fn">transfer</a>(
+    &amp;mut self,
+    asset: &amp;&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::AssetId,
+    source: impl <a class="trait" href="../../trait.IntoAccountId.html" title="trait ink_sandbox::IntoAccountId">IntoAccountId</a>&lt;<a class="type" href="../../type.AccountIdFor.html" title="type ink_sandbox::AccountIdFor">AccountIdFor</a>&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a>&gt;&gt;,
+    dest: impl <a class="trait" href="../../trait.IntoAccountId.html" title="trait ink_sandbox::IntoAccountId">IntoAccountId</a>&lt;<a class="type" href="../../type.AccountIdFor.html" title="type ink_sandbox::AccountIdFor">AccountIdFor</a>&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a>&gt;&gt;,
+    amount: &lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::Balance,
+) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.88.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.unit.html">()</a>, <a class="enum" href="../../enum.DispatchError.html" title="enum ink_sandbox::DispatchError">DispatchError</a>&gt;</h4></section></summary><div class="docblock"><p>Transfer <code>amount</code> of tokens from <code>origin</code> to <code>dest</code>.</p>
+<h5 id="arguments-5"><a class="doc-anchor" href="#arguments-5">§</a>Arguments</h5>
+<ul>
+<li><code>asset</code> - ID of the asset.</li>
+<li><code>source</code> - The account from which tokens are transferred (accepts any type
+convertible to AccountId).</li>
+<li><code>dest</code> - The account to which tokens are transferred (accepts any type
+convertible to AccountId).</li>
+<li><code>amount</code> - The number of tokens to transfer.</li>
+</ul>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.balance_of" class="method"><a class="src rightside" href="../../../src/ink_sandbox/api/assets_api.rs.html#132-136">Source</a><h4 class="code-header">fn <a href="#tymethod.balance_of" class="fn">balance_of</a>(
+    &amp;mut self,
+    asset: &amp;&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::AssetId,
+    owner: impl <a class="trait" href="../../trait.IntoAccountId.html" title="trait ink_sandbox::IntoAccountId">IntoAccountId</a>&lt;<a class="type" href="../../type.AccountIdFor.html" title="type ink_sandbox::AccountIdFor">AccountIdFor</a>&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a>&gt;&gt;,
+) -&gt; &lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::Balance</h4></section></summary><div class="docblock"><p>Returns the account balance for the specified <code>owner</code>.</p>
+<h5 id="arguments-6"><a class="doc-anchor" href="#arguments-6">§</a>Arguments</h5>
+<ul>
+<li><code>owner</code> - The account whose balance is being queried (accepts any type
+convertible to AccountId).</li>
+</ul>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.total_supply" class="method"><a class="src rightside" href="../../../src/ink_sandbox/api/assets_api.rs.html#142-145">Source</a><h4 class="code-header">fn <a href="#tymethod.total_supply" class="fn">total_supply</a>(
+    &amp;mut self,
+    asset: &amp;&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::AssetId,
+) -&gt; &lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::Balance</h4></section></summary><div class="docblock"><p>Returns the total supply of the <code>asset</code>.</p>
+<h5 id="arguments-7"><a class="doc-anchor" href="#arguments-7">§</a>Arguments</h5>
+<ul>
+<li><code>asset</code> - ID of the asset.</li>
+</ul>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.allowance" class="method"><a class="src rightside" href="../../../src/ink_sandbox/api/assets_api.rs.html#155-160">Source</a><h4 class="code-header">fn <a href="#tymethod.allowance" class="fn">allowance</a>(
+    &amp;mut self,
+    asset: &amp;&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::AssetId,
+    owner: impl <a class="trait" href="../../trait.IntoAccountId.html" title="trait ink_sandbox::IntoAccountId">IntoAccountId</a>&lt;<a class="type" href="../../type.AccountIdFor.html" title="type ink_sandbox::AccountIdFor">AccountIdFor</a>&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a>&gt;&gt;,
+    delegate: impl <a class="trait" href="../../trait.IntoAccountId.html" title="trait ink_sandbox::IntoAccountId">IntoAccountId</a>&lt;<a class="type" href="../../type.AccountIdFor.html" title="type ink_sandbox::AccountIdFor">AccountIdFor</a>&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a>&gt;&gt;,
+) -&gt; &lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::Balance</h4></section></summary><div class="docblock"><p>Returns the allowance for a <code>spender</code> approved by an <code>owner</code>.</p>
+<h5 id="arguments-8"><a class="doc-anchor" href="#arguments-8">§</a>Arguments</h5>
+<ul>
+<li><code>asset</code> - ID of the asset.</li>
+<li><code>owner</code> - The account that owns the tokens (accepts any type convertible to
+AccountId).</li>
+<li><code>delegate</code> - The account that is allowed to spend the tokens (accepts any type
+convertible to AccountId).</li>
+</ul>
+</div></details><details class="toggle method-toggle" open><summary><section id="tymethod.asset_exists" class="method"><a class="src rightside" href="../../../src/ink_sandbox/api/assets_api.rs.html#166">Source</a><h4 class="code-header">fn <a href="#tymethod.asset_exists" class="fn">asset_exists</a>(&amp;mut self, asset: &amp;&lt;T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a> as Config&lt;I&gt;&gt;::AssetId) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Check if the asset exists.</p>
+<h5 id="arguments-9"><a class="doc-anchor" href="#arguments-9">§</a>Arguments</h5>
+<ul>
+<li><code>asset</code> - ID of the asset.</li>
+</ul>
+</div></details></div><h2 id="dyn-compatibility" class="section-header">Dyn Compatibility<a href="#dyn-compatibility" class="anchor">§</a></h2><div class="dyn-compatibility-info"><p>This trait is <b>not</b> <a href="https://doc.rust-lang.org/1.88.0/reference/items/traits.html#dyn-compatibility">dyn compatible</a>.</p><p><i>In older versions of Rust, dyn compatibility was called "object safety", so this trait is not object safe.</i></p></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><section id="impl-AssetsAPI%3CT,+I%3E-for-T" class="impl"><a class="src rightside" href="../../../src/ink_sandbox/api/assets_api.rs.html#169-321">Source</a><a href="#impl-AssetsAPI%3CT,+I%3E-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T, I&gt; <a class="trait" href="trait.AssetsAPI.html" title="trait ink_sandbox::api::assets_api::AssetsAPI">AssetsAPI</a>&lt;T, I&gt; for T<div class="where">where
+    T: <a class="trait" href="../../trait.Sandbox.html" title="trait ink_sandbox::Sandbox">Sandbox</a>,
+    T::<a class="associatedtype" href="../../trait.Sandbox.html#associatedtype.Runtime" title="type ink_sandbox::Sandbox::Runtime">Runtime</a>: Config&lt;I&gt;,
+    I: 'static,</div></h3></section></div><script src="../../../trait.impl/ink_sandbox/api/assets_api/trait.AssetsAPI.js" async></script></section></div></main></body></html>

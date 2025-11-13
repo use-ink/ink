@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["caller_to_origin"],"mod":["preset"],"struct":["Client"]};
+window.SIDEBAR_ITEMS = {"fn":["assert_last_contract_event_inner","caller_to_origin"],"mod":["preset"],"struct":["Client"]};
