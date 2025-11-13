@@ -32,6 +32,7 @@ use ink_primitives::{
     U256,
 };
 pub use pallet_revive_uapi::ReturnErrorCode as Error;
+use std::panic::panic_any;
 
 /// The off-chain engine.
 pub struct Engine {
@@ -190,7 +191,7 @@ impl Engine {
     /// This function never returns. Either the termination was successful and the
     /// execution of the destroyed contract is halted. Or it failed during the
     /// termination which is considered fatal.
-    pub fn terminate(&mut self, beneficiary: Address) -> Result<(), Error> {
+    pub fn terminate(&mut self, beneficiary: Address) -> ! {
         // Send the remaining balance to the beneficiary
         let contract = self.get_callee();
         let all = self
@@ -200,7 +201,11 @@ impl Engine {
         self.transfer(beneficiary, value)
             .unwrap_or_else(|err| panic!("transfer did not work: {err:?}"));
 
-        Ok(())
+        // Encode the result of the termination and panic with it.
+        // This enables testing for the proper result and makes sure this
+        // method returns `Never`.
+        let res = (all, beneficiary);
+        panic_any(scale::Encode::encode(&res));
     }
 
     /// Returns the address of the caller.

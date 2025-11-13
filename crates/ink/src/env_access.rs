@@ -895,7 +895,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::terminate_contract`]
-    pub fn terminate_contract(self, beneficiary: Address) -> Result<()> {
+    #[cfg(feature = "unstable-hostfn")]
+    pub fn terminate_contract(self, beneficiary: Address) -> ! {
         ink_env::terminate_contract(beneficiary)
     }
 

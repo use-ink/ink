@@ -247,8 +247,8 @@ pub struct ExecConfig {
     /// The origin's nonce is already incremented pre-dispatch by the `CheckNonce`
     /// transaction extension.
     ///
-    /// This does not apply to contract initiated instantiations. Those will always
-    /// bump the instantiating contract's nonce.
+    /// This does not apply to contract initiated instantiations. Those will always bump
+    /// the instantiating contract's nonce.
     pub bump_nonce: bool,
     /// Whether deposits will be withdrawn from the `pallet_transaction_payment` credit
     /// (`Some`) free balance (`None`).
