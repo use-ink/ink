@@ -63,7 +63,7 @@ scale-decode = { version = "0.16.0", default-features = false }
 scale-encode = { version = "0.10.0", default-features = false }
 scale-info = { version = "2.11", default-features = false }
 schemars = { version = "0.8" }
-secp256k1 = { version = "0.30.0" }
+secp256k1 = { version = "0.31.1" }
 serde = { version = "1.0.215", default-features = false }
 serde_json = { version = "1.0.145" }
 sha2 = { version = "0.10" }
