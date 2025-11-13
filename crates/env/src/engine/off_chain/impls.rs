@@ -781,8 +781,9 @@ impl TypedEnvBackend for EnvInstance {
         ))))
     }
 
-    fn terminate_contract(&mut self, beneficiary: Address) -> Result<()> {
-        self.engine.terminate(beneficiary).map_err(Into::into)
+    #[cfg(feature = "unstable-hostfn")]
+    fn terminate_contract(&mut self, beneficiary: Address) -> ! {
+        self.engine.terminate(beneficiary)
     }
 
     fn transfer<E>(&mut self, destination: Address, value: U256) -> Result<()>

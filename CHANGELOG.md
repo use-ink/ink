@@ -12,7 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Refactor contract ref generation and add automatic re-exporting ‒ [#2710](https://github.com/use-ink/ink/pull/2710)
-- Implement and stabilize `terminate_contract` ‒ [2708](https://github.com/use-ink/ink/pull/2708)
 
 ## Version 6.0.0-beta
 

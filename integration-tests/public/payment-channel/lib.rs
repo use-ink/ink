@@ -121,10 +121,7 @@ mod payment_channel {
         #[ink(message)]
         pub fn close(&mut self, amount: U256, signature: [u8; 65]) -> Result<()> {
             self.close_inner(amount, signature)?;
-            self.env()
-                .terminate_contract(self.sender)
-                .expect("failed terminating");
-            Ok(())
+            self.env().terminate_contract(self.sender);
         }
 
         /// We split this out in order to make testing `close` simpler.
@@ -189,10 +186,7 @@ mod payment_channel {
                         return Err(Error::NotYetExpired)
                     }
 
-                    self.env()
-                        .terminate_contract(self.sender)
-                        .expect("failed terminating");
-                    Ok(())
+                    self.env().terminate_contract(self.sender);
                 }
 
                 None => Err(Error::NotYetExpired),
@@ -416,15 +410,12 @@ mod payment_channel {
             let signature = sign(contract_id, amount);
 
             // then
-            payment_channel.close(amount, signature).unwrap();
-            /*
-            // todo
+            let should_close = move || payment_channel.close(amount, signature).unwrap();
             ink::env::test::assert_contract_termination::<ink::env::DefaultEnvironment, _>(
                 should_close,
                 accounts.alice,
                 amount,
             );
-            */
             assert_eq!(get_contract_balance(dan), initial_balance + amount);
         }
 
@@ -559,15 +550,12 @@ mod payment_channel {
             advance_block();
 
             // then
-            payment_channel.claim_timeout().unwrap();
-            /*
-            // todo
+            let should_close = move || payment_channel.claim_timeout().unwrap();
             ink::env::test::assert_contract_termination::<ink::env::DefaultEnvironment, _>(
                 should_close,
                 accounts.alice,
                 mock_deposit_value,
             );
-            */
             assert_eq!(
                 get_contract_balance(accounts.alice),
                 initial_balance + mock_deposit_value

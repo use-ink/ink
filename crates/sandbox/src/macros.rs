@@ -359,7 +359,7 @@ mod construct_runtime {
 
     parameter_types! {
         pub CodeHashLockupDepositPercent: Perbill = Perbill::from_percent(0);
-        pub const MaxEthExtrinsicWeight: FixedU128 = FixedU128::from_rational(9, 10);
+        pub const MaxEthExtrinsicWeight: FixedU128 = FixedU128::from_rational(1,2);
         pub const DepositPerChildTrieItem: Balance = deposit(1, 0) / 100;
     }
 
