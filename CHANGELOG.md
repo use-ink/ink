@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Implement `bn128` precompiles ‒ [2708](https://github.com/use-ink/ink/pull/2718)
 - Add example how to call Solidity precompiles ‒ [2716](https://github.com/use-ink/ink/pull/2716)
-- Add `packed` flag to `storage_item` attribute and improve related diagnostics ‒ [](https://github.com/use-ink/ink/pull/2722)
+- Add `packed` flag to `storage_item` attribute and improve related diagnostics ‒ [#2722](https://github.com/use-ink/ink/pull/2722)
 - Implement `pallet-revive` host functions `gas_price`, `call_data_size`, `return_data_size`, `gas_left` ‒ [#2694](https://github.com/use-ink/ink/pull/2694)
 - Add `ink_precompiles` crate with ERC-20 assets precompile interface ‒ [#2686](https://github.com/use-ink/ink/pull/2686)
 
