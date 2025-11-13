@@ -3720,7 +3720,7 @@ dependencies = [
 name = "ink_e2e_macro"
 version = "6.0.0-beta.1"
 dependencies = [
- "darling 0.20.11",
+ "darling 0.21.3",
  "derive_more 2.0.1",
  "ink",
  "ink_e2e",
