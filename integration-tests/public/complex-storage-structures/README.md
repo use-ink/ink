@@ -80,19 +80,18 @@ struct MyStruct {
 }
 ```
 
-For [packed structs](https://use.ink/datastructures/storage-layout#packed-vs-non-packed-layout), a new trait was introduced - `Packed`. It represents structs,
-all fields of which occupy a single storage cell. Any type that implements
-`scale::Encode` and `scale::Decode` receives a `Packed` implementation:
+For [packed structs][Packed], a new trait was introduced - `Packed`.
+It represents structs, all fields of which occupy a single storage cell.
+Any type that implements `scale::Encode` and `scale::Decode` receives a `Packed` implementation:
 
-Unlike non-packed types created with `#[ink::storage_item]`, packed types don't have
-their own storage keys.
+Unlike non-packed types created with `#[ink::storage_item]`,
+packed types don't have their own storage keys,
+and they're created with `#[ink::storage_item(packed)]`.
+
+[Packed]: https://use.ink/datastructures/storage-layout#packed-vs-non-packed-layout
 
 ```rust
-#[derive(scale::Encode, scale::Decode)]
-#[cfg_attr(
-    feature = "std",
-    derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
-)]
+#[ink::storage_item(packed)]
 struct MyPackedStruct {
     first_field: u32,
     second_field: Vec<u8>,

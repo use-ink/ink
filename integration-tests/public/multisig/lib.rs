@@ -110,11 +110,8 @@ mod multisig {
     /// A Transaction is what every `owner` can submit for confirmation by other owners.
     /// If enough owners agree it will be executed by the contract.
     #[derive(Clone)]
-    #[cfg_attr(
-        feature = "std",
-        derive(Debug, PartialEq, Eq, ink::storage::traits::StorageLayout)
-    )]
-    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[cfg_attr(feature = "std", derive(Debug, PartialEq, Eq))]
+    #[ink::storage_item(packed)]
     pub struct Transaction {
         /// The address of the contract that is called in this transaction.
         pub callee: Address,
@@ -144,11 +141,8 @@ mod multisig {
     /// This is a book keeping struct that stores a list of all transaction ids and
     /// also the next id to use. We need it for cleaning up the storage.
     #[derive(Clone, Default)]
-    #[cfg_attr(
-        feature = "std",
-        derive(Debug, PartialEq, Eq, ink::storage::traits::StorageLayout)
-    )]
-    #[ink::scale_derive(Encode, Decode, TypeInfo)]
+    #[cfg_attr(feature = "std", derive(Debug, PartialEq, Eq))]
+    #[ink::storage_item(packed)]
     pub struct Transactions {
         /// Just store all transaction ids packed.
         transactions: Vec<TransactionId>,
