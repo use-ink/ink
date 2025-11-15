@@ -1,4 +1,4 @@
-use super::cross_contract_calls::*;
+use super::cross_contract_calls_advanced::*;
 use ink_e2e::ContractsBackend;
 
 type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -18,14 +18,18 @@ async fn instantiate_with_insufficient_storage_deposit_limit<Client: E2EBackend>
     const PROOF_SIZE_LIMIT: u64 = 100_000_000_000;
     let storage_deposit_limit = ink::U256::from(100_000_000_000_000u64);
 
-    let mut constructor = CrossContractCallsRef::new_with_limits(
+    let mut constructor = CrossContractCallsAdvancedRef::new_with_limits(
         other_contract_code.code_hash,
         REF_TIME_LIMIT,
         PROOF_SIZE_LIMIT,
         storage_deposit_limit,
     );
     let call_result = client
-        .instantiate("cross-contract-calls", &ink_e2e::alice(), &mut constructor)
+        .instantiate(
+            "cross-contract-calls-advanced",
+            &ink_e2e::alice(),
+            &mut constructor,
+        )
         .dry_run()
         .await?;
 
@@ -55,14 +59,18 @@ async fn instantiate_with_sufficient_limits<Client: E2EBackend>(
     // `pallet-revive`. but they should throw an error about `StorageLimitExhausted`.
     let storage_deposit_limit = ink::U256::from(100_000_000_000_000u64);
 
-    let mut constructor = CrossContractCallsRef::new_with_limits(
+    let mut constructor = CrossContractCallsAdvancedRef::new_with_limits(
         other_contract_code.code_hash,
         REF_TIME_LIMIT,
         PROOF_SIZE_LIMIT,
         storage_deposit_limit,
     );
     let contract = client
-        .instantiate("cross-contract-calls", &ink_e2e::alice(), &mut constructor)
+        .instantiate(
+            "cross-contract-calls-advanced",
+            &ink_e2e::alice(),
+            &mut constructor,
+        )
         .submit()
         .await;
 
@@ -81,9 +89,13 @@ async fn instantiate_no_limits<Client: E2EBackend>(mut client: Client) -> E2ERes
         .expect("other_contract upload failed");
 
     let mut constructor =
-        CrossContractCallsRef::new_no_limits(other_contract_code.code_hash);
+        CrossContractCallsAdvancedRef::new_no_limits(other_contract_code.code_hash);
     let contract = client
-        .instantiate("cross-contract-calls", &ink_e2e::alice(), &mut constructor)
+        .instantiate(
+            "cross-contract-calls-advanced",
+            &ink_e2e::alice(),
+            &mut constructor,
+        )
         .submit()
         .await;
 
@@ -102,13 +114,17 @@ async fn flip_and_get<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
         .expect("other_contract upload failed");
 
     let mut constructor =
-        CrossContractCallsRef::new_no_limits(other_contract_code.code_hash);
+        CrossContractCallsAdvancedRef::new_no_limits(other_contract_code.code_hash);
     let contract = client
-        .instantiate("cross-contract-calls", &ink_e2e::alice(), &mut constructor)
+        .instantiate(
+            "cross-contract-calls-advanced",
+            &ink_e2e::alice(),
+            &mut constructor,
+        )
         .submit()
         .await
         .expect("cross-contract-calls instantiate failed");
-    let mut call_builder = contract.call_builder::<CrossContractCalls>();
+    let mut call_builder = contract.call_builder::<CrossContractCallsAdvanced>();
 
     const REF_TIME_LIMIT: u64 = 500_000_000;
     const PROOF_SIZE_LIMIT: u64 = 100_000;

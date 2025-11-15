@@ -1,16 +1,16 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
-mod cross_contract_calls {
+mod cross_contract_calls_advanced {
     use ink::codegen::TraitCallBuilder;
     use other_contract::OtherContractRef;
 
     #[ink(storage)]
-    pub struct CrossContractCalls {
+    pub struct CrossContractCallsAdvanced {
         other_contract: OtherContractRef,
     }
 
-    impl CrossContractCalls {
+    impl CrossContractCallsAdvanced {
         /// Initializes the contract by instantiating the code at the given code hash via
         /// `instantiate` host function with the supplied weight and storage
         /// limits.
