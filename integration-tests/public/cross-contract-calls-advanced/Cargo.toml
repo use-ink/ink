@@ -1,0 +1,35 @@
+[package]
+name = "cross-contract-calls-advanced"
+version = "6.0.0-beta.1"
+authors = ["Use Ink <ink@use.ink>"]
+edition = "2024"
+publish = false
+
+[dependencies]
+ink = { path = "../../../crates/ink", default-features = false }
+
+# Note: We **need** to specify the `ink-as-dependency` feature.
+#
+# If we don't we will end up with linking errors!
+other-contract = { path = "other-contract", default-features = false, features = ["ink-as-dependency"] }
+pallet-revive-uapi = { version = "0.8.0", default-features = false }
+
+[dev-dependencies]
+ink_e2e = { path = "../../../crates/e2e" }
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    # Note: The metadata generation step requires `std`. If we don't specify this the metadata
+    # generation for our contract will fail!
+    "other-contract/std",
+]
+ink-as-dependency = []
+e2e-tests = []
+
+[package.metadata.ink-lang]
+abi = "ink"
