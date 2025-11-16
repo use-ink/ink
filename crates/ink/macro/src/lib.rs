@@ -84,7 +84,7 @@ pub fn blake2x256(input: TokenStream) -> TokenStream {
 /// assert_eq!(selector_id!(Abi::Ink, "hello"), 843960066,);
 ///
 /// // Solidity ABI (Keccak-256)
-/// assert_eq!(selector_id!(Abi::Sol, "hello"), 0x19cb10b7,);
+/// assert_eq!(selector_id!(Abi::Sol, "foo()"), 0xc2985578,);
 /// ```
 #[proc_macro]
 pub fn selector_id(input: TokenStream) -> TokenStream {
