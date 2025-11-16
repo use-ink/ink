@@ -272,6 +272,12 @@ impl ContractRef<'_> {
                 }
             }
 
+            impl<Abi> ::core::convert::From<::ink::Address> for #ref_ident<Abi> {
+                fn from(addr: ::ink::Address) -> Self {
+                    <Self as ::ink::env::call::FromAddr>::from_addr(addr)
+                }
+            }
+
             impl<Abi> ::ink::ToAddr for #ref_ident<Abi> {
                 #[inline]
                 fn to_addr(&self) -> ::ink::Address {

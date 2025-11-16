@@ -89,8 +89,7 @@ in the future.
 5. Publish with
    ```bash
    fd Cargo.toml crates/ | \
-   grep -v e2e | \
-   grep -v sandbox | \
+   grep e2e | \
    xargs -n1 cargo no-dev-deps publish --allow-dirty --manifest-path
    ```
 6. Following a successful release from the release PR branch, now the PR can be merged

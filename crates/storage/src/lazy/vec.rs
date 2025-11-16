@@ -55,11 +55,14 @@ use crate::{
 /// or store _all_ of its elements.
 ///
 /// This can be undesirable:
-/// The cost of reading or writing a _single_ element grows linearly
-/// corresponding to the number of elements in the vector (its length).
-/// Additionally, the maximum capacity of the _whole_ vector is limited by
-/// the size of the static buffer used during ABI encoding and decoding
-/// (default 16 KiB).
+/// - The cost of reading or writing a _single_ element grows linearly corresponding to
+///   the number of elements in the vector (its length).
+/// - Additionally, the maximum capacity of the _whole_ vector is limited by
+///   [`pallet-revive's` storage limit for a single cell][pallet-revive-limits] (currently
+///   `416 bytes`).
+/// - Lastly, the maximum capacity of the _whole_ vector is also limited by the size of
+///   [ink!'s static buffer][static-buffer] used during ABI encoding and decoding (current
+///   default is `16 KiB`).
 ///
 /// [StorageVec] on the other hand allows to access each element individually.
 /// Thus, it can theoretically grow to infinite size.
@@ -67,10 +70,13 @@ use crate::{
 /// even if the vector elements are single bytes, it'll allow to store
 /// more than 4 GB data in blockchain storage.
 ///
+/// [pallet-revive-limits]: https://docs.polkadot.com/polkadot-protocol/smart-contract-basics/evm-vs-polkavm/#current-memory-limits
+/// [static-buffer]: https://github.com/use-ink/ink/blob/master/ARCHITECTURE.md#communication-with-the-pallet
+///
 /// # Caveats
 ///
 /// Iterators are not provided. [StorageVec] is expected to be used to
-/// store a lot elements, where iterating through the elements would be
+/// store a lot of elements, where iterating through the elements would be
 /// rather inefficient (naturally, it is still possible to manually
 /// iterate over the elements using a loop).
 ///
@@ -92,7 +98,7 @@ use crate::{
 ///
 /// # Storage Layout
 ///
-/// At given [StorageKey] `K`, the length of the [StorageVec] is hold.
+/// At given [StorageKey] `K`, the length of the [StorageVec] is held.
 /// Each element `E` is then stored under a combination of the [StorageVec]
 /// key `K` and the elements index.
 ///

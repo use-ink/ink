@@ -1,5 +1,5 @@
 [package]
-name = "cross-contract-calls"
+name = "cross-contract-calls-advanced"
 version = "6.0.0-beta.1"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2024"

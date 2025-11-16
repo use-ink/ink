@@ -15,8 +15,8 @@
 ./integration-tests/public/contract-terminate;1314
 ./integration-tests/public/contract-transfer;1520
 ./integration-tests/public/contract-xcm;18805
-./integration-tests/public/cross-contract-calls;7471
-./integration-tests/public/cross-contract-calls/other-contract;1591
+./integration-tests/public/cross-contract-calls-advanced;7471
+./integration-tests/public/cross-contract-calls-advanced/other-contract;1591
 ./integration-tests/public/custom-allocator;7993
 ./integration-tests/public/custom-environment;2062
 ./integration-tests/public/dns;7142

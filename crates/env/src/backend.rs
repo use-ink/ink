@@ -438,7 +438,8 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`terminate_contract`][`crate::terminate_contract`]
-    fn terminate_contract(&mut self, beneficiary: Address) -> Result<()>;
+    #[cfg(feature = "unstable-hostfn")]
+    fn terminate_contract(&mut self, beneficiary: Address) -> !;
 
     /// Transfers value from the contract to the destination account ID.
     ///
