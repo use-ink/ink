@@ -1,4 +1,4 @@
-error: expected string or byte string literal as input: unexpected end of input, expected literal
+error: expected exactly 2 arguments (Abi enum, string literal), found 0
  --> tests/ui/selector_id/fail/missing_parameter.rs:1:16
   |
 1 | const _: u32 = ink::selector_id!();
