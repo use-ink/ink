@@ -1,7 +1,7 @@
 use super::sol_cross_contract::*;
 use ink_e2e::ContractsRegistry;
-use ink_sandbox::{
-    DefaultSandbox,
+use ink_runtime::{
+    DefaultRuntime,
     Sandbox,
     api::prelude::{
         BalanceAPI,
@@ -15,7 +15,7 @@ use ink::{
     SolEncode,
 };
 use ink_revive_types::ExecReturnValue;
-use ink_sandbox::frame_system::pallet_prelude::OriginFor;
+use ink_runtime::frame_system::pallet_prelude::OriginFor;
 
 const STORAGE_DEPOSIT_LIMIT: u128 = u128::MAX;
 
@@ -24,17 +24,17 @@ fn call_sol_encoded_message() {
     let built_contracts = ::ink_e2e::build_root_and_contract_dependencies(vec![]);
     let contracts = ContractsRegistry::new(built_contracts);
 
-    let mut sandbox = ink_sandbox::DefaultSandbox::default();
+    let mut sandbox = ink_runtime::DefaultRuntime::default();
     let caller = ink_e2e::alice();
     let origin =
-        DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
+        DefaultRuntime::convert_account_to_origin(DefaultRuntime::default_actor());
 
     sandbox
         .mint_into(&caller.public_key().0.into(), 1_000_000_000_000_000u128)
         .unwrap_or_else(|_| panic!("Failed to mint tokens"));
 
     sandbox
-        .map_account(&DefaultSandbox::default_actor())
+        .map_account(&DefaultRuntime::default_actor())
         .expect("unable to map");
 
     // upload other contract (callee)
@@ -47,7 +47,7 @@ fn call_sol_encoded_message() {
     let exec_input = params.exec_input();
 
     let code = contracts.load_code("other-contract-sol");
-    let other_contract_addr = <DefaultSandbox as ContractAPI>::deploy_contract(
+    let other_contract_addr = <DefaultRuntime as ContractAPI>::deploy_contract(
         &mut sandbox,
         code,
         0,
@@ -55,7 +55,7 @@ fn call_sol_encoded_message() {
         // salt
         None,
         origin.clone(),
-        <DefaultSandbox as Sandbox>::default_gas_limit(),
+        <DefaultRuntime as Sandbox>::default_gas_limit(),
         STORAGE_DEPOSIT_LIMIT,
     )
     .result
@@ -72,7 +72,7 @@ fn call_sol_encoded_message() {
     let exec_input = params.exec_input();
 
     let code = contracts.load_code("sol-cross-contract");
-    let contract_addr = <DefaultSandbox as ContractAPI>::deploy_contract(
+    let contract_addr = <DefaultRuntime as ContractAPI>::deploy_contract(
         &mut sandbox,
         code,
         0,
@@ -81,7 +81,7 @@ fn call_sol_encoded_message() {
         // TODO (@peterwht): figure out why no salt is causing `DuplicateContract`
         Some([1u8; 32]),
         origin.clone(),
-        <DefaultSandbox as Sandbox>::default_gas_limit(),
+        <DefaultRuntime as Sandbox>::default_gas_limit(),
         STORAGE_DEPOSIT_LIMIT,
     )
     .result
@@ -122,7 +122,7 @@ fn call_sol_encoded_message() {
 }
 
 struct ContractSandbox {
-    sandbox: ink_sandbox::DefaultSandbox,
+    sandbox: ink_runtime::DefaultRuntime,
 }
 
 impl ContractSandbox {
@@ -131,7 +131,7 @@ impl ContractSandbox {
         contract_addr: Address,
         message: &str,
         args: Args,
-        origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
+        origin: OriginFor<<DefaultRuntime as Sandbox>::Runtime>,
     ) -> Ret
     where
         Args: for<'a> SolEncode<'a>,
@@ -146,7 +146,7 @@ impl ContractSandbox {
         contract_addr: Address,
         message: &str,
         args: Args,
-        origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
+        origin: OriginFor<<DefaultRuntime as Sandbox>::Runtime>,
     ) -> Vec<u8>
     where
         Args: for<'a> SolEncode<'a>,
@@ -164,15 +164,15 @@ impl ContractSandbox {
         &mut self,
         contract_addr: Address,
         data: Vec<u8>,
-        origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
+        origin: OriginFor<<DefaultRuntime as Sandbox>::Runtime>,
     ) -> ExecReturnValue {
-        let result = <DefaultSandbox as ContractAPI>::call_contract(
+        let result = <DefaultRuntime as ContractAPI>::call_contract(
             &mut self.sandbox,
             contract_addr,
             0,
             data,
             origin,
-            <DefaultSandbox as Sandbox>::default_gas_limit(),
+            <DefaultRuntime as Sandbox>::default_gas_limit(),
             STORAGE_DEPOSIT_LIMIT,
         );
 

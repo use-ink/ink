@@ -65,10 +65,10 @@ impl Node {
 /// The runtime emulator that should be used within `TestExternalities`
 #[derive(Clone, Eq, PartialEq, Debug, darling::FromMeta)]
 pub struct RuntimeOnly {
-    /// The sandbox runtime type (e.g., `ink_sandbox::DefaultSandbox`)
+    /// The sandbox runtime type (e.g., `ink_runtime::DefaultRuntime`)
     pub sandbox: syn::Path,
     /// The client type implementing the backend traits (e.g.,
-    /// `ink_sandbox::SandboxClient`)
+    /// `ink_runtime::RuntimeClient`)
     pub client: syn::Path,
 }
 
@@ -144,7 +144,7 @@ mod tests {
     fn config_works_backend_runtime_only() {
         let input = quote! {
             environment = crate::CustomEnvironment,
-            backend(runtime_only(sandbox = ::ink_sandbox::DefaultSandbox, client = ::ink_sandbox::SandboxClient)),
+            backend(runtime_only(sandbox = ::ink_runtime::DefaultRuntime, client = ::ink_runtime::RuntimeClient)),
         };
         let config =
             E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
@@ -157,8 +157,8 @@ mod tests {
         assert_eq!(
             config.backend(),
             Backend::RuntimeOnly(RuntimeOnly {
-                sandbox: syn::parse_quote! { ::ink_sandbox::DefaultSandbox },
-                client: syn::parse_quote! { ::ink_sandbox::SandboxClient },
+                sandbox: syn::parse_quote! { ::ink_runtime::DefaultRuntime },
+                client: syn::parse_quote! { ::ink_runtime::RuntimeClient },
             })
         );
     }
@@ -175,8 +175,8 @@ mod tests {
         assert_eq!(
             config.backend(),
             Backend::RuntimeOnly(RuntimeOnly {
-                sandbox: syn::parse_quote! { ::ink_sandbox::DefaultSandbox },
-                client: syn::parse_quote! { ::ink_sandbox::SandboxClient },
+                sandbox: syn::parse_quote! { ::ink_runtime::DefaultRuntime },
+                client: syn::parse_quote! { ::ink_runtime::RuntimeClient },
             })
         );
     }
@@ -184,7 +184,7 @@ mod tests {
     #[test]
     fn config_works_runtime_only_with_custom_backend() {
         let input = quote! {
-            backend(runtime_only(sandbox = ::ink_sandbox::DefaultSandbox, client = ::ink_sandbox::SandboxClient)),
+            backend(runtime_only(sandbox = ::ink_runtime::DefaultRuntime, client = ::ink_runtime::RuntimeClient)),
         };
         let config =
             E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
@@ -192,8 +192,8 @@ mod tests {
         assert_eq!(
             config.backend(),
             Backend::RuntimeOnly(RuntimeOnly {
-                sandbox: syn::parse_quote! { ::ink_sandbox::DefaultSandbox },
-                client: syn::parse_quote! { ::ink_sandbox::SandboxClient },
+                sandbox: syn::parse_quote! { ::ink_runtime::DefaultRuntime },
+                client: syn::parse_quote! { ::ink_runtime::RuntimeClient },
             })
         );
     }

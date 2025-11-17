@@ -60,7 +60,7 @@ use syn::Result;
 /// ```
 /// type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 ///
-/// #[ink_sandbox::test(backend(runtime_only(sandbox = ink_sandbox::DefaultSandbox, client = ink_sandbox::SandboxClient)))]
+/// #[ink_runtime::test(backend(runtime_only(sandbox = ink_runtime::DefaultRuntime, client = ink_runtime::RuntimeClient)))]
 /// async fn runtime_call_works() -> E2EResult<()> {
 ///     // ...
 /// }

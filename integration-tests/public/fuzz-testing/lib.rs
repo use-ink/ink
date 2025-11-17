@@ -47,9 +47,9 @@ pub mod fuzz_testing {
         ///
         /// See <https://use.ink/docs/v6/contract-testing/drink#as-an-alternative-backend-to-inks-e2e-testing-framework>
         /// for more details.
-        #[ink_sandbox::test(replace_test_attr = "#[quickcheck]", backend(runtime_only(
-            sandbox = ink_sandbox::DefaultSandbox,
-            client  = ink_sandbox::SandboxClient
+        #[ink_runtime::test(replace_test_attr = "#[quickcheck]", backend(runtime_only(
+            sandbox = ink_runtime::DefaultRuntime,
+            client  = ink_runtime::RuntimeClient
         )))]
         async fn fuzzing_works_runtime(val: bool) -> bool {
             let mut constructor = FuzzTestingRef::new(val);
@@ -72,9 +72,9 @@ pub mod fuzz_testing {
         /// `CONTRACTS_NODE_URL`. But still, interactions with a real node will
         /// always be more heavy-weight than "just" interacting with a sandboxed
         /// `pallet-revive`.
-        #[ink_sandbox::test(replace_test_attr = "#[quickcheck]", backend(runtime_only(
-            sandbox = ink_sandbox::DefaultSandbox,
-            client  = ink_sandbox::SandboxClient
+        #[ink_runtime::test(replace_test_attr = "#[quickcheck]", backend(runtime_only(
+            sandbox = ink_runtime::DefaultRuntime,
+            client  = ink_runtime::RuntimeClient
         )))]
         async fn fuzzing_works_node(val: bool) -> bool {
             let mut constructor = FuzzTestingRef::new(val);
@@ -105,9 +105,9 @@ pub mod fuzz_testing {
             }
         }
 
-        #[ink_sandbox::test(replace_test_attr = "#[quickcheck]", backend(runtime_only(
-            sandbox = ink_sandbox::DefaultSandbox,
-            client  = ink_sandbox::SandboxClient
+        #[ink_runtime::test(replace_test_attr = "#[quickcheck]", backend(runtime_only(
+            sandbox = ink_runtime::DefaultRuntime,
+            client  = ink_runtime::RuntimeClient
         )))]
         async fn fuzzing_custom_struct_works(val: Point) -> bool {
             ink_e2e::tracing::info!("fuzzing with value {val:?}");

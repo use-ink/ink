@@ -1,7 +1,7 @@
 use crate::{
     EventRecordOf,
     RuntimeCall,
-    Sandbox,
+    RuntimeEnv,
 };
 use frame_support::sp_runtime::{
     DispatchResultWithInfo,
@@ -51,7 +51,7 @@ pub trait SystemAPI {
 
 impl<T> SystemAPI for T
 where
-    T: Sandbox,
+    T: RuntimeEnv,
     T::Runtime: frame_system::Config,
 {
     type T = T::Runtime;
@@ -100,11 +100,11 @@ where
 #[cfg(test)]
 mod tests {
     use crate::{
-        DefaultSandbox,
+        DefaultRuntime,
         RuntimeCall,
+        RuntimeEnv,
         RuntimeEventOf,
         RuntimeOf,
-        Sandbox,
         api::prelude::*,
     };
     use frame_support::sp_runtime::{
@@ -114,32 +114,32 @@ mod tests {
     };
 
     fn make_transfer(
-        sandbox: &mut DefaultSandbox,
+        sandbox: &mut DefaultRuntime,
         dest: AccountId32,
         value: u128,
     ) -> DispatchResultWithInfo<
-        <RuntimeCall<<DefaultSandbox as Sandbox>::Runtime> as Dispatchable>::PostInfo,
+        <RuntimeCall<<DefaultRuntime as RuntimeEnv>::Runtime> as Dispatchable>::PostInfo,
     > {
         assert_ne!(
-            DefaultSandbox::default_actor(),
+            DefaultRuntime::default_actor(),
             dest,
             "make_transfer should send to account different than default_actor"
         );
         sandbox.runtime_call(
-            RuntimeCall::<RuntimeOf<DefaultSandbox>>::Balances(pallet_balances::Call::<
-                RuntimeOf<DefaultSandbox>,
+            RuntimeCall::<RuntimeOf<DefaultRuntime>>::Balances(pallet_balances::Call::<
+                RuntimeOf<DefaultRuntime>,
             >::transfer_allow_death {
                 dest: dest.into(),
                 value,
             }),
-            Some(DefaultSandbox::default_actor()),
+            Some(DefaultRuntime::default_actor()),
         )
     }
 
     #[test]
     fn dry_run_works() {
-        let mut sandbox = DefaultSandbox::default();
-        let actor = DefaultSandbox::default_actor();
+        let mut sandbox = DefaultRuntime::default();
+        let actor = DefaultRuntime::default_actor();
         let initial_balance = sandbox.free_balance(&actor);
 
         sandbox.dry_run(|sandbox| {
@@ -152,7 +152,7 @@ mod tests {
 
     #[test]
     fn runtime_call_works() {
-        let mut sandbox = DefaultSandbox::default();
+        let mut sandbox = DefaultRuntime::default();
 
         const RECIPIENT: AccountId32 = AccountId32::new([2u8; 32]);
         let initial_balance = sandbox.free_balance(&RECIPIENT);
@@ -166,7 +166,7 @@ mod tests {
 
     #[test]
     fn current_events() {
-        let mut sandbox = DefaultSandbox::default();
+        let mut sandbox = DefaultRuntime::default();
         const RECIPIENT: AccountId32 = AccountId32::new([2u8; 32]);
 
         let events_before = sandbox.events();
@@ -178,13 +178,13 @@ mod tests {
         assert!(!events_after.is_empty());
         assert!(matches!(
             events_after.last().unwrap().event,
-            RuntimeEventOf::<DefaultSandbox>::Balances(_)
+            RuntimeEventOf::<DefaultRuntime>::Balances(_)
         ));
     }
 
     #[test]
     fn resetting_events() {
-        let mut sandbox = DefaultSandbox::default();
+        let mut sandbox = DefaultRuntime::default();
         const RECIPIENT: AccountId32 = AccountId32::new([3u8; 32]);
 
         make_transfer(&mut sandbox, RECIPIENT.clone(), 1)
@@ -200,7 +200,7 @@ mod tests {
 
     #[test]
     fn snapshot_works() {
-        let mut sandbox = DefaultSandbox::default();
+        let mut sandbox = DefaultRuntime::default();
 
         // Check state before
         let block_before = sandbox.block_number();

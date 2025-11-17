@@ -189,10 +189,10 @@ mod e2e_tests {
         alice,
         bob,
     };
-    use ink_sandbox::{
-        DefaultSandbox,
+    use ink_runtime::{
+        DefaultRuntime,
         E2EError,
-        SandboxClient,
+        RuntimeClient,
         api::prelude::{
             AssetsAPI,
             ContractAPI,
@@ -204,9 +204,9 @@ mod e2e_tests {
 
     type E2EResult<T> = std::result::Result<T, E2EError>;
 
-    #[ink_sandbox::test(backend(runtime_only(
-        sandbox = DefaultSandbox,
-        client  = SandboxClient
+    #[ink_runtime::test(backend(runtime_only(
+        sandbox = DefaultRuntime,
+        client  = RuntimeClient
     )))]
     async fn deployment_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
         let asset_id: u32 = 1;
@@ -229,9 +229,9 @@ mod e2e_tests {
         Ok(())
     }
 
-    #[ink_sandbox::test(backend(runtime_only(
-        sandbox = DefaultSandbox,
-        client  = SandboxClient
+    #[ink_runtime::test(backend(runtime_only(
+        sandbox = DefaultRuntime,
+        client  = RuntimeClient
     )))]
     async fn total_supply_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
         let asset_id: u32 = 1;
@@ -259,9 +259,9 @@ mod e2e_tests {
         Ok(())
     }
 
-    #[ink_sandbox::test(backend(runtime_only(
-        sandbox = DefaultSandbox,
-        client  = SandboxClient
+    #[ink_runtime::test(backend(runtime_only(
+        sandbox = DefaultRuntime,
+        client  = RuntimeClient
     )))]
     async fn balance_of_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
         let asset_id: u32 = 1;
@@ -299,9 +299,9 @@ mod e2e_tests {
         Ok(())
     }
 
-    #[ink_sandbox::test(backend(runtime_only(
-        sandbox = DefaultSandbox,
-        client  = SandboxClient
+    #[ink_runtime::test(backend(runtime_only(
+        sandbox = DefaultRuntime,
+        client  = RuntimeClient
     )))]
     async fn transfer_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
         let asset_id: u32 = 1;
@@ -363,9 +363,9 @@ mod e2e_tests {
         Ok(())
     }
 
-    #[ink_sandbox::test(backend(runtime_only(
-        sandbox = DefaultSandbox,
-        client  = SandboxClient
+    #[ink_runtime::test(backend(runtime_only(
+        sandbox = DefaultRuntime,
+        client  = RuntimeClient
     )))]
     async fn approve_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
         let asset_id: u32 = 1;
@@ -418,9 +418,9 @@ mod e2e_tests {
         Ok(())
     }
 
-    #[ink_sandbox::test(backend(runtime_only(
-        sandbox = DefaultSandbox,
-        client  = SandboxClient
+    #[ink_runtime::test(backend(runtime_only(
+        sandbox = DefaultRuntime,
+        client  = RuntimeClient
     )))]
     async fn allowance_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
         let asset_id: u32 = 1;
@@ -455,9 +455,9 @@ mod e2e_tests {
         Ok(())
     }
 
-    #[ink_sandbox::test(backend(runtime_only(
-        sandbox = DefaultSandbox,
-        client  = SandboxClient
+    #[ink_runtime::test(backend(runtime_only(
+        sandbox = DefaultRuntime,
+        client  = RuntimeClient
     )))]
     async fn transfer_from_works<Client: E2EBackend>(
         mut client: Client,

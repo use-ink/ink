@@ -15,7 +15,7 @@ members = [
     "crates/revive-types",
     "crates/prelude",
     "crates/primitives",
-    "crates/sandbox",
+    "crates/runtime",
     "crates/storage",
     "crates/storage/traits"
 ]

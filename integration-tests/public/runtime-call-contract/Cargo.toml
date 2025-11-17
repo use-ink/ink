@@ -1,5 +1,5 @@
 [workspace]
-members = ["sandbox-runtime", "traits"]
+members = ["custom-runtime", "traits"]
 
 [workspace.package]
 authors = ["Use Ink <ink@use.ink>"]
@@ -33,8 +33,8 @@ flipper-traits = { path = "traits", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
-ink_sandbox = { path = "../../../crates/sandbox" }
-sandbox-runtime = { path = "sandbox-runtime", default-features = false }
+ink_runtime = { path = "../../../crates/runtime" }
+custom-runtime = { path = "custom-runtime", default-features = false }
 scale-value = "0.18.0"
 # can't use workspace dependency because of `cargo-contract` build not
 # working with workspace dependencies
@@ -47,7 +47,7 @@ path = "lib.rs"
 default = ["std"]
 std = [
     "ink/std",
-    "sandbox-runtime/std",
+    "custom-runtime/std",
     "flipper-traits/std",
 ]
 ink-as-dependency = []

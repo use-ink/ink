@@ -6,8 +6,8 @@ use ink::{
 };
 use ink_e2e::ContractsRegistry;
 use ink_revive_types::ExecReturnValue;
-use ink_sandbox::{
-    DefaultSandbox,
+use ink_runtime::{
+    DefaultRuntime,
     Sandbox,
     api::prelude::{
         BalanceAPI,
@@ -23,17 +23,17 @@ fn call_solidity_encoded_message() {
     let built_contracts = ::ink_e2e::build_root_and_contract_dependencies(vec![]);
     let contracts = ContractsRegistry::new(built_contracts);
 
-    let mut sandbox = DefaultSandbox::default();
+    let mut sandbox = DefaultRuntime::default();
     let caller = ink_e2e::alice();
     let origin =
-        DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
+        DefaultRuntime::convert_account_to_origin(DefaultRuntime::default_actor());
 
     sandbox
         .mint_into(&caller.public_key().0.into(), 1_000_000_000_000_000u128)
         .unwrap_or_else(|_| panic!("Failed to mint tokens"));
 
     sandbox
-        .map_account(&DefaultSandbox::default_actor())
+        .map_account(&DefaultRuntime::default_actor())
         .expect("unable to map");
 
     let constructor = SolEncodingRef::new(false);
@@ -45,7 +45,7 @@ fn call_solidity_encoded_message() {
     let exec_input = params.exec_input();
 
     let code = contracts.load_code("sol_encoding");
-    let contract_addr = <DefaultSandbox as ContractAPI>::deploy_contract(
+    let contract_addr = <DefaultRuntime as ContractAPI>::deploy_contract(
         &mut sandbox,
         code,
         0,
@@ -53,7 +53,7 @@ fn call_solidity_encoded_message() {
         // salt
         None,
         origin.clone(),
-        <DefaultSandbox as Sandbox>::default_gas_limit(),
+        <DefaultRuntime as Sandbox>::default_gas_limit(),
         STORAGE_DEPOSIT_LIMIT,
     )
     .result
@@ -76,7 +76,7 @@ fn call_solidity_encoded_message() {
 }
 
 struct ContractSandbox {
-    sandbox: DefaultSandbox,
+    sandbox: DefaultRuntime,
     contract_addr: Address,
 }
 
@@ -85,7 +85,7 @@ impl ContractSandbox {
         &mut self,
         message: &str,
         args: Args,
-        origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
+        origin: OriginFor<<DefaultRuntime as Sandbox>::Runtime>,
     ) -> Ret
     where
         Args: for<'a> SolEncode<'a>,
@@ -99,7 +99,7 @@ impl ContractSandbox {
         &mut self,
         message: &str,
         args: Args,
-        origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
+        origin: OriginFor<<DefaultRuntime as Sandbox>::Runtime>,
     ) -> Vec<u8>
     where
         Args: for<'a> SolEncode<'a>,
@@ -116,15 +116,15 @@ impl ContractSandbox {
     fn call_raw(
         &mut self,
         data: Vec<u8>,
-        origin: OriginFor<<DefaultSandbox as Sandbox>::Runtime>,
+        origin: OriginFor<<DefaultRuntime as Sandbox>::Runtime>,
     ) -> ExecReturnValue {
-        let call_raw = <DefaultSandbox as ContractAPI>::call_contract(
+        let call_raw = <DefaultRuntime as ContractAPI>::call_contract(
             &mut self.sandbox,
             self.contract_addr,
             0,
             data,
             origin,
-            <DefaultSandbox as Sandbox>::default_gas_limit(),
+            <DefaultRuntime as Sandbox>::default_gas_limit(),
             STORAGE_DEPOSIT_LIMIT,
         )
         .result

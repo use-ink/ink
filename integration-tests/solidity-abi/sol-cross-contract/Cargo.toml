@@ -12,7 +12,7 @@ sha3 = { version = "0.10", default-features = false }
 [dev-dependencies]
 ink_env = { path = "../../../crates/env" }
 ink_e2e = { path = "../../../crates/e2e" }
-ink_sandbox = { path = "../../../crates/sandbox" }
+ink_runtime = { path = "../../../crates/runtime" }
 ink_revive_types = { path = "../../../crates/revive-types" }
 sha3 = { version = "0.10" }
 other-contract-sol = { path = "other-contract-sol" }

@@ -1,7 +1,7 @@
 use crate::{
     AccountIdFor,
     IntoAccountId,
-    Sandbox,
+    RuntimeEnv,
 };
 use frame_support::{
     pallet_prelude::DispatchError,
@@ -28,7 +28,7 @@ type AssetBalanceOf<T, I> = <T as pallet_assets::Config<I>>::Balance;
 /// Provides methods to create, mint, and manage assets in `pallet-assets`.
 pub trait AssetsAPI<T, I = pallet_assets::Instance1>
 where
-    T: Sandbox,
+    T: RuntimeEnv,
     T::Runtime: pallet_assets::Config<I>,
     I: 'static,
 {
@@ -168,7 +168,7 @@ where
 
 impl<T, I> AssetsAPI<T, I> for T
 where
-    T: Sandbox,
+    T: RuntimeEnv,
     T::Runtime: pallet_assets::Config<I>,
     I: 'static,
 {
@@ -323,12 +323,12 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::DefaultSandbox;
+    use crate::DefaultRuntime;
 
     #[test]
     fn create_works() {
-        let mut sandbox = DefaultSandbox::default();
-        let admin = DefaultSandbox::default_actor();
+        let mut sandbox = DefaultRuntime::default();
+        let admin = DefaultRuntime::default_actor();
         let asset_id = 1u32;
         let min_balance = 1u128;
 
@@ -340,8 +340,8 @@ mod tests {
 
     #[test]
     fn set_metadata_works() {
-        let mut sandbox = DefaultSandbox::default();
-        let admin = DefaultSandbox::default_actor();
+        let mut sandbox = DefaultRuntime::default();
+        let admin = DefaultRuntime::default_actor();
         let asset_id = 1u32;
 
         sandbox.create(&asset_id, &admin, 1u128).unwrap();
@@ -357,8 +357,8 @@ mod tests {
 
     #[test]
     fn metadata_works() {
-        let mut sandbox = DefaultSandbox::default();
-        let admin = DefaultSandbox::default_actor();
+        let mut sandbox = DefaultRuntime::default();
+        let admin = DefaultRuntime::default_actor();
         let asset_id = 1u32;
 
         sandbox.create(&asset_id, &admin, 1u128).unwrap();
@@ -381,8 +381,8 @@ mod tests {
 
     #[test]
     fn approve_works() {
-        let mut sandbox = DefaultSandbox::default();
-        let admin = DefaultSandbox::default_actor();
+        let mut sandbox = DefaultRuntime::default();
+        let admin = DefaultRuntime::default_actor();
         let spender = ink_e2e::bob().into_account_id();
         let asset_id = 1u32;
 
@@ -402,8 +402,8 @@ mod tests {
 
     #[test]
     fn mint_into_works() {
-        let mut sandbox = DefaultSandbox::default();
-        let admin = DefaultSandbox::default_actor();
+        let mut sandbox = DefaultRuntime::default();
+        let admin = DefaultRuntime::default_actor();
         let asset_id = 1u32;
 
         sandbox.create(&asset_id, &admin, 1u128).unwrap();
@@ -419,8 +419,8 @@ mod tests {
 
     #[test]
     fn transfer_works() {
-        let mut sandbox = DefaultSandbox::default();
-        let admin = DefaultSandbox::default_actor();
+        let mut sandbox = DefaultRuntime::default();
+        let admin = DefaultRuntime::default_actor();
         let recipient = ink_e2e::bob().into_account_id();
         let asset_id = 1u32;
 
@@ -446,8 +446,8 @@ mod tests {
 
     #[test]
     fn balance_of_works() {
-        let mut sandbox = DefaultSandbox::default();
-        let admin = DefaultSandbox::default_actor();
+        let mut sandbox = DefaultRuntime::default();
+        let admin = DefaultRuntime::default_actor();
         let asset_id = 1u32;
 
         sandbox.create(&asset_id, &admin, 1u128).unwrap();
@@ -463,8 +463,8 @@ mod tests {
 
     #[test]
     fn total_supply_works() {
-        let mut sandbox = DefaultSandbox::default();
-        let admin = DefaultSandbox::default_actor();
+        let mut sandbox = DefaultRuntime::default();
+        let admin = DefaultRuntime::default_actor();
         let asset_id = 1u32;
 
         sandbox.create(&asset_id, &admin, 1u128).unwrap();
@@ -480,8 +480,8 @@ mod tests {
 
     #[test]
     fn allowance_works() {
-        let mut sandbox = DefaultSandbox::default();
-        let admin = DefaultSandbox::default_actor();
+        let mut sandbox = DefaultRuntime::default();
+        let admin = DefaultRuntime::default_actor();
         let spender = ink_e2e::bob().into_account_id();
         let asset_id = 1u32;
 
@@ -500,8 +500,8 @@ mod tests {
 
     #[test]
     fn asset_exists_works() {
-        let mut sandbox = DefaultSandbox::default();
-        let admin = DefaultSandbox::default_actor();
+        let mut sandbox = DefaultRuntime::default();
+        let admin = DefaultRuntime::default_actor();
         let asset_id = 1u32;
 
         assert!(!sandbox.asset_exists(&asset_id));

@@ -1,4 +1,4 @@
-use crate::Sandbox;
+use crate::RuntimeEnv;
 
 /// Generic Time type.
 type MomentOf<R> = <R as pallet_timestamp::Config>::Moment;
@@ -21,7 +21,7 @@ pub trait TimestampAPI {
 
 impl<T> TimestampAPI for T
 where
-    T: Sandbox,
+    T: RuntimeEnv,
     T::Runtime: pallet_timestamp::Config,
 {
     type T = T::Runtime;
@@ -40,13 +40,13 @@ where
 #[cfg(test)]
 mod tests {
     use crate::{
-        DefaultSandbox,
+        DefaultRuntime,
         api::prelude::*,
     };
 
     #[test]
     fn getting_and_setting_timestamp_works() {
-        let mut sandbox = DefaultSandbox::default();
+        let mut sandbox = DefaultRuntime::default();
         for timestamp in 0..10 {
             assert_ne!(sandbox.get_timestamp(), timestamp);
             sandbox.set_timestamp(timestamp);
