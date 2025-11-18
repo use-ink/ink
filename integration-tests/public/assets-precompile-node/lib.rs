@@ -37,7 +37,7 @@ mod asset_hub_precompile {
             Self {
                 asset_id,
                 owner: Self::env().caller(),
-                precompile: erc20(asset_id),
+                precompile: erc20(0x0120, asset_id),
             }
         }
 
