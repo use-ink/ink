@@ -3926,7 +3926,7 @@ dependencies = [
 name = "ink_revive_types"
 version = "6.0.0-beta.1"
 dependencies = [
- "alloy-core",
+ "const-hex",
  "derive_more 2.0.1",
  "ink_primitives 6.0.0-beta.1",
  "pallet-revive-uapi 0.8.0",

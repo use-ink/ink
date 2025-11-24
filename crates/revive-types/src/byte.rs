@@ -21,7 +21,7 @@ use alloc::{
     vec,
     vec::Vec,
 };
-use alloy_core::hex;
+use const_hex as hex;
 use core::{
     fmt::{
         Debug,
