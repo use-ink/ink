@@ -31,11 +31,8 @@ pub mod complex_structures {
         allowances: Mapping<(AccountId, AccountId), Balance, AutoKey>,
     }
 
-    #[derive(ink::scale::Encode, ink::scale::Decode, Default, Debug)]
-    #[cfg_attr(
-        feature = "std",
-        derive(ink::scale_info::TypeInfo, ink::storage::traits::StorageLayout)
-    )]
+    #[derive(Default, Debug)]
+    #[ink::storage_item(packed)]
     pub struct Balances {
         pub balance_state: u128,
     }

@@ -6,26 +6,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Unreleased]
 
+## Added
+- Implement `From<ink::Address>` for "ink-as-dependency" contract refs - [#2728](https://github.com/use-ink/ink/pull/2728)
+
+## Version 6.0.0-beta.1
+
 ### Added
 - Implement `bn128` precompiles ‒ [2708](https://github.com/use-ink/ink/pull/2718)
-- Add `packed` flag to `storage_item` attribute and improve related diagnostics - [](https://github.com/use-ink/ink/pull/2722)
+- Add example how to call Solidity precompiles ‒ [2716](https://github.com/use-ink/ink/pull/2716)
+- Add `packed` flag to `storage_item` attribute and improve related diagnostics ‒ [#2722](https://github.com/use-ink/ink/pull/2722)
+- Implement `pallet-revive` host functions `gas_price`, `call_data_size`, `return_data_size`, `gas_left` ‒ [#2694](https://github.com/use-ink/ink/pull/2694)
+- Add `ink_precompiles` crate with ERC-20 assets precompile interface ‒ [#2686](https://github.com/use-ink/ink/pull/2686)
 
 ### Changed
--   Implements the API for the `pallet-revive` host functions `chain_id`, `balance_of`, `base_fee`, `origin`, `code_size`, `block_hash`, `block_author` - [#2719](https://github.com/use-ink/ink/pull/2719)
+- Implements the API for the `pallet-revive` host functions `chain_id`, `balance_of`, `base_fee`, `origin`, `code_size`, `block_hash`, `block_author` - [#2719](https://github.com/use-ink/ink/pull/2719)
 - Refactor contract ref generation and add automatic re-exporting - [#2710](https://github.com/use-ink/ink/pull/2710)
 - Implement and stabilize `terminate_contract` ‒ [2708](https://github.com/use-ink/ink/pull/2708)
+- Refactor contract ref generation and add automatic re-exporting ‒ [#2710](https://github.com/use-ink/ink/pull/2710)
 
 ## Version 6.0.0-beta
 
 ### Added
--   Implements the API for the `pallet-revive` host functions `gas_price`, `call_data_size`, `return_data_size`, `gas_left` - [#2694](https://github.com/use-ink/ink/pull/2694)
 - Implements the API for the `pallet-revive` host function `gas_limit` - [#2691](https://github.com/use-ink/ink/pull/2691)
 - Implements the API for the `pallet-revive` host function `to_account_id` - [#2578](https://github.com/use-ink/ink/pull/2578)
 - Add `#[ink::contract_ref]` attribute - [#2648](https://github.com/use-ink/ink/pull/2648)
 - Add `ink_revive_types` (and remove `pallet-revive` dependency from `ink_e2e`) - [#2657](https://github.com/use-ink/ink/pull/2657)
 - non-allocating Solidity ABI encoder - [#2655](https://github.com/use-ink/ink/pull/2655)
 - Implement XCM precompile, stabilize XCM API - [#2687](https://github.com/use-ink/ink/pull/2687)
-- Add `ink_precompiles` crate with ERC-20 assets precompile interface - [#2686](https://github.com/use-ink/ink/pull/2686)
 
 ### Changed
 - Marks the `pallet-revive` host function `account_id` stable - [#2578](https://github.com/use-ink/ink/pull/2578)
