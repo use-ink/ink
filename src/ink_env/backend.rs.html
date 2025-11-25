@@ -304,224 +304,286 @@
 <a href=#304 id=304 data-nosnippet>304</a>    ///
 <a href=#305 id=305 data-nosnippet>305</a>    /// # Note
 <a href=#306 id=306 data-nosnippet>306</a>    ///
-<a href=#307 id=307 data-nosnippet>307</a>    /// For more details visit: [`return_data_size`][`crate::return_data_size]
+<a href=#307 id=307 data-nosnippet>307</a>    /// For more details visit: [`return_data_size`][`crate::return_data_size`]
 <a href=#308 id=308 data-nosnippet>308</a>    </span><span class="kw">fn </span>return_data_size(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64;
 <a href=#309 id=309 data-nosnippet>309</a>
-<a href=#310 id=310 data-nosnippet>310</a>    <span class="doccomment">/// Returns the transferred value for the contract execution.
-<a href=#311 id=311 data-nosnippet>311</a>    ///
-<a href=#312 id=312 data-nosnippet>312</a>    /// # Note
-<a href=#313 id=313 data-nosnippet>313</a>    ///
-<a href=#314 id=314 data-nosnippet>314</a>    /// For more details visit: [`transferred_value`][`crate::transferred_value`]
-<a href=#315 id=315 data-nosnippet>315</a>    </span><span class="kw">fn </span>transferred_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; U256;
-<a href=#316 id=316 data-nosnippet>316</a>
-<a href=#317 id=317 data-nosnippet>317</a>    <span class="doccomment">/// Returns the price for the specified amount of gas.
-<a href=#318 id=318 data-nosnippet>318</a>    ///
-<a href=#319 id=319 data-nosnippet>319</a>    /// # Note
+<a href=#310 id=310 data-nosnippet>310</a>    <span class="doccomment">/// Returns the [EIP-155](https://eips.ethereum.org/EIPS/eip-155) chain ID.
+<a href=#311 id=311 data-nosnippet>311</a>    /// This is akin to the EVM [CHAINID](https://www.evm.codes/?fork=cancun#46) opcode.
+<a href=#312 id=312 data-nosnippet>312</a>    ///
+<a href=#313 id=313 data-nosnippet>313</a>    /// # Note
+<a href=#314 id=314 data-nosnippet>314</a>    ///
+<a href=#315 id=315 data-nosnippet>315</a>    /// For more details visit: [`chain_id`][`crate::chain_id`]
+<a href=#316 id=316 data-nosnippet>316</a>    </span><span class="kw">fn </span>chain_id(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; U256;
+<a href=#317 id=317 data-nosnippet>317</a>
+<a href=#318 id=318 data-nosnippet>318</a>    <span class="doccomment">/// Returns the **reducible** native balance of the supplied address.
+<a href=#319 id=319 data-nosnippet>319</a>    /// This is akin to the EVM [BALANCE](https://www.evm.codes/?fork=cancun#31) opcode.
 <a href=#320 id=320 data-nosnippet>320</a>    ///
-<a href=#321 id=321 data-nosnippet>321</a>    /// For more details visit: [`weight_to_fee`][`crate::weight_to_fee`]
-<a href=#322 id=322 data-nosnippet>322</a>    </span><span class="kw">fn </span>weight_to_fee(<span class="kw-2">&amp;mut </span><span class="self">self</span>, gas: u64) -&gt; U256;
-<a href=#323 id=323 data-nosnippet>323</a>
-<a href=#324 id=324 data-nosnippet>324</a>    <span class="doccomment">/// Returns the timestamp of the current block.
-<a href=#325 id=325 data-nosnippet>325</a>    ///
-<a href=#326 id=326 data-nosnippet>326</a>    /// # Note
-<a href=#327 id=327 data-nosnippet>327</a>    ///
-<a href=#328 id=328 data-nosnippet>328</a>    /// For more details visit: [`block_timestamp`][`crate::block_timestamp`]
-<a href=#329 id=329 data-nosnippet>329</a>    </span><span class="kw">fn </span>block_timestamp&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::Timestamp;
-<a href=#330 id=330 data-nosnippet>330</a>
-<a href=#331 id=331 data-nosnippet>331</a>    <span class="doccomment">/// Retrieves the account id for a specified address.
-<a href=#332 id=332 data-nosnippet>332</a>    ///
-<a href=#333 id=333 data-nosnippet>333</a>    /// # Note
-<a href=#334 id=334 data-nosnippet>334</a>    ///
-<a href=#335 id=335 data-nosnippet>335</a>    /// For more details visit: [`to_account_id`][`crate::to_account_id`]
-<a href=#336 id=336 data-nosnippet>336</a>    </span><span class="kw">fn </span>to_account_id&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, addr: Address) -&gt; E::AccountId;
-<a href=#337 id=337 data-nosnippet>337</a>
-<a href=#338 id=338 data-nosnippet>338</a>    <span class="doccomment">/// Returns the address of the executed contract.
-<a href=#339 id=339 data-nosnippet>339</a>    ///
-<a href=#340 id=340 data-nosnippet>340</a>    /// # Note
+<a href=#321 id=321 data-nosnippet>321</a>    /// # Note
+<a href=#322 id=322 data-nosnippet>322</a>    ///
+<a href=#323 id=323 data-nosnippet>323</a>    /// For more details visit: [`balance_of`][`crate::balance_of`]
+<a href=#324 id=324 data-nosnippet>324</a>    </span><span class="kw">fn </span>balance_of(<span class="kw-2">&amp;mut </span><span class="self">self</span>, addr: Address) -&gt; U256;
+<a href=#325 id=325 data-nosnippet>325</a>
+<a href=#326 id=326 data-nosnippet>326</a>    <span class="doccomment">/// Returns the base fee.
+<a href=#327 id=327 data-nosnippet>327</a>    /// This is akin to the EVM [BASEFEE](https://www.evm.codes/?fork=cancun#48) opcode.
+<a href=#328 id=328 data-nosnippet>328</a>    ///
+<a href=#329 id=329 data-nosnippet>329</a>    /// # Note
+<a href=#330 id=330 data-nosnippet>330</a>    ///
+<a href=#331 id=331 data-nosnippet>331</a>    /// For more details visit: [`base_fee`][`crate::base_fee`]
+<a href=#332 id=332 data-nosnippet>332</a>    </span><span class="kw">fn </span>base_fee(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; U256;
+<a href=#333 id=333 data-nosnippet>333</a>
+<a href=#334 id=334 data-nosnippet>334</a>    <span class="doccomment">/// Returns the origin address (initator of the call stack).
+<a href=#335 id=335 data-nosnippet>335</a>    /// This is akin to the EVM [ORIGIN](https://www.evm.codes/?fork=cancun#32) opcode.
+<a href=#336 id=336 data-nosnippet>336</a>    ///
+<a href=#337 id=337 data-nosnippet>337</a>    /// # Errors
+<a href=#338 id=338 data-nosnippet>338</a>    ///
+<a href=#339 id=339 data-nosnippet>339</a>    /// - If there is no address associated with the origin (e.g. because the origin is
+<a href=#340 id=340 data-nosnippet>340</a>    ///   root).
 <a href=#341 id=341 data-nosnippet>341</a>    ///
-<a href=#342 id=342 data-nosnippet>342</a>    /// For more details visit: [`account_id`][`crate::account_id`]
-<a href=#343 id=343 data-nosnippet>343</a>    </span><span class="kw">fn </span>account_id&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::AccountId;
-<a href=#344 id=344 data-nosnippet>344</a>
-<a href=#345 id=345 data-nosnippet>345</a>    <span class="doccomment">/// Returns the address of the executed contract.
-<a href=#346 id=346 data-nosnippet>346</a>    ///
-<a href=#347 id=347 data-nosnippet>347</a>    /// # Note
-<a href=#348 id=348 data-nosnippet>348</a>    ///
-<a href=#349 id=349 data-nosnippet>349</a>    /// For more details visit: [`address`][`crate::address`]
-<a href=#350 id=350 data-nosnippet>350</a>    </span><span class="kw">fn </span>address(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Address;
-<a href=#351 id=351 data-nosnippet>351</a>
-<a href=#352 id=352 data-nosnippet>352</a>    <span class="doccomment">/// Returns the balance of the executed contract.
-<a href=#353 id=353 data-nosnippet>353</a>    ///
-<a href=#354 id=354 data-nosnippet>354</a>    /// # Note
-<a href=#355 id=355 data-nosnippet>355</a>    ///
-<a href=#356 id=356 data-nosnippet>356</a>    /// For more details visit: [`balance`][`crate::balance`]
-<a href=#357 id=357 data-nosnippet>357</a>    </span><span class="kw">fn </span>balance(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; U256;
-<a href=#358 id=358 data-nosnippet>358</a>
-<a href=#359 id=359 data-nosnippet>359</a>    <span class="doccomment">/// Returns the current block number.
+<a href=#342 id=342 data-nosnippet>342</a>    /// # Note
+<a href=#343 id=343 data-nosnippet>343</a>    ///
+<a href=#344 id=344 data-nosnippet>344</a>    /// For more details visit: [`origin`][`crate::origin`]
+<a href=#345 id=345 data-nosnippet>345</a>    </span><span class="kw">fn </span>origin(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Address;
+<a href=#346 id=346 data-nosnippet>346</a>
+<a href=#347 id=347 data-nosnippet>347</a>    <span class="doccomment">/// Returns the code size for a specified contract address.
+<a href=#348 id=348 data-nosnippet>348</a>    /// This is akin to the EVM [CODESIZE](https://www.evm.codes/?fork=cancun#38) opcode.
+<a href=#349 id=349 data-nosnippet>349</a>    ///
+<a href=#350 id=350 data-nosnippet>350</a>    /// # Note
+<a href=#351 id=351 data-nosnippet>351</a>    ///
+<a href=#352 id=352 data-nosnippet>352</a>    /// If `addr` is not a contract the `output` will be zero.
+<a href=#353 id=353 data-nosnippet>353</a>    /// For more details visit: [`code_size`][`crate::code_size`]
+<a href=#354 id=354 data-nosnippet>354</a>    </span><span class="kw">fn </span>code_size(<span class="kw-2">&amp;mut </span><span class="self">self</span>, addr: Address) -&gt; u64;
+<a href=#355 id=355 data-nosnippet>355</a>
+<a href=#356 id=356 data-nosnippet>356</a>    <span class="doccomment">/// Returns the block hash of the given block number.
+<a href=#357 id=357 data-nosnippet>357</a>    /// This is akin to the EVM [BLOCKHASH](https://www.evm.codes/?fork=cancun#40) opcode.
+<a href=#358 id=358 data-nosnippet>358</a>    ///
+<a href=#359 id=359 data-nosnippet>359</a>    /// # Note
 <a href=#360 id=360 data-nosnippet>360</a>    ///
-<a href=#361 id=361 data-nosnippet>361</a>    /// # Note
-<a href=#362 id=362 data-nosnippet>362</a>    ///
-<a href=#363 id=363 data-nosnippet>363</a>    /// For more details visit: [`block_number`][`crate::block_number`]
-<a href=#364 id=364 data-nosnippet>364</a>    </span><span class="kw">fn </span>block_number&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::BlockNumber;
-<a href=#365 id=365 data-nosnippet>365</a>
-<a href=#366 id=366 data-nosnippet>366</a>    <span class="doccomment">/// Returns the minimum balance that is required for creating an account
-<a href=#367 id=367 data-nosnippet>367</a>    /// (i.e. the chain's existential deposit).
+<a href=#361 id=361 data-nosnippet>361</a>    /// For more details visit: [`block_hash`][`crate::block_hash`]
+<a href=#362 id=362 data-nosnippet>362</a>    </span><span class="kw">fn </span>block_hash&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block_number: E::BlockNumber) -&gt; H256;
+<a href=#363 id=363 data-nosnippet>363</a>
+<a href=#364 id=364 data-nosnippet>364</a>    <span class="doccomment">/// Returns the current block author.
+<a href=#365 id=365 data-nosnippet>365</a>    /// This is akin to the EVM [COINBASE](https://www.evm.codes/?fork=cancun#41) opcode.
+<a href=#366 id=366 data-nosnippet>366</a>    ///
+<a href=#367 id=367 data-nosnippet>367</a>    /// # Note
 <a href=#368 id=368 data-nosnippet>368</a>    ///
-<a href=#369 id=369 data-nosnippet>369</a>    /// # Note
-<a href=#370 id=370 data-nosnippet>370</a>    ///
-<a href=#371 id=371 data-nosnippet>371</a>    /// For more details visit: [`minimum_balance`][`crate::minimum_balance`]
-<a href=#372 id=372 data-nosnippet>372</a>    </span><span class="kw">fn </span>minimum_balance(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; U256;
-<a href=#373 id=373 data-nosnippet>373</a>
-<a href=#374 id=374 data-nosnippet>374</a>    <span class="doccomment">/// Emits an event with the given event data.
+<a href=#369 id=369 data-nosnippet>369</a>    /// For more details visit: [`block_author`][`crate::block_author`]
+<a href=#370 id=370 data-nosnippet>370</a>    </span><span class="kw">fn </span>block_author(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Address;
+<a href=#371 id=371 data-nosnippet>371</a>
+<a href=#372 id=372 data-nosnippet>372</a>    <span class="doccomment">/// Returns the transferred value for the contract execution.
+<a href=#373 id=373 data-nosnippet>373</a>    ///
+<a href=#374 id=374 data-nosnippet>374</a>    /// # Note
 <a href=#375 id=375 data-nosnippet>375</a>    ///
-<a href=#376 id=376 data-nosnippet>376</a>    /// # Note
-<a href=#377 id=377 data-nosnippet>377</a>    ///
-<a href=#378 id=378 data-nosnippet>378</a>    /// For more details visit: [`emit_event`][`crate::emit_event`]
-<a href=#379 id=379 data-nosnippet>379</a>    </span><span class="kw">fn </span>emit_event&lt;Evt, Abi&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Evt)
-<a href=#380 id=380 data-nosnippet>380</a>    <span class="kw">where
-<a href=#381 id=381 data-nosnippet>381</a>        </span>Evt: Event&lt;Abi&gt;,
-<a href=#382 id=382 data-nosnippet>382</a>        Abi: TopicEncoder;
-<a href=#383 id=383 data-nosnippet>383</a>
-<a href=#384 id=384 data-nosnippet>384</a>    <span class="doccomment">/// Invokes a contract message and returns its result.
-<a href=#385 id=385 data-nosnippet>385</a>    ///
-<a href=#386 id=386 data-nosnippet>386</a>    /// # Note
+<a href=#376 id=376 data-nosnippet>376</a>    /// For more details visit: [`transferred_value`][`crate::transferred_value`]
+<a href=#377 id=377 data-nosnippet>377</a>    </span><span class="kw">fn </span>transferred_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; U256;
+<a href=#378 id=378 data-nosnippet>378</a>
+<a href=#379 id=379 data-nosnippet>379</a>    <span class="doccomment">/// Returns the price for the specified amount of gas.
+<a href=#380 id=380 data-nosnippet>380</a>    ///
+<a href=#381 id=381 data-nosnippet>381</a>    /// # Note
+<a href=#382 id=382 data-nosnippet>382</a>    ///
+<a href=#383 id=383 data-nosnippet>383</a>    /// For more details visit: [`weight_to_fee`][`crate::weight_to_fee`]
+<a href=#384 id=384 data-nosnippet>384</a>    </span><span class="kw">fn </span>weight_to_fee(<span class="kw-2">&amp;mut </span><span class="self">self</span>, gas: u64) -&gt; U256;
+<a href=#385 id=385 data-nosnippet>385</a>
+<a href=#386 id=386 data-nosnippet>386</a>    <span class="doccomment">/// Returns the timestamp of the current block.
 <a href=#387 id=387 data-nosnippet>387</a>    ///
-<a href=#388 id=388 data-nosnippet>388</a>    /// **This will call into the latest `call_v2` host function.**
+<a href=#388 id=388 data-nosnippet>388</a>    /// # Note
 <a href=#389 id=389 data-nosnippet>389</a>    ///
-<a href=#390 id=390 data-nosnippet>390</a>    /// For more details visit: [`invoke_contract`][`crate::invoke_contract`]
-<a href=#391 id=391 data-nosnippet>391</a>    </span><span class="kw">fn </span>invoke_contract&lt;E, Args, R, Abi&gt;(
-<a href=#392 id=392 data-nosnippet>392</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#393 id=393 data-nosnippet>393</a>        call_data: <span class="kw-2">&amp;</span>CallParams&lt;E, Call, Args, R, Abi&gt;,
-<a href=#394 id=394 data-nosnippet>394</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;&gt;
-<a href=#395 id=395 data-nosnippet>395</a>    <span class="kw">where
-<a href=#396 id=396 data-nosnippet>396</a>        </span>E: Environment,
-<a href=#397 id=397 data-nosnippet>397</a>        Args: EncodeArgsWith&lt;Abi&gt;,
-<a href=#398 id=398 data-nosnippet>398</a>        R: DecodeMessageResult&lt;Abi&gt;;
+<a href=#390 id=390 data-nosnippet>390</a>    /// For more details visit: [`block_timestamp`][`crate::block_timestamp`]
+<a href=#391 id=391 data-nosnippet>391</a>    </span><span class="kw">fn </span>block_timestamp&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::Timestamp;
+<a href=#392 id=392 data-nosnippet>392</a>
+<a href=#393 id=393 data-nosnippet>393</a>    <span class="doccomment">/// Retrieves the account id for a specified address.
+<a href=#394 id=394 data-nosnippet>394</a>    ///
+<a href=#395 id=395 data-nosnippet>395</a>    /// # Note
+<a href=#396 id=396 data-nosnippet>396</a>    ///
+<a href=#397 id=397 data-nosnippet>397</a>    /// For more details visit: [`to_account_id`][`crate::to_account_id`]
+<a href=#398 id=398 data-nosnippet>398</a>    </span><span class="kw">fn </span>to_account_id&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, addr: Address) -&gt; E::AccountId;
 <a href=#399 id=399 data-nosnippet>399</a>
-<a href=#400 id=400 data-nosnippet>400</a>    <span class="doccomment">/// Invokes a contract message via delegate call and returns its result.
+<a href=#400 id=400 data-nosnippet>400</a>    <span class="doccomment">/// Returns the address of the executed contract.
 <a href=#401 id=401 data-nosnippet>401</a>    ///
 <a href=#402 id=402 data-nosnippet>402</a>    /// # Note
 <a href=#403 id=403 data-nosnippet>403</a>    ///
-<a href=#404 id=404 data-nosnippet>404</a>    /// For more details visit:
-<a href=#405 id=405 data-nosnippet>405</a>    /// [`invoke_contract_delegate`][`crate::invoke_contract_delegate`]
-<a href=#406 id=406 data-nosnippet>406</a>    </span><span class="kw">fn </span>invoke_contract_delegate&lt;E, Args, R, Abi&gt;(
-<a href=#407 id=407 data-nosnippet>407</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#408 id=408 data-nosnippet>408</a>        call_data: <span class="kw-2">&amp;</span>CallParams&lt;E, DelegateCall, Args, R, Abi&gt;,
-<a href=#409 id=409 data-nosnippet>409</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;&gt;
-<a href=#410 id=410 data-nosnippet>410</a>    <span class="kw">where
-<a href=#411 id=411 data-nosnippet>411</a>        </span>E: Environment,
-<a href=#412 id=412 data-nosnippet>412</a>        Args: EncodeArgsWith&lt;Abi&gt;,
-<a href=#413 id=413 data-nosnippet>413</a>        R: DecodeMessageResult&lt;Abi&gt;;
-<a href=#414 id=414 data-nosnippet>414</a>
-<a href=#415 id=415 data-nosnippet>415</a>    <span class="doccomment">/// Instantiates another contract.
-<a href=#416 id=416 data-nosnippet>416</a>    ///
-<a href=#417 id=417 data-nosnippet>417</a>    /// # Note
-<a href=#418 id=418 data-nosnippet>418</a>    ///
-<a href=#419 id=419 data-nosnippet>419</a>    /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
-<a href=#420 id=420 data-nosnippet>420</a>    </span><span class="kw">fn </span>instantiate_contract&lt;E, ContractRef, Args, R, Abi&gt;(
-<a href=#421 id=421 data-nosnippet>421</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#422 id=422 data-nosnippet>422</a>        params: <span class="kw-2">&amp;</span>CreateParams&lt;E, ContractRef, LimitParamsV2, Args, R, Abi&gt;,
-<a href=#423 id=423 data-nosnippet>423</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;
-<a href=#424 id=424 data-nosnippet>424</a>        ink_primitives::ConstructorResult&lt;
-<a href=#425 id=425 data-nosnippet>425</a>            &lt;R <span class="kw">as </span>ConstructorReturnType&lt;ContractRef, Abi&gt;&gt;::Output,
-<a href=#426 id=426 data-nosnippet>426</a>        &gt;,
-<a href=#427 id=427 data-nosnippet>427</a>    &gt;
-<a href=#428 id=428 data-nosnippet>428</a>    <span class="kw">where
-<a href=#429 id=429 data-nosnippet>429</a>        </span>E: Environment,
-<a href=#430 id=430 data-nosnippet>430</a>        ContractRef: FromAddr + <span class="kw">crate</span>::ContractReverseReference,
-<a href=#431 id=431 data-nosnippet>431</a>        &lt;ContractRef <span class="kw">as </span><span class="kw">crate</span>::ContractReverseReference&gt;::Type:
-<a href=#432 id=432 data-nosnippet>432</a>            <span class="kw">crate</span>::reflect::ContractConstructorDecoder,
-<a href=#433 id=433 data-nosnippet>433</a>        Args: EncodeArgsWith&lt;Abi&gt;,
-<a href=#434 id=434 data-nosnippet>434</a>        R: ConstructorReturnType&lt;ContractRef, Abi&gt;;
+<a href=#404 id=404 data-nosnippet>404</a>    /// For more details visit: [`account_id`][`crate::account_id`]
+<a href=#405 id=405 data-nosnippet>405</a>    </span><span class="kw">fn </span>account_id&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::AccountId;
+<a href=#406 id=406 data-nosnippet>406</a>
+<a href=#407 id=407 data-nosnippet>407</a>    <span class="doccomment">/// Returns the address of the executed contract.
+<a href=#408 id=408 data-nosnippet>408</a>    ///
+<a href=#409 id=409 data-nosnippet>409</a>    /// # Note
+<a href=#410 id=410 data-nosnippet>410</a>    ///
+<a href=#411 id=411 data-nosnippet>411</a>    /// For more details visit: [`address`][`crate::address`]
+<a href=#412 id=412 data-nosnippet>412</a>    </span><span class="kw">fn </span>address(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Address;
+<a href=#413 id=413 data-nosnippet>413</a>
+<a href=#414 id=414 data-nosnippet>414</a>    <span class="doccomment">/// Returns the balance of the executed contract.
+<a href=#415 id=415 data-nosnippet>415</a>    ///
+<a href=#416 id=416 data-nosnippet>416</a>    /// # Note
+<a href=#417 id=417 data-nosnippet>417</a>    ///
+<a href=#418 id=418 data-nosnippet>418</a>    /// For more details visit: [`balance`][`crate::balance`]
+<a href=#419 id=419 data-nosnippet>419</a>    </span><span class="kw">fn </span>balance(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; U256;
+<a href=#420 id=420 data-nosnippet>420</a>
+<a href=#421 id=421 data-nosnippet>421</a>    <span class="doccomment">/// Returns the current block number.
+<a href=#422 id=422 data-nosnippet>422</a>    ///
+<a href=#423 id=423 data-nosnippet>423</a>    /// # Note
+<a href=#424 id=424 data-nosnippet>424</a>    ///
+<a href=#425 id=425 data-nosnippet>425</a>    /// For more details visit: [`block_number`][`crate::block_number`]
+<a href=#426 id=426 data-nosnippet>426</a>    </span><span class="kw">fn </span>block_number&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::BlockNumber;
+<a href=#427 id=427 data-nosnippet>427</a>
+<a href=#428 id=428 data-nosnippet>428</a>    <span class="doccomment">/// Returns the minimum balance that is required for creating an account
+<a href=#429 id=429 data-nosnippet>429</a>    /// (i.e. the chain's existential deposit).
+<a href=#430 id=430 data-nosnippet>430</a>    ///
+<a href=#431 id=431 data-nosnippet>431</a>    /// # Note
+<a href=#432 id=432 data-nosnippet>432</a>    ///
+<a href=#433 id=433 data-nosnippet>433</a>    /// For more details visit: [`minimum_balance`][`crate::minimum_balance`]
+<a href=#434 id=434 data-nosnippet>434</a>    </span><span class="kw">fn </span>minimum_balance(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; U256;
 <a href=#435 id=435 data-nosnippet>435</a>
-<a href=#436 id=436 data-nosnippet>436</a>    <span class="doccomment">/// Terminates a smart contract.
+<a href=#436 id=436 data-nosnippet>436</a>    <span class="doccomment">/// Emits an event with the given event data.
 <a href=#437 id=437 data-nosnippet>437</a>    ///
 <a href=#438 id=438 data-nosnippet>438</a>    /// # Note
 <a href=#439 id=439 data-nosnippet>439</a>    ///
-<a href=#440 id=440 data-nosnippet>440</a>    /// For more details visit: [`terminate_contract`][`crate::terminate_contract`]
-<a href=#441 id=441 data-nosnippet>441</a>    </span><span class="attr">#[cfg(feature = <span class="string">"unstable-hostfn"</span>)]
-<a href=#442 id=442 data-nosnippet>442</a>    </span><span class="kw">fn </span>terminate_contract(<span class="kw-2">&amp;mut </span><span class="self">self</span>, beneficiary: Address) -&gt; !;
-<a href=#443 id=443 data-nosnippet>443</a>
-<a href=#444 id=444 data-nosnippet>444</a>    <span class="doccomment">/// Transfers value from the contract to the destination account ID.
-<a href=#445 id=445 data-nosnippet>445</a>    ///
-<a href=#446 id=446 data-nosnippet>446</a>    /// # Note
+<a href=#440 id=440 data-nosnippet>440</a>    /// For more details visit: [`emit_event`][`crate::emit_event`]
+<a href=#441 id=441 data-nosnippet>441</a>    </span><span class="kw">fn </span>emit_event&lt;Evt, Abi&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>Evt)
+<a href=#442 id=442 data-nosnippet>442</a>    <span class="kw">where
+<a href=#443 id=443 data-nosnippet>443</a>        </span>Evt: Event&lt;Abi&gt;,
+<a href=#444 id=444 data-nosnippet>444</a>        Abi: TopicEncoder;
+<a href=#445 id=445 data-nosnippet>445</a>
+<a href=#446 id=446 data-nosnippet>446</a>    <span class="doccomment">/// Invokes a contract message and returns its result.
 <a href=#447 id=447 data-nosnippet>447</a>    ///
-<a href=#448 id=448 data-nosnippet>448</a>    /// For more details visit: [`transfer`][`crate::transfer`]
-<a href=#449 id=449 data-nosnippet>449</a>    </span><span class="kw">fn </span>transfer&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, destination: Address, value: U256) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
-<a href=#450 id=450 data-nosnippet>450</a>    <span class="kw">where
-<a href=#451 id=451 data-nosnippet>451</a>        </span>E: Environment;
-<a href=#452 id=452 data-nosnippet>452</a>
-<a href=#453 id=453 data-nosnippet>453</a>    <span class="doccomment">/// Checks whether a specified contract lives at `addr`.
-<a href=#454 id=454 data-nosnippet>454</a>    ///
-<a href=#455 id=455 data-nosnippet>455</a>    /// # Note
-<a href=#456 id=456 data-nosnippet>456</a>    ///
-<a href=#457 id=457 data-nosnippet>457</a>    /// For more details visit: [`is_contract`][`crate::is_contract`]
-<a href=#458 id=458 data-nosnippet>458</a>    </span><span class="kw">fn </span>is_contract(<span class="kw-2">&amp;mut </span><span class="self">self</span>, account: <span class="kw-2">&amp;</span>Address) -&gt; bool;
-<a href=#459 id=459 data-nosnippet>459</a>
-<a href=#460 id=460 data-nosnippet>460</a>    <span class="doccomment">/// Checks whether the caller of the current contract is the origin of the whole call
-<a href=#461 id=461 data-nosnippet>461</a>    /// stack.
-<a href=#462 id=462 data-nosnippet>462</a>    ///
-<a href=#463 id=463 data-nosnippet>463</a>    /// # Note
-<a href=#464 id=464 data-nosnippet>464</a>    ///
-<a href=#465 id=465 data-nosnippet>465</a>    /// For more details visit: [`caller_is_origin`][`crate::caller_is_origin`]
-<a href=#466 id=466 data-nosnippet>466</a>    </span><span class="kw">fn </span>caller_is_origin(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool;
-<a href=#467 id=467 data-nosnippet>467</a>
-<a href=#468 id=468 data-nosnippet>468</a>    <span class="doccomment">/// Checks whether the caller of the current contract is root.
-<a href=#469 id=469 data-nosnippet>469</a>    ///
-<a href=#470 id=470 data-nosnippet>470</a>    /// # Note
-<a href=#471 id=471 data-nosnippet>471</a>    ///
-<a href=#472 id=472 data-nosnippet>472</a>    /// For more details visit: [`caller_is_root`][`crate::caller_is_root`]
-<a href=#473 id=473 data-nosnippet>473</a>    </span><span class="kw">fn </span>caller_is_root(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool;
-<a href=#474 id=474 data-nosnippet>474</a>
-<a href=#475 id=475 data-nosnippet>475</a>    <span class="doccomment">/// Retrieves the code hash of the contract at the given `account` id.
-<a href=#476 id=476 data-nosnippet>476</a>    ///
-<a href=#477 id=477 data-nosnippet>477</a>    /// # Note
+<a href=#448 id=448 data-nosnippet>448</a>    /// # Note
+<a href=#449 id=449 data-nosnippet>449</a>    ///
+<a href=#450 id=450 data-nosnippet>450</a>    /// **This will call into the latest `call_v2` host function.**
+<a href=#451 id=451 data-nosnippet>451</a>    ///
+<a href=#452 id=452 data-nosnippet>452</a>    /// For more details visit: [`invoke_contract`][`crate::invoke_contract`]
+<a href=#453 id=453 data-nosnippet>453</a>    </span><span class="kw">fn </span>invoke_contract&lt;E, Args, R, Abi&gt;(
+<a href=#454 id=454 data-nosnippet>454</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#455 id=455 data-nosnippet>455</a>        call_data: <span class="kw-2">&amp;</span>CallParams&lt;E, Call, Args, R, Abi&gt;,
+<a href=#456 id=456 data-nosnippet>456</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;&gt;
+<a href=#457 id=457 data-nosnippet>457</a>    <span class="kw">where
+<a href=#458 id=458 data-nosnippet>458</a>        </span>E: Environment,
+<a href=#459 id=459 data-nosnippet>459</a>        Args: EncodeArgsWith&lt;Abi&gt;,
+<a href=#460 id=460 data-nosnippet>460</a>        R: DecodeMessageResult&lt;Abi&gt;;
+<a href=#461 id=461 data-nosnippet>461</a>
+<a href=#462 id=462 data-nosnippet>462</a>    <span class="doccomment">/// Invokes a contract message via delegate call and returns its result.
+<a href=#463 id=463 data-nosnippet>463</a>    ///
+<a href=#464 id=464 data-nosnippet>464</a>    /// # Note
+<a href=#465 id=465 data-nosnippet>465</a>    ///
+<a href=#466 id=466 data-nosnippet>466</a>    /// For more details visit:
+<a href=#467 id=467 data-nosnippet>467</a>    /// [`invoke_contract_delegate`][`crate::invoke_contract_delegate`]
+<a href=#468 id=468 data-nosnippet>468</a>    </span><span class="kw">fn </span>invoke_contract_delegate&lt;E, Args, R, Abi&gt;(
+<a href=#469 id=469 data-nosnippet>469</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#470 id=470 data-nosnippet>470</a>        call_data: <span class="kw-2">&amp;</span>CallParams&lt;E, DelegateCall, Args, R, Abi&gt;,
+<a href=#471 id=471 data-nosnippet>471</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;&gt;
+<a href=#472 id=472 data-nosnippet>472</a>    <span class="kw">where
+<a href=#473 id=473 data-nosnippet>473</a>        </span>E: Environment,
+<a href=#474 id=474 data-nosnippet>474</a>        Args: EncodeArgsWith&lt;Abi&gt;,
+<a href=#475 id=475 data-nosnippet>475</a>        R: DecodeMessageResult&lt;Abi&gt;;
+<a href=#476 id=476 data-nosnippet>476</a>
+<a href=#477 id=477 data-nosnippet>477</a>    <span class="doccomment">/// Instantiates another contract.
 <a href=#478 id=478 data-nosnippet>478</a>    ///
-<a href=#479 id=479 data-nosnippet>479</a>    /// For more details visit: [`code_hash`][`crate::code_hash`]
-<a href=#480 id=480 data-nosnippet>480</a>    </span><span class="kw">fn </span>code_hash(<span class="kw-2">&amp;mut </span><span class="self">self</span>, account: <span class="kw-2">&amp;</span>Address)
-<a href=#481 id=481 data-nosnippet>481</a>    -&gt; core::result::Result&lt;H256, CodeHashErr&gt;;
-<a href=#482 id=482 data-nosnippet>482</a>
-<a href=#483 id=483 data-nosnippet>483</a>    <span class="doccomment">/// Retrieves the code hash of the currently executing contract.
-<a href=#484 id=484 data-nosnippet>484</a>    ///
-<a href=#485 id=485 data-nosnippet>485</a>    /// # Note
-<a href=#486 id=486 data-nosnippet>486</a>    ///
-<a href=#487 id=487 data-nosnippet>487</a>    /// For more details visit: [`own_code_hash`][`crate::own_code_hash`]
-<a href=#488 id=488 data-nosnippet>488</a>    </span><span class="kw">fn </span>own_code_hash(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; H256;
-<a href=#489 id=489 data-nosnippet>489</a>
-<a href=#490 id=490 data-nosnippet>490</a>    <span class="doccomment">/// Estimates the [`Weight`] required to execute a given XCM message.
-<a href=#491 id=491 data-nosnippet>491</a>    ///
-<a href=#492 id=492 data-nosnippet>492</a>    /// # Note
-<a href=#493 id=493 data-nosnippet>493</a>    ///
-<a href=#494 id=494 data-nosnippet>494</a>    /// For more details visit: [`xcm`][`crate::xcm_weigh`].
-<a href=#495 id=495 data-nosnippet>495</a>    </span><span class="attr">#[cfg(feature = <span class="string">"xcm"</span>)]
-<a href=#496 id=496 data-nosnippet>496</a>    </span><span class="kw">fn </span>xcm_weigh&lt;Call&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Weight&gt;
-<a href=#497 id=497 data-nosnippet>497</a>    <span class="kw">where
-<a href=#498 id=498 data-nosnippet>498</a>        </span>Call: scale::Encode;
-<a href=#499 id=499 data-nosnippet>499</a>
-<a href=#500 id=500 data-nosnippet>500</a>    <span class="doccomment">/// Execute an XCM message locally, using the contract's address as the origin.
+<a href=#479 id=479 data-nosnippet>479</a>    /// # Note
+<a href=#480 id=480 data-nosnippet>480</a>    ///
+<a href=#481 id=481 data-nosnippet>481</a>    /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
+<a href=#482 id=482 data-nosnippet>482</a>    </span><span class="kw">fn </span>instantiate_contract&lt;E, ContractRef, Args, R, Abi&gt;(
+<a href=#483 id=483 data-nosnippet>483</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#484 id=484 data-nosnippet>484</a>        params: <span class="kw-2">&amp;</span>CreateParams&lt;E, ContractRef, LimitParamsV2, Args, R, Abi&gt;,
+<a href=#485 id=485 data-nosnippet>485</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;
+<a href=#486 id=486 data-nosnippet>486</a>        ink_primitives::ConstructorResult&lt;
+<a href=#487 id=487 data-nosnippet>487</a>            &lt;R <span class="kw">as </span>ConstructorReturnType&lt;ContractRef, Abi&gt;&gt;::Output,
+<a href=#488 id=488 data-nosnippet>488</a>        &gt;,
+<a href=#489 id=489 data-nosnippet>489</a>    &gt;
+<a href=#490 id=490 data-nosnippet>490</a>    <span class="kw">where
+<a href=#491 id=491 data-nosnippet>491</a>        </span>E: Environment,
+<a href=#492 id=492 data-nosnippet>492</a>        ContractRef: FromAddr + <span class="kw">crate</span>::ContractReverseReference,
+<a href=#493 id=493 data-nosnippet>493</a>        &lt;ContractRef <span class="kw">as </span><span class="kw">crate</span>::ContractReverseReference&gt;::Type:
+<a href=#494 id=494 data-nosnippet>494</a>            <span class="kw">crate</span>::reflect::ContractConstructorDecoder,
+<a href=#495 id=495 data-nosnippet>495</a>        Args: EncodeArgsWith&lt;Abi&gt;,
+<a href=#496 id=496 data-nosnippet>496</a>        R: ConstructorReturnType&lt;ContractRef, Abi&gt;;
+<a href=#497 id=497 data-nosnippet>497</a>
+<a href=#498 id=498 data-nosnippet>498</a>    <span class="doccomment">/// Terminates a smart contract.
+<a href=#499 id=499 data-nosnippet>499</a>    ///
+<a href=#500 id=500 data-nosnippet>500</a>    /// # Note
 <a href=#501 id=501 data-nosnippet>501</a>    ///
-<a href=#502 id=502 data-nosnippet>502</a>    /// # Note
-<a href=#503 id=503 data-nosnippet>503</a>    ///
-<a href=#504 id=504 data-nosnippet>504</a>    /// For more details visit: [`xcm`][`crate::xcm_execute`].
-<a href=#505 id=505 data-nosnippet>505</a>    </span><span class="attr">#[cfg(feature = <span class="string">"xcm"</span>)]
-<a href=#506 id=506 data-nosnippet>506</a>    </span><span class="kw">fn </span>xcm_execute&lt;Call&gt;(
-<a href=#507 id=507 data-nosnippet>507</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#508 id=508 data-nosnippet>508</a>        msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;,
-<a href=#509 id=509 data-nosnippet>509</a>        weight: Weight,
-<a href=#510 id=510 data-nosnippet>510</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
-<a href=#511 id=511 data-nosnippet>511</a>    <span class="kw">where
-<a href=#512 id=512 data-nosnippet>512</a>        </span>Call: scale::Encode;
-<a href=#513 id=513 data-nosnippet>513</a>
-<a href=#514 id=514 data-nosnippet>514</a>    <span class="doccomment">/// Send an XCM message, using the contract's address as the origin.
-<a href=#515 id=515 data-nosnippet>515</a>    ///
-<a href=#516 id=516 data-nosnippet>516</a>    /// # Note
-<a href=#517 id=517 data-nosnippet>517</a>    ///
-<a href=#518 id=518 data-nosnippet>518</a>    /// For more details visit: [`xcm`][`crate::xcm_send`].
-<a href=#519 id=519 data-nosnippet>519</a>    </span><span class="attr">#[cfg(feature = <span class="string">"xcm"</span>)]
-<a href=#520 id=520 data-nosnippet>520</a>    </span><span class="kw">fn </span>xcm_send&lt;Call&gt;(
-<a href=#521 id=521 data-nosnippet>521</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#522 id=522 data-nosnippet>522</a>        dest: <span class="kw-2">&amp;</span>xcm::VersionedLocation,
-<a href=#523 id=523 data-nosnippet>523</a>        msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;,
-<a href=#524 id=524 data-nosnippet>524</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
-<a href=#525 id=525 data-nosnippet>525</a>    <span class="kw">where
-<a href=#526 id=526 data-nosnippet>526</a>        </span>Call: scale::Encode;
-<a href=#527 id=527 data-nosnippet>527</a>}</code></pre></div></section></main></body></html>
+<a href=#502 id=502 data-nosnippet>502</a>    /// For more details visit: [`terminate_contract`][`crate::terminate_contract`]
+<a href=#503 id=503 data-nosnippet>503</a>    </span><span class="attr">#[cfg(feature = <span class="string">"unstable-hostfn"</span>)]
+<a href=#504 id=504 data-nosnippet>504</a>    </span><span class="kw">fn </span>terminate_contract(<span class="kw-2">&amp;mut </span><span class="self">self</span>, beneficiary: Address) -&gt; !;
+<a href=#505 id=505 data-nosnippet>505</a>
+<a href=#506 id=506 data-nosnippet>506</a>    <span class="doccomment">/// Transfers value from the contract to the destination account ID.
+<a href=#507 id=507 data-nosnippet>507</a>    ///
+<a href=#508 id=508 data-nosnippet>508</a>    /// # Note
+<a href=#509 id=509 data-nosnippet>509</a>    ///
+<a href=#510 id=510 data-nosnippet>510</a>    /// For more details visit: [`transfer`][`crate::transfer`]
+<a href=#511 id=511 data-nosnippet>511</a>    </span><span class="kw">fn </span>transfer&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, destination: Address, value: U256) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+<a href=#512 id=512 data-nosnippet>512</a>    <span class="kw">where
+<a href=#513 id=513 data-nosnippet>513</a>        </span>E: Environment;
+<a href=#514 id=514 data-nosnippet>514</a>
+<a href=#515 id=515 data-nosnippet>515</a>    <span class="doccomment">/// Checks whether a specified contract lives at `addr`.
+<a href=#516 id=516 data-nosnippet>516</a>    ///
+<a href=#517 id=517 data-nosnippet>517</a>    /// # Note
+<a href=#518 id=518 data-nosnippet>518</a>    ///
+<a href=#519 id=519 data-nosnippet>519</a>    /// For more details visit: [`is_contract`][`crate::is_contract`]
+<a href=#520 id=520 data-nosnippet>520</a>    </span><span class="kw">fn </span>is_contract(<span class="kw-2">&amp;mut </span><span class="self">self</span>, account: <span class="kw-2">&amp;</span>Address) -&gt; bool;
+<a href=#521 id=521 data-nosnippet>521</a>
+<a href=#522 id=522 data-nosnippet>522</a>    <span class="doccomment">/// Checks whether the caller of the current contract is the origin of the whole call
+<a href=#523 id=523 data-nosnippet>523</a>    /// stack.
+<a href=#524 id=524 data-nosnippet>524</a>    ///
+<a href=#525 id=525 data-nosnippet>525</a>    /// # Note
+<a href=#526 id=526 data-nosnippet>526</a>    ///
+<a href=#527 id=527 data-nosnippet>527</a>    /// For more details visit: [`caller_is_origin`][`crate::caller_is_origin`]
+<a href=#528 id=528 data-nosnippet>528</a>    </span><span class="kw">fn </span>caller_is_origin(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool;
+<a href=#529 id=529 data-nosnippet>529</a>
+<a href=#530 id=530 data-nosnippet>530</a>    <span class="doccomment">/// Checks whether the caller of the current contract is root.
+<a href=#531 id=531 data-nosnippet>531</a>    ///
+<a href=#532 id=532 data-nosnippet>532</a>    /// # Note
+<a href=#533 id=533 data-nosnippet>533</a>    ///
+<a href=#534 id=534 data-nosnippet>534</a>    /// For more details visit: [`caller_is_root`][`crate::caller_is_root`]
+<a href=#535 id=535 data-nosnippet>535</a>    </span><span class="kw">fn </span>caller_is_root(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool;
+<a href=#536 id=536 data-nosnippet>536</a>
+<a href=#537 id=537 data-nosnippet>537</a>    <span class="doccomment">/// Retrieves the code hash of the contract at the given `account` id.
+<a href=#538 id=538 data-nosnippet>538</a>    ///
+<a href=#539 id=539 data-nosnippet>539</a>    /// # Note
+<a href=#540 id=540 data-nosnippet>540</a>    ///
+<a href=#541 id=541 data-nosnippet>541</a>    /// For more details visit: [`code_hash`][`crate::code_hash`]
+<a href=#542 id=542 data-nosnippet>542</a>    </span><span class="kw">fn </span>code_hash(<span class="kw-2">&amp;mut </span><span class="self">self</span>, account: <span class="kw-2">&amp;</span>Address)
+<a href=#543 id=543 data-nosnippet>543</a>    -&gt; core::result::Result&lt;H256, CodeHashErr&gt;;
+<a href=#544 id=544 data-nosnippet>544</a>
+<a href=#545 id=545 data-nosnippet>545</a>    <span class="doccomment">/// Retrieves the code hash of the currently executing contract.
+<a href=#546 id=546 data-nosnippet>546</a>    ///
+<a href=#547 id=547 data-nosnippet>547</a>    /// # Note
+<a href=#548 id=548 data-nosnippet>548</a>    ///
+<a href=#549 id=549 data-nosnippet>549</a>    /// For more details visit: [`own_code_hash`][`crate::own_code_hash`]
+<a href=#550 id=550 data-nosnippet>550</a>    </span><span class="kw">fn </span>own_code_hash(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; H256;
+<a href=#551 id=551 data-nosnippet>551</a>
+<a href=#552 id=552 data-nosnippet>552</a>    <span class="doccomment">/// Estimates the [`Weight`] required to execute a given XCM message.
+<a href=#553 id=553 data-nosnippet>553</a>    ///
+<a href=#554 id=554 data-nosnippet>554</a>    /// # Note
+<a href=#555 id=555 data-nosnippet>555</a>    ///
+<a href=#556 id=556 data-nosnippet>556</a>    /// For more details visit: [`xcm`][`crate::xcm_weigh`].
+<a href=#557 id=557 data-nosnippet>557</a>    </span><span class="attr">#[cfg(feature = <span class="string">"xcm"</span>)]
+<a href=#558 id=558 data-nosnippet>558</a>    </span><span class="kw">fn </span>xcm_weigh&lt;Call&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Weight&gt;
+<a href=#559 id=559 data-nosnippet>559</a>    <span class="kw">where
+<a href=#560 id=560 data-nosnippet>560</a>        </span>Call: scale::Encode;
+<a href=#561 id=561 data-nosnippet>561</a>
+<a href=#562 id=562 data-nosnippet>562</a>    <span class="doccomment">/// Execute an XCM message locally, using the contract's address as the origin.
+<a href=#563 id=563 data-nosnippet>563</a>    ///
+<a href=#564 id=564 data-nosnippet>564</a>    /// # Note
+<a href=#565 id=565 data-nosnippet>565</a>    ///
+<a href=#566 id=566 data-nosnippet>566</a>    /// For more details visit: [`xcm`][`crate::xcm_execute`].
+<a href=#567 id=567 data-nosnippet>567</a>    </span><span class="attr">#[cfg(feature = <span class="string">"xcm"</span>)]
+<a href=#568 id=568 data-nosnippet>568</a>    </span><span class="kw">fn </span>xcm_execute&lt;Call&gt;(
+<a href=#569 id=569 data-nosnippet>569</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#570 id=570 data-nosnippet>570</a>        msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;,
+<a href=#571 id=571 data-nosnippet>571</a>        weight: Weight,
+<a href=#572 id=572 data-nosnippet>572</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+<a href=#573 id=573 data-nosnippet>573</a>    <span class="kw">where
+<a href=#574 id=574 data-nosnippet>574</a>        </span>Call: scale::Encode;
+<a href=#575 id=575 data-nosnippet>575</a>
+<a href=#576 id=576 data-nosnippet>576</a>    <span class="doccomment">/// Send an XCM message, using the contract's address as the origin.
+<a href=#577 id=577 data-nosnippet>577</a>    ///
+<a href=#578 id=578 data-nosnippet>578</a>    /// # Note
+<a href=#579 id=579 data-nosnippet>579</a>    ///
+<a href=#580 id=580 data-nosnippet>580</a>    /// For more details visit: [`xcm`][`crate::xcm_send`].
+<a href=#581 id=581 data-nosnippet>581</a>    </span><span class="attr">#[cfg(feature = <span class="string">"xcm"</span>)]
+<a href=#582 id=582 data-nosnippet>582</a>    </span><span class="kw">fn </span>xcm_send&lt;Call&gt;(
+<a href=#583 id=583 data-nosnippet>583</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#584 id=584 data-nosnippet>584</a>        dest: <span class="kw-2">&amp;</span>xcm::VersionedLocation,
+<a href=#585 id=585 data-nosnippet>585</a>        msg: <span class="kw-2">&amp;</span>xcm::VersionedXcm&lt;Call&gt;,
+<a href=#586 id=586 data-nosnippet>586</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+<a href=#587 id=587 data-nosnippet>587</a>    <span class="kw">where
+<a href=#588 id=588 data-nosnippet>588</a>        </span>Call: scale::Encode;
+<a href=#589 id=589 data-nosnippet>589</a>}</code></pre></div></section></main></body></html>
