@@ -19,7 +19,7 @@ if_chain = "1.0.2"
 # The following `rev` is taken from the examples of the
 # dylint version that we use:
 # https://github.com/trailofbits/dylint/blob/v4.1.0/examples/supplementary/Cargo.toml#L40
-parity_clippy_utils = { package = "clippy_utils", git = "https://github.com/rust-lang/rust-clippy", rev = "0450db33a5d8587f7c1d4b6d233dac963605766b" }
+ink_clippy_utils = { package = "clippy_utils", git = "https://github.com/rust-lang/rust-clippy", rev = "0450db33a5d8587f7c1d4b6d233dac963605766b" }
 
 [package.metadata.rust-analyzer]
 rustc_private = true

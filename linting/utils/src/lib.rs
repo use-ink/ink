@@ -30,7 +30,7 @@ extern crate rustc_session;
 extern crate rustc_span;
 extern crate rustc_type_ir;
 
-pub use parity_clippy_utils as clippy;
+pub use ink_clippy_utils as clippy;
 
 use if_chain::if_chain;
 use rustc_hir::{
