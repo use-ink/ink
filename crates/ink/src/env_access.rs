@@ -45,7 +45,7 @@ use ink_primitives::{
     abi::{
         Ink,
         Sol,
-    }
+    },
 };
 use pallet_revive_uapi::ReturnErrorCode;
 

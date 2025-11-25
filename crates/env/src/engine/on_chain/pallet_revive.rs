@@ -82,7 +82,6 @@ use crate::{
     types::FromLittleEndian,
 };
 
-
 /// The code hash of an existing account without code.
 /// This is the `keccak256` hash of empty data.
 /// ```no_compile
