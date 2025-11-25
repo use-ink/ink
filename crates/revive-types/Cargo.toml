@@ -21,7 +21,7 @@ ink_primitives = { workspace = true }
 derive_more = { workspace = true, features = ["from", "try_into"] }
 sp-runtime = { workspace = true }
 pallet-revive-uapi = { workspace = true, features = ["scale"] }
-alloy-core = { workspace = true, features = ["sol-types"] }
+const-hex = { workspace = true }
 
 [dev-dependencies]
 serde_json = { workspace = true }
@@ -29,7 +29,7 @@ serde_json = { workspace = true }
 [features]
 default = ["std"]
 std = [
-    "alloy-core/std",
+    "const-hex/std",
     "scale/std",
     "scale-info/std",
     "ink_primitives/std",
