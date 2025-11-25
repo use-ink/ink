@@ -1111,18 +1111,12 @@ fn event_topic_works() {
         (sol_data::Bool, sol_data::Bytes),
         (false, AlloyBytes::new())
     );
-    // TODO: (@davidsemakula) Enable after padding fix in `alloy` is released.
-    // References:
-    // - https://github.com/alloy-rs/core/issues/998
-    // - https://github.com/alloy-rs/core/pull/1000
-    /*
     test_case!(
         Option<DynBytes>,
         Some(DynBytes(vec![100u8; 64])),
         (sol_data::Bool, sol_data::Bytes),
         (true, AlloyBytes(vec![100u8; 64].into()))
     );
-    */
     test_case!(Option<()>, None, (sol_data::Bool, ()), (false, ()));
     test_case!(Option<()>, Some(()), (sol_data::Bool, ()), (true, ()));
     test_case!(
