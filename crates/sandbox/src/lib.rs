@@ -281,3 +281,24 @@ impl IntoAccountId<AccountId32> for &ink_e2e::Keypair {
         AccountId32::from(self.public_key().0)
     }
 }
+
+impl IntoAccountId<AccountId32> for &ink_e2e::eth::EthKeypair {
+    /// Converts an Ethereum keypair to an AccountId32 using the fallback format.
+    ///
+    /// The fallback format is: `[H160 (20 bytes)][0xEE repeated 12 times]`
+    ///
+    /// This format is automatically recognized as "Ethereum-derived" by pallet-revive's
+    /// `is_eth_derived()` function, which means:
+    /// - No explicit account mapping is required
+    /// - The address roundtrip is lossless: H160 → AccountId32 → H160
+    fn into_account_id(self) -> AccountId32 {
+        // Get the native Ethereum H160 address
+        let eth_address = self.public_key().to_account_id();
+
+        // Create fallback AccountId32: [H160][0xEE; 12]
+        let mut account_bytes = [0xEE_u8; 32];
+        account_bytes[..20].copy_from_slice(&eth_address.0);
+
+        AccountId32::from(account_bytes)
+    }
+}

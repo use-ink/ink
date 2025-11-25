@@ -85,6 +85,40 @@ pub use subxt_signer::{
         dev::*,
     },
 };
+
+/// Ethereum keypair types for use with pallet-revive.
+///
+/// Using Ethereum keypairs is the recommended approach for interacting with
+/// pallet-revive contracts. Unlike Substrate keypairs, Ethereum keypairs:
+/// - Don't require explicit account mapping
+/// - Have perfect address roundtrip (H160 → AccountId32 → H160)
+/// - Work seamlessly with MetaMask and other Ethereum wallets
+///
+/// # Example
+/// ```ignore
+/// use ink_e2e::eth::{self, dev::alith};
+///
+/// let keypair = alith();
+/// let address = keypair.address(); // Native H160 Ethereum address
+/// ```
+pub mod eth {
+    pub use subxt_signer::eth::{
+        Keypair as EthKeypair,
+        PublicKey as EthPublicKey,
+        Signature as EthSignature,
+        dev,
+    };
+
+    // Re-export common dev accounts at module level for convenience
+    pub use subxt_signer::eth::dev::{
+        alith,
+        baltathar,
+        charleth,
+        dorothy,
+        ethan,
+        faith,
+    };
+}
 pub use tokio;
 pub use tracing;
 pub use tracing_subscriber;
@@ -223,5 +257,69 @@ impl IntoAddress for ink_primitives::AccountId {
     fn address(&self) -> Address {
         let bytes = *AsRef::<[u8; 32]>::as_ref(self);
         AccountIdMapper::to_address(&bytes)
+    }
+}
+
+impl IntoAddress for eth::EthKeypair {
+    /// Returns the native Ethereum H160 address for this keypair.
+    ///
+    /// This is derived using the standard Ethereum method:
+    /// `keccak256(uncompressed_pubkey[1..65])[12..32]`
+    ///
+    /// Unlike Substrate keypairs, this address has a perfect roundtrip:
+    /// - H160 → AccountId32 (fallback with 0xEE suffix) → H160 (strips suffix)
+    fn address(&self) -> Address {
+        // eth::PublicKey::to_account_id() returns AccountId20 which is the H160
+        // derived via keccak256(pubkey[1..65])[12..32]
+        let account_id_20 = self.public_key().to_account_id();
+        Address::from(account_id_20.0)
+    }
+}
+
+/// Trait for keypairs that can be used to sign transactions in e2e tests.
+///
+/// This trait abstracts over both Sr25519 (Substrate) and ECDSA (Ethereum) keypairs,
+/// allowing the e2e testing framework to work seamlessly with either.
+///
+/// # Implementors
+///
+/// - [`Keypair`] (Sr25519): Traditional Substrate keypairs from `subxt_signer::sr25519`
+/// - [`eth::EthKeypair`] (ECDSA): Ethereum keypairs from `subxt_signer::eth`
+///
+/// # Example
+///
+/// ```ignore
+/// use ink_e2e::{Signer, alice, eth::alith};
+///
+/// // Both Sr25519 and Ethereum keypairs can be used
+/// let sr25519_account: [u8; 32] = alice().account_id();
+/// let eth_account: [u8; 32] = alith().account_id();
+/// ```
+pub trait Signer: Send + Sync {
+    /// Returns the 32-byte account ID for this keypair.
+    ///
+    /// For Sr25519 keypairs, this is the raw public key.
+    /// For Ethereum keypairs, this is the fallback format: `[H160][0xEE; 12]`.
+    fn account_id(&self) -> [u8; 32];
+}
+
+impl Signer for Keypair {
+    fn account_id(&self) -> [u8; 32] {
+        self.public_key().0
+    }
+}
+
+impl Signer for eth::EthKeypair {
+    /// Returns the fallback AccountId32 format for Ethereum keypairs.
+    ///
+    /// Format: `[H160 (20 bytes)][0xEE repeated 12 times]`
+    ///
+    /// This format is automatically recognized as "Ethereum-derived" by pallet-revive,
+    /// which means no explicit account mapping is required.
+    fn account_id(&self) -> [u8; 32] {
+        let eth_address = self.public_key().to_account_id();
+        let mut account_bytes = [0xEE_u8; 32];
+        account_bytes[..20].copy_from_slice(&eth_address.0);
+        account_bytes
     }
 }
