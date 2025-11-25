@@ -1074,7 +1074,7 @@ impl TypedEnvBackend for EnvInstance {
 
         let block_number = {
             let mut bytes = [0u8; 32];
-            let encoded = <E::BlockNumber as scale::Encode>::encode(&block_number);
+            let encoded = scope.take_encoded(&block_number);
             // NOTE: panics if encoding is bigger than 32 bytes.
             bytes[..encoded.len()].copy_from_slice(&encoded);
             bytes
