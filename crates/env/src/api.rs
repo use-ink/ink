@@ -26,7 +26,6 @@ use ink_primitives::{
         Sol,
     },
     sol::SolResultEncode,
-    types::BlockNumber,
 };
 use ink_storage_traits::Storable;
 use pallet_revive_uapi::ReturnFlags;
@@ -156,9 +155,12 @@ pub fn code_size(addr: Address) -> u64 {
 
 /// Returns the block hash of the given block number.
 /// This is akin to the EVM [BLOCKHASH](https://www.evm.codes/?fork=cancun#40) opcode.
-pub fn block_hash(block_number: BlockNumber) -> H256 {
+pub fn block_hash<E>(block_number: E::BlockNumber) -> H256
+where
+    E: Environment,
+{
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::block_hash(instance, block_number)
+        TypedEnvBackend::block_hash::<E>(instance, block_number)
     })
 }
 

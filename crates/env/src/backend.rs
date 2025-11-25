@@ -20,10 +20,7 @@ use ink_primitives::{
     H256,
     U256,
     sol::SolResultEncode,
-    types::{
-        BlockNumber,
-        Environment,
-    },
+    types::Environment,
 };
 use ink_storage_traits::Storable;
 pub use pallet_revive_uapi::ReturnFlags;
@@ -362,7 +359,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`block_hash`][`crate::block_hash`]
-    fn block_hash(&mut self, block_number: BlockNumber) -> H256;
+    fn block_hash<E: Environment>(&mut self, block_number: E::BlockNumber) -> H256;
 
     /// Returns the current block author.
     /// This is akin to the EVM [COINBASE](https://www.evm.codes/?fork=cancun#41) opcode.

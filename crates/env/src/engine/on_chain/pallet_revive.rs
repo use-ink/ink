@@ -1068,7 +1068,7 @@ impl TypedEnvBackend for EnvInstance {
         ext::code_size(addr)
     }
 
-    fn block_hash(&mut self, block_number: BlockNumber) -> H256 {
+    fn block_hash<E: Environment>(&mut self, block_number: E::BlockNumber) -> H256 {
         let mut scope = self.scoped_buffer();
         let output: &mut [u8; 32] = scope.take(32).try_into().unwrap();
 
@@ -1078,7 +1078,7 @@ impl TypedEnvBackend for EnvInstance {
             bytes
         };
 
-        ext::block_hash(&block_number, output);
+        ext::block_hash::<E>(&block_number, output);
         H256::from_slice(output)
     }
 
