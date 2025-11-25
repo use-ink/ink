@@ -23,7 +23,7 @@ use ink_linting_utils::{
 use rustc_errors::Applicability;
 use rustc_hir::{
     self as hir,
-    AssocItemKind,
+    ImplItemKind,
     ItemKind,
     def_id::DefId,
 };
@@ -535,13 +535,14 @@ impl<'tcx> LateLintPass<'tcx> for StrictBalanceEquality {
             if let ItemKind::Impl(contract_impl) = contract_impl.kind;
             then {
                 let mut fun_cache = VisitedFunctionsCache::new();
-                contract_impl.items.iter().for_each(|impl_item| {
-                    if let AssocItemKind::Fn { .. } = impl_item.kind {
+                contract_impl.items.iter().for_each(|impl_item_id| {
+                    let impl_item = cx.tcx.hir_impl_item(*impl_item_id);
+                    if let ImplItemKind::Fn(..) = impl_item.kind {
                         self.check_contract_fun(
                             cx,
                             &mut fun_cache,
                             impl_item.span,
-                            impl_item.id.owner_id.to_def_id(),
+                            impl_item_id.owner_id.to_def_id(),
                         )
                     }
                 })

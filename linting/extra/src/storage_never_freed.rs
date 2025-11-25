@@ -187,7 +187,7 @@ fn find_collection_def_id(
 fn find_collection_fields(cx: &LateContext, storage_struct_id: ItemId) -> FieldsMap {
     let mut result = FieldsMap::new();
     let item = cx.tcx.hir_item(storage_struct_id);
-    if let ItemKind::Struct(_, var_data, _) = item.kind {
+    if let ItemKind::Struct(_, _, var_data) = item.kind {
         var_data.fields().iter().for_each(|field_def| {
             if_chain! {
                 // Collection fields of the storage are expanded like this:
@@ -322,8 +322,8 @@ impl<'tcx> LateLintPass<'tcx> for StorageNeverFreed {
             let contract_impl = cx.tcx.hir_item(contract_impl_id);
             if let ItemKind::Impl(contract_impl) = contract_impl.kind;
             then {
-                contract_impl.items.iter().for_each(|impl_item| {
-                    let impl_item = cx.tcx.hir_impl_item(impl_item.id);
+                contract_impl.items.iter().for_each(|impl_item_id| {
+                    let impl_item = cx.tcx.hir_impl_item(*impl_item_id);
                     if let ImplItemKind::Fn(_, fn_body_id) = impl_item.kind {
                         let mut visitor = InsertRemoveCollector::new(&mut fields);
                         walk_body(&mut visitor, cx.tcx.hir_body(fn_body_id));

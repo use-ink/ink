@@ -20,7 +20,7 @@ use alloc::{
     string::String,
     vec::Vec,
 };
-use alloy_core::hex;
+use const_hex as hex;
 use serde::{
     Deserialize,
     Deserializer,

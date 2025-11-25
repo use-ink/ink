@@ -17,7 +17,7 @@ include = ["Cargo.toml", "*.rs", "LICENSE"]
 crate-type = ["cdylib"]
 
 [dependencies]
-dylint_linting = "4.1.0"
+dylint_linting = "5.0.0"
 if_chain = "1.0.2"
 log = "0.4.14"
 regex = "1.5.4"
@@ -25,7 +25,7 @@ ink_linting_utils = { workspace = true }
 ink_env = { version = "=6.0.0-beta.1", path = "../../crates/env" }
 
 [dev-dependencies]
-dylint_testing = "4.1.0"
+dylint_testing = "5.0.0"
 
 # The ink! dependencies used to build the `ui` tests and to compile the linting
 # library with `--default-features=std` (see the `features` section below).
