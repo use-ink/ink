@@ -25,7 +25,6 @@ use ink_primitives::{
         Sol,
     },
     sol::SolResultEncode,
-    types::BlockNumber,
 };
 use ink_storage_traits::{
     Storable,
@@ -82,6 +81,7 @@ use crate::{
     },
     types::FromLittleEndian,
 };
+
 
 /// The code hash of an existing account without code.
 /// This is the `keccak256` hash of empty data.
@@ -1074,11 +1074,13 @@ impl TypedEnvBackend for EnvInstance {
 
         let block_number = {
             let mut bytes = [0u8; 32];
-            bytes[..4].copy_from_slice(&block_number.to_le_bytes());
+            let encoded = <E::BlockNumber as scale::Encode>::encode(&block_number);
+            // NOTE: panics if encoding is bigger than 32 bytes.
+            bytes[..encoded.len()].copy_from_slice(&encoded);
             bytes
         };
 
-        ext::block_hash::<E>(&block_number, output);
+        ext::block_hash(&block_number, output);
         H256::from_slice(output)
     }
 

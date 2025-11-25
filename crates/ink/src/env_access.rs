@@ -45,8 +45,7 @@ use ink_primitives::{
     abi::{
         Ink,
         Sol,
-    },
-    types::BlockNumber,
+    }
 };
 use pallet_revive_uapi::ReturnErrorCode;
 
@@ -475,8 +474,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::block_hash`]
-    pub fn block_hash(self, block_number: BlockNumber) -> H256 {
-        ink_env::block_hash(block_number)
+    pub fn block_hash(self, block_number: E::BlockNumber) -> H256 {
+        ink_env::block_hash::<E>(block_number)
     }
 
     /// Returns the current block author.
