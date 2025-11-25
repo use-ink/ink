@@ -68,7 +68,7 @@ use rustc_span::Symbol;
 /// to express that a type satisfies some property.
 ///
 /// [rust-markers]: https://doc.rust-lang.org/std/marker/index.html
-fn storage_marker_trait(tcx: TyCtxt) -> Option<&DefId> {
+fn storage_marker_trait(tcx: TyCtxt<'_>) -> Option<&DefId> {
     tcx.traits(LOCAL_CRATE).iter().find(|trait_def_id| {
         tcx.item_name(**trait_def_id).as_str() == "__ink_StorageMarker"
     })
@@ -110,7 +110,7 @@ fn has_storage_attr(cx: &LateContext, hir: HirId) -> bool {
 /// Returns `DefId` of the `struct` annotated with `#[ink(storage)]` (if any).
 ///
 /// See [`storage_marker_trait`].
-pub fn find_storage_struct_def(tcx: TyCtxt) -> Option<&DefId> {
+pub fn find_storage_struct_def(tcx: TyCtxt<'_>) -> Option<&DefId> {
     let storage_marker_trait_id = storage_marker_trait(tcx)?;
     let storage_marker_impls = tcx
         .trait_impls_of(storage_marker_trait_id)
@@ -164,7 +164,7 @@ pub fn find_storage_struct(cx: &LateContext, item_ids: &[ItemId]) -> Option<Item
 /// implementations of a contract.
 fn items_in_unnamed_const(cx: &LateContext<'_>, id: &ItemId) -> Vec<ItemId> {
     if_chain! {
-        if let ItemKind::Const(_, ty, _, body_id) = cx.tcx.hir_item(*id).kind;
+        if let ItemKind::Const(_, _, ty, body_id) = cx.tcx.hir_item(*id).kind;
         if let TyKind::Tup([]) = ty.kind;
         let body = cx.tcx.hir_body(body_id);
         if let ExprKind::Block(block, _) = body.value.kind;
