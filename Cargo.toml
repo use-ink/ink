@@ -81,7 +81,7 @@ tracing-subscriber = { version = "0.3.20" }
 trybuild = { version = "1.0.110" }
 which = { version = "8.0.0" }
 xxhash-rust = { version = "0.8" }
-const_env = { version = "0.1" }
+const_env = { version = "0.1.4" }
 const-hex = { version = "1.17.0", default-features = false }
 
 # Substrate dependencies

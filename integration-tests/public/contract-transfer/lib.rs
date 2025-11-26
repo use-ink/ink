@@ -225,11 +225,8 @@ pub mod give_me {
             Ok(())
         }
 
-        #[ink_runtime::test(backend(runtime_only(
-            sandbox = ink_runtime::DefaultRuntime,
-            client  = ink_runtime::RuntimeClient
-        )))]
-        async fn e2e_contract_must_transfer_value_to_sender<Client: E2EBackend>(
+        #[ink_e2e::test(runtime)]
+        async fn e2e_contract_must_transfer_value_to_sender(
             mut client: Client,
         ) -> E2EResult<()> {
             // given

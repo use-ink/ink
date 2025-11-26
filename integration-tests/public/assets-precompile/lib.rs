@@ -190,9 +190,7 @@ mod e2e_tests {
         bob,
     };
     use ink_runtime::{
-        DefaultRuntime,
         E2EError,
-        RuntimeClient,
         api::prelude::{
             AssetsAPI,
             ContractAPI,
@@ -204,11 +202,8 @@ mod e2e_tests {
 
     type E2EResult<T> = std::result::Result<T, E2EError>;
 
-    #[ink_runtime::test(backend(runtime_only(
-        sandbox = DefaultRuntime,
-        client  = RuntimeClient
-    )))]
-    async fn deployment_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+    #[ink_e2e::test(runtime)]
+    async fn deployment_works(mut client: Client) -> E2EResult<()> {
         let asset_id: u32 = 1;
         let mut constructor = AssetHubPrecompileRef::new(asset_id);
 
@@ -229,11 +224,8 @@ mod e2e_tests {
         Ok(())
     }
 
-    #[ink_runtime::test(backend(runtime_only(
-        sandbox = DefaultRuntime,
-        client  = RuntimeClient
-    )))]
-    async fn total_supply_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+    #[ink_e2e::test(runtime)]
+    async fn total_supply_works(mut client: Client) -> E2EResult<()> {
         let asset_id: u32 = 1;
         let admin = alice();
 
@@ -259,11 +251,8 @@ mod e2e_tests {
         Ok(())
     }
 
-    #[ink_runtime::test(backend(runtime_only(
-        sandbox = DefaultRuntime,
-        client  = RuntimeClient
-    )))]
-    async fn balance_of_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+    #[ink_e2e::test(runtime)]
+    async fn balance_of_works(mut client: Client) -> E2EResult<()> {
         let asset_id: u32 = 1;
         let alice = alice();
         let bob = bob();
@@ -299,11 +288,8 @@ mod e2e_tests {
         Ok(())
     }
 
-    #[ink_runtime::test(backend(runtime_only(
-        sandbox = DefaultRuntime,
-        client  = RuntimeClient
-    )))]
-    async fn transfer_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+    #[ink_e2e::test(runtime)]
+    async fn transfer_works(mut client: Client) -> E2EResult<()> {
         let asset_id: u32 = 1;
         let alice = alice();
         let bob = bob();
@@ -363,11 +349,8 @@ mod e2e_tests {
         Ok(())
     }
 
-    #[ink_runtime::test(backend(runtime_only(
-        sandbox = DefaultRuntime,
-        client  = RuntimeClient
-    )))]
-    async fn approve_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+    #[ink_e2e::test(runtime)]
+    async fn approve_works(mut client: Client) -> E2EResult<()> {
         let asset_id: u32 = 1;
         let alice = alice();
         let bob = bob();
@@ -418,11 +401,8 @@ mod e2e_tests {
         Ok(())
     }
 
-    #[ink_runtime::test(backend(runtime_only(
-        sandbox = DefaultRuntime,
-        client  = RuntimeClient
-    )))]
-    async fn allowance_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+    #[ink_e2e::test(runtime)]
+    async fn allowance_works(mut client: Client) -> E2EResult<()> {
         let asset_id: u32 = 1;
         let alice = alice();
         let bob = bob();
@@ -455,13 +435,8 @@ mod e2e_tests {
         Ok(())
     }
 
-    #[ink_runtime::test(backend(runtime_only(
-        sandbox = DefaultRuntime,
-        client  = RuntimeClient
-    )))]
-    async fn transfer_from_works<Client: E2EBackend>(
-        mut client: Client,
-    ) -> E2EResult<()> {
+    #[ink_e2e::test(runtime)]
+    async fn transfer_from_works(mut client: Client) -> E2EResult<()> {
         let asset_id: u32 = 1;
         let alice = alice();
         let bob = bob();

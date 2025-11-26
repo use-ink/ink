@@ -42,15 +42,12 @@ pub mod fuzz_testing {
         use ink_e2e::ContractsBackend;
         use quickcheck_macros::quickcheck;
 
-        /// We use `backend(runtime_only)` here. It doesn't start a node for each test,
+        /// We use `#[ink_e2e::test(runtime)]` here. It doesn't start a node for each test,
         /// but instead interacts with a sandboxed `pallet-revive`.
         ///
         /// See <https://use.ink/docs/v6/contract-testing/drink#as-an-alternative-backend-to-inks-e2e-testing-framework>
         /// for more details.
-        #[ink_runtime::test(replace_test_attr = "#[quickcheck]", backend(runtime_only(
-            sandbox = ink_runtime::DefaultRuntime,
-            client  = ink_runtime::RuntimeClient
-        )))]
+        #[ink_e2e::test(runtime, replace_test_attr = "#[quickcheck]")]
         async fn fuzzing_works_runtime(val: bool) -> bool {
             let mut constructor = FuzzTestingRef::new(val);
             let contract = client
@@ -72,10 +69,7 @@ pub mod fuzz_testing {
         /// `CONTRACTS_NODE_URL`. But still, interactions with a real node will
         /// always be more heavy-weight than "just" interacting with a sandboxed
         /// `pallet-revive`.
-        #[ink_runtime::test(replace_test_attr = "#[quickcheck]", backend(runtime_only(
-            sandbox = ink_runtime::DefaultRuntime,
-            client  = ink_runtime::RuntimeClient
-        )))]
+        #[ink_e2e::test(runtime, replace_test_attr = "#[quickcheck]")]
         async fn fuzzing_works_node(val: bool) -> bool {
             let mut constructor = FuzzTestingRef::new(val);
             let contract = client
@@ -105,10 +99,7 @@ pub mod fuzz_testing {
             }
         }
 
-        #[ink_runtime::test(replace_test_attr = "#[quickcheck]", backend(runtime_only(
-            sandbox = ink_runtime::DefaultRuntime,
-            client  = ink_runtime::RuntimeClient
-        )))]
+        #[ink_e2e::test(runtime, replace_test_attr = "#[quickcheck]")]
         async fn fuzzing_custom_struct_works(val: Point) -> bool {
             ink_e2e::tracing::info!("fuzzing with value {val:?}");
 

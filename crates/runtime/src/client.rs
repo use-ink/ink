@@ -853,7 +853,7 @@ pub mod preset {
         /// with a mock network of relay chain and parachains.
         ///
         /// ```no_compile
-        /// #[ink_e2e::test(backend(runtime_only(sandbox = MockNetworkRuntime, client = ink_runtime::RuntimeClient)))]
+        /// #[ink_e2e::test(runtime(MockNetworkRuntime))]
         /// async fn my_test<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
         ///   // ...
         /// }
