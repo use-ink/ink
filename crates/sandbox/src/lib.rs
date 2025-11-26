@@ -49,6 +49,8 @@ pub use {
         },
     },
     frame_system,
+    // Re-export subxt_signer for Ethereum dev accounts in genesis
+    ink_e2e::subxt_signer,
     ink_precompiles,
     pallet_assets,
     pallet_assets_precompiles,

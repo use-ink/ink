@@ -239,24 +239,20 @@ mod e2e_tests {
     use ink_e2e::{
         ContractsBackend,
         IntoAddress,
-        // Sr25519 keypairs for test infrastructure signing
+        // Sr25519 keypair for transaction signing (required by test infrastructure)
         alice,
         // Ethereum keypairs for addresses
         eth::{
             alith,
             baltathar,
+            charleth,
         },
     };
     use ink_sandbox::{
-        AccountId32,
         DefaultSandbox,
         E2EError,
-        IntoAccountId,
         SandboxClient,
-        api::prelude::{
-            AssetsAPI,
-            BalanceAPI,
-        },
+        api::prelude::AssetsAPI,
         assert_last_event,
         assert_ok,
     };
@@ -271,8 +267,6 @@ mod e2e_tests {
         let asset_id: u32 = 1;
         let mut constructor = AssetHubPrecompileEthRef::new(asset_id);
 
-        // Use alice() for signing, but the contract will be owned by alice's derived
-        // address
         let contract = client
             .instantiate("assets_precompile_eth", &alice(), &mut constructor)
             .value(1_000_000_000_000u128)
@@ -381,7 +375,7 @@ mod e2e_tests {
     ) -> E2EResult<()> {
         let asset_id: u32 = 1;
 
-        client.sandbox().create(&asset_id, &alice(), 1u128)?;
+        client.sandbox().create(&asset_id, &alith(), 1u128)?;
 
         let contract = client
             .instantiate(
@@ -444,7 +438,7 @@ mod e2e_tests {
     ) -> E2EResult<()> {
         let asset_id: u32 = 1;
 
-        client.sandbox().create(&asset_id, &alice(), 1u128)?;
+        client.sandbox().create(&asset_id, &alith(), 1u128)?;
 
         let contract = client
             .instantiate(
@@ -512,10 +506,6 @@ mod e2e_tests {
     ) -> E2EResult<()> {
         let asset_id: u32 = 1;
 
-        // Fund the alith account with native tokens (needed for transaction fees)
-        let alith_account: AccountId32 = (&alith()).into_account_id();
-        BalanceAPI::mint_into(client.sandbox(), &alith_account, 1_000_000_000_000u128)?;
-
         client.sandbox().create(&asset_id, &alith(), 1u128)?;
 
         let contract = client
@@ -556,10 +546,6 @@ mod e2e_tests {
     ) -> E2EResult<()> {
         let asset_id: u32 = 1;
 
-        // Fund the alith account with native tokens (needed for transaction fees)
-        let alith_account: AccountId32 = (&alith()).into_account_id();
-        BalanceAPI::mint_into(client.sandbox(), &alith_account, 1_000_000_000_000u128)?;
-
         client.sandbox().create(&asset_id, &alith(), 1u128)?;
 
         let contract = client
@@ -571,26 +557,26 @@ mod e2e_tests {
             .submit()
             .await?;
 
-        // Mint to alith and approve the contract to spend
-        AssetsAPI::mint_into(client.sandbox(), &asset_id, &alith(), 100_000u128)?;
+        // Mint to charleth and approve the contract to spend
+        AssetsAPI::mint_into(client.sandbox(), &asset_id, &charleth(), 100_000u128)?;
         client.sandbox().approve(
             &asset_id,
-            &alith(),
+            &charleth(),
             &contract.account_id,
             50_000u128,
         )?;
 
         let mut contract_call = contract.call_builder::<AssetHubPrecompileEth>();
 
-        // Transfer from alith to baltathar (both Ethereum addresses)
-        let alith_addr = alith().address();
+        // Transfer from charleth to baltathar (both Ethereum addresses)
+        let charleth_addr = charleth().address();
         let baltathar_addr = baltathar().address();
         let transfer_amount = U256::from(1_500);
 
         let result = client
             .call(
                 &alice(),
-                &contract_call.transfer_from(alith_addr, baltathar_addr, transfer_amount),
+                &contract_call.transfer_from(charleth_addr, baltathar_addr, transfer_amount),
             )
             .submit()
             .await?;
@@ -598,20 +584,20 @@ mod e2e_tests {
         assert_last_event!(
             &mut client,
             Transfer {
-                from: alith_addr,
+                from: charleth_addr,
                 to: baltathar_addr,
                 value: transfer_amount,
             }
         );
 
         // Verify balances using sandbox
-        let alith_balance = client.sandbox().balance_of(&asset_id, &alith());
+        let charleth_balance = client.sandbox().balance_of(&asset_id, &charleth());
         let baltathar_balance = client.sandbox().balance_of(&asset_id, &baltathar());
         let contract_allowance =
             client
                 .sandbox()
-                .allowance(&asset_id, &alith(), &contract.account_id);
-        assert_eq!(alith_balance, 98_500u128);
+                .allowance(&asset_id, &charleth(), &contract.account_id);
+        assert_eq!(charleth_balance, 98_500u128);
         assert_eq!(baltathar_balance, 1_500u128);
         assert_eq!(contract_allowance, 48_500u128);
 
