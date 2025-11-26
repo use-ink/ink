@@ -111,6 +111,65 @@ pub fn return_data_size() -> u64 {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::return_data_size)
 }
 
+/// Returns the [EIP-155](https://eips.ethereum.org/EIPS/eip-155) chain ID,
+/// akin to the EVM [CHAINID](https://www.evm.codes/?fork=cancun#46) opcode.
+pub fn chain_id() -> U256 {
+    <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::chain_id)
+}
+
+/// Returns the **reducible** native balance of the supplied address,
+/// akin to the EVM [BALANCE](https://www.evm.codes/?fork=cancun#31) opcode.
+pub fn balance_of(addr: Address) -> U256 {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::balance_of(instance, addr)
+    })
+}
+
+/// Returns the base fee.
+/// This is akin to the EVM [BASEFEE](https://www.evm.codes/?fork=cancun#48) opcode.
+pub fn base_fee() -> U256 {
+    <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::base_fee)
+}
+
+/// Returns the origin address (initator of the call stack).
+/// This is akin to the EVM [ORIGIN](https://www.evm.codes/?fork=cancun#32) opcode.
+///
+/// # Errors
+///
+/// - If there is no address associated with the origin (e.g. because the origin is root).
+pub fn origin() -> Address {
+    <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::origin)
+}
+
+/// Returns the code size for a specified contract address.
+/// This is akin to the EVM [CODESIZE](https://www.evm.codes/?fork=cancun#38) opcode.
+///
+/// # Note
+///
+/// If `addr` is not a contract the `output` will be zero.
+pub fn code_size(addr: Address) -> u64 {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::code_size(instance, addr)
+    })
+}
+
+/// Returns the block hash of the given block number.
+/// This is akin to the EVM [BLOCKHASH](https://www.evm.codes/?fork=cancun#40) opcode.
+pub fn block_hash<E>(block_number: E::BlockNumber) -> H256
+where
+    E: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::block_hash::<E>(instance, block_number)
+    })
+}
+
+/// Returns the current block author.
+/// This is akin to the EVM [COINBASE](https://www.evm.codes/?fork=cancun#41) opcode.
+pub fn block_author() -> Address {
+    <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::block_author)
+}
+
 /// Returns the transferred value for the contract execution.
 ///
 /// # Errors

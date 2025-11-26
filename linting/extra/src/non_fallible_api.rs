@@ -303,8 +303,8 @@ impl<'tcx> LateLintPass<'tcx> for NonFallibleAPI {
             let contract_impl = cx.tcx.hir_item(contract_impl_id);
             if let ItemKind::Impl(contract_impl) = contract_impl.kind;
             then {
-                contract_impl.items.iter().for_each(|impl_item| {
-                    let impl_item = cx.tcx.hir_impl_item(impl_item.id);
+                contract_impl.items.iter().for_each(|impl_item_id| {
+                    let impl_item = cx.tcx.hir_impl_item(*impl_item_id);
                     if let ImplItemKind::Fn(..) = impl_item.kind {
                         let mut visitor = APIUsageChecker::new(cx);
                         visitor.visit_impl_item(impl_item);
