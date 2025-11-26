@@ -26,11 +26,10 @@ use rustc_hash::FxHashSet;
 use rustc_hir::{
     self,
     Arm,
-    AssocItemKind,
     ExprKind,
     Impl,
+    ImplItem,
     ImplItemKind,
-    ImplItemRef,
     Item,
     ItemKind,
     Node,
@@ -123,9 +122,14 @@ fn is_ink_event_impl<'tcx>(cx: &LateContext<'tcx>, item: &'tcx Item<'_>) -> bool
 }
 
 /// Returns `true` if `impl_item` is the `topics` function
-fn is_topics_function(impl_item: &ImplItemRef) -> bool {
-    impl_item.kind == AssocItemKind::Fn { has_self: true }
-        && impl_item.ident.name.as_str() == "topics"
+fn is_topics_function(impl_item: &ImplItem) -> bool {
+    if impl_item.ident.name.as_str() == "topics"
+        && let ImplItemKind::Fn(sig, _) = impl_item.kind
+    {
+        sig.decl.implicit_self.has_implicit_self()
+    } else {
+        false
+    }
 }
 
 /// Returns `true` if `ty` is a numerical primitive type that should not be annotated with
@@ -138,7 +142,7 @@ fn is_primitive_number_ty(ty: &Ty) -> bool {
 fn report_field(cx: &LateContext, event_def_id: DefId, field_name: &str) {
     if_chain! {
         if let Some(Node::Item(event_node)) = cx.tcx.hir_get_if_local(event_def_id);
-        if let ItemKind::Struct(_, ref struct_def, _) = event_node.kind;
+        if let ItemKind::Struct(_, _, ref struct_def) = event_node.kind;
         if let Some(field) = struct_def.fields().iter().find(|f|{ f.ident.as_str() == field_name });
         if !is_lint_allowed(cx, PRIMITIVE_TOPIC, field.hir_id);
         then {
@@ -200,7 +204,7 @@ impl<'tcx> LateLintPass<'tcx> for PrimitiveTopic {
                 let topic_fields: FxHashSet<_> = event_fields
                     .filter_map(|field| is_topic_field(field, cx.tcx).then_some(field.name))
                     .collect();
-                topics_impl.items.iter().for_each(|impl_item| {
+                topics_impl.items.iter().for_each(|impl_item_id| {
                     if_chain! {
                         // We need to extract field patterns from the event struct matched in the
                         // `topics` function to access their inferred types.
@@ -217,8 +221,8 @@ impl<'tcx> LateLintPass<'tcx> for PrimitiveTopic {
                         //     }
                         // }
                         // ```
+                        let impl_item = cx.tcx.hir_impl_item(*impl_item_id);
                         if is_topics_function(impl_item);
-                        let impl_item = cx.tcx.hir_impl_item(impl_item.id);
                         if let ImplItemKind::Fn(_, eid) = impl_item.kind;
                         let body = cx.tcx.hir_body(eid).value;
                         if let ExprKind::Block (block, _) = body.kind;

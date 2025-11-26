@@ -274,6 +274,242 @@ where
         ink_env::return_data_size()
     }
 
+    /// Returns the [EIP-155](https://eips.ethereum.org/EIPS/eip-155) chain ID,
+    /// akin to the EVM [CHAINID](https://www.evm.codes/?fork=cancun#46) opcode.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     use ink::U256;
+    ///
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_chain_id(&self) -> U256 {
+    ///             self.env().chain_id()
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::chain_id`]
+    pub fn chain_id(self) -> U256 {
+        ink_env::chain_id()
+    }
+
+    /// Returns the **reducible** native balance of the supplied address.
+    /// This is akin to the EVM [BALANCE](https://www.evm.codes/?fork=cancun#31) opcode.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     use ink::U256;
+    ///
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_my_balance(&self) -> U256 {
+    ///             let caller = self.env().caller();
+    ///             self.env().balance_of(caller)
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::balance_of`]
+    pub fn balance_of(self, addr: Address) -> U256 {
+        ink_env::balance_of(addr)
+    }
+
+    /// Returns the base fee.
+    /// This is akin to the EVM [BASEFEE](https://www.evm.codes/?fork=cancun#48) opcode.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     use ink::U256;
+    ///
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_base_fee(&self) -> U256 {
+    ///             self.env().base_fee()
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::base_fee`]
+    pub fn base_fee(self) -> U256 {
+        ink_env::base_fee()
+    }
+
+    /// Returns the origin address (initator of the call stack).
+    /// This is akin to the EVM [ORIGIN](https://www.evm.codes/?fork=cancun#32) opcode.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_origin(&self) -> Address {
+    ///             self.env().origin()
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::origin`]
+    pub fn origin(self) -> Address {
+        ink_env::origin()
+    }
+
+    /// Returns the code size for a specified contract address.
+    /// This is akin to the EVM [CODESIZE](https://www.evm.codes/?fork=cancun#38) opcode.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_code_size_of_this_contract(&self) -> u64 {
+    ///             let this_addr = self.env().address();
+    ///             self.env().code_size(this_addr)
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// If `addr` is not a contract the `output` will be zero.
+    /// For more details visit: [`ink_env::code_size`]
+    pub fn code_size(self, addr: Address) -> u64 {
+        ink_env::code_size(addr)
+    }
+
+    /// Returns the block hash of the given block number.
+    /// This is akin to the EVM [BLOCKHASH](https://www.evm.codes/?fork=cancun#40) opcode.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_block_hash(
+    ///             &self,
+    ///             block_number: BlockNumber,
+    ///         ) -> ink_primitives::H256 {
+    ///             self.env().block_hash(block_number)
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::block_hash`]
+    pub fn block_hash(self, block_number: E::BlockNumber) -> H256 {
+        ink_env::block_hash::<E>(block_number)
+    }
+
+    /// Returns the current block author.
+    /// This is akin to the EVM [COINBASE](https://www.evm.codes/?fork=cancun#41) opcode.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_block_author(&self) -> Address {
+    ///             self.env().block_author()
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::block_author`]
+    pub fn block_author(self) -> Address {
+        ink_env::block_author()
+    }
+
     /// Returns the transferred value for the contract execution.
     ///
     /// # Example
