@@ -67,7 +67,7 @@ pub mod static_buffer {
         }
 
         #[ink_e2e::test]
-        async fn e2e_run_out_of_buffer_memory<Client: E2EBackend>(
+        async fn e2e_run_out_of_buffer_memory(
             mut client: Client,
         ) -> E2EResult<()> {
             // given
@@ -97,7 +97,7 @@ pub mod static_buffer {
         }
 
         #[ink_e2e::test]
-        async fn buffer<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+        async fn buffer(mut client: Client) -> E2EResult<()> {
             // given
             assert_buffer_size();
             let mut constructor = StaticBufferRef::new_default();

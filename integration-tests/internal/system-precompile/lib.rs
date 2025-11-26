@@ -34,7 +34,7 @@ mod system_precompile {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn minimum_balance_works<Client: E2EBackend>(
+        async fn minimum_balance_works(
             mut client: Client,
         ) -> E2EResult<()> {
             // given

@@ -95,7 +95,7 @@ pub mod wildcard_selector {
         }
 
         #[ink_e2e::test(features = ["emit-event"])]
-        async fn arbitrary_selectors_handled_by_wildcard<Client: E2EBackend>(
+        async fn arbitrary_selectors_handled_by_wildcard(
             mut client: Client,
         ) -> E2EResult<()> {
             // given
@@ -167,7 +167,7 @@ pub mod wildcard_selector {
         }
 
         #[ink_e2e::test]
-        async fn wildcard_complement_works<Client: E2EBackend>(
+        async fn wildcard_complement_works(
             mut client: Client,
         ) -> E2EResult<()> {
             // given

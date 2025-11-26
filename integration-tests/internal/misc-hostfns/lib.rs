@@ -60,7 +60,7 @@ mod misc_hostfns {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_addr_account_id_works<Client: E2EBackend>(
+        async fn e2e_addr_account_id_works(
             mut client: Client,
         ) -> E2EResult<()> {
             // given
@@ -88,7 +88,7 @@ mod misc_hostfns {
         }
 
         #[ink_e2e::test]
-        async fn e2e_is_contract_works<Client: E2EBackend>(
+        async fn e2e_is_contract_works(
             mut client: Client,
         ) -> E2EResult<()> {
             // given

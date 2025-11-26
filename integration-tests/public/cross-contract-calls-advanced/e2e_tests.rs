@@ -4,7 +4,7 @@ use ink_e2e::ContractsBackend;
 type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[ink_e2e::test]
-async fn instantiate_with_insufficient_storage_deposit_limit<Client: E2EBackend>(
+async fn instantiate_with_insufficient_storage_deposit_limit(
     mut client: Client,
 ) -> E2EResult<()> {
     // given
@@ -43,7 +43,7 @@ async fn instantiate_with_insufficient_storage_deposit_limit<Client: E2EBackend>
 }
 
 #[ink_e2e::test]
-async fn instantiate_with_sufficient_limits<Client: E2EBackend>(
+async fn instantiate_with_sufficient_limits(
     mut client: Client,
 ) -> E2EResult<()> {
     // given
@@ -80,7 +80,7 @@ async fn instantiate_with_sufficient_limits<Client: E2EBackend>(
 }
 
 #[ink_e2e::test]
-async fn instantiate_no_limits<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+async fn instantiate_no_limits(mut client: Client) -> E2EResult<()> {
     // given
     let other_contract_code = client
         .upload("other-contract", &ink_e2e::alice())
@@ -105,7 +105,7 @@ async fn instantiate_no_limits<Client: E2EBackend>(mut client: Client) -> E2ERes
 }
 
 #[ink_e2e::test]
-async fn flip_and_get<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+async fn flip_and_get(mut client: Client) -> E2EResult<()> {
     // given
     let other_contract_code = client
         .upload("other-contract", &ink_e2e::alice())

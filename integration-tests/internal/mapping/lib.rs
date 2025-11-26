@@ -149,7 +149,7 @@ mod mapping {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn insert_and_get_works<Client: E2EBackend>(
+        async fn insert_and_get_works(
             mut client: Client,
         ) -> E2EResult<()> {
             // given
@@ -185,7 +185,7 @@ mod mapping {
         }
 
         #[ink_e2e::test]
-        async fn insert_and_contains_works<Client: E2EBackend>(
+        async fn insert_and_contains_works(
             mut client: Client,
         ) -> E2EResult<()> {
             // given
@@ -215,7 +215,7 @@ mod mapping {
         }
 
         #[ink_e2e::test]
-        async fn reinsert_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+        async fn reinsert_works(mut client: Client) -> E2EResult<()> {
             // given
             let mut constructor = MappingsRef::new();
             let contract = client
@@ -258,7 +258,7 @@ mod mapping {
         }
 
         #[ink_e2e::test]
-        async fn insert_and_remove_works<Client: E2EBackend>(
+        async fn insert_and_remove_works(
             mut client: Client,
         ) -> E2EResult<()> {
             // given
@@ -300,7 +300,7 @@ mod mapping {
         }
 
         #[ink_e2e::test]
-        async fn insert_and_take_works<Client: E2EBackend>(
+        async fn insert_and_take_works(
             mut client: Client,
         ) -> E2EResult<()> {
             // given
@@ -346,7 +346,7 @@ mod mapping {
 
         #[ignore]
         #[ink_e2e::test]
-        async fn fallible_storage_methods_work<Client: E2EBackend>(
+        async fn fallible_storage_methods_work(
             mut client: Client,
         ) -> E2EResult<()> {
             // Makes testing the fallible storage methods more efficient

@@ -427,7 +427,7 @@ mod instantiate_contract {
         }
 
         #[ink_e2e::test]
-        async fn test_invoke_delegate_e2e<Client: E2EBackend>(
+        async fn test_invoke_delegate_e2e(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client

@@ -128,7 +128,7 @@ pub mod bytes {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn fixed_bytes_works<Client: E2EBackend>(
+        async fn fixed_bytes_works(
             mut client: Client,
         ) -> E2EResult<()> {
             // given
@@ -171,7 +171,7 @@ pub mod bytes {
         }
 
         #[ink_e2e::test]
-        async fn dyn_bytes_works<Client: E2EBackend>(
+        async fn dyn_bytes_works(
             mut client: Client,
         ) -> E2EResult<()> {
             // given

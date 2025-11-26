@@ -102,7 +102,7 @@ mod call_builder {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_invalid_message_selector_can_be_handled<Client: E2EBackend>(
+        async fn e2e_invalid_message_selector_can_be_handled(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
@@ -142,7 +142,7 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_invalid_message_selector_panics_on_invoke<Client: E2EBackend>(
+        async fn e2e_invalid_message_selector_panics_on_invoke(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client

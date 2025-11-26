@@ -5,7 +5,7 @@ use other_contract::OtherContractRef;
 type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[ink_e2e::test]
-async fn instantiate_no_limits<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+async fn instantiate_no_limits(mut client: Client) -> E2EResult<()> {
     // given
     let mut other_constructor = OtherContractRef::new(true);
     let other_contract = client
@@ -28,7 +28,7 @@ async fn instantiate_no_limits<Client: E2EBackend>(mut client: Client) -> E2ERes
 }
 
 #[ink_e2e::test]
-async fn flip_and_get<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+async fn flip_and_get(mut client: Client) -> E2EResult<()> {
     // given
     let mut other_constructor = OtherContractRef::new(true);
     let other_contract = client

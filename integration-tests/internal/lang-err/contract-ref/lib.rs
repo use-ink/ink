@@ -82,7 +82,7 @@ mod contract_ref {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_ref_can_flip_correctly<Client: E2EBackend>(
+        async fn e2e_ref_can_flip_correctly(
             mut client: Client,
         ) -> E2EResult<()> {
             let flipper_hash = client
@@ -126,7 +126,7 @@ mod contract_ref {
         }
 
         #[ink_e2e::test]
-        async fn e2e_fallible_ref_can_be_instantiated<Client: E2EBackend>(
+        async fn e2e_fallible_ref_can_be_instantiated(
             mut client: Client,
         ) -> E2EResult<()> {
             let flipper_hash: ink::H256 = client
@@ -156,7 +156,7 @@ mod contract_ref {
         }
 
         #[ink_e2e::test]
-        async fn e2e_fallible_ref_fails_to_be_instantiated<Client: E2EBackend>(
+        async fn e2e_fallible_ref_fails_to_be_instantiated(
             mut client: Client,
         ) -> E2EResult<()> {
             let flipper_hash = client

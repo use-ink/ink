@@ -132,7 +132,7 @@ pub mod delegator {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_counter_mutated<Client: E2EBackend>(
+        async fn e2e_counter_mutated(
             mut client: Client,
         ) -> E2EResult<()> {
             // given
@@ -203,7 +203,7 @@ pub mod delegator {
         }
 
         #[ink_e2e::test]
-        async fn e2e_mapping_mutated<Client: E2EBackend>(
+        async fn e2e_mapping_mutated(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
@@ -276,7 +276,7 @@ pub mod delegator {
         }
 
         #[ink_e2e::test]
-        async fn update_delegate<Client: E2EBackend>(
+        async fn update_delegate(
             mut client: Client,
         ) -> E2EResult<()> {
             // given

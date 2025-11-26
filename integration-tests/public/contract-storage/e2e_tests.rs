@@ -4,7 +4,7 @@ use ink_e2e::ContractsBackend;
 type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[ink_e2e::test]
-async fn get_contract_storage_consumes_entire_buffer<Client: E2EBackend>(
+async fn get_contract_storage_consumes_entire_buffer(
     mut client: Client,
 ) -> E2EResult<()> {
     // given
@@ -33,7 +33,7 @@ async fn get_contract_storage_consumes_entire_buffer<Client: E2EBackend>(
 }
 
 #[ink_e2e::test]
-async fn get_contract_storage_fails_when_extra_data<Client: E2EBackend>(
+async fn get_contract_storage_fails_when_extra_data(
     mut client: Client,
 ) -> E2EResult<()> {
     // given
@@ -63,7 +63,7 @@ async fn get_contract_storage_fails_when_extra_data<Client: E2EBackend>(
 }
 
 #[ink_e2e::test]
-async fn take_contract_storage_consumes_entire_buffer<Client: E2EBackend>(
+async fn take_contract_storage_consumes_entire_buffer(
     mut client: Client,
 ) -> E2EResult<()> {
     // given
@@ -92,7 +92,7 @@ async fn take_contract_storage_consumes_entire_buffer<Client: E2EBackend>(
 }
 
 #[ink_e2e::test]
-async fn take_contract_storage_fails_when_extra_data<Client: E2EBackend>(
+async fn take_contract_storage_fails_when_extra_data(
     mut client: Client,
 ) -> E2EResult<()> {
     // given

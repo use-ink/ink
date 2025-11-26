@@ -73,7 +73,7 @@ pub mod overflow_safety {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn add_no_overflow_works<Client: E2EBackend>(
+        async fn add_no_overflow_works(
             mut client: Client,
         ) -> E2EResult<()> {
             // given
@@ -98,7 +98,7 @@ pub mod overflow_safety {
         }
 
         #[ink_e2e::test]
-        async fn add_with_overflow_reverts<Client: E2EBackend>(
+        async fn add_with_overflow_reverts(
             mut client: Client,
         ) -> E2EResult<()> {
             // given
@@ -119,7 +119,7 @@ pub mod overflow_safety {
         }
 
         #[ink_e2e::test]
-        async fn sub_no_overflow_works<Client: E2EBackend>(
+        async fn sub_no_overflow_works(
             mut client: Client,
         ) -> E2EResult<()> {
             // given
@@ -144,7 +144,7 @@ pub mod overflow_safety {
         }
 
         #[ink_e2e::test]
-        async fn sub_with_overflow_reverts<Client: E2EBackend>(
+        async fn sub_with_overflow_reverts(
             mut client: Client,
         ) -> E2EResult<()> {
             // given

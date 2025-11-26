@@ -67,7 +67,7 @@ pub mod integration_flipper {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_can_flip_correctly<Client: E2EBackend>(
+        async fn e2e_can_flip_correctly(
             mut client: Client,
         ) -> E2EResult<()> {
             let mut constructor = FlipperRef::new_default();
@@ -107,7 +107,7 @@ pub mod integration_flipper {
         }
 
         #[ink_e2e::test]
-        async fn e2e_message_error_reverts_state<Client: E2EBackend>(
+        async fn e2e_message_error_reverts_state(
             mut client: Client,
         ) -> E2EResult<()> {
             let mut constructor = FlipperRef::new_default();

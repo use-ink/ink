@@ -121,9 +121,7 @@ mod call_builder {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_delegate_call_return_value_returns_correct_value<
-            Client: E2EBackend,
-        >(
+        async fn e2e_delegate_call_return_value_returns_correct_value(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
@@ -165,9 +163,7 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_delegate_call_return_value_errors_if_return_data_too_long<
-            Client: E2EBackend,
-        >(
+        async fn e2e_delegate_call_return_value_errors_if_return_data_too_long(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
@@ -209,9 +205,7 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_forward_call_return_value_returns_correct_value<
-            Client: E2EBackend,
-        >(
+        async fn e2e_forward_call_return_value_returns_correct_value(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
@@ -252,9 +246,7 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_forward_call_return_value_errors_if_return_data_too_long<
-            Client: E2EBackend,
-        >(
+        async fn e2e_forward_call_return_value_errors_if_return_data_too_long(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client

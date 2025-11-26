@@ -63,7 +63,7 @@ mod e2e_tests {
     /// The test verifies that we can increment the value of the `Incrementer` contract
     /// through the `Caller` contract.
     #[ink_e2e::test]
-    async fn e2e_cross_contract_calls<Client: E2EBackend>(
+    async fn e2e_cross_contract_calls(
         mut client: Client,
     ) -> E2EResult<()> {
         let _ = client

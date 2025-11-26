@@ -57,7 +57,7 @@ pub mod just_terminates {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_contract_terminates<Client: E2EBackend>(
+        async fn e2e_contract_terminates(
             mut client: Client,
         ) -> E2EResult<()> {
             // given

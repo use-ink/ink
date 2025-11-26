@@ -190,7 +190,7 @@ pub mod give_me {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_sending_value_to_give_me_must_fail<Client: E2EBackend>(
+        async fn e2e_sending_value_to_give_me_must_fail(
             mut client: Client,
         ) -> E2EResult<()> {
             // given

@@ -39,7 +39,7 @@ mod gas_hostfns {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_gas_limit_works<Client: E2EBackend>(
+        async fn e2e_gas_limit_works(
             mut client: Client,
         ) -> E2EResult<()> {
             // given
@@ -65,7 +65,7 @@ mod gas_hostfns {
         }
 
         #[ink_e2e::test]
-        async fn e2e_gas_price_works<Client: E2EBackend>(
+        async fn e2e_gas_price_works(
             mut client: Client,
         ) -> E2EResult<()> {
             // given
@@ -91,7 +91,7 @@ mod gas_hostfns {
         }
 
         #[ink_e2e::test]
-        async fn e2e_gas_left_works<Client: E2EBackend>(
+        async fn e2e_gas_left_works(
             mut client: Client,
         ) -> E2EResult<()> {
             // given

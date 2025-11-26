@@ -33,7 +33,7 @@ mod data_hostfns {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_call_data_size_works<Client: E2EBackend>(
+        async fn e2e_call_data_size_works(
             mut client: Client,
         ) -> E2EResult<()> {
             // given
@@ -63,7 +63,7 @@ mod data_hostfns {
         }
 
         #[ink_e2e::test]
-        async fn e2e_return_data_size_works<Client: E2EBackend>(
+        async fn e2e_return_data_size_works(
             mut client: Client,
         ) -> E2EResult<()> {
             // given
