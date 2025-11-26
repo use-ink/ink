@@ -42,8 +42,8 @@ pub mod fuzz_testing {
         use ink_e2e::ContractsBackend;
         use quickcheck_macros::quickcheck;
 
-        /// We use `#[ink_e2e::test(runtime)]` here. It doesn't start a node for each test,
-        /// but instead interacts with a sandboxed `pallet-revive`.
+        /// We use `#[ink_e2e::test(runtime)]` here. It doesn't start a node for each
+        /// test, but instead interacts with a sandboxed `pallet-revive`.
         ///
         /// See <https://use.ink/docs/v6/contract-testing/drink#as-an-alternative-backend-to-inks-e2e-testing-framework>
         /// for more details.

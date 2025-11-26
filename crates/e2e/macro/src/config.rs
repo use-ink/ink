@@ -273,7 +273,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "ErrorUnknownField")]
+    #[should_panic(expected = "Unknown field")]
     fn config_backend_runtime_only_default_not_allowed() {
         let input = quote! {
             backend(runtime_only(default)),
@@ -365,7 +365,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "ErrorUnknownField")]
+    #[should_panic(expected = "Unknown field")]
     fn config_backend_node_auto_not_allowed() {
         let input = quote! {
             backend(node(auto)),
