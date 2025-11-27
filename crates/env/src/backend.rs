@@ -304,8 +304,70 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// # Note
     ///
-    /// For more details visit: [`return_data_size`][`crate::return_data_size]
+    /// For more details visit: [`return_data_size`][`crate::return_data_size`]
     fn return_data_size(&mut self) -> u64;
+
+    /// Returns the [EIP-155](https://eips.ethereum.org/EIPS/eip-155) chain ID.
+    /// This is akin to the EVM [CHAINID](https://www.evm.codes/?fork=cancun#46) opcode.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`chain_id`][`crate::chain_id`]
+    fn chain_id(&mut self) -> U256;
+
+    /// Returns the **reducible** native balance of the supplied address.
+    /// This is akin to the EVM [BALANCE](https://www.evm.codes/?fork=cancun#31) opcode.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`balance_of`][`crate::balance_of`]
+    fn balance_of(&mut self, addr: Address) -> U256;
+
+    /// Returns the base fee.
+    /// This is akin to the EVM [BASEFEE](https://www.evm.codes/?fork=cancun#48) opcode.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`base_fee`][`crate::base_fee`]
+    fn base_fee(&mut self) -> U256;
+
+    /// Returns the origin address (initator of the call stack).
+    /// This is akin to the EVM [ORIGIN](https://www.evm.codes/?fork=cancun#32) opcode.
+    ///
+    /// # Errors
+    ///
+    /// - If there is no address associated with the origin (e.g. because the origin is
+    ///   root).
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`origin`][`crate::origin`]
+    fn origin(&mut self) -> Address;
+
+    /// Returns the code size for a specified contract address.
+    /// This is akin to the EVM [CODESIZE](https://www.evm.codes/?fork=cancun#38) opcode.
+    ///
+    /// # Note
+    ///
+    /// If `addr` is not a contract the `output` will be zero.
+    /// For more details visit: [`code_size`][`crate::code_size`]
+    fn code_size(&mut self, addr: Address) -> u64;
+
+    /// Returns the block hash of the given block number.
+    /// This is akin to the EVM [BLOCKHASH](https://www.evm.codes/?fork=cancun#40) opcode.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`block_hash`][`crate::block_hash`]
+    fn block_hash<E: Environment>(&mut self, block_number: E::BlockNumber) -> H256;
+
+    /// Returns the current block author.
+    /// This is akin to the EVM [COINBASE](https://www.evm.codes/?fork=cancun#41) opcode.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`block_author`][`crate::block_author`]
+    fn block_author(&mut self) -> Address;
 
     /// Returns the transferred value for the contract execution.
     ///
