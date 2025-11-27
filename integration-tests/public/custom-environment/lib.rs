@@ -87,9 +87,7 @@ mod runtime_call {
 
         #[cfg(feature = "permissive-node")]
         #[ink_e2e::test(environment = crate::EnvironmentWithManyTopics)]
-        async fn calling_custom_environment_works(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn calling_custom_environment_works(mut client: Client) -> E2EResult<()> {
             // given
             let mut constructor = TopicsRef::new();
             let contract = client

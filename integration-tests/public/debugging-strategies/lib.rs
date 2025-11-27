@@ -121,9 +121,7 @@ mod debugging_strategies {
         /// we can have code in the contract that is utilized purely
         /// for testing, but not for release builds.
         #[ink_e2e::test(features = ["debug"])]
-        async fn e2e_debugging_event_emitted(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn e2e_debugging_event_emitted(mut client: Client) -> E2EResult<()> {
             // given
             let mut constructor = DebuggingStrategiesRef::new();
             let contract = client
@@ -156,9 +154,7 @@ mod debugging_strategies {
 
         /// This test illustrates how to decode a `Revive::ContractReverted`.
         #[ink_e2e::test(features = ["debug"])]
-        async fn e2e_decode_intentional_revert(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn e2e_decode_intentional_revert(mut client: Client) -> E2EResult<()> {
             // given
             let mut constructor = DebuggingStrategiesRef::new();
             let contract = client
@@ -185,9 +181,7 @@ mod debugging_strategies {
 
         /// This test illustrates how to decode a `Revive::ContractReverted`.
         #[ink_e2e::test]
-        async fn e2e_decode_revert(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn e2e_decode_revert(mut client: Client) -> E2EResult<()> {
             // given
             let mut constructor = DebuggingStrategiesRef::new();
             let contract = client

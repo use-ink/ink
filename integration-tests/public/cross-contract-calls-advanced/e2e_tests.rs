@@ -43,9 +43,7 @@ async fn instantiate_with_insufficient_storage_deposit_limit(
 }
 
 #[ink_e2e::test]
-async fn instantiate_with_sufficient_limits(
-    mut client: Client,
-) -> E2EResult<()> {
+async fn instantiate_with_sufficient_limits(mut client: Client) -> E2EResult<()> {
     // given
     let other_contract_code = client
         .upload("other-contract", &ink_e2e::alice())

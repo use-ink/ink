@@ -107,9 +107,7 @@ pub mod flipper {
         /// The test is marked as ignored, as it has the above pre-conditions to succeed.
         #[ink_e2e::test]
         #[ignore]
-        async fn e2e_test_deployed_contract(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn e2e_test_deployed_contract(mut client: Client) -> E2EResult<()> {
             // given
             use ink::Address;
             let addr = std::env::var("CONTRACT_ADDR_HEX")

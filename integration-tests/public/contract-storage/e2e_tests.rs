@@ -33,9 +33,7 @@ async fn get_contract_storage_consumes_entire_buffer(
 }
 
 #[ink_e2e::test]
-async fn get_contract_storage_fails_when_extra_data(
-    mut client: Client,
-) -> E2EResult<()> {
+async fn get_contract_storage_fails_when_extra_data(mut client: Client) -> E2EResult<()> {
     // given
     let mut constructor = ContractStorageRef::new();
     let contract = client

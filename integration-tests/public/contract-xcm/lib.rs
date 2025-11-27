@@ -166,9 +166,7 @@ mod contract_xcm {
         type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn xcm_execute_works(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn xcm_execute_works(mut client: Client) -> E2EResult<()> {
             // given
             let mut constructor = ContractXcmRef::new();
             let contract = client

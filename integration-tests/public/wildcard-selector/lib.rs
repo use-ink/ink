@@ -167,9 +167,7 @@ pub mod wildcard_selector {
         }
 
         #[ink_e2e::test]
-        async fn wildcard_complement_works(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn wildcard_complement_works(mut client: Client) -> E2EResult<()> {
             // given
             let mut constructor = WildcardSelectorRef::new();
             let contract_acc_id = client

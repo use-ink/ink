@@ -82,9 +82,7 @@ mod contract_ref {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_ref_can_flip_correctly(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn e2e_ref_can_flip_correctly(mut client: Client) -> E2EResult<()> {
             let flipper_hash = client
                 .upload("integration_flipper", &ink_e2e::alice())
                 .submit()

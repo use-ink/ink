@@ -132,9 +132,7 @@ pub mod delegator {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_counter_mutated(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn e2e_counter_mutated(mut client: Client) -> E2EResult<()> {
             // given
             let origin = client
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
@@ -203,9 +201,7 @@ pub mod delegator {
         }
 
         #[ink_e2e::test]
-        async fn e2e_mapping_mutated(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn e2e_mapping_mutated(mut client: Client) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
                 .await;
@@ -276,9 +272,7 @@ pub mod delegator {
         }
 
         #[ink_e2e::test]
-        async fn update_delegate(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn update_delegate(mut client: Client) -> E2EResult<()> {
             // given
             let origin = client
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
