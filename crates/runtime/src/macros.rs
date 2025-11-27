@@ -500,15 +500,3 @@ pub use construct_runtime::{
 }
 
 create_runtime!(DefaultRuntime);
-
-/// Backward compatibility alias for `create_runtime!`.
-///
-/// This macro is deprecated and will be removed in a future version.
-/// Please use `create_runtime!` instead.
-#[macro_export]
-#[deprecated(since = "6.0.0", note = "Use `create_runtime!` instead")]
-macro_rules! create_sandbox {
-    ($($tt:tt)*) => {
-        $crate::create_runtime!($($tt)*)
-    };
-}

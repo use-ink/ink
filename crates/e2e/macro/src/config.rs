@@ -76,8 +76,8 @@ impl Node {
 /// The runtime emulator that should be used within `TestExternalities`
 #[derive(Clone, Eq, PartialEq, Debug, darling::FromMeta)]
 pub struct RuntimeOnly {
-    /// The sandbox runtime type (e.g., `ink_runtime::DefaultRuntime`)
-    pub sandbox: syn::Path,
+    /// The runtime type (e.g., `ink_runtime::DefaultRuntime`)
+    pub runtime: syn::Path,
     /// The client type implementing the backend traits (e.g.,
     /// `ink_runtime::RuntimeClient`)
     pub client: syn::Path,
@@ -85,7 +85,7 @@ pub struct RuntimeOnly {
 
 impl RuntimeOnly {
     pub fn runtime_path(&self) -> syn::Path {
-        self.sandbox.clone()
+        self.runtime.clone()
     }
     pub fn client_path(&self) -> syn::Path {
         self.client.clone()
@@ -234,7 +234,7 @@ impl RuntimeBackendArg {
     fn into_backend_meta(self) -> NestedMeta {
         let runtime = self.runtime();
         syn::parse_quote! {
-            backend(runtime_only(sandbox = #runtime, client = ::ink_runtime::RuntimeClient))
+            backend(runtime_only(runtime = #runtime, client = ::ink_runtime::RuntimeClient))
         }
     }
 }
@@ -254,7 +254,7 @@ mod tests {
     fn config_works_backend_runtime_only() {
         let input = quote! {
             environment = crate::CustomEnvironment,
-            backend(runtime_only(sandbox = ::ink_runtime::DefaultRuntime, client = ::ink_runtime::RuntimeClient)),
+            backend(runtime_only(runtime = ::ink_runtime::DefaultRuntime, client = ::ink_runtime::RuntimeClient)),
         };
         let config = parse_config(input);
 
@@ -266,7 +266,7 @@ mod tests {
         assert_eq!(
             config.backend(),
             Backend::RuntimeOnly(RuntimeOnly {
-                sandbox: syn::parse_quote! { ::ink_runtime::DefaultRuntime },
+                runtime: syn::parse_quote! { ::ink_runtime::DefaultRuntime },
                 client: syn::parse_quote! { ::ink_runtime::RuntimeClient },
             })
         );
@@ -283,7 +283,7 @@ mod tests {
         assert_eq!(
             config.backend(),
             Backend::RuntimeOnly(RuntimeOnly {
-                sandbox: syn::parse_quote! { ::ink_runtime::DefaultRuntime },
+                runtime: syn::parse_quote! { ::ink_runtime::DefaultRuntime },
                 client: syn::parse_quote! { ::ink_runtime::RuntimeClient },
             })
         );
@@ -292,14 +292,14 @@ mod tests {
     #[test]
     fn config_works_runtime_only_with_custom_backend() {
         let input = quote! {
-            backend(runtime_only(sandbox = ::ink_runtime::DefaultRuntime, client = ::ink_runtime::RuntimeClient)),
+            backend(runtime_only(runtime = ::ink_runtime::DefaultRuntime, client = ::ink_runtime::RuntimeClient)),
         };
         let config = parse_config(input);
 
         assert_eq!(
             config.backend(),
             Backend::RuntimeOnly(RuntimeOnly {
-                sandbox: syn::parse_quote! { ::ink_runtime::DefaultRuntime },
+                runtime: syn::parse_quote! { ::ink_runtime::DefaultRuntime },
                 client: syn::parse_quote! { ::ink_runtime::RuntimeClient },
             })
         );
@@ -313,7 +313,7 @@ mod tests {
         assert_eq!(
             config.backend(),
             Backend::RuntimeOnly(RuntimeOnly {
-                sandbox: syn::parse_quote! { ::ink_runtime::DefaultRuntime },
+                runtime: syn::parse_quote! { ::ink_runtime::DefaultRuntime },
                 client: syn::parse_quote! { ::ink_runtime::RuntimeClient },
             })
         );
@@ -327,7 +327,7 @@ mod tests {
         assert_eq!(
             config.backend(),
             Backend::RuntimeOnly(RuntimeOnly {
-                sandbox: syn::parse_quote! { crate::CustomRuntime },
+                runtime: syn::parse_quote! { crate::CustomRuntime },
                 client: syn::parse_quote! { ::ink_runtime::RuntimeClient },
             })
         );

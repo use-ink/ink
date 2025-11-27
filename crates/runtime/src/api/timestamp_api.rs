@@ -46,13 +46,13 @@ mod tests {
 
     #[test]
     fn getting_and_setting_timestamp_works() {
-        let mut sandbox = DefaultRuntime::default();
+        let mut runtime = DefaultRuntime::default();
         for timestamp in 0..10 {
-            assert_ne!(sandbox.get_timestamp(), timestamp);
-            sandbox.set_timestamp(timestamp);
-            assert_eq!(sandbox.get_timestamp(), timestamp);
+            assert_ne!(runtime.get_timestamp(), timestamp);
+            runtime.set_timestamp(timestamp);
+            assert_eq!(runtime.get_timestamp(), timestamp);
 
-            sandbox.build_block();
+            runtime.build_block();
         }
     }
 }

@@ -336,23 +336,23 @@ mod tests {
     ///
     /// This function funds the account with the existential deposit
     /// (i.e. minimum balance).
-    fn warm_up<T>(sandbox: &mut T)
+    fn warm_up<T>(runtime: &mut T)
     where
         <T as RuntimeEnv>::Runtime: pallet_revive::Config + pallet_balances::Config,
         T: BalanceAPI<T> + RuntimeEnv,
     {
         let acc = pallet_revive::Pallet::<<T as RuntimeEnv>::Runtime>::account_id();
         let ed = pallet_balances::Pallet::<<T as RuntimeEnv>::Runtime>::minimum_balance();
-        sandbox.mint_into(&acc, ed).unwrap_or_else(|_| {
+        runtime.mint_into(&acc, ed).unwrap_or_else(|_| {
             panic!("Failed to mint existential balance into `pallet-revive` account")
         });
     }
 
     #[test]
     fn can_upload_code() {
-        let mut sandbox = DefaultRuntime::default();
+        let mut runtime = DefaultRuntime::default();
         let contract_binary = compile_module("dummy");
-        warm_up::<DefaultRuntime>(&mut sandbox);
+        warm_up::<DefaultRuntime>(&mut runtime);
 
         use sha3::{
             Digest,
@@ -363,7 +363,7 @@ mod tests {
 
         let origin =
             DefaultRuntime::convert_account_to_origin(DefaultRuntime::default_actor());
-        let result = sandbox.upload_contract(contract_binary, origin, 100000000000000);
+        let result = runtime.upload_contract(contract_binary, origin, 100000000000000);
 
         assert!(result.is_ok());
         assert_eq!(hash, result.unwrap().code_hash);
@@ -371,18 +371,18 @@ mod tests {
 
     #[test]
     fn can_deploy_contract() {
-        let mut sandbox = DefaultRuntime::default();
+        let mut runtime = DefaultRuntime::default();
         let contract_binary = compile_module("dummy");
 
-        let events_before = sandbox.events();
+        let events_before = runtime.events();
         assert!(events_before.is_empty());
 
-        warm_up::<DefaultRuntime>(&mut sandbox);
+        warm_up::<DefaultRuntime>(&mut runtime);
 
         let default_actor = DefaultRuntime::default_actor();
-        sandbox.map_account(&default_actor).expect("cannot map");
+        runtime.map_account(&default_actor).expect("cannot map");
         let origin = DefaultRuntime::convert_account_to_origin(default_actor);
-        let result = sandbox.deploy_contract(
+        let result = runtime.deploy_contract(
             contract_binary.clone(),
             0,
             vec![],
@@ -395,7 +395,7 @@ mod tests {
         assert!(!result.result.unwrap().result.did_revert());
 
         // deploying again must fail due to `DuplicateContract`
-        let result = sandbox.deploy_contract(
+        let result = runtime.deploy_contract(
             contract_binary,
             0,
             vec![],
@@ -411,15 +411,15 @@ mod tests {
 
     #[test]
     fn can_call_contract() {
-        let mut sandbox = DefaultRuntime::default();
+        let mut runtime = DefaultRuntime::default();
         let _actor = DefaultRuntime::default_actor();
         let contract_binary = compile_module("dummy");
-        warm_up::<DefaultRuntime>(&mut sandbox);
+        warm_up::<DefaultRuntime>(&mut runtime);
 
         let default_actor = DefaultRuntime::default_actor();
-        sandbox.map_account(&default_actor).expect("unable to map");
+        runtime.map_account(&default_actor).expect("unable to map");
         let origin = DefaultRuntime::convert_account_to_origin(default_actor);
-        let result = sandbox.deploy_contract(
+        let result = runtime.deploy_contract(
             contract_binary,
             0,
             vec![],
@@ -432,9 +432,9 @@ mod tests {
 
         let contract_address = result.result.expect("Contract should be deployed").addr;
 
-        sandbox.reset_events();
+        runtime.reset_events();
 
-        let result = sandbox.call_contract(
+        let result = runtime.call_contract(
             contract_address,
             0,
             vec![],
@@ -445,7 +445,7 @@ mod tests {
         assert!(result.result.is_ok());
         assert!(!result.result.unwrap().did_revert());
 
-        let events = sandbox.events();
+        let events = runtime.events();
         assert_eq!(events.len(), 1);
         assert_eq!(
             events[0].event,
