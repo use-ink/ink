@@ -280,7 +280,7 @@ impl IntoAccountId<AccountId32> for &ink_primitives::AccountId {
 
 impl IntoAccountId<AccountId32> for &ink_e2e::Keypair {
     fn into_account_id(self) -> AccountId32 {
-        AccountId32::from(self.public_key().0)
+        AccountId32::from(self.account_id_bytes())
     }
 }
 

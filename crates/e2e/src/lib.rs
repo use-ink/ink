@@ -79,12 +79,13 @@ pub use subxt_client::{
 };
 pub use subxt_signer::{
     self,
-    sr25519::{
-        self,
-        Keypair,
-        dev::*,
-    },
 };
+
+/// Native sr25519 keypair type re-exported for convenience.
+pub type Sr25519Keypair = subxt_signer::sr25519::Keypair;
+
+/// Native Ethereum keypair type re-exported for convenience.
+pub type EthKeypair = eth::EthKeypair;
 
 /// Ethereum keypair types for use with pallet-revive.
 ///
@@ -119,6 +120,17 @@ pub mod eth {
         faith,
     };
 }
+
+/// Re-export sr25519 signer types and dev accounts for callers that still need
+/// direct access to the raw Substrate keys.
+pub mod sr25519 {
+    pub use subxt_signer::sr25519::{
+        Keypair,
+        PublicKey,
+        Signature,
+        dev,
+    };
+}
 pub use tokio;
 pub use tracing;
 pub use tracing_subscriber;
@@ -139,6 +151,7 @@ use std::{
     cell::RefCell,
     sync::Once,
 };
+use crate::sr25519::dev as sr25519_dev;
 use xts::ReviveApi;
 
 pub use subxt::PolkadotConfig;
@@ -154,6 +167,130 @@ thread_local! {
     /// This way it is possible to distinguish the lines in stdout
     /// and stderr, to still know which line belongs to which test.
     pub static LOG_PREFIX: RefCell<String> = RefCell::new(String::from("no prefix set"));
+}
+
+/// Unified keypair type that can represent either a Substrate sr25519 keypair
+/// or an Ethereum ECDSA keypair. This lets e2e tests choose which signing scheme
+/// to use while keeping the high-level API stable.
+#[derive(Clone)]
+pub enum Keypair {
+    Sr25519(Sr25519Keypair),
+    Eth(EthKeypair),
+}
+
+impl Keypair {
+    /// Returns the AccountId32 bytes for this keypair.
+    /// - sr25519: raw public key bytes
+    /// - eth: fallback format `[H160][0xEE;12]`
+    pub fn account_id_bytes(&self) -> [u8; 32] {
+        match self {
+            Keypair::Sr25519(kp) => kp.public_key().0,
+            Keypair::Eth(kp) => {
+                let eth_address = kp.public_key().to_account_id();
+                let mut account_bytes = [0xEE_u8; 32];
+                account_bytes[..20].copy_from_slice(&eth_address.0);
+                account_bytes
+            }
+        }
+    }
+
+    pub fn is_eth(&self) -> bool {
+        matches!(self, Keypair::Eth(_))
+    }
+
+    pub fn as_sr25519(&self) -> Option<&Sr25519Keypair> {
+        match self {
+            Keypair::Sr25519(kp) => Some(kp),
+            _ => None,
+        }
+    }
+
+    pub fn as_eth(&self) -> Option<&EthKeypair> {
+        match self {
+            Keypair::Eth(kp) => Some(kp),
+            _ => None,
+        }
+    }
+}
+
+impl From<Sr25519Keypair> for Keypair {
+    fn from(value: Sr25519Keypair) -> Self {
+        Keypair::Sr25519(value)
+    }
+}
+
+impl From<EthKeypair> for Keypair {
+    fn from(value: EthKeypair) -> Self {
+        Keypair::Eth(value)
+    }
+}
+
+/// Sr25519 dev accounts (Substrate keyring), wrapped into the unified `Keypair`.
+pub fn alice() -> Keypair {
+    Keypair::from(sr25519_dev::alice())
+}
+pub fn bob() -> Keypair {
+    Keypair::from(sr25519_dev::bob())
+}
+pub fn charlie() -> Keypair {
+    Keypair::from(sr25519_dev::charlie())
+}
+pub fn dave() -> Keypair {
+    Keypair::from(sr25519_dev::dave())
+}
+pub fn eve() -> Keypair {
+    Keypair::from(sr25519_dev::eve())
+}
+pub fn ferdie() -> Keypair {
+    Keypair::from(sr25519_dev::ferdie())
+}
+pub fn one() -> Keypair {
+    Keypair::from(sr25519_dev::one())
+}
+pub fn two() -> Keypair {
+    Keypair::from(sr25519_dev::two())
+}
+
+/// Ethereum dev accounts wrapped into the unified `Keypair`.
+pub fn alith() -> Keypair {
+    Keypair::from(eth::dev::alith())
+}
+pub fn baltathar() -> Keypair {
+    Keypair::from(eth::dev::baltathar())
+}
+pub fn charleth() -> Keypair {
+    Keypair::from(eth::dev::charleth())
+}
+pub fn dorothy() -> Keypair {
+    Keypair::from(eth::dev::dorothy())
+}
+pub fn ethan() -> Keypair {
+    Keypair::from(eth::dev::ethan())
+}
+pub fn faith() -> Keypair {
+    Keypair::from(eth::dev::faith())
+}
+
+/// Backwards-compatible dev module to mirror the old `subxt_signer::sr25519::dev` API
+/// while returning the unified `Keypair` wrapper. Includes both sr25519 and Ethereum
+/// dev accounts.
+pub mod dev {
+    pub use crate::{
+        alice,
+        alith,
+        baltathar,
+        bob,
+        charleth,
+        charlie,
+        dave,
+        dorothy,
+        ethan,
+        eve,
+        faith,
+        ferdie,
+        one,
+        two,
+    };
 }
 
 /// Returns the name of the test which is currently executed.
@@ -212,7 +349,7 @@ pub fn address_from_keypair<AccountId: From<[u8; 32]> + AsRef<[u8]>>(
 
 /// Transforms a `Keypair` into an account id.
 pub fn keypair_to_account<AccountId: From<[u8; 32]>>(keypair: &Keypair) -> AccountId {
-    AccountId::from(keypair.public_key().0)
+    AccountId::from(keypair.account_id_bytes())
 }
 
 /// Creates a call builder for `Contract`, based on an account id.
@@ -249,7 +386,7 @@ pub trait IntoAddress {
 
 impl IntoAddress for Keypair {
     fn address(&self) -> Address {
-        AccountIdMapper::to_address(&self.public_key().0)
+        AccountIdMapper::to_address(&self.account_id_bytes())
     }
 }
 
@@ -303,7 +440,31 @@ pub trait Signer: Send + Sync {
     fn account_id(&self) -> [u8; 32];
 }
 
+impl<C> subxt::tx::Signer<C> for Keypair
+where
+    C: subxt::Config,
+    C::AccountId: From<[u8; 32]>,
+    C::Signature: From<sr25519::Signature> + From<eth::EthSignature>,
+{
+    fn account_id(&self) -> C::AccountId {
+        C::AccountId::from(self.account_id_bytes())
+    }
+
+    fn sign(&self, payload: &[u8]) -> C::Signature {
+        match self {
+            Keypair::Sr25519(kp) => kp.sign(payload).into(),
+            Keypair::Eth(kp) => kp.sign(payload).into(),
+        }
+    }
+}
+
 impl Signer for Keypair {
+    fn account_id(&self) -> [u8; 32] {
+        self.account_id_bytes()
+    }
+}
+
+impl Signer for Sr25519Keypair {
     fn account_id(&self) -> [u8; 32] {
         self.public_key().0
     }

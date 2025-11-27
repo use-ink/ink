@@ -82,6 +82,10 @@ The following Ethereum dev accounts are available via `ink_e2e::eth::dev`:
 
 ## Running the Tests
 
+All calls are signed with the Ethereum dev accounts via the new
+`MultiSignature::Eth` support, so you don't need any Substrate keyring
+accounts for this suite.
+
 ```bash
 cargo test -p assets_precompile_eth --features e2e-tests
 ```

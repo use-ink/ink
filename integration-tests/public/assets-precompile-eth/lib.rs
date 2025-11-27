@@ -26,10 +26,9 @@
 //!
 //! ## Note on Test Infrastructure
 //!
-//! While the contract parameters use Ethereum addresses, the current test
-//! infrastructure still uses Sr25519 keypairs for transaction signing.
-//! The important point is that the **addresses passed to contracts** are
-//! Ethereum addresses, which ensures correct token routing.
+//! The tests sign transactions with the Ethereum dev accounts via the
+//! `MultiSignature::Eth` variant, so both the origin and the contract
+//! parameters use native Ethereum addresses.
 
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
@@ -224,9 +223,8 @@ mod tests {
 ///
 /// ## Test Infrastructure Note
 ///
-/// The current test infrastructure uses Sr25519 keypairs for transaction signing.
-/// However, the important point is that **contract parameters use Ethereum addresses**,
-/// which ensures correct token routing without the fallback account trap.
+/// Transactions are signed with Ethereum dev accounts using `MultiSignature::Eth`,
+/// so both the origin and all contract parameters are native Ethereum addresses.
 #[cfg(all(test, feature = "e2e-tests"))]
 mod e2e_tests {
     use super::*;
@@ -239,14 +237,9 @@ mod e2e_tests {
     use ink_e2e::{
         ContractsBackend,
         IntoAddress,
-        // Sr25519 keypair for transaction signing (required by test infrastructure)
-        alice,
-        // Ethereum keypairs for addresses
-        eth::{
-            alith,
-            baltathar,
-            charleth,
-        },
+        alith,
+        baltathar,
+        charleth,
     };
     use ink_sandbox::{
         DefaultSandbox,
@@ -268,14 +261,14 @@ mod e2e_tests {
         let mut constructor = AssetHubPrecompileEthRef::new(asset_id);
 
         let contract = client
-            .instantiate("assets_precompile_eth", &alice(), &mut constructor)
+            .instantiate("assets_precompile_eth", &alith(), &mut constructor)
             .value(1_000_000_000_000u128)
             .submit()
             .await?;
 
         let contract_call = contract.call_builder::<AssetHubPrecompileEth>();
         let result = client
-            .call(&alice(), &contract_call.asset_id())
+            .call(&alith(), &contract_call.asset_id())
             .dry_run()
             .await?;
 
@@ -298,7 +291,7 @@ mod e2e_tests {
         let contract = client
             .instantiate(
                 "assets_precompile_eth",
-                &alice(),
+                &alith(),
                 &mut AssetHubPrecompileEthRef::new(asset_id),
             )
             .submit()
@@ -306,7 +299,7 @@ mod e2e_tests {
 
         let contract_call = contract.call_builder::<AssetHubPrecompileEth>();
         let result = client
-            .call(&alice(), &contract_call.total_supply())
+            .call(&alith(), &contract_call.total_supply())
             .submit()
             .await?;
 
@@ -337,7 +330,7 @@ mod e2e_tests {
         let contract = client
             .instantiate(
                 "assets_precompile_eth",
-                &alice(),
+                &alith(),
                 &mut AssetHubPrecompileEthRef::new(asset_id),
             )
             .submit()
@@ -348,13 +341,13 @@ mod e2e_tests {
         // Query balance using Ethereum addresses directly
         // This is the key point: we use alith().address() which returns the native H160
         let alith_balance = client
-            .call(&alice(), &contract_call.balance_of(alith().address()))
+            .call(&alith(), &contract_call.balance_of(alith().address()))
             .dry_run()
             .await?;
         assert_eq!(alith_balance.return_value(), U256::from(1000));
 
         let baltathar_balance = client
-            .call(&alice(), &contract_call.balance_of(baltathar().address()))
+            .call(&alith(), &contract_call.balance_of(baltathar().address()))
             .dry_run()
             .await?;
         assert_eq!(baltathar_balance.return_value(), U256::from(500));
@@ -380,7 +373,7 @@ mod e2e_tests {
         let contract = client
             .instantiate(
                 "assets_precompile_eth",
-                &alice(),
+                &alith(),
                 &mut AssetHubPrecompileEthRef::new(asset_id),
             )
             .submit()
@@ -404,7 +397,7 @@ mod e2e_tests {
 
         let result = client
             .call(
-                &alice(),
+                &alith(),
                 &contract_call.transfer(baltathar_addr, transfer_amount),
             )
             .submit()
@@ -443,7 +436,7 @@ mod e2e_tests {
         let contract = client
             .instantiate(
                 "assets_precompile_eth",
-                &alice(),
+                &alith(),
                 &mut AssetHubPrecompileEthRef::new(asset_id),
             )
             .value(100_000)
@@ -472,7 +465,7 @@ mod e2e_tests {
 
         let result = client
             .call(
-                &alice(),
+                &alith(),
                 &contract_call.approve(baltathar_addr, approve_amount),
             )
             .submit()
@@ -511,7 +504,7 @@ mod e2e_tests {
         let contract = client
             .instantiate(
                 "assets_precompile_eth",
-                &alice(),
+                &alith(),
                 &mut AssetHubPrecompileEthRef::new(asset_id),
             )
             .submit()
@@ -523,7 +516,7 @@ mod e2e_tests {
         // Query allowance using Ethereum addresses
         let allowance_call =
             &contract_call.allowance(alith().address(), baltathar().address());
-        let result = client.call(&alice(), allowance_call).dry_run().await?;
+        let result = client.call(&alith(), allowance_call).dry_run().await?;
         assert_eq!(result.return_value(), U256::from(0));
 
         // Approve using sandbox (which uses IntoAccountId for EthKeypair)
@@ -531,7 +524,7 @@ mod e2e_tests {
             .sandbox()
             .approve(&asset_id, &alith(), &baltathar(), 300u128)?;
 
-        let result = client.call(&alice(), allowance_call).dry_run().await?;
+        let result = client.call(&alith(), allowance_call).dry_run().await?;
         assert_eq!(result.return_value(), U256::from(300));
 
         Ok(())
@@ -551,7 +544,7 @@ mod e2e_tests {
         let contract = client
             .instantiate(
                 "assets_precompile_eth",
-                &alice(),
+                &alith(),
                 &mut AssetHubPrecompileEthRef::new(asset_id),
             )
             .submit()
@@ -575,7 +568,7 @@ mod e2e_tests {
 
         let result = client
             .call(
-                &alice(),
+                &alith(),
                 &contract_call.transfer_from(charleth_addr, baltathar_addr, transfer_amount),
             )
             .submit()
