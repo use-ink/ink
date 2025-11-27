@@ -14,6 +14,7 @@
 
 use super::{
     Keypair,
+    eth,
     log_info,
     sr25519,
 };
@@ -221,9 +222,9 @@ pub struct ReviveApi<C: subxt::Config, E: Environment> {
 impl<C, E> ReviveApi<C, E>
 where
     C: subxt::Config,
-    C::AccountId: From<sr25519::PublicKey> + serde::de::DeserializeOwned + scale::Codec,
-    C::Address: From<sr25519::PublicKey>,
-    C::Signature: From<sr25519::Signature>,
+    C::AccountId: From<[u8; 32]> + serde::de::DeserializeOwned + scale::Codec,
+    C::Address: From<C::AccountId>,
+    C::Signature: From<sr25519::Signature> + From<eth::EthSignature>,
     <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
     E: Environment,

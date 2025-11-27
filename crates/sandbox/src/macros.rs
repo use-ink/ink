@@ -399,16 +399,36 @@ mod construct_runtime {
     pub const INITIAL_BALANCE: u128 = 1_000_000_000_000_000;
     pub const DEFAULT_ACCOUNT: AccountId32 = AccountId32::new([1u8; 32]);
 
+    /// Convert an Ethereum dev keypair to an AccountId32 using the fallback format.
+    /// Format: [H160 (20 bytes)][0xEE repeated 12 times]
+    fn eth_dev_account(keypair: &$crate::subxt_signer::eth::Keypair) -> AccountId32 {
+        let eth_address = keypair.public_key().to_account_id();
+        let mut account_bytes = [0xEE_u8; 32];
+        account_bytes[..20].copy_from_slice(&eth_address.0);
+        AccountId32::from(account_bytes)
+    }
+
     pub struct $sandbox {
         ext: $crate::TestExternalities,
     }
 
     impl ::std::default::Default for $sandbox {
         fn default() -> Self {
-            let ext = $crate::macros::BlockBuilder::<$runtime>::new_ext(vec![(
-                DEFAULT_ACCOUNT,
-                INITIAL_BALANCE,
-            )]);
+            use $crate::subxt_signer::eth::dev::{alith, baltathar, charleth, dorothy, ethan, faith};
+
+            // Fund both the default account and Ethereum dev accounts
+            let balances = vec![
+                (DEFAULT_ACCOUNT, INITIAL_BALANCE),
+                // Ethereum dev accounts (fallback format: [H160][0xEE; 12])
+                (eth_dev_account(&alith()), INITIAL_BALANCE),
+                (eth_dev_account(&baltathar()), INITIAL_BALANCE),
+                (eth_dev_account(&charleth()), INITIAL_BALANCE),
+                (eth_dev_account(&dorothy()), INITIAL_BALANCE),
+                (eth_dev_account(&ethan()), INITIAL_BALANCE),
+                (eth_dev_account(&faith()), INITIAL_BALANCE),
+            ];
+
+            let ext = $crate::macros::BlockBuilder::<$runtime>::new_ext(balances);
             Self { ext }
         }
     }

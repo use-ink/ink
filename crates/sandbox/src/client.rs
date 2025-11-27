@@ -56,20 +56,31 @@ use ink_e2e::{
     CreateBuilderPartial,
     E2EBackend,
     InstantiateDryRunResult,
+    Keypair,
     UploadResult,
+    alice,
+    alith,
+    baltathar,
+    bob,
+    charleth,
+    charlie,
     constructor_exec_input,
+    dave,
+    dorothy,
+    ethan,
+    eve,
+    faith,
+    ferdie,
     keypair_to_account,
     log_error,
+    one,
     salt,
     subxt::{
         self,
         dynamic::Value,
         tx::Payload,
     },
-    subxt_signer::sr25519::{
-        Keypair,
-        dev,
-    },
+    two,
 };
 use ink_env::{
     Environment,
@@ -101,6 +112,7 @@ use std::{
     marker::PhantomData,
     path::PathBuf,
 };
+use crate::subxt_signer::sr25519;
 
 type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
 type ContractsBalanceOf<R> =
@@ -146,16 +158,22 @@ where
         const TOKENS: u128 = 1_000_000_000_000_000;
 
         let accounts = [
-            dev::alice(),
-            dev::bob(),
-            dev::charlie(),
-            dev::dave(),
-            dev::eve(),
-            dev::ferdie(),
-            dev::one(),
-            dev::two(),
+            alice(),
+            bob(),
+            charlie(),
+            dave(),
+            eve(),
+            ferdie(),
+            one(),
+            two(),
+            alith(),
+            baltathar(),
+            charleth(),
+            dorothy(),
+            ethan(),
+            faith(),
         ]
-        .map(|kp| kp.public_key().0)
+        .map(|kp| kp.account_id_bytes())
         .map(From::from);
         for account in accounts.iter() {
             sandbox
@@ -193,7 +211,9 @@ where
             .mint_into(&pair.public().0.into(), amount)
             .expect("Failed to mint tokens");
 
-        Keypair::from_secret_key(seed).expect("Failed to create keypair")
+        let kp =
+            sr25519::Keypair::from_secret_key(seed).expect("Failed to create keypair");
+        Keypair::from(kp)
     }
 
     async fn free_balance(
@@ -699,6 +719,11 @@ where
         &mut self,
         caller: &Keypair,
     ) -> Result<Option<Self::EventLog>, Self::Error> {
+        if caller.is_eth() {
+            // Fallback AccountId32 format makes Ethereum keys auto-mapped.
+            return Ok(None);
+        }
+
         let caller_account: AccountIdFor<S::Runtime> = keypair_to_account(caller);
         let origin = S::convert_account_to_origin(caller_account);
 

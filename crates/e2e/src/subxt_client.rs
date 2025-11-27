@@ -25,6 +25,7 @@ use super::{
         CreateBuilderPartial,
         constructor_exec_input,
     },
+    eth,
     events::{
         CodeStoredEvent,
         EventWithTopics,
@@ -121,10 +122,8 @@ where
 impl<C, E> Client<C, E>
 where
     C: subxt::Config,
-    C::AccountId:
-        From<sr25519::PublicKey> + scale::Codec + serde::de::DeserializeOwned + Debug,
-    C::Address: From<sr25519::PublicKey>,
-    C::Signature: From<sr25519::Signature>,
+    C::AccountId: From<[u8; 32]> + scale::Codec + serde::de::DeserializeOwned + Debug,
+    C::Signature: From<sr25519::Signature> + From<eth::EthSignature>,
     <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
     E: Environment,
@@ -342,11 +341,10 @@ where
         + Sync
         + core::fmt::Display
         + scale::Codec
-        + From<sr25519::PublicKey>
+        + From<[u8; 32]>
         + serde::de::DeserializeOwned,
-    C::Address: From<sr25519::PublicKey>,
-    C::Signature: From<sr25519::Signature>,
     C::Address: Send + Sync,
+    C::Signature: From<sr25519::Signature> + From<eth::EthSignature>,
     <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
     E: Environment,
@@ -374,9 +372,11 @@ where
             <sp_core::sr25519::Pair as sp_core::Pair>::generate_with_phrase(None);
         let phrase =
             subxt_signer::bip39::Mnemonic::parse(phrase).expect("valid phrase expected");
-        let keypair = Keypair::from_phrase(&phrase, None).expect("valid phrase expected");
+        let sr_kp =
+            sr25519::Keypair::from_phrase(&phrase, None).expect("valid phrase expected");
+        let keypair = Keypair::from(sr_kp);
         let account_id = <Keypair as Signer<C>>::account_id(&keypair);
-        let origin_account_id = origin.public_key().to_account_id();
+        let origin_account_id: C::AccountId = <Keypair as Signer<C>>::account_id(origin);
 
         self.api
             .transfer_allow_death(origin, account_id.clone(), amount)
@@ -495,11 +495,9 @@ where
         + Sync
         + core::fmt::Display
         + scale::Codec
-        + From<sr25519::PublicKey>
         + From<[u8; 32]>
         + serde::de::DeserializeOwned,
-    C::Address: From<sr25519::PublicKey>,
-    C::Signature: From<sr25519::Signature>,
+    C::Signature: From<sr25519::Signature> + From<eth::EthSignature>,
     C::Address: Send + Sync,
     <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
@@ -880,6 +878,12 @@ where
         &mut self,
         caller: &Keypair,
     ) -> Result<Option<Self::EventLog>, Self::Error> {
+        if caller.is_eth() {
+            // Ethereum signers are already recognized via fallback format
+            // and don't need explicit mapping.
+            return Ok(None);
+        }
+
         let addr = self.derive_keypair_address(caller);
         if self.fetch_original_account(&addr).await?.is_some() {
             return Ok(None);
@@ -955,10 +959,9 @@ where
         + Sync
         + core::fmt::Display
         + scale::Codec
-        + From<sr25519::PublicKey>
+        + From<[u8; 32]>
         + serde::de::DeserializeOwned,
-    C::Address: From<sr25519::PublicKey>,
-    C::Signature: From<sr25519::Signature>,
+    C::Signature: From<sr25519::Signature> + From<eth::EthSignature>,
     C::Address: Send + Sync,
     E: Environment,
     E::AccountId: Debug + Send + Sync,
@@ -979,11 +982,9 @@ where
         + Sync
         + core::fmt::Display
         + scale::Codec
-        + From<sr25519::PublicKey>
         + From<[u8; 32]>
         + serde::de::DeserializeOwned,
-    C::Address: From<sr25519::PublicKey>,
-    C::Signature: From<sr25519::Signature>,
+    C::Signature: From<sr25519::Signature> + From<eth::EthSignature>,
     C::Address: Send + Sync,
     <C::ExtrinsicParams as ExtrinsicParams<C>>::Params:
         From<<DefaultExtrinsicParams<C> as ExtrinsicParams<C>>::Params>,
