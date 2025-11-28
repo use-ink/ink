@@ -4,7 +4,7 @@ use ink_e2e::ContractsBackend;
 type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[ink_e2e::test]
-async fn migration_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+async fn migration_works(mut client: Client) -> E2EResult<()> {
     // Given
     let mut constructor = IncrementerRef::new();
     let contract = client

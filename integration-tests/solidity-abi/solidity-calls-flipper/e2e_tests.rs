@@ -32,9 +32,7 @@ type E2EResult<T> = Result<T, Box<dyn Error>>;
 // scripts.
 #[ignore]
 #[ink_e2e::test]
-async fn solidity_calls_ink_works<Client: E2EBackend>(
-    mut client: Client,
-) -> E2EResult<()> {
+async fn solidity_calls_ink_works(mut client: Client) -> E2EResult<()> {
     let constructor = FlipperRef::new(false);
     let params = constructor
         .endowment(0u32.into())
