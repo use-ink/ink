@@ -96,19 +96,17 @@ where
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::DefaultRuntime;
+    use crate::{
+        DefaultRuntime,
+        DefaultRuntime::default_actor,
+    };
     #[test]
     fn mint_works() {
         let mut runtime = DefaultRuntime::default();
-        let balance = runtime.free_balance(&DefaultRuntime::default_actor());
+        let balance = runtime.free_balance(&default_actor());
 
-        runtime
-            .mint_into(&DefaultRuntime::default_actor(), 100)
-            .unwrap();
+        runtime.mint_into(&default_actor(), 100).unwrap();
 
-        assert_eq!(
-            runtime.free_balance(&DefaultRuntime::default_actor()),
-            balance + 100
-        );
+        assert_eq!(runtime.free_balance(&default_actor()), balance + 100);
     }
 }

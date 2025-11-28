@@ -66,12 +66,12 @@ in the future.
    ```bash
    fd Cargo.toml crates/ | \
    grep -v e2e | \
-   grep -v crates/runtime/ | \
+   grep -v runtime/ | \
    xargs -n1 cargo no-dev-deps publish --allow-dirty --dry-run --manifest-path
    ```
-   This command ignores the `e2e` and `crates/runtime` folders: The `e2e` crates depend on the `cargo-contract/contract-build`
+   This command ignores the `e2e` and `runtime` folders: The `e2e` crates depend on the `cargo-contract/contract-build`
    crate, so if you want to publish those, you need to publish `cargo-contract/contract-build` first.
-   The runtime emulator is ignored, as it depends on some crates via their `git` ref.
+   The `runtime` is ignored, as it depends on some crates via their `git` ref.
    It uses [`no-dev-deps`](https://crates.io/crates/cargo-no-dev-deps)
    for publishing, so that the `dev-dependencies` of ink! are ignored for publishing.
    They are not needed and due to a cycle it's also not possible to publish with them.

@@ -323,12 +323,15 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::DefaultRuntime;
+    use crate::{
+        DefaultRuntime,
+        DefaultRuntime::default_actor,
+    };
 
     #[test]
     fn create_works() {
         let mut runtime = DefaultRuntime::default();
-        let admin = DefaultRuntime::default_actor();
+        let admin = default_actor();
         let asset_id = 1u32;
         let min_balance = 1u128;
 
@@ -341,7 +344,7 @@ mod tests {
     #[test]
     fn set_metadata_works() {
         let mut runtime = DefaultRuntime::default();
-        let admin = DefaultRuntime::default_actor();
+        let admin = default_actor();
         let asset_id = 1u32;
 
         runtime.create(&asset_id, &admin, 1u128).unwrap();
@@ -358,7 +361,7 @@ mod tests {
     #[test]
     fn metadata_works() {
         let mut runtime = DefaultRuntime::default();
-        let admin = DefaultRuntime::default_actor();
+        let admin = default_actor();
         let asset_id = 1u32;
 
         runtime.create(&asset_id, &admin, 1u128).unwrap();
@@ -382,7 +385,7 @@ mod tests {
     #[test]
     fn approve_works() {
         let mut runtime = DefaultRuntime::default();
-        let admin = DefaultRuntime::default_actor();
+        let admin = default_actor();
         let spender = ink_e2e::bob().into_account_id();
         let asset_id = 1u32;
 
@@ -403,7 +406,7 @@ mod tests {
     #[test]
     fn mint_into_works() {
         let mut runtime = DefaultRuntime::default();
-        let admin = DefaultRuntime::default_actor();
+        let admin = default_actor();
         let asset_id = 1u32;
 
         runtime.create(&asset_id, &admin, 1u128).unwrap();
@@ -420,7 +423,7 @@ mod tests {
     #[test]
     fn transfer_works() {
         let mut runtime = DefaultRuntime::default();
-        let admin = DefaultRuntime::default_actor();
+        let admin = default_actor();
         let recipient = ink_e2e::bob().into_account_id();
         let asset_id = 1u32;
 
@@ -447,7 +450,7 @@ mod tests {
     #[test]
     fn balance_of_works() {
         let mut runtime = DefaultRuntime::default();
-        let admin = DefaultRuntime::default_actor();
+        let admin = default_actor();
         let asset_id = 1u32;
 
         runtime.create(&asset_id, &admin, 1u128).unwrap();
@@ -464,7 +467,7 @@ mod tests {
     #[test]
     fn total_supply_works() {
         let mut runtime = DefaultRuntime::default();
-        let admin = DefaultRuntime::default_actor();
+        let admin = default_actor();
         let asset_id = 1u32;
 
         runtime.create(&asset_id, &admin, 1u128).unwrap();
@@ -481,7 +484,7 @@ mod tests {
     #[test]
     fn allowance_works() {
         let mut runtime = DefaultRuntime::default();
-        let admin = DefaultRuntime::default_actor();
+        let admin = default_actor();
         let spender = ink_e2e::bob().into_account_id();
         let asset_id = 1u32;
 
@@ -501,7 +504,7 @@ mod tests {
     #[test]
     fn asset_exists_works() {
         let mut runtime = DefaultRuntime::default();
-        let admin = DefaultRuntime::default_actor();
+        let admin = default_actor();
         let asset_id = 1u32;
 
         assert!(!runtime.asset_exists(&asset_id));

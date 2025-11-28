@@ -60,8 +60,8 @@ ink! contracts are compiled to RISC-V bytecode for
 This is how ink! smart contracts are executed on a blockchain:
 they are uploaded to a blockchain that runs PolkaVM, PolkaVM then
 interprets them.
-As contracts are executed in an isolated runtime environment on the
-blockchain itself we compile them to a `no_std` environment.
+As contracts are executed in the runtime environment on the
+blockchain we compile them to a `no_std` environment.
 More specifically they are executed by the [`pallet-revive`](https://github.com/paritytech/polkadot-sdk/tree/master/substrate/frame/revive),
 a module of the Polkadot SDK blockchain framework. This module takes ink!
 smart contracts and runs them in a PolkaVM execution environment.
@@ -250,9 +250,9 @@ most smart-contract-specific events: `Called`, `ContractCodeUpdated, CodeStored`
 The `Instantiated` event was brought back in a later PR.
 
 (5) `pallet-revive` included `revm` as a non-optional dependency. As ink! has to 
-depend on `pallet-revive` for some features (e.g. runtime-only E2E testing), this 
+depend on `pallet-revive` for some features (e.g. runtime E2E testing), this 
 results in over 75 more child dependencies having to be build now. This increased 
-build times for runtime-only E2E tests significantly. 
+build times for runtime E2E tests significantly. 
 [We proposed](https://github.com/paritytech/polkadot-sdk/pull/9689) putting anything 
 `revm` behind a feature flag, but Parity is not open to it.
 
