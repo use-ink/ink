@@ -4,8 +4,8 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-ink_runtime::create_sandbox!(ContractCallerSandbox, ContractCallerSandboxRuntime, (), {
+ink_runtime::create_runtime!(ContractCallerRuntime, ContractCallerRuntimeInner, (), {
     ContractCaller: pallet_revive_caller,
 });
 
-impl pallet_revive_caller::Config for ContractCallerSandboxRuntime {}
+impl pallet_revive_caller::Config for ContractCallerRuntimeInner {}

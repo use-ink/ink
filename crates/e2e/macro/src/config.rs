@@ -12,6 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use darling::{
+    FromMeta,
+    ast::NestedMeta,
+};
+use proc_macro2::TokenStream as TokenStream2;
+use syn::{
+    Meta,
+    punctuated::Punctuated,
+    spanned::Spanned,
+};
+
 /// The type of the architecture that should be used to run test.
 #[derive(Clone, Eq, PartialEq, Debug, darling::FromMeta)]
 #[darling(rename_all = "snake_case")]
@@ -65,8 +76,8 @@ impl Node {
 /// The runtime emulator that should be used within `TestExternalities`
 #[derive(Clone, Eq, PartialEq, Debug, darling::FromMeta)]
 pub struct RuntimeOnly {
-    /// The sandbox runtime type (e.g., `ink_runtime::DefaultRuntime`)
-    pub sandbox: syn::Path,
+    /// The runtime type (e.g., `ink_runtime::DefaultRuntime`)
+    pub runtime: syn::Path,
     /// The client type implementing the backend traits (e.g.,
     /// `ink_runtime::RuntimeClient`)
     pub client: syn::Path,
@@ -74,7 +85,7 @@ pub struct RuntimeOnly {
 
 impl RuntimeOnly {
     pub fn runtime_path(&self) -> syn::Path {
-        self.sandbox.clone()
+        self.runtime.clone()
     }
     pub fn client_path(&self) -> syn::Path {
         self.client.clone()
@@ -129,25 +140,123 @@ impl E2EConfig {
     pub fn replace_test_attr(&self) -> Option<String> {
         self.replace_test_attr.clone()
     }
+
+    /// Parses the attribute arguments passed to `ink_e2e::test`.
+    pub fn from_attr_tokens(attr: TokenStream2) -> Result<Self, syn::Error> {
+        let nested_meta = NestedMeta::parse_meta_list(attr)?;
+        Self::from_nested_meta(nested_meta)
+    }
+
+    /// Builds the configuration from already parsed meta items.
+    pub fn from_nested_meta(nested_meta: Vec<NestedMeta>) -> Result<Self, syn::Error> {
+        let normalized = normalize_runtime_meta(nested_meta)?;
+        Self::from_list(&normalized).map_err(syn::Error::from)
+    }
+}
+
+fn normalize_runtime_meta(
+    nested_meta: Vec<NestedMeta>,
+) -> Result<Vec<NestedMeta>, syn::Error> {
+    let mut args = Vec::with_capacity(nested_meta.len());
+    let mut runtime = None;
+
+    for meta in nested_meta {
+        if let Some(found) = RuntimeBackendArg::from_nested_meta(&meta)? {
+            if runtime.replace(found).is_some() {
+                return Err(syn::Error::new(
+                    meta.span(),
+                    "only a single `runtime` attribute is allowed",
+                ));
+            }
+            continue;
+        }
+        args.push(meta);
+    }
+
+    if let Some(runtime) = runtime {
+        args.push(runtime.into_backend_meta());
+    }
+
+    Ok(args)
+}
+
+struct RuntimeBackendArg {
+    runtime: Option<syn::Path>,
+}
+
+impl RuntimeBackendArg {
+    fn from_nested_meta(meta: &NestedMeta) -> Result<Option<Self>, syn::Error> {
+        let meta = match meta {
+            NestedMeta::Meta(meta) if meta.path().is_ident("runtime") => meta,
+            _ => return Ok(None),
+        };
+
+        match meta {
+            Meta::Path(_) => Ok(Some(Self { runtime: None })),
+            Meta::List(list) => {
+                let nested: Punctuated<NestedMeta, syn::Token![,]> =
+                    list.parse_args_with(Punctuated::parse_terminated)?;
+                if nested.len() != 1 {
+                    return Err(syn::Error::new(
+                        list.span(),
+                        "`runtime` expects zero or one runtime type",
+                    ));
+                }
+                match nested.first().unwrap() {
+                    NestedMeta::Meta(Meta::Path(path)) => {
+                        Ok(Some(Self {
+                            runtime: Some(path.clone()),
+                        }))
+                    }
+                    other => {
+                        Err(syn::Error::new(
+                            other.span(),
+                            "`runtime` expects a runtime type path",
+                        ))
+                    }
+                }
+            }
+            Meta::NameValue(name_value) => {
+                Err(syn::Error::new(
+                    name_value.span(),
+                    "`runtime` does not support name-value pairs",
+                ))
+            }
+        }
+    }
+
+    fn runtime(&self) -> syn::Path {
+        self.runtime
+            .clone()
+            .unwrap_or_else(|| syn::parse_quote! { ::ink_runtime::DefaultRuntime })
+    }
+
+    fn into_backend_meta(self) -> NestedMeta {
+        let runtime = self.runtime();
+        syn::parse_quote! {
+            backend(runtime_only(runtime = #runtime, client = ::ink_runtime::RuntimeClient))
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use darling::{
-        FromMeta,
-        ast::NestedMeta,
-    };
+    use darling::ast::NestedMeta;
     use quote::quote;
+
+    fn parse_config(input: TokenStream2) -> E2EConfig {
+        let nested = NestedMeta::parse_meta_list(input).unwrap();
+        E2EConfig::from_nested_meta(nested).unwrap()
+    }
 
     #[test]
     fn config_works_backend_runtime_only() {
         let input = quote! {
             environment = crate::CustomEnvironment,
-            backend(runtime_only(sandbox = ::ink_runtime::DefaultRuntime, client = ::ink_runtime::RuntimeClient)),
+            backend(runtime_only(runtime = ::ink_runtime::DefaultRuntime, client = ::ink_runtime::RuntimeClient)),
         };
-        let config =
-            E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
+        let config = parse_config(input);
 
         assert_eq!(
             config.environment(),
@@ -157,25 +266,24 @@ mod tests {
         assert_eq!(
             config.backend(),
             Backend::RuntimeOnly(RuntimeOnly {
-                sandbox: syn::parse_quote! { ::ink_runtime::DefaultRuntime },
+                runtime: syn::parse_quote! { ::ink_runtime::DefaultRuntime },
                 client: syn::parse_quote! { ::ink_runtime::RuntimeClient },
             })
         );
     }
 
     #[test]
-    #[should_panic(expected = "ErrorUnknownField")]
+    #[should_panic(expected = "Unknown field")]
     fn config_backend_runtime_only_default_not_allowed() {
         let input = quote! {
             backend(runtime_only(default)),
         };
-        let config =
-            E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
+        let config = parse_config(input);
 
         assert_eq!(
             config.backend(),
             Backend::RuntimeOnly(RuntimeOnly {
-                sandbox: syn::parse_quote! { ::ink_runtime::DefaultRuntime },
+                runtime: syn::parse_quote! { ::ink_runtime::DefaultRuntime },
                 client: syn::parse_quote! { ::ink_runtime::RuntimeClient },
             })
         );
@@ -184,15 +292,42 @@ mod tests {
     #[test]
     fn config_works_runtime_only_with_custom_backend() {
         let input = quote! {
-            backend(runtime_only(sandbox = ::ink_runtime::DefaultRuntime, client = ::ink_runtime::RuntimeClient)),
+            backend(runtime_only(runtime = ::ink_runtime::DefaultRuntime, client = ::ink_runtime::RuntimeClient)),
         };
-        let config =
-            E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
+        let config = parse_config(input);
 
         assert_eq!(
             config.backend(),
             Backend::RuntimeOnly(RuntimeOnly {
-                sandbox: syn::parse_quote! { ::ink_runtime::DefaultRuntime },
+                runtime: syn::parse_quote! { ::ink_runtime::DefaultRuntime },
+                client: syn::parse_quote! { ::ink_runtime::RuntimeClient },
+            })
+        );
+    }
+
+    #[test]
+    fn runtime_keyword_defaults() {
+        let input = quote! { runtime };
+        let config = parse_config(input);
+
+        assert_eq!(
+            config.backend(),
+            Backend::RuntimeOnly(RuntimeOnly {
+                runtime: syn::parse_quote! { ::ink_runtime::DefaultRuntime },
+                client: syn::parse_quote! { ::ink_runtime::RuntimeClient },
+            })
+        );
+    }
+
+    #[test]
+    fn runtime_keyword_custom_runtime() {
+        let input = quote! { runtime(crate::CustomRuntime) };
+        let config = parse_config(input);
+
+        assert_eq!(
+            config.backend(),
+            Backend::RuntimeOnly(RuntimeOnly {
+                runtime: syn::parse_quote! { crate::CustomRuntime },
                 client: syn::parse_quote! { ::ink_runtime::RuntimeClient },
             })
         );
@@ -203,8 +338,7 @@ mod tests {
         let input = quote! {
             backend(node),
         };
-        let config =
-            E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
+        let config = parse_config(input);
 
         assert_eq!(config.backend(), Backend::Node(Node::Auto));
 
@@ -231,13 +365,12 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "ErrorUnknownField")]
+    #[should_panic(expected = "Unknown field")]
     fn config_backend_node_auto_not_allowed() {
         let input = quote! {
             backend(node(auto)),
         };
-        let config =
-            E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
+        let config = parse_config(input);
 
         assert_eq!(config.backend(), Backend::Node(Node::Auto));
     }
@@ -247,8 +380,7 @@ mod tests {
         let input = quote! {
             backend(node(url = "ws://0.0.0.0:9999")),
         };
-        let config =
-            E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
+        let config = parse_config(input);
 
         match config.backend() {
             Backend::Node(node_config) => {
@@ -277,8 +409,7 @@ mod tests {
         let input = quote! {
             replace_test_attr = "#[quickcheck]"
         };
-        let config =
-            E2EConfig::from_list(&NestedMeta::parse_meta_list(input).unwrap()).unwrap();
+        let config = parse_config(input);
 
         assert_eq!(config.replace_test_attr(), Some("#[quickcheck]".to_owned()));
     }

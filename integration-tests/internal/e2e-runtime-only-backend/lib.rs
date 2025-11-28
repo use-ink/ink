@@ -56,11 +56,8 @@ pub mod flipper {
         /// - flip the flipper
         /// - get the flipper's value
         /// - assert that the value is `true`
-        #[ink_runtime::test(backend(runtime_only(
-            sandbox = ink_runtime::DefaultRuntime,
-            client  = ink_runtime::RuntimeClient
-        )))]
-        async fn it_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+        #[ink_e2e::test(runtime)]
+        async fn it_works(mut client: Client) -> E2EResult<()> {
             // given
             const INITIAL_VALUE: bool = false;
             let mut constructor = FlipperRef::new(INITIAL_VALUE);
@@ -98,10 +95,7 @@ pub mod flipper {
         /// - transfer some funds to the contract using runtime call
         /// - get the contract's balance again
         /// - assert that the contract's balance increased by the transferred amount
-        #[ink_runtime::test(backend(runtime_only(
-            sandbox = ink_runtime::DefaultRuntime,
-            client  = ink_runtime::RuntimeClient
-        )))]
+        #[ink_e2e::test(runtime)]
         async fn runtime_call_works() -> E2EResult<()> {
             // given
             let mut constructor = FlipperRef::new(false);
@@ -155,11 +149,8 @@ pub mod flipper {
         }
 
         /// Just instantiate a contract using non-default runtime.
-        #[ink_runtime::test(backend(runtime_only(
-            sandbox = ink_runtime::DefaultRuntime,
-            client  = ink_runtime::RuntimeClient
-        )))]
-        async fn custom_runtime<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+        #[ink_e2e::test(runtime)]
+        async fn custom_runtime(mut client: Client) -> E2EResult<()> {
             client
                 .instantiate(
                     "e2e-runtime-only-backend",

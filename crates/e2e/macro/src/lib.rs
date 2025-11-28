@@ -60,11 +60,14 @@ use syn::Result;
 /// ```
 /// type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 ///
-/// #[ink_runtime::test(backend(runtime_only(sandbox = ink_runtime::DefaultRuntime, client = ink_runtime::RuntimeClient)))]
-/// async fn runtime_call_works() -> E2EResult<()> {
+/// #[ink_e2e::test(runtime)]
+/// async fn runtime_call_works(mut client: Client) -> E2EResult<()> {
 ///     // ...
 /// }
 /// ```
+///
+/// This defaults to `ink_runtime::DefaultRuntime` together with the built-in
+/// `ink_runtime::RuntimeClient`.
 ///
 /// In this configuration the test will not run against a node that is running in the
 /// background, but against an in-process slimmed down `pallet-revive` execution
@@ -73,6 +76,15 @@ use syn::Result;
 /// Please see [the page on testing with DRink!](https://use.ink/basics/contract-testing/drink)
 /// in our documentation for more details.
 /// For a full example [see here](https://github.com/use-ink/ink-examples/tree/v5.x.x/e2e-runtime-only-backend).
+///
+/// You can also provide a custom runtime:
+///
+/// ```
+/// #[ink_e2e::test(runtime(crate::CustomRuntime))]
+/// async fn runtime_call_works(mut client: Client) -> E2EResult<()> {
+///     // ...
+/// }
+/// ```
 ///
 /// # Example
 ///

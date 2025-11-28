@@ -8,7 +8,7 @@ use ink_e2e::ContractsRegistry;
 use ink_revive_types::ExecReturnValue;
 use ink_runtime::{
     DefaultRuntime,
-    Sandbox,
+    RuntimeEnv,
     api::prelude::{
         BalanceAPI,
         ContractAPI,
@@ -23,16 +23,16 @@ fn call_solidity_encoded_message() {
     let built_contracts = ::ink_e2e::build_root_and_contract_dependencies(vec![]);
     let contracts = ContractsRegistry::new(built_contracts);
 
-    let mut sandbox = DefaultRuntime::default();
+    let mut runtime = DefaultRuntime::default();
     let caller = ink_e2e::alice();
     let origin =
         DefaultRuntime::convert_account_to_origin(DefaultRuntime::default_actor());
 
-    sandbox
+    runtime
         .mint_into(&caller.public_key().0.into(), 1_000_000_000_000_000u128)
         .unwrap_or_else(|_| panic!("Failed to mint tokens"));
 
-    sandbox
+    runtime
         .map_account(&DefaultRuntime::default_actor())
         .expect("unable to map");
 
@@ -46,22 +46,22 @@ fn call_solidity_encoded_message() {
 
     let code = contracts.load_code("sol_encoding");
     let contract_addr = <DefaultRuntime as ContractAPI>::deploy_contract(
-        &mut sandbox,
+        &mut runtime,
         code,
         0,
         exec_input.encode(),
         // salt
         None,
         origin.clone(),
-        <DefaultRuntime as Sandbox>::default_gas_limit(),
+        <DefaultRuntime as RuntimeEnv>::default_gas_limit(),
         STORAGE_DEPOSIT_LIMIT,
     )
     .result
-    .expect("sandbox deploy contract failed")
+    .expect("runtime deploy contract failed")
     .addr;
 
-    let mut contract = ContractSandbox {
-        sandbox,
+    let mut contract = ContractRuntime {
+        runtime,
         contract_addr,
     };
 
@@ -75,17 +75,17 @@ fn call_solidity_encoded_message() {
     assert!(value, "value should have been set to true");
 }
 
-struct ContractSandbox {
-    sandbox: DefaultRuntime,
+struct ContractRuntime {
+    runtime: DefaultRuntime,
     contract_addr: Address,
 }
 
-impl ContractSandbox {
+impl ContractRuntime {
     fn call_with_return_value<Args, Ret>(
         &mut self,
         message: &str,
         args: Args,
-        origin: OriginFor<<DefaultRuntime as Sandbox>::Runtime>,
+        origin: OriginFor<<DefaultRuntime as RuntimeEnv>::Runtime>,
     ) -> Ret
     where
         Args: for<'a> SolEncode<'a>,
@@ -99,7 +99,7 @@ impl ContractSandbox {
         &mut self,
         message: &str,
         args: Args,
-        origin: OriginFor<<DefaultRuntime as Sandbox>::Runtime>,
+        origin: OriginFor<<DefaultRuntime as RuntimeEnv>::Runtime>,
     ) -> Vec<u8>
     where
         Args: for<'a> SolEncode<'a>,
@@ -116,19 +116,19 @@ impl ContractSandbox {
     fn call_raw(
         &mut self,
         data: Vec<u8>,
-        origin: OriginFor<<DefaultRuntime as Sandbox>::Runtime>,
+        origin: OriginFor<<DefaultRuntime as RuntimeEnv>::Runtime>,
     ) -> ExecReturnValue {
         let call_raw = <DefaultRuntime as ContractAPI>::call_contract(
-            &mut self.sandbox,
+            &mut self.runtime,
             self.contract_addr,
             0,
             data,
             origin,
-            <DefaultRuntime as Sandbox>::default_gas_limit(),
+            <DefaultRuntime as RuntimeEnv>::default_gas_limit(),
             STORAGE_DEPOSIT_LIMIT,
         )
         .result
-        .expect("sandbox call contract failed");
+        .expect("runtime call contract failed");
         ExecReturnValue {
             flags: ink_env::ReturnFlags::from_bits_truncate(call_raw.flags.bits()),
             data: call_raw.data,

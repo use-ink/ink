@@ -7,11 +7,8 @@ use ink_e2e::{
 type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 
 /// Just instantiate a contract using non-default runtime.
-#[ink_runtime::test(backend(runtime_only(
-    sandbox = sandbox_runtime::ContractCallerSandbox,
-    client  = ink_runtime::RuntimeClient
-)))]
-async fn instantiate_and_get<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+#[ink_e2e::test(runtime(custom_runtime::ContractCallerRuntime))]
+async fn instantiate_and_get(mut client: Client) -> E2EResult<()> {
     use flipper_traits::Flip;
 
     let initial_value = false;

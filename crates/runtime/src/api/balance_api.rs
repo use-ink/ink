@@ -11,7 +11,7 @@ use pallet_revive::sp_runtime::traits::StaticLookup;
 
 type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
 
-/// Balance API for the sandbox.
+/// Balance API for the runtime.
 pub trait BalanceAPI<T: RuntimeEnv>
 where
     T: RuntimeEnv,
@@ -99,15 +99,15 @@ mod test {
     use crate::DefaultRuntime;
     #[test]
     fn mint_works() {
-        let mut sandbox = DefaultRuntime::default();
-        let balance = sandbox.free_balance(&DefaultRuntime::default_actor());
+        let mut runtime = DefaultRuntime::default();
+        let balance = runtime.free_balance(&DefaultRuntime::default_actor());
 
-        sandbox
+        runtime
             .mint_into(&DefaultRuntime::default_actor(), 100)
             .unwrap();
 
         assert_eq!(
-            sandbox.free_balance(&DefaultRuntime::default_actor()),
+            runtime.free_balance(&DefaultRuntime::default_actor()),
             balance + 100
         );
     }

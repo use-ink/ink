@@ -12,7 +12,7 @@ use frame_support::sp_runtime::{
 };
 use frame_system::pallet_prelude::BlockNumberFor;
 
-/// System API for the sandbox.
+/// System API for the runtime.
 pub trait SystemAPI {
     /// The runtime system config.
     type T: frame_system::Config;
@@ -114,7 +114,7 @@ mod tests {
     };
 
     fn make_transfer(
-        sandbox: &mut DefaultRuntime,
+        runtime: &mut DefaultRuntime,
         dest: AccountId32,
         value: u128,
     ) -> DispatchResultWithInfo<
@@ -125,7 +125,7 @@ mod tests {
             dest,
             "make_transfer should send to account different than default_actor"
         );
-        sandbox.runtime_call(
+        runtime.runtime_call(
             RuntimeCall::<RuntimeOf<DefaultRuntime>>::Balances(pallet_balances::Call::<
                 RuntimeOf<DefaultRuntime>,
             >::transfer_allow_death {
@@ -138,43 +138,43 @@ mod tests {
 
     #[test]
     fn dry_run_works() {
-        let mut sandbox = DefaultRuntime::default();
+        let mut runtime = DefaultRuntime::default();
         let actor = DefaultRuntime::default_actor();
-        let initial_balance = sandbox.free_balance(&actor);
+        let initial_balance = runtime.free_balance(&actor);
 
-        sandbox.dry_run(|sandbox| {
-            crate::api::balance_api::BalanceAPI::mint_into(sandbox, &actor, 100).unwrap();
-            assert_eq!(sandbox.free_balance(&actor), initial_balance + 100);
+        runtime.dry_run(|runtime| {
+            crate::api::balance_api::BalanceAPI::mint_into(runtime, &actor, 100).unwrap();
+            assert_eq!(runtime.free_balance(&actor), initial_balance + 100);
         });
 
-        assert_eq!(sandbox.free_balance(&actor), initial_balance);
+        assert_eq!(runtime.free_balance(&actor), initial_balance);
     }
 
     #[test]
     fn runtime_call_works() {
-        let mut sandbox = DefaultRuntime::default();
+        let mut runtime = DefaultRuntime::default();
 
         const RECIPIENT: AccountId32 = AccountId32::new([2u8; 32]);
-        let initial_balance = sandbox.free_balance(&RECIPIENT);
+        let initial_balance = runtime.free_balance(&RECIPIENT);
 
-        let result = make_transfer(&mut sandbox, RECIPIENT, 100);
+        let result = make_transfer(&mut runtime, RECIPIENT, 100);
         assert!(result.is_ok());
 
         let expected_balance = initial_balance + 100;
-        assert_eq!(sandbox.free_balance(&RECIPIENT), expected_balance);
+        assert_eq!(runtime.free_balance(&RECIPIENT), expected_balance);
     }
 
     #[test]
     fn current_events() {
-        let mut sandbox = DefaultRuntime::default();
+        let mut runtime = DefaultRuntime::default();
         const RECIPIENT: AccountId32 = AccountId32::new([2u8; 32]);
 
-        let events_before = sandbox.events();
+        let events_before = runtime.events();
         assert!(events_before.is_empty());
 
-        make_transfer(&mut sandbox, RECIPIENT, 1).expect("Failed to make transfer");
+        make_transfer(&mut runtime, RECIPIENT, 1).expect("Failed to make transfer");
 
-        let events_after = sandbox.events();
+        let events_after = runtime.events();
         assert!(!events_after.is_empty());
         assert!(matches!(
             events_after.last().unwrap().event,
@@ -184,39 +184,39 @@ mod tests {
 
     #[test]
     fn resetting_events() {
-        let mut sandbox = DefaultRuntime::default();
+        let mut runtime = DefaultRuntime::default();
         const RECIPIENT: AccountId32 = AccountId32::new([3u8; 32]);
 
-        make_transfer(&mut sandbox, RECIPIENT.clone(), 1)
+        make_transfer(&mut runtime, RECIPIENT.clone(), 1)
             .expect("Failed to make transfer");
 
-        assert!(!sandbox.events().is_empty());
-        sandbox.reset_events();
-        assert!(sandbox.events().is_empty());
+        assert!(!runtime.events().is_empty());
+        runtime.reset_events();
+        assert!(runtime.events().is_empty());
 
-        make_transfer(&mut sandbox, RECIPIENT, 1).expect("Failed to make transfer");
-        assert!(!sandbox.events().is_empty());
+        make_transfer(&mut runtime, RECIPIENT, 1).expect("Failed to make transfer");
+        assert!(!runtime.events().is_empty());
     }
 
     #[test]
     fn snapshot_works() {
-        let mut sandbox = DefaultRuntime::default();
+        let mut runtime = DefaultRuntime::default();
 
         // Check state before
-        let block_before = sandbox.block_number();
-        let snapshot_before = sandbox.take_snapshot();
+        let block_before = runtime.block_number();
+        let snapshot_before = runtime.take_snapshot();
 
         // Advance some blocks to have some state change
-        let _ = sandbox.build_blocks(5);
-        let block_after = sandbox.block_number();
+        let _ = runtime.build_blocks(5);
+        let block_after = runtime.block_number();
 
         // Check block number and state after
         assert_eq!(block_before + 5, block_after);
 
         // Restore state
-        sandbox.restore_snapshot(snapshot_before);
+        runtime.restore_snapshot(snapshot_before);
 
         // Check state after restore
-        assert_eq!(block_before, sandbox.block_number());
+        assert_eq!(block_before, runtime.block_number());
     }
 }
