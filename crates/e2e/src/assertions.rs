@@ -12,25 +12,41 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Assertion helpers for E2E tests with node backend.
+//! Assertion helpers for ink! E2E tests.
 //!
-//! These macros provide convenient assertions similar to the sandbox test framework.
+//! These macros provide convenient assertions similar to FRAME's testing macros,
+//! adapted for contract call results.
 
 /// Assert that a contract call succeeded without reverting.
 ///
-/// This works with `CallResult` types returned from contract calls via the node backend.
+/// This macro follows FRAME's `assert_ok!` convention for consistency across
+/// the Polkadot ecosystem. It verifies that a contract call completed successfully
+/// and did not revert.
+///
+/// # Variants
+///
+/// - `assert_ok!(result)` - Assert the call didn't revert
+/// - `assert_ok!(result, expected)` - Assert the call didn't revert AND the return
+///   value equals `expected`
 ///
 /// # Examples
 ///
 /// ```ignore
-/// let result = client.call(&alice, &contract_call.transfer(bob_address, amount))
+/// // Just assert success
+/// let result = client.call(&alice, &contract_call.transfer(bob, amount))
 ///     .submit()
 ///     .await?;
-/// assert_ok!(&result);
+/// assert_ok!(result);
+///
+/// // Assert success and check return value
+/// let result = client.call(&alice, &contract_call.balance_of(bob))
+///     .dry_run()
+///     .await?;
+/// assert_ok!(result, expected_balance);
 /// ```
 #[macro_export]
 macro_rules! assert_ok {
-    ($result:expr) => {{
+    ($result:expr $(,)?) => {{
         let result = $result;
         if result.dry_run.did_revert() {
             panic!(
@@ -38,46 +54,66 @@ macro_rules! assert_ok {
                 result.extract_error()
             );
         }
+        result
+    }};
+    ($result:expr, $expected:expr $(,)?) => {{
+        let result = $result;
+        if result.dry_run.did_revert() {
+            panic!(
+                "Expected call to succeed but it reverted.\nError: {:?}",
+                result.extract_error()
+            );
+        }
+        assert_eq!(
+            result.return_value(),
+            $expected,
+            "Return value mismatch"
+        );
+        result
     }};
 }
 
-/// Assert that a contract call reverted with a specific error message.
+/// Assert that a contract call reverted with a specific error.
 ///
-/// This works with `CallResult` types returned from contract calls via the node backend.
+/// This macro follows FRAME's `assert_noop!` convention, which stands for
+/// "assert no operation" - meaning the call should fail without changing state.
+/// Since reverted contract calls don't mutate state, this verifies the call
+/// reverted with the expected error message.
+///
+/// # Variants
+///
+/// - `assert_noop!(result, expected_error)` - Assert the call reverted with an error
+///   containing `expected_error`
 ///
 /// # Examples
 ///
 /// ```ignore
-/// let result = client.call(&alice, &contract_call.transfer(bob_address, huge_amount))
+/// let result = client.call(&alice, &contract_call.transfer(bob, huge_amount))
 ///     .submit()
 ///     .await?;
-/// assert_noop!(&result, "BalanceLow");
+/// assert_noop!(result, "BalanceLow");
 /// ```
 #[macro_export]
 macro_rules! assert_noop {
-    ($result:expr, $expected_err:expr) => {{
+    ($result:expr, $expected_error:expr $(,)?) => {{
         let result = $result;
         if !result.dry_run.did_revert() {
             panic!(
-                "Expected call to revert with '{}' but it succeeded",
-                $expected_err
+                "Expected call to revert with '{}' but it succeeded.\nReturn value: {:?}",
+                $expected_error,
+                result.return_data()
             );
         }
 
         let actual_error = result.extract_error();
-        if let Some(error) = actual_error {
-            if !error.contains($expected_err) {
-                panic!(
-                    "Expected error containing '{}' but got: {}",
-                    $expected_err, error
-                );
-            }
-        } else {
+        if actual_error != Some($expected_error.to_string()) {
             panic!(
-                "Expected error containing '{}' but got no error",
-                $expected_err
+                "Expected error '{}' but got {:?}",
+                $expected_error,
+                actual_error
             );
         }
+        result
     }};
 }
 
