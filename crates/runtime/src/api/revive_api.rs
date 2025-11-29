@@ -312,11 +312,6 @@ mod tests {
     use super::*;
     use crate::{
         DefaultRuntime,
-        DefaultRuntime::{
-            convert_account_to_origin,
-            default_actor,
-            default_gas_limit,
-        },
         RuntimeEventOf,
         api::prelude::*,
     };
@@ -366,7 +361,8 @@ mod tests {
         let hash = Keccak256::digest(contract_binary.as_slice());
         let hash = H256::from_slice(hash.as_slice());
 
-        let origin = convert_account_to_origin(default_actor());
+        let origin =
+            DefaultRuntime::convert_account_to_origin(DefaultRuntime::default_actor());
         let result = runtime.upload_contract(contract_binary, origin, 100000000000000);
 
         assert!(result.is_ok());
@@ -383,16 +379,16 @@ mod tests {
 
         warm_up::<DefaultRuntime>(&mut runtime);
 
-        let default_actor = default_actor();
+        let default_actor = DefaultRuntime::default_actor();
         runtime.map_account(&default_actor).expect("cannot map");
-        let origin = convert_account_to_origin(default_actor);
+        let origin = DefaultRuntime::convert_account_to_origin(default_actor);
         let result = runtime.deploy_contract(
             contract_binary.clone(),
             0,
             vec![],
             None,
             origin.clone(),
-            default_gas_limit(),
+            DefaultRuntime::default_gas_limit(),
             100000000000000,
         );
         assert!(result.result.is_ok());
@@ -405,7 +401,7 @@ mod tests {
             vec![],
             None,
             origin,
-            default_gas_limit(),
+            DefaultRuntime::default_gas_limit(),
             100000000000000,
         );
         assert!(result.result.is_err());
@@ -416,20 +412,20 @@ mod tests {
     #[test]
     fn can_call_contract() {
         let mut runtime = DefaultRuntime::default();
-        let _actor = default_actor();
+        let _actor = DefaultRuntime::default_actor();
         let contract_binary = compile_module("dummy");
         warm_up::<DefaultRuntime>(&mut runtime);
 
-        let default_actor = default_actor();
+        let default_actor = DefaultRuntime::default_actor();
         runtime.map_account(&default_actor).expect("unable to map");
-        let origin = convert_account_to_origin(default_actor);
+        let origin = DefaultRuntime::convert_account_to_origin(default_actor);
         let result = runtime.deploy_contract(
             contract_binary,
             0,
             vec![],
             None,
             origin.clone(),
-            default_gas_limit(),
+            DefaultRuntime::default_gas_limit(),
             STORAGE_DEPOSIT_LIMIT,
         );
         assert!(!result.result.clone().unwrap().result.did_revert());
@@ -443,7 +439,7 @@ mod tests {
             0,
             vec![],
             origin.clone(),
-            default_gas_limit(),
+            DefaultRuntime::default_gas_limit(),
             STORAGE_DEPOSIT_LIMIT,
         );
         assert!(result.result.is_ok());

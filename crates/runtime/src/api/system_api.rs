@@ -101,7 +101,6 @@ where
 mod tests {
     use crate::{
         DefaultRuntime,
-        DefaultRuntime::default_actor,
         RuntimeCall,
         RuntimeEnv,
         RuntimeEventOf,
@@ -122,7 +121,7 @@ mod tests {
         <RuntimeCall<<DefaultRuntime as RuntimeEnv>::Runtime> as Dispatchable>::PostInfo,
     > {
         assert_ne!(
-            default_actor(),
+            DefaultRuntime::default_actor(),
             dest,
             "make_transfer should send to account different than default_actor"
         );
@@ -133,14 +132,14 @@ mod tests {
                 dest: dest.into(),
                 value,
             }),
-            Some(default_actor()),
+            Some(DefaultRuntime::default_actor()),
         )
     }
 
     #[test]
     fn dry_run_works() {
         let mut runtime = DefaultRuntime::default();
-        let actor = default_actor();
+        let actor = DefaultRuntime::default_actor();
         let initial_balance = runtime.free_balance(&actor);
 
         runtime.dry_run(|runtime| {
