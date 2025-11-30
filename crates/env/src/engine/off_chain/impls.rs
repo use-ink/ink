@@ -618,6 +618,10 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("not implemented, the off-chain environment will be removed");
     }
 
+    fn call_data_load(&mut self, _offset: u32) -> U256 {
+        unimplemented!("not implemented, the off-chain environment will be removed");
+    }
+
     fn transferred_value(&mut self) -> U256 {
         self.get_property(Engine::value_transferred)
             .unwrap_or_else(|error| {

@@ -369,30 +369,19 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`block_author`][`crate::block_author`]
     fn block_author(&mut self) -> Address;
 
-    /// Returns the returned data of the last contract call or contract instantiation,
-    /// starting from the given input data `offset`.
-    /// This is akin to the EVM [RETURNDATACOPY](https://www.evm.codes/?fork=cancun#3E) opcode.
+    /// Retrurns the U256 value at given `offset` from the input passed by the caller
+    /// into the supplied buffer.
+    /// This is akin to the EVM [CALLDATALOAD](https://www.evm.codes/?fork=cancun#35) opcode.
     ///
     /// # Note
     ///
-    /// For more details visit: [`return_data_copy`][`crate::return_data_copy`]
-    fn return_data_copy(&mut self, offset: u32) -> Vec<u8>;
-
-    /// Returns the input data passed by the caller,
-    /// starting from the given input data `offset`.
-    /// This is akin to the EVM [CALLDATACOPY](https://www.evm.codes/?fork=cancun#37) opcode.
+    /// - If `offset` is out of bounds, a value of zero will be returned.
+    /// - If `offset` is in bounds but there is not enough call data, the available data
+    /// is right-padded in order to fill a whole U256 value.
+    /// - The data returned is a little endian U256 integer value.
     ///
-    /// # Error
-    ///
-    /// This function traps if:
-    /// - the input was previously forwarded by a
-    ///   [`call()`][`pallet_revive_uapi::HostFn::call()`].
-    /// - the `output` buffer is located in an PolkaVM invalid memory range.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`call_data_copy`][`crate::call_data_copy`]
-    fn call_data_copy(&mut self, offset: u32) -> Vec<u8>;
+    /// For more details visit: [`call_data_load`][`crate::call_data_load`]
+    fn call_data_load(&mut self, offset: u32) -> U256;
 
     /// Returns the transferred value for the contract execution.
     ///

@@ -1093,8 +1093,12 @@ impl TypedEnvBackend for EnvInstance {
         h160.into()
     }
 
-    fn return_data_copy(&mut self, offset: u32) -> Vec<u8> {
+    fn call_data_load(&mut self, offset: u32) -> U256 {
+        let mut scope = self.scoped_buffer();
+        let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();
 
+        ext::call_data_load(u256, offset);
+        U256::from_le_bytes(*u256)
     }
 
     fn transferred_value(&mut self) -> U256 {

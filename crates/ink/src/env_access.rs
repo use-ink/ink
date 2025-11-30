@@ -274,6 +274,40 @@ where
         ink_env::return_data_size()
     }
 
+    /// Returns the U256 value at the given offset from the input passed by the caller,
+    /// akin to the EVM [CALLDATALOAD](https://www.evm.codes/?fork=cancun#35) opcode.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     use ink::U256;
+    ///
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn get_call_data_at_offset(&self, offset: u32) -> U256 {
+    ///             self.env().call_data_load(offset)
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::call_data_load`]
+    pub fn call_data_load(self, offset: u32) -> U256 {
+        ink_env::call_data_load(offset)
+    }
+
     /// Returns the [EIP-155](https://eips.ethereum.org/EIPS/eip-155) chain ID,
     /// akin to the EVM [CHAINID](https://www.evm.codes/?fork=cancun#46) opcode.
     ///

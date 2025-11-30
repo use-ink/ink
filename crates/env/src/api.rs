@@ -170,21 +170,18 @@ pub fn block_author() -> Address {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::block_author)
 }
 
-/// Returns the returned data of the last contract call or contract instantiation,
-/// starting from the given input data `offset`.
-/// This is akin to the EVM [RETURNDATACOPY](https://www.evm.codes/?fork=cancun#3E) opcode.
-pub fn return_data_copy(offset: u32) -> Vec<u8> {
+/// Returns the U256 value at the given offset from the input passed by the caller,
+/// akin to the EVM [CALLDATALOAD](https://www.evm.codes/?fork=cancun#35) opcode.
+///
+/// # Note
+///
+/// - If `offset` is out of bounds, a value of zero will be returned.
+/// - If `offset` is in bounds but there is not enough call data, the available data is
+///   right-padded in order to fill a whole U256 value.
+/// - The data returned is a little endian U256 integer value.
+pub fn call_data_load(offset: u32) -> U256 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::return_data_copy(instance, output, offset)
-    })
-}
-
-/// Returns the input data passed by the caller,
-/// starting from the given input data `offset`.
-/// This is akin to the EVM [CALLDATACOPY](https://www.evm.codes/?fork=cancun#37) opcode.
-pub fn call_data_copy(offset: u32) -> Vec<u8> {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::call_data_copy(instance, output, offset)
+        TypedEnvBackend::call_data_load(instance, offset)
     })
 }
 

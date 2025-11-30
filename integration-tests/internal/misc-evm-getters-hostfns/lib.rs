@@ -60,6 +60,12 @@ mod misc_evm_getters_hostfns {
         pub fn block_author(&self) -> Address {
             self.env().block_author()
         }
+
+        /// Checks that the host function `call_data_load` works
+        #[ink(message)]
+        pub fn call_data_load(&self, offset: u32) -> U256 {
+            self.env().call_data_load(offset)
+        }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
@@ -275,6 +281,34 @@ mod misc_evm_getters_hostfns {
             // then
             let _call_res = client
                 .call(&ink_e2e::alice(), &call_builder.block_author())
+                .submit()
+                .await
+                .unwrap_or_else(|err| {
+                    panic!("call failed: {:#?}", err);
+                });
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn e2e_call_data_load_works<Client: E2EBackend>(
+            mut client: Client,
+        ) -> E2EResult<()> {
+            // given
+            let contract = client
+                .instantiate(
+                    "misc_evm_getters_hostfns",
+                    &ink_e2e::alice(),
+                    &mut MiscEVMGettersfnsRef::new(),
+                )
+                .submit()
+                .await
+                .expect("instantiate failed");
+            let call_builder = contract.call_builder::<MiscEVMGettersfns>();
+
+            // then
+            let _call_res = client
+                .call(&ink_e2e::alice(), &call_builder.call_data_load(0))
                 .submit()
                 .await
                 .unwrap_or_else(|err| {
