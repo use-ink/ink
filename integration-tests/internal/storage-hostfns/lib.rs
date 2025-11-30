@@ -34,7 +34,11 @@ mod storage_hostfns {
 
         /// Clears a transient storage entry by setting value to all zeros.
         #[ink(message)]
-        pub fn set_clear_transient_storage(&self, key: U256, value: [u8; 32]) -> Option<u32> {
+        pub fn set_clear_transient_storage(
+            &self,
+            key: U256,
+            value: [u8; 32],
+        ) -> Option<u32> {
             self.env().set_transient_storage(key, &value);
             self.env().set_transient_storage(key, &[0u8; 32])
         }
@@ -53,7 +57,11 @@ mod storage_hostfns {
 
         /// Sets a transient value and immediately retrieves it in the same transaction.
         #[ink(message)]
-        pub fn set_and_get_transient_storage(&self, key: U256, value: [u8; 32]) -> [u8; 32] {
+        pub fn set_and_get_transient_storage(
+            &self,
+            key: U256,
+            value: [u8; 32],
+        ) -> [u8; 32] {
             self.env().set_transient_storage(key, &value);
             self.env().get_transient_storage(key)
         }
@@ -144,7 +152,10 @@ mod storage_hostfns {
             let key = U256::from(50u32);
             let value = [0xABu8; 32];
             let result = client
-                .call(&ink_e2e::alice(), &call_builder.set_transient_storage(key, value))
+                .call(
+                    &ink_e2e::alice(),
+                    &call_builder.set_transient_storage(key, value),
+                )
                 .submit()
                 .await
                 .unwrap_or_else(|err| {
@@ -174,7 +185,10 @@ mod storage_hostfns {
             let value = [0x1u8; 32];
 
             let result = client
-                .call(&ink_e2e::alice(), &call_builder.set_clear_transient_storage(key, value))
+                .call(
+                    &ink_e2e::alice(),
+                    &call_builder.set_clear_transient_storage(key, value),
+                )
                 .submit()
                 .await
                 .unwrap_or_else(|err| {
@@ -239,7 +253,10 @@ mod storage_hostfns {
 
             // when - set and get transient value in same call
             let result = client
-                .call(&ink_e2e::alice(), &call_builder.set_and_get_transient_storage(key, value))
+                .call(
+                    &ink_e2e::alice(),
+                    &call_builder.set_and_get_transient_storage(key, value),
+                )
                 .submit()
                 .await?;
 
@@ -266,7 +283,10 @@ mod storage_hostfns {
 
             // when - get a nonexistent value
             let result = client
-                .call(&ink_e2e::alice(), &call_builder.get_storage(nonexistent_key))
+                .call(
+                    &ink_e2e::alice(),
+                    &call_builder.get_storage(nonexistent_key),
+                )
                 .submit()
                 .await?;
 

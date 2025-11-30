@@ -190,8 +190,7 @@ pub fn call_data_load(offset: u32) -> U256 {
 ///
 /// If the provided value is all zeros then the key is cleared (i.e. deleted).
 /// Returns the size (in bytes) of the pre-existing value at the specified key, if any.
-pub fn set_storage(key: U256, value: &[u8; 32]) -> Option<u32>
-{
+pub fn set_storage(key: U256, value: &[u8; 32]) -> Option<u32> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::set_storage(instance, key, value)
     })
@@ -202,8 +201,7 @@ pub fn set_storage(key: U256, value: &[u8; 32]) -> Option<u32>
 ///
 /// If the provided value is all zeros then the key is cleared (i.e. deleted).
 /// Returns the size (in bytes) of the pre-existing value at the specified key, if any.
-pub fn set_transient_storage(key: U256, value: &[u8; 32]) -> Option<u32>
-{
+pub fn set_transient_storage(key: U256, value: &[u8; 32]) -> Option<u32> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::set_transient_storage(instance, key, value)
     })

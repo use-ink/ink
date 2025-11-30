@@ -310,8 +310,8 @@ where
 
     /// Sets the storage entry for a fixed 256-bit key with a fixed 256-bit value.
     /// If the provided 32-byte value is all zeros then the key is cleared (i.e. deleted).
-    /// Returns the size (in bytes) of the pre-existing value at the specified key, if any.
-    /// This is akin to the EVM [SSTORE](https://www.evm.codes/?fork=cancun#55) opcode.
+    /// Returns the size (in bytes) of the pre-existing value at the specified key, if
+    /// any. This is akin to the EVM [SSTORE](https://www.evm.codes/?fork=cancun#55) opcode.
     ///
     /// # Example
     ///
@@ -346,10 +346,10 @@ where
         ink_env::set_storage(key, value)
     }
 
-    /// Sets the transient storage entry for a fixed 256-bit key with a fixed 256-bit value.
-    /// If the provided 32-byte value is all zeros then the key is cleared (i.e. deleted).
-    /// Returns the size (in bytes) of the pre-existing value at the specified key, if any.
-    /// This is akin to the EVM [TSTORE](https://www.evm.codes/?fork=cancun#5D) opcode.
+    /// Sets the transient storage entry for a fixed 256-bit key with a fixed 256-bit
+    /// value. If the provided 32-byte value is all zeros then the key is cleared
+    /// (i.e. deleted). Returns the size (in bytes) of the pre-existing value at the
+    /// specified key, if any. This is akin to the EVM [TSTORE](https://www.evm.codes/?fork=cancun#5D) opcode.
     ///
     /// # Example
     ///

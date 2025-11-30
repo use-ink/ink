@@ -1102,15 +1102,13 @@ impl TypedEnvBackend for EnvInstance {
         U256::from_le_bytes(*u256)
     }
 
-    fn set_storage(&mut self, key: U256, value: &[u8; 32]) -> Option<u32>
-    {
+    fn set_storage(&mut self, key: U256, value: &[u8; 32]) -> Option<u32> {
         let mut scope = self.scoped_buffer();
         let key: &mut [u8; 32] = scope.take_encoded(&key).try_into().unwrap();
         ext::set_storage_or_clear(STORAGE_FLAGS, key, value)
     }
 
-    fn set_transient_storage(&mut self, key: U256, value: &[u8; 32]) -> Option<u32>
-    {
+    fn set_transient_storage(&mut self, key: U256, value: &[u8; 32]) -> Option<u32> {
         let mut scope = self.scoped_buffer();
         let key: &mut [u8; 32] = scope.take_encoded(&key).try_into().unwrap();
         ext::set_storage_or_clear(TRANSIENT_STORAGE_FLAGS, key, value)

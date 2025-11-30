@@ -383,19 +383,19 @@ pub trait TypedEnvBackend: EnvBackend {
     fn call_data_load(&mut self, offset: u32) -> U256;
 
     /// Sets the storage entry for a fixed 256‑bit key with a fixed 256‑bit value.
-	/// If the provided 32‑byte value is all zeros then the key is cleared (i.e. deleted).
-    /// Returns the size (in bytes) of the pre‑existing value at the specified key, if any.
-	/// This is akin to the EVM [SSTORE](https://www.evm.codes/?fork=cancun#55) opcode.
+    /// If the provided 32‑byte value is all zeros then the key is cleared (i.e. deleted).
+    /// Returns the size (in bytes) of the pre‑existing value at the specified key, if
+    /// any. This is akin to the EVM [SSTORE](https://www.evm.codes/?fork=cancun#55) opcode.
     ///
     /// # Note
     ///
     /// For more details visit: [`set_storage`][`crate::set_storage`]
     fn set_storage(&mut self, key: U256, value: &[u8; 32]) -> Option<u32>;
 
-    /// Sets the transient storage entry for a fixed 256‑bit key with a fixed 256‑bit value.
-	/// If the provided 32‑byte value is all zeros then the key is cleared (i.e. deleted).
-    /// Returns the size (in bytes) of the pre‑existing value at the specified key, if any.
-	/// This is akin to the EVM [TSTORE](https://www.evm.codes/?fork=cancun#5D) opcode.
+    /// Sets the transient storage entry for a fixed 256‑bit key with a fixed 256‑bit
+    /// value. If the provided 32‑byte value is all zeros then the key is cleared
+    /// (i.e. deleted). Returns the size (in bytes) of the pre‑existing value at the
+    /// specified key, if any. This is akin to the EVM [TSTORE](https://www.evm.codes/?fork=cancun#5D) opcode.
     ///
     /// # Note
     ///
@@ -403,7 +403,7 @@ pub trait TypedEnvBackend: EnvBackend {
     fn set_transient_storage(&mut self, key: U256, value: &[u8; 32]) -> Option<u32>;
 
     /// Retrieves the storage entry for a fixed 256‑bit key.
-	/// If the key does not exist, it returns 32 zero bytes.
+    /// If the key does not exist, it returns 32 zero bytes.
     /// This is akin to the EVM [SLOAD](https://www.evm.codes/?fork=cancun#54) opcode.
     ///
     /// # Note
@@ -412,7 +412,7 @@ pub trait TypedEnvBackend: EnvBackend {
     fn get_storage(&mut self, key: U256) -> [u8; 32];
 
     /// Retrieves the transient storage entry for a fixed 256‑bit key.
-	/// If the key does not exist, it returns 32 zero bytes.
+    /// If the key does not exist, it returns 32 zero bytes.
     /// This is akin to the EVM [TLOAD](https://www.evm.codes/?fork=cancun#5C) opcode.
     ///
     /// # Note

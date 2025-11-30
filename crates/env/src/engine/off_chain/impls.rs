@@ -622,13 +622,11 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("not implemented, the off-chain environment will be removed");
     }
 
-    fn set_storage(&mut self, _key: U256, _value: &[u8; 32]) -> Option<u32>
-    {
+    fn set_storage(&mut self, _key: U256, _value: &[u8; 32]) -> Option<u32> {
         unimplemented!("not implemented, the off-chain environment will be removed");
     }
 
-    fn set_transient_storage(&mut self, _key: U256, _value: &[u8; 32]) -> Option<u32>
-    {
+    fn set_transient_storage(&mut self, _key: U256, _value: &[u8; 32]) -> Option<u32> {
         unimplemented!("not implemented, the off-chain environment will be removed");
     }
 
