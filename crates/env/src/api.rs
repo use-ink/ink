@@ -170,6 +170,24 @@ pub fn block_author() -> Address {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::block_author)
 }
 
+/// Returns the returned data of the last contract call or contract instantiation,
+/// starting from the given input data `offset`.
+/// This is akin to the EVM [RETURNDATACOPY](https://www.evm.codes/?fork=cancun#3E) opcode.
+pub fn return_data_copy(offset: u32) -> Vec<u8> {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::return_data_copy(instance, output, offset)
+    })
+}
+
+/// Returns the input data passed by the caller,
+/// starting from the given input data `offset`.
+/// This is akin to the EVM [CALLDATACOPY](https://www.evm.codes/?fork=cancun#37) opcode.
+pub fn call_data_copy(offset: u32) -> Vec<u8> {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::call_data_copy(instance, output, offset)
+    })
+}
+
 /// Returns the transferred value for the contract execution.
 ///
 /// # Errors
