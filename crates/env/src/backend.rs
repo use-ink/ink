@@ -369,8 +369,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`block_author`][`crate::block_author`]
     fn block_author(&mut self) -> Address;
 
-    /// Retrurns the U256 value at given `offset` from the input passed by the caller
-    /// into the supplied buffer.
+    /// Returns the U256 value at given `offset` from the input passed by the caller.
     /// This is akin to the EVM [CALLDATALOAD](https://www.evm.codes/?fork=cancun#35) opcode.
     ///
     /// # Note
