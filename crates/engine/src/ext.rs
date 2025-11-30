@@ -409,14 +409,12 @@ impl Engine {
         let recovery_id = RecoveryId::try_from(recovery_byte as i32)
             .unwrap_or_else(|error| panic!("Unable to parse the recovery id: {error}"));
 
-        let message = Message::from_digest_slice(message_hash).unwrap_or_else(|error| {
-            panic!("Unable to create the message from hash: {error}")
-        });
+        let message = Message::from_digest(*message_hash);
         let signature =
             RecoverableSignature::from_compact(&signature[0..64], recovery_id)
                 .unwrap_or_else(|error| panic!("Unable to parse the signature: {error}"));
 
-        let pub_key = SECP256K1.recover_ecdsa(&message, &signature);
+        let pub_key = SECP256K1.recover_ecdsa(message, &signature);
         match pub_key {
             Ok(pub_key) => {
                 *output = pub_key.serialize();
