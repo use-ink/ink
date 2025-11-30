@@ -14,52 +14,52 @@
 
 use std::fmt;
 
-/// Dummy error type for sandbox_client
+/// Dummy error type for runtime_client
 #[derive(Debug, thiserror::Error)]
-pub struct SandboxErr {
+pub struct RuntimeErr {
     msg: String,
 }
 
-impl SandboxErr {
-    /// Create a new `SandboxErr` with the given message.
+impl RuntimeErr {
+    /// Create a new `RuntimeErr` with the given message.
     #[allow(dead_code)]
     pub fn new(msg: String) -> Self {
         Self { msg }
     }
 }
 
-impl From<String> for SandboxErr {
+impl From<String> for RuntimeErr {
     fn from(msg: String) -> Self {
         Self { msg }
     }
 }
 
-impl fmt::Display for SandboxErr {
+impl fmt::Display for RuntimeErr {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "SandboxErr: {}", self.msg)
+        write!(f, "RuntimeErr: {}", self.msg)
     }
 }
 
-/// Unified error type for sandbox E2E testing.
+/// Unified error type for runtime E2E testing.
 ///
 /// This error type allows seamless error propagation with the `?` operator
-/// across sandbox APIs (which return `DispatchError`) and contract calls
-/// (which return `SandboxErr`).
+/// across runtime APIs (which return `DispatchError`) and contract calls
+/// (which return `RuntimeErr`).
 #[derive(Debug, thiserror::Error)]
 pub enum E2EError {
     /// Error from FRAME dispatch (e.g., pallet extrinsic failures).
     ///
-    /// Returned by sandbox APIs like `create()`, `mint_into()`, `map_account()`, etc.
+    /// Returned by runtime APIs like `create()`, `mint_into()`, `map_account()`, etc.
     /// when the underlying FRAME pallet operation fails.
     #[error("Dispatch error: {0:?}")]
     Dispatch(frame_support::sp_runtime::DispatchError),
 
-    /// Error from sandbox operations.
+    /// Error from runtime operations.
     ///
     /// Returned by contract instantiation and call operations when they fail
-    /// at the sandbox client level.
-    #[error("Sandbox error: {0}")]
-    Sandbox(#[from] SandboxErr),
+    /// at the runtime client level.
+    #[error("Runtime error: {0}")]
+    Runtime(#[from] RuntimeErr),
 }
 
 impl From<frame_support::sp_runtime::DispatchError> for E2EError {

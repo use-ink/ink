@@ -90,7 +90,7 @@ pub mod fallible_setter {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn it_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+        async fn it_works(mut client: Client) -> E2EResult<()> {
             // given
             let mut constructor = FallibleSetterRef::new(0);
             let contract = client

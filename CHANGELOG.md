@@ -6,9 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Unreleased]
 
-## Added
+### Added
 - Implements the API for the `pallet-revive` host functions `chain_id`, `balance_of`, `base_fee`, `origin`, `code_size`, `block_hash`, `block_author` - [#2719](https://github.com/use-ink/ink/pull/2719)
 - Implement `From<ink::Address>` for "ink-as-dependency" contract refs - [#2728](https://github.com/use-ink/ink/pull/2728)
+
+### Changed
+- Rename `ink_sandbox` crate to `ink_runtime`, `Sandbox` trait to `RuntimeEnv`, and `SandboxClient` to `RuntimeClient` for improved clarity. Also simplifies syntax for e2e tests, both runtime and node e2e tests.
 
 ## Version 6.0.0-beta.1
 

@@ -22,7 +22,7 @@ sp-runtime = { workspace = true, default-features = false }
 pallet-revive = { workspace = true, default-features = false, features = ["try-runtime"] }
 flipper-traits = { path = "../../traits", default-features = false }
 ink = { path = "../../../../../crates/ink", features = ["no-panic-handler", "no-allocator"] }
-ink_sandbox = { path = "../../../../../crates/sandbox" }
+ink_runtime = { path = "../../../../../crates/runtime" }
 
 [features]
 default = ["std"]

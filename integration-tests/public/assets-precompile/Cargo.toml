@@ -11,7 +11,7 @@ ink_precompiles = { path = "../../../crates/precompiles", default-features = fal
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }
-ink_sandbox = { path = "../../../crates/sandbox" }
+ink_runtime = { path = "../../../crates/runtime" }
 hex = "0.4"
 
 [lib]

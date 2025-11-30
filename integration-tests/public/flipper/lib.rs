@@ -48,7 +48,7 @@ pub mod flipper {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn it_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+        async fn it_works(mut client: Client) -> E2EResult<()> {
             // given
             let mut constructor = FlipperRef::new(false);
             let contract = client
@@ -107,9 +107,7 @@ pub mod flipper {
         /// The test is marked as ignored, as it has the above pre-conditions to succeed.
         #[ink_e2e::test]
         #[ignore]
-        async fn e2e_test_deployed_contract<Client: E2EBackend>(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn e2e_test_deployed_contract(mut client: Client) -> E2EResult<()> {
             // given
             use ink::Address;
             let addr = std::env::var("CONTRACT_ADDR_HEX")

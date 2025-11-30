@@ -1,12 +1,12 @@
 [package]
-name = "ink_sandbox"
+name = "ink_runtime"
 version = "6.0.0-beta.1"
 authors = ["Use Ink <ink@use.ink>", "Cardinal Cryptography"]
 edition.workspace = true
 license.workspace = true
-description = "Sandbox runtime environment for ink! e2e tests"
+description = "Runtime environment for ink! e2e tests"
 repository.workspace = true
-documentation = "https://docs.rs/ink_sandbox"
+documentation = "https://docs.rs/ink_runtime"
 homepage.workspace = true
 
 [dependencies]
