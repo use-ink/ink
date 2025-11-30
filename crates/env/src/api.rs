@@ -185,6 +185,30 @@ pub fn call_data_load(offset: u32) -> U256 {
     })
 }
 
+/// Sets the storage entry for a fixed 256-bit key with a fixed 256-bit value,
+/// akin to the EVM [SSTORE](https://www.evm.codes/?fork=cancun#55) opcode.
+///
+/// If the provided value is all zeros then the key is cleared (i.e. deleted).
+/// Returns the size (in bytes) of the pre-existing value at the specified key, if any.
+pub fn set_storage(key: U256, value: &[u8; 32]) -> Option<u32>
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::set_storage(instance, key, value)
+    })
+}
+
+/// Sets the transient storage entry for a fixed 256-bit key with a fixed 256-bit value,
+/// akin to the EVM [TSTORE](https://www.evm.codes/?fork=cancun#5D) opcode.
+///
+/// If the provided value is all zeros then the key is cleared (i.e. deleted).
+/// Returns the size (in bytes) of the pre-existing value at the specified key, if any.
+pub fn set_transient_storage(key: U256, value: &[u8; 32]) -> Option<u32>
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::set_transient_storage(instance, key, value)
+    })
+}
+
 /// Returns the transferred value for the contract execution.
 ///
 /// # Errors

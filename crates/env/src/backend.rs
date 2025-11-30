@@ -382,6 +382,26 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`call_data_load`][`crate::call_data_load`]
     fn call_data_load(&mut self, offset: u32) -> U256;
 
+    /// Sets the storage entry for a fixed 256‑bit key with a fixed 256‑bit value.
+	/// If the provided 32‑byte value is all zeros then the key is cleared (i.e. deleted).
+    /// Returns the size (in bytes) of the pre‑existing value at the specified key, if any.
+	/// This is akin to the EVM [SSTORE](https://www.evm.codes/?fork=cancun#55) opcode.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`set_storage`][`crate::set_storage`]
+    fn set_storage(&mut self, key: U256, value: &[u8; 32]) -> Option<u32>;
+
+    /// Sets the transient storage entry for a fixed 256‑bit key with a fixed 256‑bit value.
+	/// If the provided 32‑byte value is all zeros then the key is cleared (i.e. deleted).
+    /// Returns the size (in bytes) of the pre‑existing value at the specified key, if any.
+	/// This is akin to the EVM [TSTORE](https://www.evm.codes/?fork=cancun#5D) opcode.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`set_transient_storage`][`crate::set_transient_storage`]
+    fn set_transient_storage(&mut self, key: U256, value: &[u8; 32]) -> Option<u32>;
+
     /// Returns the transferred value for the contract execution.
     ///
     /// # Note
