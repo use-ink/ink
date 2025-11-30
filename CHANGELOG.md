@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [Unreleased]
 
 ## Added
+- Implements the API for the `pallet-revive` host functions `chain_id`, `balance_of`, `base_fee`, `origin`, `code_size`, `block_hash`, `block_author` - [#2719](https://github.com/use-ink/ink/pull/2719)
 - Implement `From<ink::Address>` for "ink-as-dependency" contract refs - [#2728](https://github.com/use-ink/ink/pull/2728)
 
 ## Version 6.0.0-beta.1

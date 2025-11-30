@@ -1027,6 +1027,72 @@ impl TypedEnvBackend for EnvInstance {
         ext::return_data_size()
     }
 
+    fn chain_id(&mut self) -> U256 {
+        let mut scope = self.scoped_buffer();
+        let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();
+
+        ext::chain_id(u256);
+        U256::from_le_bytes(*u256)
+    }
+
+    fn balance_of(&mut self, addr: Address) -> U256 {
+        let mut scope = self.scoped_buffer();
+        let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();
+
+        let addr = addr.as_fixed_bytes();
+
+        ext::balance_of(&addr, u256);
+        U256::from_le_bytes(*u256)
+    }
+
+    fn base_fee(&mut self) -> U256 {
+        let mut scope = self.scoped_buffer();
+        let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();
+
+        ext::base_fee(u256);
+        U256::from_le_bytes(*u256)
+    }
+
+    fn origin(&mut self) -> Address {
+        let mut scope = self.scoped_buffer();
+        let h160: &mut [u8; 20] = scope.take(20).try_into().unwrap();
+
+        ext::origin(h160);
+        h160.into()
+    }
+
+    fn code_size(&mut self, addr: Address) -> u64 {
+        let addr = addr.as_fixed_bytes();
+
+        ext::code_size(addr)
+    }
+
+    fn block_hash<E: Environment>(&mut self, block_number: E::BlockNumber) -> H256 {
+        let mut scope = self.scoped_buffer();
+        let output: &mut [u8; 32] = scope.take(32).try_into().unwrap();
+
+        let block_number = {
+            let mut bytes = [0u8; 32];
+            let encoded = scope.take_encoded(&block_number);
+            // NOTE: panics if encoding is bigger than 32 bytes.
+            bytes[..encoded.len()].copy_from_slice(&encoded);
+            bytes
+        };
+
+        ext::block_hash(&block_number, output);
+        H256::from_slice(output)
+    }
+
+    fn block_author(&mut self) -> Address {
+        let h160 = {
+            let mut scope = self.scoped_buffer();
+            let h160: &mut [u8; 20] = scope.take(20).try_into().unwrap();
+            ext::block_author(h160);
+            *h160
+        };
+        h160.into()
+    }
+
     fn transferred_value(&mut self) -> U256 {
         let mut scope = self.scoped_buffer();
         let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();

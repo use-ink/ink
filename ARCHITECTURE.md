@@ -202,7 +202,7 @@ but many are generic.
 Chains built with Polkadot SDK can decide on their own which types they want
 to use for e.g. the chain's block number or account id's.
 
-The `Environment` trait is how ink! knows the concretes types of the chain
+The `Environment` trait is how ink! knows the concrete types of the chain
 to which the contract will be deployed to.
 Specifically, our `ink_env` crate defines a trait [`Environment`](https://use-ink.github.io/ink/ink_env/trait.Environment.html)
 which specifies the types that are relevant for ink! to know.
@@ -247,7 +247,7 @@ ink! have to deal with both types as well.
 most smart-contract-specific events: `Called`, `ContractCodeUpdated, CodeStored`,
 `CodeRemoved`, `Terminated`, `DelegateCalled`,
 `StorageDepositTransferredAndHeld`, `StorageDepositTransferredAndReleased`. 
-The `Instantiated` event was brought back in a latter PR.
+The `Instantiated` event was brought back in a later PR.
 
 (5) `pallet-revive` included `revm` as a non-optional dependency. As ink! has to 
 depend on `pallet-revive` for some features (e.g. sandboxed E2E testing), this 
