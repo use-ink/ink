@@ -3725,7 +3725,7 @@ dependencies = [
  "ink",
  "ink_e2e",
  "ink_ir",
- "ink_sandbox",
+ "ink_runtime",
  "proc-macro2",
  "quote",
  "syn 2.0.110",
@@ -3938,7 +3938,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "ink_sandbox"
+name = "ink_runtime"
 version = "6.0.0-beta.1"
 dependencies = [
  "frame-metadata",
