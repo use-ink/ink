@@ -15,6 +15,7 @@
 use super::blake2::blake2b_256;
 use crate::literal::HexLiteral;
 use proc_macro2::TokenStream as TokenStream2;
+use quote::ToTokens;
 use std::marker::PhantomData;
 use syn::{
     parse::Parser,
@@ -270,13 +271,25 @@ impl<T> TryFrom<TokenStream2> for SelectorMacro<T> {
         };
 
         // Parse the literal (second argument)
+        // We need to handle both direct literals and literals passed through declarative
+        // macros. When a literal is captured by a declarative macro and passed through,
+        // it may not be recognized as syn::Expr::Lit. In such cases, we try to parse
+        // the expression's token stream directly as a literal.
         let lit = match &exprs[1] {
             syn::Expr::Lit(expr_lit) => expr_lit.lit.clone(),
-            invalid => {
-                return Err(format_err!(
-                    invalid.span(),
-                    "expected string or byte string literal as second argument",
-                ))
+            other_expr => {
+                // Try to parse the expression's tokens directly as a literal
+                // This handles cases where literals are passed through declarative macros
+                let tokens = other_expr.to_token_stream();
+                match syn::parse2::<syn::Lit>(tokens) {
+                    Ok(lit) => lit,
+                    Err(_) => {
+                        return Err(format_err!(
+                            other_expr.span(),
+                            "expected string or byte string literal as second argument",
+                        ))
+                    }
+                }
             }
         };
 
