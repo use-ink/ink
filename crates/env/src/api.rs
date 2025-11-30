@@ -209,6 +209,24 @@ pub fn set_transient_storage(key: U256, value: &[u8; 32]) -> Option<u32>
     })
 }
 
+/// Retrieves the storage entry for a fixed 256-bit key.
+/// If the key does not exist, it returns 32 zero bytes.
+/// This is akin to the EVM [SLOAD](https://www.evm.codes/?fork=cancun#54) opcode.
+pub fn get_storage(key: U256) -> [u8; 32] {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::get_storage(instance, key)
+    })
+}
+
+/// Retrieves the transient storage entry for a fixed 256-bit key.
+/// If the key does not exist, it returns 32 zero bytes.
+/// This is akin to the EVM [TLOAD](https://www.evm.codes/?fork=cancun#5C) opcode.
+pub fn get_transient_storage(key: U256) -> [u8; 32] {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::get_transient_storage(instance, key)
+    })
+}
+
 /// Returns the transferred value for the contract execution.
 ///
 /// # Errors

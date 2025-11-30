@@ -384,6 +384,78 @@ where
         ink_env::set_transient_storage(key, value)
     }
 
+    /// Retrieves the storage entry for a fixed 256-bit key.
+    /// If the key does not exist, it returns 32 zero bytes.
+    /// This is akin to the EVM [SLOAD](https://www.evm.codes/?fork=cancun#54) opcode.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     use ink::U256;
+    ///
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn load_value(&self) -> [u8; 32] {
+    ///             let key = U256::from(42u32);
+    ///             self.env().get_storage(key)
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::get_storage`]
+    pub fn get_storage(self, key: U256) -> [u8; 32] {
+        ink_env::get_storage(key)
+    }
+
+    /// Retrieves the transient storage entry for a fixed 256-bit key.
+    /// If the key does not exist, it returns 32 zero bytes.
+    /// This is akin to the EVM [TLOAD](https://www.evm.codes/?fork=cancun#5C) opcode.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink::contract]
+    /// mod my_contract {
+    ///     use ink::U256;
+    ///
+    ///     #[ink(storage)]
+    ///     pub struct MyContract;
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {}
+    ///         }
+    ///
+    ///         #[ink(message)]
+    ///         pub fn load_transient(&self) -> [u8; 32] {
+    ///             let key = U256::from(42u32);
+    ///             self.env().get_transient_storage(key)
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::get_transient_storage`]
+    pub fn get_transient_storage(self, key: U256) -> [u8; 32] {
+        ink_env::get_transient_storage(key)
+    }
+
     /// Returns the [EIP-155](https://eips.ethereum.org/EIPS/eip-155) chain ID,
     /// akin to the EVM [CHAINID](https://www.evm.codes/?fork=cancun#46) opcode.
     ///

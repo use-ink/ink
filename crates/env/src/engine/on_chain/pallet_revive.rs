@@ -1116,6 +1116,22 @@ impl TypedEnvBackend for EnvInstance {
         ext::set_storage_or_clear(TRANSIENT_STORAGE_FLAGS, key, value)
     }
 
+    fn get_storage(&mut self, key: U256) -> [u8; 32] {
+        let mut scope = self.scoped_buffer();
+        let key: &mut [u8; 32] = scope.take_encoded(&key).try_into().unwrap();
+        let value: &mut [u8; 32] = scope.take(32).try_into().unwrap();
+        ext::get_storage_or_zero(STORAGE_FLAGS, key, value);
+        *value
+    }
+
+    fn get_transient_storage(&mut self, key: U256) -> [u8; 32] {
+        let mut scope = self.scoped_buffer();
+        let key: &mut [u8; 32] = scope.take_encoded(&key).try_into().unwrap();
+        let value: &mut [u8; 32] = scope.take(32).try_into().unwrap();
+        ext::get_storage_or_zero(TRANSIENT_STORAGE_FLAGS, key, value);
+        *value
+    }
+
     fn transferred_value(&mut self) -> U256 {
         let mut scope = self.scoped_buffer();
         let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();

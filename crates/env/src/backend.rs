@@ -402,6 +402,24 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`set_transient_storage`][`crate::set_transient_storage`]
     fn set_transient_storage(&mut self, key: U256, value: &[u8; 32]) -> Option<u32>;
 
+    /// Retrieves the storage entry for a fixed 256‑bit key.
+	/// If the key does not exist, it returns 32 zero bytes.
+    /// This is akin to the EVM [SLOAD](https://www.evm.codes/?fork=cancun#54) opcode.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`get_storage`][`crate::get_storage`]
+    fn get_storage(&mut self, key: U256) -> [u8; 32];
+
+    /// Retrieves the transient storage entry for a fixed 256‑bit key.
+	/// If the key does not exist, it returns 32 zero bytes.
+    /// This is akin to the EVM [TLOAD](https://www.evm.codes/?fork=cancun#5C) opcode.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`get_transient_storage`][`crate::get_transient_storage`]
+    fn get_transient_storage(&mut self, key: U256) -> [u8; 32];
+
     /// Returns the transferred value for the contract execution.
     ///
     /// # Note
