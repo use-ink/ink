@@ -724,7 +724,7 @@ impl<AccountId, R: RuntimeEnv> Client<AccountId, R>
 where
     R::Runtime: pallet_revive::Config,
     <R::Runtime as frame_system::Config>::RuntimeEvent:
-    TryInto<pallet_revive::Event<R::Runtime>>,
+        TryInto<pallet_revive::Event<R::Runtime>>,
 {
     pub fn contract_events(&mut self) -> Vec<Vec<u8>> {
         self.runtime
@@ -757,7 +757,7 @@ where
     R: RuntimeEnv,
     R::Runtime: pallet_revive::Config,
     <R::Runtime as frame_system::Config>::RuntimeEvent:
-    TryInto<pallet_revive::Event<R::Runtime>>,
+        TryInto<pallet_revive::Event<R::Runtime>>,
 {
     fn fetch_last_contract_event(self) -> Result<Vec<u8>, String> {
         self.last_contract_event()

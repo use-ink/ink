@@ -26,8 +26,8 @@
 /// # Variants
 ///
 /// - `assert_ok!(result)` - Assert the call didn't revert
-/// - `assert_ok!(result, expected)` - Assert the call didn't revert AND the return
-///   value equals `expected`
+/// - `assert_ok!(result, expected)` - Assert the call didn't revert AND the return value
+///   equals `expected`
 ///
 /// # Examples
 ///
@@ -64,11 +64,7 @@ macro_rules! assert_ok {
                 result.extract_error()
             );
         }
-        assert_eq!(
-            result.return_value(),
-            $expected,
-            "Return value mismatch"
-        );
+        assert_eq!(result.return_value(), $expected, "Return value mismatch");
         result
     }};
 }
@@ -109,8 +105,7 @@ macro_rules! assert_noop {
         if actual_error != Some($expected_error.to_string()) {
             panic!(
                 "Expected error '{}' but got {:?}",
-                $expected_error,
-                actual_error
+                $expected_error, actual_error
             );
         }
         result
