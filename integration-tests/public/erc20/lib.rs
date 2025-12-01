@@ -531,7 +531,7 @@ mod erc20 {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
-        use ink_e2e::ContractsBackend;
+        use ink_e2e::{ContractsBackend, IntoAddress};
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -554,9 +554,7 @@ mod erc20 {
                 .dry_run()
                 .await?;
 
-            let bob_account = ink_e2e::address::<ink::env::DefaultEnvironment>(
-                ink_e2e::Sr25519Keyring::Bob,
-            );
+            let bob_account = ink_e2e::bob().address();
             let transfer_to_bob = U256::from(500_000_000);
             let transfer = call_builder.transfer(bob_account, transfer_to_bob);
             let _transfer_res = client
@@ -596,12 +594,8 @@ mod erc20 {
 
             // when
 
-            let bob_account = ink_e2e::address::<ink::env::DefaultEnvironment>(
-                ink_e2e::Sr25519Keyring::Bob,
-            );
-            let charlie_account = ink_e2e::address::<ink::env::DefaultEnvironment>(
-                ink_e2e::Sr25519Keyring::Charlie,
-            );
+            let bob_account = ink_e2e::bob().address();
+            let charlie_account = ink_e2e::charlie().address();
 
             let amount = U256::from(500_000_000);
             // tx

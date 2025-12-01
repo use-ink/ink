@@ -25,7 +25,6 @@ mod builders;
 mod client_utils;
 mod contract_build;
 mod contract_results;
-mod conversions;
 mod error;
 pub mod events;
 mod macros;
@@ -62,10 +61,6 @@ pub use contract_results::{
     InstantiateDryRunResult,
     InstantiationResult,
     UploadResult,
-};
-pub use conversions::{
-    IntoAccountId,
-    IntoAddress,
 };
 pub use ink_e2e_macro::test;
 pub use ink_revive_types::evm::CallTrace;
@@ -110,6 +105,7 @@ use ink_primitives::{
     H256,
     types::AccountIdMapper,
 };
+use sp_core::crypto::AccountId32;
 pub use sp_weights::Weight;
 use std::{
     cell::RefCell,
@@ -147,30 +143,6 @@ pub fn log_error(msg: &str) {
     tracing::error!("[{}] {}", log_prefix(), msg);
 }
 
-/// Get an ink! [`ink_primitives::AccountId`] for a given keyring account.
-pub fn account_id(account: Sr25519Keyring) -> ink_primitives::AccountId {
-    ink_primitives::AccountId::try_from(account.to_account_id().as_ref())
-        .expect("account keyring has a valid account id")
-}
-
-/// Returns the [`ink::Address`] for a given keyring account.
-///
-/// # Developer Note
-///
-/// We take the `AccountId` and return only the first twenty bytes, this
-/// is what `pallet-revive` does as well.
-pub fn address<E: Environment>(account: Sr25519Keyring) -> Address {
-    AccountIdMapper::to_address(account.to_account_id().as_ref())
-}
-
-/// Transforms a `Keypair` into an account id.
-///
-/// This is a convenience function that extracts the public key bytes from a keypair
-/// and converts them to the target `AccountId` type.
-pub fn keypair_to_account<AccountId: From<[u8; 32]>>(keypair: &Keypair) -> AccountId {
-    AccountId::from(keypair.public_key().0)
-}
-
 /// Creates a call builder for `Contract`, based on an account id.
 pub fn create_call_builder<Contract>(
     acc_id: Address,
@@ -195,4 +167,77 @@ where
     <Contract as ContractCallBuilder>::Type<Abi>: FromAddr,
 {
     <<Contract as ContractCallBuilder>::Type<Abi> as FromAddr>::from_addr(acc_id)
+}
+
+/// Trait for converting various types into an `AccountId`.
+///
+/// This enables generic functions to accept multiple account representations
+/// (e.g., `Keypair`, `AccountId32`, `ink_primitives::AccountId`) without
+/// requiring callers to perform manual conversions.
+///
+/// Implementations extract the underlying 32-byte public key and convert it
+/// to the target `AccountId` type.
+pub trait IntoAccountId<TargetAccountId> {
+    /// Converts this type into the target account ID.
+    fn into_account_id(self) -> TargetAccountId;
+}
+
+impl IntoAccountId<AccountId32> for AccountId32 {
+    fn into_account_id(self) -> AccountId32 {
+        self
+    }
+}
+
+impl IntoAccountId<AccountId32> for &AccountId32 {
+    fn into_account_id(self) -> AccountId32 {
+        self.clone()
+    }
+}
+
+impl<AccountId> IntoAccountId<AccountId> for &ink_primitives::AccountId
+where
+    AccountId: From<[u8; 32]>,
+{
+    fn into_account_id(self) -> AccountId {
+        AccountId::from(*AsRef::<[u8; 32]>::as_ref(self))
+    }
+}
+
+impl<AccountId> IntoAccountId<AccountId> for &Keypair
+where
+    AccountId: From<[u8; 32]>,
+{
+    fn into_account_id(self) -> AccountId {
+        AccountId::from(self.public_key().0)
+    }
+}
+
+/// Trait for converting various types to an EVM-compatible `Address` (H160).
+///
+/// The conversion uses [`AccountIdMapper::to_address`] which applies different
+/// strategies based on the account type:
+/// - Ethereum-derived accounts (last 12 bytes are `0xEE`): extracts the first 20 bytes
+/// - Sr25519-derived accounts: computes keccak256 hash and takes the last 20 bytes
+pub trait IntoAddress {
+    /// Converts this type to an EVM-compatible address.
+    fn address(&self) -> Address;
+}
+
+impl IntoAddress for Keypair {
+    fn address(&self) -> Address {
+        AccountIdMapper::to_address(&self.public_key().0)
+    }
+}
+
+impl IntoAddress for ink_primitives::AccountId {
+    fn address(&self) -> Address {
+        let bytes = *AsRef::<[u8; 32]>::as_ref(self);
+        AccountIdMapper::to_address(&bytes)
+    }
+}
+
+impl IntoAddress for AccountId32 {
+    fn address(&self) -> Address {
+        AccountIdMapper::to_address(self.as_ref())
+    }
 }

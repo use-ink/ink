@@ -57,9 +57,9 @@ use ink_e2e::{
     CreateBuilderPartial,
     E2EBackend,
     InstantiateDryRunResult,
+    IntoAccountId,
     UploadResult,
     constructor_exec_input,
-    keypair_to_account,
     log_error,
     salt,
     subxt::{
@@ -242,7 +242,7 @@ where
         self.runtime
             .runtime_call(
                 decoded_call,
-                R::convert_account_to_origin(keypair_to_account(origin)),
+                R::convert_account_to_origin(origin.into_account_id()),
             )
             .map_err(|err| {
                 RuntimeErr::new(format!("runtime_call: execution error {:?}", err.error))
@@ -258,7 +258,7 @@ where
         dest: Self::AccountId,
         value: Self::Balance,
     ) -> Result<(), Self::Error> {
-        let caller = keypair_to_account(origin);
+        let caller = origin.into_account_id();
         let origin = RawOrigin::Signed(caller);
         let origin = OriginFor::<R::Runtime>::from(origin);
 
@@ -701,7 +701,7 @@ where
         &mut self,
         caller: &Keypair,
     ) -> Result<Option<Self::EventLog>, Self::Error> {
-        let caller_account: AccountIdFor<R::Runtime> = keypair_to_account(caller);
+        let caller_account: AccountIdFor<R::Runtime> = caller.into_account_id();
         let origin = R::convert_account_to_origin(caller_account);
 
         self.runtime
@@ -966,7 +966,7 @@ where
     R::Runtime: pallet_balances::Config + pallet_revive::Config,
     AccountIdFor<R::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
 {
-    let caller = keypair_to_account(caller);
+    let caller = caller.into_account_id();
     let origin = RawOrigin::Signed(caller);
     OriginFor::<R::Runtime>::from(origin)
 }
