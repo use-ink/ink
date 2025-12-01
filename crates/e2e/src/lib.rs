@@ -19,7 +19,6 @@
     html_favicon_url = "https://use.ink/crate-docs/favicon.png"
 )]
 
-mod assertions;
 mod backend;
 mod backend_calls;
 mod builders;
@@ -29,15 +28,12 @@ mod contract_results;
 mod conversions;
 mod error;
 pub mod events;
+mod macros;
 mod node_proc;
 mod subxt_client;
 mod xts;
 
 pub use crate::contract_build::build_root_and_contract_dependencies;
-pub use assertions::{
-    ContractEventReader,
-    assert_last_event_internal,
-};
 pub use backend::{
     BuilderClient,
     ChainBackend,
@@ -67,9 +63,16 @@ pub use contract_results::{
     InstantiationResult,
     UploadResult,
 };
-pub use conversions::IntoAccountId;
+pub use conversions::{
+    IntoAccountId,
+    IntoAddress,
+};
 pub use ink_e2e_macro::test;
 pub use ink_revive_types::evm::CallTrace;
+pub use macros::{
+    ContractEventReader,
+    assert_last_event_internal,
+};
 pub use node_proc::{
     TestNodeProcess,
     TestNodeProcessBuilder,
@@ -160,30 +163,10 @@ pub fn address<E: Environment>(account: Sr25519Keyring) -> Address {
     AccountIdMapper::to_address(account.to_account_id().as_ref())
 }
 
-/// Returns the [`ink::Address`] for a given account id.
-///
-/// # Developer Note
-///
-/// We take the `AccountId` and return only the first twenty bytes, this
-/// is what `pallet-revive` does as well.
-pub fn address_from_account_id<AccountId: AsRef<[u8]>>(account_id: AccountId) -> Address {
-    AccountIdMapper::to_address(account_id.as_ref())
-}
-
-/// Returns the [`ink::Address`] for a given `Keypair`.
-///
-/// # Developer Note
-///
-/// We take the `AccountId` and return only the first twenty bytes, this
-/// is what `pallet-revive` does as well.
-pub fn address_from_keypair<AccountId: From<[u8; 32]> + AsRef<[u8]>>(
-    keypair: &Keypair,
-) -> Address {
-    let account_id: AccountId = keypair_to_account(keypair);
-    address_from_account_id(account_id)
-}
-
 /// Transforms a `Keypair` into an account id.
+///
+/// This is a convenience function that extracts the public key bytes from a keypair
+/// and converts them to the target `AccountId` type.
 pub fn keypair_to_account<AccountId: From<[u8; 32]>>(keypair: &Keypair) -> AccountId {
     AccountId::from(keypair.public_key().0)
 }
@@ -212,23 +195,4 @@ where
     <Contract as ContractCallBuilder>::Type<Abi>: FromAddr,
 {
     <<Contract as ContractCallBuilder>::Type<Abi> as FromAddr>::from_addr(acc_id)
-}
-
-/// Extension trait for converting various types to Address (H160).
-pub trait IntoAddress {
-    /// Convert to an Address (H160).
-    fn address(&self) -> Address;
-}
-
-impl IntoAddress for Keypair {
-    fn address(&self) -> Address {
-        AccountIdMapper::to_address(&self.public_key().0)
-    }
-}
-
-impl IntoAddress for ink_primitives::AccountId {
-    fn address(&self) -> Address {
-        let bytes = *AsRef::<[u8; 32]>::as_ref(self);
-        AccountIdMapper::to_address(&bytes)
-    }
 }

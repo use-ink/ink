@@ -67,7 +67,7 @@ mod misc_evm_getters_hostfns {
         use super::*;
         use ink_e2e::{
             ContractsBackend,
-            address_from_keypair,
+            IntoAddress,
         };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -181,7 +181,7 @@ mod misc_evm_getters_hostfns {
 
             assert_eq!(
                 call_res.return_value(),
-                address_from_keypair::<AccountId>(&ink_e2e::alice())
+                ink_e2e::alice().address()
             );
 
             Ok(())

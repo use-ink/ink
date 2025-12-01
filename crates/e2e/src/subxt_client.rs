@@ -36,6 +36,7 @@ use super::{
 use crate::{
     ContractsBackend,
     E2EBackend,
+    IntoAccountId,
     backend::{
         BuilderClient,
         ChainBackend,
@@ -95,27 +96,6 @@ use subxt::{
 };
 
 pub type Error = crate::error::Error<DispatchError>;
-
-/// Trait for types that can be converted to account bytes.
-///
-/// This allows unified API methods to accept both Keypair and AccountId types.
-/// Similar to the sandbox's `IntoAccountId` trait.
-pub trait ToAccountBytes {
-    fn to_account_bytes(&self) -> [u8; 32];
-}
-
-impl ToAccountBytes for Keypair {
-    fn to_account_bytes(&self) -> [u8; 32] {
-        self.public_key().0
-    }
-}
-
-impl ToAccountBytes for ink::primitives::AccountId {
-    fn to_account_bytes(&self) -> [u8; 32] {
-        <[u8; 32]>::try_from(AsRef::<[u8]>::as_ref(self))
-            .expect("AccountId must be 32 bytes")
-    }
-}
 
 /// Represents an initialized contract message builder.
 pub type CallBuilderFinal<E, Args, RetType, Abi> = ink_env::call::CallBuilder<
@@ -405,14 +385,10 @@ where
         &mut self,
         asset_id: &u32,
         owner: &Keypair,
-        beneficiary: &impl ToAccountBytes,
+        beneficiary: impl IntoAccountId<C::AccountId>,
         amount: u128,
-    ) -> Result<(), Error>
-    where
-        C::AccountId: From<[u8; 32]>,
-    {
-        let beneficiary_bytes = beneficiary.to_account_bytes();
-        let beneficiary_account_id: C::AccountId = C::AccountId::from(beneficiary_bytes);
+    ) -> Result<(), Error> {
+        let beneficiary_account_id = beneficiary.into_account_id();
         self.mint_into_impl(*asset_id, owner, beneficiary_account_id, amount)
             .await
     }
@@ -458,13 +434,12 @@ where
     pub async fn balance_of(
         &mut self,
         asset_id: &u32,
-        owner: &impl ToAccountBytes,
+        owner: impl IntoAccountId<C::AccountId>,
     ) -> u128
     where
-        C::AccountId: From<[u8; 32]> + scale::Encode + AsRef<[u8]>,
+        C::AccountId: scale::Encode + AsRef<[u8]>,
     {
-        let owner_bytes = owner.to_account_bytes();
-        let owner_account_id: C::AccountId = C::AccountId::from(owner_bytes);
+        let owner_account_id = owner.into_account_id();
         self.api
             .balance_of_asset(*asset_id, &owner_account_id)
             .await
@@ -484,14 +459,10 @@ where
         &mut self,
         asset_id: &u32,
         owner: &Keypair,
-        delegate: &impl ToAccountBytes,
+        delegate: impl IntoAccountId<C::AccountId>,
         amount: u128,
-    ) -> Result<(), Error>
-    where
-        C::AccountId: From<[u8; 32]>,
-    {
-        let delegate_bytes = delegate.to_account_bytes();
-        let delegate_account_id: C::AccountId = C::AccountId::from(delegate_bytes);
+    ) -> Result<(), Error> {
+        let delegate_account_id = delegate.into_account_id();
 
         let (tx_events, trace) = self
             .api
@@ -527,16 +498,14 @@ where
     pub async fn allowance(
         &mut self,
         asset_id: &u32,
-        owner: &impl ToAccountBytes,
-        delegate: &impl ToAccountBytes,
+        owner: impl IntoAccountId<C::AccountId>,
+        delegate: impl IntoAccountId<C::AccountId>,
     ) -> u128
     where
-        C::AccountId: From<[u8; 32]> + scale::Encode + AsRef<[u8]>,
+        C::AccountId: scale::Encode + AsRef<[u8]>,
     {
-        let owner_bytes = owner.to_account_bytes();
-        let delegate_bytes = delegate.to_account_bytes();
-        let owner_account_id: C::AccountId = C::AccountId::from(owner_bytes);
-        let delegate_account_id: C::AccountId = C::AccountId::from(delegate_bytes);
+        let owner_account_id = owner.into_account_id();
+        let delegate_account_id = delegate.into_account_id();
 
         self.api
             .allowance_asset(*asset_id, &owner_account_id, &delegate_account_id)

@@ -185,6 +185,7 @@ pub mod give_me {
         use ink_e2e::{
             ChainBackend,
             ContractsBackend,
+            IntoAddress,
         };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -266,7 +267,7 @@ pub mod give_me {
             assert_eq!(outgoing_trace.from, contract_addr);
             assert_eq!(
                 outgoing_trace.to,
-                ink_e2e::address_from_keypair::<AccountId>(&ink_e2e::eve())
+                ink_e2e::eve().address()
             );
 
             let balance_after: Balance = client
