@@ -1,2 +1,2 @@
-window.ALL_CRATES = ["ink","ink_allocator","ink_codegen","ink_e2e","ink_e2e_macro","ink_engine","ink_env","ink_ir","ink_macro","ink_metadata","ink_precompiles","ink_prelude","ink_primitives","ink_revive_types","ink_sandbox","ink_storage","ink_storage_traits"];
+window.ALL_CRATES = ["ink","ink_allocator","ink_codegen","ink_e2e","ink_e2e_macro","ink_engine","ink_env","ink_ir","ink_macro","ink_metadata","ink_precompiles","ink_prelude","ink_primitives","ink_revive_types","ink_runtime","ink_storage","ink_storage_traits"];
 //{"start":21,"fragment_lengths":[5,16,14,10,16,13,10,9,12,15,18,14,17,19,14,14,21]}

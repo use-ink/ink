@@ -1,5 +1,5 @@
 (function() {
-    var implementors = Object.fromEntries([["ink_sandbox",[]]]);
+    var implementors = Object.fromEntries([["ink_runtime",[]]]);
     if (window.register_implementors) {
         window.register_implementors(implementors);
     } else {

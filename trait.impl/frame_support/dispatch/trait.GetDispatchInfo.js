@@ -1,5 +1,5 @@
 (function() {
-    var implementors = Object.fromEntries([["ink_sandbox",[["impl GetDispatchInfo for <a class=\"enum\" href=\"ink_sandbox/macros/enum.RuntimeCall.html\" title=\"enum ink_sandbox::macros::RuntimeCall\">RuntimeCall</a>"]]]]);
+    var implementors = Object.fromEntries([["ink_runtime",[["impl GetDispatchInfo for <a class=\"enum\" href=\"ink_runtime/macros/enum.RuntimeCall.html\" title=\"enum ink_runtime::macros::RuntimeCall\">RuntimeCall</a>"]]]]);
     if (window.register_implementors) {
         window.register_implementors(implementors);
     } else {

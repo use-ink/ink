@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["E2EError"],"struct":["SandboxErr"]};

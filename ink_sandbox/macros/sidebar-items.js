@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["RuntimeCall","RuntimeEvent","RuntimeHoldReason"],"struct":["BlockBuilder","DefaultSandbox","DefaultSandboxRuntime","PalletInfo","RuntimeOrigin"],"type":["AssetIdForTrustBackedAssets","Assets","Balances","Revive","System","Timestamp","TrustBackedAssetsInstance"]};

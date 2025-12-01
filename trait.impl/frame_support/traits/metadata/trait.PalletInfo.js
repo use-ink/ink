@@ -1,5 +1,5 @@
 (function() {
-    var implementors = Object.fromEntries([["ink_sandbox",[["impl PalletInfo for <a class=\"struct\" href=\"ink_sandbox/macros/struct.PalletInfo.html\" title=\"struct ink_sandbox::macros::PalletInfo\">PalletInfo</a>"]]]]);
+    var implementors = Object.fromEntries([["ink_runtime",[["impl PalletInfo for <a class=\"struct\" href=\"ink_runtime/macros/struct.PalletInfo.html\" title=\"struct ink_runtime::macros::PalletInfo\">PalletInfo</a>"]]]]);
     if (window.register_implementors) {
         window.register_implementors(implementors);
     } else {

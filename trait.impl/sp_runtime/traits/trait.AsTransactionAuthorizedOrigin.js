@@ -1,5 +1,5 @@
 (function() {
-    var implementors = Object.fromEntries([["ink_sandbox",[["impl AsTransactionAuthorizedOrigin for <a class=\"struct\" href=\"ink_sandbox/macros/struct.RuntimeOrigin.html\" title=\"struct ink_sandbox::macros::RuntimeOrigin\">RuntimeOrigin</a>"]]]]);
+    var implementors = Object.fromEntries([["ink_runtime",[["impl AsTransactionAuthorizedOrigin for <a class=\"struct\" href=\"ink_runtime/macros/struct.RuntimeOrigin.html\" title=\"struct ink_runtime::macros::RuntimeOrigin\">RuntimeOrigin</a>"]]]]);
     if (window.register_implementors) {
         window.register_implementors(implementors);
     } else {

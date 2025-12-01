@@ -1,5 +1,5 @@
 (function() {
-    var implementors = Object.fromEntries([["ink_sandbox",[["impl VariantCount for <a class=\"enum\" href=\"ink_sandbox/macros/enum.RuntimeHoldReason.html\" title=\"enum ink_sandbox::macros::RuntimeHoldReason\">RuntimeHoldReason</a>"]]]]);
+    var implementors = Object.fromEntries([["ink_runtime",[["impl VariantCount for <a class=\"enum\" href=\"ink_runtime/macros/enum.RuntimeHoldReason.html\" title=\"enum ink_runtime::macros::RuntimeHoldReason\">RuntimeHoldReason</a>"]]]]);
     if (window.register_implementors) {
         window.register_implementors(implementors);
     } else {
