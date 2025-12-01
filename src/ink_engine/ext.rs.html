@@ -409,34 +409,32 @@
 <a href=#409 id=409 data-nosnippet>409</a>        <span class="kw">let </span>recovery_id = RecoveryId::try_from(recovery_byte <span class="kw">as </span>i32)
 <a href=#410 id=410 data-nosnippet>410</a>            .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">"Unable to parse the recovery id: {error}"</span>));
 <a href=#411 id=411 data-nosnippet>411</a>
-<a href=#412 id=412 data-nosnippet>412</a>        <span class="kw">let </span>message = Message::from_digest_slice(message_hash).unwrap_or_else(|error| {
-<a href=#413 id=413 data-nosnippet>413</a>            <span class="macro">panic!</span>(<span class="string">"Unable to create the message from hash: {error}"</span>)
-<a href=#414 id=414 data-nosnippet>414</a>        });
-<a href=#415 id=415 data-nosnippet>415</a>        <span class="kw">let </span>signature =
-<a href=#416 id=416 data-nosnippet>416</a>            RecoverableSignature::from_compact(<span class="kw-2">&amp;</span>signature[<span class="number">0</span>..<span class="number">64</span>], recovery_id)
-<a href=#417 id=417 data-nosnippet>417</a>                .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">"Unable to parse the signature: {error}"</span>));
-<a href=#418 id=418 data-nosnippet>418</a>
-<a href=#419 id=419 data-nosnippet>419</a>        <span class="kw">let </span>pub_key = SECP256K1.recover_ecdsa(<span class="kw-2">&amp;</span>message, <span class="kw-2">&amp;</span>signature);
-<a href=#420 id=420 data-nosnippet>420</a>        <span class="kw">match </span>pub_key {
-<a href=#421 id=421 data-nosnippet>421</a>            <span class="prelude-val">Ok</span>(pub_key) =&gt; {
-<a href=#422 id=422 data-nosnippet>422</a>                <span class="kw-2">*</span>output = pub_key.serialize();
-<a href=#423 id=423 data-nosnippet>423</a>                <span class="prelude-val">Ok</span>(())
-<a href=#424 id=424 data-nosnippet>424</a>            }
-<a href=#425 id=425 data-nosnippet>425</a>            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(Error::EcdsaRecoveryFailed),
-<a href=#426 id=426 data-nosnippet>426</a>        }
-<a href=#427 id=427 data-nosnippet>427</a>    }
-<a href=#428 id=428 data-nosnippet>428</a>}
-<a href=#429 id=429 data-nosnippet>429</a>
-<a href=#430 id=430 data-nosnippet>430</a><span class="doccomment">/// Copies the `slice` into `output`.
-<a href=#431 id=431 data-nosnippet>431</a>///
-<a href=#432 id=432 data-nosnippet>432</a>/// Panics if the slice is too large and does not fit.
-<a href=#433 id=433 data-nosnippet>433</a></span><span class="kw">fn </span>set_output(output: <span class="kw-2">&amp;mut &amp;mut </span>[u8], slice: <span class="kw-2">&amp;</span>[u8]) {
-<a href=#434 id=434 data-nosnippet>434</a>    <span class="macro">assert!</span>(
-<a href=#435 id=435 data-nosnippet>435</a>        slice.len() &lt;= output.len(),
-<a href=#436 id=436 data-nosnippet>436</a>        <span class="string">"the output buffer is too small! the decoded storage is of size {} bytes, \
-<a href=#437 id=437 data-nosnippet>437</a>        but the output buffer has only room for {}."</span>,
-<a href=#438 id=438 data-nosnippet>438</a>        slice.len(),
-<a href=#439 id=439 data-nosnippet>439</a>        output.len(),
-<a href=#440 id=440 data-nosnippet>440</a>    );
-<a href=#441 id=441 data-nosnippet>441</a>    output[..slice.len()].copy_from_slice(slice);
-<a href=#442 id=442 data-nosnippet>442</a>}</code></pre></div></section></main></body></html>
+<a href=#412 id=412 data-nosnippet>412</a>        <span class="kw">let </span>message = Message::from_digest(<span class="kw-2">*</span>message_hash);
+<a href=#413 id=413 data-nosnippet>413</a>        <span class="kw">let </span>signature =
+<a href=#414 id=414 data-nosnippet>414</a>            RecoverableSignature::from_compact(<span class="kw-2">&amp;</span>signature[<span class="number">0</span>..<span class="number">64</span>], recovery_id)
+<a href=#415 id=415 data-nosnippet>415</a>                .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">"Unable to parse the signature: {error}"</span>));
+<a href=#416 id=416 data-nosnippet>416</a>
+<a href=#417 id=417 data-nosnippet>417</a>        <span class="kw">let </span>pub_key = SECP256K1.recover_ecdsa(message, <span class="kw-2">&amp;</span>signature);
+<a href=#418 id=418 data-nosnippet>418</a>        <span class="kw">match </span>pub_key {
+<a href=#419 id=419 data-nosnippet>419</a>            <span class="prelude-val">Ok</span>(pub_key) =&gt; {
+<a href=#420 id=420 data-nosnippet>420</a>                <span class="kw-2">*</span>output = pub_key.serialize();
+<a href=#421 id=421 data-nosnippet>421</a>                <span class="prelude-val">Ok</span>(())
+<a href=#422 id=422 data-nosnippet>422</a>            }
+<a href=#423 id=423 data-nosnippet>423</a>            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(Error::EcdsaRecoveryFailed),
+<a href=#424 id=424 data-nosnippet>424</a>        }
+<a href=#425 id=425 data-nosnippet>425</a>    }
+<a href=#426 id=426 data-nosnippet>426</a>}
+<a href=#427 id=427 data-nosnippet>427</a>
+<a href=#428 id=428 data-nosnippet>428</a><span class="doccomment">/// Copies the `slice` into `output`.
+<a href=#429 id=429 data-nosnippet>429</a>///
+<a href=#430 id=430 data-nosnippet>430</a>/// Panics if the slice is too large and does not fit.
+<a href=#431 id=431 data-nosnippet>431</a></span><span class="kw">fn </span>set_output(output: <span class="kw-2">&amp;mut &amp;mut </span>[u8], slice: <span class="kw-2">&amp;</span>[u8]) {
+<a href=#432 id=432 data-nosnippet>432</a>    <span class="macro">assert!</span>(
+<a href=#433 id=433 data-nosnippet>433</a>        slice.len() &lt;= output.len(),
+<a href=#434 id=434 data-nosnippet>434</a>        <span class="string">"the output buffer is too small! the decoded storage is of size {} bytes, \
+<a href=#435 id=435 data-nosnippet>435</a>        but the output buffer has only room for {}."</span>,
+<a href=#436 id=436 data-nosnippet>436</a>        slice.len(),
+<a href=#437 id=437 data-nosnippet>437</a>        output.len(),
+<a href=#438 id=438 data-nosnippet>438</a>    );
+<a href=#439 id=439 data-nosnippet>439</a>    output[..slice.len()].copy_from_slice(slice);
+<a href=#440 id=440 data-nosnippet>440</a>}</code></pre></div></section></main></body></html>
