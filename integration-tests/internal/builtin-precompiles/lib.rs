@@ -42,9 +42,7 @@ mod builtin_precompiles {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn bn128_add_works<Client: E2EBackend>(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn bn128_add_works(mut client: Client) -> E2EResult<()> {
             // given
             let mut constructor = BuiltinPrecompilesRef::new();
             let contract = client
@@ -76,9 +74,7 @@ mod builtin_precompiles {
         }
 
         #[ink_e2e::test]
-        async fn bn128_mul_works<Client: E2EBackend>(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn bn128_mul_works(mut client: Client) -> E2EResult<()> {
             // given
             let mut constructor = BuiltinPrecompilesRef::new();
             let contract = client
@@ -110,9 +106,7 @@ mod builtin_precompiles {
         }
 
         #[ink_e2e::test]
-        async fn bn128_pairing_works<Client: E2EBackend>(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn bn128_pairing_works(mut client: Client) -> E2EResult<()> {
             // given
             let mut constructor = BuiltinPrecompilesRef::new();
             let contract = client
@@ -143,9 +137,7 @@ mod builtin_precompiles {
         }
 
         #[ink_e2e::test]
-        async fn bn128_pairing_zero_points_works<Client: E2EBackend>(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn bn128_pairing_zero_points_works(mut client: Client) -> E2EResult<()> {
             // given
             let mut constructor = BuiltinPrecompilesRef::new();
             let contract = client

@@ -1,5 +1,5 @@
 [package]
-name = "sandbox-runtime"
+name = "custom-runtime"
 version = "0.1.0"
 authors.workspace = true
 edition.workspace = true
@@ -9,7 +9,7 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-ink_sandbox = { path = "../../../../crates/sandbox" }
+ink_runtime = { path = "../../../../crates/runtime" }
 pallet-revive-caller = { path = "pallet-revive-caller", default-features = false }
 frame-support = { workspace = true }
 frame-system = { workspace = true }

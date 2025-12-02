@@ -96,9 +96,7 @@ mod lazyvec {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn create_and_vote<Client: E2EBackend>(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn create_and_vote(mut client: Client) -> E2EResult<()> {
             // given
             let mut constructor = LazyVectorRef::default();
             let contract = client
