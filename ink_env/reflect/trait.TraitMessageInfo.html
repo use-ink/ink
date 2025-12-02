@@ -69,33 +69,33 @@ information stored by this ink! trait information object trait implementation.</
 <span class="kw">fn </span>main() {
     <span class="macro">assert_eq!</span>(
         &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; <span class="kw">as </span>InkTrait&gt;::__ink_TraitInfo
-            <span class="kw">as </span>TraitMessageInfo&lt;{<span class="macro">selector_id!</span>(<span class="string">"trait_message_1"</span>)}&gt;&gt;::PAYABLE,
+            <span class="kw">as </span>TraitMessageInfo&lt;{<span class="macro">selector_id!</span>(Abi::Ink, <span class="string">"trait_message_1"</span>)}&gt;&gt;::PAYABLE,
         <span class="bool-val">false</span>,
     );
     <span class="macro">assert_eq!</span>(
         &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; <span class="kw">as </span>InkTrait&gt;::__ink_TraitInfo
-            <span class="kw">as </span>TraitMessageInfo&lt;{<span class="macro">selector_id!</span>(<span class="string">"trait_message_2"</span>)}&gt;&gt;::PAYABLE,
+            <span class="kw">as </span>TraitMessageInfo&lt;{<span class="macro">selector_id!</span>(Abi::Ink, <span class="string">"trait_message_2"</span>)}&gt;&gt;::PAYABLE,
         <span class="bool-val">true</span>,
     );
     <span class="macro">assert_eq!</span>(
         &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; <span class="kw">as </span>InkTrait2&gt;::__ink_TraitInfo
-            <span class="kw">as </span>TraitMessageInfo&lt;{<span class="macro">selector_id!</span>(<span class="string">"trait_message"</span>)}&gt;&gt;::PAYABLE,
+            <span class="kw">as </span>TraitMessageInfo&lt;{<span class="macro">selector_id!</span>(Abi::Ink, <span class="string">"trait_message"</span>)}&gt;&gt;::PAYABLE,
         <span class="bool-val">false</span>,
     );
     <span class="macro">assert_eq!</span>(
         &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; <span class="kw">as </span>InkTrait&gt;::__ink_TraitInfo
-            <span class="kw">as </span>TraitMessageInfo&lt;{<span class="macro">selector_id!</span>(<span class="string">"trait_message_1"</span>)}&gt;&gt;::SELECTOR,
-        <span class="macro">selector_bytes!</span>(<span class="string">"InkTrait::trait_message_1"</span>)
+            <span class="kw">as </span>TraitMessageInfo&lt;{<span class="macro">selector_id!</span>(Abi::Ink, <span class="string">"trait_message_1"</span>)}&gt;&gt;::SELECTOR,
+        <span class="macro">selector_bytes!</span>(Abi::Ink, <span class="string">"InkTrait::trait_message_1"</span>)
     );
     <span class="macro">assert_eq!</span>(
         &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; <span class="kw">as </span>InkTrait&gt;::__ink_TraitInfo
-            <span class="kw">as </span>TraitMessageInfo&lt;{<span class="macro">selector_id!</span>(<span class="string">"trait_message_2"</span>)}&gt;&gt;::SELECTOR,
+            <span class="kw">as </span>TraitMessageInfo&lt;{<span class="macro">selector_id!</span>(Abi::Ink, <span class="string">"trait_message_2"</span>)}&gt;&gt;::SELECTOR,
         [<span class="number">0xC0</span>, <span class="number">0xDE</span>, <span class="number">0xCA</span>, <span class="number">0xFE</span>]
     );
     <span class="macro">assert_eq!</span>(
         &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; <span class="kw">as </span>InkTrait2&gt;::__ink_TraitInfo
-            <span class="kw">as </span>TraitMessageInfo&lt;{<span class="macro">selector_id!</span>(<span class="string">"trait_message"</span>)}&gt;&gt;::SELECTOR,
-        <span class="macro">selector_bytes!</span>(<span class="string">"foo::InkTrait2::trait_message"</span>)
+            <span class="kw">as </span>TraitMessageInfo&lt;{<span class="macro">selector_id!</span>(Abi::Ink, <span class="string">"trait_message"</span>)}&gt;&gt;::SELECTOR,
+        <span class="macro">selector_bytes!</span>(Abi::Ink, <span class="string">"foo::InkTrait2::trait_message"</span>)
     );
 }</code></pre></div>
 </div></details><h2 id="required-associated-consts" class="section-header">Required Associated Constants<a href="#required-associated-consts" class="anchor">§</a></h2><div class="methods"><details class="toggle" open><summary><section id="associatedconstant.PAYABLE" class="method"><h4 class="code-header">const <a href="#associatedconstant.PAYABLE" class="constant">PAYABLE</a>: <a class="primitive" href="https://doc.rust-lang.org/1.88.0/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Is <code>true</code> if the ink! trait message has been annotated with <code>#[ink(payable)]</code>.</p>

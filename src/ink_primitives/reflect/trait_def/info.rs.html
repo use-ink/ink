@@ -90,33 +90,33 @@
 <a href=#90 id=90 data-nosnippet>90</a>/// fn main() {
 <a href=#91 id=91 data-nosnippet>91</a>///     assert_eq!(
 <a href=#92 id=92 data-nosnippet>92</a>///         &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; as InkTrait&gt;::__ink_TraitInfo
-<a href=#93 id=93 data-nosnippet>93</a>///             as TraitMessageInfo&lt;{selector_id!("trait_message_1")}&gt;&gt;::PAYABLE,
+<a href=#93 id=93 data-nosnippet>93</a>///             as TraitMessageInfo&lt;{selector_id!(Abi::Ink, "trait_message_1")}&gt;&gt;::PAYABLE,
 <a href=#94 id=94 data-nosnippet>94</a>///         false,
 <a href=#95 id=95 data-nosnippet>95</a>///     );
 <a href=#96 id=96 data-nosnippet>96</a>///     assert_eq!(
 <a href=#97 id=97 data-nosnippet>97</a>///         &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; as InkTrait&gt;::__ink_TraitInfo
-<a href=#98 id=98 data-nosnippet>98</a>///             as TraitMessageInfo&lt;{selector_id!("trait_message_2")}&gt;&gt;::PAYABLE,
+<a href=#98 id=98 data-nosnippet>98</a>///             as TraitMessageInfo&lt;{selector_id!(Abi::Ink, "trait_message_2")}&gt;&gt;::PAYABLE,
 <a href=#99 id=99 data-nosnippet>99</a>///         true,
 <a href=#100 id=100 data-nosnippet>100</a>///     );
 <a href=#101 id=101 data-nosnippet>101</a>///     assert_eq!(
 <a href=#102 id=102 data-nosnippet>102</a>///         &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; as InkTrait2&gt;::__ink_TraitInfo
-<a href=#103 id=103 data-nosnippet>103</a>///             as TraitMessageInfo&lt;{selector_id!("trait_message")}&gt;&gt;::PAYABLE,
+<a href=#103 id=103 data-nosnippet>103</a>///             as TraitMessageInfo&lt;{selector_id!(Abi::Ink, "trait_message")}&gt;&gt;::PAYABLE,
 <a href=#104 id=104 data-nosnippet>104</a>///         false,
 <a href=#105 id=105 data-nosnippet>105</a>///     );
 <a href=#106 id=106 data-nosnippet>106</a>///     assert_eq!(
 <a href=#107 id=107 data-nosnippet>107</a>///         &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; as InkTrait&gt;::__ink_TraitInfo
-<a href=#108 id=108 data-nosnippet>108</a>///             as TraitMessageInfo&lt;{selector_id!("trait_message_1")}&gt;&gt;::SELECTOR,
-<a href=#109 id=109 data-nosnippet>109</a>///         selector_bytes!("InkTrait::trait_message_1")
+<a href=#108 id=108 data-nosnippet>108</a>///             as TraitMessageInfo&lt;{selector_id!(Abi::Ink, "trait_message_1")}&gt;&gt;::SELECTOR,
+<a href=#109 id=109 data-nosnippet>109</a>///         selector_bytes!(Abi::Ink, "InkTrait::trait_message_1")
 <a href=#110 id=110 data-nosnippet>110</a>///     );
 <a href=#111 id=111 data-nosnippet>111</a>///     assert_eq!(
 <a href=#112 id=112 data-nosnippet>112</a>///         &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; as InkTrait&gt;::__ink_TraitInfo
-<a href=#113 id=113 data-nosnippet>113</a>///             as TraitMessageInfo&lt;{selector_id!("trait_message_2")}&gt;&gt;::SELECTOR,
+<a href=#113 id=113 data-nosnippet>113</a>///             as TraitMessageInfo&lt;{selector_id!(Abi::Ink, "trait_message_2")}&gt;&gt;::SELECTOR,
 <a href=#114 id=114 data-nosnippet>114</a>///         [0xC0, 0xDE, 0xCA, 0xFE]
 <a href=#115 id=115 data-nosnippet>115</a>///     );
 <a href=#116 id=116 data-nosnippet>116</a>///     assert_eq!(
 <a href=#117 id=117 data-nosnippet>117</a>///         &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; as InkTrait2&gt;::__ink_TraitInfo
-<a href=#118 id=118 data-nosnippet>118</a>///             as TraitMessageInfo&lt;{selector_id!("trait_message")}&gt;&gt;::SELECTOR,
-<a href=#119 id=119 data-nosnippet>119</a>///         selector_bytes!("foo::InkTrait2::trait_message")
+<a href=#118 id=118 data-nosnippet>118</a>///             as TraitMessageInfo&lt;{selector_id!(Abi::Ink, "trait_message")}&gt;&gt;::SELECTOR,
+<a href=#119 id=119 data-nosnippet>119</a>///         selector_bytes!(Abi::Ink, "foo::InkTrait2::trait_message")
 <a href=#120 id=120 data-nosnippet>120</a>///     );
 <a href=#121 id=121 data-nosnippet>121</a>/// }
 <a href=#122 id=122 data-nosnippet>122</a>/// ```

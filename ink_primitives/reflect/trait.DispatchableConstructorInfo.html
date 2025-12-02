@@ -62,8 +62,8 @@ chosen or derived selector of the dispatchable ink! constructor.</p>
 }
 
 <span class="kw">fn </span>main() {
-    assert_constructor_info::&lt;(), { <span class="macro">selector_id!</span>(<span class="string">"constructor1"</span>) }&gt;(
-        <span class="macro">selector_bytes!</span>(<span class="string">"constructor1"</span>),
+    assert_constructor_info::&lt;(), { <span class="macro">selector_id!</span>(Abi::Ink, <span class="string">"constructor1"</span>) }&gt;(
+        <span class="macro">selector_bytes!</span>(Abi::Ink, <span class="string">"constructor1"</span>),
         <span class="string">"constructor1"</span>,
     );
     assert_constructor_info::&lt;(i32, i64), <span class="number">0xC0DECAFE_u32</span>&gt;(

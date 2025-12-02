@@ -916,7 +916,7 @@
 <a href=#916 id=916 data-nosnippet>916</a>    ///         .storage_deposit_limit(ink::U256::from(500_000_000_000u64))
 <a href=#917 id=917 data-nosnippet>917</a>    ///         .endowment(25.into())
 <a href=#918 id=918 data-nosnippet>918</a>    ///         .exec_input(
-<a href=#919 id=919 data-nosnippet>919</a>    ///             ExecutionInput::new(Selector::new(ink::selector_bytes!("new")))
+<a href=#919 id=919 data-nosnippet>919</a>    ///             ExecutionInput::new(Selector::new(ink::selector_bytes!(Abi::Ink, "new")))
 <a href=#920 id=920 data-nosnippet>920</a>    ///                 .push_arg(42)
 <a href=#921 id=921 data-nosnippet>921</a>    ///                 .push_arg(true)
 <a href=#922 id=922 data-nosnippet>922</a>    ///                 .push_arg(&amp;[0x10u8; 32]),

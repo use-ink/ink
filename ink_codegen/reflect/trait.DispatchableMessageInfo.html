@@ -70,10 +70,10 @@ chosen or derived selector of the dispatchable ink! message.</p>
 }
 
 <span class="kw">fn </span>main() {
-    assert_message_info::&lt;(), (), { <span class="macro">selector_id!</span>(<span class="string">"message1"</span>) }&gt;(
+    assert_message_info::&lt;(), (), { <span class="macro">selector_id!</span>(Abi::Ink, <span class="string">"message1"</span>) }&gt;(
         <span class="bool-val">false</span>,
         <span class="bool-val">false</span>,
-        <span class="macro">selector_bytes!</span>(<span class="string">"message1"</span>),
+        <span class="macro">selector_bytes!</span>(Abi::Ink, <span class="string">"message1"</span>),
         <span class="string">"message1"</span>,
     );
     assert_message_info::&lt;(i32, i64), (bool, i32), <span class="number">0xC0DECAFE_u32</span>&gt;(

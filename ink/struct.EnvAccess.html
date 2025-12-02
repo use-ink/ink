@@ -500,7 +500,7 @@ storage limit parameters.</p>
         .storage_deposit_limit(ink::U256::from(<span class="number">500_000_000_000u64</span>))
         .endowment(<span class="number">25</span>.into())
         .exec_input(
-            ExecutionInput::new(Selector::new(<span class="macro">ink::selector_bytes!</span>(<span class="string">"new"</span>)))
+            ExecutionInput::new(Selector::new(<span class="macro">ink::selector_bytes!</span>(Abi::Ink, <span class="string">"new"</span>)))
                 .push_arg(<span class="number">42</span>)
                 .push_arg(<span class="bool-val">true</span>)
                 .push_arg(<span class="kw-2">&amp;</span>[<span class="number">0x10u8</span>; <span class="number">32</span>]),

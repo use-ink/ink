@@ -82,10 +82,10 @@
 <a href=#82 id=82 data-nosnippet>82</a>/// }
 <a href=#83 id=83 data-nosnippet>83</a>///
 <a href=#84 id=84 data-nosnippet>84</a>/// fn main() {
-<a href=#85 id=85 data-nosnippet>85</a>///     assert_message_info::&lt;(), (), { selector_id!("message1") }&gt;(
+<a href=#85 id=85 data-nosnippet>85</a>///     assert_message_info::&lt;(), (), { selector_id!(Abi::Ink, "message1") }&gt;(
 <a href=#86 id=86 data-nosnippet>86</a>///         false,
 <a href=#87 id=87 data-nosnippet>87</a>///         false,
-<a href=#88 id=88 data-nosnippet>88</a>///         selector_bytes!("message1"),
+<a href=#88 id=88 data-nosnippet>88</a>///         selector_bytes!(Abi::Ink, "message1"),
 <a href=#89 id=89 data-nosnippet>89</a>///         "message1",
 <a href=#90 id=90 data-nosnippet>90</a>///     );
 <a href=#91 id=91 data-nosnippet>91</a>///     assert_message_info::&lt;(i32, i64), (bool, i32), 0xC0DECAFE_u32&gt;(
@@ -195,8 +195,8 @@
 <a href=#195 id=195 data-nosnippet>195</a>/// }
 <a href=#196 id=196 data-nosnippet>196</a>///
 <a href=#197 id=197 data-nosnippet>197</a>/// fn main() {
-<a href=#198 id=198 data-nosnippet>198</a>///     assert_constructor_info::&lt;(), { selector_id!("constructor1") }&gt;(
-<a href=#199 id=199 data-nosnippet>199</a>///         selector_bytes!("constructor1"),
+<a href=#198 id=198 data-nosnippet>198</a>///     assert_constructor_info::&lt;(), { selector_id!(Abi::Ink, "constructor1") }&gt;(
+<a href=#199 id=199 data-nosnippet>199</a>///         selector_bytes!(Abi::Ink, "constructor1"),
 <a href=#200 id=200 data-nosnippet>200</a>///         "constructor1",
 <a href=#201 id=201 data-nosnippet>201</a>///     );
 <a href=#202 id=202 data-nosnippet>202</a>///     assert_constructor_info::&lt;(i32, i64), 0xC0DECAFE_u32&gt;(
@@ -365,7 +365,7 @@
 <a href=#365 id=365 data-nosnippet>365</a>///     // Call to `message1` without input parameters.
 <a href=#366 id=366 data-nosnippet>366</a>///     {
 <a href=#367 id=367 data-nosnippet>367</a>///         let mut input_bytes = Vec::new();
-<a href=#368 id=368 data-nosnippet>368</a>///         input_bytes.extend(selector_bytes!("message1"));
+<a href=#368 id=368 data-nosnippet>368</a>///         input_bytes.extend(selector_bytes!(Abi::Ink, "message1"));
 <a href=#369 id=369 data-nosnippet>369</a>///         assert!(
 <a href=#370 id=370 data-nosnippet>370</a>///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type as DecodeDispatch&gt;::decode_dispatch(
 <a href=#371 id=371 data-nosnippet>371</a>///                 &amp;mut &amp;input_bytes[..]
@@ -376,7 +376,7 @@
 <a href=#376 id=376 data-nosnippet>376</a>///     // Call to `message2` with 2 parameters.
 <a href=#377 id=377 data-nosnippet>377</a>///     {
 <a href=#378 id=378 data-nosnippet>378</a>///         let mut input_bytes = Vec::new();
-<a href=#379 id=379 data-nosnippet>379</a>///         input_bytes.extend(selector_bytes!("message2"));
+<a href=#379 id=379 data-nosnippet>379</a>///         input_bytes.extend(selector_bytes!(Abi::Ink, "message2"));
 <a href=#380 id=380 data-nosnippet>380</a>///         input_bytes.extend(true.encode());
 <a href=#381 id=381 data-nosnippet>381</a>///         input_bytes.extend(42i32.encode());
 <a href=#382 id=382 data-nosnippet>382</a>///         assert!(
@@ -389,7 +389,7 @@
 <a href=#389 id=389 data-nosnippet>389</a>///     // Call with invalid ink! message selector.
 <a href=#390 id=390 data-nosnippet>390</a>///     {
 <a href=#391 id=391 data-nosnippet>391</a>///         let mut input_bytes = Vec::new();
-<a href=#392 id=392 data-nosnippet>392</a>///         input_bytes.extend(selector_bytes!("non_existing_message"));
+<a href=#392 id=392 data-nosnippet>392</a>///         input_bytes.extend(selector_bytes!(Abi::Ink, "non_existing_message"));
 <a href=#393 id=393 data-nosnippet>393</a>///         assert!(
 <a href=#394 id=394 data-nosnippet>394</a>///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type as DecodeDispatch&gt;::decode_dispatch(
 <a href=#395 id=395 data-nosnippet>395</a>///                 &amp;mut &amp;input_bytes[..]
@@ -400,7 +400,7 @@
 <a href=#400 id=400 data-nosnippet>400</a>///     // Call with invalid ink! message parameters.
 <a href=#401 id=401 data-nosnippet>401</a>///     {
 <a href=#402 id=402 data-nosnippet>402</a>///         let mut input_bytes = Vec::new();
-<a href=#403 id=403 data-nosnippet>403</a>///         input_bytes.extend(selector_bytes!("message2"));
+<a href=#403 id=403 data-nosnippet>403</a>///         input_bytes.extend(selector_bytes!(Abi::Ink, "message2"));
 <a href=#404 id=404 data-nosnippet>404</a>///         assert!(
 <a href=#405 id=405 data-nosnippet>405</a>///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type as DecodeDispatch&gt;::decode_dispatch(
 <a href=#406 id=406 data-nosnippet>406</a>///                 &amp;mut &amp;input_bytes[..]
@@ -459,7 +459,7 @@
 <a href=#459 id=459 data-nosnippet>459</a>///     // Call to `constructor1` without input parameters.
 <a href=#460 id=460 data-nosnippet>460</a>///     {
 <a href=#461 id=461 data-nosnippet>461</a>///         let mut input_bytes = Vec::new();
-<a href=#462 id=462 data-nosnippet>462</a>///         input_bytes.extend(selector_bytes!("constructor1"));
+<a href=#462 id=462 data-nosnippet>462</a>///         input_bytes.extend(selector_bytes!(Abi::Ink, "constructor1"));
 <a href=#463 id=463 data-nosnippet>463</a>///         assert!(
 <a href=#464 id=464 data-nosnippet>464</a>///             &lt;&lt;Contract as ContractConstructorDecoder&gt;::Type as DecodeDispatch&gt;::decode_dispatch(
 <a href=#465 id=465 data-nosnippet>465</a>///                 &amp;mut &amp;input_bytes[..]
@@ -470,7 +470,7 @@
 <a href=#470 id=470 data-nosnippet>470</a>///     // Call to `constructor2` with 2 parameters.
 <a href=#471 id=471 data-nosnippet>471</a>///     {
 <a href=#472 id=472 data-nosnippet>472</a>///         let mut input_bytes = Vec::new();
-<a href=#473 id=473 data-nosnippet>473</a>///         input_bytes.extend(selector_bytes!("constructor2"));
+<a href=#473 id=473 data-nosnippet>473</a>///         input_bytes.extend(selector_bytes!(Abi::Ink, "constructor2"));
 <a href=#474 id=474 data-nosnippet>474</a>///         input_bytes.extend(true.encode());
 <a href=#475 id=475 data-nosnippet>475</a>///         input_bytes.extend(42i32.encode());
 <a href=#476 id=476 data-nosnippet>476</a>///         assert!(
@@ -483,7 +483,7 @@
 <a href=#483 id=483 data-nosnippet>483</a>///     // Call with invalid ink! constructor selector.
 <a href=#484 id=484 data-nosnippet>484</a>///     {
 <a href=#485 id=485 data-nosnippet>485</a>///         let mut input_bytes = Vec::new();
-<a href=#486 id=486 data-nosnippet>486</a>///         input_bytes.extend(selector_bytes!("non_existing_constructor"));
+<a href=#486 id=486 data-nosnippet>486</a>///         input_bytes.extend(selector_bytes!(Abi::Ink, "non_existing_constructor"));
 <a href=#487 id=487 data-nosnippet>487</a>///         assert!(
 <a href=#488 id=488 data-nosnippet>488</a>///             &lt;&lt;Contract as ContractConstructorDecoder&gt;::Type as DecodeDispatch&gt;::decode_dispatch(
 <a href=#489 id=489 data-nosnippet>489</a>///                 &amp;mut &amp;input_bytes[..]
@@ -494,7 +494,7 @@
 <a href=#494 id=494 data-nosnippet>494</a>///     // Call with invalid ink! constructor parameters.
 <a href=#495 id=495 data-nosnippet>495</a>///     {
 <a href=#496 id=496 data-nosnippet>496</a>///         let mut input_bytes = Vec::new();
-<a href=#497 id=497 data-nosnippet>497</a>///         input_bytes.extend(selector_bytes!("constructor2"));
+<a href=#497 id=497 data-nosnippet>497</a>///         input_bytes.extend(selector_bytes!(Abi::Ink, "constructor2"));
 <a href=#498 id=498 data-nosnippet>498</a>///         assert!(
 <a href=#499 id=499 data-nosnippet>499</a>///             &lt;&lt;Contract as ContractConstructorDecoder&gt;::Type as DecodeDispatch&gt;::decode_dispatch(
 <a href=#500 id=500 data-nosnippet>500</a>///                 &amp;mut &amp;input_bytes[..]

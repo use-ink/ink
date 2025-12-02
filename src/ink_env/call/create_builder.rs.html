@@ -392,406 +392,412 @@
 <a href=#392 id=392 data-nosnippet>392</a>///     .code_hash(ink::H256::from([0x42; 32]))
 <a href=#393 id=393 data-nosnippet>393</a>///     .endowment(25.into())
 <a href=#394 id=394 data-nosnippet>394</a>///     .exec_input(
-<a href=#395 id=395 data-nosnippet>395</a>///         ExecutionInput::new(Selector::new(ink::selector_bytes!("my_constructor")))
-<a href=#396 id=396 data-nosnippet>396</a>///             .push_arg(42)
-<a href=#397 id=397 data-nosnippet>397</a>///             .push_arg(true)
-<a href=#398 id=398 data-nosnippet>398</a>///             .push_arg(&amp;[0x10u8; 32]),
-<a href=#399 id=399 data-nosnippet>399</a>///     )
-<a href=#400 id=400 data-nosnippet>400</a>///     .salt_bytes(Some([1u8; 32]))
-<a href=#401 id=401 data-nosnippet>401</a>///     .returns::&lt;MyContractRef&gt;()
-<a href=#402 id=402 data-nosnippet>402</a>///     .instantiate();
-<a href=#403 id=403 data-nosnippet>403</a>/// ```
-<a href=#404 id=404 data-nosnippet>404</a>///
-<a href=#405 id=405 data-nosnippet>405</a>/// ## Example 2: Handles Result from Fallible Constructor
-<a href=#406 id=406 data-nosnippet>406</a>///
-<a href=#407 id=407 data-nosnippet>407</a>/// ```should_panic
-<a href=#408 id=408 data-nosnippet>408</a>/// # use ::ink_env::{
-<a href=#409 id=409 data-nosnippet>409</a>/// #     Environment,
-<a href=#410 id=410 data-nosnippet>410</a>/// #     DefaultEnvironment,
-<a href=#411 id=411 data-nosnippet>411</a>/// #     call::{build_create, Selector, ExecutionInput, FromAddr}
-<a href=#412 id=412 data-nosnippet>412</a>/// # };
-<a href=#413 id=413 data-nosnippet>413</a>/// # type Hash = &lt;DefaultEnvironment as Environment&gt;::Hash;
-<a href=#414 id=414 data-nosnippet>414</a>/// #
-<a href=#415 id=415 data-nosnippet>415</a>/// # #[ink::contract]
-<a href=#416 id=416 data-nosnippet>416</a>/// # pub mod contract {
-<a href=#417 id=417 data-nosnippet>417</a>/// #     #[derive(scale::Encode, scale::Decode, Debug)]
-<a href=#418 id=418 data-nosnippet>418</a>/// #     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-<a href=#419 id=419 data-nosnippet>419</a>/// #     pub struct ConstructorError;
-<a href=#420 id=420 data-nosnippet>420</a>/// #
-<a href=#421 id=421 data-nosnippet>421</a>/// #     #[ink(storage)]
-<a href=#422 id=422 data-nosnippet>422</a>/// #     pub struct MyContract {}
+<a href=#395 id=395 data-nosnippet>395</a>///         ExecutionInput::new(Selector::new(ink::selector_bytes!(
+<a href=#396 id=396 data-nosnippet>396</a>///             Abi::Ink,
+<a href=#397 id=397 data-nosnippet>397</a>///             "my_constructor"
+<a href=#398 id=398 data-nosnippet>398</a>///         )))
+<a href=#399 id=399 data-nosnippet>399</a>///         .push_arg(42)
+<a href=#400 id=400 data-nosnippet>400</a>///         .push_arg(true)
+<a href=#401 id=401 data-nosnippet>401</a>///         .push_arg(&amp;[0x10u8; 32]),
+<a href=#402 id=402 data-nosnippet>402</a>///     )
+<a href=#403 id=403 data-nosnippet>403</a>///     .salt_bytes(Some([1u8; 32]))
+<a href=#404 id=404 data-nosnippet>404</a>///     .returns::&lt;MyContractRef&gt;()
+<a href=#405 id=405 data-nosnippet>405</a>///     .instantiate();
+<a href=#406 id=406 data-nosnippet>406</a>/// ```
+<a href=#407 id=407 data-nosnippet>407</a>///
+<a href=#408 id=408 data-nosnippet>408</a>/// ## Example 2: Handles Result from Fallible Constructor
+<a href=#409 id=409 data-nosnippet>409</a>///
+<a href=#410 id=410 data-nosnippet>410</a>/// ```should_panic
+<a href=#411 id=411 data-nosnippet>411</a>/// # use ::ink_env::{
+<a href=#412 id=412 data-nosnippet>412</a>/// #     Environment,
+<a href=#413 id=413 data-nosnippet>413</a>/// #     DefaultEnvironment,
+<a href=#414 id=414 data-nosnippet>414</a>/// #     call::{build_create, Selector, ExecutionInput, FromAddr}
+<a href=#415 id=415 data-nosnippet>415</a>/// # };
+<a href=#416 id=416 data-nosnippet>416</a>/// # type Hash = &lt;DefaultEnvironment as Environment&gt;::Hash;
+<a href=#417 id=417 data-nosnippet>417</a>/// #
+<a href=#418 id=418 data-nosnippet>418</a>/// # #[ink::contract]
+<a href=#419 id=419 data-nosnippet>419</a>/// # pub mod contract {
+<a href=#420 id=420 data-nosnippet>420</a>/// #     #[derive(scale::Encode, scale::Decode, Debug)]
+<a href=#421 id=421 data-nosnippet>421</a>/// #     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+<a href=#422 id=422 data-nosnippet>422</a>/// #     pub struct ConstructorError;
 <a href=#423 id=423 data-nosnippet>423</a>/// #
-<a href=#424 id=424 data-nosnippet>424</a>/// #     impl MyContract {
-<a href=#425 id=425 data-nosnippet>425</a>/// #         #[ink(constructor)]
-<a href=#426 id=426 data-nosnippet>426</a>/// #         pub fn my_constructor() -&gt; Result&lt;Self, ConstructorError&gt; {
-<a href=#427 id=427 data-nosnippet>427</a>/// #             Ok(Self {})
-<a href=#428 id=428 data-nosnippet>428</a>/// #         }
-<a href=#429 id=429 data-nosnippet>429</a>/// #
-<a href=#430 id=430 data-nosnippet>430</a>/// #         #[ink(message)]
-<a href=#431 id=431 data-nosnippet>431</a>/// #         pub fn message(&amp;self) {}
-<a href=#432 id=432 data-nosnippet>432</a>/// #     }
-<a href=#433 id=433 data-nosnippet>433</a>/// # }
-<a href=#434 id=434 data-nosnippet>434</a>/// # use contract::ConstructorError;
-<a href=#435 id=435 data-nosnippet>435</a>/// let my_contract: MyContractRef = build_create::&lt;MyContractRef&gt;()
-<a href=#436 id=436 data-nosnippet>436</a>///     .code_hash(ink::H256::from([0x42; 32]))
-<a href=#437 id=437 data-nosnippet>437</a>///     .endowment(25.into())
-<a href=#438 id=438 data-nosnippet>438</a>///     .exec_input(
-<a href=#439 id=439 data-nosnippet>439</a>///         ExecutionInput::new(Selector::new(ink::selector_bytes!("my_constructor")))
-<a href=#440 id=440 data-nosnippet>440</a>///             .push_arg(42)
-<a href=#441 id=441 data-nosnippet>441</a>///             .push_arg(true)
-<a href=#442 id=442 data-nosnippet>442</a>///             .push_arg(&amp;[0x10u8; 32]),
-<a href=#443 id=443 data-nosnippet>443</a>///     )
-<a href=#444 id=444 data-nosnippet>444</a>///     .salt_bytes(Some([1u8; 32]))
-<a href=#445 id=445 data-nosnippet>445</a>///     .returns::&lt;Result&lt;MyContractRef, ConstructorError&gt;&gt;()
-<a href=#446 id=446 data-nosnippet>446</a>///     .instantiate()
-<a href=#447 id=447 data-nosnippet>447</a>///     .expect("Constructor should have executed successfully.");
-<a href=#448 id=448 data-nosnippet>448</a>/// ```
-<a href=#449 id=449 data-nosnippet>449</a></span><span class="attr">#[allow(clippy::type_complexity)]
-<a href=#450 id=450 data-nosnippet>450</a></span><span class="kw">pub fn </span>build_create&lt;ContractRef&gt;() -&gt; CreateBuilder&lt;
-<a href=#451 id=451 data-nosnippet>451</a>    &lt;ContractRef <span class="kw">as </span>ContractEnv&gt;::Env,
-<a href=#452 id=452 data-nosnippet>452</a>    ContractRef,
-<a href=#453 id=453 data-nosnippet>453</a>    Set&lt;LimitParamsV2&gt;,
-<a href=#454 id=454 data-nosnippet>454</a>    Unset&lt;ExecutionInput&lt;EmptyArgumentList&lt;<span class="kw">crate</span>::DefaultAbi&gt;, <span class="kw">crate</span>::DefaultAbi&gt;&gt;,
-<a href=#455 id=455 data-nosnippet>455</a>    Unset&lt;ReturnType&lt;()&gt;&gt;,
-<a href=#456 id=456 data-nosnippet>456</a>    <span class="kw">crate</span>::DefaultAbi,
-<a href=#457 id=457 data-nosnippet>457</a>&gt;
-<a href=#458 id=458 data-nosnippet>458</a><span class="kw">where
-<a href=#459 id=459 data-nosnippet>459</a>    </span>ContractRef: ContractEnv,
-<a href=#460 id=460 data-nosnippet>460</a>{
-<a href=#461 id=461 data-nosnippet>461</a>    CreateBuilder {
-<a href=#462 id=462 data-nosnippet>462</a>        code_hash: Default::default(),
-<a href=#463 id=463 data-nosnippet>463</a>        limits: Set(LimitParamsV2 {
-<a href=#464 id=464 data-nosnippet>464</a>            ref_time_limit: u64::MAX,
-<a href=#465 id=465 data-nosnippet>465</a>            proof_size_limit: u64::MAX,
-<a href=#466 id=466 data-nosnippet>466</a>            storage_deposit_limit: <span class="prelude-val">None</span>,
-<a href=#467 id=467 data-nosnippet>467</a>        }),
-<a href=#468 id=468 data-nosnippet>468</a>        endowment: Default::default(),
-<a href=#469 id=469 data-nosnippet>469</a>        exec_input: Default::default(),
-<a href=#470 id=470 data-nosnippet>470</a>        salt: Default::default(),
-<a href=#471 id=471 data-nosnippet>471</a>        return_type: Default::default(),
-<a href=#472 id=472 data-nosnippet>472</a>        _phantom: Default::default(),
-<a href=#473 id=473 data-nosnippet>473</a>    }
-<a href=#474 id=474 data-nosnippet>474</a>}
-<a href=#475 id=475 data-nosnippet>475</a>
-<a href=#476 id=476 data-nosnippet>476</a><span class="doccomment">/// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract
-<a href=#477 id=477 data-nosnippet>477</a>/// instantiation that uses ink! ABI Encoding (i.e. with SCALE codec for input/output
-<a href=#478 id=478 data-nosnippet>478</a>/// encode/decode).
-<a href=#479 id=479 data-nosnippet>479</a>///
-<a href=#480 id=480 data-nosnippet>480</a>/// See [`build_create`] for more details on usage.
-<a href=#481 id=481 data-nosnippet>481</a></span><span class="attr">#[allow(clippy::type_complexity)]
-<a href=#482 id=482 data-nosnippet>482</a></span><span class="kw">pub fn </span>build_create_ink&lt;ContractRef&gt;() -&gt; CreateBuilder&lt;
-<a href=#483 id=483 data-nosnippet>483</a>    &lt;ContractRef <span class="kw">as </span>ContractEnv&gt;::Env,
-<a href=#484 id=484 data-nosnippet>484</a>    ContractRef,
-<a href=#485 id=485 data-nosnippet>485</a>    Set&lt;LimitParamsV2&gt;,
-<a href=#486 id=486 data-nosnippet>486</a>    Unset&lt;ExecutionInput&lt;EmptyArgumentList&lt;Ink&gt;, Ink&gt;&gt;,
-<a href=#487 id=487 data-nosnippet>487</a>    Unset&lt;ReturnType&lt;()&gt;&gt;,
-<a href=#488 id=488 data-nosnippet>488</a>    Ink,
-<a href=#489 id=489 data-nosnippet>489</a>&gt;
-<a href=#490 id=490 data-nosnippet>490</a><span class="kw">where
-<a href=#491 id=491 data-nosnippet>491</a>    </span>ContractRef: ContractEnv,
-<a href=#492 id=492 data-nosnippet>492</a>{
-<a href=#493 id=493 data-nosnippet>493</a>    CreateBuilder {
-<a href=#494 id=494 data-nosnippet>494</a>        code_hash: Default::default(),
-<a href=#495 id=495 data-nosnippet>495</a>        limits: Set(LimitParamsV2 {
-<a href=#496 id=496 data-nosnippet>496</a>            ref_time_limit: u64::MAX,
-<a href=#497 id=497 data-nosnippet>497</a>            proof_size_limit: u64::MAX,
-<a href=#498 id=498 data-nosnippet>498</a>            storage_deposit_limit: <span class="prelude-val">None</span>,
-<a href=#499 id=499 data-nosnippet>499</a>        }),
-<a href=#500 id=500 data-nosnippet>500</a>        endowment: Default::default(),
-<a href=#501 id=501 data-nosnippet>501</a>        exec_input: Default::default(),
-<a href=#502 id=502 data-nosnippet>502</a>        salt: Default::default(),
-<a href=#503 id=503 data-nosnippet>503</a>        return_type: Default::default(),
-<a href=#504 id=504 data-nosnippet>504</a>        _phantom: Default::default(),
-<a href=#505 id=505 data-nosnippet>505</a>    }
-<a href=#506 id=506 data-nosnippet>506</a>}
-<a href=#507 id=507 data-nosnippet>507</a>
-<a href=#508 id=508 data-nosnippet>508</a><span class="doccomment">/// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract
-<a href=#509 id=509 data-nosnippet>509</a>/// instantiation that uses Solidity ABI Encoding.
-<a href=#510 id=510 data-nosnippet>510</a>///
-<a href=#511 id=511 data-nosnippet>511</a>/// See [`build_create`] for more details on usage.
-<a href=#512 id=512 data-nosnippet>512</a></span><span class="attr">#[allow(clippy::type_complexity)]
-<a href=#513 id=513 data-nosnippet>513</a></span><span class="kw">pub fn </span>build_create_sol&lt;ContractRef&gt;() -&gt; CreateBuilder&lt;
-<a href=#514 id=514 data-nosnippet>514</a>    &lt;ContractRef <span class="kw">as </span>ContractEnv&gt;::Env,
-<a href=#515 id=515 data-nosnippet>515</a>    ContractRef,
-<a href=#516 id=516 data-nosnippet>516</a>    Set&lt;LimitParamsV2&gt;,
-<a href=#517 id=517 data-nosnippet>517</a>    Unset&lt;ExecutionInput&lt;EmptyArgumentList&lt;Sol&gt;, Sol&gt;&gt;,
-<a href=#518 id=518 data-nosnippet>518</a>    Unset&lt;ReturnType&lt;()&gt;&gt;,
-<a href=#519 id=519 data-nosnippet>519</a>    Sol,
-<a href=#520 id=520 data-nosnippet>520</a>&gt;
-<a href=#521 id=521 data-nosnippet>521</a><span class="kw">where
-<a href=#522 id=522 data-nosnippet>522</a>    </span>ContractRef: ContractEnv,
-<a href=#523 id=523 data-nosnippet>523</a>{
-<a href=#524 id=524 data-nosnippet>524</a>    CreateBuilder {
-<a href=#525 id=525 data-nosnippet>525</a>        code_hash: Default::default(),
-<a href=#526 id=526 data-nosnippet>526</a>        limits: Set(LimitParamsV2 {
-<a href=#527 id=527 data-nosnippet>527</a>            ref_time_limit: u64::MAX,
-<a href=#528 id=528 data-nosnippet>528</a>            proof_size_limit: u64::MAX,
-<a href=#529 id=529 data-nosnippet>529</a>            storage_deposit_limit: <span class="prelude-val">None</span>,
-<a href=#530 id=530 data-nosnippet>530</a>        }),
-<a href=#531 id=531 data-nosnippet>531</a>        endowment: Default::default(),
-<a href=#532 id=532 data-nosnippet>532</a>        exec_input: Default::default(),
-<a href=#533 id=533 data-nosnippet>533</a>        salt: Default::default(),
-<a href=#534 id=534 data-nosnippet>534</a>        return_type: Default::default(),
-<a href=#535 id=535 data-nosnippet>535</a>        _phantom: Default::default(),
-<a href=#536 id=536 data-nosnippet>536</a>    }
-<a href=#537 id=537 data-nosnippet>537</a>}
-<a href=#538 id=538 data-nosnippet>538</a>
-<a href=#539 id=539 data-nosnippet>539</a><span class="kw">impl</span>&lt;E, ContractRef, Limits, Args, RetType, Abi&gt;
-<a href=#540 id=540 data-nosnippet>540</a>    CreateBuilder&lt;E, ContractRef, Limits, Args, RetType, Abi&gt;
-<a href=#541 id=541 data-nosnippet>541</a><span class="kw">where
-<a href=#542 id=542 data-nosnippet>542</a>    </span>E: Environment,
-<a href=#543 id=543 data-nosnippet>543</a>{
-<a href=#544 id=544 data-nosnippet>544</a>    <span class="doccomment">/// Sets the used code hash for the contract instantiation.
-<a href=#545 id=545 data-nosnippet>545</a>    </span><span class="attr">#[inline]
-<a href=#546 id=546 data-nosnippet>546</a>    </span><span class="kw">pub fn </span>code_hash(
-<a href=#547 id=547 data-nosnippet>547</a>        <span class="self">self</span>,
-<a href=#548 id=548 data-nosnippet>548</a>        code_hash: H256,
-<a href=#549 id=549 data-nosnippet>549</a>    ) -&gt; CreateBuilder&lt;E, ContractRef, Limits, Args, RetType, Abi&gt; {
-<a href=#550 id=550 data-nosnippet>550</a>        CreateBuilder {
-<a href=#551 id=551 data-nosnippet>551</a>            code_hash,
-<a href=#552 id=552 data-nosnippet>552</a>            limits: <span class="self">self</span>.limits,
-<a href=#553 id=553 data-nosnippet>553</a>            endowment: <span class="self">self</span>.endowment,
-<a href=#554 id=554 data-nosnippet>554</a>            exec_input: <span class="self">self</span>.exec_input,
-<a href=#555 id=555 data-nosnippet>555</a>            salt: <span class="self">self</span>.salt,
-<a href=#556 id=556 data-nosnippet>556</a>            return_type: <span class="self">self</span>.return_type,
-<a href=#557 id=557 data-nosnippet>557</a>            _phantom: Default::default(),
-<a href=#558 id=558 data-nosnippet>558</a>        }
-<a href=#559 id=559 data-nosnippet>559</a>    }
-<a href=#560 id=560 data-nosnippet>560</a>}
-<a href=#561 id=561 data-nosnippet>561</a>
-<a href=#562 id=562 data-nosnippet>562</a><span class="kw">impl</span>&lt;E, ContractRef, Args, RetType, Abi&gt;
-<a href=#563 id=563 data-nosnippet>563</a>    CreateBuilder&lt;E, ContractRef, Set&lt;LimitParamsV2&gt;, Args, RetType, Abi&gt;
-<a href=#564 id=564 data-nosnippet>564</a><span class="kw">where
-<a href=#565 id=565 data-nosnippet>565</a>    </span>E: Environment,
-<a href=#566 id=566 data-nosnippet>566</a>{
-<a href=#567 id=567 data-nosnippet>567</a>    <span class="doccomment">/// Sets the `ref_time_limit` part of the weight limit for the contract instantiation.
-<a href=#568 id=568 data-nosnippet>568</a>    </span><span class="attr">#[inline]
-<a href=#569 id=569 data-nosnippet>569</a>    </span><span class="kw">pub fn </span>ref_time_limit(<span class="self">self</span>, ref_time_limit: u64) -&gt; <span class="self">Self </span>{
-<a href=#570 id=570 data-nosnippet>570</a>        CreateBuilder {
-<a href=#571 id=571 data-nosnippet>571</a>            limits: Set(LimitParamsV2 {
-<a href=#572 id=572 data-nosnippet>572</a>                ref_time_limit,
-<a href=#573 id=573 data-nosnippet>573</a>                ..<span class="self">self</span>.limits.value()
-<a href=#574 id=574 data-nosnippet>574</a>            }),
-<a href=#575 id=575 data-nosnippet>575</a>            ..<span class="self">self
-<a href=#576 id=576 data-nosnippet>576</a>        </span>}
-<a href=#577 id=577 data-nosnippet>577</a>    }
-<a href=#578 id=578 data-nosnippet>578</a>
-<a href=#579 id=579 data-nosnippet>579</a>    <span class="doccomment">/// Sets the `proof_size_limit` part of the weight limit for the contract
-<a href=#580 id=580 data-nosnippet>580</a>    /// instantiation.
-<a href=#581 id=581 data-nosnippet>581</a>    </span><span class="attr">#[inline]
-<a href=#582 id=582 data-nosnippet>582</a>    </span><span class="kw">pub fn </span>proof_size_limit(<span class="self">self</span>, proof_size_limit: u64) -&gt; <span class="self">Self </span>{
-<a href=#583 id=583 data-nosnippet>583</a>        CreateBuilder {
-<a href=#584 id=584 data-nosnippet>584</a>            limits: Set(LimitParamsV2 {
-<a href=#585 id=585 data-nosnippet>585</a>                proof_size_limit,
-<a href=#586 id=586 data-nosnippet>586</a>                ..<span class="self">self</span>.limits.value()
-<a href=#587 id=587 data-nosnippet>587</a>            }),
-<a href=#588 id=588 data-nosnippet>588</a>            ..<span class="self">self
-<a href=#589 id=589 data-nosnippet>589</a>        </span>}
-<a href=#590 id=590 data-nosnippet>590</a>    }
-<a href=#591 id=591 data-nosnippet>591</a>
-<a href=#592 id=592 data-nosnippet>592</a>    <span class="doccomment">/// Sets the `storage_deposit_limit` for the contract instantiation.
-<a href=#593 id=593 data-nosnippet>593</a>    </span><span class="attr">#[inline]
-<a href=#594 id=594 data-nosnippet>594</a>    </span><span class="kw">pub fn </span>storage_deposit_limit(<span class="self">self</span>, storage_deposit_limit: U256) -&gt; <span class="self">Self </span>{
-<a href=#595 id=595 data-nosnippet>595</a>        CreateBuilder {
-<a href=#596 id=596 data-nosnippet>596</a>            limits: Set(LimitParamsV2 {
-<a href=#597 id=597 data-nosnippet>597</a>                storage_deposit_limit: <span class="prelude-val">Some</span>(storage_deposit_limit),
-<a href=#598 id=598 data-nosnippet>598</a>                ..<span class="self">self</span>.limits.value()
-<a href=#599 id=599 data-nosnippet>599</a>            }),
-<a href=#600 id=600 data-nosnippet>600</a>            ..<span class="self">self
-<a href=#601 id=601 data-nosnippet>601</a>        </span>}
-<a href=#602 id=602 data-nosnippet>602</a>    }
-<a href=#603 id=603 data-nosnippet>603</a>}
-<a href=#604 id=604 data-nosnippet>604</a>
-<a href=#605 id=605 data-nosnippet>605</a><span class="kw">impl</span>&lt;E, ContractRef, Limits, Args, RetType, Abi&gt;
-<a href=#606 id=606 data-nosnippet>606</a>    CreateBuilder&lt;E, ContractRef, Limits, Args, RetType, Abi&gt;
-<a href=#607 id=607 data-nosnippet>607</a><span class="kw">where
-<a href=#608 id=608 data-nosnippet>608</a>    </span>E: Environment,
-<a href=#609 id=609 data-nosnippet>609</a>{
-<a href=#610 id=610 data-nosnippet>610</a>    <span class="doccomment">/// Sets the value transferred upon the execution of the call.
-<a href=#611 id=611 data-nosnippet>611</a>    </span><span class="attr">#[inline]
-<a href=#612 id=612 data-nosnippet>612</a>    </span><span class="kw">pub fn </span>endowment(
-<a href=#613 id=613 data-nosnippet>613</a>        <span class="self">self</span>,
-<a href=#614 id=614 data-nosnippet>614</a>        endowment: U256,
-<a href=#615 id=615 data-nosnippet>615</a>    ) -&gt; CreateBuilder&lt;E, ContractRef, Limits, Args, RetType, Abi&gt; {
-<a href=#616 id=616 data-nosnippet>616</a>        CreateBuilder {
-<a href=#617 id=617 data-nosnippet>617</a>            code_hash: <span class="self">self</span>.code_hash,
-<a href=#618 id=618 data-nosnippet>618</a>            limits: <span class="self">self</span>.limits,
-<a href=#619 id=619 data-nosnippet>619</a>            endowment,
-<a href=#620 id=620 data-nosnippet>620</a>            exec_input: <span class="self">self</span>.exec_input,
-<a href=#621 id=621 data-nosnippet>621</a>            salt: <span class="self">self</span>.salt,
-<a href=#622 id=622 data-nosnippet>622</a>            return_type: <span class="self">self</span>.return_type,
-<a href=#623 id=623 data-nosnippet>623</a>            _phantom: Default::default(),
-<a href=#624 id=624 data-nosnippet>624</a>        }
-<a href=#625 id=625 data-nosnippet>625</a>    }
-<a href=#626 id=626 data-nosnippet>626</a>}
-<a href=#627 id=627 data-nosnippet>627</a>
-<a href=#628 id=628 data-nosnippet>628</a><span class="kw">impl</span>&lt;E, ContractRef, Limits, RetType, Abi&gt;
-<a href=#629 id=629 data-nosnippet>629</a>    CreateBuilder&lt;
-<a href=#630 id=630 data-nosnippet>630</a>        E,
-<a href=#631 id=631 data-nosnippet>631</a>        ContractRef,
-<a href=#632 id=632 data-nosnippet>632</a>        Limits,
-<a href=#633 id=633 data-nosnippet>633</a>        Unset&lt;ExecutionInput&lt;EmptyArgumentList&lt;Abi&gt;, Abi&gt;&gt;,
-<a href=#634 id=634 data-nosnippet>634</a>        RetType,
-<a href=#635 id=635 data-nosnippet>635</a>        Abi,
-<a href=#636 id=636 data-nosnippet>636</a>    &gt;
-<a href=#637 id=637 data-nosnippet>637</a><span class="kw">where
-<a href=#638 id=638 data-nosnippet>638</a>    </span>E: Environment,
-<a href=#639 id=639 data-nosnippet>639</a>{
-<a href=#640 id=640 data-nosnippet>640</a>    <span class="doccomment">/// Sets the value transferred upon the execution of the call.
-<a href=#641 id=641 data-nosnippet>641</a>    </span><span class="attr">#[inline]
-<a href=#642 id=642 data-nosnippet>642</a>    </span><span class="kw">pub fn </span>exec_input&lt;Args&gt;(
-<a href=#643 id=643 data-nosnippet>643</a>        <span class="self">self</span>,
-<a href=#644 id=644 data-nosnippet>644</a>        exec_input: ExecutionInput&lt;Args, Abi&gt;,
-<a href=#645 id=645 data-nosnippet>645</a>    ) -&gt; CreateBuilder&lt;E, ContractRef, Limits, Set&lt;ExecutionInput&lt;Args, Abi&gt;&gt;, RetType, Abi&gt;
-<a href=#646 id=646 data-nosnippet>646</a>    {
-<a href=#647 id=647 data-nosnippet>647</a>        CreateBuilder {
-<a href=#648 id=648 data-nosnippet>648</a>            code_hash: <span class="self">self</span>.code_hash,
-<a href=#649 id=649 data-nosnippet>649</a>            limits: <span class="self">self</span>.limits,
-<a href=#650 id=650 data-nosnippet>650</a>            endowment: <span class="self">self</span>.endowment,
-<a href=#651 id=651 data-nosnippet>651</a>            exec_input: Set(exec_input),
-<a href=#652 id=652 data-nosnippet>652</a>            salt: <span class="self">self</span>.salt,
-<a href=#653 id=653 data-nosnippet>653</a>            return_type: <span class="self">self</span>.return_type,
-<a href=#654 id=654 data-nosnippet>654</a>            _phantom: Default::default(),
-<a href=#655 id=655 data-nosnippet>655</a>        }
-<a href=#656 id=656 data-nosnippet>656</a>    }
-<a href=#657 id=657 data-nosnippet>657</a>}
-<a href=#658 id=658 data-nosnippet>658</a>
-<a href=#659 id=659 data-nosnippet>659</a><span class="kw">impl</span>&lt;E, ContractRef, Limits, Args, RetType, Abi&gt;
-<a href=#660 id=660 data-nosnippet>660</a>    CreateBuilder&lt;E, ContractRef, Limits, Args, RetType, Abi&gt;
-<a href=#661 id=661 data-nosnippet>661</a><span class="kw">where
-<a href=#662 id=662 data-nosnippet>662</a>    </span>E: Environment,
-<a href=#663 id=663 data-nosnippet>663</a>{
-<a href=#664 id=664 data-nosnippet>664</a>    <span class="doccomment">/// Sets the salt used for the execution of the call.
-<a href=#665 id=665 data-nosnippet>665</a>    </span><span class="attr">#[inline]
-<a href=#666 id=666 data-nosnippet>666</a>    </span><span class="kw">pub fn </span>salt_bytes(
-<a href=#667 id=667 data-nosnippet>667</a>        <span class="self">self</span>,
-<a href=#668 id=668 data-nosnippet>668</a>        salt: <span class="prelude-ty">Option</span>&lt;[u8; <span class="number">32</span>]&gt;,
-<a href=#669 id=669 data-nosnippet>669</a>    ) -&gt; CreateBuilder&lt;E, ContractRef, Limits, Args, RetType, Abi&gt; {
-<a href=#670 id=670 data-nosnippet>670</a>        CreateBuilder {
-<a href=#671 id=671 data-nosnippet>671</a>            code_hash: <span class="self">self</span>.code_hash,
-<a href=#672 id=672 data-nosnippet>672</a>            limits: <span class="self">self</span>.limits,
-<a href=#673 id=673 data-nosnippet>673</a>            endowment: <span class="self">self</span>.endowment,
-<a href=#674 id=674 data-nosnippet>674</a>            exec_input: <span class="self">self</span>.exec_input,
-<a href=#675 id=675 data-nosnippet>675</a>            salt,
-<a href=#676 id=676 data-nosnippet>676</a>            return_type: <span class="self">self</span>.return_type,
-<a href=#677 id=677 data-nosnippet>677</a>            _phantom: Default::default(),
-<a href=#678 id=678 data-nosnippet>678</a>        }
-<a href=#679 id=679 data-nosnippet>679</a>    }
-<a href=#680 id=680 data-nosnippet>680</a>}
-<a href=#681 id=681 data-nosnippet>681</a>
-<a href=#682 id=682 data-nosnippet>682</a><span class="kw">impl</span>&lt;E, ContractRef, Limits, Args, Abi&gt;
-<a href=#683 id=683 data-nosnippet>683</a>    CreateBuilder&lt;E, ContractRef, Limits, Args, Unset&lt;ReturnType&lt;()&gt;&gt;, Abi&gt;
-<a href=#684 id=684 data-nosnippet>684</a><span class="kw">where
-<a href=#685 id=685 data-nosnippet>685</a>    </span>E: Environment,
-<a href=#686 id=686 data-nosnippet>686</a>{
-<a href=#687 id=687 data-nosnippet>687</a>    <span class="doccomment">/// Sets the type of the returned value upon the execution of the constructor.
-<a href=#688 id=688 data-nosnippet>688</a>    ///
-<a href=#689 id=689 data-nosnippet>689</a>    /// # Note
-<a href=#690 id=690 data-nosnippet>690</a>    ///
-<a href=#691 id=691 data-nosnippet>691</a>    /// Constructors are not able to return arbitrary values. Instead, a successful call
-<a href=#692 id=692 data-nosnippet>692</a>    /// to a constructor returns the address at which the contract was instantiated.
-<a href=#693 id=693 data-nosnippet>693</a>    ///
-<a href=#694 id=694 data-nosnippet>694</a>    /// Therefore this must always be a reference (i.e. `ContractRef`) to the contract
-<a href=#695 id=695 data-nosnippet>695</a>    /// you're trying to instantiate.
-<a href=#696 id=696 data-nosnippet>696</a>    </span><span class="attr">#[inline]
-<a href=#697 id=697 data-nosnippet>697</a>    </span><span class="kw">pub fn </span>returns&lt;R&gt;(
-<a href=#698 id=698 data-nosnippet>698</a>        <span class="self">self</span>,
-<a href=#699 id=699 data-nosnippet>699</a>    ) -&gt; CreateBuilder&lt;E, ContractRef, Limits, Args, Set&lt;ReturnType&lt;R&gt;&gt;, Abi&gt;
-<a href=#700 id=700 data-nosnippet>700</a>    <span class="kw">where
-<a href=#701 id=701 data-nosnippet>701</a>        </span>ContractRef: FromAddr,
-<a href=#702 id=702 data-nosnippet>702</a>        R: ConstructorReturnType&lt;ContractRef, Abi&gt;,
-<a href=#703 id=703 data-nosnippet>703</a>    {
-<a href=#704 id=704 data-nosnippet>704</a>        CreateBuilder {
-<a href=#705 id=705 data-nosnippet>705</a>            code_hash: <span class="self">self</span>.code_hash,
-<a href=#706 id=706 data-nosnippet>706</a>            limits: <span class="self">self</span>.limits,
-<a href=#707 id=707 data-nosnippet>707</a>            endowment: <span class="self">self</span>.endowment,
-<a href=#708 id=708 data-nosnippet>708</a>            exec_input: <span class="self">self</span>.exec_input,
-<a href=#709 id=709 data-nosnippet>709</a>            salt: <span class="self">self</span>.salt,
-<a href=#710 id=710 data-nosnippet>710</a>            return_type: Set(Default::default()),
-<a href=#711 id=711 data-nosnippet>711</a>            _phantom: Default::default(),
-<a href=#712 id=712 data-nosnippet>712</a>        }
-<a href=#713 id=713 data-nosnippet>713</a>    }
-<a href=#714 id=714 data-nosnippet>714</a>}
-<a href=#715 id=715 data-nosnippet>715</a>
-<a href=#716 id=716 data-nosnippet>716</a><span class="kw">impl</span>&lt;E, ContractRef, Limits, Args, RetType, Abi&gt;
-<a href=#717 id=717 data-nosnippet>717</a>    CreateBuilder&lt;
-<a href=#718 id=718 data-nosnippet>718</a>        E,
-<a href=#719 id=719 data-nosnippet>719</a>        ContractRef,
-<a href=#720 id=720 data-nosnippet>720</a>        Set&lt;Limits&gt;,
-<a href=#721 id=721 data-nosnippet>721</a>        Set&lt;ExecutionInput&lt;Args, Abi&gt;&gt;,
-<a href=#722 id=722 data-nosnippet>722</a>        Set&lt;ReturnType&lt;RetType&gt;&gt;,
-<a href=#723 id=723 data-nosnippet>723</a>        Abi,
-<a href=#724 id=724 data-nosnippet>724</a>    &gt;
-<a href=#725 id=725 data-nosnippet>725</a><span class="kw">where
-<a href=#726 id=726 data-nosnippet>726</a>    </span>E: Environment,
-<a href=#727 id=727 data-nosnippet>727</a>{
-<a href=#728 id=728 data-nosnippet>728</a>    <span class="doccomment">/// Finalizes the `CreateBuilder`, allowing it to instantiate a contract.
-<a href=#729 id=729 data-nosnippet>729</a>    </span><span class="attr">#[inline]
-<a href=#730 id=730 data-nosnippet>730</a>    </span><span class="kw">pub fn </span>params(<span class="self">self</span>) -&gt; CreateParams&lt;E, ContractRef, Limits, Args, RetType, Abi&gt; {
-<a href=#731 id=731 data-nosnippet>731</a>        CreateParams {
-<a href=#732 id=732 data-nosnippet>732</a>            code_hash: <span class="self">self</span>.code_hash,
-<a href=#733 id=733 data-nosnippet>733</a>            limits: <span class="self">self</span>.limits.value(),
-<a href=#734 id=734 data-nosnippet>734</a>            endowment: <span class="self">self</span>.endowment,
-<a href=#735 id=735 data-nosnippet>735</a>            exec_input: <span class="self">self</span>.exec_input.value(),
-<a href=#736 id=736 data-nosnippet>736</a>            salt_bytes: <span class="self">self</span>.salt,
-<a href=#737 id=737 data-nosnippet>737</a>            _return_type: Default::default(),
-<a href=#738 id=738 data-nosnippet>738</a>            _phantom: Default::default(),
-<a href=#739 id=739 data-nosnippet>739</a>        }
-<a href=#740 id=740 data-nosnippet>740</a>    }
-<a href=#741 id=741 data-nosnippet>741</a>}
-<a href=#742 id=742 data-nosnippet>742</a>
-<a href=#743 id=743 data-nosnippet>743</a><span class="kw">impl</span>&lt;E, ContractRef, Args, RetType, Abi&gt;
-<a href=#744 id=744 data-nosnippet>744</a>    CreateBuilder&lt;
-<a href=#745 id=745 data-nosnippet>745</a>        E,
-<a href=#746 id=746 data-nosnippet>746</a>        ContractRef,
-<a href=#747 id=747 data-nosnippet>747</a>        Set&lt;LimitParamsV2&gt;,
-<a href=#748 id=748 data-nosnippet>748</a>        Set&lt;ExecutionInput&lt;Args, Abi&gt;&gt;,
-<a href=#749 id=749 data-nosnippet>749</a>        Set&lt;ReturnType&lt;RetType&gt;&gt;,
-<a href=#750 id=750 data-nosnippet>750</a>        Abi,
-<a href=#751 id=751 data-nosnippet>751</a>    &gt;
-<a href=#752 id=752 data-nosnippet>752</a><span class="kw">where
-<a href=#753 id=753 data-nosnippet>753</a>    </span>E: Environment,
-<a href=#754 id=754 data-nosnippet>754</a>    ContractRef: FromAddr + <span class="kw">crate</span>::ContractReverseReference,
-<a href=#755 id=755 data-nosnippet>755</a>    &lt;ContractRef <span class="kw">as </span><span class="kw">crate</span>::ContractReverseReference&gt;::Type:
-<a href=#756 id=756 data-nosnippet>756</a>        <span class="kw">crate</span>::reflect::ContractConstructorDecoder,
-<a href=#757 id=757 data-nosnippet>757</a>    &lt;ContractRef <span class="kw">as </span><span class="kw">crate</span>::ContractReverseReference&gt;::Type:
-<a href=#758 id=758 data-nosnippet>758</a>        <span class="kw">crate</span>::reflect::ContractMessageDecoder,
-<a href=#759 id=759 data-nosnippet>759</a>    Args: EncodeArgsWith&lt;Abi&gt;,
-<a href=#760 id=760 data-nosnippet>760</a>    RetType: ConstructorReturnType&lt;ContractRef, Abi&gt;,
-<a href=#761 id=761 data-nosnippet>761</a>{
-<a href=#762 id=762 data-nosnippet>762</a>    <span class="doccomment">/// todo check comment
-<a href=#763 id=763 data-nosnippet>763</a>    /// Instantiates the contract and returns its account ID back to the caller.
-<a href=#764 id=764 data-nosnippet>764</a>    ///
-<a href=#765 id=765 data-nosnippet>765</a>    /// # Panics
-<a href=#766 id=766 data-nosnippet>766</a>    ///
-<a href=#767 id=767 data-nosnippet>767</a>    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
-<a href=#768 id=768 data-nosnippet>768</a>    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle
-<a href=#769 id=769 data-nosnippet>769</a>    /// those use the [`try_instantiate`][`CreateBuilder::try_instantiate`] method
-<a href=#770 id=770 data-nosnippet>770</a>    /// instead.
-<a href=#771 id=771 data-nosnippet>771</a>    </span><span class="attr">#[inline]
-<a href=#772 id=772 data-nosnippet>772</a>    </span><span class="kw">pub fn </span>instantiate(
-<a href=#773 id=773 data-nosnippet>773</a>        <span class="self">self</span>,
-<a href=#774 id=774 data-nosnippet>774</a>    ) -&gt; &lt;RetType <span class="kw">as </span>ConstructorReturnType&lt;ContractRef, Abi&gt;&gt;::Output {
-<a href=#775 id=775 data-nosnippet>775</a>        <span class="self">self</span>.params().instantiate()
-<a href=#776 id=776 data-nosnippet>776</a>    }
-<a href=#777 id=777 data-nosnippet>777</a>
-<a href=#778 id=778 data-nosnippet>778</a>    <span class="doccomment">/// todo check comment
-<a href=#779 id=779 data-nosnippet>779</a>    /// Instantiates the contract and returns its account ID back to the caller.
-<a href=#780 id=780 data-nosnippet>780</a>    ///
-<a href=#781 id=781 data-nosnippet>781</a>    /// # Note
-<a href=#782 id=782 data-nosnippet>782</a>    ///
-<a href=#783 id=783 data-nosnippet>783</a>    /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
-<a href=#784 id=784 data-nosnippet>784</a>    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
-<a href=#785 id=785 data-nosnippet>785</a>    /// handled by the caller.
-<a href=#786 id=786 data-nosnippet>786</a>    </span><span class="attr">#[inline]
-<a href=#787 id=787 data-nosnippet>787</a>    </span><span class="kw">pub fn </span>try_instantiate(
-<a href=#788 id=788 data-nosnippet>788</a>        <span class="self">self</span>,
-<a href=#789 id=789 data-nosnippet>789</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;
-<a href=#790 id=790 data-nosnippet>790</a>        ink_primitives::ConstructorResult&lt;
-<a href=#791 id=791 data-nosnippet>791</a>            &lt;RetType <span class="kw">as </span>ConstructorReturnType&lt;ContractRef, Abi&gt;&gt;::Output,
-<a href=#792 id=792 data-nosnippet>792</a>        &gt;,
-<a href=#793 id=793 data-nosnippet>793</a>        Error,
-<a href=#794 id=794 data-nosnippet>794</a>    &gt; {
-<a href=#795 id=795 data-nosnippet>795</a>        <span class="self">self</span>.params().try_instantiate()
-<a href=#796 id=796 data-nosnippet>796</a>    }
-<a href=#797 id=797 data-nosnippet>797</a>}</code></pre></div></section></main></body></html>
+<a href=#424 id=424 data-nosnippet>424</a>/// #     #[ink(storage)]
+<a href=#425 id=425 data-nosnippet>425</a>/// #     pub struct MyContract {}
+<a href=#426 id=426 data-nosnippet>426</a>/// #
+<a href=#427 id=427 data-nosnippet>427</a>/// #     impl MyContract {
+<a href=#428 id=428 data-nosnippet>428</a>/// #         #[ink(constructor)]
+<a href=#429 id=429 data-nosnippet>429</a>/// #         pub fn my_constructor() -&gt; Result&lt;Self, ConstructorError&gt; {
+<a href=#430 id=430 data-nosnippet>430</a>/// #             Ok(Self {})
+<a href=#431 id=431 data-nosnippet>431</a>/// #         }
+<a href=#432 id=432 data-nosnippet>432</a>/// #
+<a href=#433 id=433 data-nosnippet>433</a>/// #         #[ink(message)]
+<a href=#434 id=434 data-nosnippet>434</a>/// #         pub fn message(&amp;self) {}
+<a href=#435 id=435 data-nosnippet>435</a>/// #     }
+<a href=#436 id=436 data-nosnippet>436</a>/// # }
+<a href=#437 id=437 data-nosnippet>437</a>/// # use contract::ConstructorError;
+<a href=#438 id=438 data-nosnippet>438</a>/// let my_contract: MyContractRef = build_create::&lt;MyContractRef&gt;()
+<a href=#439 id=439 data-nosnippet>439</a>///     .code_hash(ink::H256::from([0x42; 32]))
+<a href=#440 id=440 data-nosnippet>440</a>///     .endowment(25.into())
+<a href=#441 id=441 data-nosnippet>441</a>///     .exec_input(
+<a href=#442 id=442 data-nosnippet>442</a>///         ExecutionInput::new(Selector::new(ink::selector_bytes!(
+<a href=#443 id=443 data-nosnippet>443</a>///             Abi::Ink,
+<a href=#444 id=444 data-nosnippet>444</a>///             "my_constructor"
+<a href=#445 id=445 data-nosnippet>445</a>///         )))
+<a href=#446 id=446 data-nosnippet>446</a>///         .push_arg(42)
+<a href=#447 id=447 data-nosnippet>447</a>///         .push_arg(true)
+<a href=#448 id=448 data-nosnippet>448</a>///         .push_arg(&amp;[0x10u8; 32]),
+<a href=#449 id=449 data-nosnippet>449</a>///     )
+<a href=#450 id=450 data-nosnippet>450</a>///     .salt_bytes(Some([1u8; 32]))
+<a href=#451 id=451 data-nosnippet>451</a>///     .returns::&lt;Result&lt;MyContractRef, ConstructorError&gt;&gt;()
+<a href=#452 id=452 data-nosnippet>452</a>///     .instantiate()
+<a href=#453 id=453 data-nosnippet>453</a>///     .expect("Constructor should have executed successfully.");
+<a href=#454 id=454 data-nosnippet>454</a>/// ```
+<a href=#455 id=455 data-nosnippet>455</a></span><span class="attr">#[allow(clippy::type_complexity)]
+<a href=#456 id=456 data-nosnippet>456</a></span><span class="kw">pub fn </span>build_create&lt;ContractRef&gt;() -&gt; CreateBuilder&lt;
+<a href=#457 id=457 data-nosnippet>457</a>    &lt;ContractRef <span class="kw">as </span>ContractEnv&gt;::Env,
+<a href=#458 id=458 data-nosnippet>458</a>    ContractRef,
+<a href=#459 id=459 data-nosnippet>459</a>    Set&lt;LimitParamsV2&gt;,
+<a href=#460 id=460 data-nosnippet>460</a>    Unset&lt;ExecutionInput&lt;EmptyArgumentList&lt;<span class="kw">crate</span>::DefaultAbi&gt;, <span class="kw">crate</span>::DefaultAbi&gt;&gt;,
+<a href=#461 id=461 data-nosnippet>461</a>    Unset&lt;ReturnType&lt;()&gt;&gt;,
+<a href=#462 id=462 data-nosnippet>462</a>    <span class="kw">crate</span>::DefaultAbi,
+<a href=#463 id=463 data-nosnippet>463</a>&gt;
+<a href=#464 id=464 data-nosnippet>464</a><span class="kw">where
+<a href=#465 id=465 data-nosnippet>465</a>    </span>ContractRef: ContractEnv,
+<a href=#466 id=466 data-nosnippet>466</a>{
+<a href=#467 id=467 data-nosnippet>467</a>    CreateBuilder {
+<a href=#468 id=468 data-nosnippet>468</a>        code_hash: Default::default(),
+<a href=#469 id=469 data-nosnippet>469</a>        limits: Set(LimitParamsV2 {
+<a href=#470 id=470 data-nosnippet>470</a>            ref_time_limit: u64::MAX,
+<a href=#471 id=471 data-nosnippet>471</a>            proof_size_limit: u64::MAX,
+<a href=#472 id=472 data-nosnippet>472</a>            storage_deposit_limit: <span class="prelude-val">None</span>,
+<a href=#473 id=473 data-nosnippet>473</a>        }),
+<a href=#474 id=474 data-nosnippet>474</a>        endowment: Default::default(),
+<a href=#475 id=475 data-nosnippet>475</a>        exec_input: Default::default(),
+<a href=#476 id=476 data-nosnippet>476</a>        salt: Default::default(),
+<a href=#477 id=477 data-nosnippet>477</a>        return_type: Default::default(),
+<a href=#478 id=478 data-nosnippet>478</a>        _phantom: Default::default(),
+<a href=#479 id=479 data-nosnippet>479</a>    }
+<a href=#480 id=480 data-nosnippet>480</a>}
+<a href=#481 id=481 data-nosnippet>481</a>
+<a href=#482 id=482 data-nosnippet>482</a><span class="doccomment">/// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract
+<a href=#483 id=483 data-nosnippet>483</a>/// instantiation that uses ink! ABI Encoding (i.e. with SCALE codec for input/output
+<a href=#484 id=484 data-nosnippet>484</a>/// encode/decode).
+<a href=#485 id=485 data-nosnippet>485</a>///
+<a href=#486 id=486 data-nosnippet>486</a>/// See [`build_create`] for more details on usage.
+<a href=#487 id=487 data-nosnippet>487</a></span><span class="attr">#[allow(clippy::type_complexity)]
+<a href=#488 id=488 data-nosnippet>488</a></span><span class="kw">pub fn </span>build_create_ink&lt;ContractRef&gt;() -&gt; CreateBuilder&lt;
+<a href=#489 id=489 data-nosnippet>489</a>    &lt;ContractRef <span class="kw">as </span>ContractEnv&gt;::Env,
+<a href=#490 id=490 data-nosnippet>490</a>    ContractRef,
+<a href=#491 id=491 data-nosnippet>491</a>    Set&lt;LimitParamsV2&gt;,
+<a href=#492 id=492 data-nosnippet>492</a>    Unset&lt;ExecutionInput&lt;EmptyArgumentList&lt;Ink&gt;, Ink&gt;&gt;,
+<a href=#493 id=493 data-nosnippet>493</a>    Unset&lt;ReturnType&lt;()&gt;&gt;,
+<a href=#494 id=494 data-nosnippet>494</a>    Ink,
+<a href=#495 id=495 data-nosnippet>495</a>&gt;
+<a href=#496 id=496 data-nosnippet>496</a><span class="kw">where
+<a href=#497 id=497 data-nosnippet>497</a>    </span>ContractRef: ContractEnv,
+<a href=#498 id=498 data-nosnippet>498</a>{
+<a href=#499 id=499 data-nosnippet>499</a>    CreateBuilder {
+<a href=#500 id=500 data-nosnippet>500</a>        code_hash: Default::default(),
+<a href=#501 id=501 data-nosnippet>501</a>        limits: Set(LimitParamsV2 {
+<a href=#502 id=502 data-nosnippet>502</a>            ref_time_limit: u64::MAX,
+<a href=#503 id=503 data-nosnippet>503</a>            proof_size_limit: u64::MAX,
+<a href=#504 id=504 data-nosnippet>504</a>            storage_deposit_limit: <span class="prelude-val">None</span>,
+<a href=#505 id=505 data-nosnippet>505</a>        }),
+<a href=#506 id=506 data-nosnippet>506</a>        endowment: Default::default(),
+<a href=#507 id=507 data-nosnippet>507</a>        exec_input: Default::default(),
+<a href=#508 id=508 data-nosnippet>508</a>        salt: Default::default(),
+<a href=#509 id=509 data-nosnippet>509</a>        return_type: Default::default(),
+<a href=#510 id=510 data-nosnippet>510</a>        _phantom: Default::default(),
+<a href=#511 id=511 data-nosnippet>511</a>    }
+<a href=#512 id=512 data-nosnippet>512</a>}
+<a href=#513 id=513 data-nosnippet>513</a>
+<a href=#514 id=514 data-nosnippet>514</a><span class="doccomment">/// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract
+<a href=#515 id=515 data-nosnippet>515</a>/// instantiation that uses Solidity ABI Encoding.
+<a href=#516 id=516 data-nosnippet>516</a>///
+<a href=#517 id=517 data-nosnippet>517</a>/// See [`build_create`] for more details on usage.
+<a href=#518 id=518 data-nosnippet>518</a></span><span class="attr">#[allow(clippy::type_complexity)]
+<a href=#519 id=519 data-nosnippet>519</a></span><span class="kw">pub fn </span>build_create_sol&lt;ContractRef&gt;() -&gt; CreateBuilder&lt;
+<a href=#520 id=520 data-nosnippet>520</a>    &lt;ContractRef <span class="kw">as </span>ContractEnv&gt;::Env,
+<a href=#521 id=521 data-nosnippet>521</a>    ContractRef,
+<a href=#522 id=522 data-nosnippet>522</a>    Set&lt;LimitParamsV2&gt;,
+<a href=#523 id=523 data-nosnippet>523</a>    Unset&lt;ExecutionInput&lt;EmptyArgumentList&lt;Sol&gt;, Sol&gt;&gt;,
+<a href=#524 id=524 data-nosnippet>524</a>    Unset&lt;ReturnType&lt;()&gt;&gt;,
+<a href=#525 id=525 data-nosnippet>525</a>    Sol,
+<a href=#526 id=526 data-nosnippet>526</a>&gt;
+<a href=#527 id=527 data-nosnippet>527</a><span class="kw">where
+<a href=#528 id=528 data-nosnippet>528</a>    </span>ContractRef: ContractEnv,
+<a href=#529 id=529 data-nosnippet>529</a>{
+<a href=#530 id=530 data-nosnippet>530</a>    CreateBuilder {
+<a href=#531 id=531 data-nosnippet>531</a>        code_hash: Default::default(),
+<a href=#532 id=532 data-nosnippet>532</a>        limits: Set(LimitParamsV2 {
+<a href=#533 id=533 data-nosnippet>533</a>            ref_time_limit: u64::MAX,
+<a href=#534 id=534 data-nosnippet>534</a>            proof_size_limit: u64::MAX,
+<a href=#535 id=535 data-nosnippet>535</a>            storage_deposit_limit: <span class="prelude-val">None</span>,
+<a href=#536 id=536 data-nosnippet>536</a>        }),
+<a href=#537 id=537 data-nosnippet>537</a>        endowment: Default::default(),
+<a href=#538 id=538 data-nosnippet>538</a>        exec_input: Default::default(),
+<a href=#539 id=539 data-nosnippet>539</a>        salt: Default::default(),
+<a href=#540 id=540 data-nosnippet>540</a>        return_type: Default::default(),
+<a href=#541 id=541 data-nosnippet>541</a>        _phantom: Default::default(),
+<a href=#542 id=542 data-nosnippet>542</a>    }
+<a href=#543 id=543 data-nosnippet>543</a>}
+<a href=#544 id=544 data-nosnippet>544</a>
+<a href=#545 id=545 data-nosnippet>545</a><span class="kw">impl</span>&lt;E, ContractRef, Limits, Args, RetType, Abi&gt;
+<a href=#546 id=546 data-nosnippet>546</a>    CreateBuilder&lt;E, ContractRef, Limits, Args, RetType, Abi&gt;
+<a href=#547 id=547 data-nosnippet>547</a><span class="kw">where
+<a href=#548 id=548 data-nosnippet>548</a>    </span>E: Environment,
+<a href=#549 id=549 data-nosnippet>549</a>{
+<a href=#550 id=550 data-nosnippet>550</a>    <span class="doccomment">/// Sets the used code hash for the contract instantiation.
+<a href=#551 id=551 data-nosnippet>551</a>    </span><span class="attr">#[inline]
+<a href=#552 id=552 data-nosnippet>552</a>    </span><span class="kw">pub fn </span>code_hash(
+<a href=#553 id=553 data-nosnippet>553</a>        <span class="self">self</span>,
+<a href=#554 id=554 data-nosnippet>554</a>        code_hash: H256,
+<a href=#555 id=555 data-nosnippet>555</a>    ) -&gt; CreateBuilder&lt;E, ContractRef, Limits, Args, RetType, Abi&gt; {
+<a href=#556 id=556 data-nosnippet>556</a>        CreateBuilder {
+<a href=#557 id=557 data-nosnippet>557</a>            code_hash,
+<a href=#558 id=558 data-nosnippet>558</a>            limits: <span class="self">self</span>.limits,
+<a href=#559 id=559 data-nosnippet>559</a>            endowment: <span class="self">self</span>.endowment,
+<a href=#560 id=560 data-nosnippet>560</a>            exec_input: <span class="self">self</span>.exec_input,
+<a href=#561 id=561 data-nosnippet>561</a>            salt: <span class="self">self</span>.salt,
+<a href=#562 id=562 data-nosnippet>562</a>            return_type: <span class="self">self</span>.return_type,
+<a href=#563 id=563 data-nosnippet>563</a>            _phantom: Default::default(),
+<a href=#564 id=564 data-nosnippet>564</a>        }
+<a href=#565 id=565 data-nosnippet>565</a>    }
+<a href=#566 id=566 data-nosnippet>566</a>}
+<a href=#567 id=567 data-nosnippet>567</a>
+<a href=#568 id=568 data-nosnippet>568</a><span class="kw">impl</span>&lt;E, ContractRef, Args, RetType, Abi&gt;
+<a href=#569 id=569 data-nosnippet>569</a>    CreateBuilder&lt;E, ContractRef, Set&lt;LimitParamsV2&gt;, Args, RetType, Abi&gt;
+<a href=#570 id=570 data-nosnippet>570</a><span class="kw">where
+<a href=#571 id=571 data-nosnippet>571</a>    </span>E: Environment,
+<a href=#572 id=572 data-nosnippet>572</a>{
+<a href=#573 id=573 data-nosnippet>573</a>    <span class="doccomment">/// Sets the `ref_time_limit` part of the weight limit for the contract instantiation.
+<a href=#574 id=574 data-nosnippet>574</a>    </span><span class="attr">#[inline]
+<a href=#575 id=575 data-nosnippet>575</a>    </span><span class="kw">pub fn </span>ref_time_limit(<span class="self">self</span>, ref_time_limit: u64) -&gt; <span class="self">Self </span>{
+<a href=#576 id=576 data-nosnippet>576</a>        CreateBuilder {
+<a href=#577 id=577 data-nosnippet>577</a>            limits: Set(LimitParamsV2 {
+<a href=#578 id=578 data-nosnippet>578</a>                ref_time_limit,
+<a href=#579 id=579 data-nosnippet>579</a>                ..<span class="self">self</span>.limits.value()
+<a href=#580 id=580 data-nosnippet>580</a>            }),
+<a href=#581 id=581 data-nosnippet>581</a>            ..<span class="self">self
+<a href=#582 id=582 data-nosnippet>582</a>        </span>}
+<a href=#583 id=583 data-nosnippet>583</a>    }
+<a href=#584 id=584 data-nosnippet>584</a>
+<a href=#585 id=585 data-nosnippet>585</a>    <span class="doccomment">/// Sets the `proof_size_limit` part of the weight limit for the contract
+<a href=#586 id=586 data-nosnippet>586</a>    /// instantiation.
+<a href=#587 id=587 data-nosnippet>587</a>    </span><span class="attr">#[inline]
+<a href=#588 id=588 data-nosnippet>588</a>    </span><span class="kw">pub fn </span>proof_size_limit(<span class="self">self</span>, proof_size_limit: u64) -&gt; <span class="self">Self </span>{
+<a href=#589 id=589 data-nosnippet>589</a>        CreateBuilder {
+<a href=#590 id=590 data-nosnippet>590</a>            limits: Set(LimitParamsV2 {
+<a href=#591 id=591 data-nosnippet>591</a>                proof_size_limit,
+<a href=#592 id=592 data-nosnippet>592</a>                ..<span class="self">self</span>.limits.value()
+<a href=#593 id=593 data-nosnippet>593</a>            }),
+<a href=#594 id=594 data-nosnippet>594</a>            ..<span class="self">self
+<a href=#595 id=595 data-nosnippet>595</a>        </span>}
+<a href=#596 id=596 data-nosnippet>596</a>    }
+<a href=#597 id=597 data-nosnippet>597</a>
+<a href=#598 id=598 data-nosnippet>598</a>    <span class="doccomment">/// Sets the `storage_deposit_limit` for the contract instantiation.
+<a href=#599 id=599 data-nosnippet>599</a>    </span><span class="attr">#[inline]
+<a href=#600 id=600 data-nosnippet>600</a>    </span><span class="kw">pub fn </span>storage_deposit_limit(<span class="self">self</span>, storage_deposit_limit: U256) -&gt; <span class="self">Self </span>{
+<a href=#601 id=601 data-nosnippet>601</a>        CreateBuilder {
+<a href=#602 id=602 data-nosnippet>602</a>            limits: Set(LimitParamsV2 {
+<a href=#603 id=603 data-nosnippet>603</a>                storage_deposit_limit: <span class="prelude-val">Some</span>(storage_deposit_limit),
+<a href=#604 id=604 data-nosnippet>604</a>                ..<span class="self">self</span>.limits.value()
+<a href=#605 id=605 data-nosnippet>605</a>            }),
+<a href=#606 id=606 data-nosnippet>606</a>            ..<span class="self">self
+<a href=#607 id=607 data-nosnippet>607</a>        </span>}
+<a href=#608 id=608 data-nosnippet>608</a>    }
+<a href=#609 id=609 data-nosnippet>609</a>}
+<a href=#610 id=610 data-nosnippet>610</a>
+<a href=#611 id=611 data-nosnippet>611</a><span class="kw">impl</span>&lt;E, ContractRef, Limits, Args, RetType, Abi&gt;
+<a href=#612 id=612 data-nosnippet>612</a>    CreateBuilder&lt;E, ContractRef, Limits, Args, RetType, Abi&gt;
+<a href=#613 id=613 data-nosnippet>613</a><span class="kw">where
+<a href=#614 id=614 data-nosnippet>614</a>    </span>E: Environment,
+<a href=#615 id=615 data-nosnippet>615</a>{
+<a href=#616 id=616 data-nosnippet>616</a>    <span class="doccomment">/// Sets the value transferred upon the execution of the call.
+<a href=#617 id=617 data-nosnippet>617</a>    </span><span class="attr">#[inline]
+<a href=#618 id=618 data-nosnippet>618</a>    </span><span class="kw">pub fn </span>endowment(
+<a href=#619 id=619 data-nosnippet>619</a>        <span class="self">self</span>,
+<a href=#620 id=620 data-nosnippet>620</a>        endowment: U256,
+<a href=#621 id=621 data-nosnippet>621</a>    ) -&gt; CreateBuilder&lt;E, ContractRef, Limits, Args, RetType, Abi&gt; {
+<a href=#622 id=622 data-nosnippet>622</a>        CreateBuilder {
+<a href=#623 id=623 data-nosnippet>623</a>            code_hash: <span class="self">self</span>.code_hash,
+<a href=#624 id=624 data-nosnippet>624</a>            limits: <span class="self">self</span>.limits,
+<a href=#625 id=625 data-nosnippet>625</a>            endowment,
+<a href=#626 id=626 data-nosnippet>626</a>            exec_input: <span class="self">self</span>.exec_input,
+<a href=#627 id=627 data-nosnippet>627</a>            salt: <span class="self">self</span>.salt,
+<a href=#628 id=628 data-nosnippet>628</a>            return_type: <span class="self">self</span>.return_type,
+<a href=#629 id=629 data-nosnippet>629</a>            _phantom: Default::default(),
+<a href=#630 id=630 data-nosnippet>630</a>        }
+<a href=#631 id=631 data-nosnippet>631</a>    }
+<a href=#632 id=632 data-nosnippet>632</a>}
+<a href=#633 id=633 data-nosnippet>633</a>
+<a href=#634 id=634 data-nosnippet>634</a><span class="kw">impl</span>&lt;E, ContractRef, Limits, RetType, Abi&gt;
+<a href=#635 id=635 data-nosnippet>635</a>    CreateBuilder&lt;
+<a href=#636 id=636 data-nosnippet>636</a>        E,
+<a href=#637 id=637 data-nosnippet>637</a>        ContractRef,
+<a href=#638 id=638 data-nosnippet>638</a>        Limits,
+<a href=#639 id=639 data-nosnippet>639</a>        Unset&lt;ExecutionInput&lt;EmptyArgumentList&lt;Abi&gt;, Abi&gt;&gt;,
+<a href=#640 id=640 data-nosnippet>640</a>        RetType,
+<a href=#641 id=641 data-nosnippet>641</a>        Abi,
+<a href=#642 id=642 data-nosnippet>642</a>    &gt;
+<a href=#643 id=643 data-nosnippet>643</a><span class="kw">where
+<a href=#644 id=644 data-nosnippet>644</a>    </span>E: Environment,
+<a href=#645 id=645 data-nosnippet>645</a>{
+<a href=#646 id=646 data-nosnippet>646</a>    <span class="doccomment">/// Sets the value transferred upon the execution of the call.
+<a href=#647 id=647 data-nosnippet>647</a>    </span><span class="attr">#[inline]
+<a href=#648 id=648 data-nosnippet>648</a>    </span><span class="kw">pub fn </span>exec_input&lt;Args&gt;(
+<a href=#649 id=649 data-nosnippet>649</a>        <span class="self">self</span>,
+<a href=#650 id=650 data-nosnippet>650</a>        exec_input: ExecutionInput&lt;Args, Abi&gt;,
+<a href=#651 id=651 data-nosnippet>651</a>    ) -&gt; CreateBuilder&lt;E, ContractRef, Limits, Set&lt;ExecutionInput&lt;Args, Abi&gt;&gt;, RetType, Abi&gt;
+<a href=#652 id=652 data-nosnippet>652</a>    {
+<a href=#653 id=653 data-nosnippet>653</a>        CreateBuilder {
+<a href=#654 id=654 data-nosnippet>654</a>            code_hash: <span class="self">self</span>.code_hash,
+<a href=#655 id=655 data-nosnippet>655</a>            limits: <span class="self">self</span>.limits,
+<a href=#656 id=656 data-nosnippet>656</a>            endowment: <span class="self">self</span>.endowment,
+<a href=#657 id=657 data-nosnippet>657</a>            exec_input: Set(exec_input),
+<a href=#658 id=658 data-nosnippet>658</a>            salt: <span class="self">self</span>.salt,
+<a href=#659 id=659 data-nosnippet>659</a>            return_type: <span class="self">self</span>.return_type,
+<a href=#660 id=660 data-nosnippet>660</a>            _phantom: Default::default(),
+<a href=#661 id=661 data-nosnippet>661</a>        }
+<a href=#662 id=662 data-nosnippet>662</a>    }
+<a href=#663 id=663 data-nosnippet>663</a>}
+<a href=#664 id=664 data-nosnippet>664</a>
+<a href=#665 id=665 data-nosnippet>665</a><span class="kw">impl</span>&lt;E, ContractRef, Limits, Args, RetType, Abi&gt;
+<a href=#666 id=666 data-nosnippet>666</a>    CreateBuilder&lt;E, ContractRef, Limits, Args, RetType, Abi&gt;
+<a href=#667 id=667 data-nosnippet>667</a><span class="kw">where
+<a href=#668 id=668 data-nosnippet>668</a>    </span>E: Environment,
+<a href=#669 id=669 data-nosnippet>669</a>{
+<a href=#670 id=670 data-nosnippet>670</a>    <span class="doccomment">/// Sets the salt used for the execution of the call.
+<a href=#671 id=671 data-nosnippet>671</a>    </span><span class="attr">#[inline]
+<a href=#672 id=672 data-nosnippet>672</a>    </span><span class="kw">pub fn </span>salt_bytes(
+<a href=#673 id=673 data-nosnippet>673</a>        <span class="self">self</span>,
+<a href=#674 id=674 data-nosnippet>674</a>        salt: <span class="prelude-ty">Option</span>&lt;[u8; <span class="number">32</span>]&gt;,
+<a href=#675 id=675 data-nosnippet>675</a>    ) -&gt; CreateBuilder&lt;E, ContractRef, Limits, Args, RetType, Abi&gt; {
+<a href=#676 id=676 data-nosnippet>676</a>        CreateBuilder {
+<a href=#677 id=677 data-nosnippet>677</a>            code_hash: <span class="self">self</span>.code_hash,
+<a href=#678 id=678 data-nosnippet>678</a>            limits: <span class="self">self</span>.limits,
+<a href=#679 id=679 data-nosnippet>679</a>            endowment: <span class="self">self</span>.endowment,
+<a href=#680 id=680 data-nosnippet>680</a>            exec_input: <span class="self">self</span>.exec_input,
+<a href=#681 id=681 data-nosnippet>681</a>            salt,
+<a href=#682 id=682 data-nosnippet>682</a>            return_type: <span class="self">self</span>.return_type,
+<a href=#683 id=683 data-nosnippet>683</a>            _phantom: Default::default(),
+<a href=#684 id=684 data-nosnippet>684</a>        }
+<a href=#685 id=685 data-nosnippet>685</a>    }
+<a href=#686 id=686 data-nosnippet>686</a>}
+<a href=#687 id=687 data-nosnippet>687</a>
+<a href=#688 id=688 data-nosnippet>688</a><span class="kw">impl</span>&lt;E, ContractRef, Limits, Args, Abi&gt;
+<a href=#689 id=689 data-nosnippet>689</a>    CreateBuilder&lt;E, ContractRef, Limits, Args, Unset&lt;ReturnType&lt;()&gt;&gt;, Abi&gt;
+<a href=#690 id=690 data-nosnippet>690</a><span class="kw">where
+<a href=#691 id=691 data-nosnippet>691</a>    </span>E: Environment,
+<a href=#692 id=692 data-nosnippet>692</a>{
+<a href=#693 id=693 data-nosnippet>693</a>    <span class="doccomment">/// Sets the type of the returned value upon the execution of the constructor.
+<a href=#694 id=694 data-nosnippet>694</a>    ///
+<a href=#695 id=695 data-nosnippet>695</a>    /// # Note
+<a href=#696 id=696 data-nosnippet>696</a>    ///
+<a href=#697 id=697 data-nosnippet>697</a>    /// Constructors are not able to return arbitrary values. Instead, a successful call
+<a href=#698 id=698 data-nosnippet>698</a>    /// to a constructor returns the address at which the contract was instantiated.
+<a href=#699 id=699 data-nosnippet>699</a>    ///
+<a href=#700 id=700 data-nosnippet>700</a>    /// Therefore this must always be a reference (i.e. `ContractRef`) to the contract
+<a href=#701 id=701 data-nosnippet>701</a>    /// you're trying to instantiate.
+<a href=#702 id=702 data-nosnippet>702</a>    </span><span class="attr">#[inline]
+<a href=#703 id=703 data-nosnippet>703</a>    </span><span class="kw">pub fn </span>returns&lt;R&gt;(
+<a href=#704 id=704 data-nosnippet>704</a>        <span class="self">self</span>,
+<a href=#705 id=705 data-nosnippet>705</a>    ) -&gt; CreateBuilder&lt;E, ContractRef, Limits, Args, Set&lt;ReturnType&lt;R&gt;&gt;, Abi&gt;
+<a href=#706 id=706 data-nosnippet>706</a>    <span class="kw">where
+<a href=#707 id=707 data-nosnippet>707</a>        </span>ContractRef: FromAddr,
+<a href=#708 id=708 data-nosnippet>708</a>        R: ConstructorReturnType&lt;ContractRef, Abi&gt;,
+<a href=#709 id=709 data-nosnippet>709</a>    {
+<a href=#710 id=710 data-nosnippet>710</a>        CreateBuilder {
+<a href=#711 id=711 data-nosnippet>711</a>            code_hash: <span class="self">self</span>.code_hash,
+<a href=#712 id=712 data-nosnippet>712</a>            limits: <span class="self">self</span>.limits,
+<a href=#713 id=713 data-nosnippet>713</a>            endowment: <span class="self">self</span>.endowment,
+<a href=#714 id=714 data-nosnippet>714</a>            exec_input: <span class="self">self</span>.exec_input,
+<a href=#715 id=715 data-nosnippet>715</a>            salt: <span class="self">self</span>.salt,
+<a href=#716 id=716 data-nosnippet>716</a>            return_type: Set(Default::default()),
+<a href=#717 id=717 data-nosnippet>717</a>            _phantom: Default::default(),
+<a href=#718 id=718 data-nosnippet>718</a>        }
+<a href=#719 id=719 data-nosnippet>719</a>    }
+<a href=#720 id=720 data-nosnippet>720</a>}
+<a href=#721 id=721 data-nosnippet>721</a>
+<a href=#722 id=722 data-nosnippet>722</a><span class="kw">impl</span>&lt;E, ContractRef, Limits, Args, RetType, Abi&gt;
+<a href=#723 id=723 data-nosnippet>723</a>    CreateBuilder&lt;
+<a href=#724 id=724 data-nosnippet>724</a>        E,
+<a href=#725 id=725 data-nosnippet>725</a>        ContractRef,
+<a href=#726 id=726 data-nosnippet>726</a>        Set&lt;Limits&gt;,
+<a href=#727 id=727 data-nosnippet>727</a>        Set&lt;ExecutionInput&lt;Args, Abi&gt;&gt;,
+<a href=#728 id=728 data-nosnippet>728</a>        Set&lt;ReturnType&lt;RetType&gt;&gt;,
+<a href=#729 id=729 data-nosnippet>729</a>        Abi,
+<a href=#730 id=730 data-nosnippet>730</a>    &gt;
+<a href=#731 id=731 data-nosnippet>731</a><span class="kw">where
+<a href=#732 id=732 data-nosnippet>732</a>    </span>E: Environment,
+<a href=#733 id=733 data-nosnippet>733</a>{
+<a href=#734 id=734 data-nosnippet>734</a>    <span class="doccomment">/// Finalizes the `CreateBuilder`, allowing it to instantiate a contract.
+<a href=#735 id=735 data-nosnippet>735</a>    </span><span class="attr">#[inline]
+<a href=#736 id=736 data-nosnippet>736</a>    </span><span class="kw">pub fn </span>params(<span class="self">self</span>) -&gt; CreateParams&lt;E, ContractRef, Limits, Args, RetType, Abi&gt; {
+<a href=#737 id=737 data-nosnippet>737</a>        CreateParams {
+<a href=#738 id=738 data-nosnippet>738</a>            code_hash: <span class="self">self</span>.code_hash,
+<a href=#739 id=739 data-nosnippet>739</a>            limits: <span class="self">self</span>.limits.value(),
+<a href=#740 id=740 data-nosnippet>740</a>            endowment: <span class="self">self</span>.endowment,
+<a href=#741 id=741 data-nosnippet>741</a>            exec_input: <span class="self">self</span>.exec_input.value(),
+<a href=#742 id=742 data-nosnippet>742</a>            salt_bytes: <span class="self">self</span>.salt,
+<a href=#743 id=743 data-nosnippet>743</a>            _return_type: Default::default(),
+<a href=#744 id=744 data-nosnippet>744</a>            _phantom: Default::default(),
+<a href=#745 id=745 data-nosnippet>745</a>        }
+<a href=#746 id=746 data-nosnippet>746</a>    }
+<a href=#747 id=747 data-nosnippet>747</a>}
+<a href=#748 id=748 data-nosnippet>748</a>
+<a href=#749 id=749 data-nosnippet>749</a><span class="kw">impl</span>&lt;E, ContractRef, Args, RetType, Abi&gt;
+<a href=#750 id=750 data-nosnippet>750</a>    CreateBuilder&lt;
+<a href=#751 id=751 data-nosnippet>751</a>        E,
+<a href=#752 id=752 data-nosnippet>752</a>        ContractRef,
+<a href=#753 id=753 data-nosnippet>753</a>        Set&lt;LimitParamsV2&gt;,
+<a href=#754 id=754 data-nosnippet>754</a>        Set&lt;ExecutionInput&lt;Args, Abi&gt;&gt;,
+<a href=#755 id=755 data-nosnippet>755</a>        Set&lt;ReturnType&lt;RetType&gt;&gt;,
+<a href=#756 id=756 data-nosnippet>756</a>        Abi,
+<a href=#757 id=757 data-nosnippet>757</a>    &gt;
+<a href=#758 id=758 data-nosnippet>758</a><span class="kw">where
+<a href=#759 id=759 data-nosnippet>759</a>    </span>E: Environment,
+<a href=#760 id=760 data-nosnippet>760</a>    ContractRef: FromAddr + <span class="kw">crate</span>::ContractReverseReference,
+<a href=#761 id=761 data-nosnippet>761</a>    &lt;ContractRef <span class="kw">as </span><span class="kw">crate</span>::ContractReverseReference&gt;::Type:
+<a href=#762 id=762 data-nosnippet>762</a>        <span class="kw">crate</span>::reflect::ContractConstructorDecoder,
+<a href=#763 id=763 data-nosnippet>763</a>    &lt;ContractRef <span class="kw">as </span><span class="kw">crate</span>::ContractReverseReference&gt;::Type:
+<a href=#764 id=764 data-nosnippet>764</a>        <span class="kw">crate</span>::reflect::ContractMessageDecoder,
+<a href=#765 id=765 data-nosnippet>765</a>    Args: EncodeArgsWith&lt;Abi&gt;,
+<a href=#766 id=766 data-nosnippet>766</a>    RetType: ConstructorReturnType&lt;ContractRef, Abi&gt;,
+<a href=#767 id=767 data-nosnippet>767</a>{
+<a href=#768 id=768 data-nosnippet>768</a>    <span class="doccomment">/// todo check comment
+<a href=#769 id=769 data-nosnippet>769</a>    /// Instantiates the contract and returns its account ID back to the caller.
+<a href=#770 id=770 data-nosnippet>770</a>    ///
+<a href=#771 id=771 data-nosnippet>771</a>    /// # Panics
+<a href=#772 id=772 data-nosnippet>772</a>    ///
+<a href=#773 id=773 data-nosnippet>773</a>    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
+<a href=#774 id=774 data-nosnippet>774</a>    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle
+<a href=#775 id=775 data-nosnippet>775</a>    /// those use the [`try_instantiate`][`CreateBuilder::try_instantiate`] method
+<a href=#776 id=776 data-nosnippet>776</a>    /// instead.
+<a href=#777 id=777 data-nosnippet>777</a>    </span><span class="attr">#[inline]
+<a href=#778 id=778 data-nosnippet>778</a>    </span><span class="kw">pub fn </span>instantiate(
+<a href=#779 id=779 data-nosnippet>779</a>        <span class="self">self</span>,
+<a href=#780 id=780 data-nosnippet>780</a>    ) -&gt; &lt;RetType <span class="kw">as </span>ConstructorReturnType&lt;ContractRef, Abi&gt;&gt;::Output {
+<a href=#781 id=781 data-nosnippet>781</a>        <span class="self">self</span>.params().instantiate()
+<a href=#782 id=782 data-nosnippet>782</a>    }
+<a href=#783 id=783 data-nosnippet>783</a>
+<a href=#784 id=784 data-nosnippet>784</a>    <span class="doccomment">/// todo check comment
+<a href=#785 id=785 data-nosnippet>785</a>    /// Instantiates the contract and returns its account ID back to the caller.
+<a href=#786 id=786 data-nosnippet>786</a>    ///
+<a href=#787 id=787 data-nosnippet>787</a>    /// # Note
+<a href=#788 id=788 data-nosnippet>788</a>    ///
+<a href=#789 id=789 data-nosnippet>789</a>    /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
+<a href=#790 id=790 data-nosnippet>790</a>    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
+<a href=#791 id=791 data-nosnippet>791</a>    /// handled by the caller.
+<a href=#792 id=792 data-nosnippet>792</a>    </span><span class="attr">#[inline]
+<a href=#793 id=793 data-nosnippet>793</a>    </span><span class="kw">pub fn </span>try_instantiate(
+<a href=#794 id=794 data-nosnippet>794</a>        <span class="self">self</span>,
+<a href=#795 id=795 data-nosnippet>795</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;
+<a href=#796 id=796 data-nosnippet>796</a>        ink_primitives::ConstructorResult&lt;
+<a href=#797 id=797 data-nosnippet>797</a>            &lt;RetType <span class="kw">as </span>ConstructorReturnType&lt;ContractRef, Abi&gt;&gt;::Output,
+<a href=#798 id=798 data-nosnippet>798</a>        &gt;,
+<a href=#799 id=799 data-nosnippet>799</a>        Error,
+<a href=#800 id=800 data-nosnippet>800</a>    &gt; {
+<a href=#801 id=801 data-nosnippet>801</a>        <span class="self">self</span>.params().try_instantiate()
+<a href=#802 id=802 data-nosnippet>802</a>    }
+<a href=#803 id=803 data-nosnippet>803</a>}</code></pre></div></section></main></body></html>

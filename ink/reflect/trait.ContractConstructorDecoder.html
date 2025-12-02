@@ -36,7 +36,7 @@ parameters.</p>
     <span class="comment">// Call to `constructor1` without input parameters.
     </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>input_bytes = Vec::new();
-        input_bytes.extend(<span class="macro">selector_bytes!</span>(<span class="string">"constructor1"</span>));
+        input_bytes.extend(<span class="macro">selector_bytes!</span>(Abi::Ink, <span class="string">"constructor1"</span>));
         <span class="macro">assert!</span>(
             &lt;&lt;Contract <span class="kw">as </span>ContractConstructorDecoder&gt;::Type <span class="kw">as </span>DecodeDispatch&gt;::decode_dispatch(
                 <span class="kw-2">&amp;mut &amp;</span>input_bytes[..]
@@ -47,7 +47,7 @@ parameters.</p>
     <span class="comment">// Call to `constructor2` with 2 parameters.
     </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>input_bytes = Vec::new();
-        input_bytes.extend(<span class="macro">selector_bytes!</span>(<span class="string">"constructor2"</span>));
+        input_bytes.extend(<span class="macro">selector_bytes!</span>(Abi::Ink, <span class="string">"constructor2"</span>));
         input_bytes.extend(<span class="bool-val">true</span>.encode());
         input_bytes.extend(<span class="number">42i32</span>.encode());
         <span class="macro">assert!</span>(
@@ -60,7 +60,7 @@ parameters.</p>
     <span class="comment">// Call with invalid ink! constructor selector.
     </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>input_bytes = Vec::new();
-        input_bytes.extend(<span class="macro">selector_bytes!</span>(<span class="string">"non_existing_constructor"</span>));
+        input_bytes.extend(<span class="macro">selector_bytes!</span>(Abi::Ink, <span class="string">"non_existing_constructor"</span>));
         <span class="macro">assert!</span>(
             &lt;&lt;Contract <span class="kw">as </span>ContractConstructorDecoder&gt;::Type <span class="kw">as </span>DecodeDispatch&gt;::decode_dispatch(
                 <span class="kw-2">&amp;mut &amp;</span>input_bytes[..]
@@ -71,7 +71,7 @@ parameters.</p>
     <span class="comment">// Call with invalid ink! constructor parameters.
     </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>input_bytes = Vec::new();
-        input_bytes.extend(<span class="macro">selector_bytes!</span>(<span class="string">"constructor2"</span>));
+        input_bytes.extend(<span class="macro">selector_bytes!</span>(Abi::Ink, <span class="string">"constructor2"</span>));
         <span class="macro">assert!</span>(
             &lt;&lt;Contract <span class="kw">as </span>ContractConstructorDecoder&gt;::Type <span class="kw">as </span>DecodeDispatch&gt;::decode_dispatch(
                 <span class="kw-2">&amp;mut &amp;</span>input_bytes[..]
