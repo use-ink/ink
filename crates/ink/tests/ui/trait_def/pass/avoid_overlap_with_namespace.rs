@@ -31,7 +31,7 @@ fn main() {
         ( $trait_ident:path, $message_id:literal, $expected_selector:expr $(,)? ) => {
             assert_eq!(
                 <<TraitDefinitionRegistry<DefaultEnvironment> as $trait_ident>::__ink_TraitInfo
-                    as TraitMessageInfo<{selector_id!($message_id)}>>::SELECTOR,
+                    as TraitMessageInfo<{selector_id!(Abi::Ink, $message_id)}>>::SELECTOR,
                     $expected_selector
             );
         }
@@ -40,11 +40,11 @@ fn main() {
     assert_selector_eq!(
         TraitDefinition1,
         "message",
-        selector_bytes!("foo::TraitDefinition::message"),
+        selector_bytes!(Abi::Ink, "foo::TraitDefinition::message"),
     );
     assert_selector_eq!(
         TraitDefinition2,
         "message",
-        selector_bytes!("bar::TraitDefinition::message"),
+        selector_bytes!(Abi::Ink, "bar::TraitDefinition::message"),
     );
 }

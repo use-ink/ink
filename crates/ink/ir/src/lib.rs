@@ -71,6 +71,7 @@ pub use self::{
         Namespace,
         Receiver,
         Selector,
+        SelectorAbi,
         SelectorMacro,
         SignatureTopic,
         Storage,

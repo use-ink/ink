@@ -345,7 +345,7 @@ where
         return *selector
     }
     let preimage = compose_selector_preimage(item_impl, callable);
-    ir::Selector::compute(&preimage)
+    ir::Selector::compute(&preimage, ir::SelectorAbi::Ink)
 }
 
 fn compose_selector_preimage<C>(item_impl: &ir::ItemImpl, callable: &C) -> Vec<u8>
@@ -598,7 +598,9 @@ mod tests {
         pub fn expected_selector(self) -> ir::Selector {
             match self {
                 Self::Raw(raw_selector) => ir::Selector::from(raw_selector),
-                Self::Blake2(blake2_input) => ir::Selector::compute(&blake2_input),
+                Self::Blake2(blake2_input) => {
+                    ir::Selector::compute(&blake2_input, ir::SelectorAbi::Ink)
+                }
             }
         }
     }

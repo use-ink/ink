@@ -203,7 +203,7 @@ mod call_builder {
             let get_call_result = client.call(&origin, &flipper_get).dry_run().await?;
             let initial_value = get_call_result.return_value();
 
-            let selector = ink::selector_bytes!("invalid_selector");
+            let selector = ink::selector_bytes!(Abi::Ink, "invalid_selector");
             let call = call_builder.call(flipper.addr, selector);
             let call_result = client
                 .call(&origin, &call)
@@ -286,7 +286,7 @@ mod call_builder {
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
 
-            let selector = ink::selector_bytes!("new");
+            let selector = ink::selector_bytes!(Abi::Ink, "new");
             let init_value = true;
             let call = call_builder.call_instantiate(code_hash, selector, init_value);
             let call_result = client
@@ -327,7 +327,7 @@ mod call_builder {
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
 
-            let selector = ink::selector_bytes!("invalid_selector");
+            let selector = ink::selector_bytes!(Abi::Ink, "invalid_selector");
             let init_value = true;
             let call = call_builder.call_instantiate(code_hash, selector, init_value);
             let call_result = client
@@ -368,7 +368,7 @@ mod call_builder {
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
 
-            let selector = ink::selector_bytes!("revert_new");
+            let selector = ink::selector_bytes!(Abi::Ink, "revert_new");
             let init_value = false;
             let call = call_builder.call_instantiate(code_hash, selector, init_value);
 
@@ -405,7 +405,7 @@ mod call_builder {
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
 
-            let selector = ink::selector_bytes!("try_new");
+            let selector = ink::selector_bytes!(Abi::Ink, "try_new");
             let init_value = true;
             let call =
                 call_builder.call_instantiate_fallible(code_hash, selector, init_value);
@@ -447,7 +447,7 @@ mod call_builder {
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
 
-            let selector = ink::selector_bytes!("try_new");
+            let selector = ink::selector_bytes!(Abi::Ink, "try_new");
             let init_value = false;
             let call =
                 call_builder.call_instantiate_fallible(code_hash, selector, init_value);
@@ -496,7 +496,7 @@ mod call_builder {
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
 
-            let selector = ink::selector_bytes!("try_revert_new");
+            let selector = ink::selector_bytes!(Abi::Ink, "try_revert_new");
             let init_value = true;
             let call =
                 call_builder.call_instantiate_fallible(code_hash, selector, init_value);
@@ -533,7 +533,7 @@ mod call_builder {
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
 
-            let selector = ink::selector_bytes!("try_revert_new");
+            let selector = ink::selector_bytes!(Abi::Ink, "try_revert_new");
             let init_value = false;
             let call =
                 call_builder.call_instantiate_fallible(code_hash, selector, init_value);

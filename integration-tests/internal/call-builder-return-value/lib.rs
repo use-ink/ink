@@ -145,7 +145,7 @@ mod call_builder {
                 .expect("instantiating `incrementer` failed")
                 .addr;
 
-            let selector = ink::selector_bytes!("get");
+            let selector = ink::selector_bytes!(Abi::Ink, "get");
             let call = call_builder.delegate_call(address, selector);
             let call_result = client
                 .call(&origin, &call)
@@ -186,7 +186,7 @@ mod call_builder {
                 .expect("instantiating `incrementer` failed")
                 .addr;
 
-            let selector = ink::selector_bytes!("get");
+            let selector = ink::selector_bytes!(Abi::Ink, "get");
             let call = call_builder.delegate_call_short_return_type(address, selector);
             let call_result: Result<i8, String> =
                 client.call(&origin, &call).dry_run().await?.return_value();
@@ -228,7 +228,7 @@ mod call_builder {
                 .await
                 .expect("instantiate failed");
 
-            let selector = ink::selector_bytes!("get");
+            let selector = ink::selector_bytes!(Abi::Ink, "get");
             let call = call_builder.forward_call(incrementer.addr, selector);
             let call_result = client
                 .call(&origin, &call)
@@ -269,7 +269,7 @@ mod call_builder {
                 .await
                 .expect("instantiate failed");
 
-            let selector = ink::selector_bytes!("get");
+            let selector = ink::selector_bytes!(Abi::Ink, "get");
             let call =
                 call_builder.forward_call_short_return_type(incrementer.addr, selector);
             let call_result: Result<i8, String> =

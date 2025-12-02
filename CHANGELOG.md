@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `ink_precompiles` crate with ERC-20 assets precompile interface ‒ [#2686](https://github.com/use-ink/ink/pull/2686)
 
 ### Changed
+- Change `selector_bytes!` macro to accept `Abi` argument ‒ [2721](https://github.com/use-ink/ink/pull/2721)
 - Refactor contract ref generation and add automatic re-exporting ‒ [#2710](https://github.com/use-ink/ink/pull/2710)
 
 ## Version 6.0.0-beta
