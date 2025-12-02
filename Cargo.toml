@@ -76,7 +76,7 @@ syn = { version = "2" }
 synstructure = { version = "0.13.1" }
 thiserror = { version = "2.0.11" }
 tokio = { version = "1.47.1" }
-tracing = { version = "0.1.41" }
+tracing = { version = "0.1.43" }
 tracing-subscriber = { version = "0.3.20" }
 trybuild = { version = "1.0.110" }
 which = { version = "8.0.0" }
