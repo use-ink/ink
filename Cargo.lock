@@ -1676,18 +1676,18 @@ dependencies = [
 
 [[package]]
 name = "const_env"
-version = "0.1.4"
+version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5abf3680e7fff0295abbd53b271930edecadd1c6bf77cc77bf63dc741663a988"
+checksum = "103172f14a86f2e45b8eecae496605e58b347839c739e869ab918154ad7c312e"
 dependencies = [
  "const_env_impl",
 ]
 
 [[package]]
 name = "const_env_impl"
-version = "0.1.4"
+version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "71f9a669d589cdabddc551d8646c02ac055498212de30fc8fc42de30a41a963e"
+checksum = "4ff249495e37c4ae62e9cf56ec642f1a011804500cc1ab6f81268dc5bf907cfe"
 dependencies = [
  "proc-macro2",
  "quote",
