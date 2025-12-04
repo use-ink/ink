@@ -17,6 +17,7 @@
     html_favicon_url = "https://use.ink/crate-docs/favicon.png"
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
+extern crate self as ink;
 
 #[macro_use]
 #[doc(hidden)]
@@ -34,9 +35,12 @@ pub use ink_env::reflect;
 mod contract_ref;
 mod env_access;
 mod message_builder;
+pub mod precompiles;
 pub mod sol;
 
 pub use ink_env as env;
+#[cfg(feature = "xcm")]
+pub use ink_env::XcmExecutionResult;
 #[cfg(feature = "std")]
 pub use ink_metadata as metadata;
 pub use ink_prelude as prelude;

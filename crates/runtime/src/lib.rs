@@ -49,7 +49,7 @@ pub use {
         },
     },
     frame_system,
-    ink_precompiles,
+    ink::precompiles,
     pallet_assets,
     pallet_assets_precompiles,
     pallet_balances,
