@@ -5,16 +5,17 @@ use ink::{
     U256,
     prelude::string::ToString,
 };
-pub use ink_precompiles::erc20::{
-    AssetId,
-    erc20,
-};
+pub use ink::precompiles::erc20;
+pub type AssetId = erc20::AssetId;
+
+const TRUST_BACKED_ASSETS_PRECOMPILE_INDEX: u16 =
+    <ink::env::DefaultEnvironment as ink::env::Environment>::TRUST_BACKED_ASSETS_PRECOMPILE_INDEX;
 
 #[ink::contract]
 mod asset_hub_precompile {
     use super::*;
     use ink::prelude::string::String;
-    use ink_precompiles::erc20::{
+    use ink::precompiles::erc20::{
         Erc20,
         Erc20Ref,
     };
@@ -37,7 +38,7 @@ mod asset_hub_precompile {
             Self {
                 asset_id,
                 owner: Self::env().caller(),
-                precompile: erc20(TRUST_BACKED_ASSETS_PRECOMPILE_INDEX, asset_id),
+                precompile: erc20::erc20(TRUST_BACKED_ASSETS_PRECOMPILE_INDEX, asset_id),
             }
         }
 
