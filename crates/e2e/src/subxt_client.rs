@@ -36,6 +36,7 @@ use super::{
 use crate::{
     ContractsBackend,
     E2EBackend,
+    IntoAccountId,
     backend::{
         BuilderClient,
         ChainBackend,
@@ -113,7 +114,7 @@ where
     C: subxt::Config,
     E: Environment,
 {
-    api: ReviveApi<C, E>,
+    pub(crate) api: ReviveApi<C, E>,
     contracts: ContractsRegistry,
     url: String,
 }
@@ -263,6 +264,11 @@ where
         &self.url
     }
 
+    /// Returns a reference to the subxt client for making RPC calls and storage queries.
+    pub fn subxt_client(&self) -> &subxt::OnlineClient<C> {
+        &self.api.client
+    }
+
     /// Derives the Ethereum address from a keypair.
     // copied from `pallet-revive`
     fn derive_keypair_address(&self, signer: &Keypair) -> H160 {
@@ -322,6 +328,232 @@ where
                 Ok(account_id)
             }
         }
+    }
+
+    /// Creates a new asset.
+    ///
+    /// # Arguments
+    /// * `asset_id` - ID of the new asset to be created.
+    /// * `admin` - The admin/owner of the created asset.
+    /// * `min_balance` - The minimum balance required for accounts.
+    pub async fn create(
+        &mut self,
+        asset_id: &u32,
+        admin: &Keypair,
+        min_balance: u128,
+    ) -> Result<(), Error>
+    where
+        C::AccountId: From<[u8; 32]>,
+    {
+        let admin_public_key: [u8; 32] = admin.public_key().0;
+        let admin_account_id: C::AccountId = C::AccountId::from(admin_public_key);
+
+        let (tx_events, trace) = self
+            .api
+            .assets_create(admin, *asset_id, admin_account_id, min_balance)
+            .await;
+
+        for evt in tx_events.iter() {
+            let evt = evt.unwrap_or_else(|err| {
+                panic!("unable to unwrap event: {err:?}");
+            });
+
+            if is_extrinsic_failed_event(&evt) {
+                let metadata = self.api.client.metadata();
+                let dispatch_error =
+                    DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(|e| Error::Decoding(e.to_string()))?;
+                return Err(Error::CallExtrinsic(dispatch_error, trace));
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Mints tokens into an account.
+    ///
+    /// Accepts both `&Keypair` and `&ink::primitives::AccountId` types (e.g., for
+    /// contract accounts).
+    ///
+    /// # Arguments
+    /// * `asset_id` - ID of the asset.
+    /// * `owner` - The account that created/administers the asset and signs the mint
+    ///   extrinsic.
+    /// * `beneficiary` - The account to receive the minted tokens (Keypair or AccountId).
+    /// * `amount` - The number of tokens to mint.
+    pub async fn mint_into(
+        &mut self,
+        asset_id: &u32,
+        owner: &Keypair,
+        beneficiary: impl IntoAccountId<C::AccountId>,
+        amount: u128,
+    ) -> Result<(), Error> {
+        let beneficiary_account_id = beneficiary.into_account_id();
+        self.mint_into_impl(*asset_id, owner, beneficiary_account_id, amount)
+            .await
+    }
+
+    /// Internal implementation for minting tokens.
+    async fn mint_into_impl(
+        &mut self,
+        asset_id: u32,
+        owner: &Keypair,
+        beneficiary_account_id: C::AccountId,
+        amount: u128,
+    ) -> Result<(), Error> {
+        let (tx_events, trace) = self
+            .api
+            .assets_mint(owner, asset_id, beneficiary_account_id, amount)
+            .await;
+
+        for evt in tx_events.iter() {
+            let evt = evt.unwrap_or_else(|err| {
+                panic!("unable to unwrap event: {err:?}");
+            });
+
+            if is_extrinsic_failed_event(&evt) {
+                let metadata = self.api.client.metadata();
+                let dispatch_error =
+                    DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(|e| Error::Decoding(e.to_string()))?;
+                return Err(Error::CallExtrinsic(dispatch_error, trace));
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Returns the balance of an account for a specific asset.
+    ///
+    /// Accepts both `&Keypair` and `&ink::primitives::AccountId` types (e.g., for
+    /// contract accounts).
+    ///
+    /// # Arguments
+    /// * `asset_id` - ID of the asset.
+    /// * `owner` - The account whose balance is being queried (Keypair or AccountId).
+    pub async fn balance_of(
+        &mut self,
+        asset_id: &u32,
+        owner: impl IntoAccountId<C::AccountId>,
+    ) -> u128
+    where
+        C::AccountId: scale::Encode + AsRef<[u8]>,
+    {
+        let owner_account_id = owner.into_account_id();
+        self.api
+            .balance_of_asset(*asset_id, &owner_account_id)
+            .await
+    }
+
+    /// Approves a delegate to spend tokens on behalf of the owner.
+    ///
+    /// Accepts both `&Keypair` and `&ink::primitives::AccountId` types for the delegate
+    /// parameter.
+    ///
+    /// # Arguments
+    /// * `asset_id` - ID of the asset.
+    /// * `owner` - The keypair that owns the tokens.
+    /// * `delegate` - The account allowed to spend the tokens (Keypair or AccountId).
+    /// * `amount` - The number of tokens to approve.
+    pub async fn approve(
+        &mut self,
+        asset_id: &u32,
+        owner: &Keypair,
+        delegate: impl IntoAccountId<C::AccountId>,
+        amount: u128,
+    ) -> Result<(), Error> {
+        let delegate_account_id = delegate.into_account_id();
+
+        let (tx_events, trace) = self
+            .api
+            .assets_approve_transfer(owner, *asset_id, delegate_account_id, amount)
+            .await;
+
+        for evt in tx_events.iter() {
+            let evt = evt.unwrap_or_else(|err| {
+                panic!("unable to unwrap event: {err:?}");
+            });
+
+            if is_extrinsic_failed_event(&evt) {
+                let metadata = self.api.client.metadata();
+                let dispatch_error =
+                    DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(|e| Error::Decoding(e.to_string()))?;
+                return Err(Error::CallExtrinsic(dispatch_error, trace));
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Returns the allowance for a delegate approved by an owner.
+    ///
+    /// Accepts both `&Keypair` and `&ink::primitives::AccountId` types for both owner and
+    /// delegate parameters.
+    ///
+    /// # Arguments
+    /// * `asset_id` - ID of the asset.
+    /// * `owner` - The account that owns the tokens (Keypair or AccountId).
+    /// * `delegate` - The account allowed to spend the tokens (Keypair or AccountId).
+    pub async fn allowance(
+        &mut self,
+        asset_id: &u32,
+        owner: impl IntoAccountId<C::AccountId>,
+        delegate: impl IntoAccountId<C::AccountId>,
+    ) -> u128
+    where
+        C::AccountId: scale::Encode + AsRef<[u8]>,
+    {
+        let owner_account_id = owner.into_account_id();
+        let delegate_account_id = delegate.into_account_id();
+
+        self.api
+            .allowance_asset(*asset_id, &owner_account_id, &delegate_account_id)
+            .await
+    }
+
+    /// Transfers tokens from one account to another.
+    ///
+    /// # Arguments
+    /// * `asset_id` - ID of the asset.
+    /// * `origin` - The account transferring the tokens.
+    /// * `dest` - The account receiving the tokens.
+    /// * `amount` - The number of tokens to transfer.
+    pub async fn transfer(
+        &mut self,
+        asset_id: &u32,
+        origin: &Keypair,
+        dest: &E::AccountId,
+        amount: u128,
+    ) -> Result<(), Error>
+    where
+        E::AccountId: AsRef<[u8]>,
+        C::AccountId: From<[u8; 32]>,
+    {
+        let dest_account_id: C::AccountId = C::AccountId::from(
+            <[u8; 32]>::try_from(dest.as_ref()).expect("AccountId is 32 bytes"),
+        );
+
+        let (tx_events, trace) = self
+            .api
+            .assets_transfer(origin, *asset_id, dest_account_id, amount)
+            .await;
+
+        for evt in tx_events.iter() {
+            let evt = evt.unwrap_or_else(|err| {
+                panic!("unable to unwrap event: {err:?}");
+            });
+
+            if is_extrinsic_failed_event(&evt) {
+                let metadata = self.api.client.metadata();
+                let dispatch_error =
+                    DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(|e| Error::Decoding(e.to_string()))?;
+                return Err(Error::CallExtrinsic(dispatch_error, trace));
+            }
+        }
+
+        Ok(())
     }
 }
 
@@ -787,14 +1019,26 @@ where
                 let dispatch_error =
                     DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(|e| Error::Decoding(e.to_string()))?;
-                log_error(&format!(
-                    "Attempt to stringify returned data: {:?}",
-                    String::from_utf8_lossy(&trace.clone().unwrap().output.0[..])
-                ));
-                log_error(&format!(
-                    "extrinsic for `raw_call` failed: {dispatch_error} {trace:?}"
-                ));
-                return Err(Error::CallExtrinsic(dispatch_error, trace))
+
+                // Check if this is a ContractReverted error from the Revive pallet
+                // Contract reverts should not be treated as errors, as they need to be
+                // captured in the CallResult for proper testing with assert_noop!
+                let error_string = format!("{dispatch_error}");
+                let is_contract_revert = error_string.contains("Revive")
+                    && error_string.contains("ContractReverted");
+
+                if !is_contract_revert {
+                    log_error(&format!(
+                        "Attempt to stringify returned data: {:?}",
+                        String::from_utf8_lossy(&trace.clone().unwrap().output.0[..])
+                    ));
+                    log_error(&format!(
+                        "extrinsic for `raw_call` failed: {dispatch_error} {trace:?}"
+                    ));
+                    return Err(Error::CallExtrinsic(dispatch_error, trace))
+                }
+                // If it's a contract revert, continue and let the trace be captured in
+                // CallResult
             }
         }
 
@@ -1001,7 +1245,7 @@ where
 /// Returns `Err` if:
 ///   - The value is not a [`Value::Composite`] with [`Composite::Named`] fields
 ///   - The value does not contain a field with the given name.
-fn get_composite_field_value<'a, T>(
+pub(crate) fn get_composite_field_value<'a, T>(
     value: &'a Value<T>,
     field_name: &str,
 ) -> Result<&'a Value<T>, Error> {
@@ -1021,7 +1265,9 @@ fn get_composite_field_value<'a, T>(
 }
 
 /// Returns true if the give event is System::Extrinsic failed.
-fn is_extrinsic_failed_event<C: subxt::Config>(event: &EventDetails<C>) -> bool {
+pub(crate) fn is_extrinsic_failed_event<C: subxt::Config>(
+    event: &EventDetails<C>,
+) -> bool {
     event.pallet_name() == "System" && event.variant_name() == "ExtrinsicFailed"
 }
 
