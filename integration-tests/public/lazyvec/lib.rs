@@ -3,7 +3,7 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
-mod lazyvec {
+pub mod lazyvec {
     use ink::{
         prelude::vec::Vec,
         storage::StorageVec,
@@ -11,10 +11,10 @@ mod lazyvec {
 
     #[ink::storage_item(packed)]
     pub struct Proposal {
-        data: Vec<u8>,
-        until: BlockNumber,
-        approvals: u32,
-        min_approvals: u32,
+        pub data: Vec<u8>,
+        pub until: BlockNumber,
+        pub approvals: u32,
+        pub min_approvals: u32,
     }
 
     impl Proposal {
@@ -87,63 +87,7 @@ mod lazyvec {
             self.proposals.get(at)
         }
     }
-
-    #[cfg(all(test, feature = "e2e-tests"))]
-    mod e2e_tests {
-        use super::*;
-        use ink_e2e::ContractsBackend;
-
-        type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
-
-        #[ink_e2e::test]
-        async fn create_and_vote(mut client: Client) -> E2EResult<()> {
-            // given
-            let mut constructor = LazyVectorRef::default();
-            let contract = client
-                .instantiate("lazyvec", &ink_e2e::alice(), &mut constructor)
-                .submit()
-                .await
-                .expect("instantiate failed");
-            let mut call_builder = contract.call_builder::<LazyVector>();
-
-            // when
-            let create = call_builder.create_proposal(vec![0x41], 15, 1);
-            let _ = client
-                .call(&ink_e2e::alice(), &create)
-                .submit()
-                .await
-                .expect("Calling `create_proposal` failed");
-
-            let approve = call_builder.approve();
-            let _ = client
-                .call(&ink_e2e::alice(), &approve)
-                .submit()
-                .await
-                .expect("Voting failed");
-            let _ = client
-                .call(&ink_e2e::bob(), &approve)
-                .submit()
-                .await
-                .expect("Voting failed");
-
-            // then
-            let value = client
-                .call(&ink_e2e::alice(), &create)
-                .dry_run()
-                .await
-                .expect("create trapped when it shouldn't")
-                .return_value();
-            assert_eq!(value, None);
-
-            let value = client
-                .call(&ink_e2e::alice(), &call_builder.get(0))
-                .dry_run()
-                .await
-                .expect("get trapped when it shouldn't")
-                .return_value();
-            assert_eq!(value.unwrap().approvals, 2);
-
-            Ok(())
-        }
-    }
 }
+
+#[cfg(test)]
+mod tests;

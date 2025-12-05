@@ -29,7 +29,7 @@ pub trait System {
 }
 
 #[ink::contract]
-mod precompile_demo {
+pub mod precompile_demo {
     use super::System;
     use ink::prelude::vec::Vec;
 
@@ -56,39 +56,7 @@ mod precompile_demo {
             out_bytes.0
         }
     }
-
-    #[cfg(all(test, feature = "e2e-tests"))]
-    mod e2e_tests {
-        use super::*;
-        use ink_e2e::ContractsBackend;
-
-        type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
-
-        #[ink_e2e::test]
-        async fn call_echo_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
-            // given
-            let mut constructor = PrecompileDemoRef::new();
-            let contract = client
-                .instantiate("precompile_demo", &ink_e2e::bob(), &mut constructor)
-                .submit()
-                .await
-                .expect("instantiate failed");
-            let call_builder = contract.call_builder::<PrecompileDemo>();
-
-            // when
-            let data = vec![0x1, 0x2, 0x3, 0x4];
-            let expected = data.clone();
-            let call_echo = call_builder.call_echo(data);
-            let res = client
-                .call(&ink_e2e::bob(), &call_echo)
-                .submit()
-                .await
-                .expect("call_echo failed");
-
-            // then
-            assert_eq!(res.return_value(), expected);
-
-            Ok(())
-        }
-    }
 }
+
+#[cfg(test)]
+mod tests;

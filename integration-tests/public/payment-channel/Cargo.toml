@@ -1,16 +1,17 @@
 [package]
-name = "payment_channel"
+name = "payment-channel"
 version = "6.0.0-beta.1"
 authors = ["Use Ink <ink@use.ink>"]
 edition = "2024"
 publish = false
 
 [dependencies]
-ink = { path = "../../../crates/ink", default-features = false, features = ["unstable-hostfn"] }
-sp-core = { version = "38.0.0", default-features = false }
+ink = { path = "../../../crates/ink", default-features = false }
 
 [dev-dependencies]
-hex-literal = "1"
+ink_e2e = { path = "../../../crates/e2e" }
+hex-literal = "0.4"
+sp-core = { version = "34.0.0", default-features = false, features = ["full_crypto"] }
 
 [lib]
 path = "lib.rs"
@@ -20,8 +21,8 @@ default = ["std"]
 std = [
     "ink/std",
 ]
-
 ink-as-dependency = []
+e2e-tests = []
 
 [package.metadata.ink-lang]
 abi = "ink"
