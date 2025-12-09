@@ -30,7 +30,7 @@ pub fn fixed_address(n: u16) -> ink::Address {
     let mut i = 16;
     while i < address.len() {
         address[i] = suffix[i - 16];
-        i = i + 1;
+        i += 1;
     }
     ink::Address::from(address)
 }
