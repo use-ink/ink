@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["erc20"],"trait":["Erc20"],"type":["AssetId","Erc20Ref"]};

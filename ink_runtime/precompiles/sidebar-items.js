@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["fixed_address","prefixed_address"],"mod":["erc20"]};
