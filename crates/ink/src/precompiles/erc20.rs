@@ -22,10 +22,10 @@
 //! - [Polkadot SDK Assets Precompile](https://github.com/paritytech/polkadot-sdk/blob/master/substrate/frame/assets/precompiles/src/lib.rs)
 //! - [Polkadot SDK Assets Precompile Solidity Interface](https://github.com/paritytech/polkadot-sdk/blob/master/substrate/primitives/ethereum-standards/src/IERC20.sol)
 //! - [ERC-20 Token Standard](https://eips.ethereum.org/EIPS/eip-20)
-
 use ink::{
     Address,
     U256,
+    precompiles::prefixed_address,
 };
 
 /// Type alias for asset IDs.
@@ -153,12 +153,13 @@ pub trait Erc20 {
 /// let balance = erc20_ref.balanceOf(account);
 /// ```
 pub fn erc20(precompile_index: u16, asset_id: AssetId) -> Erc20Ref {
-    let address = crate::prefixed_address(precompile_index, asset_id);
+    let address = prefixed_address(precompile_index, asset_id);
     address.into()
 }
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use ink::env::Environment;
 
     #[test]
@@ -169,7 +170,7 @@ mod tests {
             0x00, 0x00, 0x00, 0x01, 0x20, 0x00, 0x00,
         ];
 
-        let address = crate::prefixed_address(
+        let address = prefixed_address(
             ink::env::DefaultEnvironment::TRUST_BACKED_ASSETS_PRECOMPILE_INDEX,
             1,
         );
@@ -180,8 +181,7 @@ mod tests {
 
     #[test]
     fn erc20_precompile_address_for_multiple_assets() {
-        // Test asset ID 42
-        let address_42 = crate::prefixed_address(
+        let address_42 = prefixed_address(
             ink::env::DefaultEnvironment::TRUST_BACKED_ASSETS_PRECOMPILE_INDEX,
             42,
         );

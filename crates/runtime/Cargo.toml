@@ -28,7 +28,7 @@ sp-io = {  git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4b
 
 ink_primitives = { workspace = true }
 ink_revive_types = { workspace = true }
-ink_precompiles = { workspace = true }
+ink = { path = "../ink" }
 ink_env = { workspace = true, default-features = true }
 ink_e2e = { path = "../e2e" }
 ink_e2e_macro = { workspace = true, default-features = true }
@@ -53,7 +53,7 @@ std = [
 	"pallet-assets/std",
 	"pallet-assets-precompiles/std",
 	"pallet-balances/std",
-    "pallet-transaction-payment/std",
+	"pallet-transaction-payment/std",
 	"pallet-revive/std",
 	"pallet-timestamp/std",
 	"scale/std",
@@ -62,4 +62,5 @@ std = [
 	"sp-externalities/std",
 	"sp-io/std",
 	"ink_e2e_macro/std",
+	"sp-runtime/std"
 ]
