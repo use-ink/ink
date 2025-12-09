@@ -22,8 +22,7 @@
 //! - [Polkadot SDK Assets Precompile](https://github.com/paritytech/polkadot-sdk/blob/master/substrate/frame/assets/precompiles/src/lib.rs)
 //! - [Polkadot SDK Assets Precompile Solidity Interface](https://github.com/paritytech/polkadot-sdk/blob/master/substrate/primitives/ethereum-standards/src/IERC20.sol)
 //! - [ERC-20 Token Standard](https://eips.ethereum.org/EIPS/eip-20)
-use crate::{
-    self as ink,
+use ink::{
     Address,
     U256,
     precompiles::prefixed_address,
@@ -161,6 +160,7 @@ pub fn erc20(precompile_index: u16, asset_id: AssetId) -> Erc20Ref {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use ink::env::Environment;
 
     #[test]
     fn erc20_precompile_address_format() {
@@ -170,9 +170,10 @@ mod tests {
             0x00, 0x00, 0x00, 0x01, 0x20, 0x00, 0x00,
         ];
 
-        let trust_backed =
-            <ink::env::DefaultEnvironment as ink::env::Environment>::TRUST_BACKED_ASSETS_PRECOMPILE_INDEX;
-        let address = prefixed_address(trust_backed, 1);
+        let address = prefixed_address(
+            ink::env::DefaultEnvironment::TRUST_BACKED_ASSETS_PRECOMPILE_INDEX,
+            1,
+        );
         let address_bytes: [u8; 20] = address.into();
 
         assert_eq!(address_bytes, expected);
@@ -180,10 +181,10 @@ mod tests {
 
     #[test]
     fn erc20_precompile_address_for_multiple_assets() {
-        let trust_backed =
-            <ink::env::DefaultEnvironment as ink::env::Environment>::TRUST_BACKED_ASSETS_PRECOMPILE_INDEX;
-        // Test asset ID 42
-        let address_42 = prefixed_address(trust_backed, 42);
+        let address_42 = prefixed_address(
+            ink::env::DefaultEnvironment::TRUST_BACKED_ASSETS_PRECOMPILE_INDEX,
+            42,
+        );
         let bytes_42: [u8; 20] = address_42.into();
 
         // First 4 bytes should be asset ID (42 = 0x0000002a)

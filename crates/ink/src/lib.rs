@@ -17,7 +17,9 @@
     html_favicon_url = "https://use.ink/crate-docs/favicon.png"
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
+
 extern crate self as ink;
+
 #[macro_use]
 #[doc(hidden)]
 pub mod option_info;
