@@ -62,7 +62,7 @@ impl Event {
         Ok(Self { item, config })
     }
 
-    /// Returns the event definition .
+    /// Returns the event definition.
     pub fn item(&self) -> &syn::ItemStruct {
         &self.item
     }
@@ -92,8 +92,8 @@ impl Event {
         Ok(matches!(attr.first().kind(), ir::AttributeArg::Event))
     }
 
-    /// Returns if the event is marked as anonymous, if true then no signature topic is
-    /// generated or emitted.
+    /// Returns whether the event is marked as anonymous, if true then no signature topic
+    /// is generated or emitted.
     pub fn anonymous(&self) -> bool {
         self.config.anonymous()
     }
@@ -148,7 +148,7 @@ impl TryFrom<syn::ItemStruct> for Event {
         if ink_attrs.is_anonymous() && ink_attrs.signature_topic().is_some() {
             return Err(format_err_spanned!(
                 item_struct,
-                "cannot use use `anonymous` with `signature_topic`",
+                "cannot use `anonymous` with `signature_topic`",
             ));
         }
         Ok(Self {
@@ -322,7 +322,7 @@ mod tests {
                     field_2: bool,
                 }
             },
-            "cannot use use `anonymous` with `signature_topic`",
+            "cannot use `anonymous` with `signature_topic`",
         )
     }
 
