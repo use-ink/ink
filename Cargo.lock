@@ -1787,6 +1787,12 @@ dependencies = [
 
 [[package]]
 name = "convert_case"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6245d59a3e82a7fc217c5828a6692dbc6dfb63a0c8c90495621f7b9d79704a0e"
+
+[[package]]
+name = "convert_case"
 version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bb402b8d4c85569410425650ce3eddc7d698ed96d39a73f941b08fb63082f1e7"
@@ -2107,8 +2113,10 @@ version = "0.99.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6edb4b64a43d977b8e99788fe3a04d483834fba1215a7e02caa415b626497f7f"
 dependencies = [
+ "convert_case 0.4.0",
  "proc-macro2",
  "quote",
+ "rustc_version 0.4.1",
  "syn 2.0.110",
 ]
 
@@ -2147,7 +2155,7 @@ version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bda628edc44c4bb645fbe0f758797143e4e07926f7ebf4e9bdfbd3d2ce621df3"
 dependencies = [
- "convert_case",
+ "convert_case 0.7.1",
  "proc-macro2",
  "quote",
  "syn 2.0.110",
@@ -2399,6 +2407,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "enumflags2"
+version = "0.7.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1027f7680c853e056ebcec683615fb6fbbc07dbaa13b4d5d9442b146ded4ecef"
+dependencies = [
+ "enumflags2_derive",
+]
+
+[[package]]
+name = "enumflags2_derive"
+version = "0.7.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "67c78a4d8fdf9953a5c9d458f9efe940fd97a0cab0941c075a813ac594733827"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.110",
+]
+
+[[package]]
 name = "env_home"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2444,7 +2472,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -3649,7 +3677,7 @@ dependencies = [
  "scale-info",
  "sp-io 42.0.0",
  "sp-runtime-interface 31.0.0",
- "staging-xcm",
+ "staging-xcm 18.0.0",
  "trybuild",
 ]
 
@@ -3776,7 +3804,7 @@ dependencies = [
  "secp256k1 0.31.1",
  "sha2 0.10.9",
  "sha3",
- "staging-xcm",
+ "staging-xcm 18.0.0",
  "static_assertions",
 ]
 
@@ -3948,9 +3976,12 @@ dependencies = [
  "pallet-assets",
  "pallet-assets-precompiles",
  "pallet-balances",
+ "pallet-nfts",
  "pallet-revive",
  "pallet-timestamp",
  "pallet-transaction-payment",
+ "pallet-xcm",
+ "pallet-xcm-precompiles",
  "parity-scale-codec",
  "paste",
  "scale-info",
@@ -3959,6 +3990,9 @@ dependencies = [
  "sp-externalities 0.25.0",
  "sp-io 30.0.0",
  "sp-runtime 43.0.0",
+ "staging-xcm 7.0.1",
+ "staging-xcm-builder",
+ "staging-xcm-executor",
  "subxt-metadata 0.44.0",
  "thiserror 2.0.17",
 ]
@@ -4592,7 +4626,7 @@ version = "0.50.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7957b9740744892f114936ab4a57b3f487491bbeafaf8083688b16841a4240e5"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -4781,7 +4815,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7d8fae84b431384b68627d0f9b3b1245fcf9f46f6c0e3dc902e9dce64edd1967"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.45.0",
 ]
 
 [[package]]
@@ -4794,6 +4828,24 @@ dependencies = [
  "elliptic-curve",
  "primeorder",
  "sha2 0.10.9",
+]
+
+[[package]]
+name = "pallet-asset-conversion"
+version = "10.0.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?rev=cbab8ed4be1941420dd25dc81102fb79d8e2a7f0#cbab8ed4be1941420dd25dc81102fb79d8e2a7f0"
+dependencies = [
+ "frame-benchmarking",
+ "frame-support 28.0.0",
+ "frame-system",
+ "log",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-api 26.0.0",
+ "sp-arithmetic 23.0.0",
+ "sp-core 28.0.0",
+ "sp-io 30.0.0",
+ "sp-runtime 31.0.1",
 ]
 
 [[package]]
@@ -4836,6 +4888,23 @@ dependencies = [
  "parity-scale-codec",
  "scale-info",
  "sp-core 28.0.0",
+ "sp-runtime 31.0.1",
+]
+
+[[package]]
+name = "pallet-nfts"
+version = "22.0.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?rev=cbab8ed4be1941420dd25dc81102fb79d8e2a7f0#cbab8ed4be1941420dd25dc81102fb79d8e2a7f0"
+dependencies = [
+ "enumflags2",
+ "frame-benchmarking",
+ "frame-support 28.0.0",
+ "frame-system",
+ "log",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-core 28.0.0",
+ "sp-io 30.0.0",
  "sp-runtime 31.0.1",
 ]
 
@@ -4983,6 +5052,44 @@ dependencies = [
  "serde",
  "sp-io 30.0.0",
  "sp-runtime 31.0.1",
+]
+
+[[package]]
+name = "pallet-xcm"
+version = "7.0.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?rev=cbab8ed4be1941420dd25dc81102fb79d8e2a7f0#cbab8ed4be1941420dd25dc81102fb79d8e2a7f0"
+dependencies = [
+ "bounded-collections",
+ "frame-benchmarking",
+ "frame-support 28.0.0",
+ "frame-system",
+ "hex-literal 0.4.1",
+ "pallet-balances",
+ "parity-scale-codec",
+ "scale-info",
+ "serde",
+ "sp-core 28.0.0",
+ "sp-io 30.0.0",
+ "sp-runtime 31.0.1",
+ "staging-xcm 7.0.1",
+ "staging-xcm-builder",
+ "staging-xcm-executor",
+ "tracing",
+ "xcm-runtime-apis",
+]
+
+[[package]]
+name = "pallet-xcm-precompiles"
+version = "0.1.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?rev=cbab8ed4be1941420dd25dc81102fb79d8e2a7f0#cbab8ed4be1941420dd25dc81102fb79d8e2a7f0"
+dependencies = [
+ "frame-support 28.0.0",
+ "pallet-revive",
+ "pallet-xcm",
+ "parity-scale-codec",
+ "staging-xcm 7.0.1",
+ "staging-xcm-executor",
+ "tracing",
 ]
 
 [[package]]
@@ -5214,6 +5321,34 @@ checksum = "f950b2377845cebe5cf8b5165cb3cc1a5e0fa5cfa3e1f7f55707d8fd82e0a7b7"
 dependencies = [
  "der",
  "spki",
+]
+
+[[package]]
+name = "polkadot-core-primitives"
+version = "7.0.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?rev=cbab8ed4be1941420dd25dc81102fb79d8e2a7f0#cbab8ed4be1941420dd25dc81102fb79d8e2a7f0"
+dependencies = [
+ "parity-scale-codec",
+ "scale-info",
+ "sp-core 28.0.0",
+ "sp-runtime 31.0.1",
+]
+
+[[package]]
+name = "polkadot-parachain-primitives"
+version = "6.0.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?rev=cbab8ed4be1941420dd25dc81102fb79d8e2a7f0#cbab8ed4be1941420dd25dc81102fb79d8e2a7f0"
+dependencies = [
+ "array-bytes",
+ "bounded-collections",
+ "derive_more 0.99.20",
+ "parity-scale-codec",
+ "polkadot-core-primitives",
+ "scale-info",
+ "serde",
+ "sp-core 28.0.0",
+ "sp-runtime 31.0.1",
+ "sp-weights 27.0.0",
 ]
 
 [[package]]
@@ -6175,7 +6310,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -8202,6 +8337,27 @@ checksum = "6ce2be8dc25455e1f91df71bfa12ad37d7af1092ae736f3a6cd0e37bc7810596"
 
 [[package]]
 name = "staging-xcm"
+version = "7.0.1"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?rev=cbab8ed4be1941420dd25dc81102fb79d8e2a7f0#cbab8ed4be1941420dd25dc81102fb79d8e2a7f0"
+dependencies = [
+ "array-bytes",
+ "bounded-collections",
+ "derive-where",
+ "environmental",
+ "frame-support 28.0.0",
+ "hex-literal 0.4.1",
+ "impl-trait-for-tuples",
+ "parity-scale-codec",
+ "scale-info",
+ "serde",
+ "sp-runtime 31.0.1",
+ "sp-weights 27.0.0",
+ "tracing",
+ "xcm-procedural 7.0.0",
+]
+
+[[package]]
+name = "staging-xcm"
 version = "18.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "16708a8ff2bf701090ca8146ad4a0eb8ab00f2a03108f8c889d4eb2eccd7233d"
@@ -8219,7 +8375,51 @@ dependencies = [
  "serde",
  "sp-runtime 43.0.0",
  "sp-weights 33.1.0",
- "xcm-procedural",
+ "xcm-procedural 11.0.2",
+]
+
+[[package]]
+name = "staging-xcm-builder"
+version = "7.0.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?rev=cbab8ed4be1941420dd25dc81102fb79d8e2a7f0#cbab8ed4be1941420dd25dc81102fb79d8e2a7f0"
+dependencies = [
+ "environmental",
+ "frame-support 28.0.0",
+ "frame-system",
+ "impl-trait-for-tuples",
+ "pallet-asset-conversion",
+ "pallet-transaction-payment",
+ "parity-scale-codec",
+ "polkadot-parachain-primitives",
+ "scale-info",
+ "sp-arithmetic 23.0.0",
+ "sp-core 28.0.0",
+ "sp-io 30.0.0",
+ "sp-runtime 31.0.1",
+ "sp-weights 27.0.0",
+ "staging-xcm 7.0.1",
+ "staging-xcm-executor",
+ "tracing",
+]
+
+[[package]]
+name = "staging-xcm-executor"
+version = "7.0.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?rev=cbab8ed4be1941420dd25dc81102fb79d8e2a7f0#cbab8ed4be1941420dd25dc81102fb79d8e2a7f0"
+dependencies = [
+ "environmental",
+ "frame-benchmarking",
+ "frame-support 28.0.0",
+ "impl-trait-for-tuples",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-arithmetic 23.0.0",
+ "sp-core 28.0.0",
+ "sp-io 30.0.0",
+ "sp-runtime 31.0.1",
+ "sp-weights 27.0.0",
+ "staging-xcm 7.0.1",
+ "tracing",
 ]
 
 [[package]]
@@ -8678,7 +8878,7 @@ dependencies = [
  "getrandom 0.3.4",
  "once_cell",
  "rustix",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -9565,7 +9765,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -9980,6 +10180,17 @@ dependencies = [
 
 [[package]]
 name = "xcm-procedural"
+version = "7.0.0"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?rev=cbab8ed4be1941420dd25dc81102fb79d8e2a7f0#cbab8ed4be1941420dd25dc81102fb79d8e2a7f0"
+dependencies = [
+ "Inflector",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.110",
+]
+
+[[package]]
+name = "xcm-procedural"
 version = "11.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9d3d21c65cbf847ae0b1a8e6411b614d269d3108c6c649b039bffcf225e89aa4"
@@ -9988,6 +10199,20 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.110",
+]
+
+[[package]]
+name = "xcm-runtime-apis"
+version = "0.1.1"
+source = "git+https://github.com/use-ink/polkadot-sdk.git?rev=cbab8ed4be1941420dd25dc81102fb79d8e2a7f0#cbab8ed4be1941420dd25dc81102fb79d8e2a7f0"
+dependencies = [
+ "frame-support 28.0.0",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-api 26.0.0",
+ "sp-weights 27.0.0",
+ "staging-xcm 7.0.1",
+ "staging-xcm-executor",
 ]
 
 [[package]]

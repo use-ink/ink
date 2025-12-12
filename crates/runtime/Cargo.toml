@@ -17,6 +17,9 @@ frame-support = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cb
 pallet-assets = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
 pallet-assets-precompiles = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
 pallet-balances = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
+pallet-nfts = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
+pallet-xcm = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
+pallet-xcm-precompiles = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
 pallet-transaction-payment = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
 pallet-revive = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
 pallet-timestamp = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false  }
@@ -25,6 +28,9 @@ sp-core = { workspace = true, default-features = false }
 sp-externalities = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false  }
 sp-runtime = { version = "43.0.0", default-features = false  }
 sp-io = {  git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false  }
+xcm = { package = "staging-xcm", git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
+xcm-builder = { package = "staging-xcm-builder", git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
+xcm-executor = { package = "staging-xcm-executor", git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
 
 ink_primitives = { workspace = true }
 ink_revive_types = { workspace = true }
@@ -56,11 +62,20 @@ std = [
 	"pallet-transaction-payment/std",
 	"pallet-revive/std",
 	"pallet-timestamp/std",
+	"pallet-nfts/std",
+	"pallet-xcm/std",
+	"pallet-xcm-precompiles/std",
 	"scale/std",
 	"scale-info/std",
 	"sp-core/std",
 	"sp-externalities/std",
 	"sp-io/std",
 	"ink_e2e_macro/std",
-	"sp-runtime/std"
+	"sp-runtime/std",
+	"xcm/std",
+	"xcm-builder/std",
+	"xcm-executor/std",
 ]
+
+# Enable XCM + pallet-nfts in the test runtime.
+xcm = []
