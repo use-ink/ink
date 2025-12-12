@@ -126,6 +126,52 @@ macro_rules! assert_noop {
     }};
 }
 
+/// Asserts that a contract call reverted with an error containing a substring.
+///
+/// Similar to `assert_noop!`, but uses substring matching instead of exact match.
+/// This is useful when the exact error format may vary or when checking for partial
+/// error information.
+///
+/// # Behavior
+///
+/// - Takes a `CallResult` and an expected error substring as input
+/// - Checks if `dry_run.did_revert()` is `true`
+/// - Panics if the call succeeded (did not revert)
+/// - Extracts the error and checks if it contains the expected substring
+/// - Returns the `CallResult` if both checks pass
+///
+/// # Examples
+///
+/// ```ignore
+/// let result = client.call(&alice, &failing_call).submit().await?;
+/// assert_noop_contains!(result, "revert");
+/// ```
+#[macro_export]
+macro_rules! assert_noop_contains {
+    ($result:expr, $expected_substr:expr) => {{
+        let result = $result;
+        if !result.dry_run.did_revert() {
+            panic!(
+                "Expected call to revert with error containing '{}' but it succeeded",
+                $expected_substr
+            );
+        }
+
+        let actual_error = result.extract_error();
+        match &actual_error {
+            Some(err) if err.contains($expected_substr) => {}
+            _ => {
+                panic!(
+                    "Expected error containing '{}' but got {:?}",
+                    $expected_substr, actual_error
+                );
+            }
+        }
+
+        result
+    }};
+}
+
 /// Asserts that the latest contract event matches an expected event.
 ///
 /// This macro verifies that the last emitted contract event from the runtime
@@ -248,7 +294,7 @@ mod construct_runtime {
             AccountId32, Perbill,
             FixedU128,
         },
-        traits::{ConstBool, ConstU8, ConstU128, ConstU32, ConstU64, Currency},
+        traits::{ConstBool, ConstU8, ConstU128, ConstU32, ConstU64, Currency, Everything, Nothing},
         weights::{Weight, IdentityFee},
     };
 
@@ -258,7 +304,7 @@ mod construct_runtime {
 
     pub type Balance = u128;
 
-    // Define the runtime type as a collection of pallets
+    #[cfg(feature = "xcm")]
     construct_runtime!(
         pub enum $runtime {
             System: $crate::frame_system,
@@ -267,6 +313,24 @@ mod construct_runtime {
             Assets: $crate::pallet_assets::<Instance1>,
             Revive: $crate::pallet_revive,
             TransactionPayment: $crate::pallet_transaction_payment,
+            Nfts: $crate::pallet_nfts,
+            PolkadotXcm: $crate::pallet_xcm,
+            $(
+                $pallet_name: $pallet,
+            )*
+        }
+    );
+
+    #[cfg(not(feature = "xcm"))]
+    construct_runtime!(
+        pub enum $runtime {
+            System: $crate::frame_system,
+            Balances: $crate::pallet_balances,
+            Timestamp: $crate::pallet_timestamp,
+            Assets: $crate::pallet_assets::<Instance1>,
+            Revive: $crate::pallet_revive,
+            TransactionPayment: $crate::pallet_transaction_payment,
+            Nfts: $crate::pallet_nfts,
             $(
                 $pallet_name: $pallet,
             )*
@@ -341,6 +405,198 @@ mod construct_runtime {
         type WeightInfo = $crate::pallet_transaction_payment::weights::SubstrateWeight<$runtime>;
     }
 
+    // Configure pallet-nfts
+    pub type NftsCollectionId = u32;
+    pub type NftsItemId = u32;
+
+    parameter_types! {
+        pub const NftsCollectionDeposit: Balance = 2;
+        pub const NftsItemDeposit: Balance = 1;
+        pub const NftsMetadataDepositBase: Balance = 1;
+        pub const NftsAttributeDepositBase: Balance = 1;
+        pub const NftsDepositPerByte: Balance = 1;
+        pub const NftsStringLimit: u32 = 50;
+        pub const NftsKeyLimit: u32 = 50;
+        pub const NftsValueLimit: u32 = 50;
+        pub const NftsApprovalsLimit: u32 = 10;
+        pub const NftsItemAttributesApprovalsLimit: u32 = 2;
+        pub const NftsMaxTips: u32 = 10;
+        pub const NftsMaxDeadlineDuration: u32 = 10_000;
+        pub const NftsMaxAttributesPerCall: u32 = 2;
+        pub NftsFeatures: $crate::pallet_nfts::PalletFeatures = $crate::pallet_nfts::PalletFeatures::all_enabled();
+    }
+
+    impl $crate::pallet_nfts::Config for $runtime {
+        type RuntimeEvent = RuntimeEvent;
+        type CollectionId = NftsCollectionId;
+        type ItemId = NftsItemId;
+        type Currency = Balances;
+        type CreateOrigin = $crate::frame_support::traits::AsEnsureOriginWithArg<$crate::frame_system::EnsureSigned<AccountId32>>;
+        type ForceOrigin = $crate::frame_system::EnsureRoot<AccountId32>;
+        type Locker = ();
+        type CollectionDeposit = NftsCollectionDeposit;
+        type ItemDeposit = NftsItemDeposit;
+        type MetadataDepositBase = NftsMetadataDepositBase;
+        type AttributeDepositBase = NftsAttributeDepositBase;
+        type DepositPerByte = NftsDepositPerByte;
+        type StringLimit = NftsStringLimit;
+        type KeyLimit = NftsKeyLimit;
+        type ValueLimit = NftsValueLimit;
+        type ApprovalsLimit = NftsApprovalsLimit;
+        type ItemAttributesApprovalsLimit = NftsItemAttributesApprovalsLimit;
+        type MaxTips = NftsMaxTips;
+        type MaxDeadlineDuration = NftsMaxDeadlineDuration;
+        type MaxAttributesPerCall = NftsMaxAttributesPerCall;
+        type Features = NftsFeatures;
+        type OffchainSignature = $crate::frame_support::sp_runtime::MultiSignature;
+        type OffchainPublic = <Self::OffchainSignature as $crate::frame_support::sp_runtime::traits::Verify>::Signer;
+        #[cfg(feature = "runtime-benchmarks")]
+        type Helper = ();
+        type WeightInfo = ();
+        type BlockNumberProvider = $crate::frame_system::Pallet<$runtime>;
+    }
+
+    // ===============================================================================
+    // XCM Configuration (only when "xcm" feature is enabled)
+    // ===============================================================================
+    #[cfg(feature = "xcm")]
+    mod xcm_config {
+        use super::{
+            Balances, PolkadotXcm, RuntimeCall, RuntimeOrigin, AllPalletsWithSystem,
+            Weight, ConstU32, Everything, Nothing,
+        };
+        // Use frame_support's AccountId32, not XCM's AccountId32 junction
+        use $crate::frame_support::sp_runtime::AccountId32 as RuntimeAccountId32;
+        use $crate::xcm::latest::prelude::{
+            Location, NetworkId, InteriorLocation, Junctions,
+        };
+        use $crate::xcm_builder::{
+            AccountId32Aliases,
+            AllowExplicitUnpaidExecutionFrom,
+            AllowTopLevelPaidExecutionFrom,
+            FixedWeightBounds,
+            FrameTransactionalProcessor,
+            SignedAccountId32AsNative,
+            SignedToAccountId32,
+            SovereignSignedViaLocation,
+            TakeWeightCredit,
+            WithComputedOrigin,
+        };
+        use $crate::pallet_xcm::XcmPassthrough;
+        use $crate::frame_support::parameter_types;
+
+        parameter_types! {
+            pub const TokenLocation: Location = Location::here();
+            pub const RelayNetwork: Option<NetworkId> = None;
+            pub UniversalLocation: InteriorLocation = Junctions::Here;
+            // One XCM operation is 1_000_000_000 weight - conservative estimate
+            pub UnitWeightCost: Weight = Weight::from_parts(1_000_000_000, 64 * 1024);
+            pub const MaxInstructions: u32 = 100;
+            pub const MaxAssetsIntoHolding: u32 = 64;
+        }
+
+        /// Type for specifying how a `Location` can be converted into an `AccountId`.
+        pub type LocationToAccountId = AccountId32Aliases<RelayNetwork, RuntimeAccountId32>;
+
+        /// Means for transacting the native currency on this chain.
+        #[allow(deprecated)]
+        pub type LocalAssetTransactor = $crate::xcm_builder::CurrencyAdapter<
+            Balances,
+            $crate::xcm_builder::IsConcrete<TokenLocation>,
+            LocationToAccountId,
+            RuntimeAccountId32,
+            (),
+        >;
+
+        /// This is the type we use to convert an (incoming) XCM origin into a local `Origin` instance.
+        pub type XcmOriginToTransactDispatchOrigin = (
+            SovereignSignedViaLocation<LocationToAccountId, RuntimeOrigin>,
+            SignedAccountId32AsNative<RelayNetwork, RuntimeOrigin>,
+            XcmPassthrough<RuntimeOrigin>,
+        );
+
+        /// Barrier that allows everything - suitable for testing.
+        pub type Barrier = (
+            TakeWeightCredit,
+            WithComputedOrigin<
+                (
+                    AllowTopLevelPaidExecutionFrom<Everything>,
+                    AllowExplicitUnpaidExecutionFrom<Everything>,
+                ),
+                UniversalLocation,
+                ConstU32<8>,
+            >,
+        );
+
+        pub struct XcmConfig;
+        impl $crate::xcm_executor::Config for XcmConfig {
+            type RuntimeCall = RuntimeCall;
+            type XcmSender = ();  // No sending for test runtime
+            type XcmEventEmitter = PolkadotXcm;
+            type AssetTransactor = LocalAssetTransactor;
+            type OriginConverter = XcmOriginToTransactDispatchOrigin;
+            type IsReserve = ();
+            type IsTeleporter = ();
+            type UniversalLocation = UniversalLocation;
+            type Barrier = Barrier;
+            type Weigher = FixedWeightBounds<UnitWeightCost, RuntimeCall, MaxInstructions>;
+            type Trader = ();
+            type ResponseHandler = PolkadotXcm;
+            type AssetTrap = PolkadotXcm;
+            type AssetClaims = PolkadotXcm;
+            type SubscriptionService = PolkadotXcm;
+            type PalletInstancesInfo = AllPalletsWithSystem;
+            type MaxAssetsIntoHolding = MaxAssetsIntoHolding;
+            type AssetLocker = ();
+            type AssetExchanger = ();
+            type FeeManager = ();
+            type MessageExporter = ();
+            type UniversalAliases = Nothing;
+            type CallDispatcher = RuntimeCall;
+            type SafeCallFilter = Everything;
+            type Aliasers = Nothing;
+            type TransactionalProcessor = FrameTransactionalProcessor;
+            type HrmpNewChannelOpenRequestHandler = ();
+            type HrmpChannelAcceptedHandler = ();
+            type HrmpChannelClosingHandler = ();
+            type XcmRecorder = PolkadotXcm;
+        }
+
+        /// Local origins on this chain are allowed to dispatch XCM sends/executions.
+        pub type LocalOriginToLocation = SignedToAccountId32<RuntimeOrigin, RuntimeAccountId32, RelayNetwork>;
+    }
+
+    #[cfg(feature = "xcm")]
+    pub use xcm_config::*;
+
+    #[cfg(feature = "xcm")]
+    impl $crate::pallet_xcm::Config for $runtime {
+        type RuntimeEvent = RuntimeEvent;
+        type SendXcmOrigin = $crate::xcm_builder::EnsureXcmOrigin<RuntimeOrigin, LocalOriginToLocation>;
+        type XcmRouter = ();  // No routing for test runtime
+        type ExecuteXcmOrigin = $crate::xcm_builder::EnsureXcmOrigin<RuntimeOrigin, LocalOriginToLocation>;
+        type XcmExecuteFilter = Everything;
+        type XcmExecutor = $crate::xcm_executor::XcmExecutor<XcmConfig>;
+        type XcmTeleportFilter = Everything;
+        type XcmReserveTransferFilter = Nothing;
+        type Weigher = $crate::xcm_builder::FixedWeightBounds<UnitWeightCost, RuntimeCall, MaxInstructions>;
+        type UniversalLocation = UniversalLocation;
+        type RuntimeOrigin = RuntimeOrigin;
+        type RuntimeCall = RuntimeCall;
+        const VERSION_DISCOVERY_QUEUE_SIZE: u32 = 100;
+        type AdvertisedXcmVersion = $crate::pallet_xcm::CurrentXcmVersion;
+        type Currency = Balances;
+        type CurrencyMatcher = ();
+        type TrustedLockers = ();
+        type SovereignAccountOf = LocationToAccountId;
+        type MaxLockers = ConstU32<8>;
+        type WeightInfo = $crate::pallet_xcm::TestWeightInfo;
+        type AdminOrigin = $crate::frame_system::EnsureRoot<$crate::frame_support::sp_runtime::AccountId32>;
+        type MaxRemoteLockConsumers = ConstU32<0>;
+        type RemoteLockConsumerIdentifier = ();
+        type AuthorizedAliasConsideration = $crate::frame_support::traits::Disabled;
+    }
+
     // Configure `pallet-revive`
     type BalanceOf = <Balances as Currency<AccountId32>>::Balance;
     impl Convert<Weight, BalanceOf> for $runtime {
@@ -362,6 +618,19 @@ mod construct_runtime {
         pub const MaxEthExtrinsicWeight: FixedU128 = FixedU128::from_rational(1,2);
         pub const DepositPerChildTrieItem: Balance = deposit(1, 0) / 100;
     }
+
+    // Precompiles type alias - compose assets/xcm precompiles based on enabled features.
+    // Precompiles type alias - conditionally includes XcmPrecompile when "xcm" feature is enabled
+    #[cfg(not(feature = "xcm"))]
+    pub type RevivePrecompiles = (
+        $crate::pallet_assets_precompiles::ERC20<$runtime, $crate::pallet_assets_precompiles::InlineIdConfig<{ 0x0120 }>, TrustBackedAssetsInstance>,
+    );
+
+    #[cfg(feature = "xcm")]
+    pub type RevivePrecompiles = (
+        $crate::pallet_assets_precompiles::ERC20<$runtime, $crate::pallet_assets_precompiles::InlineIdConfig<{ 0x0120 }>, TrustBackedAssetsInstance>,
+        $crate::pallet_xcm_precompiles::XcmPrecompile<$runtime>,
+    );
 
     impl $crate::pallet_revive::Config for $runtime {
         type AddressMapper = $crate::pallet_revive::AccountId32Mapper<Self>;
@@ -385,10 +654,7 @@ mod construct_runtime {
         type UploadOrigin = $crate::frame_system::EnsureSigned<Self::AccountId>;
         type InstantiateOrigin = $crate::frame_system::EnsureSigned<Self::AccountId>;
         type FindAuthor = ();
-        type Precompiles = (
-            $crate::pallet_assets_precompiles::ERC20<Self, $crate::pallet_assets_precompiles::InlineIdConfig<{ 0x0120 }>, TrustBackedAssetsInstance>,
-            // todo add `PoolAssetsInstance`
-        );
+        type Precompiles = RevivePrecompiles;
         type AllowEVMBytecode = ConstBool<false>;
         type FeeInfo = ();
         type MaxEthExtrinsicWeight = MaxEthExtrinsicWeight;
@@ -491,10 +757,18 @@ mod construct_runtime {
 }
 
 // Export runtime type itself, pallets and useful types from the auxiliary module
+#[cfg(not(feature = "xcm"))]
 pub use construct_runtime::{
-    $runtime_env, $runtime, Assets, AssetIdForTrustBackedAssets, Balances, Revive, PalletInfo,
-    RuntimeCall, RuntimeEvent, RuntimeHoldReason, RuntimeOrigin, System, Timestamp,
-    TrustBackedAssetsInstance,
+    $runtime_env, $runtime, Assets, AssetIdForTrustBackedAssets, Balances, Nfts,
+    NftsCollectionId, NftsItemId, Revive, PalletInfo, RuntimeCall, RuntimeEvent, RuntimeHoldReason,
+    RuntimeOrigin, System, Timestamp, TrustBackedAssetsInstance,
+};
+
+#[cfg(feature = "xcm")]
+pub use construct_runtime::{
+    $runtime_env, $runtime, Assets, AssetIdForTrustBackedAssets, Balances, Nfts,
+    NftsCollectionId, NftsItemId, Revive, PalletInfo, PolkadotXcm, RuntimeCall, RuntimeEvent, RuntimeHoldReason,
+    RuntimeOrigin, System, Timestamp, TrustBackedAssetsInstance,
 };
     };
 }

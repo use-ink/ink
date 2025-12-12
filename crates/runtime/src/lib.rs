@@ -53,9 +53,12 @@ pub use {
     pallet_assets,
     pallet_assets_precompiles,
     pallet_balances,
+    pallet_nfts,
     pallet_revive,
     pallet_timestamp,
     pallet_transaction_payment,
+    pallet_xcm,
+    pallet_xcm_precompiles,
     paste,
     scale,
     sp_core::crypto::Ss58Codec,
@@ -64,6 +67,9 @@ pub use {
         Extension,
     },
     sp_io::TestExternalities,
+    xcm,
+    xcm_builder,
+    xcm_executor,
 };
 
 pub use client::{
