@@ -34,6 +34,7 @@ pub mod codegen;
 pub use ink_env::reflect;
 
 mod contract_ref;
+mod ensure;
 mod env_access;
 mod message_builder;
 pub mod precompiles;
@@ -57,56 +58,24 @@ pub use polkavm_derive::*;
 
 pub mod storage {
     pub mod traits {
-        pub use ink_macro::{
-            Storable,
-            StorableHint,
-            StorageKey,
-            StorageLayout,
-        };
+        pub use ink_macro::{Storable, StorableHint, StorageKey, StorageLayout};
         pub use ink_storage::traits::*;
     }
-    pub use ink_storage::{
-        Lazy,
-        Mapping,
-        StorageVec,
-    };
+    pub use ink_storage::{Lazy, Mapping, StorageVec};
 }
 
 pub use self::{
-    contract_ref::ToAddr,
-    env_access::EnvAccess,
+    contract_ref::ToAddr, env_access::EnvAccess,
     prelude::IIP2_WILDCARD_COMPLEMENT_SELECTOR,
 };
 pub use ink_macro::{
-    Event,
-    EventMetadata,
-    SolDecode,
-    SolEncode,
-    SolErrorDecode,
-    SolErrorEncode,
-    SolErrorMetadata,
-    blake2x256,
-    contract,
-    contract_ref,
-    error,
-    event,
-    scale_derive,
-    selector_bytes,
-    selector_id,
-    storage_item,
-    test,
-    trait_definition,
+    Event, EventMetadata, SolDecode, SolEncode, SolErrorDecode, SolErrorEncode,
+    SolErrorMetadata, blake2x256, contract, contract_ref, error, event, scale_derive,
+    selector_bytes, selector_id, storage_item, test, trait_definition,
 };
 pub use ink_primitives::{
-    Address,
-    ConstructorResult,
-    H160,
-    H256,
-    LangError,
-    MessageResult,
-    SolDecode,
-    SolEncode,
-    U256,
+    Address, ConstructorResult, H160, H256, LangError, MessageResult, SolDecode,
+    SolEncode, U256,
 };
 
 #[cfg(feature = "std")]
