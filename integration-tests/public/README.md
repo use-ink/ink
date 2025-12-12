@@ -13,9 +13,7 @@ The examples are organized into categories to help you navigate from foundationa
 
 - **[`flipper`](basics/flipper)**: The classic "Hello World" of smart contracts. A simple boolean value you can flip.
 - **[`incrementer`](basics/incrementer)**: Demonstrates simple state mutation with integers.
-- **[`dns`](basics/dns)**: Shows how to use the storage `Mapping` type.
 - **[`events`](basics/events)**: Examples of defining and emitting events.
-- **[`terminator`](basics/terminator)**: How to remove a contract from storage using `terminate`.
 
 ### 🪙 Tokens
 *Implementations of standard token interfaces.*
@@ -56,14 +54,29 @@ The examples are organized into categories to help you navigate from foundationa
 - **[`e2e-call`](runtime/e2e-call)**: A contract calling a runtime dispatchable (pallet function).
 - **[`xcm`](runtime/xcm)**: Cross-Consensus Messaging examples.
 - **[`precompile`](runtime/precompile)**: interacting with runtime precompiles.
+- **[`assets-precompile`](runtime/assets-precompile)**: Interacting with the `pallet-assets` precompile.
 
 ### Advanced
 *Complex patterns and niche features.*
 
-- **[`upgradeable`](advanced/upgradeable)**: Contracts that can upgrade their own code (`set_code_hash`).
 - **[`custom-env`](advanced/custom-env)**: Defining custom chain extensions and environment types.
-- **[`fuzzing`](advanced/fuzzing)**: Setup for property-based fuzz testing.
-- **[`debugging`](advanced/debugging)**: Techniques for interpreting debug buffers.
+
+### Use Cases
+*Real-world scenarios and common patterns.*
+
+- **[`dns`](use-cases/dns)**: Shows how to use the storage `Mapping` type.
+
+### Operations
+*Contract maintenance and operational tasks.*
+
+- **[`terminator`](operations/terminator)**: How to remove a contract from storage using `terminate`.
+- **[`upgradeable`](operations/upgradeable)**: Contracts that can upgrade their own code (`set_code_hash`).
+
+### Testing
+*Tools and techniques for testing contracts.*
+
+- **[`fuzzing`](testing/fuzzing)**: Setup for property-based fuzz testing.
+- **[`debugging`](testing/debugging)**: Techniques for interpreting debug buffers.
 
 ## Running the Tests
 
