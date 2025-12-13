@@ -2,7 +2,10 @@
 
 #[ink::contract]
 mod ensure_test {
-    use ink::{U256, ensure};
+    use ink::{
+        U256,
+        ensure,
+    };
 
     /// A simple contract to test the ensure! macro.
     #[ink(storage)]
