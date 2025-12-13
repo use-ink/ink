@@ -34,6 +34,7 @@ pub mod codegen;
 pub use ink_env::reflect;
 
 mod contract_ref;
+mod ensure;
 mod env_access;
 mod message_builder;
 pub mod precompiles;
