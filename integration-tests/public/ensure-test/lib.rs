@@ -109,4 +109,104 @@ mod ensure_test {
             assert!(contract.deposit(U256::from(50)).is_ok());
         }
     }
+    #[cfg(all(test, feature = "e2e-tests"))]
+    mod e2e_tests {
+        use super::*;
+        use ink_e2e::ContractsBackend;
+        type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+        #[ink_e2e::test]
+        async fn e2e_transfer_succeeds(mut client: Client) -> E2EResult<()> {
+            // Deploy the contract
+            let mut constructor = EnsureTestRef::new(U256::from(1000));
+            let contract = client
+                .instantiate("ensure_test", &ink_e2e::alice(), &mut constructor)
+                .submit()
+                .await
+                .expect("instantiate failed");
+            let mut call_builder = contract.call_builder::<EnsureTest>();
+            let transfer = call_builder.transfer(U256::from(500));
+            let result = client
+                .call(&ink_e2e::alice(), &transfer)
+                .submit()
+                .await
+                .expect("transfer should succeed");
+            assert!(result.return_value().is_ok());
+
+            Ok(())
+        }
+        #[ink_e2e::test]
+        async fn e2e_transfer_fails_with_value_must_be_positive(
+            mut client: Client,
+        ) -> E2EResult<()> {
+            // Deploy contract
+            let mut constructor = EnsureTestRef::new(U256::from(1000));
+            let contract = client
+                .instantiate("ensure_test", &ink_e2e::alice(), &mut constructor)
+                .submit()
+                .await
+                .expect("instantiate failed");
+            let mut call_builder = contract.call_builder::<EnsureTest>();
+
+            // Try to transfer zero - should fail
+            let transfer = call_builder.transfer(U256::from(0));
+            let result = client.call(&ink_e2e::alice(), &transfer).dry_run().await?;
+
+            // Check it reverted and decode the error
+            assert!(result.did_revert(), "should revert");
+            let error_data = result.return_data();
+            let decoded_error =
+                <Error as ink::scale::Decode>::decode(&mut &error_data[..])?;
+            assert_eq!(decoded_error, Error::ValueMustBePositive);
+
+            Ok(())
+        }
+        #[ink_e2e::test]
+        async fn e2e_transfer_fails_with_insufficient_balance(
+            mut client: Client,
+        ) -> E2EResult<()> {
+            let mut constructor = EnsureTestRef::new(U256::from(100));
+            let contract = client
+                .instantiate("ensure_test", &ink_e2e::alice(), &mut constructor)
+                .submit()
+                .await
+                .expect("instantiate failed");
+            let mut call_builder = contract.call_builder::<EnsureTest>();
+
+            // Try to transfer more than balance (200 when balance is 100)
+            let transfer = call_builder.transfer(U256::from(200));
+            let result = client.call(&ink_e2e::alice(), &transfer).dry_run().await?;
+
+            assert!(result.did_revert());
+            let error_data = result.return_data();
+            let decoded_error =
+                <Error as ink::scale::Decode>::decode(&mut &error_data[..])?;
+            assert_eq!(decoded_error, Error::InsufficientBalance);
+
+            Ok(())
+        }
+        #[ink_e2e::test]
+        async fn e2e_transfer_fails_with_value_too_large(
+            mut client: Client,
+        ) -> E2EResult<()> {
+            let mut constructor = EnsureTestRef::new(U256::from(2000));
+            let contract = client
+                .instantiate("ensure_test", &ink_e2e::alice(), &mut constructor)
+                .submit()
+                .await
+                .expect("instantiate failed");
+            let mut call_builder = contract.call_builder::<EnsureTest>();
+
+            // Try to transfer more than max (1001 when max is 1000)
+            let transfer = call_builder.transfer(U256::from(1001));
+            let result = client.call(&ink_e2e::alice(), &transfer).dry_run().await?;
+
+            assert!(result.did_revert());
+            let error_data = result.return_data();
+            let decoded_error =
+                <Error as ink::scale::Decode>::decode(&mut &error_data[..])?;
+            assert_eq!(decoded_error, Error::ValueTooLarge);
+
+            Ok(())
+        }
+    }
 }
