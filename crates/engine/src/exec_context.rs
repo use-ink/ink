@@ -61,7 +61,7 @@ impl ExecContext {
         self.callee.expect("no callee has been set")
     }
 
-    /// Resets the execution context
+    /// Resets the execution context.
     pub fn reset(&mut self) {
         *self = Default::default();
     }
