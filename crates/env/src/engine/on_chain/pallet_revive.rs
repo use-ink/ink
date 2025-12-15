@@ -848,8 +848,8 @@ impl EnvBackend for EnvInstance {
     where
         R: for<'a> SolResultEncode<'a>,
     {
-        let encoded = return_value.encode();
-        ext::return_value(flags, &encoded[..]);
+        let len = return_value.encode_to(&mut self.buffer[..]);
+        ext::return_value(flags, &self.buffer[..][..len]);
     }
 
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
