@@ -2,7 +2,7 @@
 
 Welcome to the collection of example smart contracts and integration tests for [ink!](https://github.com/use-ink/ink), the relentless smart contract language for Polkadot and Substrate.
 
-This directory contains a curated set of examples demonstrates everything from basic "Hello World" contracts to advanced upgradeability patterns and cross-chain messaging (XCM).
+This directory contains a curated set of examples demonstrating everything from basic "Hello World" contracts to advanced upgradeability patterns and cross-chain messaging (XCM).
 
 ## Directory Structure
 
@@ -46,6 +46,7 @@ The examples are organized into categories to help you navigate from foundationa
 - **[`complex`](storage/complex)**: Nested structs and Enums in storage.
 - **[`lazyvec`](storage/lazyvec)**: Using `Lazy` vector types for gas optimization.
 - **[`allocator`](storage/allocator)**: Using a custom heap allocator (e.g., `bumpalo`).
+- **[`fallible`](storage/fallible)**: Handling storage errors and fallible operations.
 
 ### Runtime & Chain
 *Interacting with the Substrate chain and runtime.*
@@ -53,24 +54,33 @@ The examples are organized into categories to help you navigate from foundationa
 - **[`call-contract`](runtime/call-contract)**: The runtime calling into a contract.
 - **[`e2e-call`](runtime/e2e-call)**: A contract calling a runtime dispatchable (pallet function).
 - **[`xcm`](runtime/xcm)**: Cross-Consensus Messaging examples.
-- **[`precompile`](runtime/precompile)**: interacting with runtime precompiles.
+- **[`precompile`](runtime/precompile)**: Interacting with runtime precompiles.
 - **[`assets-precompile`](runtime/assets-precompile)**: Interacting with the `pallet-assets` precompile.
 
 ### Advanced
 *Complex patterns and niche features.*
 
 - **[`custom-env`](advanced/custom-env)**: Defining custom chain extensions and environment types.
+- **[`conditional`](advanced/conditional)**: Conditional compilation and feature flags in contracts.
 
 ### Use Cases
 *Real-world scenarios and common patterns.*
 
-- **[`dns`](use-cases/dns)**: Shows how to use the storage `Mapping` type.
+- **[`dns`](use-cases/dns)**: Shows how to use the storage `Mapping` type for a name service.
 
 ### Operations
 *Contract maintenance and operational tasks.*
 
 - **[`terminator`](operations/terminator)**: How to remove a contract from storage using `terminate`.
 - **[`upgradeable`](operations/upgradeable)**: Contracts that can upgrade their own code (`set_code_hash`).
+
+### Misc
+*Miscellaneous examples and utilities.*
+
+- **[`bytes`](misc/bytes)**: working with raw byte buffers and manipulations.
+- **[`multisig`](misc/multisig)**: Basic multi-signature wallet implementation.
+- **[`payment-channel`](misc/payment-channel)**: Simple payment channel implementation.
+- **[`wildcard`](misc/wildcard)**: Using wildcards in selectors or other pattern matching contexts.
 
 ### Testing
 *Tools and techniques for testing contracts.*
@@ -87,8 +97,24 @@ cd basics/flipper
 cargo test
 ```
 
-For End-to-End (E2E) tests that require a running Substrate node (like `substrate-contracts-node`), look for `e2e_tests.rs` files and ensure your environment is set up correctly with the `PINK_Runtime` or a local node.
+### End-to-End (E2E) Tests
+
+For End-to-End (E2E) tests that require a running Substrate node (like `substrate-contracts-node`), look for `e2e_tests.rs` files.
+
+1.  **Install the specific node**: Ensure you have the compatible `substrate-contracts-node` or `PINK_Runtime` installed and in your PATH.
+2.  **Environment Variables**: Set any necessary environment variables as described in the specific example's README.
+3.  **Run with Features**: Some tests might require enabling the `e2e-tests` feature.
+
+```bash
+cargo test --features e2e-tests
+```
 
 ## Contributing
 
 If you are adding a new example, please place it in the most appropriate category directory. Ensure it includes a `README.md` and basic tests.
+
+## Resources
+
+- [ink! Documentation](https://use-ink.github.io/ink-docs/)
+- [Substrate Contracts Node](https://github.com/paritytech/substrate-contracts-node)
+- [Cargo Contract](https://github.com/paritytech/cargo-contract)
