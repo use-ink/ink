@@ -357,7 +357,9 @@ impl TraitRegistry<'_> {
                     let name = message.normalized_name();
                     let signature = sol::utils::call_signature(name, message.inputs());
                     let selector_bytes = quote! {
-                        ::ink::codegen::sol::selector_bytes(#signature)
+                        const {
+                            ::ink::codegen::sol::selector_bytes(#signature)
+                        }
                     };
                     let selector_id = quote!(
                         {
