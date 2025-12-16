@@ -376,11 +376,15 @@ impl CryptoHash for Keccak256 {
 
 pub struct TopicsBuilder<'a> {
     scoped_buffer: ScopedBuffer<'a>,
+    n_topics: usize,
 }
 
 impl<'a> From<ScopedBuffer<'a>> for TopicsBuilder<'a> {
     fn from(scoped_buffer: ScopedBuffer<'a>) -> Self {
-        Self { scoped_buffer }
+        Self {
+            scoped_buffer,
+            n_topics: 0,
+        }
     }
 }
 
@@ -388,7 +392,7 @@ impl<'a, Abi> TopicsBuilderBackend<Abi> for TopicsBuilder<'a>
 where
     Abi: TopicEncoder,
 {
-    type Output = (ScopedBuffer<'a>, &'a mut [u8]);
+    type Output = (ScopedBuffer<'a>, &'a mut [u8], usize);
 
     fn push_topic<T>(&mut self, topic_value: &T)
     where
@@ -408,11 +412,12 @@ where
             <Abi as TopicEncoder>::encode_topic(topic_value)
         };
         self.scoped_buffer.append_bytes(output.as_slice());
+        self.n_topics = self.n_topics.checked_add(1).unwrap();
     }
 
     fn output(mut self) -> Self::Output {
         let encoded_topics = self.scoped_buffer.take_appended();
-        (self.scoped_buffer, encoded_topics)
+        (self.scoped_buffer, encoded_topics, self.n_topics)
     }
 }
 
@@ -1166,13 +1171,13 @@ impl TypedEnvBackend for EnvInstance {
         Evt: Event<Abi>,
         Abi: TopicEncoder,
     {
-        let (mut scope, enc_topics) =
+        let (mut scope, enc_topics, n_topics) =
             event.topics(TopicsBuilder::from(self.scoped_buffer()).into());
-        // TODO: improve
-        let enc_topics = enc_topics
-            .chunks_exact(32)
-            .map(|c| c.try_into().unwrap())
-            .collect::<ink_prelude::vec::Vec<[u8; 32]>>();
+        // SAFETY: `enc_topics` is composed as a contiguous slice of `N` topic encodings
+        // each encoded as `[u8; 32]`.
+        let topics = unsafe {
+            core::slice::from_raw_parts(enc_topics.as_ptr() as *const [u8; 32], n_topics)
+        };
         let enc_data = scope.take_encoded_with(|buffer| {
             let encoded = event.encode_data();
             let len = encoded.len();
@@ -1182,7 +1187,7 @@ impl TypedEnvBackend for EnvInstance {
             len
         });
 
-        ext::deposit_event(&enc_topics[..], enc_data);
+        ext::deposit_event(topics, enc_data);
     }
 
     fn invoke_contract<E, Args, R, Abi>(
