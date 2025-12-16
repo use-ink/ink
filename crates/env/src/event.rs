@@ -40,23 +40,21 @@ pub trait TopicsBuilderBackend<Abi = crate::DefaultAbi> {
 /// Specifies the topic (i.e. indexed event parameter) encoding implementation for
 /// the given ABI.
 pub trait TopicEncoder: private::Sealed + Sized {
-    /// True if the topic hashing implementation requires a buffer.
-    ///
-    /// (e.g. when hashing requires calling a pre-compile).
-    const REQUIRES_BUFFER: bool;
-
     /// Encodes the value as a topic (i.e. an indexed event parameter).
+    // FIXME: (@davidsemakula) Remove when off-chain testing is removed.
     fn encode_topic<T>(value: &T) -> [u8; 32]
     where
         T: AbiEncodeWith<Self>;
 
-    /// Encodes the value as a topic (i.e. an indexed event parameter), utilizing the
-    /// given buffer for hashing (if necessary).
-    fn encode_topic_with_hash_buffer<T>(
-        value: &T,
-        output: &mut [u8; 32],
-        buffer: &mut [u8],
-    ) where
+    /// Encodes the value as a topic (i.e. an indexed event parameter) into the given
+    /// output buffer, while using the other buffer for hashing and/or internal
+    /// dynamic encoding (if necessary).
+    ///
+    /// # Panics
+    ///
+    /// Panics if the buffer is not large enough.
+    fn encode_topic_with_buffers<T>(value: &T, output: &mut [u8; 32], buffer: &mut [u8])
+    where
         T: AbiEncodeWith<Self>;
 }
 

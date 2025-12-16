@@ -63,6 +63,23 @@ pub trait AbiEncodeWith<Abi> {
     fn encode_topic<H>(&self, hasher: H) -> [u8; 32]
     where
         H: Fn(&[u8], &mut [u8; 32]);
+
+    /// Encodes the value as a topic (i.e. an indexed event parameter) into the given
+    /// output buffer, while using the other buffer for internal dynamic encoding (if
+    /// necessary).
+    ///
+    /// # Note
+    ///
+    /// The provided hashing function depends on the ABI i.e.
+    /// - BLAKE2b for ink! ABI
+    /// - Keccak-256 for Solidity ABI
+    ///
+    /// # Panics
+    ///
+    /// Panics if the buffer is not large enough.
+    fn encode_topic_to<H>(&self, hasher: H, output: &mut [u8; 32], buffer: &mut [u8])
+    where
+        H: Fn(&[u8], &mut [u8; 32]);
 }
 
 /// Trait for ABI-specific decoding.
@@ -103,6 +120,20 @@ impl<T: scale::Encode> AbiEncodeWith<Ink> for T {
         }
         output
     }
+
+    fn encode_topic_to<H>(&self, hasher: H, output: &mut [u8; 32], buffer: &mut [u8])
+    where
+        H: Fn(&[u8], &mut [u8; 32]),
+    {
+        let mut sized_output = SizedOutput::from(buffer);
+        scale::Encode::encode_to(self, &mut sized_output);
+        let len = sized_output.len();
+        if len <= 32 {
+            output[..len].copy_from_slice(sized_output.into_buffer());
+        } else {
+            hasher(sized_output.into_buffer(), output);
+        }
+    }
 }
 
 impl<T: scale::Decode> AbiDecodeWith<Ink> for T {
@@ -134,6 +165,13 @@ where
     {
         SolEncode::encode_topic(self, hasher)
     }
+
+    fn encode_topic_to<H>(&self, hasher: H, output: &mut [u8; 32], buffer: &mut [u8])
+    where
+        H: Fn(&[u8], &mut [u8; 32]),
+    {
+        SolEncode::encode_topic_to(self, hasher, output, buffer)
+    }
 }
 
 impl<T: SolDecode> AbiDecodeWith<Sol> for T {
@@ -160,6 +198,11 @@ impl<'a> SizedOutput<'a> {
     /// Returns the number of bytes written to the buffer.
     pub fn len(&self) -> usize {
         self.offset
+    }
+
+    /// Returns the internal mutable byte slice.
+    pub fn into_buffer(self) -> &'a mut [u8] {
+        self.buffer
     }
 }
 

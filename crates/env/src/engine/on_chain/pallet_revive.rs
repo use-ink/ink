@@ -398,20 +398,15 @@ where
     where
         T: AbiEncodeWith<Abi>,
     {
-        let output = if <Abi as TopicEncoder>::REQUIRES_BUFFER {
-            let mut output = [0u8; 32];
-            let split = self.scoped_buffer.split();
-            let buffer = split.take_rest();
-            <Abi as TopicEncoder>::encode_topic_with_hash_buffer(
-                topic_value,
-                &mut output,
-                buffer,
-            );
-            output
-        } else {
-            <Abi as TopicEncoder>::encode_topic(topic_value)
-        };
-        self.scoped_buffer.append_bytes(output.as_slice());
+        let mut output = [0u8; 32];
+        let split = self.scoped_buffer.split();
+        let buffer = split.take_rest();
+        <Abi as TopicEncoder>::encode_topic_with_buffers(
+            topic_value,
+            &mut output,
+            buffer,
+        );
+        self.scoped_buffer.append_bytes(&output);
         self.n_topics = self.n_topics.checked_add(1).unwrap();
     }
 
@@ -422,8 +417,6 @@ where
 }
 
 impl TopicEncoder for Ink {
-    const REQUIRES_BUFFER: bool = true;
-
     fn encode_topic<T>(_value: &T) -> [u8; 32]
     where
         T: AbiEncodeWith<Self>,
@@ -431,11 +424,8 @@ impl TopicEncoder for Ink {
         panic!("Blake2x256 hashing requires calling a pre-compile and a buffer");
     }
 
-    fn encode_topic_with_hash_buffer<T>(
-        value: &T,
-        output: &mut [u8; 32],
-        buffer: &mut [u8],
-    ) where
+    fn encode_topic_with_buffers<T>(value: &T, output: &mut [u8; 32], buffer: &mut [u8])
+    where
         T: AbiEncodeWith<Self>,
     {
         let mut scoped_buffer = ScopedBuffer::from(buffer);
@@ -461,8 +451,6 @@ impl TopicEncoder for Ink {
 }
 
 impl TopicEncoder for Sol {
-    const REQUIRES_BUFFER: bool = false;
-
     fn encode_topic<T>(value: &T) -> [u8; 32]
     where
         T: AbiEncodeWith<Self>,
@@ -470,16 +458,11 @@ impl TopicEncoder for Sol {
         value.encode_topic(<Keccak256 as CryptoHash>::hash)
     }
 
-    fn encode_topic_with_hash_buffer<T>(
-        _value: &T,
-        _output: &mut [u8; 32],
-        _buffer: &mut [u8],
-    ) where
+    fn encode_topic_with_buffers<T>(value: &T, output: &mut [u8; 32], buffer: &mut [u8])
+    where
         T: AbiEncodeWith<Self>,
     {
-        panic!(
-            "Keccak-256 hashing can be done without a buffer, by calling a host function"
-        );
+        value.encode_topic_to(<Keccak256 as CryptoHash>::hash, output, buffer);
     }
 }
 
