@@ -168,7 +168,7 @@ where
             self.message,
             self.value,
             gas_limit,
-            dry_run.exec_result.storage_deposit.charge_or_zero(),
+            dry_run.exec_result.max_storage_deposit.charge_or_zero(),
         )
         .await?;
 
@@ -329,7 +329,7 @@ where
             self.constructor,
             self.value,
             gas_limit,
-            dry_run.contract_result.storage_deposit.charge_or_zero(),
+            dry_run.contract_result.max_storage_deposit.charge_or_zero(),
         )
         .await?;
 
