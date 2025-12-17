@@ -460,15 +460,18 @@ where
 
         let result = ContractResult::<InstantiateReturnValue, E::Balance> {
             // TODO: mismatch in dependencies
-            gas_consumed: Weight::from_parts(
+            weight_consumed: Weight::from_parts(
                 dry_run_result.gas_consumed.ref_time(),
                 dry_run_result.gas_consumed.proof_size(),
             ),
-            gas_required: Weight::from_parts(
+            weight_required: Weight::from_parts(
                 dry_run_result.gas_required.ref_time(),
                 dry_run_result.gas_required.proof_size(),
             ),
             storage_deposit: to_revive_storage_deposit(dry_run_result.storage_deposit),
+            // TODO: mismatch in dependencies
+            max_storage_deposit: Default::default(),
+            gas_consumed: Default::default(),
             result: dry_run_result
                 .result
                 .map_err(|_e| sp_runtime::DispatchError::Other("RuntimeError")) // TODO: mismatch in dependencies
@@ -671,15 +674,18 @@ where
         Ok(CallDryRunResult {
             exec_result: ContractExecResultFor::<E> {
                 // TODO: mismatch in dependencies
-                gas_consumed: Weight::from_parts(
+                weight_consumed: Weight::from_parts(
                     result.gas_consumed.ref_time(),
                     result.gas_consumed.proof_size(),
                 ),
-                gas_required: Weight::from_parts(
+                weight_required: Weight::from_parts(
                     result.gas_required.ref_time(),
                     result.gas_required.proof_size(),
                 ),
                 storage_deposit: to_revive_storage_deposit(result.storage_deposit),
+                // TODO: mismatch in dependencies.
+                max_storage_deposit: Default::default(),
+                gas_consumed: Default::default(),
                 result: result
                     .result
                     .map_err(|_e| sp_runtime::DispatchError::Other("RuntimeError")) // TODO: mismatch in dependencies
