@@ -1061,7 +1061,27 @@ jobs:
               workflow_conclusion: ""
               search_artifacts: true
 
-        - name: Collect Contract Sizes (with the ABI set in the contract)
+        - name: Download master artifact (Solidity ABI)
+          uses: dawidd6/action-download-artifact@v9
+          with:
+            workflow: ci.yml
+            branch: master
+            name: measurements-sol-abi-master
+            # Use any workflow that contains the artifact, regardless of the workflow conclusion
+            workflow_conclusion: ""
+            search_artifacts: true
+
+        - name: Download master artifact ("all" ABI)
+          uses: dawidd6/action-download-artifact@v9
+          with:
+            workflow: ci.yml
+            branch: master
+            name: measurements-all-abi-master
+            # Use any workflow that contains the artifact, regardless of the workflow conclusion
+            workflow_conclusion: ""
+            search_artifacts: true
+
+        - name: Compare Contract Sizes to master branch (with the ABI set in the contract)
           run: |
               # Build the comparison table
               echo "---master:"
@@ -1074,10 +1094,42 @@ jobs:
               echo "---branch:"
               cat measurements-${{ env.MEASUREMENTS_ID }}
               echo "---"
-              ./scripts/contract_sizes_diff.sh measurements-master measurements-${{ env.MEASUREMENTS_ID }} > contract_sizes_diff.md
-              cat contract_sizes_diff.md
+              ./scripts/contract_sizes_diff.sh measurements-master measurements-${{ env.MEASUREMENTS_ID }} > master_v_pr_contract_sizes_diff.md
+              cat master_v_pr_contract_sizes_diff.md
 
-        - name: Collect Contract Sizes (with enforced Solidity ABI)
+        - name: Compare Contract Sizes to master branch (with enforced Solidity ABI)
+          run: |
+            # Build the comparison table
+            echo "---master with solidity abi:"
+            cat measurements-sol-abi-master
+            if [[ ! -s "measurements-sol-abi-master" ]]; then
+              echo "measurements-sol-abi-master is empty! It seems the CI job"
+              echo "to collect contract sizes was not run on master."
+              exit 1
+            fi
+            echo "---branch with solidity abi:"
+            cat measurements-sol-abi-${{ env.MEASUREMENTS_ID }}
+            echo "---"
+            ./scripts/contract_sizes_diff.sh measurements-sol-abi-master measurements-sol-abi-${{ env.MEASUREMENTS_ID }} > master_v_pr_abi_sol_contract_sizes_diff.md
+            cat master_v_pr_abi_sol_contract_sizes_diff.md
+
+        - name: Compare Contract Sizes to master branch (with enforced "all" ABI mode)
+          run: |
+            # Build the comparison table
+            echo "---master with all abi:"
+            cat measurements-all-abi-master
+            if [[ ! -s "measurements-all-abi-master" ]]; then
+              echo "measurements-all-abi-master is empty! It seems the CI job"
+              echo "to collect contract sizes was not run on master."
+              exit 1
+            fi
+            echo "---branch with all abi:"
+            cat measurements-all-abi-${{ env.MEASUREMENTS_ID }}
+            echo "---"
+            ./scripts/contract_sizes_diff.sh measurements-all-abi-master measurements-all-abi-${{ env.MEASUREMENTS_ID }} > master_v_pr_abi_all_contract_sizes_diff.md
+            cat master_v_pr_abi_all_contract_sizes_diff.md
+
+        - name: Compare PR Contract Sizes (for the ABI set in contract vs enforced Solidity ABI)
           run: |
               # Build the comparison table
               echo "---branch with abi specified in contract:"
@@ -1085,10 +1137,10 @@ jobs:
               echo "---branch with solidity abi:"
               cat measurements-sol-abi-${{ env.MEASUREMENTS_ID }}
               echo "---"
-              ./scripts/contract_sizes_diff.sh measurements-${{ env.MEASUREMENTS_ID }} measurements-sol-abi-${{ env.MEASUREMENTS_ID }} > abi_sol_contract_sizes_diff.md
-              cat abi_sol_contract_sizes_diff.md
+              ./scripts/contract_sizes_diff.sh measurements-${{ env.MEASUREMENTS_ID }} measurements-sol-abi-${{ env.MEASUREMENTS_ID }} > pr_abi_ink_v_sol_contract_sizes_diff.md
+              cat pr_abi_ink_v_sol_contract_sizes_diff.md
 
-        - name: Collect Contract Sizes (with enforced "all" ABI)
+        - name: Compare PR Contract Sizes (for the ABI set in contract vs enforced "all" ABI mode)
           run: |
               # Build the comparison table
               echo "---branch with abi specified in contract:"
@@ -1096,8 +1148,8 @@ jobs:
               echo "---branch with all abi:"
               cat measurements-all-abi-${{ env.MEASUREMENTS_ID }}
               echo "---"
-              ./scripts/contract_sizes_diff.sh measurements-${{ env.MEASUREMENTS_ID }} measurements-all-abi-${{ env.MEASUREMENTS_ID }} > abi_all_contract_sizes_diff.md
-              cat abi_all_contract_sizes_diff.md
+              ./scripts/contract_sizes_diff.sh measurements-${{ env.MEASUREMENTS_ID }} measurements-all-abi-${{ env.MEASUREMENTS_ID }} > pr_abi_ink_v_all_contract_sizes_diff.md
+              cat pr_abi_ink_v_all_contract_sizes_diff.md
 
         - name: Create CSV
           run: |
@@ -1127,4 +1179,4 @@ jobs:
 
               # Submit the comparison table as a comment to the PR
               echo "Submitting contract sizes diff to ${PR_COMMENTS_URL}"
-              GITHUB_PR_TOKEN=${GITHUB_PR_TOKEN} .github/scripts/contract_sizes_submit.sh ${PR_COMMENTS_URL} ${WORKFLOW_URL} ${{ steps.extract_github.outputs.head_in_branch }}${head_in_branch} ./contract_sizes_diff.md ./abi_sol_contract_sizes_diff.md ./abi_all_contract_sizes_diff.md ./mermaid_diagram.md
+              GITHUB_PR_TOKEN=${GITHUB_PR_TOKEN} .github/scripts/contract_sizes_submit.sh ${PR_COMMENTS_URL} ${WORKFLOW_URL} ${{ steps.extract_github.outputs.head_in_branch }}${head_in_branch} ./master_v_pr_contract_sizes_diff.md ./master_v_pr_abi_sol_contract_sizes_diff.md ./master_v_pr_abi_all_contract_sizes_diff.md ./pr_abi_ink_v_sol_contract_sizes_diff.md ./pr_abi_ink_v_all_contract_sizes_diff.md ./mermaid_diagram.md
