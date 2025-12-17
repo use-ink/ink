@@ -108,7 +108,7 @@ impl From<Weight> for sp_weights::Weight {
 pub struct InstantiateWithCode<E: Environment> {
     #[codec(compact)]
     value: E::Balance,
-    gas_limit: Weight,
+    weight_limit: Weight,
     #[codec(compact)]
     storage_deposit_limit: E::Balance,
     code: Vec<u8>,
@@ -125,7 +125,7 @@ pub struct Call<E: Environment> {
     dest: Address,
     #[codec(compact)]
     value: E::Balance,
-    gas_limit: Weight,
+    weight_limit: Weight,
     #[codec(compact)]
     storage_deposit_limit: E::Balance,
     data: Vec<u8>,
@@ -526,7 +526,7 @@ where
             "instantiate_with_code",
             InstantiateWithCode::<E> {
                 value,
-                gas_limit,
+                weight_limit: gas_limit,
                 storage_deposit_limit,
                 code,
                 data,
@@ -654,9 +654,9 @@ where
             crate::xts::Call::<E> {
                 dest,
                 value,
-                gas_limit: Weight {
-                    ref_time: dry_run_result.gas_required.ref_time(),
-                    proof_size: dry_run_result.gas_required.proof_size(),
+                weight_limit: Weight {
+                    ref_time: dry_run_result.weight_required.ref_time(),
+                    proof_size: dry_run_result.weight_required.proof_size(),
                 },
                 storage_deposit_limit,
                 data,
@@ -706,7 +706,7 @@ where
             Call::<E> {
                 dest: contract,
                 value,
-                gas_limit,
+                weight_limit: gas_limit,
                 storage_deposit_limit,
                 data,
             },

@@ -156,7 +156,7 @@ where
         let gas_limit = if let Some(limit) = self.gas_limit {
             limit
         } else {
-            let gas_required = dry_run.exec_result.gas_required;
+            let gas_required = dry_run.exec_result.weight_required;
             let proof_size = gas_required.proof_size();
             let ref_time = gas_required.ref_time();
             calculate_weight(proof_size, ref_time, self.extra_gas_portion)
@@ -316,7 +316,7 @@ where
         let gas_limit = if let Some(limit) = self.gas_limit {
             limit
         } else {
-            let gas_required = dry_run.contract_result.gas_required;
+            let gas_required = dry_run.contract_result.weight_required;
             let proof_size = gas_required.proof_size();
             let ref_time = gas_required.ref_time();
             calculate_weight(proof_size, ref_time, self.extra_gas_portion)
