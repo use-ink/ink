@@ -468,9 +468,13 @@ where
                 dry_run_result.gas_required.ref_time(),
                 dry_run_result.gas_required.proof_size(),
             ),
-            storage_deposit: to_revive_storage_deposit(dry_run_result.storage_deposit),
+            storage_deposit: to_revive_storage_deposit(
+                dry_run_result.storage_deposit.clone(),
+            ),
             // TODO: mismatch in dependencies
-            max_storage_deposit: Default::default(),
+            max_storage_deposit: to_revive_storage_deposit(
+                dry_run_result.storage_deposit,
+            ),
             gas_consumed: Default::default(),
             result: dry_run_result
                 .result
@@ -682,9 +686,11 @@ where
                     result.gas_required.ref_time(),
                     result.gas_required.proof_size(),
                 ),
-                storage_deposit: to_revive_storage_deposit(result.storage_deposit),
+                storage_deposit: to_revive_storage_deposit(
+                    result.storage_deposit.clone(),
+                ),
                 // TODO: mismatch in dependencies.
-                max_storage_deposit: Default::default(),
+                max_storage_deposit: to_revive_storage_deposit(result.storage_deposit),
                 gas_consumed: Default::default(),
                 result: result
                     .result
