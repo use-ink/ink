@@ -25,7 +25,7 @@ async fn instantiate_and_get(mut client: Client) -> E2EResult<()> {
         .call(&ink_e2e::bob(), &call_builder.flip())
         .dry_run()
         .await?;
-    let gas_required = flip_dry_run.exec_result.gas_required;
+    let gas_required = flip_dry_run.exec_result.weight_required;
     // todo do same thing as above with storage_deposit_limit
 
     // call pallet dispatchable
