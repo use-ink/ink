@@ -66,18 +66,18 @@ pub type ContractInstantiateResultFor<E> =
 #[derive(Debug, Clone, Eq, PartialEq, Encode, Decode)]
 pub struct ContractResult<R, Balance> {
     /// How much weight was consumed during execution.
-    pub gas_consumed: Weight,
+    pub weight_consumed: Weight,
     /// How much weight is required as gas limit in order to execute this call.
     ///
     /// This value should be used to determine the weight limit for on-chain execution.
     ///
     /// # Note
     ///
-    /// This can only different from [`Self::gas_consumed`] when weight pre-charging
+    /// This can only different from [`Self::weight_consumed`] when weight pre-charging
     /// is used. Currently, only `seal_call_runtime` makes use of pre-charging.
     /// Additionally, any `seal_call` or `seal_instantiate` makes use of pre-charging
     /// when a non-zero `gas_limit` argument is supplied.
-    pub gas_required: Weight,
+    pub weight_required: Weight,
     /// How much balance was paid by the origin into the contract's deposit account in
     /// order to pay for storage.
     ///
@@ -85,6 +85,12 @@ pub struct ContractResult<R, Balance> {
     /// [`Self::result`] is `Err`. This is because on error all storage changes are
     /// rolled back including the payment of the deposit.
     pub storage_deposit: StorageDeposit<Balance>,
+    /// The maximal storage deposit amount that occured at any time during the execution.
+    /// This can be higher than the final storage_deposit due to refunds
+    /// This is always a StorageDeposit::Charge(..)
+    pub max_storage_deposit: StorageDeposit<Balance>,
+    /// The amount of Ethereum gas that has been consumed during execution.
+    pub gas_consumed: Balance,
     /// The execution result of the code.
     pub result: Result<R, DispatchError>,
 }
