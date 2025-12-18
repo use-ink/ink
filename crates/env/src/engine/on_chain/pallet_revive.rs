@@ -496,12 +496,8 @@ impl EnvInstance {
     where
         T: FromLittleEndian,
     {
-        let mut scope = self.scoped_buffer();
-        let u256: &mut [u8; 32] = scope
-            .take(32)
-            .try_into()
-            .expect("failed to take 32 bytes from buffer");
-        ext_fn(u256);
+        let mut u256 = [0u8; 32];
+        ext_fn(&mut u256);
         let mut result = <T as FromLittleEndian>::Bytes::default();
         let len = result.as_ref().len();
         result.as_mut()[..].copy_from_slice(&u256[..len]);
@@ -625,12 +621,12 @@ fn call_storage_precompile(
 ///
 /// Returns the number of bytes written to `out`.
 fn decode_bytes(input: &[u8], out: &mut [u8]) -> usize {
-    let mut buf = [0u8; 4];
-    buf[..].copy_from_slice(&input[28..32]);
     debug_assert_eq!(
         {
             // offset
-            u32::from_be_bytes(buf) as usize
+            let mut buf = [0u8; 4];
+            buf[..].copy_from_slice(&input[28..32]);
+            u32::from_be_bytes(buf)
         },
         64
     );
@@ -998,13 +994,9 @@ impl EnvBackend for EnvInstance {
 // TODO remove anything with hash
 impl TypedEnvBackend for EnvInstance {
     fn caller(&mut self) -> Address {
-        let mut scope = self.scoped_buffer();
-
-        let h160: &mut [u8; 20] = scope.take(20).try_into().unwrap();
-        ext::caller(h160);
-        // TODO: check decode, I think this could just be from_le_bytes
-        scale::Decode::decode(&mut &h160[..])
-            .expect("The executed contract must have a caller with a valid account id.")
+        let mut h160 = [0u8; 20];
+        ext::caller(&mut h160);
+        h160.into()
     }
 
     fn gas_limit(&mut self) -> u64 {
@@ -1028,48 +1020,39 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn chain_id(&mut self) -> U256 {
-        let mut scope = self.scoped_buffer();
-        let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();
-
-        ext::chain_id(u256);
-        U256::from_le_bytes(*u256)
+        let mut u256 = [0u8; 32];
+        ext::chain_id(&mut u256);
+        U256::from_le_bytes(u256)
     }
 
     fn balance_of(&mut self, addr: Address) -> U256 {
-        let mut scope = self.scoped_buffer();
-        let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();
-
+        let mut u256 = [0u8; 32];
         let addr = addr.as_fixed_bytes();
 
-        ext::balance_of(&addr, u256);
-        U256::from_le_bytes(*u256)
+        ext::balance_of(&addr, &mut u256);
+        U256::from_le_bytes(u256)
     }
 
     fn base_fee(&mut self) -> U256 {
-        let mut scope = self.scoped_buffer();
-        let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();
-
-        ext::base_fee(u256);
-        U256::from_le_bytes(*u256)
+        let mut u256 = [0u8; 32];
+        ext::base_fee(&mut u256);
+        U256::from_le_bytes(u256)
     }
 
     fn origin(&mut self) -> Address {
-        let mut scope = self.scoped_buffer();
-        let h160: &mut [u8; 20] = scope.take(20).try_into().unwrap();
-
-        ext::origin(h160);
+        let mut h160 = [0u8; 20];
+        ext::origin(&mut h160);
         h160.into()
     }
 
     fn code_size(&mut self, addr: Address) -> u64 {
         let addr = addr.as_fixed_bytes();
-
         ext::code_size(addr)
     }
 
     fn block_hash<E: Environment>(&mut self, block_number: E::BlockNumber) -> H256 {
         let mut scope = self.scoped_buffer();
-        let output: &mut [u8; 32] = scope.take(32).try_into().unwrap();
+        let mut output = [0u8; 32];
 
         let block_number = {
             let mut bytes = [0u8; 32];
@@ -1079,26 +1062,20 @@ impl TypedEnvBackend for EnvInstance {
             bytes
         };
 
-        ext::block_hash(&block_number, output);
-        H256::from_slice(output)
+        ext::block_hash(&block_number, &mut output);
+        H256::from(output)
     }
 
     fn block_author(&mut self) -> Address {
-        let h160 = {
-            let mut scope = self.scoped_buffer();
-            let h160: &mut [u8; 20] = scope.take(20).try_into().unwrap();
-            ext::block_author(h160);
-            *h160
-        };
+        let mut h160 = [0u8; 20];
+        ext::block_author(&mut h160);
         h160.into()
     }
 
     fn transferred_value(&mut self) -> U256 {
-        let mut scope = self.scoped_buffer();
-        let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();
-
-        ext::value_transferred(u256);
-        U256::from_le_bytes(*u256)
+        let mut u256 = [0u8; 32];
+        ext::value_transferred(&mut u256);
+        U256::from_le_bytes(u256)
     }
 
     fn block_timestamp<E: Environment>(&mut self) -> E::Timestamp {
@@ -1106,12 +1083,8 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn account_id<E: Environment>(&mut self) -> E::AccountId {
-        let h160 = {
-            let mut scope = self.scoped_buffer();
-            let h160: &mut [u8; 20] = scope.take(20).try_into().unwrap();
-            ext::address(h160);
-            *h160
-        };
+        let mut h160 = [0u8; 20];
+        ext::address(&mut h160);
         self.to_account_id::<E>(h160.into())
     }
 
@@ -1142,18 +1115,17 @@ impl TypedEnvBackend for EnvInstance {
             Some(&mut &mut output[..]),
         );
 
-        let account_id: &mut [u8; 32] = scope.take(32).try_into().unwrap();
-        let n = decode_bytes(&output[..], &mut account_id[..]);
+        let mut account_id = [0u8; 32];
+        let n = decode_bytes(&output[..], &mut account_id);
         debug_assert_eq!(n, 32, "length of decoded bytes must be 32");
         scale::Decode::decode(&mut &account_id[..])
             .expect("A contract being executed must have a valid account id.")
     }
 
     fn address(&mut self) -> Address {
-        let mut scope = self.scoped_buffer();
-        let h160: &mut [u8; 20] = scope.take(20).try_into().unwrap();
-        ext::address(h160);
-        Address::from_slice(h160)
+        let mut h160 = [0u8; 20];
+        ext::address(&mut h160);
+        h160.into()
     }
 
     fn balance(&mut self) -> U256 {
@@ -1227,13 +1199,10 @@ impl TypedEnvBackend for EnvInstance {
         let proof_size_limit = params.proof_size_limit();
         let storage_deposit_limit = params.storage_deposit_limit();
 
-        let enc_storage_limit = to_u256(&mut scope, storage_deposit_limit);
+        let enc_storage_limit = to_u256(storage_deposit_limit);
 
-        let enc_callee: &[u8; 20] = params.callee().as_ref().try_into().unwrap();
-        let mut enc_transferred_value = EncodeScope::from(scope.take(32));
-        scale::Encode::encode_to(&params.transferred_value(), &mut enc_transferred_value);
-        let enc_transferred_value: &mut [u8; 32] =
-            enc_transferred_value.into_buffer().try_into().unwrap();
+        let enc_callee = params.callee().as_fixed_bytes();
+        let enc_transferred_value = params.transferred_value().to_little_endian();
         let call_flags = params.call_flags();
         let enc_input = if !call_flags.contains(CallFlags::FORWARD_INPUT)
             && !call_flags.contains(CallFlags::CLONE_INPUT)
@@ -1250,7 +1219,7 @@ impl TypedEnvBackend for EnvInstance {
             ref_time_limit,
             proof_size_limit,
             &enc_storage_limit,
-            enc_transferred_value,
+            &enc_transferred_value,
             enc_input,
             Some(output),
         );
@@ -1280,7 +1249,7 @@ impl TypedEnvBackend for EnvInstance {
             &mut []
         };
         let deposit_limit = params.deposit_limit();
-        let deposit_limit = remove_option(&mut scope, *deposit_limit);
+        let deposit_limit = remove_option(*deposit_limit);
 
         let output = &mut scope.take_rest();
         let flags = params.call_flags();
@@ -1321,28 +1290,15 @@ impl TypedEnvBackend for EnvInstance {
 
         let ref_time_limit = params.ref_time_limit();
         let proof_size_limit = params.proof_size_limit();
-        let storage_deposit_limit = params.storage_deposit_limit().map(|limit| {
-            let mut enc_storage_limit = EncodeScope::from(scoped.take(32));
-            scale::Encode::encode_to(&limit, &mut enc_storage_limit);
-            let enc_storage_limit: [u8; 32] =
-                enc_storage_limit.into_buffer().try_into().unwrap();
-            enc_storage_limit
-        });
-        let enc_storage_limit = remove_option(&mut scoped, storage_deposit_limit);
+        let storage_deposit_limit =
+            params.storage_deposit_limit().map(U256::to_little_endian);
+        let enc_storage_limit = remove_option(storage_deposit_limit);
 
-        // todo encodings here are mostly unnecessary, as the type is already 32 bytes
-        let enc_code_hash: &mut [u8; 32] = scoped
-            .take_encoded(params.code_hash())
-            .try_into()
-            .expect("unable to take 32 for code_hash");
-        let mut enc_endowment = EncodeScope::from(scoped.take(32));
-        scale::Encode::encode_to(&params.endowment(), &mut enc_endowment);
-        let enc_endowment: &mut [u8; 32] =
-            enc_endowment.into_buffer().try_into().unwrap();
+        let enc_code_hash = params.code_hash().as_fixed_bytes();
+        let enc_endowment = params.endowment().to_little_endian();
         let enc_input = scoped
             .take_encoded_with(|buffer| params.exec_input().encode_to_slice(buffer));
-        let mut out_address: [u8; 20] =
-            scoped.take(20).try_into().expect("unable to take 20");
+        let mut out_address = [0u8; 20];
         let salt = params.salt_bytes().as_ref();
 
         let input_and_code_hash = scoped.take(32 + enc_input.len());
@@ -1355,7 +1311,7 @@ impl TypedEnvBackend for EnvInstance {
             ref_time_limit,
             proof_size_limit,
             &enc_storage_limit,
-            enc_endowment,
+            &enc_endowment,
             input_and_code_hash,
             Some(&mut out_address),
             Some(&mut output_data),
@@ -1371,28 +1327,18 @@ impl TypedEnvBackend for EnvInstance {
 
     #[cfg(feature = "unstable-hostfn")]
     fn terminate_contract(&mut self, beneficiary: Address) -> ! {
-        let buffer: &mut [u8; 20] = self.scoped_buffer().take_encoded(&beneficiary)
-            [0..20]
-            .as_mut()
-            .try_into()
-            .unwrap();
-        ext::terminate(buffer);
+        ext::terminate(beneficiary.as_fixed_bytes());
     }
 
     fn transfer<E>(&mut self, destination: Address, value: U256) -> Result<()>
     where
         E: Environment,
     {
-        let mut scope = self.scoped_buffer();
-        let enc_callee: &[u8; 20] = destination.as_ref().try_into().unwrap();
-        let mut enc_value = EncodeScope::from(scope.take(32));
-        scale::Encode::encode_to(&value, &mut enc_value);
-        let enc_value: &mut [u8; 32] = enc_value.into_buffer().try_into().unwrap();
+        let enc_callee = destination.as_fixed_bytes();
+        let enc_value = value.to_little_endian();
+        let enc_limit = U256::MAX.to_little_endian();
 
-        let mut enc_limit = EncodeScope::from(scope.take(32));
-        scale::Encode::encode_to(&U256::MAX, &mut enc_limit);
-        let enc_limit: &mut [u8; 32] = enc_limit.into_buffer().try_into().unwrap();
-
+        let scope = self.scoped_buffer();
         let output = &mut scope.take_rest();
         #[allow(deprecated)]
         let call_result = ext::call(
@@ -1400,8 +1346,8 @@ impl TypedEnvBackend for EnvInstance {
             enc_callee,
             u64::MAX,
             u64::MAX,
-            enc_limit,
-            enc_value,
+            &enc_limit,
+            &enc_value,
             &[],
             Some(output),
         );
@@ -1416,10 +1362,9 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn weight_to_fee(&mut self, gas: u64) -> U256 {
-        let mut scope = self.scoped_buffer();
-        let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();
-        ext::weight_to_fee(gas, gas, u256);
-        U256::from_le_bytes(*u256)
+        let mut u256 = [0u8; 32];
+        ext::weight_to_fee(gas, gas, &mut u256);
+        U256::from_le_bytes(u256)
     }
 
     fn is_contract(&mut self, addr: &Address) -> bool {
@@ -1428,24 +1373,20 @@ impl TypedEnvBackend for EnvInstance {
 
     fn caller_is_origin(&mut self) -> bool {
         let sel = const { solidity_selector("callerIsOrigin()") };
-        let output: &mut [u8; 32] =
-            &mut self.scoped_buffer().take(32).try_into().unwrap();
-        call_bool_precompile(sel, output)
+        let mut output = [0u8; 32];
+        call_bool_precompile(sel, &mut output)
     }
 
     fn caller_is_root(&mut self) -> bool {
         let sel = const { solidity_selector("callerIsRoot()") };
-        let output: &mut [u8; 32] =
-            &mut self.scoped_buffer().take(32).try_into().unwrap();
-        call_bool_precompile(sel, output)
+        let mut output = [0u8; 32];
+        call_bool_precompile(sel, &mut output)
     }
 
     fn code_hash(&mut self, addr: &Address) -> core::result::Result<H256, CodeHashErr> {
-        let mut scope = self.scoped_buffer();
-        let output: &mut [u8; 32] =
-            scope.take_max_encoded_len::<H256>().try_into().unwrap();
-        ext::code_hash(&addr.0, output);
-        let hash = H256::from_slice(output);
+        let mut output = [0u8; 32];
+        ext::code_hash(&addr.0, &mut output);
+        let hash = H256::from(output);
         // If not a contract, but account exists, then `keccak_256([])` is returned.
         // Otherwise `zero`.
         if hash == H256_ZERO {
@@ -1459,11 +1400,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn own_code_hash(&mut self) -> H256 {
         let sel = const { solidity_selector("ownCodeHash()") };
-        let output: &mut [u8; 32] = &mut self
-            .scoped_buffer()
-            .take_max_encoded_len::<H256>()
-            .try_into()
-            .unwrap();
+        let mut output = [0u8; 32];
 
         const ADDR: [u8; 20] =
             hex_literal::hex!("0000000000000000000000000000000000000900");
@@ -1478,7 +1415,7 @@ impl TypedEnvBackend for EnvInstance {
             Some(&mut &mut output[..]),
         );
         call_result.expect("call host function failed");
-        H256::from_slice(output)
+        H256::from(output)
     }
 
     #[cfg(feature = "xcm")]
@@ -1604,27 +1541,13 @@ impl TypedEnvBackend for EnvInstance {
 }
 
 // todo make this const
-fn to_u256(scope: &mut ScopedBuffer, value: Option<U256>) -> [u8; 32] {
-    let limit = match value {
-        None => U256::MAX,
-        Some(u256) => u256,
-    };
-    let mut enc_storage_limit = EncodeScope::from(scope.take(32));
-    scale::Encode::encode_to(&limit, &mut enc_storage_limit);
-    let enc_storage_limit: [u8; 32] = enc_storage_limit.into_buffer().try_into().unwrap();
-    enc_storage_limit
+fn to_u256(value: Option<U256>) -> [u8; 32] {
+    value.unwrap_or_else(|| U256::MAX).to_little_endian()
 }
 
-fn remove_option(scope: &mut ScopedBuffer, opt: Option<[u8; 32]>) -> [u8; 32] {
-    match opt {
-        None => {
-            let limit = U256::MAX; // corresponds to no deposit limit, defined in `pallet-revive`
-            let mut enc_storage_limit = EncodeScope::from(scope.take(32));
-            scale::Encode::encode_to(&limit, &mut enc_storage_limit);
-            let enc_storage_limit: [u8; 32] =
-                enc_storage_limit.into_buffer().try_into().unwrap();
-            enc_storage_limit
-        }
-        Some(bytes) => bytes,
-    }
+fn remove_option(opt: Option<[u8; 32]>) -> [u8; 32] {
+    opt.unwrap_or_else(|| {
+        // corresponds to no deposit limit, defined in `pallet-revive`
+        U256::MAX.to_little_endian()
+    })
 }
