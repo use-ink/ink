@@ -401,7 +401,7 @@ pub enum DefaultEnvironment {}
 impl Environment for DefaultEnvironment {
     // This number was chosen as it's also what `pallet-revive`
     // chooses by default. It's also the number present in the
-    // `ink_sandbox` and the `ink-node`.
+    // `ink_runtime` and the `ink-node`.
     const NATIVE_TO_ETH_RATIO: u32 = 100_000_000;
 
     // These const's correspond to the settings of Asset Hub and

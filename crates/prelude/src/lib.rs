@@ -34,7 +34,7 @@ use cfg_if::cfg_if;
 /// A well known selector reserved for the message required to be defined
 /// alongside a wildcard selector. See [IIP-2](https://github.com/use-ink/ink/issues/1676).
 ///
-/// Calculated from `selector_bytes!("IIP2_WILDCARD_COMPLEMENT")`
+/// Calculated from `selector_bytes!(Abi::Ink, "IIP2_WILDCARD_COMPLEMENT")`
 pub const IIP2_WILDCARD_COMPLEMENT_SELECTOR: [u8; 4] = [0x9B, 0xAE, 0x9D, 0x5E];
 
 cfg_if! {

@@ -79,9 +79,7 @@ mod misc_evm_getters_hostfns {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_chain_id_works<Client: E2EBackend>(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn e2e_chain_id_works(mut client: Client) -> E2EResult<()> {
             // given
             let contract = client
                 .instantiate(
@@ -109,9 +107,7 @@ mod misc_evm_getters_hostfns {
         }
 
         #[ink_e2e::test]
-        async fn e2e_balance_of_works<Client: E2EBackend>(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn e2e_balance_of_works(mut client: Client) -> E2EResult<()> {
             // given
             let contract = client
                 .instantiate(
@@ -139,9 +135,7 @@ mod misc_evm_getters_hostfns {
         }
 
         #[ink_e2e::test]
-        async fn e2e_base_fee_works<Client: E2EBackend>(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn e2e_base_fee_works(mut client: Client) -> E2EResult<()> {
             // given
             let contract = client
                 .instantiate(
@@ -169,9 +163,7 @@ mod misc_evm_getters_hostfns {
         }
 
         #[ink_e2e::test]
-        async fn e2e_origin_works<Client: E2EBackend>(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn e2e_origin_works(mut client: Client) -> E2EResult<()> {
             // given
             let contract = client
                 .instantiate(
@@ -202,9 +194,7 @@ mod misc_evm_getters_hostfns {
         }
 
         #[ink_e2e::test]
-        async fn e2e_code_size_works<Client: E2EBackend>(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn e2e_code_size_works(mut client: Client) -> E2EResult<()> {
             // given
             let contract = client
                 .instantiate(
@@ -232,9 +222,7 @@ mod misc_evm_getters_hostfns {
         }
 
         #[ink_e2e::test]
-        async fn e2e_block_hash_works<Client: E2EBackend>(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn e2e_block_hash_works(mut client: Client) -> E2EResult<()> {
             // given
             let contract = client
                 .instantiate(
@@ -263,9 +251,7 @@ mod misc_evm_getters_hostfns {
         }
 
         #[ink_e2e::test]
-        async fn e2e_block_author_works<Client: E2EBackend>(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn e2e_block_author_works(mut client: Client) -> E2EResult<()> {
             // given
             let contract = client
                 .instantiate(

@@ -102,7 +102,7 @@ mod call_builder {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_invalid_message_selector_can_be_handled<Client: E2EBackend>(
+        async fn e2e_invalid_message_selector_can_be_handled(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
@@ -125,7 +125,7 @@ mod call_builder {
                 .expect("instantiating `incrementer` failed")
                 .addr;
 
-            let selector = ink::selector_bytes!("invalid_selector");
+            let selector = ink::selector_bytes!(Abi::Ink, "invalid_selector");
             let call = call_builder.delegate(address, selector);
             let call_result = client
                 .call(&origin, &call)
@@ -142,7 +142,7 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_invalid_message_selector_panics_on_invoke<Client: E2EBackend>(
+        async fn e2e_invalid_message_selector_panics_on_invoke(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
@@ -167,7 +167,7 @@ mod call_builder {
 
             // Since `LangError`s can't be handled by the `CallBuilder::invoke()` method
             // we expect this to panic.
-            let selector = ink::selector_bytes!("invalid_selector");
+            let selector = ink::selector_bytes!(Abi::Ink, "invalid_selector");
             let call = call_builder.invoke(address, selector);
             let call_result = client.call(&origin, &call).dry_run().await?;
             assert!(call_result.did_revert());

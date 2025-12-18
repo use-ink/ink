@@ -32,6 +32,7 @@ mod instantiate_contract {
                 .code_hash(code_hash)
                 .endowment(0.into())
                 .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(
+                    Abi::Ink,
                     "new"
                 ))))
                 .salt_bytes(Some(salt_bytes))
@@ -58,6 +59,7 @@ mod instantiate_contract {
                 .code_hash(code_hash)
                 .endowment(0.into())
                 .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(
+                    Abi::Ink,
                     "new"
                 ))))
                 .salt_bytes(Some(salt_bytes))
@@ -82,6 +84,7 @@ mod instantiate_contract {
                 .call(contract1_address)
                 .transferred_value(0.into())
                 .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(
+                    Abi::Ink,
                     "get_x"
                 ))))
                 .returns::<u32>()
@@ -101,6 +104,7 @@ mod instantiate_contract {
                 .call(contract2_address)
                 .transferred_value(0.into())
                 .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(
+                    Abi::Ink,
                     "get_x"
                 ))))
                 .returns::<u32>()
@@ -120,8 +124,11 @@ mod instantiate_contract {
                 .call(contract1_address)
                 .transferred_value(0.into())
                 .exec_input(
-                    ExecutionInput::new(Selector::new(ink::selector_bytes!("set_x")))
-                        .push_arg(new_x),
+                    ExecutionInput::new(Selector::new(ink::selector_bytes!(
+                        Abi::Ink,
+                        "set_x"
+                    )))
+                    .push_arg(new_x),
                 )
                 .returns::<()>()
                 .params();
@@ -140,8 +147,11 @@ mod instantiate_contract {
                 .call(contract2_address)
                 .transferred_value(0.into())
                 .exec_input(
-                    ExecutionInput::new(Selector::new(ink::selector_bytes!("set_x")))
-                        .push_arg(new_x),
+                    ExecutionInput::new(Selector::new(ink::selector_bytes!(
+                        Abi::Ink,
+                        "set_x"
+                    )))
+                    .push_arg(new_x),
                 )
                 .returns::<()>()
                 .params();
@@ -259,6 +269,7 @@ mod instantiate_contract {
                 .code_hash(code_hash2)
                 .endowment(0.into())
                 .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(
+                    Abi::Ink,
                     "new"
                 ))))
                 .returns::<VirtualContractVer1Ref>()
@@ -281,6 +292,7 @@ mod instantiate_contract {
                 .code_hash(code_hash3)
                 .endowment(0.into())
                 .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(
+                    Abi::Ink,
                     "new"
                 ))))
                 .returns::<VirtualContractVer2Ref>()
@@ -306,7 +318,7 @@ mod instantiate_contract {
                     .code_hash(code_hash1)
                     .endowment(0.into())
                     .exec_input(
-                        ExecutionInput::new(Selector::new(ink::selector_bytes!("new")))
+                        ExecutionInput::new(Selector::new(ink::selector_bytes!(Abi::Ink, "new")))
                             //.push_arg(H256::zero()) // todo should result in err, but doesn't
                             .push_arg(delegate_addr)
                             .push_arg(x),
@@ -427,9 +439,7 @@ mod instantiate_contract {
         }
 
         #[ink_e2e::test]
-        async fn test_invoke_delegate_e2e<Client: E2EBackend>(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn test_invoke_delegate_e2e(mut client: Client) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
                 .await;

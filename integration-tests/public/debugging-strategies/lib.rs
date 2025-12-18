@@ -69,6 +69,7 @@ mod debugging_strategies {
                 .code_hash(code_hash)
                 .endowment(0.into())
                 .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(
+                    Abi::Ink,
                     "new"
                 ))))
                 .returns::<FlipperRef>()
@@ -93,6 +94,7 @@ mod debugging_strategies {
                 .call(ink::ToAddr::to_addr(&other))
                 .transferred_value(0.into())
                 .exec_input(ExecutionInput::new(Selector::new(ink::selector_bytes!(
+                    Abi::Ink,
                     "get"
                 ))))
                 .returns::<bool>()
@@ -121,9 +123,7 @@ mod debugging_strategies {
         /// we can have code in the contract that is utilized purely
         /// for testing, but not for release builds.
         #[ink_e2e::test(features = ["debug"])]
-        async fn e2e_debugging_event_emitted<Client: E2EBackend>(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn e2e_debugging_event_emitted(mut client: Client) -> E2EResult<()> {
             // given
             let mut constructor = DebuggingStrategiesRef::new();
             let contract = client
@@ -156,9 +156,7 @@ mod debugging_strategies {
 
         /// This test illustrates how to decode a `Revive::ContractReverted`.
         #[ink_e2e::test(features = ["debug"])]
-        async fn e2e_decode_intentional_revert<Client: E2EBackend>(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn e2e_decode_intentional_revert(mut client: Client) -> E2EResult<()> {
             // given
             let mut constructor = DebuggingStrategiesRef::new();
             let contract = client
@@ -185,9 +183,7 @@ mod debugging_strategies {
 
         /// This test illustrates how to decode a `Revive::ContractReverted`.
         #[ink_e2e::test]
-        async fn e2e_decode_revert<Client: E2EBackend>(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn e2e_decode_revert(mut client: Client) -> E2EResult<()> {
             // given
             let mut constructor = DebuggingStrategiesRef::new();
             let contract = client
@@ -234,7 +230,7 @@ mod debugging_strategies {
 
         /// This test illustrates how to use the `pallet-revive` tracing functionality.
         #[ink_e2e::test]
-        async fn e2e_tracing<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+        async fn e2e_tracing(mut client: Client) -> E2EResult<()> {
             // given
             let mut constructor = DebuggingStrategiesRef::new();
             let contract = client
@@ -312,6 +308,6 @@ mod debugging_strategies {
             Ok(())
         }
 
-        // todo add the same above, but for the sandbox
+        // todo add the same above, but for the runtime backend
     }
 }

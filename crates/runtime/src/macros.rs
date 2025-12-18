@@ -128,11 +128,11 @@ macro_rules! assert_noop {
 
 /// Asserts that the latest contract event matches an expected event.
 ///
-/// This macro verifies that the last emitted contract event from the sandbox
+/// This macro verifies that the last emitted contract event from the runtime
 /// matches the provided expected event.
 ///
 /// # Parameters
-/// - `client` - Mutable reference to the sandbox client
+/// - `client` - Mutable reference to the runtime client
 /// - `event` - The expected event
 #[macro_export]
 macro_rules! assert_last_event {
@@ -211,29 +211,29 @@ impl<
 
 /// Macro creating a minimal runtime with the given name.
 ///
-/// The new macro will automatically implement `crate::Sandbox`.
+/// The new macro will automatically implement `crate::RuntimeEnv`.
 #[macro_export]
-macro_rules! create_sandbox {
+macro_rules! create_runtime {
     ($name:ident) => {
         $crate::paste::paste! {
-            $crate::create_sandbox!($name, [<$name Runtime>], (), {});
+            $crate::create_runtime!($name, [<$name Runtime>], (), {});
         }
     };
     ($name:ident, $debug: ty) => {
         $crate::paste::paste! {
-            $crate::create_sandbox!($name, [<$name Runtime>], $debug, {});
+            $crate::create_runtime!($name, [<$name Runtime>], $debug, {});
         }
     };
     ($name:ident, $debug: ty, { $( $pallet_name:tt : $pallet:ident ),* $(,)? }) => {
         $crate::paste::paste! {
-            $crate::create_sandbox!($name, [<$name Runtime>], $debug, {
+            $crate::create_runtime!($name, [<$name Runtime>], $debug, {
                 $(
                     $pallet_name : $pallet,
                 )*
             });
         }
     };
-    ($sandbox:ident, $runtime:ident, $debug: ty, { $( $pallet_name:tt : $pallet:ident ),* $(,)? }) => {
+    ($runtime_env:ident, $runtime:ident, $debug: ty, { $( $pallet_name:tt : $pallet:ident ),* $(,)? }) => {
 
 // Put all the boilerplate into an auxiliary module
 mod construct_runtime {
@@ -399,11 +399,11 @@ mod construct_runtime {
     pub const INITIAL_BALANCE: u128 = 1_000_000_000_000_000;
     pub const DEFAULT_ACCOUNT: AccountId32 = AccountId32::new([1u8; 32]);
 
-    pub struct $sandbox {
+    pub struct $runtime_env {
         ext: $crate::TestExternalities,
     }
 
-    impl ::std::default::Default for $sandbox {
+    impl ::std::default::Default for $runtime_env {
         fn default() -> Self {
             let ext = $crate::macros::BlockBuilder::<$runtime>::new_ext(vec![(
                 DEFAULT_ACCOUNT,
@@ -413,8 +413,8 @@ mod construct_runtime {
         }
     }
 
-    // Implement `crate::Sandbox` trait
-    impl $crate::Sandbox for $sandbox {
+    // Implement `crate::RuntimeEnv` trait
+    impl $crate::RuntimeEnv for $runtime_env {
         type Runtime = $runtime;
 
         fn execute_with<T>(&mut self, execute: impl FnOnce() -> T) -> T {
@@ -492,11 +492,11 @@ mod construct_runtime {
 
 // Export runtime type itself, pallets and useful types from the auxiliary module
 pub use construct_runtime::{
-    $sandbox, $runtime, Assets, AssetIdForTrustBackedAssets, Balances, Revive, PalletInfo,
+    $runtime_env, $runtime, Assets, AssetIdForTrustBackedAssets, Balances, Revive, PalletInfo,
     RuntimeCall, RuntimeEvent, RuntimeHoldReason, RuntimeOrigin, System, Timestamp,
     TrustBackedAssetsInstance,
 };
     };
 }
 
-create_sandbox!(DefaultSandbox);
+create_runtime!(DefaultRuntime);

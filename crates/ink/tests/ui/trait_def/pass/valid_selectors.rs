@@ -25,13 +25,16 @@ fn main() {
         ( $message_id:literal, $expected_selector:expr $(,)? ) => {
             assert_eq!(
                 <<TraitDefinitionRegistry<DefaultEnvironment> as TraitDefinition>::__ink_TraitInfo
-                    as TraitMessageInfo<{selector_id!($message_id)}>>::SELECTOR,
+                    as TraitMessageInfo<{selector_id!(Abi::Ink, $message_id)}>>::SELECTOR,
                     $expected_selector
             );
         }
     }
 
-    assert_selector_eq!("message1", selector_bytes!("TraitDefinition::message1"),);
+    assert_selector_eq!(
+        "message1",
+        selector_bytes!(Abi::Ink, "TraitDefinition::message1"),
+    );
     assert_selector_eq!("message2", [0, 0, 0, 42],);
     assert_selector_eq!("message3", [0xC0, 0xDE, 0xCA, 0xFE],);
 }

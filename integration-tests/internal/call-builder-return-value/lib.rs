@@ -121,9 +121,7 @@ mod call_builder {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_delegate_call_return_value_returns_correct_value<
-            Client: E2EBackend,
-        >(
+        async fn e2e_delegate_call_return_value_returns_correct_value(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
@@ -147,7 +145,7 @@ mod call_builder {
                 .expect("instantiating `incrementer` failed")
                 .addr;
 
-            let selector = ink::selector_bytes!("get");
+            let selector = ink::selector_bytes!(Abi::Ink, "get");
             let call = call_builder.delegate_call(address, selector);
             let call_result = client
                 .call(&origin, &call)
@@ -165,9 +163,7 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_delegate_call_return_value_errors_if_return_data_too_long<
-            Client: E2EBackend,
-        >(
+        async fn e2e_delegate_call_return_value_errors_if_return_data_too_long(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
@@ -190,7 +186,7 @@ mod call_builder {
                 .expect("instantiating `incrementer` failed")
                 .addr;
 
-            let selector = ink::selector_bytes!("get");
+            let selector = ink::selector_bytes!(Abi::Ink, "get");
             let call = call_builder.delegate_call_short_return_type(address, selector);
             let call_result: Result<i8, String> =
                 client.call(&origin, &call).dry_run().await?.return_value();
@@ -209,9 +205,7 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_forward_call_return_value_returns_correct_value<
-            Client: E2EBackend,
-        >(
+        async fn e2e_forward_call_return_value_returns_correct_value(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
@@ -234,7 +228,7 @@ mod call_builder {
                 .await
                 .expect("instantiate failed");
 
-            let selector = ink::selector_bytes!("get");
+            let selector = ink::selector_bytes!(Abi::Ink, "get");
             let call = call_builder.forward_call(incrementer.addr, selector);
             let call_result = client
                 .call(&origin, &call)
@@ -252,9 +246,7 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_forward_call_return_value_errors_if_return_data_too_long<
-            Client: E2EBackend,
-        >(
+        async fn e2e_forward_call_return_value_errors_if_return_data_too_long(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
@@ -277,7 +269,7 @@ mod call_builder {
                 .await
                 .expect("instantiate failed");
 
-            let selector = ink::selector_bytes!("get");
+            let selector = ink::selector_bytes!(Abi::Ink, "get");
             let call =
                 call_builder.forward_call_short_return_type(incrementer.addr, selector);
             let call_result: Result<i8, String> =

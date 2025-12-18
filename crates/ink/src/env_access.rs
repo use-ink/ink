@@ -1098,7 +1098,7 @@ where
     ///         .storage_deposit_limit(ink::U256::from(500_000_000_000u64))
     ///         .endowment(25.into())
     ///         .exec_input(
-    ///             ExecutionInput::new(Selector::new(ink::selector_bytes!("new")))
+    ///             ExecutionInput::new(Selector::new(ink::selector_bytes!(Abi::Ink, "new")))
     ///                 .push_arg(42)
     ///                 .push_arg(true)
     ///                 .push_arg(&[0x10u8; 32]),

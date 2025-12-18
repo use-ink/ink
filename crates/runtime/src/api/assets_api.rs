@@ -1,7 +1,7 @@
 use crate::{
     AccountIdFor,
     IntoAccountId,
-    Sandbox,
+    RuntimeEnv,
 };
 use frame_support::{
     pallet_prelude::DispatchError,
@@ -23,12 +23,12 @@ use frame_support::{
 type AssetIdOf<T, I> = <T as pallet_assets::Config<I>>::AssetId;
 type AssetBalanceOf<T, I> = <T as pallet_assets::Config<I>>::Balance;
 
-/// Assets API for the sandbox.
+/// Assets API for the runtime.
 ///
 /// Provides methods to create, mint, and manage assets in `pallet-assets`.
 pub trait AssetsAPI<T, I = pallet_assets::Instance1>
 where
-    T: Sandbox,
+    T: RuntimeEnv,
     T::Runtime: pallet_assets::Config<I>,
     I: 'static,
 {
@@ -168,7 +168,7 @@ where
 
 impl<T, I> AssetsAPI<T, I> for T
 where
-    T: Sandbox,
+    T: RuntimeEnv,
     T::Runtime: pallet_assets::Config<I>,
     I: 'static,
 {
@@ -323,56 +323,56 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::DefaultSandbox;
+    use crate::DefaultRuntime;
 
     #[test]
     fn create_works() {
-        let mut sandbox = DefaultSandbox::default();
-        let admin = DefaultSandbox::default_actor();
+        let mut runtime = DefaultRuntime::default();
+        let admin = DefaultRuntime::default_actor();
         let asset_id = 1u32;
         let min_balance = 1u128;
 
-        let result = sandbox.create(&asset_id, &admin, min_balance);
+        let result = runtime.create(&asset_id, &admin, min_balance);
 
         assert!(result.is_ok());
-        assert!(sandbox.asset_exists(&asset_id));
+        assert!(runtime.asset_exists(&asset_id));
     }
 
     #[test]
     fn set_metadata_works() {
-        let mut sandbox = DefaultSandbox::default();
-        let admin = DefaultSandbox::default_actor();
+        let mut runtime = DefaultRuntime::default();
+        let admin = DefaultRuntime::default_actor();
         let asset_id = 1u32;
 
-        sandbox.create(&asset_id, &admin, 1u128).unwrap();
+        runtime.create(&asset_id, &admin, 1u128).unwrap();
 
         let name = b"Test Token".to_vec();
         let symbol = b"TEST".to_vec();
         let decimals = 18u8;
 
-        let result = sandbox.set_metadata(&asset_id, &admin, name, symbol, decimals);
+        let result = runtime.set_metadata(&asset_id, &admin, name, symbol, decimals);
 
         assert!(result.is_ok());
     }
 
     #[test]
     fn metadata_works() {
-        let mut sandbox = DefaultSandbox::default();
-        let admin = DefaultSandbox::default_actor();
+        let mut runtime = DefaultRuntime::default();
+        let admin = DefaultRuntime::default_actor();
         let asset_id = 1u32;
 
-        sandbox.create(&asset_id, &admin, 1u128).unwrap();
+        runtime.create(&asset_id, &admin, 1u128).unwrap();
 
         let name = b"Test Token".to_vec();
         let symbol = b"TEST".to_vec();
         let decimals = 18u8;
 
-        sandbox
+        runtime
             .set_metadata(&asset_id, &admin, name.clone(), symbol.clone(), decimals)
             .unwrap();
 
         let (retrieved_name, retrieved_symbol, retrieved_decimals) =
-            sandbox.metadata(&asset_id);
+            runtime.metadata(&asset_id);
 
         assert_eq!(retrieved_name, name);
         assert_eq!(retrieved_symbol, symbol);
@@ -381,64 +381,64 @@ mod tests {
 
     #[test]
     fn approve_works() {
-        let mut sandbox = DefaultSandbox::default();
-        let admin = DefaultSandbox::default_actor();
+        let mut runtime = DefaultRuntime::default();
+        let admin = DefaultRuntime::default_actor();
         let spender = ink_e2e::bob().into_account_id();
         let asset_id = 1u32;
 
-        sandbox.create(&asset_id, &admin, 1u128).unwrap();
-        sandbox.mint_into(&asset_id, &admin, 1000u128).unwrap();
+        runtime.create(&asset_id, &admin, 1u128).unwrap();
+        runtime.mint_into(&asset_id, &admin, 1000u128).unwrap();
 
-        let allowance_before = sandbox.allowance(&asset_id, &admin, &spender);
+        let allowance_before = runtime.allowance(&asset_id, &admin, &spender);
         assert_eq!(allowance_before, 0);
 
-        let result = sandbox.approve(&asset_id, &admin, &spender, 500u128);
+        let result = runtime.approve(&asset_id, &admin, &spender, 500u128);
 
         assert!(result.is_ok());
 
-        let allowance_after = sandbox.allowance(&asset_id, &admin, &spender);
+        let allowance_after = runtime.allowance(&asset_id, &admin, &spender);
         assert_eq!(allowance_after, 500);
     }
 
     #[test]
     fn mint_into_works() {
-        let mut sandbox = DefaultSandbox::default();
-        let admin = DefaultSandbox::default_actor();
+        let mut runtime = DefaultRuntime::default();
+        let admin = DefaultRuntime::default_actor();
         let asset_id = 1u32;
 
-        sandbox.create(&asset_id, &admin, 1u128).unwrap();
+        runtime.create(&asset_id, &admin, 1u128).unwrap();
 
-        let balance_before = sandbox.balance_of(&asset_id, &admin);
+        let balance_before = runtime.balance_of(&asset_id, &admin);
         assert_eq!(balance_before, 0);
 
-        sandbox.mint_into(&asset_id, &admin, 100u128).unwrap();
+        runtime.mint_into(&asset_id, &admin, 100u128).unwrap();
 
-        let balance_after = sandbox.balance_of(&asset_id, &admin);
+        let balance_after = runtime.balance_of(&asset_id, &admin);
         assert_eq!(balance_after, 100);
     }
 
     #[test]
     fn transfer_works() {
-        let mut sandbox = DefaultSandbox::default();
-        let admin = DefaultSandbox::default_actor();
+        let mut runtime = DefaultRuntime::default();
+        let admin = DefaultRuntime::default_actor();
         let recipient = ink_e2e::bob().into_account_id();
         let asset_id = 1u32;
 
-        sandbox.create(&asset_id, &admin, 1u128).unwrap();
-        sandbox.mint_into(&asset_id, &admin, 1000u128).unwrap();
+        runtime.create(&asset_id, &admin, 1u128).unwrap();
+        runtime.mint_into(&asset_id, &admin, 1000u128).unwrap();
 
-        let admin_balance_before = sandbox.balance_of(&asset_id, &admin);
-        let recipient_balance_before = sandbox.balance_of(&asset_id, &recipient);
+        let admin_balance_before = runtime.balance_of(&asset_id, &admin);
+        let recipient_balance_before = runtime.balance_of(&asset_id, &recipient);
 
         assert_eq!(admin_balance_before, 1000);
         assert_eq!(recipient_balance_before, 0);
 
-        let result = sandbox.transfer(&asset_id, &admin, &recipient, 300u128);
+        let result = runtime.transfer(&asset_id, &admin, &recipient, 300u128);
 
         assert!(result.is_ok());
 
-        let admin_balance_after = sandbox.balance_of(&asset_id, &admin);
-        let recipient_balance_after = sandbox.balance_of(&asset_id, &recipient);
+        let admin_balance_after = runtime.balance_of(&asset_id, &admin);
+        let recipient_balance_after = runtime.balance_of(&asset_id, &recipient);
 
         assert_eq!(admin_balance_after, 700);
         assert_eq!(recipient_balance_after, 300);
@@ -446,68 +446,68 @@ mod tests {
 
     #[test]
     fn balance_of_works() {
-        let mut sandbox = DefaultSandbox::default();
-        let admin = DefaultSandbox::default_actor();
+        let mut runtime = DefaultRuntime::default();
+        let admin = DefaultRuntime::default_actor();
         let asset_id = 1u32;
 
-        sandbox.create(&asset_id, &admin, 1u128).unwrap();
+        runtime.create(&asset_id, &admin, 1u128).unwrap();
 
-        let balance = sandbox.balance_of(&asset_id, &admin);
+        let balance = runtime.balance_of(&asset_id, &admin);
         assert_eq!(balance, 0);
 
-        sandbox.mint_into(&asset_id, &admin, 500u128).unwrap();
+        runtime.mint_into(&asset_id, &admin, 500u128).unwrap();
 
-        let balance = sandbox.balance_of(&asset_id, &admin);
+        let balance = runtime.balance_of(&asset_id, &admin);
         assert_eq!(balance, 500);
     }
 
     #[test]
     fn total_supply_works() {
-        let mut sandbox = DefaultSandbox::default();
-        let admin = DefaultSandbox::default_actor();
+        let mut runtime = DefaultRuntime::default();
+        let admin = DefaultRuntime::default_actor();
         let asset_id = 1u32;
 
-        sandbox.create(&asset_id, &admin, 1u128).unwrap();
+        runtime.create(&asset_id, &admin, 1u128).unwrap();
 
-        let supply_before = sandbox.total_supply(&asset_id);
+        let supply_before = runtime.total_supply(&asset_id);
         assert_eq!(supply_before, 0);
 
-        sandbox.mint_into(&asset_id, &admin, 1000u128).unwrap();
+        runtime.mint_into(&asset_id, &admin, 1000u128).unwrap();
 
-        let supply_after = sandbox.total_supply(&asset_id);
+        let supply_after = runtime.total_supply(&asset_id);
         assert_eq!(supply_after, 1000);
     }
 
     #[test]
     fn allowance_works() {
-        let mut sandbox = DefaultSandbox::default();
-        let admin = DefaultSandbox::default_actor();
+        let mut runtime = DefaultRuntime::default();
+        let admin = DefaultRuntime::default_actor();
         let spender = ink_e2e::bob().into_account_id();
         let asset_id = 1u32;
 
-        sandbox.create(&asset_id, &admin, 1u128).unwrap();
+        runtime.create(&asset_id, &admin, 1u128).unwrap();
 
-        let allowance = sandbox.allowance(&asset_id, &admin, &spender);
+        let allowance = runtime.allowance(&asset_id, &admin, &spender);
         assert_eq!(allowance, 0);
 
-        sandbox
+        runtime
             .approve(&asset_id, &admin, &spender, 250u128)
             .unwrap();
 
-        let allowance = sandbox.allowance(&asset_id, &admin, &spender);
+        let allowance = runtime.allowance(&asset_id, &admin, &spender);
         assert_eq!(allowance, 250);
     }
 
     #[test]
     fn asset_exists_works() {
-        let mut sandbox = DefaultSandbox::default();
-        let admin = DefaultSandbox::default_actor();
+        let mut runtime = DefaultRuntime::default();
+        let admin = DefaultRuntime::default_actor();
         let asset_id = 1u32;
 
-        assert!(!sandbox.asset_exists(&asset_id));
+        assert!(!runtime.asset_exists(&asset_id));
 
-        sandbox.create(&asset_id, &admin, 1u128).unwrap();
+        runtime.create(&asset_id, &admin, 1u128).unwrap();
 
-        assert!(sandbox.asset_exists(&asset_id));
+        assert!(runtime.asset_exists(&asset_id));
     }
 }

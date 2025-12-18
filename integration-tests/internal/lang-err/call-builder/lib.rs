@@ -176,7 +176,7 @@ mod call_builder {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_invalid_message_selector_can_be_handled<Client: E2EBackend>(
+        async fn e2e_invalid_message_selector_can_be_handled(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
@@ -203,7 +203,7 @@ mod call_builder {
             let get_call_result = client.call(&origin, &flipper_get).dry_run().await?;
             let initial_value = get_call_result.return_value();
 
-            let selector = ink::selector_bytes!("invalid_selector");
+            let selector = ink::selector_bytes!(Abi::Ink, "invalid_selector");
             let call = call_builder.call(flipper.addr, selector);
             let call_result = client
                 .call(&origin, &call)
@@ -227,7 +227,7 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_invalid_message_selector_panics_on_invoke<Client: E2EBackend>(
+        async fn e2e_invalid_message_selector_panics_on_invoke(
             mut client: Client,
         ) -> E2EResult<()> {
             let mut constructor = CallBuilderTestRef::new();
@@ -264,7 +264,7 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_create_builder_works_with_valid_selector<Client: E2EBackend>(
+        async fn e2e_create_builder_works_with_valid_selector(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
@@ -286,7 +286,7 @@ mod call_builder {
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
 
-            let selector = ink::selector_bytes!("new");
+            let selector = ink::selector_bytes!(Abi::Ink, "new");
             let init_value = true;
             let call = call_builder.call_instantiate(code_hash, selector, init_value);
             let call_result = client
@@ -305,7 +305,7 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_create_builder_fails_with_invalid_selector<Client: E2EBackend>(
+        async fn e2e_create_builder_fails_with_invalid_selector(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
@@ -327,7 +327,7 @@ mod call_builder {
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
 
-            let selector = ink::selector_bytes!("invalid_selector");
+            let selector = ink::selector_bytes!(Abi::Ink, "invalid_selector");
             let init_value = true;
             let call = call_builder.call_instantiate(code_hash, selector, init_value);
             let call_result = client
@@ -346,9 +346,7 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_create_builder_with_infallible_revert_constructor_encodes_ok<
-            Client: E2EBackend,
-        >(
+        async fn e2e_create_builder_with_infallible_revert_constructor_encodes_ok(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
@@ -370,7 +368,7 @@ mod call_builder {
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
 
-            let selector = ink::selector_bytes!("revert_new");
+            let selector = ink::selector_bytes!(Abi::Ink, "revert_new");
             let init_value = false;
             let call = call_builder.call_instantiate(code_hash, selector, init_value);
 
@@ -385,9 +383,7 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_create_builder_can_handle_fallible_constructor_success<
-            Client: E2EBackend,
-        >(
+        async fn e2e_create_builder_can_handle_fallible_constructor_success(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
@@ -409,7 +405,7 @@ mod call_builder {
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
 
-            let selector = ink::selector_bytes!("try_new");
+            let selector = ink::selector_bytes!(Abi::Ink, "try_new");
             let init_value = true;
             let call =
                 call_builder.call_instantiate_fallible(code_hash, selector, init_value);
@@ -429,9 +425,7 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_create_builder_can_handle_fallible_constructor_error<
-            Client: E2EBackend,
-        >(
+        async fn e2e_create_builder_can_handle_fallible_constructor_error(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
@@ -453,7 +447,7 @@ mod call_builder {
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
 
-            let selector = ink::selector_bytes!("try_new");
+            let selector = ink::selector_bytes!(Abi::Ink, "try_new");
             let init_value = false;
             let call =
                 call_builder.call_instantiate_fallible(code_hash, selector, init_value);
@@ -480,9 +474,7 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_create_builder_with_fallible_revert_constructor_encodes_ok<
-            Client: E2EBackend,
-        >(
+        async fn e2e_create_builder_with_fallible_revert_constructor_encodes_ok(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
@@ -504,7 +496,7 @@ mod call_builder {
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
 
-            let selector = ink::selector_bytes!("try_revert_new");
+            let selector = ink::selector_bytes!(Abi::Ink, "try_revert_new");
             let init_value = true;
             let call =
                 call_builder.call_instantiate_fallible(code_hash, selector, init_value);
@@ -519,9 +511,7 @@ mod call_builder {
         }
 
         #[ink_e2e::test]
-        async fn e2e_create_builder_with_fallible_revert_constructor_encodes_err<
-            Client: E2EBackend,
-        >(
+        async fn e2e_create_builder_with_fallible_revert_constructor_encodes_err(
             mut client: Client,
         ) -> E2EResult<()> {
             let origin = client
@@ -543,7 +533,7 @@ mod call_builder {
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
 
-            let selector = ink::selector_bytes!("try_revert_new");
+            let selector = ink::selector_bytes!(Abi::Ink, "try_revert_new");
             let init_value = false;
             let call =
                 call_builder.call_instantiate_fallible(code_hash, selector, init_value);

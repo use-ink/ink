@@ -3,7 +3,7 @@ use crate::{
     ContractExecResultFor,
     ContractResultInstantiate,
     H256,
-    Sandbox,
+    RuntimeEnv,
     balance_to_evm_value,
 };
 use frame_support::{
@@ -156,13 +156,13 @@ pub trait ContractAPI {
 
 impl<T> ContractAPI for T
 where
-    T: Sandbox,
+    T: RuntimeEnv,
     T::Runtime: pallet_balances::Config + pallet_revive::Config,
     BalanceOf<T::Runtime>: Into<U256> + TryFrom<U256> + Bounded,
     MomentOf<T::Runtime>: Into<U256>,
-    <<T as Sandbox>::Runtime as frame_system::Config>::Nonce: Into<u32>,
+    <<T as RuntimeEnv>::Runtime as frame_system::Config>::Nonce: Into<u32>,
     // todo
-    <<T as Sandbox>::Runtime as frame_system::Config>::Hash:
+    <<T as RuntimeEnv>::Runtime as frame_system::Config>::Hash:
         frame_support::traits::IsType<sp_core::H256>,
 {
     type T = T::Runtime;
@@ -311,7 +311,7 @@ pub fn decode_debug_buffer(buffer: &[u8]) -> Vec<String> {
 mod tests {
     use super::*;
     use crate::{
-        DefaultSandbox,
+        DefaultRuntime,
         RuntimeEventOf,
         api::prelude::*,
     };
@@ -336,23 +336,23 @@ mod tests {
     ///
     /// This function funds the account with the existential deposit
     /// (i.e. minimum balance).
-    fn warm_up<T>(sandbox: &mut T)
+    fn warm_up<T>(runtime: &mut T)
     where
-        <T as Sandbox>::Runtime: pallet_revive::Config + pallet_balances::Config,
-        T: BalanceAPI<T> + Sandbox,
+        <T as RuntimeEnv>::Runtime: pallet_revive::Config + pallet_balances::Config,
+        T: BalanceAPI<T> + RuntimeEnv,
     {
-        let acc = pallet_revive::Pallet::<<T as Sandbox>::Runtime>::account_id();
-        let ed = pallet_balances::Pallet::<<T as Sandbox>::Runtime>::minimum_balance();
-        sandbox.mint_into(&acc, ed).unwrap_or_else(|_| {
+        let acc = pallet_revive::Pallet::<<T as RuntimeEnv>::Runtime>::account_id();
+        let ed = pallet_balances::Pallet::<<T as RuntimeEnv>::Runtime>::minimum_balance();
+        runtime.mint_into(&acc, ed).unwrap_or_else(|_| {
             panic!("Failed to mint existential balance into `pallet-revive` account")
         });
     }
 
     #[test]
     fn can_upload_code() {
-        let mut sandbox = DefaultSandbox::default();
+        let mut runtime = DefaultRuntime::default();
         let contract_binary = compile_module("dummy");
-        warm_up::<DefaultSandbox>(&mut sandbox);
+        warm_up::<DefaultRuntime>(&mut runtime);
 
         use sha3::{
             Digest,
@@ -362,8 +362,8 @@ mod tests {
         let hash = H256::from_slice(hash.as_slice());
 
         let origin =
-            DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
-        let result = sandbox.upload_contract(contract_binary, origin, 100000000000000);
+            DefaultRuntime::convert_account_to_origin(DefaultRuntime::default_actor());
+        let result = runtime.upload_contract(contract_binary, origin, 100000000000000);
 
         assert!(result.is_ok());
         assert_eq!(hash, result.unwrap().code_hash);
@@ -371,37 +371,37 @@ mod tests {
 
     #[test]
     fn can_deploy_contract() {
-        let mut sandbox = DefaultSandbox::default();
+        let mut runtime = DefaultRuntime::default();
         let contract_binary = compile_module("dummy");
 
-        let events_before = sandbox.events();
+        let events_before = runtime.events();
         assert!(events_before.is_empty());
 
-        warm_up::<DefaultSandbox>(&mut sandbox);
+        warm_up::<DefaultRuntime>(&mut runtime);
 
-        let default_actor = DefaultSandbox::default_actor();
-        sandbox.map_account(&default_actor).expect("cannot map");
-        let origin = DefaultSandbox::convert_account_to_origin(default_actor);
-        let result = sandbox.deploy_contract(
+        let default_actor = DefaultRuntime::default_actor();
+        runtime.map_account(&default_actor).expect("cannot map");
+        let origin = DefaultRuntime::convert_account_to_origin(default_actor);
+        let result = runtime.deploy_contract(
             contract_binary.clone(),
             0,
             vec![],
             None,
             origin.clone(),
-            DefaultSandbox::default_gas_limit(),
+            DefaultRuntime::default_gas_limit(),
             100000000000000,
         );
         assert!(result.result.is_ok());
         assert!(!result.result.unwrap().result.did_revert());
 
         // deploying again must fail due to `DuplicateContract`
-        let result = sandbox.deploy_contract(
+        let result = runtime.deploy_contract(
             contract_binary,
             0,
             vec![],
             None,
             origin,
-            DefaultSandbox::default_gas_limit(),
+            DefaultRuntime::default_gas_limit(),
             100000000000000,
         );
         assert!(result.result.is_err());
@@ -411,45 +411,45 @@ mod tests {
 
     #[test]
     fn can_call_contract() {
-        let mut sandbox = DefaultSandbox::default();
-        let _actor = DefaultSandbox::default_actor();
+        let mut runtime = DefaultRuntime::default();
+        let _actor = DefaultRuntime::default_actor();
         let contract_binary = compile_module("dummy");
-        warm_up::<DefaultSandbox>(&mut sandbox);
+        warm_up::<DefaultRuntime>(&mut runtime);
 
-        let default_actor = DefaultSandbox::default_actor();
-        sandbox.map_account(&default_actor).expect("unable to map");
-        let origin = DefaultSandbox::convert_account_to_origin(default_actor);
-        let result = sandbox.deploy_contract(
+        let default_actor = DefaultRuntime::default_actor();
+        runtime.map_account(&default_actor).expect("unable to map");
+        let origin = DefaultRuntime::convert_account_to_origin(default_actor);
+        let result = runtime.deploy_contract(
             contract_binary,
             0,
             vec![],
             None,
             origin.clone(),
-            DefaultSandbox::default_gas_limit(),
+            DefaultRuntime::default_gas_limit(),
             STORAGE_DEPOSIT_LIMIT,
         );
         assert!(!result.result.clone().unwrap().result.did_revert());
 
         let contract_address = result.result.expect("Contract should be deployed").addr;
 
-        sandbox.reset_events();
+        runtime.reset_events();
 
-        let result = sandbox.call_contract(
+        let result = runtime.call_contract(
             contract_address,
             0,
             vec![],
             origin.clone(),
-            DefaultSandbox::default_gas_limit(),
+            DefaultRuntime::default_gas_limit(),
             STORAGE_DEPOSIT_LIMIT,
         );
         assert!(result.result.is_ok());
         assert!(!result.result.unwrap().did_revert());
 
-        let events = sandbox.events();
+        let events = runtime.events();
         assert_eq!(events.len(), 1);
         assert_eq!(
             events[0].event,
-            RuntimeEventOf::<DefaultSandbox>::Revive(
+            RuntimeEventOf::<DefaultRuntime>::Revive(
                 pallet_revive::Event::ContractEmitted {
                     contract: contract_address,
                     topics: vec![H256::from([42u8; 32])],

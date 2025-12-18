@@ -64,7 +64,7 @@ pub mod delegator {
         /// Increment the current value using delegate call.
         #[ink(message)]
         pub fn inc_delegate(&mut self) {
-            let selector = ink::selector_bytes!("inc");
+            let selector = ink::selector_bytes!(Abi::Ink, "inc");
             let _ = build_call::<DefaultEnvironment>()
                 .delegate(self.delegate_to().1)
                 // We specify `CallFlags::TAIL_CALL` to use the delegatee last memory frame
@@ -86,7 +86,7 @@ pub mod delegator {
         /// because `Mapping` updates the storage instantly on-demand.
         #[ink(message)]
         pub fn add_entry_delegate(&mut self) {
-            let selector = ink::selector_bytes!("append_address_value");
+            let selector = ink::selector_bytes!(Abi::Ink, "append_address_value");
             let _ = build_call::<DefaultEnvironment>()
                 .delegate(self.delegate_to().1)
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
@@ -132,9 +132,7 @@ pub mod delegator {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_counter_mutated<Client: E2EBackend>(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn e2e_counter_mutated(mut client: Client) -> E2EResult<()> {
             // given
             let origin = client
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
@@ -203,9 +201,7 @@ pub mod delegator {
         }
 
         #[ink_e2e::test]
-        async fn e2e_mapping_mutated<Client: E2EBackend>(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn e2e_mapping_mutated(mut client: Client) -> E2EResult<()> {
             let origin = client
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
                 .await;
@@ -276,9 +272,7 @@ pub mod delegator {
         }
 
         #[ink_e2e::test]
-        async fn update_delegate<Client: E2EBackend>(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn update_delegate(mut client: Client) -> E2EResult<()> {
             // given
             let origin = client
                 .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)

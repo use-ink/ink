@@ -1676,18 +1676,18 @@ dependencies = [
 
 [[package]]
 name = "const_env"
-version = "0.1.4"
+version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5abf3680e7fff0295abbd53b271930edecadd1c6bf77cc77bf63dc741663a988"
+checksum = "103172f14a86f2e45b8eecae496605e58b347839c739e869ab918154ad7c312e"
 dependencies = [
  "const_env_impl",
 ]
 
 [[package]]
 name = "const_env_impl"
-version = "0.1.4"
+version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "71f9a669d589cdabddc551d8646c02ac055498212de30fc8fc42de30a41a963e"
+checksum = "4ff249495e37c4ae62e9cf56ec642f1a011804500cc1ab6f81268dc5bf907cfe"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3645,7 +3645,7 @@ dependencies = [
  "linkme",
  "pallet-revive-uapi 0.8.0",
  "parity-scale-codec",
- "polkavm-derive 0.29.0",
+ "polkavm-derive 0.30.0",
  "scale-info",
  "sp-io 42.0.0",
  "sp-runtime-interface 31.0.0",
@@ -3675,7 +3675,7 @@ dependencies = [
  "ink_primitives 6.0.0-beta.1",
  "itertools 0.14.0",
  "parity-scale-codec",
- "polkavm-derive 0.29.0",
+ "polkavm-derive 0.30.0",
  "proc-macro2",
  "quote",
  "serde",
@@ -3720,12 +3720,12 @@ dependencies = [
 name = "ink_e2e_macro"
 version = "6.0.0-beta.1"
 dependencies = [
- "darling 0.20.11",
+ "darling 0.21.3",
  "derive_more 2.0.1",
  "ink",
  "ink_e2e",
  "ink_ir",
- "ink_sandbox",
+ "ink_runtime",
  "proc-macro2",
  "quote",
  "syn 2.0.110",
@@ -3744,7 +3744,7 @@ dependencies = [
  "ink_primitives 6.0.0-beta.1",
  "pallet-revive-uapi 0.8.0",
  "parity-scale-codec",
- "secp256k1 0.30.0",
+ "secp256k1 0.31.1",
  "sha2 0.10.9",
  "sha3",
 ]
@@ -3768,12 +3768,12 @@ dependencies = [
  "num-traits",
  "pallet-revive-uapi 0.8.0",
  "parity-scale-codec",
- "polkavm-derive 0.29.0",
+ "polkavm-derive 0.30.0",
  "scale-decode",
  "scale-encode",
  "scale-info",
  "schnorrkel",
- "secp256k1 0.30.0",
+ "secp256k1 0.31.1",
  "sha2 0.10.9",
  "sha3",
  "staging-xcm",
@@ -3786,6 +3786,7 @@ version = "6.0.0-beta.1"
 dependencies = [
  "blake2",
  "either",
+ "hex-literal 1.1.0",
  "impl-serde",
  "ink_prelude 6.0.0-beta.1",
  "itertools 0.14.0",
@@ -3845,13 +3846,6 @@ dependencies = [
  "scale-info",
  "schemars 0.8.22",
  "serde",
-]
-
-[[package]]
-name = "ink_precompiles"
-version = "6.0.0-beta.1"
-dependencies = [
- "ink",
 ]
 
 [[package]]
@@ -3938,16 +3932,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "ink_sandbox"
+name = "ink_runtime"
 version = "6.0.0-beta.1"
 dependencies = [
  "frame-metadata",
  "frame-support 28.0.0",
  "frame-system",
+ "ink",
  "ink_e2e",
  "ink_e2e_macro",
  "ink_env",
- "ink_precompiles",
  "ink_primitives 6.0.0-beta.1",
  "ink_revive_types",
  "jsonrpsee",
@@ -5164,6 +5158,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "picosimd"
+version = "0.9.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af35c838647fef3d6d052e27006ef88ea162336eee33063c50a63f163c18cdeb"
+
+[[package]]
 name = "pin-project"
 version = "1.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5262,6 +5262,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "polkavm-common"
+version = "0.30.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ed1b408db93d4f49f5c651a7844682b9d7a561827b4dc6202c10356076c055c9"
+dependencies = [
+ "picosimd",
+]
+
+[[package]]
 name = "polkavm-derive"
 version = "0.26.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5286,6 +5295,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "37ba6256c003853b6adb5dc8394e0e1882a9545ee3bec4e4ce533e7e4f488825"
 dependencies = [
  "polkavm-derive-impl-macro 0.29.0",
+]
+
+[[package]]
+name = "polkavm-derive"
+version = "0.30.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "acb4463fb0b9dbfafdc1d1a1183df4bf7afa3350d124f29d5700c6bee54556b5"
+dependencies = [
+ "polkavm-derive-impl-macro 0.30.0",
 ]
 
 [[package]]
@@ -5325,6 +5343,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "polkavm-derive-impl"
+version = "0.30.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "993ff45b972e09babe68adce7062c3c38a84b9f50f07b7caf393a023eaa6c74a"
+dependencies = [
+ "polkavm-common 0.30.0",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.110",
+]
+
+[[package]]
 name = "polkavm-derive-impl-macro"
 version = "0.26.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5351,6 +5381,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "10e463de593b485c8685d42737aae81c24005dba967deaaaccbb6f3e936d8596"
 dependencies = [
  "polkavm-derive-impl 0.29.0",
+ "syn 2.0.110",
+]
+
+[[package]]
+name = "polkavm-derive-impl-macro"
+version = "0.30.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0a4f5352e13c1ca5f0e4d7b4a804fbb85b0e02c45cae435d101fe71081bc8ed8"
+dependencies = [
+ "polkavm-derive-impl 0.30.0",
  "syn 2.0.110",
 ]
 
@@ -6283,9 +6323,9 @@ dependencies = [
 
 [[package]]
 name = "scale-decode"
-version = "0.16.0"
+version = "0.16.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4d78196772d25b90a98046794ce0fe2588b39ebdfbdc1e45b4c6c85dd43bebad"
+checksum = "8d6ed61699ad4d54101ab5a817169259b5b0efc08152f8632e61482d8a27ca3d"
 dependencies = [
  "parity-scale-codec",
  "primitive-types 0.13.1",
@@ -6298,9 +6338,9 @@ dependencies = [
 
 [[package]]
 name = "scale-decode-derive"
-version = "0.16.0"
+version = "0.16.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2f4b54a1211260718b92832b661025d1f1a4b6930fbadd6908e00edd265fa5f7"
+checksum = "65cb245f7fdb489e7ba43a616cbd34427fe3ba6fe0edc1d0d250085e6c84f3ec"
 dependencies = [
  "darling 0.20.11",
  "proc-macro2",
@@ -8945,9 +8985,9 @@ checksum = "8df9b6e13f2d32c91b9bd719c00d1958837bc7dec474d94952798cc8e69eeec3"
 
 [[package]]
 name = "tracing"
-version = "0.1.41"
+version = "0.1.43"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "784e0ac535deb450455cbfa28a6f0df145ea1bb7ae51b821cf5e7927fdcfbdd0"
+checksum = "2d15d90a0b5c19378952d479dc858407149d7bb45a14de0142f6c534b16fc647"
 dependencies = [
  "log",
  "pin-project-lite",
@@ -8957,9 +8997,9 @@ dependencies = [
 
 [[package]]
 name = "tracing-attributes"
-version = "0.1.30"
+version = "0.1.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81383ab64e72a7a8b8e13130c49e3dab29def6d0c7d76a03087b3cf71c5c6903"
+checksum = "7490cfa5ec963746568740651ac6781f701c9c5ea257c58e057f3ba8cf69e8da"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -8968,9 +9008,9 @@ dependencies = [
 
 [[package]]
 name = "tracing-core"
-version = "0.1.34"
+version = "0.1.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9d12581f227e93f094d3af2ae690a574abb8a2b9b7a96e7cfe9647b2b617678"
+checksum = "7a04e24fab5c89c6a36eb8558c9656f30d81de51dfa4d3b45f26b21d61fa0a6c"
 dependencies = [
  "once_cell",
  "valuable",

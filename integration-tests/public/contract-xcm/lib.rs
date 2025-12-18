@@ -166,9 +166,7 @@ mod contract_xcm {
         type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn xcm_execute_works<Client: E2EBackend>(
-            mut client: Client,
-        ) -> E2EResult<()> {
+        async fn xcm_execute_works(mut client: Client) -> E2EResult<()> {
             // given
             let mut constructor = ContractXcmRef::new();
             let contract = client
@@ -217,7 +215,7 @@ mod contract_xcm {
         }
 
         #[ink_e2e::test]
-        async fn xcm_execute_failure_detection_works<Client: E2EBackend>(
+        async fn xcm_execute_failure_detection_works(
             mut client: Client,
         ) -> E2EResult<()> {
             // todo @cmichi: This sleep is necessary until we have our `ink-node`
@@ -257,7 +255,7 @@ mod contract_xcm {
         }
 
         #[ink_e2e::test]
-        async fn xcm_send_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+        async fn xcm_send_works(mut client: Client) -> E2EResult<()> {
             // todo @cmichi: This sleep is necessary until we have our `ink-node`
             // support a parachain/relaychain setup. For the moment we use the
             // Rococo runtime for testing the examples locally. That runtime

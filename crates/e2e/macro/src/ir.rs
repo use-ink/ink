@@ -13,10 +13,6 @@
 // limitations under the License.
 
 use crate::config::E2EConfig;
-use darling::{
-    FromMeta,
-    ast::NestedMeta,
-};
 use proc_macro2::TokenStream as TokenStream2;
 
 /// The End-to-End test with all required information.
@@ -38,7 +34,7 @@ impl InkE2ETest {
     /// Returns `Ok` if the test matches all requirements for an
     /// ink! E2E test definition.
     pub fn new(attrs: TokenStream2, input: TokenStream2) -> Result<Self, syn::Error> {
-        let e2e_config = E2EConfig::from_list(&NestedMeta::parse_meta_list(attrs)?)?;
+        let e2e_config = E2EConfig::from_attr_tokens(attrs)?;
         let item_fn = syn::parse2::<syn::ItemFn>(input)?;
         let e2e_fn = E2EFn::from(item_fn);
         Ok(Self {

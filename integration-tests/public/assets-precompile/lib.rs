@@ -1,22 +1,22 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
+pub use ink::precompiles::erc20::AssetId;
 use ink::{
     H160,
     U256,
     prelude::string::ToString,
 };
-pub use ink_precompiles::erc20::{
-    AssetId,
-    erc20,
-};
 
 #[ink::contract]
 mod asset_hub_precompile {
     use super::*;
-    use ink::prelude::string::String;
-    use ink_precompiles::erc20::{
-        Erc20,
-        Erc20Ref,
+    use ink::{
+        precompiles::erc20::{
+            Erc20,
+            Erc20Ref,
+            erc20,
+        },
+        prelude::string::String,
     };
 
     #[ink(storage)]
@@ -189,10 +189,8 @@ mod e2e_tests {
         alice,
         bob,
     };
-    use ink_sandbox::{
-        DefaultSandbox,
+    use ink_runtime::{
         E2EError,
-        SandboxClient,
         api::prelude::{
             AssetsAPI,
             ContractAPI,
@@ -204,11 +202,8 @@ mod e2e_tests {
 
     type E2EResult<T> = std::result::Result<T, E2EError>;
 
-    #[ink_sandbox::test(backend(runtime_only(
-        sandbox = DefaultSandbox,
-        client  = SandboxClient
-    )))]
-    async fn deployment_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+    #[ink_e2e::test(runtime)]
+    async fn deployment_works(mut client: Client) -> E2EResult<()> {
         let asset_id: u32 = 1;
         let mut constructor = AssetHubPrecompileRef::new(asset_id);
 
@@ -229,16 +224,13 @@ mod e2e_tests {
         Ok(())
     }
 
-    #[ink_sandbox::test(backend(runtime_only(
-        sandbox = DefaultSandbox,
-        client  = SandboxClient
-    )))]
-    async fn total_supply_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+    #[ink_e2e::test(runtime)]
+    async fn total_supply_works(mut client: Client) -> E2EResult<()> {
         let asset_id: u32 = 1;
         let admin = alice();
 
-        client.sandbox().create(&asset_id, &admin, 1u128)?;
-        client.sandbox().mint_into(&asset_id, &admin, 1000u128)?;
+        client.runtime().create(&asset_id, &admin, 1u128)?;
+        client.runtime().mint_into(&asset_id, &admin, 1000u128)?;
 
         let contract = client
             .instantiate(
@@ -259,18 +251,15 @@ mod e2e_tests {
         Ok(())
     }
 
-    #[ink_sandbox::test(backend(runtime_only(
-        sandbox = DefaultSandbox,
-        client  = SandboxClient
-    )))]
-    async fn balance_of_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+    #[ink_e2e::test(runtime)]
+    async fn balance_of_works(mut client: Client) -> E2EResult<()> {
         let asset_id: u32 = 1;
         let alice = alice();
         let bob = bob();
 
-        client.sandbox().create(&asset_id, &alice, 1u128)?;
-        client.sandbox().mint_into(&asset_id, &alice, 1000u128)?;
-        client.sandbox().mint_into(&asset_id, &bob, 500u128)?;
+        client.runtime().create(&asset_id, &alice, 1u128)?;
+        client.runtime().mint_into(&asset_id, &alice, 1000u128)?;
+        client.runtime().mint_into(&asset_id, &bob, 500u128)?;
 
         let contract = client
             .instantiate(
@@ -282,7 +271,7 @@ mod e2e_tests {
             .await?;
 
         // Map bob's account otherwise it fails.
-        client.sandbox().map_account(&bob)?;
+        client.runtime().map_account(&bob)?;
 
         let contract_call = contract.call_builder::<AssetHubPrecompile>();
         let alice_balance = client
@@ -299,16 +288,13 @@ mod e2e_tests {
         Ok(())
     }
 
-    #[ink_sandbox::test(backend(runtime_only(
-        sandbox = DefaultSandbox,
-        client  = SandboxClient
-    )))]
-    async fn transfer_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+    #[ink_e2e::test(runtime)]
+    async fn transfer_works(mut client: Client) -> E2EResult<()> {
         let asset_id: u32 = 1;
         let alice = alice();
         let bob = bob();
 
-        client.sandbox().create(&asset_id, &alice, 1u128)?;
+        client.runtime().create(&asset_id, &alice, 1u128)?;
 
         let contract = client
             .instantiate(
@@ -320,9 +306,9 @@ mod e2e_tests {
             .await?;
 
         client
-            .sandbox()
+            .runtime()
             .mint_into(&asset_id, &contract.account_id, 100_000u128)?;
-        client.sandbox().map_account(&bob)?;
+        client.runtime().map_account(&bob)?;
 
         let mut contract_call = contract.call_builder::<AssetHubPrecompile>();
         let bob_address = bob.address();
@@ -346,8 +332,8 @@ mod e2e_tests {
         );
 
         let contract_balance =
-            client.sandbox().balance_of(&asset_id, &contract.account_id);
-        let bob_balance = client.sandbox().balance_of(&asset_id, &bob);
+            client.runtime().balance_of(&asset_id, &contract.account_id);
+        let bob_balance = client.runtime().balance_of(&asset_id, &bob);
         assert_eq!(contract_balance, 99_000u128);
         assert_eq!(bob_balance, 1_000u128);
 
@@ -363,16 +349,13 @@ mod e2e_tests {
         Ok(())
     }
 
-    #[ink_sandbox::test(backend(runtime_only(
-        sandbox = DefaultSandbox,
-        client  = SandboxClient
-    )))]
-    async fn approve_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+    #[ink_e2e::test(runtime)]
+    async fn approve_works(mut client: Client) -> E2EResult<()> {
         let asset_id: u32 = 1;
         let alice = alice();
         let bob = bob();
 
-        client.sandbox().create(&asset_id, &alice, 1u128)?;
+        client.runtime().create(&asset_id, &alice, 1u128)?;
 
         let contract = client
             .instantiate("assets_precompile", &alice, &mut AssetHubPrecompileRef::new(asset_id))
@@ -382,12 +365,12 @@ mod e2e_tests {
             .await?;
 
         client
-            .sandbox()
+            .runtime()
             .mint_into(&asset_id, &contract.account_id, 100_000u128)?;
-        client.sandbox().map_account(&bob)?;
+        client.runtime().map_account(&bob)?;
         let bob_allowance_before =
             client
-                .sandbox()
+                .runtime()
                 .allowance(&asset_id, &contract.account_id, &bob);
         assert_eq!(bob_allowance_before, 0u128); // Bob's allowance is 0
 
@@ -411,23 +394,20 @@ mod e2e_tests {
 
         let bob_allowance =
             client
-                .sandbox()
+                .runtime()
                 .allowance(&asset_id, &contract.account_id, &bob);
         assert_eq!(bob_allowance, 200u128);
 
         Ok(())
     }
 
-    #[ink_sandbox::test(backend(runtime_only(
-        sandbox = DefaultSandbox,
-        client  = SandboxClient
-    )))]
-    async fn allowance_works<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+    #[ink_e2e::test(runtime)]
+    async fn allowance_works(mut client: Client) -> E2EResult<()> {
         let asset_id: u32 = 1;
         let alice = alice();
         let bob = bob();
 
-        client.sandbox().create(&asset_id, &alice, 1u128)?;
+        client.runtime().create(&asset_id, &alice, 1u128)?;
 
         let contract = client
             .instantiate(
@@ -439,15 +419,15 @@ mod e2e_tests {
             .await?;
 
         let contract_call = contract.call_builder::<AssetHubPrecompile>();
-        client.sandbox().mint_into(&asset_id, &alice, 100_000u128)?;
-        client.sandbox().map_account(&bob)?;
+        client.runtime().mint_into(&asset_id, &alice, 100_000u128)?;
+        client.runtime().map_account(&bob)?;
 
         let allowance_call = &contract_call.allowance(alice.address(), bob.address());
         let result = client.call(&alice, allowance_call).dry_run().await?;
         assert_eq!(result.return_value(), U256::from(0));
 
         // Approve bob to spend alice's tokens
-        client.sandbox().approve(&asset_id, &alice, &bob, 300u128)?;
+        client.runtime().approve(&asset_id, &alice, &bob, 300u128)?;
 
         let result = client.call(&alice, allowance_call).dry_run().await?;
         assert_eq!(result.return_value(), U256::from(300));
@@ -455,18 +435,13 @@ mod e2e_tests {
         Ok(())
     }
 
-    #[ink_sandbox::test(backend(runtime_only(
-        sandbox = DefaultSandbox,
-        client  = SandboxClient
-    )))]
-    async fn transfer_from_works<Client: E2EBackend>(
-        mut client: Client,
-    ) -> E2EResult<()> {
+    #[ink_e2e::test(runtime)]
+    async fn transfer_from_works(mut client: Client) -> E2EResult<()> {
         let asset_id: u32 = 1;
         let alice = alice();
         let bob = bob();
 
-        client.sandbox().create(&asset_id, &alice, 1u128)?;
+        client.runtime().create(&asset_id, &alice, 1u128)?;
 
         let contract = client
             .instantiate(
@@ -477,12 +452,12 @@ mod e2e_tests {
             .submit()
             .await?;
 
-        client.sandbox().mint_into(&asset_id, &alice, 100_000u128)?;
+        client.runtime().mint_into(&asset_id, &alice, 100_000u128)?;
         // Approve alice to spend contract's tokens
         client
-            .sandbox()
+            .runtime()
             .approve(&asset_id, &alice, &contract.account_id, 50_000u128)?;
-        client.sandbox().map_account(&bob)?;
+        client.runtime().map_account(&bob)?;
 
         let mut contract_call = contract.call_builder::<AssetHubPrecompile>();
         let alice_address = alice.address();
@@ -505,11 +480,11 @@ mod e2e_tests {
             }
         );
 
-        let alice_balance = client.sandbox().balance_of(&asset_id, &alice);
-        let bob_balance = client.sandbox().balance_of(&asset_id, &bob);
+        let alice_balance = client.runtime().balance_of(&asset_id, &alice);
+        let bob_balance = client.runtime().balance_of(&asset_id, &bob);
         let contract_allowance =
             client
-                .sandbox()
+                .runtime()
                 .allowance(&asset_id, &alice, &contract.account_id);
         assert_eq!(alice_balance, 98_500u128);
         assert_eq!(bob_balance, 1_500u128);

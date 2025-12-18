@@ -29,11 +29,12 @@ serde_json = { workspace = true }
 [features]
 default = ["std"]
 std = [
-    "const-hex/std",
-    "scale/std",
-    "scale-info/std",
-    "ink_primitives/std",
-    "sp-runtime/std",
-    "serde/std",
+	"const-hex/std",
+	"scale/std",
+	"scale-info/std",
+	"ink_primitives/std",
+	"sp-runtime/std",
+	"serde/std",
+	"derive_more/std"
 ]
 

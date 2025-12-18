@@ -11,11 +11,10 @@ members = [
     "crates/ink/ir",
     "crates/ink/macro",
     "crates/metadata",
-    "crates/precompiles",
     "crates/revive-types",
     "crates/prelude",
     "crates/primitives",
-    "crates/sandbox",
+    "crates/runtime",
     "crates/storage",
     "crates/storage/traits"
 ]
@@ -42,7 +41,7 @@ blake2 = { version = "0.10" }
 cargo_metadata = { version = "0.22.0" }
 cfg-if = { version = "1.0" }
 contract-build = { version = "6.0.0-beta.1" }
-darling = { version = "0.20.11" }
+darling = { version = "0.21.3" }
 derive_more = { version = "2.0.1", default-features = false }
 either = { version = "1.13", default-features = false }
 funty = { version = "2.0.0" }
@@ -59,11 +58,11 @@ quickcheck = { version = "1" }
 quickcheck_macros = { version = "1" }
 quote = { version = "1" }
 scale = { package = "parity-scale-codec", version = "3.7.4", default-features = false, features = ["derive"] }
-scale-decode = { version = "0.16.0", default-features = false }
+scale-decode = { version = "0.16.2", default-features = false }
 scale-encode = { version = "0.10.0", default-features = false }
 scale-info = { version = "2.11", default-features = false }
 schemars = { version = "0.8" }
-secp256k1 = { version = "0.30.0" }
+secp256k1 = { version = "0.31.1" }
 serde = { version = "1.0.215", default-features = false }
 serde_json = { version = "1.0.145" }
 sha2 = { version = "0.10" }
@@ -76,12 +75,12 @@ syn = { version = "2" }
 synstructure = { version = "0.13.1" }
 thiserror = { version = "2.0.11" }
 tokio = { version = "1.47.1" }
-tracing = { version = "0.1.41" }
+tracing = { version = "0.1.43" }
 tracing-subscriber = { version = "0.3.20" }
 trybuild = { version = "1.0.110" }
 which = { version = "8.0.0" }
 xxhash-rust = { version = "0.8" }
-const_env = { version = "0.1" }
+const_env = { version = "0.1.5" }
 const-hex = { version = "1.17.0", default-features = false }
 
 # Substrate dependencies
@@ -98,7 +97,7 @@ sp-weights = { version = "33.0.0", default-features = false }
 xcm = { package = "staging-xcm", version = "18.0.0", default-features = false }
 
 # PolkaVM dependencies
-polkavm-derive = { version = "0.29.0", default-features = false }
+polkavm-derive = { version = "0.30.0", default-features = false }
 
 # Solidity dependencies
 alloy-sol-types = { version = "1.4.1", default-features = false }
@@ -116,7 +115,6 @@ ink_env = { version = "=6.0.0-beta.1", path = "crates/env", default-features = f
 ink_ir = { version = "=6.0.0-beta.1", path = "crates/ink/ir", default-features = false }
 ink_macro = { version = "=6.0.0-beta.1", path = "crates/ink/macro", default-features = false }
 ink_metadata = { version = "=6.0.0-beta.1", path = "crates/metadata", default-features = false }
-ink_precompiles = { version = "=6.0.0-beta.1", path = "crates/precompiles", default-features = false }
 ink_prelude = { version = "=6.0.0-beta.1", path = "crates/prelude", default-features = false }
 ink_primitives = { version = "=6.0.0-beta.1", path = "crates/primitives", default-features = false }
 ink_revive_types = {  version = "=6.0.0-beta.1", path = "crates/revive-types", default-features = false }

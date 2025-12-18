@@ -536,7 +536,7 @@ mod erc20 {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_transfer<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+        async fn e2e_transfer(mut client: Client) -> E2EResult<()> {
             // given
             let total_supply = U256::from(1_000_000_000);
             let mut constructor = Erc20Ref::new(total_supply);
@@ -583,7 +583,7 @@ mod erc20 {
         }
 
         #[ink_e2e::test]
-        async fn e2e_allowances<Client: E2EBackend>(mut client: Client) -> E2EResult<()> {
+        async fn e2e_allowances(mut client: Client) -> E2EResult<()> {
             // given
             let total_supply = U256::from(1_000_000_000);
             let mut constructor = Erc20Ref::new(total_supply);

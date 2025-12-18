@@ -62,34 +62,58 @@ pub fn blake2x256(input: TokenStream) -> TokenStream {
     blake2b::generate_blake2x256_hash(input.into()).into()
 }
 
-/// Computes the ink! selector of the string and expands into its `u32` representation.
+/// Computes the selector of the string and expands into its `u32` representation.
 ///
 /// # Note
 ///
-/// The computation takes place at compilation time of the crate.
+/// - The computation takes place at compilation time of the crate.
+/// - Requires an ABI parameter as the first argument to specify the selector computation
+///   method.
+///
+/// # Arguments
+///
+/// - `Abi::Ink`: Uses ink! ABI (BLAKE-2 256-bit hash)
+/// - `Abi::Sol`: Uses Solidity ABI (Keccak-256 hash)
 ///
 /// # Example
 ///
 /// ```
 /// # use ink_macro::selector_id;
-/// assert_eq!(selector_id!("hello"), 843960066,);
+/// # use ink_primitives::abi::Abi;
+/// // ink! ABI (BLAKE-2)
+/// assert_eq!(selector_id!(Abi::Ink, "hello"), 843960066,);
+///
+/// // Solidity ABI (Keccak-256)
+/// assert_eq!(selector_id!(Abi::Sol, "foo()"), 0xc2985578,);
 /// ```
 #[proc_macro]
 pub fn selector_id(input: TokenStream) -> TokenStream {
     selector::generate_selector_id(input.into()).into()
 }
 
-/// Computes the ink! selector of the string and expands into its byte representation.
+/// Computes the selector of the string and expands into its byte representation.
 ///
 /// # Note
 ///
-/// The computation takes place at compilation time of the crate.
+/// - The computation takes place at compilation time of the crate.
+/// - Requires an ABI parameter as the first argument to specify the selector computation
+///   method.
+///
+/// # Arguments
+///
+/// - `Abi::Ink`: Uses ink! ABI (BLAKE-2 256-bit hash)
+/// - `Abi::Sol`: Uses Solidity ABI (Keccak-256 hash)
 ///
 /// # Example
 ///
 /// ```
 /// # use ink_macro::selector_bytes;
-/// assert_eq!(selector_bytes!("hello"), [50, 77, 207, 2],);
+/// # use ink_primitives::abi::Abi;
+/// // ink! ABI (BLAKE-2)
+/// assert_eq!(selector_bytes!(Abi::Ink, "hello"), [50, 77, 207, 2],);
+///
+/// // Solidity ABI (Keccak-256)
+/// assert_eq!(selector_bytes!(Abi::Sol, "hello"), [0x1c, 0x8a, 0xff, 0x95],);
 /// ```
 #[proc_macro]
 pub fn selector_bytes(input: TokenStream) -> TokenStream {

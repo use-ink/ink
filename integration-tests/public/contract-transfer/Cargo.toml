@@ -10,7 +10,7 @@ ink = { path = "../../../crates/ink", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e"}
-ink_sandbox = { path = "../../../crates/sandbox" }
+ink_runtime = { path = "../../../crates/runtime" }
 
 [lib]
 path = "lib.rs"
