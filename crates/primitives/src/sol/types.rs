@@ -276,20 +276,39 @@ pub trait SolTopicEncode: private::Sealed {
     where
         H: Fn(&[u8], &mut [u8; 32]),
     {
-        let mut buffer = Vec::with_capacity(self.topic_preimage_size());
-        self.topic_preimage(&mut buffer);
         let mut output = [0u8; 32];
-        hasher(buffer.as_slice(), &mut output);
+        let mut buffer = ink_prelude::vec![0u8; self.topic_preimage_size()];
+        <_ as SolTopicEncode>::encode_topic_to(self, hasher, &mut output, &mut buffer);
         output
     }
 
-    /// Encode this type as input bytes for the hasher, when this type is member of a
-    /// complex topic type (e.g. a member of array or struct/tuple).
-    fn topic_preimage(&self, buffer: &mut Vec<u8>);
+    /// Solidity ABI encode the value as a topic (i.e. an indexed event parameter) into
+    /// the given output buffer, while using the other buffer for internal dynamic
+    /// encoding (if necessary).
+    ///
+    /// # Panics
+    ///
+    /// Panics if the buffer is not large enough.
+    fn encode_topic_to<H>(&self, hasher: H, output: &mut [u8; 32], buffer: &mut [u8])
+    where
+        H: Fn(&[u8], &mut [u8; 32]),
+    {
+        let len = self.topic_preimage(buffer);
+        hasher(&buffer[..len], output);
+    }
+
+    /// Encode this type as input bytes for the hasher and returns the number of bytes
+    /// written, where this type is member of a complex topic type (e.g. a member of
+    /// array or struct/tuple).
+    ///
+    /// # Panics
+    ///
+    /// Panics if the buffer is not large enough.
+    fn topic_preimage(&self, buffer: &mut [u8]) -> usize;
 
     /// [`Self::topic_preimage`] equivalent for the default value representation of this
     /// type.
-    fn default_topic_preimage(buffer: &mut Vec<u8>);
+    fn default_topic_preimage(buffer: &mut [u8]) -> usize;
 
     /// Size in bytes of the [`Self::topic_preimage`] encoding of this type.
     fn topic_preimage_size(&self) -> usize;
@@ -324,16 +343,25 @@ macro_rules! impl_topic_encode_word {
                     self.tokenize().0
                 }
 
-                fn topic_preimage(&self, buffer: &mut Vec<u8>) {
-                    buffer.extend(self.tokenize().0);
+                fn encode_topic_to<H>(&self, _: H, output: &mut [u8; 32], _: &mut [u8])
+                where
+                    H: Fn(&[u8], &mut [u8; 32]),
+                {
+                    output[..32].copy_from_slice(self.tokenize().0.as_slice());
                 }
 
-                fn default_topic_preimage(buffer: &mut Vec<u8>) {
-                    buffer.extend([0u8; 32]);
+                fn topic_preimage(&self, buffer: &mut [u8]) -> usize {
+                    buffer[..32].copy_from_slice(self.tokenize().0.as_slice());
+                    32
+                }
+
+                fn default_topic_preimage(buffer: &mut [u8]) -> usize {
+                    buffer[..32].fill(0);
+                    32
                 }
 
                 fn topic_preimage_size(&self) -> usize {
-                    Self::default_topic_preimage_size()
+                    32
                 }
 
                 fn default_topic_preimage_size() -> usize {
@@ -427,12 +455,20 @@ macro_rules! impl_str_encode {
                     output
                 }
 
-                fn topic_preimage(&self, buffer: &mut Vec<u8>) {
-                    append_non_empty_member_topic_bytes(self.as_bytes(), buffer);
+                fn encode_topic_to<H>(&self, hasher: H, output: &mut [u8; 32], _: &mut [u8])
+                where
+                    H: Fn(&[u8], &mut [u8; 32]),
+                {
+                    hasher(self.as_bytes(), output);
                 }
 
-                fn default_topic_preimage(buffer: &mut Vec<u8>) {
-                    buffer.extend([0u8; 32]);
+                fn topic_preimage(&self, buffer: &mut [u8]) -> usize {
+                    append_non_empty_member_topic_bytes(self.as_bytes(), buffer)
+                }
+
+                fn default_topic_preimage(buffer: &mut [u8]) -> usize {
+                    buffer[..32].fill(0);
+                    32
                 }
 
                 fn topic_preimage_size(&self) -> usize {
@@ -572,21 +608,27 @@ impl<T: SolTypeEncode, const N: usize> SolTypeEncode for [T; N] {
 }
 
 impl<T: SolTopicEncode, const N: usize> SolTopicEncode for [T; N] {
-    fn topic_preimage(&self, buffer: &mut Vec<u8>) {
+    fn topic_preimage(&self, buffer: &mut [u8]) -> usize {
+        let mut offset = 0;
         for item in self {
-            item.topic_preimage(buffer);
+            let len = item.topic_preimage(&mut buffer[offset..]);
+            offset = offset.checked_add(len).unwrap();
         }
+        offset
     }
 
-    fn default_topic_preimage(buffer: &mut Vec<u8>) {
+    fn default_topic_preimage(buffer: &mut [u8]) -> usize {
         // Empty array or array of "empty by default" types is a noop.
         if N == 0 || Self::default_topic_preimage_size() == 0 {
-            return;
+            return 0;
         }
 
+        let mut offset = 0;
         for _ in 0..N {
-            T::default_topic_preimage(buffer);
+            let len = T::default_topic_preimage(&mut buffer[offset..]);
+            offset = offset.checked_add(len).unwrap();
         }
+        offset
     }
 
     fn topic_preimage_size(&self) -> usize {
@@ -641,13 +683,18 @@ macro_rules! impl_dyn_collection_encode {
             }
 
             impl<T: SolTopicEncode> SolTopicEncode for $ty $(where $($clause)*)? {
-                fn topic_preimage(&self, buffer: &mut Vec<u8>) {
+                fn topic_preimage(&self, buffer: &mut [u8]) -> usize {
+                    let mut offset = 0;
                     for item in self.iter() {
-                        item.topic_preimage(buffer);
+                        let len = item.topic_preimage(&mut buffer[offset..]);
+                        offset = offset.checked_add(len).unwrap();
                     }
+                    offset
                 }
 
-                fn default_topic_preimage(_: &mut Vec<u8>) {}
+                fn default_topic_preimage(_: &mut [u8]) -> usize {
+                    0
+                }
 
                 fn topic_preimage_size(&self) -> usize {
                     self.iter().map(T::topic_preimage_size).sum()
@@ -746,20 +793,26 @@ impl SolTypeEncode for Tuple {
 
 #[impl_for_tuples(1, 12)]
 impl SolTopicEncode for Tuple {
-    fn topic_preimage(&self, buffer: &mut Vec<u8>) {
+    fn topic_preimage(&self, buffer: &mut [u8]) -> usize {
+        let mut offset = 0usize;
         for_tuples!(
             #(
-                <Tuple as SolTopicEncode>::topic_preimage(&self.Tuple, buffer);
+                let len = <Tuple as SolTopicEncode>::topic_preimage(&self.Tuple, &mut buffer[offset..]);
+                offset = offset.checked_add(len).unwrap();
             )*
         );
+        offset
     }
 
-    fn default_topic_preimage(buffer: &mut Vec<u8>) {
+    fn default_topic_preimage(buffer: &mut [u8]) -> usize {
+        let mut offset = 0usize;
         for_tuples!(
             #(
-                <Tuple as SolTopicEncode>::default_topic_preimage(buffer);
+                let len = <Tuple as SolTopicEncode>::default_topic_preimage(&mut buffer[offset..]);
+                offset = offset.checked_add(len).unwrap();
             )*
         );
+        offset
     }
 
     fn topic_preimage_size(&self) -> usize {
@@ -806,14 +859,23 @@ impl SolTopicEncode for () {
         [0u8; 32]
     }
 
-    fn topic_preimage(&self, buffer: &mut Vec<u8>) {
-        Self::default_topic_preimage(buffer);
+    fn encode_topic_to<H>(&self, _: H, output: &mut [u8; 32], _: &mut [u8])
+    where
+        H: Fn(&[u8], &mut [u8; 32]),
+    {
+        output.fill(0)
     }
 
-    fn default_topic_preimage(_: &mut Vec<u8>) {}
+    fn topic_preimage(&self, _: &mut [u8]) -> usize {
+        0
+    }
+
+    fn default_topic_preimage(_: &mut [u8]) -> usize {
+        0
+    }
 
     fn topic_preimage_size(&self) -> usize {
-        Self::default_topic_preimage_size()
+        0
     }
 
     fn default_topic_preimage_size() -> usize {
@@ -867,18 +929,19 @@ impl<T: SolTypeEncode> SolTypeEncode for Option<T> {
 }
 
 impl<T: SolTopicEncode> SolTopicEncode for Option<T> {
-    fn topic_preimage(&self, buffer: &mut Vec<u8>) {
+    fn topic_preimage(&self, buffer: &mut [u8]) -> usize {
         // `bool` variant encoded bytes.
-        buffer.extend(self.is_some().tokenize().0);
+        buffer[..32].copy_from_slice(self.is_some().tokenize().0.as_slice());
         // "Actual value" encoded bytes.
-        match self {
-            None => T::default_topic_preimage(buffer),
-            Some(value) => value.topic_preimage(buffer),
+        let len = match self {
+            None => T::default_topic_preimage(&mut buffer[32..]),
+            Some(value) => value.topic_preimage(&mut buffer[32..]),
         };
+        32usize.checked_add(len).unwrap()
     }
 
-    fn default_topic_preimage(buffer: &mut Vec<u8>) {
-        Self::topic_preimage(&None::<T>, buffer);
+    fn default_topic_preimage(buffer: &mut [u8]) -> usize {
+        Self::topic_preimage(&None::<T>, buffer)
     }
 
     fn topic_preimage_size(&self) -> usize {
@@ -923,12 +986,19 @@ macro_rules! impl_refs_encode {
                     T::encode_topic(self, hasher)
                 }
 
-                fn topic_preimage(&self, buffer: &mut Vec<u8>) {
-                    T::topic_preimage(self, buffer);
+                fn encode_topic_to<H>(&self, hasher: H, output: &mut [u8; 32], buffer: &mut [u8])
+                where
+                    H: Fn(&[u8], &mut [u8; 32]),
+                {
+                    T::encode_topic_to(self, hasher, output, buffer)
                 }
 
-                fn default_topic_preimage(buffer: &mut Vec<u8>) {
-                    T::default_topic_preimage(buffer);
+                fn topic_preimage(&self, buffer: &mut [u8]) -> usize {
+                    T::topic_preimage(self, buffer)
+                }
+
+                fn default_topic_preimage(buffer: &mut [u8]) -> usize {
+                    T::default_topic_preimage(buffer)
                 }
 
                 fn topic_preimage_size(&self) -> usize {

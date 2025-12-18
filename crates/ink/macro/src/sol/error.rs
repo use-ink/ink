@@ -149,10 +149,16 @@ fn sol_error_encode_derive_struct(
     let name = &s.ast().ident.to_string();
     let fields = variant.ast().fields;
     let selector_params_tys = fields.iter().map(|field| &field.ty);
+    let selector_params = quote! {
+        ( #( #selector_params_tys, )* )
+    };
     let encode_params_tys = fields.iter().map(|field| {
         let ty = &field.ty;
         quote!( &#ty )
     });
+    let encode_params = quote! {
+        ( #( #encode_params_tys, )* )
+    };
     let params_elems = utils::tuple_elems_from_fields(fields, None);
 
     Ok(s.bound_impl(
@@ -162,15 +168,25 @@ fn sol_error_encode_derive_struct(
                 let mut results = ::ink::prelude::vec::Vec::from(
                     ::ink::sol_error_selector!(
                         #name,
-                        ( #( #selector_params_tys, )* )
+                        #selector_params
                     )
                 );
                 results.extend(
-                    <( #( #encode_params_tys, )* ) as ::ink::sol::SolParamsEncode>::encode(
+                    ::ink::sol::encode_sequence::<#encode_params>(
                         &#params_elems,
                     ),
                 );
                 results
+            }
+
+            fn encode_to(&self, buffer: &mut [::core::primitive::u8]) -> ::core::primitive::usize {
+                let selector = ::ink::sol_error_selector!(#name, #selector_params);
+                buffer[..4].copy_from_slice(&selector);
+                let len = ::ink::sol::encode_sequence_to::<#encode_params>(
+                    &#params_elems,
+                    &mut buffer[4..],
+                );
+                len
             }
         },
     ))
@@ -273,21 +289,12 @@ fn sol_error_encode_derive_enum(s: synstructure::Structure) -> syn::Result<Token
     ensure_no_generics(&s, "SolErrorEncode")?;
     utils::ensure_non_empty_enum(&s, "SolErrorEncode")?;
 
-    let variants_match = s.variants().iter().map(|variant| {
-        let variant_ident = variant.ast().ident;
-        let variant_name = variant_ident.to_string();
-        let fields = variant.ast().fields;
-        let selector_params_tys = fields.iter().map(|field| &field.ty);
-        let encode_params_tys = fields.iter().map(|field| {
-            let ty = &field.ty;
-            quote!( &#ty )
-        });
+    let bindings_and_elems = |variant: &synstructure::VariantInfo| {
         let bindings = || {
             variant.bindings().iter().map(|info| {
                 // var is either a field name, or generated "binding_*" name for tuple
                 // elements.
-                info
-                    .ast()
+                info.ast()
                     .ident
                     .as_ref()
                     .map(|ident| quote!(#ident))
@@ -297,7 +304,7 @@ fn sol_error_encode_derive_enum(s: synstructure::Structure) -> syn::Result<Token
                     })
             })
         };
-        let (variant_bindings, params_elems) = match fields {
+        match variant.ast().fields {
             // Handles named fields.
             Fields::Named(_) => {
                 let variant_fields = bindings();
@@ -328,7 +335,19 @@ fn sol_error_encode_derive_enum(s: synstructure::Structure) -> syn::Result<Token
             }
             // Handles unit variants.
             Fields::Unit => (quote!(), quote!()),
-        };
+        }
+    };
+
+    let variants_match = s.variants().iter().map(|variant| {
+        let variant_ident = variant.ast().ident;
+        let variant_name = variant_ident.to_string();
+        let fields = variant.ast().fields;
+        let selector_params_tys = fields.iter().map(|field| &field.ty);
+        let encode_params_tys = fields.iter().map(|field| {
+            let ty = &field.ty;
+            quote!( &#ty )
+        });
+        let (variant_bindings, params_elems) = bindings_and_elems(variant);
 
         quote! {
             Self:: #variant_ident #variant_bindings => {
@@ -339,11 +358,38 @@ fn sol_error_encode_derive_enum(s: synstructure::Structure) -> syn::Result<Token
                     )
                 );
                 results.extend(
-                    <( #( #encode_params_tys, )* ) as ::ink::sol::SolParamsEncode>::encode(
+                    ::ink::sol::encode_sequence::<( #( #encode_params_tys, )* )>(
                         &( #params_elems ),
                     ),
                 );
                 results
+            }
+        }
+    });
+
+    let variants_match_to = s.variants().iter().map(|variant| {
+        let variant_ident = variant.ast().ident;
+        let variant_name = variant_ident.to_string();
+        let fields = variant.ast().fields;
+        let selector_params_tys = fields.iter().map(|field| &field.ty);
+        let encode_params_tys = fields.iter().map(|field| {
+            let ty = &field.ty;
+            quote!( &#ty )
+        });
+        let (variant_bindings, params_elems) = bindings_and_elems(variant);
+
+        quote! {
+            Self:: #variant_ident #variant_bindings => {
+                let selector = ::ink::sol_error_selector!(
+                    #variant_name,
+                    ( #( #selector_params_tys, )* )
+                );
+                buffer[..4].copy_from_slice(&selector);
+                let len = ::ink::sol::encode_sequence_to::<( #( #encode_params_tys, )* )>(
+                    &( #params_elems ),
+                    &mut buffer[4..]
+                );
+                len
             }
         }
     });
@@ -354,6 +400,12 @@ fn sol_error_encode_derive_enum(s: synstructure::Structure) -> syn::Result<Token
             fn encode(&self) -> ::ink::prelude::vec::Vec<::core::primitive::u8> {
                 match self {
                     #( #variants_match )*
+                }
+            }
+
+            fn encode_to(&self, buffer: &mut [::core::primitive::u8]) -> ::core::primitive::usize {
+                match self {
+                    #( #variants_match_to )*
                 }
             }
         },

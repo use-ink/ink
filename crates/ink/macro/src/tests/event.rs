@@ -57,6 +57,10 @@ fn unit_struct_works() {
                     fn encode_data(&self) -> ::ink::prelude::vec::Vec<::core::primitive::u8> {
                         ::ink::abi::AbiEncodeWith::<::ink::abi::Ink>::encode_with(self)
                     }
+
+                    fn encode_data_to(&self, buffer: &mut [::core::primitive::u8]) -> ::core::primitive::usize {
+                        ::ink::abi::AbiEncodeWith::<::ink::abi::Ink>::encode_to_slice(self, buffer)
+                    }
                 }
             };
         }
@@ -97,6 +101,10 @@ fn unit_struct_anonymous_has_no_topics() {
 
                     fn encode_data(&self) -> ::ink::prelude::vec::Vec<::core::primitive::u8> {
                         ::ink::abi::AbiEncodeWith::<::ink::abi::Ink>::encode_with(self)
+                    }
+
+                    fn encode_data_to(&self, buffer: &mut [::core::primitive::u8]) -> ::core::primitive::usize {
+                        ::ink::abi::AbiEncodeWith::<::ink::abi::Ink>::encode_to_slice(self, buffer)
                     }
                 }
             };
@@ -142,6 +150,10 @@ fn struct_with_fields_no_topics() {
 
                     fn encode_data(&self) -> ::ink::prelude::vec::Vec<::core::primitive::u8> {
                         ::ink::abi::AbiEncodeWith::<::ink::abi::Ink>::encode_with(self)
+                    }
+
+                    fn encode_data_to(&self, buffer: &mut [::core::primitive::u8]) -> ::core::primitive::usize {
+                        ::ink::abi::AbiEncodeWith::<::ink::abi::Ink>::encode_to_slice(self, buffer)
                     }
                 }
             };
@@ -192,6 +204,10 @@ fn struct_with_fields_and_some_topics() {
                     fn encode_data(&self) -> ::ink::prelude::vec::Vec<::core::primitive::u8> {
                         ::ink::abi::AbiEncodeWith::<::ink::abi::Ink>::encode_with(self)
                     }
+
+                    fn encode_data_to(&self, buffer: &mut [::core::primitive::u8]) -> ::core::primitive::usize {
+                        ::ink::abi::AbiEncodeWith::<::ink::abi::Ink>::encode_to_slice(self, buffer)
+                    }
                 }
             };
         } no_build
@@ -233,6 +249,10 @@ fn custom_signature_topic() {
 
                     fn encode_data(&self) -> ::ink::prelude::vec::Vec<::core::primitive::u8> {
                         ::ink::abi::AbiEncodeWith::<::ink::abi::Ink>::encode_with(self)
+                    }
+
+                    fn encode_data_to(&self, buffer: &mut [::core::primitive::u8]) -> ::core::primitive::usize {
+                        ::ink::abi::AbiEncodeWith::<::ink::abi::Ink>::encode_to_slice(self, buffer)
                     }
                 }
             };
@@ -276,6 +296,10 @@ fn name_override_works() {
                     fn encode_data(&self) -> ::ink::prelude::vec::Vec<::core::primitive::u8> {
                         ::ink::abi::AbiEncodeWith::<::ink::abi::Ink>::encode_with(self)
                     }
+
+                    fn encode_data_to(&self, buffer: &mut [::core::primitive::u8]) -> ::core::primitive::usize {
+                        ::ink::abi::AbiEncodeWith::<::ink::abi::Ink>::encode_to_slice(self, buffer)
+                    }
                 }
             };
         } no_build
@@ -318,6 +342,10 @@ fn custom_signature_topic_precedence() {
 
                     fn encode_data(&self) -> ::ink::prelude::vec::Vec<::core::primitive::u8> {
                         ::ink::abi::AbiEncodeWith::<::ink::abi::Ink>::encode_with(self)
+                    }
+
+                    fn encode_data_to(&self, buffer: &mut [::core::primitive::u8]) -> ::core::primitive::usize {
+                        ::ink::abi::AbiEncodeWith::<::ink::abi::Ink>::encode_to_slice(self, buffer)
                     }
                 }
             };

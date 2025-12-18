@@ -120,16 +120,25 @@ where
         self.tokenize().0
     }
 
-    fn topic_preimage(&self, buffer: &mut Vec<u8>) {
-        buffer.extend(self.tokenize().0);
+    fn encode_topic_to<H>(&self, _: H, output: &mut [u8; 32], _: &mut [u8])
+    where
+        H: Fn(&[u8], &mut [u8; 32]),
+    {
+        output[..32].copy_from_slice(self.tokenize().0.as_slice())
     }
 
-    fn default_topic_preimage(buffer: &mut Vec<u8>) {
-        buffer.extend([0u8; 32]);
+    fn topic_preimage(&self, buffer: &mut [u8]) -> usize {
+        buffer[..32].copy_from_slice(self.tokenize().0.as_slice());
+        32
+    }
+
+    fn default_topic_preimage(buffer: &mut [u8]) -> usize {
+        buffer[..32].fill(0);
+        32
     }
 
     fn topic_preimage_size(&self) -> usize {
-        Self::default_topic_preimage_size()
+        32
     }
 
     fn default_topic_preimage_size() -> usize {
@@ -279,12 +288,20 @@ impl SolTopicEncode for DynBytes {
         output
     }
 
-    fn topic_preimage(&self, buffer: &mut Vec<u8>) {
-        append_non_empty_member_topic_bytes(self.0.as_slice(), buffer);
+    fn encode_topic_to<H>(&self, hasher: H, output: &mut [u8; 32], _: &mut [u8])
+    where
+        H: Fn(&[u8], &mut [u8; 32]),
+    {
+        hasher(self.0.as_slice(), output);
     }
 
-    fn default_topic_preimage(buffer: &mut Vec<u8>) {
-        buffer.extend([0u8; 32]);
+    fn topic_preimage(&self, buffer: &mut [u8]) -> usize {
+        append_non_empty_member_topic_bytes(self.0.as_slice(), buffer)
+    }
+
+    fn default_topic_preimage(buffer: &mut [u8]) -> usize {
+        buffer[..32].fill(0);
+        32
     }
 
     fn topic_preimage_size(&self) -> usize {
@@ -396,12 +413,20 @@ impl SolTopicEncode for ByteSlice<'_> {
         output
     }
 
-    fn topic_preimage(&self, buffer: &mut Vec<u8>) {
-        append_non_empty_member_topic_bytes(self.0, buffer);
+    fn encode_topic_to<H>(&self, hasher: H, output: &mut [u8; 32], _: &mut [u8])
+    where
+        H: Fn(&[u8], &mut [u8; 32]),
+    {
+        hasher(self.0, output);
     }
 
-    fn default_topic_preimage(buffer: &mut Vec<u8>) {
-        buffer.extend([0u8; 32]);
+    fn topic_preimage(&self, buffer: &mut [u8]) -> usize {
+        append_non_empty_member_topic_bytes(self.0, buffer)
+    }
+
+    fn default_topic_preimage(buffer: &mut [u8]) -> usize {
+        buffer[..32].fill(0);
+        32
     }
 
     fn topic_preimage_size(&self) -> usize {
