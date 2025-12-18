@@ -216,7 +216,11 @@ impl MessageBuilder<'_> {
                             let signature =
                                 sol::utils::call_signature(name, message.inputs());
                             (
-                                quote!(::ink::codegen::sol::selector_bytes(#signature)),
+                                quote! {
+                                    const {
+                                        ::ink::codegen::sol::selector_bytes(#signature)
+                                    }
+                                },
                                 quote!(::ink::abi::Sol),
                             )
                         }
