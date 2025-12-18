@@ -156,7 +156,7 @@
 <a href=#156 id=156 data-nosnippet>156</a>        <span class="kw">let </span>gas_limit = <span class="kw">if let </span><span class="prelude-val">Some</span>(limit) = <span class="self">self</span>.gas_limit {
 <a href=#157 id=157 data-nosnippet>157</a>            limit
 <a href=#158 id=158 data-nosnippet>158</a>        } <span class="kw">else </span>{
-<a href=#159 id=159 data-nosnippet>159</a>            <span class="kw">let </span>gas_required = dry_run.exec_result.gas_required;
+<a href=#159 id=159 data-nosnippet>159</a>            <span class="kw">let </span>gas_required = dry_run.exec_result.weight_required;
 <a href=#160 id=160 data-nosnippet>160</a>            <span class="kw">let </span>proof_size = gas_required.proof_size();
 <a href=#161 id=161 data-nosnippet>161</a>            <span class="kw">let </span>ref_time = gas_required.ref_time();
 <a href=#162 id=162 data-nosnippet>162</a>            calculate_weight(proof_size, ref_time, <span class="self">self</span>.extra_gas_portion)
@@ -168,7 +168,7 @@
 <a href=#168 id=168 data-nosnippet>168</a>            <span class="self">self</span>.message,
 <a href=#169 id=169 data-nosnippet>169</a>            <span class="self">self</span>.value,
 <a href=#170 id=170 data-nosnippet>170</a>            gas_limit,
-<a href=#171 id=171 data-nosnippet>171</a>            dry_run.exec_result.storage_deposit.charge_or_zero(),
+<a href=#171 id=171 data-nosnippet>171</a>            dry_run.exec_result.max_storage_deposit.charge_or_zero(),
 <a href=#172 id=172 data-nosnippet>172</a>        )
 <a href=#173 id=173 data-nosnippet>173</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
 <a href=#174 id=174 data-nosnippet>174</a>
@@ -316,7 +316,7 @@
 <a href=#316 id=316 data-nosnippet>316</a>        <span class="kw">let </span>gas_limit = <span class="kw">if let </span><span class="prelude-val">Some</span>(limit) = <span class="self">self</span>.gas_limit {
 <a href=#317 id=317 data-nosnippet>317</a>            limit
 <a href=#318 id=318 data-nosnippet>318</a>        } <span class="kw">else </span>{
-<a href=#319 id=319 data-nosnippet>319</a>            <span class="kw">let </span>gas_required = dry_run.contract_result.gas_required;
+<a href=#319 id=319 data-nosnippet>319</a>            <span class="kw">let </span>gas_required = dry_run.contract_result.weight_required;
 <a href=#320 id=320 data-nosnippet>320</a>            <span class="kw">let </span>proof_size = gas_required.proof_size();
 <a href=#321 id=321 data-nosnippet>321</a>            <span class="kw">let </span>ref_time = gas_required.ref_time();
 <a href=#322 id=322 data-nosnippet>322</a>            calculate_weight(proof_size, ref_time, <span class="self">self</span>.extra_gas_portion)
@@ -329,7 +329,7 @@
 <a href=#329 id=329 data-nosnippet>329</a>            <span class="self">self</span>.constructor,
 <a href=#330 id=330 data-nosnippet>330</a>            <span class="self">self</span>.value,
 <a href=#331 id=331 data-nosnippet>331</a>            gas_limit,
-<a href=#332 id=332 data-nosnippet>332</a>            dry_run.contract_result.storage_deposit.charge_or_zero(),
+<a href=#332 id=332 data-nosnippet>332</a>            dry_run.contract_result.max_storage_deposit.charge_or_zero(),
 <a href=#333 id=333 data-nosnippet>333</a>        )
 <a href=#334 id=334 data-nosnippet>334</a>        .<span class="kw">await</span><span class="question-mark">?</span>;
 <a href=#335 id=335 data-nosnippet>335</a>

@@ -62,7 +62,7 @@
 <a href=#62 id=62 data-nosnippet>62</a>        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ item, config })
 <a href=#63 id=63 data-nosnippet>63</a>    }
 <a href=#64 id=64 data-nosnippet>64</a>
-<a href=#65 id=65 data-nosnippet>65</a>    <span class="doccomment">/// Returns the event definition .
+<a href=#65 id=65 data-nosnippet>65</a>    <span class="doccomment">/// Returns the event definition.
 <a href=#66 id=66 data-nosnippet>66</a>    </span><span class="kw">pub fn </span>item(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>syn::ItemStruct {
 <a href=#67 id=67 data-nosnippet>67</a>        <span class="kw-2">&amp;</span><span class="self">self</span>.item
 <a href=#68 id=68 data-nosnippet>68</a>    }
@@ -92,8 +92,8 @@
 <a href=#92 id=92 data-nosnippet>92</a>        <span class="prelude-val">Ok</span>(<span class="macro">matches!</span>(attr.first().kind(), ir::AttributeArg::Event))
 <a href=#93 id=93 data-nosnippet>93</a>    }
 <a href=#94 id=94 data-nosnippet>94</a>
-<a href=#95 id=95 data-nosnippet>95</a>    <span class="doccomment">/// Returns if the event is marked as anonymous, if true then no signature topic is
-<a href=#96 id=96 data-nosnippet>96</a>    /// generated or emitted.
+<a href=#95 id=95 data-nosnippet>95</a>    <span class="doccomment">/// Returns whether the event is marked as anonymous, if true then no signature topic
+<a href=#96 id=96 data-nosnippet>96</a>    /// is generated or emitted.
 <a href=#97 id=97 data-nosnippet>97</a>    </span><span class="kw">pub fn </span>anonymous(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
 <a href=#98 id=98 data-nosnippet>98</a>        <span class="self">self</span>.config.anonymous()
 <a href=#99 id=99 data-nosnippet>99</a>    }
@@ -148,7 +148,7 @@
 <a href=#148 id=148 data-nosnippet>148</a>        <span class="kw">if </span>ink_attrs.is_anonymous() &amp;&amp; ink_attrs.signature_topic().is_some() {
 <a href=#149 id=149 data-nosnippet>149</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
 <a href=#150 id=150 data-nosnippet>150</a>                item_struct,
-<a href=#151 id=151 data-nosnippet>151</a>                <span class="string">"cannot use use `anonymous` with `signature_topic`"</span>,
+<a href=#151 id=151 data-nosnippet>151</a>                <span class="string">"cannot use `anonymous` with `signature_topic`"</span>,
 <a href=#152 id=152 data-nosnippet>152</a>            ));
 <a href=#153 id=153 data-nosnippet>153</a>        }
 <a href=#154 id=154 data-nosnippet>154</a>        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
@@ -322,7 +322,7 @@
 <a href=#322 id=322 data-nosnippet>322</a>                    field_2: bool,
 <a href=#323 id=323 data-nosnippet>323</a>                }
 <a href=#324 id=324 data-nosnippet>324</a>            },
-<a href=#325 id=325 data-nosnippet>325</a>            <span class="string">"cannot use use `anonymous` with `signature_topic`"</span>,
+<a href=#325 id=325 data-nosnippet>325</a>            <span class="string">"cannot use `anonymous` with `signature_topic`"</span>,
 <a href=#326 id=326 data-nosnippet>326</a>        )
 <a href=#327 id=327 data-nosnippet>327</a>    }
 <a href=#328 id=328 data-nosnippet>328</a>

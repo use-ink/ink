@@ -108,7 +108,7 @@
 <a href=#108 id=108 data-nosnippet>108</a></span><span class="kw">pub struct </span>InstantiateWithCode&lt;E: Environment&gt; {
 <a href=#109 id=109 data-nosnippet>109</a>    <span class="attr">#[codec(compact)]
 <a href=#110 id=110 data-nosnippet>110</a>    </span>value: E::Balance,
-<a href=#111 id=111 data-nosnippet>111</a>    gas_limit: Weight,
+<a href=#111 id=111 data-nosnippet>111</a>    weight_limit: Weight,
 <a href=#112 id=112 data-nosnippet>112</a>    <span class="attr">#[codec(compact)]
 <a href=#113 id=113 data-nosnippet>113</a>    </span>storage_deposit_limit: E::Balance,
 <a href=#114 id=114 data-nosnippet>114</a>    code: Vec&lt;u8&gt;,
@@ -125,7 +125,7 @@
 <a href=#125 id=125 data-nosnippet>125</a>    dest: Address,
 <a href=#126 id=126 data-nosnippet>126</a>    <span class="attr">#[codec(compact)]
 <a href=#127 id=127 data-nosnippet>127</a>    </span>value: E::Balance,
-<a href=#128 id=128 data-nosnippet>128</a>    gas_limit: Weight,
+<a href=#128 id=128 data-nosnippet>128</a>    weight_limit: Weight,
 <a href=#129 id=129 data-nosnippet>129</a>    <span class="attr">#[codec(compact)]
 <a href=#130 id=130 data-nosnippet>130</a>    </span>storage_deposit_limit: E::Balance,
 <a href=#131 id=131 data-nosnippet>131</a>    data: Vec&lt;u8&gt;,
@@ -526,7 +526,7 @@
 <a href=#526 id=526 data-nosnippet>526</a>            <span class="string">"instantiate_with_code"</span>,
 <a href=#527 id=527 data-nosnippet>527</a>            InstantiateWithCode::&lt;E&gt; {
 <a href=#528 id=528 data-nosnippet>528</a>                value,
-<a href=#529 id=529 data-nosnippet>529</a>                gas_limit,
+<a href=#529 id=529 data-nosnippet>529</a>                weight_limit: gas_limit,
 <a href=#530 id=530 data-nosnippet>530</a>                storage_deposit_limit,
 <a href=#531 id=531 data-nosnippet>531</a>                code,
 <a href=#532 id=532 data-nosnippet>532</a>                data,
@@ -654,9 +654,9 @@
 <a href=#654 id=654 data-nosnippet>654</a>            <span class="kw">crate</span>::xts::Call::&lt;E&gt; {
 <a href=#655 id=655 data-nosnippet>655</a>                dest,
 <a href=#656 id=656 data-nosnippet>656</a>                value,
-<a href=#657 id=657 data-nosnippet>657</a>                gas_limit: Weight {
-<a href=#658 id=658 data-nosnippet>658</a>                    ref_time: dry_run_result.gas_required.ref_time(),
-<a href=#659 id=659 data-nosnippet>659</a>                    proof_size: dry_run_result.gas_required.proof_size(),
+<a href=#657 id=657 data-nosnippet>657</a>                weight_limit: Weight {
+<a href=#658 id=658 data-nosnippet>658</a>                    ref_time: dry_run_result.weight_required.ref_time(),
+<a href=#659 id=659 data-nosnippet>659</a>                    proof_size: dry_run_result.weight_required.proof_size(),
 <a href=#660 id=660 data-nosnippet>660</a>                },
 <a href=#661 id=661 data-nosnippet>661</a>                storage_deposit_limit,
 <a href=#662 id=662 data-nosnippet>662</a>                data,
@@ -706,7 +706,7 @@
 <a href=#706 id=706 data-nosnippet>706</a>            Call::&lt;E&gt; {
 <a href=#707 id=707 data-nosnippet>707</a>                dest: contract,
 <a href=#708 id=708 data-nosnippet>708</a>                value,
-<a href=#709 id=709 data-nosnippet>709</a>                gas_limit,
+<a href=#709 id=709 data-nosnippet>709</a>                weight_limit: gas_limit,
 <a href=#710 id=710 data-nosnippet>710</a>                storage_deposit_limit,
 <a href=#711 id=711 data-nosnippet>711</a>                data,
 <a href=#712 id=712 data-nosnippet>712</a>            },
