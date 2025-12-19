@@ -357,26 +357,28 @@
 <a href=#357 id=357 data-nosnippet>357</a>                    <span class="kw">let </span>name = message.normalized_name();
 <a href=#358 id=358 data-nosnippet>358</a>                    <span class="kw">let </span>signature = sol::utils::call_signature(name, message.inputs());
 <a href=#359 id=359 data-nosnippet>359</a>                    <span class="kw">let </span>selector_bytes = <span class="macro">quote!</span> {
-<a href=#360 id=360 data-nosnippet>360</a>                        ::ink::codegen::sol::selector_bytes(#signature)
-<a href=#361 id=361 data-nosnippet>361</a>                    };
-<a href=#362 id=362 data-nosnippet>362</a>                    <span class="kw">let </span>selector_id = <span class="macro">quote!</span>(
-<a href=#363 id=363 data-nosnippet>363</a>                        {
-<a href=#364 id=364 data-nosnippet>364</a>                            ::core::primitive::u32::from_be_bytes(#selector_bytes)
-<a href=#365 id=365 data-nosnippet>365</a>                        }
-<a href=#366 id=366 data-nosnippet>366</a>                    );
-<a href=#367 id=367 data-nosnippet>367</a>                    (selector_id, selector_bytes)
-<a href=#368 id=368 data-nosnippet>368</a>                }
-<a href=#369 id=369 data-nosnippet>369</a>            };
-<a href=#370 id=370 data-nosnippet>370</a>            <span class="macro">quote_spanned!</span>(span=&gt;
-<a href=#371 id=371 data-nosnippet>371</a>                <span class="kw">impl</span>&lt;E&gt; ::ink::reflect::TraitMessageInfo&lt;#local_id&gt; <span class="kw">for </span>#trait_info_ident&lt;E&gt; {
-<a href=#372 id=372 data-nosnippet>372</a>                    <span class="kw">const </span>PAYABLE: ::core::primitive::bool = #is_payable;
-<a href=#373 id=373 data-nosnippet>373</a>                    <span class="kw">const </span>SELECTOR: [::core::primitive::u8; <span class="number">4usize</span>] = #selector_bytes;
-<a href=#374 id=374 data-nosnippet>374</a>                }
-<a href=#375 id=375 data-nosnippet>375</a>            )
-<a href=#376 id=376 data-nosnippet>376</a>        };
-<a href=#377 id=377 data-nosnippet>377</a>        <span class="kw">match </span><span class="self">self</span>.abi {
-<a href=#378 id=378 data-nosnippet>378</a>            <span class="prelude-val">None </span>=&gt; <span class="macro">generate_abi_impls!</span>(@<span class="kw">type </span>generator),
-<a href=#379 id=379 data-nosnippet>379</a>            <span class="prelude-val">Some</span>(abi) =&gt; generator(abi),
-<a href=#380 id=380 data-nosnippet>380</a>        }
-<a href=#381 id=381 data-nosnippet>381</a>    }
-<a href=#382 id=382 data-nosnippet>382</a>}</code></pre></div></section></main></body></html>
+<a href=#360 id=360 data-nosnippet>360</a>                        <span class="kw">const </span>{
+<a href=#361 id=361 data-nosnippet>361</a>                            ::ink::codegen::sol::selector_bytes(#signature)
+<a href=#362 id=362 data-nosnippet>362</a>                        }
+<a href=#363 id=363 data-nosnippet>363</a>                    };
+<a href=#364 id=364 data-nosnippet>364</a>                    <span class="kw">let </span>selector_id = <span class="macro">quote!</span>(
+<a href=#365 id=365 data-nosnippet>365</a>                        {
+<a href=#366 id=366 data-nosnippet>366</a>                            ::core::primitive::u32::from_be_bytes(#selector_bytes)
+<a href=#367 id=367 data-nosnippet>367</a>                        }
+<a href=#368 id=368 data-nosnippet>368</a>                    );
+<a href=#369 id=369 data-nosnippet>369</a>                    (selector_id, selector_bytes)
+<a href=#370 id=370 data-nosnippet>370</a>                }
+<a href=#371 id=371 data-nosnippet>371</a>            };
+<a href=#372 id=372 data-nosnippet>372</a>            <span class="macro">quote_spanned!</span>(span=&gt;
+<a href=#373 id=373 data-nosnippet>373</a>                <span class="kw">impl</span>&lt;E&gt; ::ink::reflect::TraitMessageInfo&lt;#local_id&gt; <span class="kw">for </span>#trait_info_ident&lt;E&gt; {
+<a href=#374 id=374 data-nosnippet>374</a>                    <span class="kw">const </span>PAYABLE: ::core::primitive::bool = #is_payable;
+<a href=#375 id=375 data-nosnippet>375</a>                    <span class="kw">const </span>SELECTOR: [::core::primitive::u8; <span class="number">4usize</span>] = #selector_bytes;
+<a href=#376 id=376 data-nosnippet>376</a>                }
+<a href=#377 id=377 data-nosnippet>377</a>            )
+<a href=#378 id=378 data-nosnippet>378</a>        };
+<a href=#379 id=379 data-nosnippet>379</a>        <span class="kw">match </span><span class="self">self</span>.abi {
+<a href=#380 id=380 data-nosnippet>380</a>            <span class="prelude-val">None </span>=&gt; <span class="macro">generate_abi_impls!</span>(@<span class="kw">type </span>generator),
+<a href=#381 id=381 data-nosnippet>381</a>            <span class="prelude-val">Some</span>(abi) =&gt; generator(abi),
+<a href=#382 id=382 data-nosnippet>382</a>        }
+<a href=#383 id=383 data-nosnippet>383</a>    }
+<a href=#384 id=384 data-nosnippet>384</a>}</code></pre></div></section></main></body></html>
