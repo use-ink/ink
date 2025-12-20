@@ -25,6 +25,7 @@ mod contract {
             let _ = Self::env().block_author();
             let _ = Self::env().transferred_value();
             let _ = Self::env().weight_to_fee(0);
+            let _ = Self::env().call_data_load(0);
             Self {}
         }
 
@@ -47,6 +48,7 @@ mod contract {
             let _ = self.env().block_author();
             let _ = self.env().transferred_value();
             let _ = self.env().weight_to_fee(0);
+            let _ = self.env().call_data_load(0);
         }
     }
 }

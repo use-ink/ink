@@ -369,6 +369,57 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`block_author`][`crate::block_author`]
     fn block_author(&mut self) -> Address;
 
+    /// Returns the U256 value at given `offset` from the input passed by the caller.
+    /// This is akin to the EVM [CALLDATALOAD](https://www.evm.codes/?fork=cancun#35) opcode.
+    ///
+    /// # Note
+    ///
+    /// - If `offset` is out of bounds, a value of zero will be returned.
+    /// - If `offset` is in bounds but there is not enough call data, the available data
+    /// is right-padded in order to fill a whole U256 value.
+    /// - The data returned is a little endian U256 integer value.
+    ///
+    /// For more details visit: [`call_data_load`][`crate::call_data_load`]
+    fn call_data_load(&mut self, offset: u32) -> U256;
+
+    /// Sets the storage entry for a fixed 256‑bit key with a fixed 256‑bit value.
+    /// If the provided 32‑byte value is all zeros then the key is cleared (i.e. deleted).
+    /// Returns the size (in bytes) of the pre‑existing value at the specified key, if
+    /// any. This is akin to the EVM [SSTORE](https://www.evm.codes/?fork=cancun#55) opcode.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`set_storage`][`crate::set_storage`]
+    fn set_storage(&mut self, key: U256, value: &[u8; 32]) -> Option<u32>;
+
+    /// Sets the transient storage entry for a fixed 256‑bit key with a fixed 256‑bit
+    /// value. If the provided 32‑byte value is all zeros then the key is cleared
+    /// (i.e. deleted). Returns the size (in bytes) of the pre‑existing value at the
+    /// specified key, if any. This is akin to the EVM [TSTORE](https://www.evm.codes/?fork=cancun#5D) opcode.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`set_transient_storage`][`crate::set_transient_storage`]
+    fn set_transient_storage(&mut self, key: U256, value: &[u8; 32]) -> Option<u32>;
+
+    /// Retrieves the storage entry for a fixed 256‑bit key.
+    /// If the key does not exist, it returns 32 zero bytes.
+    /// This is akin to the EVM [SLOAD](https://www.evm.codes/?fork=cancun#54) opcode.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`get_storage`][`crate::get_storage`]
+    fn get_storage(&mut self, key: U256) -> [u8; 32];
+
+    /// Retrieves the transient storage entry for a fixed 256‑bit key.
+    /// If the key does not exist, it returns 32 zero bytes.
+    /// This is akin to the EVM [TLOAD](https://www.evm.codes/?fork=cancun#5C) opcode.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`get_transient_storage`][`crate::get_transient_storage`]
+    fn get_transient_storage(&mut self, key: U256) -> [u8; 32];
+
     /// Returns the transferred value for the contract execution.
     ///
     /// # Note

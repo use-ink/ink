@@ -170,6 +170,61 @@ pub fn block_author() -> Address {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::block_author)
 }
 
+/// Returns the U256 value at the given offset from the input passed by the caller,
+/// akin to the EVM [CALLDATALOAD](https://www.evm.codes/?fork=cancun#35) opcode.
+///
+/// # Note
+///
+/// - If `offset` is out of bounds, a value of zero will be returned.
+/// - If `offset` is in bounds but there is not enough call data, the available data is
+///   right-padded in order to fill a whole U256 value.
+/// - The data returned is a little endian U256 integer value.
+pub fn call_data_load(offset: u32) -> U256 {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::call_data_load(instance, offset)
+    })
+}
+
+/// Sets the storage entry for a fixed 256-bit key with a fixed 256-bit value,
+/// akin to the EVM [SSTORE](https://www.evm.codes/?fork=cancun#55) opcode.
+///
+/// If the provided value is all zeros then the key is cleared (i.e. deleted).
+/// Returns the size (in bytes) of the pre-existing value at the specified key, if any.
+pub fn set_storage(key: U256, value: &[u8; 32]) -> Option<u32> {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::set_storage(instance, key, value)
+    })
+}
+
+/// Sets the transient storage entry for a fixed 256-bit key with a fixed 256-bit value,
+/// akin to the EVM [TSTORE](https://www.evm.codes/?fork=cancun#5D) opcode.
+///
+/// If the provided value is all zeros then the key is cleared (i.e. deleted).
+/// Returns the size (in bytes) of the pre-existing value at the specified key, if any.
+pub fn set_transient_storage(key: U256, value: &[u8; 32]) -> Option<u32> {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::set_transient_storage(instance, key, value)
+    })
+}
+
+/// Retrieves the storage entry for a fixed 256-bit key.
+/// If the key does not exist, it returns 32 zero bytes.
+/// This is akin to the EVM [SLOAD](https://www.evm.codes/?fork=cancun#54) opcode.
+pub fn get_storage(key: U256) -> [u8; 32] {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::get_storage(instance, key)
+    })
+}
+
+/// Retrieves the transient storage entry for a fixed 256-bit key.
+/// If the key does not exist, it returns 32 zero bytes.
+/// This is akin to the EVM [TLOAD](https://www.evm.codes/?fork=cancun#5C) opcode.
+pub fn get_transient_storage(key: U256) -> [u8; 32] {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::get_transient_storage(instance, key)
+    })
+}
+
 /// Returns the transferred value for the contract execution.
 ///
 /// # Errors
