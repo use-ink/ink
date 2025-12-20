@@ -13,6 +13,7 @@ pub enum Error {
 #[ink::contract]
 pub mod fallible_setter {
     use super::Error;
+    use ink::ensure;
 
     #[ink(storage)]
     pub struct FallibleSetter {
@@ -24,9 +25,7 @@ pub mod fallible_setter {
         /// Returns an error if `init_value > 100`.
         #[ink(constructor)]
         pub fn new(init_value: u8) -> Result<Self, Error> {
-            if init_value > 100 {
-                return Err(Error::TooLarge)
-            }
+            ensure!(init_value <= 100, Error::TooLarge);
             Ok(Self { value: init_value })
         }
 
@@ -36,14 +35,8 @@ pub mod fallible_setter {
         /// - `init_value > 100`
         #[ink(message)]
         pub fn try_set(&mut self, value: u8) -> Result<(), Error> {
-            if self.value == value {
-                return Err(Error::NoChange);
-            }
-
-            if value > 100 {
-                return Err(Error::TooLarge);
-            }
-
+            ensure!(self.value != value, Error::NoChange);
+            ensure!(value <= 100, Error::TooLarge);
             self.value = value;
             Ok(())
         }

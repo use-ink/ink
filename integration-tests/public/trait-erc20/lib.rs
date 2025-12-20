@@ -5,6 +5,7 @@ mod erc20 {
     use ink::{
         U256,
         storage::Mapping,
+        ensure,
     };
 
     /// The ERC-20 error types.
@@ -189,9 +190,7 @@ mod erc20 {
         ) -> Result<()> {
             let caller = self.env().caller();
             let allowance = self.allowance_impl(&from, &caller);
-            if allowance < value {
-                return Err(Error::InsufficientAllowance)
-            }
+           ensure!(allowance >= value, Error::InsufficientAllowance);
             self.transfer_from_to(&from, &to, value)?;
             // We checked that allowance >= value
             #[allow(clippy::arithmetic_side_effects)]
@@ -244,9 +243,7 @@ mod erc20 {
             value: U256,
         ) -> Result<()> {
             let from_balance = self.balance_of_impl(from);
-            if from_balance < value {
-                return Err(Error::InsufficientBalance)
-            }
+            ensure!(from_balance >= value, Error::InsufficientBalance);
             // We checked that from_balance >= value
             #[allow(clippy::arithmetic_side_effects)]
             self.balances.insert(from, &(from_balance - value));
