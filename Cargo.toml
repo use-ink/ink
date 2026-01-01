@@ -100,7 +100,7 @@ xcm = { package = "staging-xcm", version = "18.0.0", default-features = false }
 polkavm-derive = { version = "0.30.0", default-features = false }
 
 # Solidity dependencies
-alloy-sol-types = { version = "1.4.1", default-features = false }
+alloy-sol-types = { version = "1.5.2", default-features = false }
 const_format = { version = "0.2.34", features = ["fmt"] }
 keccak-const = "0.2.0"
 impl-trait-for-tuples = "0.2.3"
