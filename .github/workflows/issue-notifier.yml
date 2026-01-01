@@ -51,7 +51,7 @@ jobs:
         env:
           DATA: ${{ steps.issue.outputs.data }}
           FILE: outputs/${{ matrix.repo }}.json
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: outputs
           path: outputs/*.json

@@ -42,7 +42,7 @@ jobs:
           echo "CARGO_CONTRACT_VERSION=\"${CARGO_CONTRACT_VERSION}\"" > ${MEASUREMENTS_DIR}/context.out
           echo "PR_NUMBER=\"${PR_NUMBER}\"" >> ${MEASUREMENTS_DIR}/context.out
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: ${{ github.job }}-${{ matrix.branch }}-data
           path: ./measurements

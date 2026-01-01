@@ -103,7 +103,7 @@ jobs:
                 command: |
                     scripts/for_all_contracts_exec.sh --output ./all-contracts --path . -- echo {}
 
-          - uses: actions/upload-artifact@v5
+          - uses: actions/upload-artifact@v6
             with:
                 name: ${{ github.run_id }}-all-contracts
                 path: ./all-contracts
@@ -527,7 +527,7 @@ jobs:
             # FIXME: remove me after CI image gets nonroot
             chown -R nonroot:nonroot ./crate-docs
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: ${{ github.job }}-data
           path: ./crate-docs
@@ -755,7 +755,7 @@ jobs:
               'scripts/build_and_determine_contract_size.sh $manifest_path >> $CONTRACT_SIZE_FILE$example'
             sed -ie 's/^integration-tests\/\(public\/\|internal\/\)\?//' ${CONTRACT_SIZE_FILE}*
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
             path: ./measurements-${{ env.MEASUREMENTS_ID }}/*
             name: ${{ github.run_id }}_artifact
@@ -782,7 +782,7 @@ jobs:
             sort | uniq > measurements-${{ env.MEASUREMENTS_ID }}
             cat measurements-${{ env.MEASUREMENTS_ID }}
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
             name: measurements-${{ env.MEASUREMENTS_ID }}
             path: ./measurements-${{ env.MEASUREMENTS_ID }}
@@ -843,7 +843,7 @@ jobs:
                       --ignore solidity-abi/trait-dyn-cross-contract-calls/contracts/incrementer -- \
                       .github/scripts/output-contract-sizes.sh {}
 
-          - uses: actions/upload-artifact@v5
+          - uses: actions/upload-artifact@v6
             with:
                 path: ./measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}/*
                 name: ${{ github.run_id }}_${{ matrix.type }}_abi_artifact
@@ -874,7 +874,7 @@ jobs:
                 sort | uniq > measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}
                 cat measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}
 
-          - uses: actions/upload-artifact@v5
+          - uses: actions/upload-artifact@v6
             with:
                 name: measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}
                 path: ./measurements-${{ matrix.type }}-abi-${{ env.MEASUREMENTS_ID }}
