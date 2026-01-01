@@ -58,7 +58,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Load outputs
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: outputs
           path: outputs
