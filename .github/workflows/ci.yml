@@ -144,7 +144,7 @@ jobs:
             cargo +nightly fmt --all -- --check ./crates/ink/tests/ui/trait_def/{pass,fail}/*.rs
 
       - name: Download all-contracts artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
             name: ${{ github.run_id }}-all-contracts
 
@@ -229,7 +229,7 @@ jobs:
           cache-key: ${{ matrix.type }}
 
       - name: Download all-contracts artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
             name: ${{ github.run_id }}-all-contracts
 
@@ -603,7 +603,7 @@ jobs:
           # cache-key: ${{ matrix.partition }}
 
       - name: Download all-contracts artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
             name: ${{ github.run_id }}-all-contracts
 
@@ -736,7 +736,7 @@ jobs:
         id: extract_branch
 
       - name: Download all-contracts artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
             name: ${{ github.run_id }}-all-contracts
 
@@ -766,7 +766,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download reports' artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
             path: downloaded_artifacts
 
@@ -814,7 +814,7 @@ jobs:
             id: extract_branch
 
           - name: Download all-contracts artifacts
-            uses: actions/download-artifact@v6
+            uses: actions/download-artifact@v7
             with:
                 name: ${{ github.run_id }}-all-contracts
 
@@ -858,7 +858,7 @@ jobs:
               type: [ sol, all ]
       steps:
           - name: Download reports' artifacts
-            uses: actions/download-artifact@v6
+            uses: actions/download-artifact@v7
             with:
                 path: downloaded_artifacts
 
@@ -896,7 +896,7 @@ jobs:
           cache-directories: ${{ github.workspace }}/${{ env.CARGO_TARGET_DIR }}
 
       - name: Download all-contracts artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
             name: ${{ github.run_id }}-all-contracts
 
