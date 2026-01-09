@@ -85,7 +85,7 @@ pub struct ContractResult<R, Balance> {
     /// [`Self::result`] is `Err`. This is because on error all storage changes are
     /// rolled back including the payment of the deposit.
     pub storage_deposit: StorageDeposit<Balance>,
-    /// The maximal storage deposit amount that occured at any time during the execution.
+    /// The maximal storage deposit amount that occurred at any time during the execution.
     /// This can be higher than the final storage_deposit due to refunds
     /// This is always a StorageDeposit::Charge(..)
     pub max_storage_deposit: StorageDeposit<Balance>,

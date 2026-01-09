@@ -131,7 +131,7 @@ pub fn base_fee() -> U256 {
     <EnvInstance as OnInstance>::on_instance(TypedEnvBackend::base_fee)
 }
 
-/// Returns the origin address (initator of the call stack).
+/// Returns the origin address (initiator of the call stack).
 /// This is akin to the EVM [ORIGIN](https://www.evm.codes/?fork=cancun#32) opcode.
 ///
 /// # Errors
