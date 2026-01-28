@@ -1,3 +1,10 @@
+> [!CAUTION]
+> Since January 2026, we are unfortunately unable to actively maintain or develop ink! further.
+> 
+> This is very sad to us and we've written down the details in [a Polkadot Forum post](https://forum.polkadot.network/t/discontinuation-of-ink-rust-smart-contract-language/16849).
+>
+> We've locked down the creation of issues and pull requests.
+ 
 <div align="center">
     <img src="https://raw.githubusercontent.com/use-ink/ink/master/.images/ink-logo-glow.svg" alt="ink!" height="136" />
 <h1 align="center">
