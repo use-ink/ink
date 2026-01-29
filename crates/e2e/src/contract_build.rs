@@ -32,6 +32,7 @@ use crate::log_info;
 use contract_build::{
     BuildArtifacts,
     BuildMode,
+    ComposeBuildArgs,
     ExecuteArgs,
     Features,
     ImageVariant,
@@ -221,6 +222,14 @@ fn add_features_to_filename(
     path_with_features
 }
 
+// We can mock this as it's just meant to be used in e2e tests.
+struct MockComposeBuildArgs;
+impl ComposeBuildArgs for MockComposeBuildArgs {
+    fn compose_build_args() -> Result<Vec<String>> {
+        Ok(Vec::new())
+    }
+}
+
 /// Builds the contract at `manifest_path`, returns the path to the contract
 /// PolkaVM build artifact.
 fn build_contract(
@@ -247,7 +256,7 @@ fn build_contract(
         target_dir: Some(target_dir),
     };
 
-    match contract_build::execute(args) {
+    match contract_build::execute::<MockComposeBuildArgs>(args) {
         Ok(build_result) => {
             build_result
                 .dest_binary
