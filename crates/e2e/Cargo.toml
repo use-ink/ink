@@ -1,6 +1,6 @@
 [package]
 name = "ink_e2e"
-version.workspace = true
+version = "6.0.0-beta.2"
 authors.workspace = true
 edition.workspace = true
 
@@ -44,6 +44,7 @@ sp-runtime = { workspace = true }
 sp-weights = { workspace = true }
 regex = "1.11.2"
 itertools = "0.14.0"
+anyhow = "1.0.100"
 
 [dev-dependencies]
 # Required for the doctest of `MessageBuilder::call`

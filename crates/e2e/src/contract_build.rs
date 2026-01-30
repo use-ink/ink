@@ -225,7 +225,7 @@ fn add_features_to_filename(
 // We can mock this as it's just meant to be used in e2e tests.
 struct MockComposeBuildArgs;
 impl ComposeBuildArgs for MockComposeBuildArgs {
-    fn compose_build_args() -> Result<Vec<String>> {
+    fn compose_build_args() -> anyhow::Result<Vec<String>> {
         Ok(Vec::new())
     }
 }
