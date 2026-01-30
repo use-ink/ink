@@ -4,6 +4,7 @@ use ink::{
     Address,
     U256,
     prelude::vec::Vec,
+    ensure,
 };
 
 // This is the return value that we expect if a smart contract supports receiving ERC-1155
@@ -48,16 +49,7 @@ pub enum Error {
 // The ERC-1155 result types.
 pub type Result<T> = core::result::Result<T, Error>;
 
-/// Evaluate `$x:expr` and if not true return `Err($y:expr)`.
-///
-/// Used as `ensure!(expression_to_ensure, expression_to_return_on_false)`.
-macro_rules! ensure {
-    ( $condition:expr, $error:expr $(,)? ) => {{
-        if !$condition {
-            return ::core::result::Result::Err(::core::convert::Into::into($error))
-        }
-    }};
-}
+
 
 /// The interface for an ERC-1155 compliant contract.
 ///

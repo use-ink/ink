@@ -41,7 +41,7 @@
 
 #[ink::contract]
 mod payment_channel {
-    use ink::U256;
+    use ink::{U256, ensure};
 
     /// Struct for storing the payment channel details.
     /// The creator of the contract, i.e. the `sender`, can deposit funds to the payment
@@ -126,18 +126,11 @@ mod payment_channel {
 
         /// We split this out in order to make testing `close` simpler.
         fn close_inner(&mut self, amount: U256, signature: [u8; 65]) -> Result<()> {
-            if self.env().caller() != self.recipient {
-                return Err(Error::CallerIsNotRecipient)
-            }
-
-            if amount < self.withdrawn {
-                return Err(Error::AmountIsLessThanWithdrawn)
-            }
+            ensure!(self.env().caller() == self.recipient, Error::CallerIsNotRecipient);
+            ensure!(amount >= self.withdrawn, Error::AmountIsLessThanWithdrawn);
 
             // Signature validation
-            if !self.is_signature_valid(amount, signature) {
-                return Err(Error::InvalidSignature)
-            }
+            ensure!(self.is_signature_valid(amount, signature), Error::InvalidSignature);
 
             // We checked that amount >= self.withdrawn
             #[allow(clippy::arithmetic_side_effects)]
@@ -155,9 +148,7 @@ mod payment_channel {
         /// listen to in order to withdraw the funds before the `expiration`.
         #[ink(message)]
         pub fn start_sender_close(&mut self) -> Result<()> {
-            if self.env().caller() != self.sender {
-                return Err(Error::CallerIsNotSender)
-            }
+            ensure!(self.env().caller() == self.sender, Error::CallerIsNotSender);
 
             let now = self.env().block_timestamp();
             let expiration = now.checked_add(self.close_duration).unwrap();
@@ -182,10 +173,7 @@ mod payment_channel {
                     // expiration is set. Check if it's reached and if so, release the
                     // funds and terminate the contract.
                     let now = self.env().block_timestamp();
-                    if now < expiration {
-                        return Err(Error::NotYetExpired)
-                    }
-
+                    ensure!(now >= expiration, Error::NotYetExpired);
                     self.env().terminate_contract(self.sender);
                 }
 
@@ -196,19 +184,11 @@ mod payment_channel {
         /// The `recipient` can withdraw the funds from the channel at any time.
         #[ink(message)]
         pub fn withdraw(&mut self, amount: U256, signature: [u8; 65]) -> Result<()> {
-            if self.env().caller() != self.recipient {
-                return Err(Error::CallerIsNotRecipient)
-            }
-
-            // Signature validation
-            if !self.is_signature_valid(amount, signature) {
-                return Err(Error::InvalidSignature)
-            }
+            ensure!(self.env().caller() == self.recipient, Error::CallerIsNotRecipient);    
+            ensure!(self.is_signature_valid(amount, signature), Error::InvalidSignature);
 
             // Make sure there's something to withdraw (guards against underflow)
-            if amount < self.withdrawn {
-                return Err(Error::AmountIsLessThanWithdrawn)
-            }
+            ensure!(amount >= self.withdrawn, Error::AmountIsLessThanWithdrawn);
 
             // We checked that amount >= self.withdrawn
             #[allow(clippy::arithmetic_side_effects)]

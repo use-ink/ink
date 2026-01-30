@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [Unreleased]
 
 ### Added
+- Implement `ensure!` macro similar to `frame_support::ensure!` for convenient error checking in ink! contracts - [#2747](https://github.com/use-ink/ink/issues/2747)
 - Implements the API for the `pallet-revive` host functions `chain_id`, `balance_of`, `base_fee`, `origin`, `code_size`, `block_hash`, `block_author` - [#2719](https://github.com/use-ink/ink/pull/2719)
 - Implement `From<ink::Address>` for "ink-as-dependency" contract refs - [#2728](https://github.com/use-ink/ink/pull/2728)
 
