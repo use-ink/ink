@@ -674,7 +674,9 @@ where
                 storage_deposit: to_revive_storage_deposit(
                     result.storage_deposit.clone(),
                 ),
-                max_storage_deposit: to_revive_storage_deposit(result.max_storage_deposit),
+                max_storage_deposit: to_revive_storage_deposit(
+                    result.max_storage_deposit,
+                ),
                 gas_consumed: result.gas_consumed,
                 result: result
                     .result
