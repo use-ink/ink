@@ -12,19 +12,19 @@ homepage.workspace = true
 [dependencies]
 sha3 = "0.10.8"
 frame-metadata = { workspace = true }
-frame-system = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
-frame-support = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
-pallet-assets = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
-pallet-assets-precompiles = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
-pallet-balances = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
-pallet-transaction-payment = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
-pallet-revive = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false }
-pallet-timestamp = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false  }
+frame-system = { version = "44.0.0", default-features = false }
+frame-support = { version = "44.0.0", default-features = false }
+pallet-assets = { version = "47.0.0", default-features = false }
+pallet-assets-precompiles = { version = "0.3.0", default-features = false }
+pallet-balances = { version = "45.0.0", default-features = false }
+pallet-transaction-payment = { version = "44.0.0", default-features = false }
+pallet-revive = { version = "0.11.0", default-features = false }
+pallet-timestamp = { version = "43.0.0", default-features = false }
 scale = { workspace = true }
-sp-core = { workspace = true, default-features = false }
-sp-externalities = { git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false  }
-sp-runtime = { version = "43.0.0", default-features = false  }
-sp-io = {  git = "https://github.com/use-ink/polkadot-sdk.git", rev = "cbab8ed4be1941420dd25dc81102fb79d8e2a7f0", default-features = false  }
+sp-core = { version = "38.0.1", workspace = true, default-features = false }
+sp-externalities = { version = "0.30.0", default-features = false }
+sp-runtime = { version = "43.0.0", default-features = false }
+sp-io = { version = "42.0.0", default-features = false }
 
 ink_primitives = { workspace = true }
 ink_revive_types = { workspace = true }

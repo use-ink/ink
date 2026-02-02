@@ -85,16 +85,16 @@ const-hex = { version = "1.17.0", default-features = false }
 
 # Substrate dependencies
 frame-metadata = { version = "23.0.0", default-features = false }
-frame-system = { version = "42.0.0", default-features = false }
-frame-support = { version = "42.0.0", default-features = false }
+frame-system = { version = "44.0.0", default-features = false }
+frame-support = { version = "44.0.0", default-features = false }
 
-pallet-revive-uapi = { version = "0.8.0", default-features = false, features = ["unstable-hostfn"] }
+pallet-revive-uapi = { version = "0.9.0", default-features = false, features = ["unstable-hostfn"] }
 
-sp-core = { version = "38.0.0", default-features = false }
+sp-core = { version = "38.0.1", default-features = false }
 sp-keyring = { version = "43.0.0", default-features = false }
 sp-runtime = { version = "43.0.0" }
 sp-weights = { version = "33.0.0", default-features = false }
-xcm = { package = "staging-xcm", version = "18.0.0", default-features = false }
+xcm = { version = "20.0.0", package = "staging-xcm", default-features = false }
 
 # PolkaVM dependencies
 polkavm-derive = { version = "0.30.0", default-features = false }

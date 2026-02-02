@@ -24,6 +24,7 @@ use pallet_revive::{
     Code,
     CodeUploadResult,
     ExecConfig,
+    TransactionLimits,
     evm::{
         Tracer,
         TracerType,
@@ -209,16 +210,14 @@ where
             pallet_revive::Pallet::<Self::T>::bare_instantiate(
                 origin,
                 balance_to_evm_value::<Self::T>(value),
-                gas_limit,
-                storage_deposit_limit,
+                TransactionLimits::WeightAndDeposit {
+                    weight_limit: gas_limit,
+                    deposit_limit: storage_deposit_limit,
+                },
                 Code::Upload(contract_bytes),
                 data,
                 salt,
-                ExecConfig {
-                    bump_nonce: true,
-                    collect_deposit_from_hold: None,
-                    effective_gas_price: None,
-                },
+                ExecConfig::new_substrate_tx(),
             )
         })
     }
@@ -237,16 +236,14 @@ where
             pallet_revive::Pallet::<Self::T>::bare_instantiate(
                 origin,
                 balance_to_evm_value::<Self::T>(value),
-                gas_limit,
-                storage_deposit_limit,
+                TransactionLimits::WeightAndDeposit {
+                    weight_limit: gas_limit,
+                    deposit_limit: storage_deposit_limit,
+                },
                 Code::Existing(code_hash),
                 data,
                 salt,
-                ExecConfig {
-                    bump_nonce: true,
-                    collect_deposit_from_hold: None,
-                    effective_gas_price: None,
-                },
+                ExecConfig::new_substrate_tx(),
             )
         })
     }
@@ -280,14 +277,12 @@ where
                 origin,
                 address,
                 balance_to_evm_value::<Self::T>(value),
-                gas_limit,
-                storage_deposit_limit,
-                data,
-                ExecConfig {
-                    bump_nonce: true,
-                    collect_deposit_from_hold: None,
-                    effective_gas_price: None,
+                TransactionLimits::WeightAndDeposit {
+                    weight_limit: gas_limit,
+                    deposit_limit: storage_deposit_limit,
                 },
+                data,
+                ExecConfig::new_substrate_tx(),
             )
         })
     }
