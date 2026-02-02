@@ -95,6 +95,56 @@ pub struct ContractResult<R, Balance> {
     pub result: Result<R, DispatchError>,
 }
 
+#[derive(Debug, Clone, Eq, PartialEq, Decode)]
+struct ContractResultNoGas<R, Balance> {
+    pub weight_consumed: Weight,
+    pub weight_required: Weight,
+    pub storage_deposit: StorageDeposit<Balance>,
+    pub max_storage_deposit: StorageDeposit<Balance>,
+    pub result: Result<R, DispatchError>,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Decode)]
+struct ContractResultLegacy<R, Balance> {
+    pub weight_consumed: Weight,
+    pub weight_required: Weight,
+    pub storage_deposit: StorageDeposit<Balance>,
+    pub result: Result<R, DispatchError>,
+}
+
+impl<R, Balance> ContractResult<R, Balance>
+where
+    R: Decode,
+    Balance: Decode + Default + Clone,
+{
+    pub fn decode_compat(bytes: &[u8]) -> Result<Self, scale::Error> {
+        if let Ok(result) = ContractResult::<R, Balance>::decode(&mut &bytes[..]) {
+            return Ok(result);
+        }
+
+        if let Ok(result) = ContractResultNoGas::<R, Balance>::decode(&mut &bytes[..]) {
+            return Ok(ContractResult {
+                weight_consumed: result.weight_consumed,
+                weight_required: result.weight_required,
+                storage_deposit: result.storage_deposit.clone(),
+                max_storage_deposit: result.max_storage_deposit,
+                gas_consumed: Balance::default(),
+                result: result.result,
+            });
+        }
+
+        let result = ContractResultLegacy::<R, Balance>::decode(&mut &bytes[..])?;
+        Ok(ContractResult {
+            weight_consumed: result.weight_consumed,
+            weight_required: result.weight_required,
+            storage_deposit: result.storage_deposit.clone(),
+            max_storage_deposit: result.storage_deposit,
+            gas_consumed: Balance::default(),
+            result: result.result,
+        })
+    }
+}
+
 /// Alias for the contract exec result.
 pub type ContractExecResultFor<E> =
     ContractResult<ExecReturnValue, <E as Environment>::Balance>;

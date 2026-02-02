@@ -335,7 +335,7 @@ mod construct_runtime {
         type RuntimeEvent = RuntimeEvent;
         type OnChargeTransaction = FungibleAdapter<Balances, ()>;
         type OperationalFeeMultiplier = ConstU8<5>;
-        type WeightToFee = $crate::pallet_revive::evm::fees::BlockRatioFee<1, 1, Self>;
+        type WeightToFee = $crate::pallet_revive::evm::fees::BlockRatioFee<1, 1, Self, Balance>;
         type LengthToFee = IdentityFee<Balance>;
         type FeeMultiplierUpdate = ();
         type WeightInfo = $crate::pallet_transaction_payment::weights::SubstrateWeight<$runtime>;
@@ -392,6 +392,7 @@ mod construct_runtime {
         type AllowEVMBytecode = ConstBool<false>;
         type FeeInfo = ();
         type MaxEthExtrinsicWeight = MaxEthExtrinsicWeight;
+        type GasScale = ConstU32<100_000>;
         type DebugEnabled = ConstBool<false>;
     }
 

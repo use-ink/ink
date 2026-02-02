@@ -1013,7 +1013,7 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn gas_left(&mut self) -> u64 {
-        ext::ref_time_left()
+        ext::gas_left()
     }
 
     fn call_data_size(&mut self) -> u64 {
@@ -1367,9 +1367,8 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn weight_to_fee(&mut self, gas: u64) -> U256 {
-        let mut u256 = [0u8; 32];
-        ext::weight_to_fee(gas, gas, &mut u256);
-        U256::from_le_bytes(u256)
+        let gas_price = U256::from(ext::gas_price());
+        U256::from(gas).saturating_mul(gas_price)
     }
 
     fn is_contract(&mut self, addr: &Address) -> bool {

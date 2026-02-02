@@ -239,6 +239,9 @@ fn to_revive_call_type(
         }
         pallet_revive::evm::CallType::Create => ink_revive_types::evm::CallType::Create,
         pallet_revive::evm::CallType::Create2 => ink_revive_types::evm::CallType::Create2,
+        pallet_revive::evm::CallType::Selfdestruct => {
+            ink_revive_types::evm::CallType::Selfdestruct
+        }
     }
 }
 

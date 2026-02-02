@@ -294,7 +294,7 @@ where
             .unwrap_or_else(|err| {
                 panic!("error on ws request `revive_instantiate`: {err:?}");
             });
-        scale::Decode::decode(&mut bytes.as_ref()).unwrap_or_else(|err| {
+        ContractInstantiateResultFor::<E>::decode_compat(&bytes).unwrap_or_else(|err| {
             panic!("decoding `ContractInstantiateResult` failed: {err}")
         })
     }
@@ -636,7 +636,7 @@ where
                 panic!("error on ws request `ReviveApi_call`: {err:?}");
             });
         let dry_run_result: ContractExecResultFor<E> =
-            scale::Decode::decode(&mut bytes.as_ref()).unwrap_or_else(|err| {
+            ContractExecResultFor::<E>::decode_compat(&bytes).unwrap_or_else(|err| {
                 panic!("decoding `ContractExecResult` failed: {err}")
             });
 
