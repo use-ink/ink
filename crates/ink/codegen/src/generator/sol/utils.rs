@@ -15,7 +15,6 @@
 use ir::{
     Callable,
     InputsIter,
-    IsDocAttribute,
     Message,
 };
 use proc_macro2::TokenStream as TokenStream2;
@@ -24,10 +23,14 @@ use quote::{
     quote_spanned,
 };
 use syn::{
-    Attribute,
     Type,
     spanned::Spanned,
 };
+
+#[cfg(any(ink_abi = "sol", ink_abi = "all"))]
+use ir::IsDocAttribute;
+#[cfg(any(ink_abi = "sol", ink_abi = "all"))]
+use syn::Attribute;
 
 /// Returns the equivalent Solidity ABI type for the given Rust/ink! type.
 pub fn sol_type(ty: &Type) -> TokenStream2 {
@@ -43,6 +46,7 @@ pub fn sol_type(ty: &Type) -> TokenStream2 {
 /// Use this function (instead of [`sol_type`]) when return type may be `Result<T, E>`,
 /// because `Result<T, E>` doesn't implement `ink::SolEncode` nor `ink::SolDecode`,
 /// but instead implements `ink::sol::SolResultEncode` and `ink::sol::SolResultDecode`.
+#[cfg(any(ink_abi = "sol", ink_abi = "all"))]
 pub fn sol_return_type(ty: &Type) -> TokenStream2 {
     quote! {
         <#ty as ::ink::sol::SolResultEncode>::SOL_NAME
@@ -99,6 +103,7 @@ pub fn call_signature(name: String, inputs: InputsIter) -> TokenStream2 {
 }
 
 /// Returns the rustdoc string from the given item attributes.
+#[cfg(any(ink_abi = "sol", ink_abi = "all"))]
 pub fn extract_docs(attrs: &[Attribute]) -> String {
     attrs
         .iter()

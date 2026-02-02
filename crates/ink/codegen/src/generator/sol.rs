@@ -14,5 +14,6 @@
 
 //! Abstractions and utilities for Solidity ABI compatible codegen.
 
+#[cfg(any(ink_abi = "sol", ink_abi = "all"))]
 pub mod metadata;
 pub mod utils;
