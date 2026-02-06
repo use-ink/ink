@@ -648,6 +648,7 @@ fn decode_bytes(input: &[u8], out: &mut [u8]) -> usize {
 }
 
 const STORAGE_FLAGS: StorageFlags = StorageFlags::empty();
+const TRANSIENT_STORAGE_FLAGS: StorageFlags = StorageFlags::TRANSIENT;
 
 impl EnvBackend for EnvInstance {
     fn set_contract_storage<K, V>(&mut self, key: &K, value: &V) -> Option<u32>
@@ -1075,6 +1076,42 @@ impl TypedEnvBackend for EnvInstance {
         let mut h160 = [0u8; 20];
         ext::block_author(&mut h160);
         h160.into()
+    }
+
+    fn call_data_load(&mut self, offset: u32) -> U256 {
+        let mut scope = self.scoped_buffer();
+        let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();
+
+        ext::call_data_load(u256, offset);
+        U256::from_le_bytes(*u256)
+    }
+
+    fn set_storage(&mut self, key: U256, value: &[u8; 32]) -> Option<u32> {
+        let mut scope = self.scoped_buffer();
+        let key: &mut [u8; 32] = scope.take_encoded(&key).try_into().unwrap();
+        ext::set_storage_or_clear(STORAGE_FLAGS, key, value)
+    }
+
+    fn set_transient_storage(&mut self, key: U256, value: &[u8; 32]) -> Option<u32> {
+        let mut scope = self.scoped_buffer();
+        let key: &mut [u8; 32] = scope.take_encoded(&key).try_into().unwrap();
+        ext::set_storage_or_clear(TRANSIENT_STORAGE_FLAGS, key, value)
+    }
+
+    fn get_storage(&mut self, key: U256) -> [u8; 32] {
+        let mut scope = self.scoped_buffer();
+        let key: &mut [u8; 32] = scope.take_encoded(&key).try_into().unwrap();
+        let value: &mut [u8; 32] = scope.take(32).try_into().unwrap();
+        ext::get_storage_or_zero(STORAGE_FLAGS, key, value);
+        *value
+    }
+
+    fn get_transient_storage(&mut self, key: U256) -> [u8; 32] {
+        let mut scope = self.scoped_buffer();
+        let key: &mut [u8; 32] = scope.take_encoded(&key).try_into().unwrap();
+        let value: &mut [u8; 32] = scope.take(32).try_into().unwrap();
+        ext::get_storage_or_zero(TRANSIENT_STORAGE_FLAGS, key, value);
+        *value
     }
 
     fn transferred_value(&mut self) -> U256 {
