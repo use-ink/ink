@@ -202,6 +202,25 @@ pub trait SolEncode<'a> {
         <Self::SolType as SolTopicEncode>::encode_topic(&self.to_sol_type(), hasher)
     }
 
+    /// Solidity ABI encode the value as a topic (i.e. an indexed event parameter) into
+    /// the given output buffer, while using the other buffer for internal dynamic
+    /// encoding (if necessary).
+    ///
+    /// # Panics
+    ///
+    /// Panics if the buffer is not large enough.
+    fn encode_topic_to<H>(&'a self, hasher: H, output: &mut [u8; 32], buffer: &mut [u8])
+    where
+        H: Fn(&[u8], &mut [u8; 32]),
+    {
+        <Self::SolType as SolTopicEncode>::encode_topic_to(
+            &self.to_sol_type(),
+            hasher,
+            output,
+            buffer,
+        )
+    }
+
     /// Converts from `Self` to `Self::SolType` via either a borrow (if possible), or
     /// a possibly expensive conversion otherwise.
     fn to_sol_type(&'a self) -> Self::SolType;

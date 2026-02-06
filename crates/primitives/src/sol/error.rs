@@ -28,6 +28,10 @@ pub trait SolErrorDecode {
 pub trait SolErrorEncode {
     /// Solidity ABI encode the value into Solidity error data.
     fn encode(&self) -> Vec<u8>;
+
+    /// Solidity ABI encode the value into Solidity error data into the given buffer, and
+    /// returns the number of bytes written.
+    fn encode_to(&self, buffer: &mut [u8]) -> usize;
 }
 
 // Implements `SolErrorDecode` and `SolErrorEncode` for unit (i.e. `()`).
@@ -46,6 +50,10 @@ impl SolErrorEncode for () {
     fn encode(&self) -> Vec<u8> {
         Vec::new()
     }
+
+    fn encode_to(&self, _buffer: &mut [u8]) -> usize {
+        0
+    }
 }
 
 // Implements `SolErrorEncode` for reference types.
@@ -55,6 +63,10 @@ macro_rules! impl_refs_error_encode {
             impl<T: SolErrorEncode> SolErrorEncode for $ty {
                 fn encode(&self) -> Vec<u8> {
                     T::encode(self)
+                }
+
+                fn encode_to(&self, buffer: &mut [u8]) -> usize {
+                    T::encode_to(self, buffer)
                 }
             }
         )*

@@ -916,14 +916,32 @@ fn event_topic_works() {
             test_case!($ty, $val, $sol_ty, $val)
         };
         ($ty: ty, $val: expr, $sol_ty: ty, $sol_val: expr) => {
-            // `SolTopicEncode` test.
+            // `SolTopicEncode::encode_topic` test.
             let encoded = <$ty as SolTopicEncode>::encode_topic(&$val, hasher);
             let encoded_alloy = <$sol_ty as EventTopic>::encode_topic(&$sol_val);
             assert_eq!(encoded, encoded_alloy.0);
 
-            // `SolEncode` test.
+            // `SolTopicEncode::encode_topic_to` test.
+            let len = <$ty as SolTopicEncode>::topic_preimage_size(&$val);
+            let mut output = [0u8; 32];
+            let mut buffer = vec![0u8; len];
+            <$ty as SolTopicEncode>::encode_topic_to(
+                &$val,
+                hasher,
+                &mut output,
+                &mut buffer,
+            );
+            assert_eq!(output, encoded_alloy.0);
+
+            // `SolEncode::encode_topic` test.
             let encoded = <$ty as SolEncode>::encode_topic(&$val, hasher);
             assert_eq!(encoded, encoded_alloy.0);
+
+            // `SolEncode::encode_topic_to` test.
+            let mut output = [0u8; 32];
+            let mut buffer = vec![0u8; len];
+            <$ty as SolEncode>::encode_topic_to(&$val, hasher, &mut output, &mut buffer);
+            assert_eq!(output, encoded_alloy.0);
         };
     }
 

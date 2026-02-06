@@ -275,8 +275,6 @@ where
 }
 
 impl TopicEncoder for Ink {
-    const REQUIRES_BUFFER: bool = false;
-
     fn encode_topic<T>(value: &T) -> [u8; 32]
     where
         T: AbiEncodeWith<Self>,
@@ -284,7 +282,7 @@ impl TopicEncoder for Ink {
         value.encode_topic(<Blake2x256 as CryptoHash>::hash)
     }
 
-    fn encode_topic_with_hash_buffer<T>(
+    fn encode_topic_with_buffers<T>(
         _value: &T,
         _output: &mut [u8; 32],
         _buffer: &mut [u8],
@@ -296,8 +294,6 @@ impl TopicEncoder for Ink {
 }
 
 impl TopicEncoder for Sol {
-    const REQUIRES_BUFFER: bool = false;
-
     fn encode_topic<T>(value: &T) -> [u8; 32]
     where
         T: AbiEncodeWith<Self>,
@@ -305,7 +301,7 @@ impl TopicEncoder for Sol {
         value.encode_topic(<Keccak256 as CryptoHash>::hash)
     }
 
-    fn encode_topic_with_hash_buffer<T>(
+    fn encode_topic_with_buffers<T>(
         _value: &T,
         _output: &mut [u8; 32],
         _buffer: &mut [u8],

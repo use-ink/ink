@@ -36,6 +36,10 @@ pub trait SolResultEncode<'a> {
 
     /// Solidity ABI encode this type as return data.
     fn encode(&'a self) -> Vec<u8>;
+
+    /// Solidity ABI encode this type as return data into the given buffer, and returns
+    /// the number of bytes written.
+    fn encode_to(&'a self, buffer: &mut [u8]) -> usize;
 }
 
 impl<'a, T> SolResultEncode<'a> for T
@@ -46,6 +50,10 @@ where
 
     fn encode(&'a self) -> Vec<u8> {
         T::encode(self)
+    }
+
+    fn encode_to(&'a self, buffer: &mut [u8]) -> usize {
+        T::encode_to(self, buffer)
     }
 }
 
@@ -60,6 +68,13 @@ where
         match self {
             Ok(val) => val.encode(),
             Err(err) => err.encode(),
+        }
+    }
+
+    fn encode_to(&'a self, buffer: &mut [u8]) -> usize {
+        match self {
+            Ok(val) => val.encode_to(buffer),
+            Err(err) => err.encode_to(buffer),
         }
     }
 }
