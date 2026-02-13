@@ -23,7 +23,6 @@ mod call_builder {
     };
 
     #[ink(storage)]
-    #[derive(Default)]
     pub struct CallBuilderReturnValue {
         /// Since we're going to `DelegateCall` into the `incrementer` contract, we need
         /// to make sure our storage layout matches.
