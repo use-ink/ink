@@ -25,7 +25,7 @@ You can find our code of conduct [here](CODE_OF_CONDUCT.adoc).
 
 ## During Development
 
-### Commits
+### Commits.
 
 Don't be afraid to have a bunch of commits while working on a pull-request. We end up
 squashing all of them before merging to the `master` branch anyways.
