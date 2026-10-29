@@ -8,7 +8,8 @@ env:
 
 jobs:
   contract-sizes:
-    if: ${{ github.event_name == 'pull_request' }}
+    # Comparing v5 contracts with master (v6) does not give a useful size baseline.
+    if: ${{ github.event_name == 'pull_request' && github.base_ref == 'master' }}
     runs-on: ubuntu-latest
     defaults:
       run:

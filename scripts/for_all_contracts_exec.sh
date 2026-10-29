@@ -37,7 +37,7 @@ EOF
 }
 
 # enable recursive globs
-shopt -s globstar
+shopt -s globstar nullglob
 
 command=( "${@:2}" )
 
@@ -108,17 +108,26 @@ for manifest_path in "$path"/**/Cargo.toml; do
     if [ "$quiet" = false ]; then
       >&2 echo "Ignoring $manifest_path"
     fi
-  elif ! "$scripts_path"/is_contract.sh "$manifest_path"; then
+  elif "$scripts_path"/is_contract.sh "$manifest_path"; then
+    filtered_manifests+=("$manifest_path")
+  else
+    status=$?
+    if [ "$status" -ne 1 ]; then
+      >&2 echo "Contract discovery failed: $manifest_path"
+      exit "$status"
+    fi
     if [ "$quiet" = false ]; then
       >&2 echo "Skipping non contract: $manifest_path"
     fi
-  else
-    filtered_manifests+=("$manifest_path")
   fi
 done
 
 # determine the total number of filtered Cargo.toml files
 total_manifests=${#filtered_manifests[@]}
+if [ "$total_manifests" -eq 0 ]; then
+    >&2 echo "No contracts found in $path"
+    exit 1
+fi
 if [ "$partitioning" = true ]; then
     # calculate the partition start and end index
     partition_size=$(( total_manifests / n ))
