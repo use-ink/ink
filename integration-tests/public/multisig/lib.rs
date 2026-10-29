@@ -275,7 +275,10 @@ mod multisig {
             let mut contract = Multisig::default();
             owners.sort_unstable();
             owners.dedup();
-            ensure_requirement_is_valid(owners.len() as u32, requirement);
+            ensure_requirement_is_valid(
+                u32::try_from(owners.len()).expect("Owner count exceeds u32"),
+                requirement,
+            );
 
             for owner in &owners {
                 contract.is_owner.insert(owner, &());
@@ -369,7 +372,10 @@ mod multisig {
             self.ensure_from_wallet();
             self.ensure_no_owner(&new_owner);
             ensure_requirement_is_valid(
-                (self.owners.len() as u32).checked_add(1).unwrap(),
+                u32::try_from(self.owners.len())
+                    .expect("Owner count exceeds u32")
+                    .checked_add(1)
+                    .unwrap(),
                 self.requirement,
             );
             self.is_owner.insert(new_owner, &());
@@ -392,10 +398,11 @@ mod multisig {
             self.ensure_owner(&owner);
             // If caller is an owner the len has to be > 0
             #[allow(clippy::arithmetic_side_effects)]
-            let len = self.owners.len() as u32 - 1;
+            let len =
+                u32::try_from(self.owners.len()).expect("Owner count exceeds u32") - 1;
             let requirement = u32::min(len, self.requirement);
             ensure_requirement_is_valid(len, requirement);
-            let owner_index = self.owner_index(&owner) as usize;
+            let owner_index = self.owner_index(&owner);
             self.owners.swap_remove(owner_index);
             self.is_owner.remove(owner);
             self.requirement = requirement;
@@ -416,7 +423,7 @@ mod multisig {
             self.ensure_owner(&old_owner);
             self.ensure_no_owner(&new_owner);
             let owner_index = self.owner_index(&old_owner);
-            self.owners[owner_index as usize] = new_owner;
+            self.owners[owner_index] = new_owner;
             self.is_owner.remove(old_owner);
             self.is_owner.insert(new_owner, &());
             self.clean_owner_confirmations(&old_owner);
@@ -434,7 +441,10 @@ mod multisig {
         #[ink(message)]
         pub fn change_requirement(&mut self, new_requirement: u32) {
             self.ensure_from_wallet();
-            ensure_requirement_is_valid(self.owners.len() as u32, new_requirement);
+            ensure_requirement_is_valid(
+                u32::try_from(self.owners.len()).expect("Owner count exceeds u32"),
+                new_requirement,
+            );
             self.requirement = new_requirement;
             self.env().emit_event(RequirementChange { new_requirement });
         }
@@ -652,11 +662,11 @@ mod multisig {
 
         /// Get the index of `owner` in `self.owners`.
         /// Panics if `owner` is not found in `self.owners`.
-        fn owner_index(&self, owner: &AccountId) -> u32 {
+        fn owner_index(&self, owner: &AccountId) -> usize {
             self.owners.iter().position(|x| *x == *owner).expect(
                 "This is only called after it was already verified that the id is
                  actually an owner.",
-            ) as u32
+            )
         }
 
         /// Remove the transaction identified by `trans_id` from `self.transactions`.
