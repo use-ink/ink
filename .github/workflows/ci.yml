@@ -271,12 +271,12 @@ jobs:
           # add required components for CI
           rustup component add rustfmt clippy
           rustup component add rust-src rustc-dev llvm-tools-preview
-          cargo check --verbose
+          cargo check --locked --verbose
           cargo +nightly fmt --all -- --check
-          cargo clippy -- -D warnings;
+          cargo clippy --locked -- -D warnings;
           # Needed until https://github.com/mozilla/sccache/issues/1000 is fixed.
           unset RUSTC_WRAPPER
-          cargo test --all-features
+          cargo test --all-features --locked
 
 ### workspace
 
@@ -374,7 +374,7 @@ jobs:
           # at the same time, hence we use this workaround.
           QUICKCHECK_TESTS:            0
         run: |
-          pushd linting && cargo nextest run --all-features --no-fail-fast --workspace && popd
+          pushd linting && cargo nextest run --all-features --no-fail-fast --workspace --locked && popd
 
   docs:
     runs-on: ubuntu-latest
