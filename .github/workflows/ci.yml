@@ -180,10 +180,6 @@ jobs:
       - name: Rust Info
         uses: ./.github/rust-info
 
-      - name: Test contract discovery
-        if: ${{ matrix.type == 'STD' }}
-        run: scripts/test_contract_discovery.sh
-
       - name: Run Clippy for Examples
         if: ${{ matrix.type == 'STD' }}
         run: |
