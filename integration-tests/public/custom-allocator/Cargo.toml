@@ -11,7 +11,8 @@ publish = false
 ink = { path = "../../../crates/ink", default-features = false, features = ["no-allocator"]  }
 
 # This is going to be our new global memory allocator.
-dlmalloc = {version = "0.2", default-features = false, features = ["global"] }
+# 0.2.14 uses const mutable references, which need a newer Rust than CI's 1.81.
+dlmalloc = {version = "=0.2.13", default-features = false, features = ["global"] }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }

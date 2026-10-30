@@ -142,7 +142,7 @@ mod runtime_call {
         /// The receiver will get enough funds to have the required existential deposit.
         ///
         /// If your chain has this threshold higher, increase the transfer value.
-        const TRANSFER_VALUE: Balance = 1 / 10 * UNIT;
+        const TRANSFER_VALUE: Balance = UNIT / 10;
 
         /// An amount that is below the existential deposit, so that a transfer to an
         /// empty account fails.

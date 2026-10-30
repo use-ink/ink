@@ -292,6 +292,9 @@ mod payment_channel {
             Pair,
         };
 
+        // Keep test balances above the existential deposit.
+        const UNIT: Balance = 1_000_000;
+
         fn default_accounts(
         ) -> ink::env::test::DefaultAccounts<ink::env::DefaultEnvironment> {
             ink::env::test::default_accounts::<ink::env::DefaultEnvironment>()
@@ -371,9 +374,9 @@ mod payment_channel {
         fn test_deposit() {
             // given
             let accounts = default_accounts();
-            let initial_balance = 10_000;
+            let initial_balance = 10_000 * UNIT;
             let close_duration = 360_000;
-            let mock_deposit_value = 1_000;
+            let mock_deposit_value = 1_000 * UNIT;
             set_account_balance(accounts.alice, initial_balance);
             set_account_balance(accounts.bob, initial_balance);
 
@@ -396,9 +399,9 @@ mod payment_channel {
             let accounts = default_accounts();
             let dan = get_dan();
             let close_duration = 360_000;
-            let mock_deposit_value = 1_000;
-            let amount = 500;
-            let initial_balance = 10_000;
+            let mock_deposit_value = 1_000 * UNIT;
+            let amount = 500 * UNIT;
+            let initial_balance = 10_000 * UNIT;
             set_account_balance(accounts.alice, initial_balance);
             set_account_balance(dan, initial_balance);
 
@@ -425,11 +428,11 @@ mod payment_channel {
             // given
             let accounts = default_accounts();
             let dan = get_dan();
-            let mock_deposit_value = 1_000;
+            let mock_deposit_value = 1_000 * UNIT;
             let close_duration = 360_000;
-            let amount = 400;
+            let amount = 400 * UNIT;
             let unexpected_amount = amount + 1;
-            let initial_balance = 10_000;
+            let initial_balance = 10_000 * UNIT;
             set_account_balance(accounts.alice, initial_balance);
             set_account_balance(dan, initial_balance);
 
@@ -452,10 +455,10 @@ mod payment_channel {
             // given
             let accounts = default_accounts();
             let dan = get_dan();
-            let initial_balance = 10_000;
-            let mock_deposit_value = 1_000;
+            let initial_balance = 10_000 * UNIT;
+            let mock_deposit_value = 1_000 * UNIT;
             let close_duration = 360_000;
-            let amount = 500;
+            let amount = 500 * UNIT;
             set_account_balance(accounts.alice, initial_balance);
             set_account_balance(dan, initial_balance);
 
@@ -481,11 +484,11 @@ mod payment_channel {
             // given
             let accounts = default_accounts();
             let dan = get_dan();
-            let initial_balance = 10_000;
+            let initial_balance = 10_000 * UNIT;
             let close_duration = 360_000;
-            let amount = 400;
+            let amount = 400 * UNIT;
             let unexpected_amount = amount + 1;
-            let mock_deposit_value = 1_000;
+            let mock_deposit_value = 1_000 * UNIT;
             set_account_balance(accounts.alice, initial_balance);
             set_account_balance(dan, initial_balance);
 
@@ -507,8 +510,8 @@ mod payment_channel {
         fn test_start_sender_close() {
             // given
             let accounts = default_accounts();
-            let initial_balance = 10_000;
-            let mock_deposit_value = 1_000;
+            let initial_balance = 10_000 * UNIT;
+            let mock_deposit_value = 1_000 * UNIT;
             let close_duration = 1;
             set_account_balance(accounts.alice, initial_balance);
             set_account_balance(accounts.bob, initial_balance);
@@ -533,9 +536,9 @@ mod payment_channel {
         fn test_claim_timeout() {
             // given
             let accounts = default_accounts();
-            let initial_balance = 10_000;
+            let initial_balance = 10_000 * UNIT;
             let close_duration = 1;
-            let mock_deposit_value = 1_000;
+            let mock_deposit_value = 1_000 * UNIT;
             set_account_balance(accounts.alice, initial_balance);
             set_account_balance(accounts.bob, initial_balance);
 
@@ -567,8 +570,8 @@ mod payment_channel {
         fn test_getters() {
             // given
             let accounts = default_accounts();
-            let initial_balance = 10_000;
-            let mock_deposit_value = 1_000;
+            let initial_balance = 10_000 * UNIT;
+            let mock_deposit_value = 1_000 * UNIT;
             let close_duration = 360_000;
             set_account_balance(accounts.alice, initial_balance);
             set_account_balance(accounts.bob, initial_balance);

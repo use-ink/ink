@@ -7,6 +7,8 @@ It is not part of the workspace because it needs a custom linker to be built.
 
 The lints are written against a fixed toolchain version because they are using unstable
 APIs. This is why we have [a toolchain file](./rust-toolchain.toml) here.
+The separate `Cargo.lock` keeps dependencies compatible with that compiler; use
+`--locked` when building or testing this workspace.
 
 This crate contains two libraries:
 * [`mandatory`](./mandatory) lints are integrated into the ink! smart contracts' build process, adding custom compilation errors to `cargo-build`.

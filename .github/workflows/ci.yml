@@ -169,6 +169,9 @@ jobs:
         with:
           fetch-depth: 100
 
+      - name: Prepare example dependencies
+        run: scripts/prepare_examples.sh
+
       - name: Cache
         uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
         with:
@@ -271,12 +274,12 @@ jobs:
           # add required components for CI
           rustup component add rustfmt clippy
           rustup component add rust-src rustc-dev llvm-tools-preview
-          cargo check --verbose
+          cargo check --locked --verbose
           cargo +nightly fmt --all -- --check
-          cargo clippy -- -D warnings;
+          cargo clippy --locked -- -D warnings;
           # Needed until https://github.com/mozilla/sccache/issues/1000 is fixed.
           unset RUSTC_WRAPPER
-          cargo test --all-features
+          cargo test --all-features --locked
 
 ### workspace
 
@@ -374,7 +377,7 @@ jobs:
           # at the same time, hence we use this workaround.
           QUICKCHECK_TESTS:            0
         run: |
-          pushd linting && cargo nextest run --all-features --no-fail-fast --workspace && popd
+          pushd linting && cargo nextest run --all-features --no-fail-fast --workspace --locked && popd
 
   docs:
     runs-on: ubuntu-latest
@@ -433,7 +436,7 @@ jobs:
       - name: Rust Info
         uses: ./.github/rust-info
 
-      - name: Codecov
+      - name: Generate coverage reports
         env:
           # For codecov it's sufficient to run the fuzz tests only once.
           QUICKCHECK_TESTS:              1
@@ -448,7 +451,6 @@ jobs:
           # The `cargo-taurpalin` coverage reporting tool seems to have better code instrumentation and thus
           # produces better results for Rust codebases in general. However, unlike `grcov` it requires
           # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
-          CODECOV_L_TOKEN:               ${{ secrets.CODECOV_L_TOKEN }}
         run: |
           # RUSTFLAGS are the cause target cache can't be used here
           # FIXME: rust-covfix doesn't support the external target dir
@@ -467,11 +469,29 @@ jobs:
           grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm --branch \
             --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
           rust-covfix lcov-w-branch.info --output lcov-w-branch-fixed.info
-          codecov --token "$CODECOV_L_TOKEN" --file lcov-w-branch-fixed.info --nonZero
           # lines coverage
           grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm \
             --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-lines.info
           rust-covfix lcov-lines.info --output lcov-lines-fixed.info
+
+      - name: Save coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            lcov-w-branch-fixed.info
+            lcov-lines-fixed.info
+          if-no-files-found: error
+
+      - name: Upload coverage to Codecov
+        env:
+          CODECOV_L_TOKEN: ${{ secrets.CODECOV_L_TOKEN }}
+        run: |
+          if [ -z "$CODECOV_L_TOKEN" ]; then
+            echo "::notice::Codecov token unavailable; coverage reports are saved as artifacts."
+            exit 0
+          fi
+          codecov --token "$CODECOV_L_TOKEN" --file lcov-w-branch-fixed.info --nonZero
           codecov --token "$CODECOV_L_TOKEN" --file lcov-lines-fixed.info --nonZero
 
 ### examples
@@ -495,6 +515,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 100
+
+      - name: Prepare example dependencies
+        run: scripts/prepare_examples.sh
 
       - name: Cache
         uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
@@ -524,6 +547,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 100
+
+      - name: Prepare example dependencies
+        run: scripts/prepare_examples.sh
 
       - name: Cache
         uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
@@ -586,6 +612,9 @@ jobs:
         with:
           fetch-depth: 100
 
+      - name: Prepare example dependencies
+        run: scripts/prepare_examples.sh
+
       - name: Cache
         uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
         with:
@@ -639,6 +668,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 100
+
+      - name: Prepare example dependencies
+        run: scripts/prepare_examples.sh
 
       - name: Cache
         uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
